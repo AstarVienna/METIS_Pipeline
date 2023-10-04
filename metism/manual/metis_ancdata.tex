@@ -1,0 +1,34 @@
+\section{Static Calibration Data}
+\label{sec:static-data}
+
+\red{\textit{Description of the different static data files needed (line
+    catalog for instance), including data classification and association
+    keywords (cf. example).}}
+
+\subsection{Line Catalog} 
+\label{sec:static-linecatalog}
+
+Frame Tag: \texttt{LINE\_CATALOG} \\
+Classification keywords: \texttt{PRO.CATG = LINE\_CATALOG} \\
+
+\begin{table}[ht]
+  \begin{center}
+    \begin{tabularx}{\linewidth}{|l|l|X|}
+    \hline
+    \textbf{Column Name} &
+    \textbf{Column Type} &
+    \textbf{Description} \\
+    \hline
+    \texttt{Lambda}  & float  & Line wavelength \units{nm} \\
+    \texttt{Flux}    & float  & Relative line flux \\
+    \texttt{Ion}     & string & Ion from which the line originates \\
+    \texttt{Quality} & int    & Quality flag (0: undetected line, 1: etc.) \\
+    \texttt{Comment} & string & Optional column for further remarks
+    \tbspb\\
+    \hline
+    \end{tabularx}
+    \label{tab:line-catalog}
+  \end{center}
+\end{table}
+
+An example is shown in \tabref{tab:line-catalog}.

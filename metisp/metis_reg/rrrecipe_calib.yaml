@@ -1,0 +1,25 @@
+# log default parameters
+PreExec:
+    - "esorex --man rrrecipe_calib"
+
+Defaults:
+# defaults that apply to all EsorexTests
+  EsorexTests:
+    recipe: rrrecipe_calib
+    result:
+      fitsdiff:
+
+
+EsorexTests:
+
+  - test1:
+      description: basic test run
+      sof:
+        - ["calib/caldata.fits", RRRECIPE_CALIB_DOCATG_RAW]
+      parameters:
+        stropt                : NONE
+        boolopt               : TRUE
+      
+fits_diff_tolerance_relative: 3.9e-1
+fits_diff_tolerance_absolute: 1.1e-2
+fits_diff_additional_keywords: ["QC*", "QC2*"]

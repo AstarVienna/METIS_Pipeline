@@ -1,0 +1,172 @@
+\subsection{Image Lists}
+Similar to CPL that provides \verb+cpl_imagelist+ to store collections
+of equally dimensioned \verb+cpl_image+ objects, HDRL provides an
+equivalent \verb+hdrl_imagelist+.  The API is again similar but, like
+with images, the simple arithmetic operations and collapse operations
+propagate errors according to the linear error propagation theory.  For
+details please refer to the reference.
+
+\subsubsection{Views}
+In addition to handling simple error propagation automatically
+\verb+hdrl_imagelist+ allows creating multiple views of the list which point to
+the same data buffers.
+These views can be used in any place regular \verb+hdrl_imagelist+ are used and
+they are also deleted with \verb+hdrl_imagelist_delete+ (in contrast to
+\verb+cpl_image+ views which must be deleted with \verb+cpl_image_unwrap+).
+Also, any \verb+hdrl_image+ extracted from a view can be deleted using \verb+hdrl_image_delete+.   
+
+Views allow applying operations on subsets of the imagelists without creating
+copies.
+This is especially useful when dealing with large swap or disk backed files.
+
+Due to technical limitations in CPL only currently views of full rows of images
+are available.
+
+\paragraph{Example}
+\begin{lstlisting}
+void process(hdrl_imagelist * list)
+{
+    hdrl_imagelist_add_scalar(list, 5. , 1.);
+    hdrl_imagelist_mul_scalar(list, 2., 0.);
+}
+
+void process_big_data(hdrl_imagelist * large_list)
+{
+    size_t ny = 100;
+    /* process the large list in chunks of several rows,
+       this can be very beneficial if the images contained in the
+       imagelist are allocated from a disk backed memory map as it
+       performs more operations per load */
+    for (size_t i = 0; i < ny; i += 10) {
+        /* create a view of the large imagelist only containing 10 rows */
+        hdrl_imagelist * view;
+        view = hdrl_imagelist_row_view(large_list, i, i + 10);
+        process(view);
+        hdrl_imagelist_delete(view);
+    }
+    /* now the full input imagelist has been processed */
+}
+\end{lstlisting}
+
+If the user has constraints on the amount of RAM that can be
+allocated, and need to chunk an imagelist, HDRL
+provides an iterator interface to row views of \verb+hdrl_imagelist+.
+
+\begin{lstlisting}
+/* create an iterator providing views containing blocksize rows
+   the iterator owns the view and will take care of deallocating
+   it on each iteration */
+hdrl_iter * it = hdrl_imagelist_get_iter_row_slices(himlist, blocksize,
+                                                    HDRL_ITER_OWN_OUTPUT);
+
+/* hdrl_iter_next returns a view on the data or NULL when its done */
+for (hdrl_imagelist * v = hdrl_iter_next(it);
+     v != NULL;
+     v = hdrl_iter_next(it)) {
+    process(v);
+}
+hdrl_iter_delete(it);
+\end{lstlisting}
+
+\subsubsection{Collapse Operations}
+\label{sec:imagelist:collapsing}
+
+Collapse operations like sum, mean or standard deviations can be
+performed with \verb+hdrl_imagelist+. For operations were the error
+propagation formula is well defined,
+the errors will be accounted for to determine the result.  In most cases a
+collapse operation only has one or two outputs, the result image and a
+integer contribution map counting how many values contributed to each
+pixel of the image. These collapse operations are called via
+\verb+hdrl_imagelist_collapse+:
+\begin{lstlisting}
+cpl_error_code hdrl_imagelist_collapse(
+        const hdrl_imagelist    *   himlist,
+        const hdrl_parameter    *   param,
+        hdrl_image              **  out,
+        cpl_image               **  contrib)
+\end{lstlisting}
+The \verb+out+ and \verb+contrib+ pointers are filled with allocated result
+images which must be deleted by the user when not required anymore.
+
+The parameter \verb+param+ is a \verb+hdrl_parameter+ who's type
+defines the exact collapse method which is applied.  Currently
+available are:
+\begin{itemize}
+\item \verb+hdrl_collapse_mean_parameter_create()+
+\item \verb+hdrl_collapse_median_parameter_create()+
+\item \verb+hdrl_collapse_weighted_mean_parameter_create()+
+\item \verb+hdrl_collapse_sigclip_parameter_create(kappalow, kappahigh, niter)+
+\item \verb+hdrl_collapse_minmax_parameter_create(nlow, nhigh)+
+\item \verb+hdrl_collapse_mode_parameter_create(histo_min, histo_max, bin_size,+\\
+\verb+mode_method, error_niter)+
+\end{itemize}
+
+Note that these parameters are dynamically allocated and must be deleted again.
+For convenience HDRL provides preallocated parameters for collapses which do
+not require any additional parameter. These can be used anywhere a regular
+parameter can be used and deletion with \verb+hdrl_parameter_delete+ has no
+effect on them:
+
+\begin{itemize}
+\item \verb+HDRL_COLLAPSE_MEAN+
+\item \verb+HDRL_COLLAPSE_MEDIAN+
+\item \verb+HDRL_COLLAPSE_WEIGHTED_MEAN+
+\end{itemize}
+
+
+The sigma clipping and minmax collapse method can additionally return
+the low and high rejection thresholds used to calculate the
+mean. These results can only be obtained with
+\verb+hdrl_imagelist_collapse_sigclip+ and
+\verb+hdrl_imagelist_collapse_minmax+ which takes two additional
+output pointer arguments which will be filled with the allocated
+results.
+
+\begin{lstlisting}
+cpl_error_code hdrl_imagelist_collapse_sigclip(
+        const hdrl_imagelist    *   himlist,
+        double                      kappa_low,
+        double                      kappa_high,
+        int                         niter,
+        hdrl_image              **  out,
+        cpl_image               **  contrib,
+        cpl_image               **  reject_low,
+        cpl_image               **  reject_high);
+\end{lstlisting}
+
+\begin{lstlisting}
+cpl_error_code hdrl_imagelist_collapse_minmax(
+        const hdrl_imagelist    *   himlist,
+        double                      nlow,
+        double                      nhigh,
+        hdrl_image              **  out,
+        cpl_image               **  contrib,
+        cpl_image               **  reject_low,
+        cpl_image               **  reject_high);
+\end{lstlisting}
+
+\begin{lstlisting}
+ cpl_error_code hdrl_imagelist_collapse_mode(
+        const hdrl_imagelist    *   himlist,
+        double                      histo_min,
+        double                      histo_max,
+        double                      bin_size,
+        hdrl_mode_type              mode_method,
+        cpl_size                    error_niter,
+        hdrl_image              **  out,
+        cpl_image               **  contrib) ;
+\end{lstlisting}                  
+
+Please note that all methods but the mode are doing \textbf{error
+  propagation}. The mode method is special in this case as it
+\textbf{calculates the error from the data}. The calculation depends
+on the parameter \verb+error_niter+. If the parameter is set to 0, it
+is doing an analytically error estimation. If the parameter is larger
+than 0, the error is calculated by a bootstrap Montecarlo simulation
+from the input data with the value of the parameter specifying the
+number of simulations. In this case the input data are perturbed with
+the bootstrap technique and the mode is calculated \verb+error_niter+
+times. From this modes the standard deviation is calculated and
+returned as error.
+

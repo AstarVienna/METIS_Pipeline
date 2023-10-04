@@ -1,0 +1,33 @@
+%%
+%%      UPDATE FOR NEW RELEASES
+%%
+\newcommand{\releasedate}{June 2022}
+\newcommand{\manualversion}{1.5.0}
+
+
+\newcommand{\cm}[1]{\marginpar{\scriptsize #1}}
+\newcommand{\tbspa}{\rule[1ex]{0pt}{1.1ex}}
+\newcommand{\tbspb}{\rule[-1.0ex]{0pt}{1.0ex}}
+\newcommand{\eg}{{e.g.~}}
+\newcommand{\ie}{{i.e.~}}
+\newcommand{\degr}{\hbox{$^\circ$}}
+\newcommand{\CPL}{\textit{Common Pipeline Library }}
+\newcommand{\HDRL}{\textit{High Level Data Reduction Library }}
+\newcommand{\http}[1]{\href{http://#1}{\textit{http://#1}}}
+
+
+\newcommand{\putgraph}[4]{
+    \subfigure
+    \begin{figure}[ht]
+        \begin{center}
+    \includegraphics[width=#1truecm]{figures/#2}
+    \end{center}
+    \caption{\it #4.}
+    \label{fig:#3}
+    \end{figure}
+}
+
+\makeatletter
+\newcommand\footnoteref[1]{\protected@xdef\@thefnmark{\ref{#1}}\@footnotemark}
+\makeatother
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}

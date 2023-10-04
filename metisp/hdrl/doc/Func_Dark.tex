@@ -1,0 +1,74 @@
+\subsection{Dark}
+
+The dark current of a CCD detector can be measured by using frames
+with an exposure time larger then zero (usually it is in the same
+order of magnitude as the science data) during which the shutter
+remains closed.
+Various dark frames are then combined into a master
+dark in order to increase the signal to noise of the dark current.
+Before doing this master frame combination, depending on the
+detector and the wavelength regime, the overscan and/or master bias
+has to be subtracted from the single frames.
+
+As the master dark creation algorithm is essentially the same as the
+master bias algorithm (with the possible difference that a master bias
+image and a multiplicative scaling for the exposure time has to be
+taken into account) we point the user to the master bias section (see
+Section~\ref{sec:algorithms:bias:main})
+
+\subsubsection{Algorithm - short description}
+See Section~\ref{sec:algorithms:bias:algo}
+
+
+\subsubsection{Functions}
+See Section~\ref{sec:algorithms:bias:functions}
+
+\subsubsection{Inputs}
+See Section~\ref{sec:algorithms:bias:inputs}
+
+\subsubsection{Outputs}
+See Section~\ref{sec:algorithms:bias:outputs}
+
+
+\subsubsection{Examples}
+Following code is a example how one can use HDRL to produce a master dark from
+a set of raw dark frames and their associated errors.
+
+\begin{lstlisting}
+/* input raw darks as hdrl_images, so they can have an error */
+hdrl_image * raw_darks[ndarks] = ...;
+/* multiplicative scaling factor (e.g. exposure time) */
+double scaling_factor[ndarks] = ...;
+hdrl_imagelist  * ilst_os_cor_raw_darks = hdrl_imagelist_new();
+
+/* overscan correct all raw darks */
+for (size_t i = 0; i < ndarks; i++) {
+    hdrl_overscan_compute_result * os_com_res;
+    hdrl_overscan_correct_result * os_cor_res;
+    hdrl_bitmask_t rejectcode = 256;
+    os_com_res = hdrl_overscan_compute(img, os_parameters);
+    os_cor_res = hdrl_overscan_correct(raw_darks[i], region_parameter,
+                                       rejectcode, os_com_res);
+    /* take ownership of the corrected images from result object */
+    hdrl_image * cor_dark =
+        hdrl_overscan_correct_result_unset_corrected(os_cor_res);
+    /* scale images */
+    hdrl_image_mul_scalar(cor_dark, scaling_factor[i], 0.);
+    hdrl_imagelist_set(ilst_os_cor_raw_darks, cor_dark, i);
+
+    hdrl_overscan_compute_result_delete(os_com_res);
+    hdrl_overscan_correct_result_delete(os_cor_res);
+}
+
+/* subtract the master bias from the darks */
+hdrl_imagelist_sub_image(ilst_os_cor_raw_darks, master_bias);
+
+/* collapse corrected darks to the master_dark */
+hdrl_image * master_dark; cpl_image * contrib;
+hdrl_imagelist_collapse(ilst_os_cor_raw_darks, HDRL_COLLAPSE_MEDIAN,
+                        &master_dark, &contrib);
+
+\end{lstlisting}
+
+\subsubsection{Master Dark Parameters in a Recipe}
+See Section~\ref{sec:algorithms:bias:parameters}.

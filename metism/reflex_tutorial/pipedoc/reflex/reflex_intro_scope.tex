@@ -1,0 +1,53 @@
+%\section{Introduction And Scope}
+\section{Introduction to \Reflex}
+This document is a tutorial designed to enable the user to to reduce
+his/her data with the ESO pipeline run under an user-friendly
+environmet, called {\tt EsoReflex}, concentrating on high-level issues
+such as data reduction quality and signal-to-noise (S/N) optimisation.
+
+
+
+
+{\tt EsoReflex} is the ESO Recipe Flexible Execution 
+Workbench, an environment to run ESO VLT pipelines which employs a workflow 
+engine 
+% No response from kepler-project.org
+%(Kepler\footnote{\http{kepler-project.org}}) 
+to provide a real-time
+visual representation of a data reduction cascade, called a workflow,
+which can be easily understood by most astronomers. 
+The basic philosophy and concepts of Reflex have been discussed by 
+\href{https://ui.adsabs.harvard.edu/abs/2013A\%26A...559A..96F/abstract}{Freudling et al. (2013A\&A...559A..96F).}
+Please reference this article if you use Reflex in a scientific publication.
+
+Reflex and the data reduction workflows have been developed by ESO and 
+instrument consortia and they are fully supported. If you have any issue, 
+please have a look to
+\href{https://support.eso.org}{https://support.eso.org} to see if this
+has been reported before or 
+\href{https://support.eso.org/new-ticket}{open a ticket}
+for further support.
+
+
+A workflow accepts science and calibration data, as downloaded from the
+archive using the CalSelector
+tool\footnote{\http{www.eso.org/sci/archive/calselectorInfo.html}} 
+(with associated raw calibrations) and
+organises them into DataSets, where each DataSet contains one
+science object observation (possibly consisting of several science
+files) and all associated raw and static calibrations required for a
+successful data reduction. The data organisation process is fully
+automatic, which is a major time-saving feature provided by the
+software. The DataSets selected by the user for reduction are fed
+to the workflow which executes the relevant pipeline recipes (or
+stages) in the correct order.
+%, providing optional user interactivity at
+%key data reduction points with the aim of enabling the iteration of
+%certain recipes in order to obtain better results. 
+Full control of the
+various recipe parameters is available within the workflow, and the
+workflow deals automatically with optional recipe inputs via built-in
+conditional branches. Additionally, the workflow stores the reduced
+final data products in a logically organised directory structure 
+employing user-configurable file names.
+

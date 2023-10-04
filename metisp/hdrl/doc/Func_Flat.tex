@@ -1,0 +1,310 @@
+
+\subsection{Flat}
+\label{flat:main}
+
+Flat field frames give information on the response of the detector,
+allowing to measure variations in efficiency at small
+(pixel-to-pixel), intermediate (fringing) and large (the blaze
+function) scale.  Whereas in the optical regime the flats are usually
+twilight or dome flats, in the NIR regime the flats sometimes consists
+of a pair of illuminated (denoted as ON-Flats) and not-illuminated
+(OFF-Flats) frames.
+
+In this section we present algorithms to combine single flatfields into
+a master flatfield with increased SNR.
+
+
+\subsubsection{High frequency master flatfield}
+\label{flat:algorithms:hf}
+
+This algorithm derives the high frequency part of the master flatfield
+-- often also denoted as pixel-to-pixel variation.
+\paragraph{Algorithm - short description}
+\label{flat:algorithms:hf:short}
+
+The algorithm first divides each input image by the smooth image
+obtained with a median filter (the latter is controlled by the
+parameters \verb,filter_size_x, and \verb,filter_size_y,). Concerning
+the error propagation, the smoothed image is considered to be
+noiseless, i.e. the relative error associated to the normalised images
+is the same as the one of the input images. Then all residual images
+are collapsed into a single master flatfield. The collapsing can be
+done with all methods currently implemented in HDRL~(see
+section~\ref{sec:imagelist:collapsing} for an overview).
+
+To distinguish between illuminated and not illuminated regions/pixels
+(i.e. orders in an echelle flat image) the user may provide an
+optional static mask \verb,stat_mask, to the algorithm. In this case
+the smoothing procedure is done twice, once for the illuminated region
+and once for the blanked region. This ensures that the information of
+one region does not influence the other regions during the smoothing
+process.
+
+\paragraph{Functions}
+\label{flat:algorithms:hf:functions}
+
+The high frequency master flatfield is computed using the following
+function
+
+\begin{lstlisting}
+
+cpl_error_code hdrl_flat_compute(
+        hdrl_imagelist          *  hdrl_data,
+        const cpl_mask          *  stat_mask,
+        const hdrl_parameter    *  collapse_params,
+        hdrl_parameter          *  flat_params,
+        hdrl_image              ** master,
+        cpl_image               ** contrib_map)
+\end{lstlisting}
+
+The output \verb+master+ and \verb+contrib_map+ products are filled
+with the resulting master flat and associated contribution map images.
+The corresponding object data has to be deleted by the user when not
+required any more.
+
+\paragraph{Inputs}
+\label{flat:algorithms:hf:inputs}
+
+The list of flatfields that should be combined into a master flatfield
+is passed to the function with the \\
+\verb+hdrl_imagelist+
+\verb+hdrl_data+ input function-parameter. If a static mask is needed
+to distinguish between illuminated and dark regions, this can be
+passed with the \verb+cpl_mask+ \verb+stat_mask+ input
+function-parameter. The static mask is an optional input
+function-parameter, i.e. one can pass NULL if no static mask is
+needed.
+
+Note that the function will overwrite the input imagelist in order to
+conserve memory. Its contents after the call are undefined and it must
+be deleted by the caller.
+
+The \verb+collapse_params+ controls the collapsing algorithm and the
+\verb+flat_params+ controls the smoothing algorithm.
+
+The input \verb+flat_params+ parameter is created by the function
+\begin{lstlisting}
+hdrl_parameter * hdrl_flat_parameter_create(
+        cpl_size                   filter_size_x,
+        cpl_size                   filter_size_y,
+        hdrl_flat_method           method)
+\end{lstlisting}
+In order to use the high frequency algorithm for master flatfield determination,
+the \verb+method+ parameter must be set to \verb+HDRL_FLAT_FREQ_HIGH+. The
+\verb+filter_size_x+ and \verb+filter_size_y+ parameters defining the smoothing
+kernel must have an odd integer value greater then 0. If both values are
+set to 1, no smoothing is done by the algorithm.
+
+
+The \verb+collapse_param+ parameter input of the collapse function 
+is a \verb+hdrl_parameter+. Its type defines the collapse method 
+which is applied. Currently available are the following collapsing
+parameter creation utilities:
+\begin{itemize}\itemsep-1pt \parskip0pt \parsep0pt\small
+\item \verb+hdrl_collapse_mean_parameter_create()+
+\item \verb+hdrl_collapse_median_parameter_create()+
+\item \verb+hdrl_collapse_weighted_mean_parameter_create()+
+\item \verb+hdrl_collapse_sigclip_parameter_create(kappa_low, kappa_high, niter)+
+\item \verb+hdrl_collapse_minmax_parameter_create(nlow, nhigh)+
+\item \verb+hdrl_collapse_mode_parameter_create(histo_min, histo_max, bin_size,+\\\verb+mode_method, error_niter)+
+\end{itemize}
+
+Note that these parameters are dynamically allocated and must be
+deleted when not needed.  For convenience HDRL provides preallocated
+parameters for collapsing operations (e.g. \verb+HDRL_COLLAPSE_MEAN+)
+which do not require any additional parameters. These can be used
+anywhere a regular parameter can be used (deletion with
+\verb+hdrl_parameter_delete+ has no effect on them). See
+section~\ref{sec:imagelist:collapsing} for more details.
+
+\paragraph{Outputs}
+\label{flat:algorithms:hf:outputs}
+
+The result is a \verb+hdrl_image+ stored in the function-parameter
+\verb+master+ containing the master flatfield and its associated error
+as well as an integer contribution map (\verb+contrib+) counting how
+many values contributed to each pixel of the image.
+
+
+\subsubsection{Low frequency master flatfield}
+\label{flat:algorithms:lf}
+
+This algorithm derives the low frequency part of the master flatfield
+-- often also denoted as the shape of the flatfield.
+
+\paragraph{Algorithm - short description}
+\label{flat:algorithms:lf:short}
+
+The algorithm multiplicatively normalizes the input images by the
+median (considered to be noiseless) of the image to unity. An optional
+static mask \verb,stat_mask, can be provided to the algorithm in order
+to define the pixels that should be taken into account when computing
+the normalisation factor. This allows the user to normalize the
+flatfield e.g. only by the illuminated section. In the next step, all
+normalized images are collapsed into a single master flatfield. The
+collapsing can be done with all methods currently implemented in
+hdrl~(see section~\ref{sec:imagelist:collapsing}). Finally, the master
+flatfield is smoothed by a median filter controlled by
+\verb,filter_size_x, and \verb,filter_size_y,. The associated error of
+the final masterframe is the error derived via error propagation of
+the previous steps, i.e. the smoothing itself is considered
+noiseless. Please note that, if the smoothing kernel is set to unity,
+i.e. \verb,filter_size_x = 1, and \verb,filter_size_y = 1, no final
+smoothing will take place but the resulting masterframe is simply the
+collapsed normalized flatfields.
+
+\paragraph{Functions}
+\label{flat:algorithms:lf:functions}
+
+The called functions are the same as for the high frequency
+masterflat (see section~\ref{flat:algorithms:hf:functions})
+
+\paragraph{Inputs}
+\label{flat:algorithms:lf:inputs}
+
+The input parameters are the same as for the high frequency masterflat
+(see section~\ref{flat:algorithms:hf:inputs}) with the exception that
+in order to trigger the computation of the low frequency flatfield,
+the flatfield \verb+method+ must be set to \verb+HDRL_FLAT_FREQ_LOW+.
+
+\paragraph{Outputs}
+\label{flat:algorithms:lf:outputs}
+
+As for the high frequency masterflat algorithm, the result is a
+\verb+hdrl_image+ stored in the function-parameter \verb+master+
+containing the master flatfield and its associated error as well as an
+integer contribution map (\verb+contrib+) counting how many values
+contributed to each pixel of the image.
+
+
+\subsubsection{Examples}
+\begin{lstlisting}
+hdrl_image* master;
+cpl_image* contrib_map;
+
+/* initialize the parameters of a sigma clipping combination */
+hdrl_parameter * collapse_params;
+collapse_params = hdrl_collapse_sigclip_parameter_create(3., 3., 5)
+
+/* initialize the parameters of the flatfield */
+hdrl_parameter * flat_params;
+flat_params = hdrl_flat_parameter_create(7, 7, HDRL_FLAT_FREQ_LOW) ;
+
+/* Do the actual flatfield computation */
+hdrl_flat_compute(input_imagelist, stat_mask, collapse_params,
+                                     flat_params, &master, &contrib_map);
+
+/* cleanup the parameter*/
+hdrl_parameter_delete(collapse_params);
+hdrl_parameter_delete(flat_params);
+\end{lstlisting}
+
+
+
+\subsubsection{Master Flat Parameters in a Recipe}
+
+In the context of a recipe, all input parameters needed by the master flat
+computation may be provided as input parameters.
+
+The creation of \verb+cpl_parameter+ objects for the collapse recipe interface is
+facilitated by:
+\begin{itemize}
+\item \verb+hdrl_collapse_parameter_create_parlist+
+\item \verb+hdrl_collapse_parameter_parse_parlist+
+\end{itemize}
+The former provides a \verb+cpl_parameterlist+ which can be appended
+to the recipe parameter list, the latter parses the recipe parameter
+list for the previously added parameters and creates a ready to use
+collapse \verb+hdrl_parameter+.
+
+The creation of \verb+cpl_parameter+ objects for the flat recipe interface is
+facilitated by:
+\begin{itemize}
+\item \verb+hdrl_flat_parameter_create_parlist+
+\item \verb+hdrl_flat_parameter_parse_parlist+
+\end{itemize}
+The former provides a \verb+cpl_parameterlist+ which can be appended
+to the recipe parameter list, the latter parses the recipe parameter
+list for the previously added parameters and creates a ready to use
+flat \verb+hdrl_parameter+.
+
+
+\begin{lstlisting}
+/* prepare defaults for recipe */
+
+
+/* Create collapse default parameters */
+
+hdrl_parameter * sigclip_def = 
+    hdrl_collapse_sigclip_parameter_create(3., 3., 5);
+hdrl_parameter * minmax_def =
+    hdrl_collapse_minmax_parameter_create(1., 1.);
+hdrl_parameter * mode_def =
+hdrl_collapse_mode_parameter_create(10., 1., 0., HDRL_MODE_MEDIAN, 0);
+
+/* create collapse parameters with context RECIPE_NAME under the
+collapse hierarchy */
+
+cpl_parameterlist * pflatcollapse =hdrl_collapse_parameter_create_parlist(
+RECIPE_NAME, "collapse", "MEDIAN", sigclip_def, minmax_def, mode_def) ;
+
+hdrl_parameter_delete(sigclip_def); 
+hdrl_parameter_delete(minmax_def);
+hdrl_parameter_delete(mode_def);
+
+/* add to recipe parameter list, change aliases, disable not required ones etc. */
+
+for (cpl_parameter * p = cpl_parameterlist_get_first(pflatcollapse) ;
+        p != NULL; p = cpl_parameterlist_get_next(pflatcollapse))
+    cpl_parameterlist_append(self, cpl_parameter_duplicate(p));
+cpl_parameterlist_delete(pflatcollapse);
+
+
+/* Create flat default parameters */
+hdrl_parameter * deflts = hdrl_flat_parameter_create(5, 5,
+        HDRL_FLAT_FREQ_LOW);
+/* create flat parameters with context RECIPE_NAME under the
+   flat hierarchy */
+cpl_parameterlist * flat_param = hdrl_flat_parameter_create_parlist(
+            RECIPE_NAME, "flat", deflts) ;
+/* add to recipe parameter list, change aliases,
+   disable not required ones etc.
+ */
+hdrl_parameter_delete(deflts) ;
+\end{lstlisting}
+
+This will create a esorex man-page as follows:
+{\footnotesize
+\begin{verbatim}
+esorex --man-page hdrldemo_flat_nir
+...
+--collapse.method             : Method used for collapsing the data. <MEAN |
+                                WEIGHTED_MEAN | MEDIAN | SIGCLIP | MINMAX | 
+                                MODE> [MEDIAN]
+--collapse.sigclip.kappa-low  : Low kappa factor for kappa-sigma
+                                clipping algorithm. [3.0]
+--collapse.sigclip.kappa-high : High kappa factor for kappa-sigma
+                                clipping algorithm. [3.0]
+--collapse.sigclip.niter      : Maximum number of clipping iterations for
+                                kappa-sigma clipping. [5]
+--collapse.minmax.nlow        : Low number of pixels to reject for the minmax
+                                clipping algorithm. [1.0]
+--collapse.minmax.nhigh       : High number of pixels to reject for the
+                                minmax clipping algorithm. [1.0]
+--collapse.mode.histo-min     : Minimum pixel value to accept for mode
+                                computation. [10.0]
+--collapse.mode.histo-max     : Maximum pixel value to accept for mode
+                                computation. [1.0]
+--collapse.mode.bin-size      : Binsize of the histogram. [0.0]
+--collapse.mode.method        : Mode method (algorithm) to use. <MEDIAN |
+                                WEIGHTED | FIT> [MEDIAN]
+--collapse.mode.error-niter   : Iterations to compute the mode
+...
+
+--flat.filter-size-x          : Smoothing filter size in x-direction. [5]
+--flat.filter-size-y          : Smoothing filter size in y-direction. [5]
+--flat.method                 : Method to use for the master flatfield calculation. 
+                               <low | high> [low]
+...
+\end{verbatim}
+}

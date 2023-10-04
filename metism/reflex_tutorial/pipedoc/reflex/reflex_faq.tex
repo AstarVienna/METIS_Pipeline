@@ -1,0 +1,199 @@
+\section{Frequently Asked Questions}
+
+\begin{itemize}
+   \item {\bf The error window fills the whole screen - how can I get
+       to the \fbox{\tt Continue}/\fbox{\tt Stop} buttons?}
+
+Press the \fbox{Alt} key together with your left mouse button to move
+the window upwards and to the left. At the bottom the \fbox{\tt
+  Continue}/\fbox{\tt Stop} buttons will be visible. This bug is known
+but could not yet be fixed.
+
+ \item {\bf I tried to {\tt Open} (or {\tt Configure}) an {\tt Actor} while the workflow is running and now it does not react any more. What should I do?}
+
+   This is a limitation of the underlying Kepler engine. The only way
+   out is to kill the workflow externally. If you want to change
+   anything while a workflow is running you first need to pause it.
+
+\item {\bf After a successful reduction of a data set, I changed this
+    data set in some way (e.g. modified or removed some files, or
+    changed the rules of the Data Organizer). When I restart Reflex,
+    the Data Set Chooser correctly displays my new data set, but marks
+    it as ``reduced ok'', even though it was never reduced before. What
+    does this mean?}
+
+  The labels in the column ``Reduced'' of the Data Set Chooser mark each
+  dataset with ``OK'', ``Failed'' or ``-''. These labels indicate whether a
+  data set has previously successfully been reduced at least once, all
+  previous reductions failed, or a reduction has never been tried respectively.
+  Data sets are identified by their name, which is derived from the first
+  science file within the data set. As long as the data set name is
+  preserved (i.e. the first science file in a data set has not changed),
+  the Data Organizer will consider it to be the same data set. The Data
+  Organizer recognizes any previous reductions of data sets it considers
+  to be the same as the current one, and labels the current data set
+  with ``OK'' if any of them was successful, even if the previously
+  reduced data set differs from the current one.
+
+  Note that the Product Explorer will list all the previous reductions of a
+  particular data set only at the end of the reduction. This list might
+  include successful and/or unsuccessful reduction runs with different
+  parameters, or in your case with different input files.  The important
+  fact is that these are all reductions of data sets with the same first
+  raw science file. By browsing through all reductions of a particular
+  raw science file, the users can choose the one they want to use.
+
+   \item {\bf Where are my intermediate pipeline products?}
+   Intermediate pipeline products are stored in the directory {\tt
+   \verb|<|TMP\_PRODUCTS\_DIR\verb|>|} (defined on the workflow
+ canvas, under Setup Directories)
+   and organised further in directories by pipeline recipe.
+
+%\item {\bf I have many DataSets in my data directory. How can I reduce
+%  them interactively without having to wait a long time between
+%  interactive windows being displayed?}
+
+%Reduce all the DataSets at once with the interactive windows disabled
+%for all interactive actors. When this reduction has finished, you
+%should re-enable the interactive windows that you require, and run the
+%workflow again. The workflow will run in Lazy mode and no time will be
+%spent on pipeline reductions, unless you specifically change a
+%parameter in one of the interactive windows.
+        
+%      Note that Lazy mode will not work if the workflow parameter {\tt
+%        EraseDirs} is set to {\tt true}.
+
+   \item {\bf Can I use different sets of bias frames to calibrate my
+          flat frames and science data?}
+   Yes. In fact this is what is currently implemented in the workflow(s).
+   Each file in a DataSet has a purpose attached to it (\cite{REFLEXMAN}).
+   It is this purpose that is used by the workflow to send the correct
+   set of bias frames to the recipes for flat frame combination and 
+   science frame reduction, which may or may not be the same set of bias 
+   frames in each case.
+
+   \item {\bf Can I run {\tt Reflex} from the command line?}
+   Yes, use the command:
+\begin{verbatim}
+esoreflex -n <workflow_path>/<workflow>.xml
+\end{verbatim}
+   The -n option will set all the different options for Kepler and the
+   workflows to avoid opening any GUI elements (including
+   pipeline interactive windows).
+
+   It is possible to specify workflow variables (those that appear in
+   the workflow canvas) in the command line. For instance, the raw
+   data directory can be set with this command:
+\begin{verbatim}
+esoreflex -n -RAW_DATA_DIR <raw_data_path> \
+              <workflow_path>/<workflow>.xml
+\end{verbatim}
+   You can see all the command line options with the command 
+   {\tt esoreflex -h}.
+
+   Note that this mode is not fully supported, and the user should be 
+   aware that the path to the workflow must be absolute and even if no
+   GUI elements are shown, it still requires a connection to the window manager.
+        
+   \item {\bf How can I add new actors to an existing workflow?}
+   You can drag and drop the actors in the menu on the left of the {\tt Reflex} 
+   canvas. Under {\tt Eso-reflex -> Workflow} you may find all the actors
+   relevant for pipeline workflows, with the exception of the recipe executer.
+   This actor must be manually instantiated using
+   {\tt Tools -> Instantiate Component}. Fill in the ``Class name'' field with 
+   {\tt org.eso.RecipeExecuter} and in the pop-up window choose the required 
+   recipe from the pull-down menu. To connect the ports of the actor, click on
+   the source port, holding down the left mouse button, and release the mouse
+   button over the destination port. Please consult the Reflex User Manual
+   (\cite{REFLEXMAN}) for more information.
+
+   \item {\bf How can I broadcast a result to different subsequent actors?}
+   If the output port is a multi-port (filled in white), then you may have
+   several relations from the port. However, if the port is a single port
+   (filled in black), then you may use the black diamond from the toolbar.
+   Make a relation from the output port to the diamond. Then make relations 
+   from the input ports to the diamond. Please note that you cannot click to 
+   start a relation from the diamond itself. Please consult the Reflex User 
+   Manual (\cite{REFLEXMAN}) for more information.
+
+   \item {\bf How can I manually run the recipes executed by Reflex?}
+   If a user wants to re-run a recipe on the command line he/she has to go to
+   the appropriate reflex\_book\_keeping directory, which is generally 
+   reflex\_book\_keeping/<workflow>/<recipe\_name>\_<number> 
+   There, subdirectories exist with 
+   the time stamp of the recipe execution (e.g. 2013-01-25T12:33:53.926/). 
+   If the user wants to re-execute the most recent processing he/she should 
+   go to the {\tt latest} directory and then execute the script 
+   {\tt cmdline.sh}. Alternatively, to use a customized {\tt esorex} command
+   the user can execute
+   \begin{verbatim}
+   ESOREX_CONFIG="INSTALL_DIR/etc/esorex.rc"
+   PATH_TO/esorex --recipe-config=<recipe>.rc <recipe> data.sof 
+   \end{verbatim}
+   where INSTALL\_DIR is the directory where Reflex and the pipelines were
+   installed. 
+
+   If a user wants to re-execute on the command line a recipe that used
+   a specific raw frame, the way to find the proper data.sof in the bookkeeping
+   directory is via {\tt grep <raw\_file> */data.sof}. 
+   Afterwards the procedure is the same 
+   as before.
+
+   If a recipe is re-executed with the command explained above, the
+   products will appear in the directory from which the recipe
+   is called, and not in the reflex\_tmp\_products or reflex\_end\_products
+   directory, and they will not be renamed. This does not happen if you use
+   the {\tt cmdline.sh} script.
+
+\ifx\reflexinteract\undefined
+\else
+
+   \item {\bf If I enter ``-'' into an empty integer parameter of an interactive
+   window it is automatically completed to ``-1''. Why? }
+
+   The parameters are validated for correctness according to their type 
+   (e.g. string, integer, float). In the case of an integer or float parameter 
+   ``-'' alone is considered an invalid input and is therefore automatically
+   completed to ``-1''.  This is part of the validation of input done
+   by the WxPython library.
+
+\fi
+
+\item {\bf Can I reuse the bookkeeping directory created by previous
+    versions of the pipeline?}
+
+  In general no. In principle, it could be reused if no major changes
+  were made to the pipeline. However there are situations in which a
+  previously created bookkeeping directory will cause problems due to
+  pipeline versions incompatibility. This is especially true if the
+  parameters of the pipeline recipes have changed. In that case,
+  please remove the bookkeeping directory completely.
+
+\item {\bf How to insert negative values into a textbox?}
+
+  Due to a bug in wxPython, the GUI might appear to freeze when attempting to
+  enter a negative number in a parameter's value textbox. This can be worked
+  around by navigating away to a different control in the GUI with a mouse
+  click, and then navigating back to the original textbox. Once focus is back
+  on the original textbox the contents should be selected and it should be
+  possible to replace it with a valid value, by typing it in and pressing the
+  enter key.
+
+\item {\bf I've updated my Reflex installation and when I run esoreflex the process aborts. How can I fix this problem?}
+  
+  As indicated in Section \ref{Sec:Software_Installation}, in case of major or
+  minor (affecting the first two digit numbers) Reflex upgrades, the user
+  should erase the
+ \verb+$HOME/KeplerData+, \verb+$HOME/.kepler+ directories if present,
+ to prevent possible aborts (i.e. a hard crash) of the esoreflex process.
+
+\item {\bf How can include my analysis scripts and algorithms into the 
+workflow?}
+
+EsoReflex is capable of executing any user-provided script, if
+properly interfaced. The most convenient way to do it is through
+the Python actor. Please consult the tutorial on how to
+insert Python scripts into a workflow available here:
+\url{www.eso.org/sci/data-processing/Python_and_esoreflex.pdf}
+
+\end{itemize}

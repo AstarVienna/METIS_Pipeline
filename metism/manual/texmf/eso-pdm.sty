@@ -1,0 +1,284 @@
+%%
+%% This is file `eso-pdm.sty'
+%%
+%% eso-pdm.sty Copyright (C) 2015 Ralf Palsa
+%%
+%% This file provides a LaTeX style for standard ESO documents (manuals,
+%% plans, specifications, etc.) following the layout and appearance of the
+%% actual PDM Word templates.
+%%  
+%% This program can be used, distributed, and modified under the terms
+%% of the LaTeX Project Public License.
+%% 
+\RequirePackage{epsfig}
+\RequirePackage{fancyhdr}
+\RequirePackage{lastpage}
+\RequirePackage{times}
+\RequirePackage{helvet}
+\RequirePackage{color}
+
+\definecolor{pdmLightGray}{RGB}{150,150,150}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\newif\if@pdmdraft
+\newif\if@pdmreview
+\newif\if@pdmexternal
+\newif\if@openright
+
+\def\@pdmdocpolicy{}
+
+\DeclareOption{public}{\def\@pdmdocpolicy{public}}
+\DeclareOption{draft}{\@pdmdrafttrue}
+\DeclareOption{review}{\@pdmreviewtrue}
+\DeclareOption{external}{\@pdmexternaltrue}
+\DeclareOption{openright}{\@openrighttrue}
+\DeclareOption{openany}{\@openrightfalse}
+\ProcessOptions
+
+\newlength\LogoWidth
+\newlength\LogoHeight
+\newlength\VLTheadWidth
+
+\setlength{\LogoHeight}{2.25cm}
+\setlength{\LogoWidth}{0.8\LogoHeight}
+\setlength{\VLTheadWidth}{\linewidth minus \LogoWidth}
+
+\setlength{\topmargin}{-1.5cm}
+
+\setlength{\textheight}{21.8cm}
+\setlength{\textwidth}{17.1cm}
+\setlength{\headwidth}{\textwidth}
+\setlength{\headheight}{1.5\LogoHeight}
+
+\setlength{\oddsidemargin}{-3.0mm}
+\setlength{\evensidemargin}{-3.0mm}
+\setlength{\marginparwidth}{1.4cm}
+\setlength{\marginparsep}{1.0mm}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5ex plus 0.1ex minus 0.1ex}
+
+\def\@pdmPreparedBy{}
+\def\@pdmPreparedOn{}
+\def\@pdmApprovedBy{}
+\def\@pdmApprovedOn{}
+\def\@pdmReleasedBy{}
+\def\@pdmReleasedOn{}
+\def\@pdmValidatedBy{}
+\def\@pdmValidatedOn{}
+
+\def\pdmProgram#1{\gdef\@pdmProgram{#1}}
+\def\pdmProject#1{\gdef\@pdmProject{#1}}
+\def\pdmTitle#1{\gdef\@pdmTitle{#1}}
+\def\pdmDocId#1{\gdef\@pdmDocId{#1}}
+\def\pdmDocType#1{\gdef\@pdmDocType{#1}}
+\def\pdmDocVersion#1{\gdef\@pdmDocVersion{#1}}
+\def\pdmDocDate#1{\gdef\@pdmDocDate{#1}}
+
+\def\pdmPreparedBy#1{\gdef\@pdmPreparedBy{#1}}
+\def\pdmPreparedOn#1{\gdef\@pdmPreparedOn{#1}}
+\def\pdmValidatedBy#1{\gdef\@pdmReleasedBy{#1}}
+\def\pdmValidatedOn#1{\gdef\@pdmReleasedBy{#1}}
+\def\pdmApprovedBy#1{\gdef\@pdmApprovedBy{#1}}
+\def\pdmApprovedOn#1{\gdef\@pdmApprovedOn{#1}}
+\def\pdmReleasedBy#1{\gdef\@pdmReleasedBy{#1}}
+\def\pdmReleasedOn#1{\gdef\@pdmReleasedOn{#1}}
+
+\ifx\@pdmdocpolicy\empty
+  \def\@pdmDocPolicy{ESO internal}
+  \fancyfoot[L]{%
+    Document Classification: \@pdmDocPolicy
+  }
+  \fancyfoot[CR]{}
+\else
+  \def\@pdmDocPolicy{Public}
+  \fancyfoot{}
+\fi
+
+\fancyhead{}
+\fancyhead[C]{%
+  \setlength{\tabcolsep}{0.125cm}
+  \begin{tabular}{p{1.5cm}p{9.575cm}p{2.55cm}p{2.55cm}}
+    \multirow{4}{1.5cm}{%
+      %\centering{\textbf{\Large ESO}}
+      %\centering{\psfig{file=figures/muse-logo,width=1.25cm}}
+      \centering{\psfig{file=figures/eso-logo-p3005cmyk,width=1.5cm}}
+      } &
+    \multirow{4}{9.375cm}{%
+      \centering{\Large \@pdmTitle}
+      } & Doc.\ Number:\rule[1ex]{0pt}{1.1ex} &
+    \hspace*{\fill}\@pdmDocId                     \\
+    & & Doc.\ Version:\rule[1ex]{0pt}{1.1ex} &
+    \hspace*{\fill}\@pdmDocVersion                \\
+    & & Released on:\rule[1ex]{0pt}{1.1ex}  &
+    \hspace*{\fill}\@pdmDocDate                   \\
+    & & Page:\rule[1ex]{0pt}{1.1ex}  &
+    \hspace*{\fill}\thepage\ of \pageref{LastPage}\\[1.0ex]
+    \hline
+  \end{tabular}
+  }
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\pagestyle{fancy}
+
+\@addtoreset{figure}{section}
+\renewcommand{\thefigure}{
+  \ifnum \c@section>\z@ \thesection.\fi \@arabic\c@figure
+}
+
+\@addtoreset{table}{section}
+\renewcommand{\thetable}{
+  \ifnum \c@section>\z@ \thesection.\fi \@arabic\c@table
+}
+
+\newcommand{\VLThead}{%
+  \vspace*{-\headheight}
+  \vspace*{-\headsep}
+  \vspace*{-\topskip}
+  \hbox{%
+    \parbox{\LogoWidth}{%
+      \psfig{file=figures/eso-logo-p3005cmyk,width=\LogoWidth,height=\LogoHeight}}
+%    \raisebox{0.15\LogoHeight}{%
+%      \hspace*{0.05\VLTheadWidth}
+%      \parbox{\VLTheadWidth}{%
+%        \begin{center}
+%          \begin{footnotesize}
+%            \begin{tabular*}{\VLTheadWidth}{%
+%                p{0.3\VLTheadWidth}p{0.35\VLTheadWidth}p{0.3\VLTheadWidth}}
+%              European Organisation & Organisation Europ\'{e}enne & 
+%              Europ\"aische Organisation \\
+%              for Astronomical & pour des Recherches &
+%              f\"ur astronomische \\
+%              Research in the & Astronomiques &
+%              Forschung in der \\
+%              Southern Hemisphere & dans l'H\'{e}misph\`{e}re Austral &
+%              s\"udlichen Hemisph\"are \\
+%            \end{tabular*}
+%          \end{footnotesize}
+%        \end{center}}}
+    \hspace*{\fill}
+    \raisebox{0.425\LogoHeight}[\LogoHeight][0pt]{%
+      \hspace*{0.025\VLTheadWidth}
+      \begin{normalsize}
+        European Organisation for Astronomical Research in the Southern Hemisphere
+      \end{normalsize}}
+    }
+    \hspace*{\fill}
+    \vspace{0.5cm}
+  \par}
+
+\newcommand{\pdmsignature}{%
+  \tabular{ll}
+   \rule{4.8em}{0pt} & \rule{12.5cm}{0pt} \\
+   Prepared by:      & {\hspace*{0.5em}\@pdmPreparedBy} \\[1cm]
+   Validated by:     & {\hspace*{0.5em}\@pdmApprovedBy} \\[1cm]
+   Approved by:      & {\hspace*{0.5em}\@pdmReleasedBy}  \\[1.5ex]
+                     & {\hspace*{0.5em}\small\color{pdmLightGray}{Name}} \\
+  \endtabular}
+
+\newcommand{\emptypage}[1]{%
+  \newpage
+  \thispagestyle{empty}
+  \vspace*{\fill}\par
+  \begin{center}
+    #1
+  \end{center}
+  \vspace*{\fill}
+  \clearpage}
+
+\newcommand{\pdmmaketitle}{%
+  \begin{titlepage}
+    \setlength{\topmargin}{-1.0cm}
+    \setlength{\topsep}{0pt}
+
+    \setlength{\oddsidemargin}{-3.0mm}
+    \setlength{\evensidemargin}{-3.0mm}
+    \setlength{\marginparwidth}{1.4cm}
+    \setlength{\marginparsep}{1.0mm}
+
+    \setlength{\parindent}{0pt}
+
+    \thispagestyle{empty}
+    
+    \begin{sffamily}
+      \VLThead
+      \vspace*{\fill}
+      \begin{center}
+        \normalsize
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Programme:} \@pdmProgram\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Project/WP:} \@pdmProject\end{center}}\par
+        \vspace{1.0cm}
+        \parbox{9.5cm}{\begin{center}\textbf{\huge\@pdmTitle}\end{center}}\par
+        \vspace{1.0cm}        
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Document Number:} \@pdmDocId\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Document Version:} \@pdmDocVersion\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Document Type:} \@pdmDocType\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{\begin{center}\textbf{Released on:} \@pdmDocDate\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{\begin{center}\textbf{Document Classification:} \@pdmDocPolicy\end{center}}\par
+        \vspace*{\fill}
+        \if@pdmdraft
+        \vskip0.75cm
+        \textbf{\Large -- DRAFT -- }\par
+        \vskip0.5cm
+        \if@pdmreview
+        \if@pdmexternal
+        \textbf{\Large -- DISTRIBUTED FOR REVIEW ONLY --}\par
+        \else
+        \textbf{\Large -- DISTRIBUTED FOR INTERNAL REVIEW --}\par
+        \fi
+        \fi
+        \vskip1.0cm
+        \else
+        \vskip2.5cm
+        \fi
+        \vspace*{\fill}
+        \pdmsignature
+      \end{center}
+      \vspace*{1.75cm}
+      \color{pdmLightGray}{\hrule}
+      \begin{center}
+        \begin{small}
+		  \begin{color}{pdmLightGray}
+            ESO -- Karl-Schwarzschild-Str.\ 2 -- 85748 Garching bei M\"unchen
+            -- Germany \\
+            www.eso.org
+		  \end{color}
+        \end{small}
+      \end{center}
+    \end{sffamily}
+  \end{titlepage}
+}
+
+\renewcommand{\section}{%
+  \if@openright\cleardoublepage\else\clearpage\fi
+  \@startsection {section}{1}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}%
+  {2.3ex \@plus.2ex}%
+  {\normalfont\Large\bfseries}}
+
+\newcounter{docref}
+\newcommand{\docref}[3]{\refstepcounter{docref}\label{#1}
+{\begin{tabular}{p{7mm}p{75mm}l}[\thedocref]& #3 &{\tt #2}\end{tabular}\\}}
+
+\def\thebibliography#1{\section*{}\list
+ {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus .07em}
+ \sloppy\clubpenalty4000\widowpenalty4000
+ \sfcode`\.=1000\relax}
+\let\endthebibliography=\endlist
+
+%%% End of eso-pdm.sty

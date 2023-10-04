@@ -1,0 +1,140 @@
+
+\subsection{Limiting Magnitude}
+\label{sec:algorithms:maglim:main}
+
+The limiting magnitude is one of the mandatory header keywords in the
+Phase 3 archival
+standard\footnote{see \url{https://www.eso.org/sci/observing/phase3.html}
+for the ESO Phase 3 Standard} and characterizes the depth of an
+observation. According to the ESO Phase 3 standard, it is defined as
+the magnitude of a unresolved source whose flux is 5 times the noise
+background, i.e. the magnitude of a point like source detected with
+$\frac{S}{N}=5$.
+
+\subsubsection{Algorithm - short description}
+\label{sec:algorithms:maglim:algo}
+
+The limiting magnitude of an image is determined as follows:
+
+\begin{itemize}
+\item The input image \verb+image+ is convolved with a Gaussian kernel
+  specified by the input parameters \verb+fwhm+ (the FWHM of the
+  kernel), \verb+kernel_size_x+, and \verb+kernel_size_y+ (the
+  extension of the kernel in x-direction and y-direction in pixel).
+  To minimize border effects/artifacts during convolution, the input
+  image gets enlarged by a border depending on the kernel size. The
+  parameter \verb+image_extend_method+ can be used to specify the
+  algorithm to compute the values of the out-of-bounds pixels during
+  convolution (\verb+HDRL_IMAGE_EXTEND_NEAREST+ $\rightarrow$ use the
+  nearest border pixel, \verb+HDRL_IMAGE_EXTEND_MIRROR+ $\rightarrow$
+  mirror the image with respect to the border). Masked pixels are
+  ignored in the convolution, i.e. the kernel is normalized ignoring
+  masked pixels.
+\item Compute the \verb+mode+ as described in
+  section~\ref{sec:algorithms:robust_mean:mode} of the convolved
+  image.
+\item   Consider all the non-masked pixels in the convolved image below the MODE
+(let's define them as valid pixels), and compute the noise as:
+$$NOISE = 1.4826\cdot\mbox{MAD(valid pixels)}\cdot c$$
+
+  The factor $c = \frac{1}{\sqrt{1-\frac{2}{\pi}}}\approx 1.6588967 $
+  accounts for the fact that HDRL computes the statistics on half of the distribution
+  (assuming a Gaussian noise distribution), MAD is the median absolute deviation,  and
+  1.4826  is  the  scaling  factor to convert the MAD in the standard deviation (for a Gaussian
+  distribution).  If MAD=0, then:
+  
+$$NOISE = \mbox{STDDEV(valid pixels)}\cdot c$$
+where STDEV indicates the standard deviation.
+
+\item Compute the limiting magnitude as:
+$$ABMAGLIM = -2.5 log_{10}(5\cdot NOISE\cdot 4\pi\sigma^{2})+ZPT$$
+with $\sigma = \frac{FWHM}{\sqrt{4 ln(4)}}\approx \frac{FWHM}{2.35482}$
+\end{itemize}
+
+\subsubsection{\label{sec:algorithms:maglim:functions}Functions}
+
+The \HDRL implements the following function to derive the limiting magnitude:
+
+\begin{lstlisting}
+cpl_error_code hdrl_maglim_compute(
+        cpl_image                * image,
+	double                     zeropoint,
+	double                     fwhm,
+	cpl_size                   kernel_size_x,
+        cpl_size                   kernel_size_y,
+	hdrl_image_extend_method   image_extend_method,
+	hdrl_parameter           * mode_parameter,
+	double                   * limiting_magnitude);
+\end{lstlisting}
+
+
+\subsubsection{\label{sec:algorithms:maglim:inputs}Inputs}
+
+The image where the limiting magnitude should be derived and its
+zeropoint is passed to the function by the \verb+image+ and the
+\verb+zeropoint+ argument.
+
+The \verb+fwhm+ parameter sets the full width at half maximum of the
+Gaussian convolution kernel whereas the extension of the kernel in
+x-direction and y-direction (in pixel) is set by \verb+kernel_size_x+,
+and \verb+kernel_size_y+, respectively.  The parameter
+\verb+image_extend_method+ specifies the algorithm to compute the
+values of the out-of-bounds pixels during convolution
+(\verb+HDRL_IMAGE_EXTEND_NEAREST+ $\rightarrow$ use the nearest border
+pixel, \verb+HDRL_IMAGE_EXTEND_MIRROR+ $\rightarrow$ mirror the image
+with respect to the border).
+
+The hdrl parameter \verb+mode_parameter+ controls the computation of
+the mode of the distribution and is created by the
+\verb+hdrl_collapse_mode_parameter_create()+ function. The parameter
+of this function (\verb+histo_min+, \verb+histo_max+, \verb+bin_size+,
+\verb+mode_method+, and \verb+error_niter+) are described in
+section~\ref{sec:algorithms:robust_mean:mode}
+
+Finally, the computed limiting magnitude is returned as
+\verb+limiting_magnitude+
+  
+\subsubsection{\label{sec:algorithms:maglim:outputs}Outputs}
+
+The result of the function is the limiting magnitude of the image
+stored in the function parameter\\ \verb+limiting_magnitude+
+
+
+\subsubsection{Example}
+The following code is a example how to use HDRL to compute the limiting
+magnitude from an image.
+
+\begin{lstlisting}
+ 
+ /* initialize the parameters of a the mode computation */
+
+ double histo_min = 10.;
+ double histo_max = 1.; /* min > max -> autoset by algorithm */
+ double bin_size = 0.;  /* bin_size <= 0 -> autoset by algorithm */
+ cpl_size error_niter = 0; /* analytic error */
+ hdrl_mode_type mode_method = HDRL_MODE_MEDIAN; /* very robust */
+
+ hdrl_parameter * mode_parameter = NULL;
+ mode_parameter = hdrl_collapse_mode_parameter_create(histo_min,
+                                                      histo_max,
+                                                      bin_size,
+                                                      mode_method,
+                                                      error_niter);
+                                                      
+ /* initialize other parameters of the limiting magnitude computation */
+
+ double zeropoint = 24.3;                         
+ double fwhm = 3.50;
+ cpl_size kernel_size_x = 10; /* about 3 times fwhm */
+ cpl_size kernel_size_y = 10; /* about 3 times fwhm */
+ hdrl_image_extend_method convolution_boundary = HDRL_IMAGE_EXTEND_MIRROR;
+ double limiting_magnitude = 0.;
+ 
+ /* compute the limiting magnitude */
+ 
+ hdrl_maglim_compute(image, zeropoint, fwhm, kernel_size_x,
+       			  kernel_size_y, convolution_boundary,
+       			  mode_parameter, &limiting_magnitude);
+                                 
+\end{lstlisting}
+

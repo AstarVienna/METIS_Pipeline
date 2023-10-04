@@ -1,0 +1,75 @@
+\section{Definition of Limiting Magnitude}
+\label{chap:algorithms:maglim}
+
+%\subsection{Detailed Description of the Limiting Magnitude Algorithm}
+
+The Equation 13 of Naylor 1998, MNRAS,296, 339 gives the signal to
+noise $Q$ of a source of total flux $T$ that can be reached with
+optimal extraction:
+
+\begin{equation}
+Q=\frac{T}{FWHM\cdot\Sigma_1}\sqrt{\frac{2\ln(2)}{\pi}}
+\end{equation}
+$FWHM$ is the full with half maximum of the seeing.
+%Gaussian $g$ function I have used to convolve my image.
+$\Sigma_1$ is the standard deviation of the background noise ``before'' convolution with the Gaussian.
+
+
+\begin{equation}
+T=\frac{Q \cdot FWHM \cdot \Sigma_1 \pi^{1/2}}{\sqrt{2\ln(2)}}
+\end{equation}
+
+Replacing $\sigma =  FWHM/\sqrt{4\ln4}$:
+\begin{eqnarray}
+T&=&\frac{Q  \sigma\sqrt{4\ln4}  \cdot \Sigma_1 \pi^{1/2}}{\sqrt{2\ln(2)}}\nonumber\\
+ &=&\frac{Q  2\sigma\sqrt{2\ln2}  \cdot \Sigma_1 \pi^{1/2}}{\sqrt{2\ln(2)}}\nonumber\\
+ &=& Q  2\sigma  \cdot \Sigma_1 \pi^{1/2}
+\end{eqnarray}
+
+If I convolve the background by a Gaussian function $g$ with $FWHM$
+equal to the seeing, then I obtain another image, with its standard
+deviation $\Sigma_2$. If the original background has a Gaussian
+distribution with standard deviation $\Sigma_1$, then $\Sigma_1$ is
+related to $\Sigma_2$ by:
+
+\begin{equation}
+\Sigma_1 = 2 \Sigma_2 \cdot \pi^{1/2} \cdot \sigma
+\label{eqn:noise_conv}
+\end{equation}
+
+Hence:
+\begin{eqnarray}
+T&=& Q  2\sigma  \cdot \left( 2\Sigma_2  \cdot \pi^{1/2} \cdot \sigma \right) \pi^{1/2}\nonumber\\
+&=& 4 Q  \sigma^2  \cdot \Sigma_2  \cdot \pi 
+\end{eqnarray}
+
+The flux $T$ of a source that is $Q=5$ brighter than the noise $N$
+defines the limiting magnitude ($Q=T/N$ is the signal to noise):
+\begin{eqnarray}
+AB_{\rm MAGLIM} &=& -2.5\log\left( 5\cdot N  \right) +Z_{\rm PT}  \nonumber\\
+            &=& -2.5\log\left( 5\cdot T \cdot N/T \right)  +Z_{\rm PT}  \nonumber\\
+            &=& -2.5\log\left( 5\cdot T/Q \right)  +Z_{\rm PT}  \nonumber\\
+            &=& -2.5\log\left( 5Q(4 \Sigma_2 \cdot \pi \sigma^2 )/Q \right)  +Z_{\rm PT} \nonumber\\
+            &=& -2.5\log (2\cdot 2\cdot 5 \Sigma_2 \cdot \pi \sigma^2 )  +Z_{\rm PT} \nonumber\\
+            &=& -2.5\log ( 5 \Sigma_2 \cdot 2 \pi \sigma^2 ) +Z_{\rm PT} -2.5\log 2
+\label{eqn:abmaglim}
+\end{eqnarray}
+Which is equivalent to (in the case of Gaussian noise):
+\begin{eqnarray}
+AB_{\rm MAGLIM} &=& -2.5\log \left( 5   \frac{ \Sigma_1}{ 2\pi^{1/2}\sigma} \cdot 2 \pi \sigma^2 \right) +Z_{\rm PT} -2.5\log 2  \nonumber\\
+ &=& -2.5\log \left( 5  \Sigma_1 \cdot \pi^{1/2} \sigma \right) +Z_{\rm PT} -2.5\log 2 
+\end{eqnarray}
+
+Note. Equation \ref{eqn:noise_conv}  is the solution of the integral.
+\begin{eqnarray}
+\Sigma_2 (r)&=& \Sigma_1(r)\sqrt{\int_0^{\infty}{ \frac{2\pi r}{(2\sigma^2\pi)^2} \left( e^{\frac{-r^2}{2\sigma^2}} \right)^2  dr} } \nonumber\\
+            &=& \Sigma_1(r)\sqrt{\int_0^{\infty}{ 2\pi r \left( \frac{e^{\frac{-r^2}{2\sigma^2}}}{2\sigma^2\pi} \right)^2  dr} } \nonumber\\
+            &=& \Sigma_1(r)\sqrt{\int_0^{\infty}{ 2\pi r  g^2(r;\sigma)  dr} } \nonumber\\
+\end{eqnarray}
+
+where $r=\sqrt{x^2+y^2}$ represent the radial coordinates and $g(r;\sigma)$ is the Gaussian function used for the convolution.
+
+{\bf HDRL implements equation \ref{eqn:abmaglim}}, see \ref{sec:algorithms:maglim:algo}. It implements image
+convolution; this step is indeed needed to include all non-gaussian noise and
+features in an image that might affect the computation of the
+magnitude.

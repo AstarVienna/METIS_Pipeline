@@ -1,0 +1,132 @@
+\subsubsection{The ProductExplorer}
+\label{sec:product_explorer}
+
+The ProductExplorer is an interactive component in the \reflex\
+workflow whose main purpose is to list the final products with the
+associated reduction tree for each dataset and for each reduction
+attempt (see Fig.~\ref{fig:reflex_provenance_explorer}).
+
+\medskip
+
+{\bf {\it Configuring the ProductExplorer}}
+
+You can configure the ProductExplorer GUI to appear after or before
+the data reduction. In the latter case you can inspect products as
+reduction goes on.
+
+
+1. To display the ProductExplorer GUI at the end of the datareduction:
+
+\begin{itemize}
+
+\item Click on the global parameter ``ProductExplorerMode'' before
+  starting the data reduction. A configuration window will appear
+  allowing you to set the execution mode of the Product
+  Explorer. Valid options are:
+  \begin{itemize}
+  \item "Triggered" (default). This option opens the ProductExplorer
+    GUI when all the selected datasets have been reduced.
+  \item "Enabled". This option opens the ProductExplorer GUI at the
+    end of the reduction of each individual dataset.
+  \item ``Disable''. This option does not display the ProductExplorer GUI.
+\end{itemize}
+ \item Press the \includegraphics[width=.5cm]{reflex_run_button.png} button to start the workflow.
+\end{itemize}
+
+2. To display the ProductExplorer GUI ``before'' starting the data
+reduction:
+
+\begin{itemize}
+ 
+\item double click on the composite Actor "Inspect previously reduced
+  data". A configuration window will appear. Set to "Yes" the field
+  "Inspect previously reduced data (Yes/No)". Modify the field
+  "Continue reduction after having inspected the previously reduced
+  data? (Continue/Stop/Ask)". "Continue" will continue the workflow
+  and trigger the DataOrganizer. "Stop" will stop the workflow;
+  "Ask" will prompt another window deferring the decision whether
+  continuing or not the reduction after having closed the Product
+  Explorer.
+
+\item Press the \includegraphics[width=.5cm]{reflex_run_button.png} button to start the workflow. Now the ProductExplorer
+  GUI will appear before starting the data organization and reduction.
+
+\end{itemize}
+
+\bigskip
+
+{\bf {\it Exploring the data reduction products}}
+
+
+The left window of the ProductExplorer GUI shows the executions for
+all the datasets (see Fig.~\ref{fig:reflex_provenance_explorer}). Once
+you click on a dataset, you get the list of reduction attemps. Green
+and red flags identify successfull or unsucessfull reductions. Each
+reduction is linked to the ``Description'' tag assigned in the
+``Select Dataset'' window.
+
+\medskip
+
+1. To identify the desired reduction run via the ``Description'' tag, proceed as follows:
+
+\begin{itemize}
+ \item Click on the symbol at the left of the dataset name. The full list
+   of reduction attempts for that dataset will be listed. The column
+   Exec indicates if the reduction was succesful (green flag: "OK") or
+   not (red flag: "Failed").  
+
+ \item Click on the entries in the field "Description" to visualize
+   the description you have entered associated to that dataset on the
+   Select Dataset window when reducing the data.
+
+ \item  Identify the desired reduction run. All the products are listed in
+   the central window, and they are organized following the data
+   reduction cascade.
+\end{itemize}
+
+You can narrow down the range of datasets to search by configuring the
+field "Show" at the top-left side of the ProductExplorer (options are:
+"All", "Successful", "Unsuccessful"), and specifying the time range
+(Last, all, From-to).
+
+\medskip
+
+2. To inspect the desired file, proceed as follows:
+
+\begin{itemize}
+
+\item Navigate through the data reduction cascade in the
+  ProductExplorer by clicking on the files.
+
+ \item Select the file to be inspected and click with the mouse right-hand button. 
+   The available options are:
+   \begin{itemize}
+    \item Options available always:
+      \begin{itemize}
+        \item Copy full path. It copies the full name of the file onto the
+          clipboard. Shift+Ctr+v to past it into a terminal.
+
+        \item Inspect Generic. It opens the file with the fits viewer
+          selected in the main workflow canvas.
+
+        \item Inspect with. It opens the file with an executable that can
+          be specified (you have to provide the full path to the
+          executable).
+      \end{itemize}
+
+   \item  Options available for files in the {\tt TMP\_PRODUCTS\_DIR} directory only:
+      \begin{itemize}
+        \item  command line. Copy of the environment configuration and recipe
+        call used to generate that file.
+        \item Xterm. It opens an Xterm at the directory containing the file.
+     \end{itemize}
+   \item  Options available for products associated to interactive windows only:
+      \begin{itemize}
+       \item Display pipeline results. It opens the interactive windows associated
+        to the recipe call that generated the file. Note that this is for
+        visualization purposes only; the recipe parameters cannot be
+        changed and the recipe cannot be re-run from this window.
+
+      \end{itemize}
+      \end{itemize}
+      \end{itemize}

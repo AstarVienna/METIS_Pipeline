@@ -1,0 +1,11 @@
+if DPR.CATG like "%INS_MODE%" then
+{
+  DO.CATG = "MODE";
+}
+
+select execute(rrrecipe) from inputFiles where SIG.TEMPLATE == 1 and LF.DO.CATG == "MODE";
+
+action rrrecipe
+{
+  recipe rrrecipe;
+}

@@ -1,0 +1,255 @@
+%%%
+%%% DMD - LaTeX Document Style v0.2, 2002
+%%% 
+\RequirePackage{epsfig}
+\RequirePackage{fancyhdr}
+\RequirePackage{lastpage}
+\RequirePackage{times}
+
+
+\newif\if@dmddraft
+\newif\if@dmdreview
+\newif\if@dmdexternal
+\newif\if@openright
+
+
+\DeclareOption{draft}{\@dmddrafttrue}
+\DeclareOption{review}{\@dmdreviewtrue}
+\DeclareOption{external}{\@dmdexternaltrue}
+\DeclareOption{openright}{\@openrighttrue}
+\DeclareOption{openany}{\@openrightfalse}
+\ProcessOptions
+
+\newlength\LogoWidth
+\newlength\LogoHeight
+\newlength\VLTheadWidth
+
+\setlength{\LogoHeight}{2.25cm}
+\setlength{\LogoWidth}{0.8\LogoHeight}
+\setlength{\VLTheadWidth}{\linewidth minus \LogoWidth}
+
+\setlength{\topmargin}{-1.5cm}
+
+\setlength{\textheight}{21.8cm}
+\setlength{\textwidth}{17.1cm}
+\setlength{\headwidth}{\textwidth}
+\setlength{\headheight}{2.75cm}
+
+\setlength{\oddsidemargin}{-3.0mm}
+\setlength{\evensidemargin}{-3.0mm}
+\setlength{\marginparwidth}{1.4cm}
+\setlength{\marginparsep}{1.0mm}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5ex plus 0.1ex minus 0.1ex}
+
+\def\@dmdPreparedBy{}
+\def\@dmdPreparedOn{}
+\def\@dmdApprovedBy{}
+\def\@dmdApprovedOn{}
+\def\@dmdReleasedBy{}
+\def\@dmdReleasedOn{}
+
+\def\dmdTitle#1{\gdef\@dmdTitle{#1}}
+\def\dmdDocId#1{\gdef\@dmdDocId{#1}}
+\def\dmdIssue#1{\gdef\@dmdIssue{Issue #1}}
+\def\dmdDate#1{\gdef\@dmdDate{Date #1}}
+\def\dmdPreparedBy#1{\gdef\@dmdPreparedBy{\texttt{#1}}}
+\def\dmdApprovedBy#1{\gdef\@dmdApprovedBy{\texttt{#1}}}
+\def\dmdReleasedBy#1{\gdef\@dmdReleasedBy{\texttt{#1}}}
+\def\dmdPreparedOn#1{\gdef\@dmdPreparedOn{\texttt{#1}}}
+\def\dmdApprovedOn#1{\gdef\@dmdApprovedOn{\texttt{#1}}}
+\def\dmdReleasedOn#1{\gdef\@dmdReleasedOn{\texttt{#1}}}
+
+\fancyhead{}
+\fancyfoot{}
+\fancyhead[C]{%
+  \setlength{\tabcolsep}{0.125cm}
+  \begin{tabular}{|p{1.5cm}|p{8.1cm}|p{1cm}|p{5.5cm}|}
+    \hline
+    \multirow{4}{1.5cm}{%
+      \centering{\textbf{\Large ESO}}
+      } &
+    \multirow{4}{8.1cm}{%
+      \centering{\Large \@dmdTitle}
+      } & Doc:\rule[1ex]{0pt}{1.1ex} &
+    \hspace*{\fill}\@dmdDocId                     \\ \cline{3-4}
+    & & Issue:\rule[1ex]{0pt}{1.1ex} &
+    \hspace*{\fill}\@dmdIssue                     \\ \cline{3-4}
+    & & Date:\rule[1ex]{0pt}{1.1ex}  &
+    \hspace*{\fill}\@dmdDate                      \\ \cline{3-4}
+    & & Page:\rule[1ex]{0pt}{1.1ex}  &
+    \hspace*{\fill}\thepage\ of \pageref{LastPage}\\
+    \hline
+  \end{tabular}
+  }
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\pagestyle{fancy}
+
+%
+% Next 6 lines added by C.Izzo, to have tables and images numbered
+% within the subsection they belong to. It can surely be done in a better
+% way, however this works, provided that all tables definitions contain
+% also the command "\subtable", and all images the command "\subfigure",
+% which I guess it's silly...
+% 
+
+\newcounter{subtable}[subsection]
+\newcommand{\subtable}{\refstepcounter{subtable}}
+\renewcommand{\thetable} {\thesubsection.\thesubtable}
+\newcounter{subfigure}[subsection]
+\newcommand{\subfigure}{\refstepcounter{subfigure}}
+\renewcommand{\thefigure} {\thesubsection.\thesubfigure}
+
+\newcommand{\VLThead}{%
+  \vspace*{-\headheight}
+  \vspace*{-\headsep}
+  \vspace*{-\topskip}
+  \hbox{%
+    \parbox{\LogoWidth}{%
+      \psfig{file=figures/eso-logo,width=\LogoWidth,height=\LogoHeight}}
+    \raisebox{0.2\LogoHeight}{%
+      \parbox{\VLTheadWidth}{%
+        \begin{center}
+        \textbf{\LARGE EUROPEAN SOUTHERN OBSERVATORY}\\
+        {\footnotesize%
+          Organisation Europ\'{e}enne pour des Recherches Astronomiques dans
+          l'H\'{e}misph\`{e}re Austral}\\
+        {\footnotesize%
+          Europ\"aische Organisation f\"ur astronomische Forschung in der
+          s\"udlichen Hemisph\"are}
+        \end{center}}}}
+        \vspace{2.5cm}
+    \begin{center}{\textbf{\huge VERY LARGE TELESCOPE}}\end{center}
+    \vspace*{0.75cm}
+    \par}
+
+\newcommand{\dmdsignature}{%
+  \tabular{llllr}
+   \rule{4.8em}{0pt} & \rule{4.5cm}{0pt} & \rule{1.7cm}{0pt} &
+   \rule{3cm}{0pt}   & \rule{0.7cm}{0pt} \\
+   Prepared: & {\hspace*{0.5em}\@dmdPreparedBy} & 
+               {\hspace*{0.5em}\@dmdPreparedOn} &  & \\[-1.7ex]
+             & \multicolumn{4}{c}{\mbox{}\dotfill\mbox{}}\\[-1ex]
+             & {\hspace*{0.5em}\small Name} &
+               {\hspace*{0.5em}\small Date} & 
+               {\hspace*{0.5em}\small Signature}   & \\[1cm]
+
+   Approved: & {\hspace*{0.5em}\@dmdApprovedBy} & 
+               {\hspace*{0.5em}\@dmdApprovedOn} &  & \\[-1.7ex]
+             & \multicolumn{4}{c}{\mbox{}\dotfill\mbox{}}\\[-1ex]
+             & {\hspace*{0.5em}\small Name} &
+               {\hspace*{0.5em}\small Date} & 
+               {\hspace*{0.5em}\small Signature}   & \\[1cm]
+
+   Released: & {\hspace*{0.5em}\@dmdReleasedBy} & 
+               {\hspace*{0.5em}\@dmdReleasedOn} &  & \\[-1.7ex]
+             & \multicolumn{4}{c}{\mbox{}\dotfill\mbox{}}\\[-1ex]
+             & {\hspace*{0.5em}\small Name} &
+               {\hspace*{0.5em}\small Date} & 
+               {\hspace*{0.5em}\small Signature}   & \\
+  \endtabular}
+
+\newcommand{\emptypage}[1]{%
+  \newpage
+  \thispagestyle{empty}
+  \vspace*{\fill}\par
+  \begin{center}
+    #1
+  \end{center}
+  \vspace*{\fill}
+  \clearpage}
+
+\newcommand{\dmdmaketitle}{%
+  \begin{titlepage}
+    \setlength{\topmargin}{-0.5cm}
+    \setlength{\topsep}{0pt}
+
+    \setlength{\oddsidemargin}{-3.0mm}
+    \setlength{\evensidemargin}{-3.0mm}
+    \setlength{\marginparwidth}{1.4cm}
+    \setlength{\marginparsep}{1.0mm}
+
+    \setlength{\parindent}{0pt}
+
+    \thispagestyle{empty}
+
+    \VLThead
+    \vspace*{\fill}
+    \begin{center}
+      \mbox{%
+        \picture(10,1)(0,0)
+        \unitlength1cm
+        \put(-5,0){\unitlength1pt\line(0,-1){6}}
+        \put(-5,0){\unitlength1pt\line(1,0){6}}
+        \put(5,0){\unitlength1pt\line(0,-1){6}}
+        \put(5,0){\unitlength1pt\line(-1,0){6}}
+        \endpicture
+        }
+      \par
+      \vskip0.25cm
+      \parbox{9.5cm}{\begin{center}\textbf{\LARGE\@dmdTitle}\end{center}}\par
+      \vspace{0.5cm}        
+      \normalsize           
+      \parbox{9.5cm}{\begin{center}\large\@dmdDocId\end{center}}\par
+      \vspace{0.5cm}
+      \parbox{9.5cm}{\begin{center}\@dmdIssue\end{center}}\par
+      \parbox{9.5cm}{\begin{center}\@dmdDate\end{center}}\par
+      \mbox{%
+        \picture(10,1)(0,0)
+        \unitlength1cm
+        \put(-5,0){\unitlength1pt\line(0,1){6}}
+        \put(-5,0){\unitlength1pt\line(1,0){6}}
+        \put(5,0){\unitlength1pt\line(0,1){6}}
+        \put(5,0){\unitlength1pt\line(-1,0){6}}
+        \endpicture
+        }
+      \par
+      \vspace*{\fill}
+      \if@dmddraft
+        \vskip0.75cm
+        \textbf{\Large -- DRAFT -- }\par
+        \vskip0.5cm
+        \if@dmdreview
+          \if@dmdexternal
+            \textbf{\Large -- DISTRIBUTED FOR REVIEW ONLY --}\par
+          \else
+            \textbf{\Large -- DISTRIBUTED FOR INTERNAL REVIEW --}\par
+          \fi
+        \else
+          \textbf{\Large -- DISTRIBUTED FOR INTERNAL USE ONLY --}\par
+        \fi
+        \vskip1.0cm
+      \else
+        \vskip3.5cm
+      \fi
+      \vspace*{\fill}
+      \dmdsignature
+    \end{center}
+    \vspace*{1.5cm}
+  \end{titlepage}
+}
+
+\renewcommand{\section}{%
+  \if@openright\cleardoublepage\else\clearpage\fi
+  \@startsection {section}{1}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}%
+  {2.3ex \@plus.2ex}%
+  {\normalfont\Large\bfseries}}
+
+\newcounter{docref}
+\newcommand{\docref}[3]{\refstepcounter{docref}\label{#1}
+{\begin{tabular}{p{7mm}p{75mm}l}[\thedocref]& #3 &{\tt #2}\end{tabular}\\}}
+
+\def\thebibliography#1{\section*{}\list
+ {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus .07em}
+ \sloppy\clubpenalty4000\widowpenalty4000
+ \sfcode`\.=1000\relax}
+\let\endthebibliography=\endlist
+
+%%% End of dmd-title.sty
