@@ -10,4 +10,5 @@ dnf install -y \
     cfitsio cfitsio-devel \
     wcslib wcslib-devel \
     cpl cpl-devel \
+    java \
     esorex esoreflex
