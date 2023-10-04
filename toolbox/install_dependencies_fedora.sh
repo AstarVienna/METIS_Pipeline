@@ -15,4 +15,5 @@ dnf install -y \
     wcslib wcslib-devel \
     cpl cpl-devel \
     java \
+    python3-astropy python3-matplotlib python3-numpy \
     esorex esoreflex
