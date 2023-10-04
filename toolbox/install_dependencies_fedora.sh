@@ -3,7 +3,11 @@
 dnf install -y \
     wget gcc gcc-g++ automake autogen libtool gsl gsl-devel fftw fftw-devel \
     curl bzip2 less svn git which dnf-plugins-core cppcheck lcov valgrind \
+    zlib zlib-devel \
     erfa erfa-devel \
     libcurl-devel libcurl \
     tmux ripgrep file \
-    cfitsio wcslib cpl esorex cfitsio-devel wcslib-devel cpl-devel
+    cfitsio cfitsio-devel \
+    wcslib wcslib-devel \
+    cpl cpl-devel \
+    esorex esoreflex
