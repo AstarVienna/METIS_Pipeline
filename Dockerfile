@@ -1,10 +1,12 @@
 # Docker image for the METIS Pipeline.
 # Also contains some development tools.
 # Build with
-# docker build -t metispipeline .
+#   docker build -t metispipeline .
+# run from the root of this repository:
+#   docker run -ti --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/home/metis/.Xauthority:rw" --mount type=bind,source="$(pwd)",target=/home/metis/METIS_Pipeline metispipeline
 
 # Fedora is one of ESO's officially supported platforms.
-FROM fedora:latest
+FROM fedora:37
 
 LABEL authors="Hugo"
 
@@ -19,16 +21,6 @@ ENV HOME /home/${NB_USER}
 RUN adduser \
     --uid ${NB_UID} \
     ${NB_USER}
-
-# A copy of the installation in toolbox/install_dependencies_fedora.sh
-RUN dnf install -y \
-    wget gcc gcc-g++ automake autogen libtool gsl gsl-devel fftw fftw-devel \
-    curl bzip2 less svn git which dnf-plugins-core cppcheck lcov valgrind \
-    erfa erfa-devel \
-    libcurl-devel libcurl \
-    tmux ripgrep file \
-    cfitsio wcslib cpl esorex cfitsio-devel wcslib-devel cpl-devel
-
 
 # Copy over the repository.
 COPY . ${HOME}/METIS_Pipeline

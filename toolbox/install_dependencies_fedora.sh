@@ -1,3 +1,7 @@
+dnf install dnf-plugins-core
+
+dnf config-manager --add-repo=https://ftp.eso.org/pub/dfs/pipelines/repositories/stable/fedora/esorepo.repo
+
 # libcurl-devel must go before libcurl, because otherwise dnf might install
 # the 32-bit version of libcurl, which will not work with the ESO m4 macros.
 dnf install -y \
