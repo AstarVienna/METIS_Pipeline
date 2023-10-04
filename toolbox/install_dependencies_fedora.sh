@@ -1,4 +1,4 @@
-dnf install dnf-plugins-core
+dnf install -y dnf-plugins-core
 
 dnf config-manager --add-repo=https://ftp.eso.org/pub/dfs/pipelines/repositories/stable/fedora/esorepo.repo
 
