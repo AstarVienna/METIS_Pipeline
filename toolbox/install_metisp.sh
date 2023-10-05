@@ -23,5 +23,8 @@ make install
 popd
 popd
 
-# Check installation with
-# esorex --recipe-dir="${ESOPIPELINE}" --recipes
+# Check installation
+esorex --recipe-dir="${ESOPIPELINE}/lib/esopipes-plugins" --recipes
+
+# Create configuration file
+esorex --recipe-dir="${ESOPIPELINE}/lib/esopipes-plugins" --create-config
