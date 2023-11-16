@@ -20,8 +20,9 @@ dnf install -y \
     perl cmake \
     graphviz meld \
     python-jupyter-core python-jupyter-client python-jupyter-notebook \
-    yum-utils emacs vim nano \
-    esopipe-espdr-all
+    yum-utils emacs vim nano
+
+# TODO: add esopipe-espdr-all so there is an example?
 
 export PYCPL_RECIPE_DIR=$HOME/metis_pipeline/lib/esopipes-plugins
 pip install --extra-index-url https://ftp.eso.org/pub/dfs/pipelines/libraries pycpl pyesorex edps adari_core
