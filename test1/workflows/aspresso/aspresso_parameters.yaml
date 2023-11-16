@@ -1,0 +1,8 @@
+qc1_parameters:
+  tags: [ qc1calib ]
+  is_default: yes
+  recipe_parameters:
+    detmon:
+      detmon.detmon_opt_lg_mr.exts: -1
+      detmon.detmon_opt_lg_mr.ref_level: 20000
+
