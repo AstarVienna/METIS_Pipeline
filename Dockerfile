@@ -32,4 +32,5 @@ RUN chown -R ${NB_UID} ${HOME}
 
 # Install the pipeline as a normal user.
 USER ${NB_USER}
+RUN bash -l ${HOME}/METIS_Pipeline/toolbox/create_config.sh
 RUN bash -l ${HOME}/METIS_Pipeline/toolbox/install_metisp.sh
