@@ -16,4 +16,13 @@ dnf install -y \
     cpl cpl-devel \
     java \
     python3-astropy python3-matplotlib python3-numpy \
-    esorex esoreflex
+    esorex esoreflex \
+    perl cmake \
+    graphviz meld \
+    python-jupyter-core python-jupyter-client python-jupyter-notebook \
+    yum-utils emacs vim nano \
+    esopipe-espdr-all
+
+export PYCPL_RECIPE_DIR=$HOME/metis_pipeline/lib/esopipes-plugins
+pip install --extra-index-url https://ftp.eso.org/pub/dfs/pipelines/libraries pycpl
+pip install --extra-index-url https://ftp.eso.org/pub/dfs/pipelines/libraries pyesorex
