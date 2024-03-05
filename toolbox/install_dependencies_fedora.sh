@@ -16,4 +16,10 @@ dnf install -y \
     cpl cpl-devel \
     java \
     python3-astropy python3-matplotlib python3-numpy \
-    esorex esoreflex
+    esorex esoreflex \
+    perl cmake \
+    graphviz meld \
+    python-jupyter-core python-jupyter-client python-jupyter-notebook \
+    yum-utils emacs vim nano
+
+# TODO: add esopipe-espdr-all so there is an example?
