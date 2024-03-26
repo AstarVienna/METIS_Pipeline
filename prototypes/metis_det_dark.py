@@ -6,18 +6,16 @@ from cpl import dfs
 from cpl.core import Msg
 
 
-class ScienceDataProcessor(ui.PyRecipe):
+class MetisDetDark(ui.PyRecipe):
     # Fill in recipe information
-    _name = "basic_science"
-    _version = "1.0"
-    _author = "U.N. Owen"
-    _email = "unowen@somewhere.net"
+    _name = "metis_det_dark"
+    _version = "0.1"
+    _author = "Kieran Chi-Hung Hugo"
+    _email = "hugo@buddelmeijer.nl"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Basic science image data processing"
+    _synopsis = "Create master dark"
     _description = (
-        "The recipe combines all science input files in the input set-of-frames using\n"
-        + "the given method. For each input science image the master bias is subtracted,\n"
-        + "and it is divided by the master flat."
+        "Prototype to create a METIS Masterdark."
     )
 
     def __init__(self) -> None:
@@ -27,17 +25,18 @@ class ScienceDataProcessor(ui.PyRecipe):
         # user to select the frame combination method.
         self.parameters = ui.ParameterList(
             (
-                #ui.ParameterEnum(
-                #    name="basic_science.stacking.method",
-                #    context="basic_science",
-                #    description="Name of the method used to combine the input images",
-                #    default="add",
-                #    alternatives=("add", "average", "median"),
-                #),
+                ui.ParameterEnum(
+                   name="metis_det_dark.stacking.method",
+                   context="metis_det_dark",
+                   description="Name of the method used to combine the input images",
+                   default="average",
+                   alternatives=("add", "average", "median"),
+                ),
             )
         )
 
     def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
+        print(42)
         # Update the recipe paramters with the values requested by the user through the
         # settings argument
         for key, value in settings.items():
@@ -51,25 +50,17 @@ class ScienceDataProcessor(ui.PyRecipe):
 
         raw_frames = ui.FrameSet()
         product_frames = ui.FrameSet()
-        bias_frame = None
-        flat_frame = None
 
-        output_file = "OBJECT_REDUCED.fits"
+        # TODO: Detect detector
+        output_file = "MASTER_DARK_2RG.fits"
 
         # Go through the list of input frames, check the tag and act accordingly
         for frame in frameset:
-            if frame.tag == "N_IMAGE_SCI_RAW":
+            # TODO: N and GEO
+            if frame.tag == "DARK_LM_RAW":
                 frame.group = ui.Frame.FrameGroup.RAW
                 raw_frames.append(frame)
                 Msg.debug(self.name, f"Got raw frame: {frame.file}.")
-            elif frame.tag == "MASTER_DARK_GEO":
-                frame.group = ui.Frame.FrameGroup.CALIB
-                bias_frame = frame
-                Msg.debug(self.name, f"Got bias frame: {frame.file}.")
-            elif frame.tag == "MASTER_FLAT_GEO":
-                frame.group = ui.Frame.FrameGroup.CALIB
-                flat_frame = frame
-                Msg.debug(self.name, f"Got flat field frame: {frame.file}.")
             else:
                 Msg.warning(
                     self.name,
@@ -87,32 +78,21 @@ class ScienceDataProcessor(ui.PyRecipe):
         # FITS file is converted on the fly when an image is loaded from
         # a file. It is however also possible to load images without
         # performing this conversion.
-        bias_image = None
-        if bias_frame:
-            bias_image = core.Image.load(bias_frame.file, extension=1)
-            Msg.info(self.name, f"Loaded bias frame {bias_frame.file!r}.")
-        else:
-            #raise core.DataNotFoundError("No bias frame in frameset.")
-            Msg.warning(self.name, "No bias frame in frameset.")
 
-        flat_image = None
-        if flat_frame:
-            flat_image = core.Image.load(flat_frame.file, extension=1)
-            Msg.info(self.name, f"Loaded flat frame {flat_frame.file!r}.")
-        else:
-            # raise core.DataNotFoundError("No flat frame in frameset.")
-            Msg.warning(self.name, "No flat frame in frameset.")
 
         # Flat field preparation: subtract bias and normalize it to median 1
-        Msg.info(self.name, "Preparing flat field")
-        if flat_image:
-            if bias_image:
-                flat_image.subtract(bias_image)
-            median = flat_image.get_median()
-            flat_image.divide_scalar(median)
+        # Msg.info(self.name, "Preparing flat field")
+        # if flat_image:
+        #     if bias_image:
+        #         flat_image.subtract(bias_image)
+        #     median = flat_image.get_median()
+        #     flat_image.divide_scalar(median)
+
+
 
         header = None
-        processed_images = core.ImageList()
+        raw_images = core.ImageList()
+
         for idx, frame in enumerate(raw_frames):
             Msg.info(self.name, f"Processing {frame.file!r}...")
 
@@ -122,24 +102,19 @@ class ScienceDataProcessor(ui.PyRecipe):
             Msg.debug(self.name, "Loading image.")
             raw_image = core.Image.load(frame.file, extension=1)
 
-            if bias_image:
-                Msg.debug(self.name, "Bias subtracting...")
-                raw_image.subtract(bias_image)
-
-            if flat_image:
-                Msg.debug(self.name, "Flat fielding...")
-                raw_image.divide(flat_image)
 
             # Insert the processed image in an image list. Of course
             # there is also an append() method available.
-            processed_images.insert(idx, raw_image)
+            raw_images.insert(idx, raw_image)
 
         # Combine the images in the image list using the image stacking
         # option requested by the user.
-        method = self.parameters["basic_science.stacking.method"].value
+        method = self.parameters["metis_det_dark.stacking.method"].value
         Msg.info(self.name, f"Combining images using method {method!r}")
 
         combined_image = None
+        # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
+        processed_images = raw_images
         if method == "add":
             for idx, image in enumerate(processed_images):
                 if idx == 0:
@@ -163,7 +138,8 @@ class ScienceDataProcessor(ui.PyRecipe):
         # Create property list specifying the product tag of the processed image
         product_properties = core.PropertyList()
         product_properties.append(
-            core.Property("ESO PRO CATG", core.Type.STRING, r"OBJECT_REDUCED")
+            # TODO: Other detectors
+                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_DARK_2RG")
         )
 
         # Save the result image as a standard pipeline product file
@@ -184,7 +160,7 @@ class ScienceDataProcessor(ui.PyRecipe):
         product_frames.append(
             ui.Frame(
                 file=output_file,
-                tag="OBJECT_REDUCED",
+                tag="MASTER_DARK_2RG",
                 group=ui.Frame.FrameGroup.PRODUCT,
                 level=ui.Frame.FrameLevel.FINAL,
                 frameType=ui.Frame.FrameType.IMAGE,
