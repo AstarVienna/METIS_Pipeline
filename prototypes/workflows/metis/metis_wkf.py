@@ -27,10 +27,10 @@ def is_metis(f):
     return f[instrume] == "METIS"
 
 def is_calib(f):
-    return is_metis() and f[dpr_catg] == "CALIB"
+    return is_metis(f) and f[dpr_catg] == "CALIB"
 
 def is_science(f):
-    return is_metis() and f[dpr_catg] == "SCIENCE"
+    return is_metis(f) and f[dpr_catg] == "SCIENCE"
 
 # ASSOCIATION RULES f=file to associate (e.g. calibration) ref=trigger (e.g. science)
 # All the associations but this one are specified in the workflow, using .with_match_keywords()
@@ -40,10 +40,10 @@ def is_associated(ref, f):
     return True
 
 
-def assoc_setup_and_telescope(ref, f):
-    # return match(ref, f, [kwd.det_binx, kwd.det_biny, kwd.ins_mode, kwd.instrume]) and \
-    #        (match(ref, f, [kwd.ins5_modsel_id]) or match(ref, f, [kwd.ocs_enabled_fe]))
-    return match(ref, f, [kwd.instrume])
+# def assoc_setup_and_telescope(ref, f):
+#     # return match(ref, f, [kwd.det_binx, kwd.det_biny, kwd.ins_mode, kwd.instrume]) and \
+#     #        (match(ref, f, [kwd.ins5_modsel_id]) or match(ref, f, [kwd.ocs_enabled_fe]))
+#     return match(ref, f, [kwd.instrume])
 
 
 ### metis_classification.py ###
