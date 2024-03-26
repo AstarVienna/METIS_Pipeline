@@ -8,14 +8,14 @@ from cpl.core import Msg
 
 class MetisDetDark(ui.PyRecipe):
     # Fill in recipe information
-    _name = "metis_det_dark"
+    _name = "metis_lm_img_flat"
     _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo"
+    _author = "Kieran Chi-Hung Hugo Gilles Martin"
     _email = "hugo@buddelmeijer.nl"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Create master dark"
+    _synopsis = "Create master flat"
     _description = (
-        "Prototype to create a METIS Masterdark."
+        "Prototype to create a METIS Masterflat."
     )
 
     def __init__(self) -> None:
@@ -26,8 +26,8 @@ class MetisDetDark(ui.PyRecipe):
         self.parameters = ui.ParameterList(
             (
                 ui.ParameterEnum(
-                   name="metis_det_dark.stacking.method",
-                   context="metis_det_dark",
+                   name="metis_lm_img_flat.stacking.method",
+                   context="metis_lm_img_flat",
                    description="Name of the method used to combine the input images",
                    default="average",
                    alternatives=("add", "average", "median"),
@@ -36,7 +36,8 @@ class MetisDetDark(ui.PyRecipe):
         )
 
     def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
-        print(42)
+        print(9001)
+
         # Update the recipe paramters with the values requested by the user through the
         # settings argument
         for key, value in settings.items():
@@ -50,22 +51,28 @@ class MetisDetDark(ui.PyRecipe):
 
         raw_frames = ui.FrameSet()
         product_frames = ui.FrameSet()
+        masterdark = None
 
         # TODO: Detect detector
-        output_file = "MASTER_DARK_2RG.fits"
+        # TODO: Twilight
+        output_file = "MASTER_IMG_FLAT_LAMP.fits"
 
         # Go through the list of input frames, check the tag and act accordingly
         for frame in frameset:
             # TODO: N and GEO
-            if frame.tag == "DARK_LM_RAW":
+            if frame.tag == "LM_FLAT_LAMP_RAW":
                 frame.group = ui.Frame.FrameGroup.RAW
                 raw_frames.append(frame)
                 Msg.debug(self.name, f"Got raw frame: {frame.file}.")
+            elif frame.tag == "MASTER_DARK_2RG":
+                frame.group = ui.Frame.FrameGroup.RAW
+                masterdark = frame
             else:
                 Msg.warning(
                     self.name,
                     f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.",
                 )
+
 
         # For demonstration purposes we raise an exception here. Real world
         # recipes should rather print a message (also to have it in the log file)
@@ -73,21 +80,16 @@ class MetisDetDark(ui.PyRecipe):
         if len(raw_frames) == 0:
             raise core.DataNotFoundError("No raw frames in frameset.")
 
+        if masterdark is None:
+            raise core.DataNotFoundError("No masterdark frames in frameset.")
+
         # By default images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
         # FITS file is converted on the fly when an image is loaded from
         # a file. It is however also possible to load images without
         # performing this conversion.
 
-
-        # Flat field preparation: subtract bias and normalize it to median 1
-        # Msg.info(self.name, "Preparing flat field")
-        # if flat_image:
-        #     if bias_image:
-        #         flat_image.subtract(bias_image)
-        #     median = flat_image.get_median()
-        #     flat_image.divide_scalar(median)
-
+        masterdark_image = core.Image.load(masterdark.file, extension=0)
 
 
         header = None
@@ -102,6 +104,8 @@ class MetisDetDark(ui.PyRecipe):
             Msg.debug(self.name, "Loading image.")
             raw_image = core.Image.load(frame.file, extension=1)
 
+            # Subtract dark
+            raw_image.subtract(masterdark_image)
 
             # Insert the processed image in an image list. Of course
             # there is also an append() method available.
@@ -109,7 +113,7 @@ class MetisDetDark(ui.PyRecipe):
 
         # Combine the images in the image list using the image stacking
         # option requested by the user.
-        method = self.parameters["metis_det_dark.stacking.method"].value
+        method = self.parameters["metis_lm_img_flat.stacking.method"].value
         Msg.info(self.name, f"Combining images using method {method!r}")
 
         combined_image = None
@@ -139,7 +143,8 @@ class MetisDetDark(ui.PyRecipe):
         product_properties = core.PropertyList()
         product_properties.append(
             # TODO: Other detectors
-                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_DARK_2RG")
+            # TODO: Twilight
+                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_IMG_FLAT_LAMP_2RG")
         )
 
         # Save the result image as a standard pipeline product file
@@ -160,7 +165,7 @@ class MetisDetDark(ui.PyRecipe):
         product_frames.append(
             ui.Frame(
                 file=output_file,
-                tag="MASTER_DARK_2RG",
+                tag="MASTER_IMG_FLAT_LAMP_2RG",
                 group=ui.Frame.FrameGroup.PRODUCT,
                 level=ui.Frame.FrameLevel.FINAL,
                 frameType=ui.Frame.FrameType.IMAGE,
