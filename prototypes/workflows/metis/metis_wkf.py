@@ -51,7 +51,7 @@ def is_associated(ref, f):
 #from . import aspresso_rules as rules
 
 # Dictionaries containing the values of header keywords that define calibrations and science data
-metis_keywords = {instrume: "ESPRESSO"}
+metis_keywords = {instrume: "METIS"}
 calib_keywords = {**metis_keywords, dpr_catg: "CALIB"}
 science_keywords = {**metis_keywords, dpr_catg: "SCIENCE"}
 
