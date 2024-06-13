@@ -5,18 +5,36 @@ from cpl import ui
 from cpl import dfs
 from cpl.core import Msg
 
+import sys
+sys.path.append('.')
+__package__ = 'prototypes.recipes'
 
-class Metis_LM_IMG_Flat(ui.PyRecipe):
+from .base import MetisRecipe
+
+
+
+class _Metis_IFU_Reduce(MetisRecipe):
     # Fill in recipe information
-    _name = "metis_lm_img_flat"
+    _name = "metis_ifu_reduce"
     _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo Gilles Martin"
-    _email = "hugo@buddelmeijer.nl"
+    _author = "Martin"
+    _email = "martin.balaz@univie.ac.at"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Create master flat"
+    _synopsis = "Reduce raw science exposures of the IFU."
     _description = (
-        "Prototype to create a METIS Masterflat."
+        "Currently just a skeleton prototype."
     )
+
+    parameters = ui.ParameterList([
+        ui.ParameterEnum(
+           name="metis_lm_img_flat.stacking.method",
+           context="metis_lm_img_flat",
+           description="Name of the method used to combine the input images",
+           default="average",
+           alternatives=("add", "average", "median"),
+        ),
+    ])
+
 
     def __init__(self) -> None:
         super().__init__()
@@ -36,18 +54,7 @@ class Metis_LM_IMG_Flat(ui.PyRecipe):
         )
 
     def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
-        print(9001)
-
-        # Update the recipe paramters with the values requested by the user through the
-        # settings argument
-        for key, value in settings.items():
-            try:
-                self.parameters[key].value = value
-            except KeyError:
-                Msg.warning(
-                    self.name,
-                    f"Settings includes {key}:{value} but {self} has no parameter named {key}.",
-                )
+        super().run(frameset, settings)
 
         raw_frames = ui.FrameSet()
         product_frames = ui.FrameSet()
