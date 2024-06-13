@@ -43,6 +43,7 @@ class MetisDetDark(ui.PyRecipe):
 
         for frame in frameset:
             # TODO: N and GEO
+            print(frame.tag)
             if frame.tag == tag :
                 frame.group = ui.Frame.FrameGroup.RAW
                 raw_frames.append(frame)
@@ -106,7 +107,7 @@ class MetisDetDark(ui.PyRecipe):
             # Insert the processed image in an image list. Of course
             # there is also an append() method available.
             raw_images.insert(idx, raw_image)
-
+            
         return raw_images, header
         
     def doSingleDark(self,frameset, tag, extension, method):
@@ -125,6 +126,7 @@ class MetisDetDark(ui.PyRecipe):
 
         return processed_images, combined_image, method, raw_frames, header
     
+    
         
     def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
 
@@ -139,25 +141,31 @@ class MetisDetDark(ui.PyRecipe):
     
         method = self.parameters["metis_det_dark.stacking.method"].value
         #tag = self.parameters['tag'].value
-        tag = "DARK_LM_RAW"
-        output_file = "MASTER_DARK_2RG.fits"
+        tag = "DARK_IFU_RAW"
+        output_file = "MASTER_DARK_IFU.fits"
         
         # create the frameset(s)
         product_frames = ui.FrameSet()
 
-        availableTags = ["DARK_LM_RAW","N_DARK_RAW","IFU_DARK_RAW"]
+        availableTags = ["DARK_LM_RAW","DARK_N_RAW","DARK_IFU_RAW"]
         
         if tag not in availableTags:
             Msg.debug(self.name, f"Tag value of {tag} incorrect")
             # TODO RETURN EMPTY VALUES
-        
+
+
+
+    
         if(tag == "DARK_LM_RAW" or tag == "N_DARK_RAW"):
             processed_images, combined_image, method, raw_frames, header = self.doSingleDark(frameset, tag, 1, method)
-        elif(tag == "IFU_DARK_RAW"):
-            processed_images, combined_image, method, raw_frames, header = self.doSingleDark(frameset, tag, 1, method)
-            processed_images, combined_image, method, raw_frames, header = self.doSingleDark(frameset, tag, 2, method)
-            processed_images, combined_image, method, raw_frames, header = self.doSingleDark(frameset, tag, 3, method)
-            processed_images, combined_image, method, raw_frames, header = self.doSingleDark(frameset, tag, 4, method)
+
+        # make this bit more elegant once I figure out how I want to do it.
+        
+        elif(tag == "DARK_IFU_RAW"):
+            processed_images, combined_image1, method, raw_frames, header = self.doSingleDark(frameset, tag, 1, method)
+            processed_images, combined_image2, method, raw_frames, header = self.doSingleDark(frameset, tag, 2, method)
+            processed_images, combined_image3, method, raw_frames, header = self.doSingleDark(frameset, tag, 3, method)
+            processed_images, combined_image4, method, raw_frames, header = self.doSingleDark(frameset, tag, 4, method)
             
 
         product_properties = core.PropertyList()
@@ -170,27 +178,35 @@ class MetisDetDark(ui.PyRecipe):
             product_properties.append(
                 core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_DARK_GEO")
             )
-        elif(tag == "IFU_DARK_RAW"):
+        elif(tag == "DARK_IFU_RAW"):
             product_properties.append(
                 core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_DARK_IFU")
             )
 
 
-        ### I have no idea how to modify this part yet
+        ### initialize the file by saving the propertylist ot create the primary header
         
-        # Save the result image as a standard pipeline product file
         Msg.info(self.name, f"Saving product file as {output_file!r}.")
-        dfs.save_image(
+        dfs.save_propertylist(
             frameset,
             self.parameters,
             frameset,
-            combined_image,
             self.name,
             product_properties,
             f"demo/{self.version!r}",
             output_file,
             header=header,
         )
+
+        ### then save the extensions
+
+        if(tag == "DARK_LM_RAW" or tag == "DARK_N_RAW"):
+            combined_image.save(output_file, core.PropertyList(), core.io.EXTEND)
+        elif(tag == "DARK_IFU_RAW"):
+            combined_image1.save(output_file, core.PropertyList(), core.io.EXTEND)
+            combined_image2.save(output_file, core.PropertyList(), core.io.EXTEND)
+            combined_image3.save(output_file, core.PropertyList(), core.io.EXTEND)
+            combined_image4.save(output_file, core.PropertyList(), core.io.EXTEND)
 
         # Register the created product
         product_frames.append(
@@ -202,5 +218,6 @@ class MetisDetDark(ui.PyRecipe):
                 frameType=ui.Frame.FrameType.IMAGE,
             )
         )
+
 
         return product_frames
