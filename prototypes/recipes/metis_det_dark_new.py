@@ -63,7 +63,21 @@ class MetisDetDarkNew(MetisRecipe):
         if len(self.raw_frames) == 0:
             raise core.DataNotFoundError("No raw frames in frameset.")
 
-    def do_everything(self) -> ui.FrameSet:
+    def filter_raw_images(self):
+        for idx, frame in enumerate(self.raw_frames):
+            Msg.info(self.name, f"Processing {frame.file!r}...")
+
+            if idx == 0:
+                self.header = core.PropertyList.load(frame.file, 0)
+
+            Msg.debug(self.name, "Loading image.")
+            raw_image = core.Image.load(frame.file, extension=1)
+
+            # Insert the processed image in an image list. Of course
+            # there is also an append() method available.
+            self.raw_images.insert(idx, raw_image)
+
+    def process_images(self) -> ui.FrameSet:
 
         # By default images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
@@ -80,20 +94,6 @@ class MetisDetDarkNew(MetisRecipe):
         #     median = flat_image.get_median()
         #     flat_image.divide_scalar(median)
 
-        self.raw_images = core.ImageList()
-
-        for idx, frame in enumerate(self.raw_frames):
-            Msg.info(self.name, f"Processing {frame.file!r}...")
-
-            if idx == 0:
-                self.header = core.PropertyList.load(frame.file, 0)
-
-            Msg.debug(self.name, "Loading image.")
-            raw_image = core.Image.load(frame.file, extension=1)
-
-            # Insert the processed image in an image list. Of course
-            # there is also an append() method available.
-            self.raw_images.insert(idx, raw_image)
 
         # Combine the images in the image list using the image stacking
         # option requested by the user.
@@ -124,10 +124,8 @@ class MetisDetDarkNew(MetisRecipe):
             return self.product_frames
 
         # Save the result image as a standard pipeline product file
-        self.add_properties()
-        return self.save_product()
 
-    def add_properties(self) -> None:
+    def add_product_properties(self) -> None:
         # Create property list specifying the product tag of the processed image
         self.product_properties.append(
             # TODO: Other detectors

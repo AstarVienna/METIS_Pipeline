@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import Dict, Any
 
-from cpl.core import Msg, PropertyList
+from cpl.core import Msg, PropertyList, ImageList
 from cpl.ui import PyRecipe, FrameSet
 
 
@@ -19,6 +19,7 @@ class MetisRecipe(PyRecipe, metaclass=ABCMeta):
         self.raw_frames = FrameSet()
         self.frameset = None
         self.header = None
+        self.raw_images = ImageList()
         self.product_frames = FrameSet()
         self.product_properties = PropertyList()
 
@@ -28,8 +29,12 @@ class MetisRecipe(PyRecipe, metaclass=ABCMeta):
 
         self.process_settings(settings)     # Process the provided settings dict
         self.load_input(frameset)           # Load the input raw frames
-        self.do_everything()
+        self.filter_raw_images()            # Filter raw images based on keywords
+        self.process_images()
+        self.add_product_properties()
         self.produce_output()
+        self.save_product()
+
         return self.product_frames
 
     def process_settings(self, settings: Dict[str, Any]) -> None:
