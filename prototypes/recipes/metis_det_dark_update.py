@@ -107,6 +107,7 @@ class MetisDetDark(ui.PyRecipe):
 
             if idx == 0:
                 header = core.PropertyList.load(frame.file, 0)
+                extheader = core.PropertyList.load(frame.file, extension)
 
             Msg.debug(self.name, "Loading image.")
             raw_image = core.Image.load(frame.file, extension=extension)
@@ -116,7 +117,7 @@ class MetisDetDark(ui.PyRecipe):
             # there is also an append() method available.
             raw_images.insert(idx, raw_image)
             
-        return raw_images, header
+        return raw_images, header, extheader
         
     def doSingleDark(self,frameset, tag, extension, method):
 
@@ -128,7 +129,7 @@ class MetisDetDark(ui.PyRecipe):
             
 
         print(raw_frames)
-        raw_images, header = self.extractImages(raw_frames, extension)
+        raw_images, header, extheader = self.extractImages(raw_frames, extension)
 
 
         processed_images, combined_image = self.stackImages(raw_images, method)
@@ -138,7 +139,8 @@ class MetisDetDark(ui.PyRecipe):
         out_struct['error'] = combined_image
         out_struct['quality'] = combined_image
         out_struct['header'] = header
-        out_struct['raw_frames'] = header
+        out_struct['raw_frames'] = raw_frames
+        out_struct['extheader'] = extheader
         
         return out_struct
     
@@ -218,22 +220,22 @@ class MetisDetDark(ui.PyRecipe):
         ### then save the extensions
 
         for out_struct in output_list:
-            extension_properties = core.PropertyList()
+            extension_properties = out_struct['extheader']
             extension_properties.append(core.Property("HDUCLAS1",core.Type.STRING, r"IMAGE"))
             extension_properties.append(core.Property("HDUCLAS2",core.Type.STRING, r"DATA"))
-            out_struct['data'].to_type(core.Type.INT).save(output_file, core.PropertyList(), core.io.EXTEND)
+            out_struct['data'].to_type(core.Type.INT).save(output_file, extension_properties, core.io.EXTEND)
 
-            extension_properties = core.PropertyList()
+            extension_properties = out_struct['extheader']
             extension_properties.append(core.Property("HDUCLAS1",core.Type.STRING, r"IMAGE"))
             extension_properties.append(core.Property("HDUCLAS2",core.Type.STRING, r"ERROR"))
             extension_properties.append(core.Property("HDUCLAS3",core.Type.STRING, r"RSME"))
-            out_struct['error'].to_type(core.Type.INT).save(output_file, core.PropertyList(), core.io.EXTEND)
+            out_struct['error'].to_type(core.Type.INT).save(output_file, extension_properties, core.io.EXTEND)
 
-            extension_properties = core.PropertyList()
+            extension_properties = out_struct['extheader']
             extension_properties.append(core.Property("HDUCLAS1",core.Type.STRING, r"IMAGE"))
             extension_properties.append(core.Property("HDUCLAS2",core.Type.STRING, r"QUALITY"))
             extension_properties.append(core.Property("HDUCLAS3",core.Type.STRING, r"FLAG32BIT"))
-            out_struct['quality'].to_type(core.Type.INT).save(output_file, core.PropertyList(), core.io.EXTEND)
+            out_struct['quality'].to_type(core.Type.INT).save(output_file, extension_properties, core.io.EXTEND)
 
             
 
