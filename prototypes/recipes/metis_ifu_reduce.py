@@ -7,15 +7,15 @@ from cpl.core import Msg
 
 import sys
 sys.path.append('.')
-__package__ = 'prototypes.recipes'
+__package__ = 'prototypes'
 
 from .base import MetisRecipe
 
 
 
-class _Metis_IFU_Reduce(MetisRecipe):
+class Metis_IFU_Reduce(MetisRecipe):
     # Fill in recipe information
-    _name = "metis_ifu_reduce"
+    _name = "metis_ifu_reduce_new"
     _version = "0.1"
     _author = "Martin"
     _email = "martin.balaz@univie.ac.at"
@@ -34,7 +34,6 @@ class _Metis_IFU_Reduce(MetisRecipe):
            alternatives=("add", "average", "median"),
         ),
     ])
-
 
     def __init__(self) -> None:
         super().__init__()
@@ -146,6 +145,7 @@ class _Metis_IFU_Reduce(MetisRecipe):
             # it is still empty here!
             return product_frames
 
+    def add_product_properties(self) -> None:
         # Create property list specifying the product tag of the processed image
         product_properties = core.PropertyList()
         product_properties.append(

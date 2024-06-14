@@ -79,7 +79,6 @@ class MetisDetDark(ui.PyRecipe):
         # a file. It is however also possible to load images without
         # performing this conversion.
 
-
         # Flat field preparation: subtract bias and normalize it to median 1
         # Msg.info(self.name, "Preparing flat field")
         # if flat_image:
@@ -87,8 +86,6 @@ class MetisDetDark(ui.PyRecipe):
         #         flat_image.subtract(bias_image)
         #     median = flat_image.get_median()
         #     flat_image.divide_scalar(median)
-
-
 
         header = None
         raw_images = core.ImageList()
@@ -139,7 +136,7 @@ class MetisDetDark(ui.PyRecipe):
         product_properties = core.PropertyList()
         product_properties.append(
             # TODO: Other detectors
-                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_DARK_2RG")
+            core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_DARK_2RG")
         )
 
         # Save the result image as a standard pipeline product file
