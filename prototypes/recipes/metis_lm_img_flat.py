@@ -1,8 +1,6 @@
 from typing import Any, Dict
 
 import cpl
-from cpl.ui import Frame, FrameSet, ParameterList, ParameterEnum
-from cpl import dfs
 from cpl.core import Msg
 
 import sys
@@ -24,13 +22,13 @@ class MetisLmImgFlat(MetisRecipe):
         "Prototype to create a METIS Masterflat."
     )
 
-    parameters = ParameterList([
-        ParameterEnum(
-           name="metis_lm_img_flat.stacking.method",
-           context="metis_lm_img_flat",
-           description="Name of the method used to combine the input images",
-           default="average",
-           alternatives=("add", "average", "median"),
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="metis_lm_img_flat.stacking.method",
+            context="metis_lm_img_flat",
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median"),
         ),
     ])
 
@@ -40,7 +38,7 @@ class MetisLmImgFlat(MetisRecipe):
         self.masterdark_image = None
         self.combined_image = None
 
-    def load_input(self, frameset) -> cpl.ui.FrameSet:
+    def load_input(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
         """ Go through the list of input frames, check the tag and act accordingly """
         for frame in frameset:
             # TODO: N and GEO
@@ -122,7 +120,7 @@ class MetisLmImgFlat(MetisRecipe):
     def save_product(self) -> cpl.ui.FrameSet:
         # Save the result image as a standard pipeline product file
         Msg.info(self.name, f"Saving product file as {self.output_file!r}.")
-        dfs.save_image(
+        cpl.dfs.save_image(
             self.frameset,
             self.parameters,
             self.frameset,

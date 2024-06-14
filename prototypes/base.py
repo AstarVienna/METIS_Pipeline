@@ -10,13 +10,13 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
         Common METIS-specific steps.
         We might want to refactor this some more, probably some more specific subclasses will show up.
     """
-    _name = "undefined"
-    _author = "undefined"
-    _email = "undefined@undefined.undefined"
-    _copyright = "GPL-3.0-or-later"
-    _description = "Base class for METIS pipeline recipes"
-    _synopsis = "Base class"
-    _version = "1.0"
+    _name: str = "undefined"
+    _author: str = "undefined"
+    _email: str = "undefined@undefined.undefined"
+    _copyright: str = "GPL-3.0-or-later"
+    _description: str = "Base class for METIS pipeline recipes"
+    _synopsis: str = "Base class"
+    _version: str = "1.0"
 
     parameters = cpl.ui.ParameterList([])
 

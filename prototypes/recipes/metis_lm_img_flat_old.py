@@ -26,11 +26,11 @@ class MetisLmImgFlatOld(ui.PyRecipe):
         self.parameters = ui.ParameterList(
             (
                 ui.ParameterEnum(
-                   name="metis_lm_img_flat.stacking.method",
-                   context="metis_lm_img_flat",
-                   description="Name of the method used to combine the input images",
-                   default="average",
-                   alternatives=("add", "average", "median"),
+                    name="metis_lm_img_flat.stacking.method",
+                    context="metis_lm_img_flat",
+                    description="Name of the method used to combine the input images",
+                    default="average",
+                    alternatives=("add", "average", "median"),
                 ),
             )
         )
