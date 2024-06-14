@@ -30,7 +30,15 @@ class MetisDetDark(ui.PyRecipe):
                    context="metis_det_dark",
                    description="Name of the method used to combine the input images",
                    default="average",
-                   alternatives=("add", "average", "median"),
+                    alternatives=("add", "average", "median"),
+                ),
+                ui.ParameterEnum(
+                   name="metis_det_dark.do.catg",
+                   context="metis_det_dark",
+                   description="DO.CATG type to process",
+                   default="DARK_LM_RAW",
+                   alternatives=("DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"),
+                    
                 ),
             )
         )
@@ -117,6 +125,7 @@ class MetisDetDark(ui.PyRecipe):
             for IFU """
 
         raw_frames = self.extractFrames(frameset, tag, extension)
+            
 
         print(raw_frames)
         raw_images, header = self.extractImages(raw_frames, extension)
@@ -124,12 +133,23 @@ class MetisDetDark(ui.PyRecipe):
 
         processed_images, combined_image = self.stackImages(raw_images, method)
 
-        return processed_images, combined_image, method, raw_frames, header
-    
+        out_struct = {}
+        out_struct['data'] = combined_image
+        out_struct['error'] = combined_image
+        out_struct['quality'] = combined_image
+        out_struct['header'] = header
+        out_struct['raw_frames'] = header
+        
+        return out_struct
     
         
     def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
 
+        # create the frameset that will be returned. It is currently empty. 
+        product_frames = ui.FrameSet()
+
+        # check for user specified parameters
+            
         for key, value in settings.items():
             try:
                 self.parameters[key].value = value
@@ -138,52 +158,49 @@ class MetisDetDark(ui.PyRecipe):
                     self.name,
                     f"Settings includes {key}:{value} but {self} has no parameter named {key}.",
                 )
-    
-        method = self.parameters["metis_det_dark.stacking.method"].value
-        #tag = self.parameters['tag'].value
-        tag = "DARK_IFU_RAW"
-        output_file = "MASTER_DARK_IFU.fits"
-        
-        # create the frameset(s)
-        product_frames = ui.FrameSet()
 
-        availableTags = ["DARK_LM_RAW","DARK_N_RAW","DARK_IFU_RAW"]
-        
+        # set the user defined variables
+            
+        method = self.parameters["metis_det_dark.stacking.method"].value
+
+        # this check is probably unnecessary and will be done by the parameterEnum check
+        availableTags = ["DARK_LM_RAW","DARK_N_RAW_IFU_RAW"]
+            
+        tag = self.parameters['metis_det_dark.do.catg'].value
         if tag not in availableTags:
             Msg.debug(self.name, f"Tag value of {tag} incorrect")
             # TODO RETURN EMPTY VALUES
 
-
-
-    
-        if(tag == "DARK_LM_RAW" or tag == "N_DARK_RAW"):
-            processed_images, combined_image, method, raw_frames, header = self.doSingleDark(frameset, tag, 1, method)
-
-        # make this bit more elegant once I figure out how I want to do it.
-        
-        elif(tag == "DARK_IFU_RAW"):
-            processed_images, combined_image1, method, raw_frames, header = self.doSingleDark(frameset, tag, 1, method)
-            processed_images, combined_image2, method, raw_frames, header = self.doSingleDark(frameset, tag, 2, method)
-            processed_images, combined_image3, method, raw_frames, header = self.doSingleDark(frameset, tag, 3, method)
-            processed_images, combined_image4, method, raw_frames, header = self.doSingleDark(frameset, tag, 4, method)
             
-
-        product_properties = core.PropertyList()
-
+        # set the output file name
         if(tag == "DARK_LM_RAW"):
-            product_properties.append(
-                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_DARK_2RG")
-                )
-        elif(tag == "N_DARK_RAW"):
-            product_properties.append(
-                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_DARK_GEO")
-            )
+            output_file = "MASTER_DARK_LM.fits"
+            catg = r"MASTER_DARK_2RG"
+            next = 1
+        elif(tag == "DARK_N_RAW"):
+            output_file = "MASTER_DARK_N.fits"
+            catg = r"MASTER_DARK_GEO"
+            next = 1
         elif(tag == "DARK_IFU_RAW"):
-            product_properties.append(
-                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_DARK_IFU")
-            )
+            output_file = "MASTER_DARK_IFU.fits"
+            catg = r"MASTER_DARK_IFU"
+            next = 4
 
+        print(tag, output_file, catg, next)
+        # put the output into a list, then we can loop over them to handle 1 or 4 detectors
+        output_list = []
 
+        # for each detector, calculate the dark frame
+        for i in range(1,next+1):
+            output_list.append(self.doSingleDark(frameset, tag, i, method))
+
+        # set the PRO.CATG in the propertylist
+        product_properties = core.PropertyList()        
+        product_properties.append(
+                core.Property("ESO PRO CATG", core.Type.STRING, catg)
+        )
+        
+        
         ### initialize the file by saving the propertylist ot create the primary header
         
         Msg.info(self.name, f"Saving product file as {output_file!r}.")
@@ -195,29 +212,40 @@ class MetisDetDark(ui.PyRecipe):
             product_properties,
             f"demo/{self.version!r}",
             output_file,
-            header=header,
+            header=output_list[0]['header'],
         )
-
+        
         ### then save the extensions
 
-        if(tag == "DARK_LM_RAW" or tag == "DARK_N_RAW"):
-            combined_image.save(output_file, core.PropertyList(), core.io.EXTEND)
-        elif(tag == "DARK_IFU_RAW"):
-            combined_image1.save(output_file, core.PropertyList(), core.io.EXTEND)
-            combined_image2.save(output_file, core.PropertyList(), core.io.EXTEND)
-            combined_image3.save(output_file, core.PropertyList(), core.io.EXTEND)
-            combined_image4.save(output_file, core.PropertyList(), core.io.EXTEND)
+        for out_struct in output_list:
+            extension_properties = core.PropertyList()
+            extension_properties.append(core.Property("HDUCLAS1",core.Type.STRING, r"IMAGE"))
+            extension_properties.append(core.Property("HDUCLAS2",core.Type.STRING, r"DATA"))
+            out_struct['data'].to_type(core.Type.INT).save(output_file, core.PropertyList(), core.io.EXTEND)
+
+            extension_properties = core.PropertyList()
+            extension_properties.append(core.Property("HDUCLAS1",core.Type.STRING, r"IMAGE"))
+            extension_properties.append(core.Property("HDUCLAS2",core.Type.STRING, r"ERROR"))
+            extension_properties.append(core.Property("HDUCLAS3",core.Type.STRING, r"RSME"))
+            out_struct['error'].to_type(core.Type.INT).save(output_file, core.PropertyList(), core.io.EXTEND)
+
+            extension_properties = core.PropertyList()
+            extension_properties.append(core.Property("HDUCLAS1",core.Type.STRING, r"IMAGE"))
+            extension_properties.append(core.Property("HDUCLAS2",core.Type.STRING, r"QUALITY"))
+            extension_properties.append(core.Property("HDUCLAS3",core.Type.STRING, r"FLAG32BIT"))
+            out_struct['quality'].to_type(core.Type.INT).save(output_file, core.PropertyList(), core.io.EXTEND)
+
+            
 
         # Register the created product
         product_frames.append(
             ui.Frame(
                 file=output_file,
-                tag="MASTER_DARK_2RG",
+                tag=catg,
                 group=ui.Frame.FrameGroup.PRODUCT,
                 level=ui.Frame.FrameLevel.FINAL,
                 frameType=ui.Frame.FrameType.IMAGE,
             )
         )
-
 
         return product_frames
