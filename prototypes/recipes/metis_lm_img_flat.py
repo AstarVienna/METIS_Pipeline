@@ -1,12 +1,18 @@
 from typing import Any, Dict
 
-from cpl import core
-from cpl import ui
+import cpl
+from cpl.ui import Frame, FrameSet, ParameterList, ParameterEnum
 from cpl import dfs
 from cpl.core import Msg
 
+import sys
+sys.path.append('.')
+__package__ = 'prototypes'
 
-class Metis_LM_IMG_Flat(ui.PyRecipe):
+from .base import MetisRecipe
+
+
+class MetisLmImgFlat(MetisRecipe):
     # Fill in recipe information
     _name = "metis_lm_img_flat"
     _version = "0.1"
@@ -18,70 +24,54 @@ class Metis_LM_IMG_Flat(ui.PyRecipe):
         "Prototype to create a METIS Masterflat."
     )
 
+    parameters = ParameterList([
+        ParameterEnum(
+           name="metis_lm_img_flat.stacking.method",
+           context="metis_lm_img_flat",
+           description="Name of the method used to combine the input images",
+           default="average",
+           alternatives=("add", "average", "median"),
+        ),
+    ])
+
     def __init__(self) -> None:
         super().__init__()
+        self.masterdark = None
+        self.masterdark_image = None
+        self.combined_image = None
 
-        # The recipe will have a single enumeration type parameter, which allows the
-        # user to select the frame combination method.
-        self.parameters = ui.ParameterList(
-            (
-                ui.ParameterEnum(
-                   name="metis_lm_img_flat.stacking.method",
-                   context="metis_lm_img_flat",
-                   description="Name of the method used to combine the input images",
-                   default="average",
-                   alternatives=("add", "average", "median"),
-                ),
-            )
-        )
-
-    def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
-        print(9001)
-
-        # Update the recipe paramters with the values requested by the user through the
-        # settings argument
-        for key, value in settings.items():
-            try:
-                self.parameters[key].value = value
-            except KeyError:
-                Msg.warning(
-                    self.name,
-                    f"Settings includes {key}:{value} but {self} has no parameter named {key}.",
-                )
-
-        raw_frames = ui.FrameSet()
-        product_frames = ui.FrameSet()
-        masterdark = None
-
-        # TODO: Detect detector
-        # TODO: Twilight
-        output_file = "MASTER_IMG_FLAT_LAMP.fits"
-
-        # Go through the list of input frames, check the tag and act accordingly
+    def load_input(self, frameset) -> cpl.ui.FrameSet:
+        """ Go through the list of input frames, check the tag and act accordingly """
         for frame in frameset:
             # TODO: N and GEO
-            if frame.tag == "LM_FLAT_LAMP_RAW":
-                frame.group = ui.Frame.FrameGroup.RAW
-                raw_frames.append(frame)
-                Msg.debug(self.name, f"Got raw frame: {frame.file}.")
-            elif frame.tag == "MASTER_DARK_2RG":
-                frame.group = ui.Frame.FrameGroup.RAW
-                masterdark = frame
-            else:
-                Msg.warning(
-                    self.name,
-                    f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.",
-                )
+            match frame.tag:
+                case "LM_FLAT_LAMP_RAW":
+                    frame.group = cpl.ui.Frame.FrameGroup.RAW
+                    self.raw_frames.append(frame)
+                    Msg.debug(self.name, f"Got raw frame: {frame.file}.")
+                case "MASTER_DARK_2RG":
+                    frame.group = cpl.ui.Frame.FrameGroup.RAW
+                    self.masterdark = frame
+                case _:
+                    Msg.warning(
+                        self.name,
+                        f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.",
+                    )
 
+            # For demonstration purposes we raise an exception here. Real world
+            # recipes should rather print a message (also to have it in the log file)
+            # and exit gracefully.
+            if len(self.raw_frames) == 0:
+                raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
-        # For demonstration purposes we raise an exception here. Real world
-        # recipes should rather print a message (also to have it in the log file)
-        # and exit gracefully.
-        if len(raw_frames) == 0:
-            raise core.DataNotFoundError("No raw frames in frameset.")
+            if self.masterdark is None:
+                raise cpl.core.DataNotFoundError("No masterdark frames in frameset.")
 
-        if masterdark is None:
-            raise core.DataNotFoundError("No masterdark frames in frameset.")
+        return self.raw_frames
+
+    def process_images(self) -> cpl.ui.FrameSet:
+        # TODO: Detect detector
+        # TODO: Twilight
 
         # By default images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
@@ -89,46 +79,28 @@ class Metis_LM_IMG_Flat(ui.PyRecipe):
         # a file. It is however also possible to load images without
         # performing this conversion.
 
-        masterdark_image = core.Image.load(masterdark.file, extension=0)
+        self.masterdark_image = cpl.core.Image.load(self.masterdark.file, extension=0)
 
+        # Subtract the dark from every raw image
+        for raw_image in self.raw_images:
+            raw_image.subtract(self.masterdark_image)
 
-        header = None
-        raw_images = core.ImageList()
-
-        for idx, frame in enumerate(raw_frames):
-            Msg.info(self.name, f"Processing {frame.file!r}...")
-
-            if idx == 0:
-                header = core.PropertyList.load(frame.file, 0)
-
-            Msg.debug(self.name, "Loading image.")
-            raw_image = core.Image.load(frame.file, extension=1)
-
-            # Subtract dark
-            raw_image.subtract(masterdark_image)
-
-            # Insert the processed image in an image list. Of course
-            # there is also an append() method available.
-            raw_images.insert(idx, raw_image)
-
-        # Combine the images in the image list using the image stacking
-        # option requested by the user.
+        # Combine the images in the image list using the image stacking option requested by the user.
         method = self.parameters["metis_lm_img_flat.stacking.method"].value
         Msg.info(self.name, f"Combining images using method {method!r}")
 
-        combined_image = None
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        processed_images = raw_images
+        self.processed_images = self.raw_images
         if method == "add":
-            for idx, image in enumerate(processed_images):
+            for idx, image in enumerate(self.processed_images):
                 if idx == 0:
-                    combined_image = image
+                    self.combined_image = image
                 else:
-                    combined_image.add(image)
+                    self.combined_image.add(image)
         elif method == "average":
-            combined_image = processed_images.collapse_create()
+            self.combined_image = self.processed_images.collapse_create()
         elif method == "median":
-            combined_image = processed_images.collapse_median_create()
+            self.combined_image = self.processed_images.collapse_median_create()
         else:
             Msg.error(
                 self.name,
@@ -137,39 +109,43 @@ class Metis_LM_IMG_Flat(ui.PyRecipe):
             # Since we did not create a product we need to return an empty
             # ui.FrameSet object. The result frameset product_frames will do,
             # it is still empty here!
-            return product_frames
+            return self.product_frames
 
+    def add_product_properties(self) -> None:
         # Create property list specifying the product tag of the processed image
-        product_properties = core.PropertyList()
-        product_properties.append(
+        self.product_properties.append(
             # TODO: Other detectors
             # TODO: Twilight
-                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_IMG_FLAT_LAMP_2RG")
+            cpl.core.Property("ESO PRO CATG", cpl.core.Type.STRING, r"MASTER_IMG_FLAT_LAMP_2RG")
         )
 
+    def save_product(self) -> cpl.ui.FrameSet:
         # Save the result image as a standard pipeline product file
-        Msg.info(self.name, f"Saving product file as {output_file!r}.")
+        Msg.info(self.name, f"Saving product file as {self.output_file!r}.")
         dfs.save_image(
-            frameset,
+            self.frameset,
             self.parameters,
-            frameset,
-            combined_image,
+            self.frameset,
+            self.combined_image,
             self.name,
-            product_properties,
+            self.product_properties,
             f"demo/{self.version!r}",
-            output_file,
-            header=header,
+            self.output_file,
+            header=self.header,
         )
 
         # Register the created product
-        product_frames.append(
-            ui.Frame(
-                file=output_file,
+        self.product_frames.append(
+            cpl.ui.Frame(
+                file=self.output_file,
                 tag="MASTER_IMG_FLAT_LAMP_2RG",
-                group=ui.Frame.FrameGroup.PRODUCT,
-                level=ui.Frame.FrameLevel.FINAL,
-                frameType=ui.Frame.FrameType.IMAGE,
+                group=cpl.ui.Frame.FrameGroup.PRODUCT,
+                level=cpl.ui.Frame.FrameLevel.FINAL,
+                frameType=cpl.ui.Frame.FrameType.IMAGE,
             )
         )
 
-        return product_frames
+        return self.product_frames
+
+    def get_output_file_name(self) -> str:
+        return "MASTER_IMG_FLAT_LAMP.fits"
