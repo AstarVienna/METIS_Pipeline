@@ -61,6 +61,8 @@ class MetisLmImgFlat(MetisRecipe):
     def process_images(self) -> cpl.ui.FrameSet:
         # TODO: Detect detector
         # TODO: Twilight
+        output_file = "MASTER_IMG_FLAT_LAMP.fits"
+        print(frameset)
 
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
