@@ -44,40 +44,35 @@ raw_science_class = classification_rule("LM_IMAGE_SCI_RAW",
 # --- Data sources ---
 raw_dark = (data_source()
             .with_classification_rule(rawdark_class)
-            .build())
-
-master_dark = (data_source()
-            .with_classification_rule(masterdark_class)
+            .with_match_keywords(["instrume"])
             .build())
 
 lm_lampclass_flat = (data_source()
             .with_classification_rule(lm_lampflat_class)
-            .with_classification_rule(masterdark_class)
+            .with_match_keywords(["instrume"])
             .build())
+
 lm_basic_science = (data_source()
             .with_classification_rule(raw_science_class)        
-            .with_classification_rule(masterflat_class)
-            .with_classification_rule(masterdark_class)
+            .with_match_keywords(["instrume"])
             .build())
 
 # --- Processing tasks ---
-dark_task = (task("metis_det_dark")
+dark_task = (task('metis_det_dark')
             .with_main_input(raw_dark)
-            .with_meta_targets([SCIENCE])
             .with_recipe("metis_det_dark")
             .build())
 
 flat_task = (task("metis_lm_img_flat")
             .with_main_input(lm_lampclass_flat)
-            #.with_associated_input(dark_task)
-            .with_meta_targets([SCIENCE])
+            .with_associated_input(dark_task,[masterdark_class])
             .with_recipe("metis_lm_img_flat")
             .build())
 
 basic_science = (task('basic_science')
                     .with_recipe('metis_lm_basic_science')
                     .with_main_input(lm_basic_science)
-                    #.with_associated_input(flat_task)
-                    #.with_associated_input(master_flat_geo)
+                    .with_associated_input(dark_task,[masterdark_class])
+                    .with_associated_input(flat_task, [masterflat_class])
                     .with_meta_targets([SCIENCE])
                     .build())
