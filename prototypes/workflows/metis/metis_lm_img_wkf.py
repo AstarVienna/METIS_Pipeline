@@ -20,17 +20,10 @@ lm_lampflat_class = classification_rule("LM_FLAT_LAMP_RAW",
 twlightflat_class = classification_rule("TWLIGHT_FLAT",
                                 {"instrume":"METIS", 
                                  "dpr.catg": "CALIB", 
-                                 "dpr.type":"FLAT,TWILIGHT",})
-
-masterdark_class = classification_rule("MASTER_DARK_2RG",
-                                {"instrume":"METIS", 
-                                 "pipefile": "MASTER_DARK_2RG.fits", 
+                                 "dpr.type":"FLAT,TWILIGHT",
+                                 "dpr.tech":"IMAGE,LM",
                                  })
 
-masterflat_class = classification_rule("MASTER_FLAT_LAMP",
-                                {"instrume":"METIS", 
-                                 "pipefile": "MASTER_IMG_FLAT_LAMP.fits", 
-                                 })
 
 raw_science_class = classification_rule("LM_IMAGE_SCI_RAW",
                                 {"instrume":"METIS", 
@@ -47,7 +40,7 @@ raw_dark = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-lm_lampclass_flat = (data_source()
+lm_lamp_flat = (data_source()
             .with_classification_rule(lm_lampflat_class)
             .with_match_keywords(["instrume"])
             .build())
@@ -64,15 +57,15 @@ dark_task = (task('metis_det_dark')
             .build())
 
 flat_task = (task("metis_lm_img_flat")
-            .with_main_input(lm_lampclass_flat)
-            .with_associated_input(dark_task,[masterdark_class])
+            .with_main_input(lm_lamp_flat)
+            .with_associated_input(dark_task)
             .with_recipe("metis_lm_img_flat")
             .build())
 
 basic_science = (task('basic_science')
                     .with_recipe('metis_lm_basic_science')
                     .with_main_input(lm_basic_science)
-                    .with_associated_input(dark_task,[masterdark_class])
-                    .with_associated_input(flat_task, [masterflat_class])
+                    .with_associated_input(dark_task)
+                    .with_associated_input(flat_task)
                     .with_meta_targets([SCIENCE])
                     .build())
