@@ -38,11 +38,14 @@ class MetisIfuReduce(MetisRecipe):
         super().__init__()
         self.combined_image = None
 
-    def load_input(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
+    def load_frameset(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
         for frame in frameset:
             match frame.tag:
-                case "DARK_IFU_RAW":
-                    pass
+                case "MASTER_DARK_IFU":
+                    frame.group = cpl.ui.Frame.FrameGroup.MASTER_DARK_IFU
+                case _:
+                    Msg.warning(self.name,
+                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
 
         return frameset
 

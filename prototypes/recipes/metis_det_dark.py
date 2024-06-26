@@ -37,8 +37,9 @@ class MetisDetDark(MetisRecipe):
     def __init__(self):
         super().__init__()
         self.combined_image = None
+        self._detector_name = ""
 
-    def load_input(self, frameset) -> cpl.ui.FrameSet:
+    def load_frameset(self, frameset) -> cpl.ui.FrameSet:
         """ Go through the list of input frames, check the tag and act accordingly """
 
         for frame in frameset:
@@ -49,10 +50,8 @@ class MetisDetDark(MetisRecipe):
                     self.raw_frames.append(frame)
                     Msg.debug(self.name, f"Got raw frame: {frame.file}.")
                 case _:
-                    Msg.warning(
-                        self.name,
-                        f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.",
-                    )
+                    Msg.warning(self.name,
+                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
         # For demonstration purposes we raise an exception here. Real world
         # recipes should rather print a message (also to have it in the log file)
@@ -84,21 +83,19 @@ class MetisDetDark(MetisRecipe):
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         processed_images = self.raw_images
-        if method == "add":
-            for idx, image in enumerate(processed_images):
-                if idx == 0:
-                    self.combined_image = image
-                else:
-                    self.combined_image.add(image)
-        elif method == "average":
-            self.combined_image = processed_images.collapse_create()
-        elif method == "median":
-            self.combined_image = processed_images.collapse_median_create()
-        else:
-            Msg.error(
-                self.name,
-                f"Got unknown stacking method {method!r}. Stopping right here!",
-            )
+        match method:
+            case "add":
+                for idx, image in enumerate(processed_images):
+                    if idx == 0:
+                        self.combined_image = image
+                    else:
+                        self.combined_image.add(image)
+            case "average":
+                self.combined_image = processed_images.collapse_create()
+            case "median":
+                self.combined_image = processed_images.collapse_median_create()
+            case _:
+                Msg.error(self.name, f"Got unknown stacking method {method!r}. Stopping right here!")
             # Since we did not create a product we need to return an empty
             # ui.FrameSet object. The result frameset product_frames will do,
             # it is still empty here!
@@ -107,10 +104,12 @@ class MetisDetDark(MetisRecipe):
         # Save the result image as a standard pipeline product file
 
     def add_product_properties(self) -> None:
-        # Create property list specifying the product tag of the processed image
+        """ Create property list specifying the product tag of the processed image """
         self.product_properties.append(
             # TODO: Other detectors
-            cpl.core.Property("ESO PRO CATG", cpl.core.Type.STRING, r"MASTER_DARK_2RG")
+            cpl.core.Property("ESO PRO CATG",
+                              cpl.core.Type.STRING,
+                              rf"MASTER_DARK_{self.detector_name}")
         )
 
     def save_product(self) -> cpl.ui.FrameSet:
@@ -143,17 +142,19 @@ class MetisDetDark(MetisRecipe):
     @property
     def detector_name(self) -> str:
         if self.header is None:
-            return NotImplemented
+            raise ValueError("No header is present, cannot determine detector name")
         else:
-            match self.header['ESO DPR TECH'].value:
+            match (det := self.header['ESO DPR TECH'].value):
                 case "IMAGE,LM":
                     return "2RG"
                 case "IMAGE,N":
                     return "GEO"
                 case "IFU":
                     return "IFU"
+                case _:
+                    raise ValueError(f"Invalid detector name: ESO DPR TECH is '{det}'")
 
     @property
     def output_file_name(self):
-        """ Form the output file name (the detector part can change) """
+        """ Form the output file name (the detector part is variable) """
         return f"MASTER_DARK_{self.detector_name}.fits"

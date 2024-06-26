@@ -36,36 +36,30 @@ class MetisLmImgFlat(MetisRecipe):
         self.masterdark_image = None
         self.combined_image = None
 
-    def load_input(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
-        """ Go through the list of input frames, check the tag and act accordingly """
+    def load_frameset(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
+        """ Go through the list of input frames, check the tags and act on it accordingly """
         for frame in frameset:
             match frame.tag:
                 case "LM_FLAT_LAMP_RAW":
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
                     self.raw_frames.append(frame)
                     Msg.debug(self.name, f"Got raw frame: {frame.file}.")
-                case "MASTER_DARK_2RG":
-                    frame.group = cpl.ui.Frame.FrameGroup.RAW
+                case tag if tag in ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]:
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.masterdark = frame
-                case "MASTER_DARK_GEO":
-                    Msg.warning(self.name, f"GEO is not supported yet")
-                case "MASTER_DARK_IFU":
-                    Msg.warning(self.name, f"IFU dark is not supported yet")
+                    Msg.debug(self.name, f"Got master dark frame: {frame.file}.")
                 case _:
-                    Msg.warning(
-                        self.name,
-                        f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.",
-                    )
+                    Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
             # For demonstration purposes we raise an exception here. Real world
             # recipes should rather print a message (also to have it in the log file)
             # and exit gracefully.
             # [Martin]: Shouldn't this be esorex's problem?
-            if len(self.raw_frames) == 0:
-                raise cpl.core.DataNotFoundError("No raw frames in frameset.")
+        if len(self.raw_frames) == 0:
+            raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
-            if self.masterdark is None:
-                raise cpl.core.DataNotFoundError("No masterdark frames in frameset.")
+        if self.masterdark is None:
+            raise cpl.core.DataNotFoundError("No masterdark frames in frameset.")
 
         return self.raw_frames
 
@@ -115,14 +109,15 @@ class MetisLmImgFlat(MetisRecipe):
     def add_product_properties(self) -> None:
         # Create property list specifying the product tag of the processed image
         self.product_properties.append(
-            # TODO: Other detectors
             # TODO: Twilight
-            cpl.core.Property("ESO PRO CATG", cpl.core.Type.STRING, r"MASTER_IMG_FLAT_LAMP_2RG")
+            cpl.core.Property("ESO PRO CATG",
+                              cpl.core.Type.STRING,
+                              rf"MASTER_IMG_FLAT_LAMP_{self.detector_name}")
         )
 
     def save_product(self) -> cpl.ui.FrameSet:
         # Save the result image as a standard pipeline product file
-        Msg.info(self.name, f"Saving product file as {self.output_file!r}.")
+        Msg.info(self.name, f"Saving product file as {self.output_file_name!r}.")
         cpl.dfs.save_image(
             self.frameset,
             self.parameters,
@@ -138,7 +133,7 @@ class MetisLmImgFlat(MetisRecipe):
         # Register the created product
         self.product_frames.append(
             cpl.ui.Frame(
-                file=self.output_file,
+                file=self.output_file_name,
                 tag=f"MASTER_IMG_FLAT_LAMP_{self.detector_name}",
                 group=cpl.ui.Frame.FrameGroup.PRODUCT,
                 level=cpl.ui.Frame.FrameLevel.FINAL,
@@ -147,6 +142,10 @@ class MetisLmImgFlat(MetisRecipe):
         )
 
         return self.product_frames
+
+    @property
+    def detector_name(self) -> str:
+        return "2RG"
 
     @property
     def output_file_name(self) -> str:

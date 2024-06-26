@@ -35,7 +35,7 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
         self.frameset = frameset
 
         self.import_settings(settings)      # Import and process the provided settings dict
-        self.load_input(frameset)           # Load the input raw frames
+        self.load_frameset(frameset)           # Load the input raw frames
         self.filter_raw_frames()            # Filter raw images based on keywords
         self.process_images()               # Do the actual processing
         self.add_product_properties()       # Add properties to the output product
@@ -71,7 +71,7 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
             self.raw_images.insert(idx, raw_image)
 
     @abstractmethod
-    def load_input(self, frameset) -> cpl.ui.FrameSet:
+    def load_frameset(self, frameset) -> cpl.ui.FrameSet:
         return cpl.ui.FrameSet()
 
     @abstractmethod
