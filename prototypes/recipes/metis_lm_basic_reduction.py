@@ -8,7 +8,7 @@ from cpl.core import Msg
 
 class ScienceDataProcessor(ui.PyRecipe):
     # Fill in recipe information
-    _name = "metis_lm_basic_science"
+    _name = "metis_lm_basic_reduction"
     _version = "0.1"
     _author = "Chi-Hung Yan"
     _email = "chyan@asiaa.sinica.edu.tw"
@@ -28,8 +28,8 @@ class ScienceDataProcessor(ui.PyRecipe):
         self.parameters = ui.ParameterList(
             (
                 ui.ParameterEnum(
-                    name="basic_science.stacking.method",
-                    context="basic_science",
+                    name="basic_reduction.stacking.method",
+                    context="basic_reduction",
                     description="Name of the method used to combine the input images",
                     default="add",
                     alternatives=("add", "average", "median"),
@@ -87,13 +87,13 @@ class ScienceDataProcessor(ui.PyRecipe):
         # FITS file is converted on the fly when an image is loaded from
         # a file. It is however also possible to load images without
         # performing this conversion.
-        #bias_image = None
-        #if bias_frame:
-        #    bias_image = core.Image.load(bias_frame.file, extension=1)
-        #    Msg.info(self.name, f"Loaded bias frame {bias_frame.file!r}.")
-        #else:
+        bias_image = None
+        if bias_frame:
+            bias_image = core.Image.load(bias_frame.file, extension=0)
+            Msg.info(self.name, f"Loaded bias frame {bias_frame.file!r}.")
+        else:
             #raise core.DataNotFoundError("No bias frame in frameset.")
-        #    Msg.warning(self.name, "No bias frame in frameset.")
+            Msg.warning(self.name, "No bias frame in frameset.")
 
         flat_image = None
         if flat_frame:
@@ -106,8 +106,8 @@ class ScienceDataProcessor(ui.PyRecipe):
         # Flat field preparation: subtract bias and normalize it to median 1
         Msg.info(self.name, "Preparing flat field")
         if flat_image:
-            #if bias_image:
-            #    flat_image.subtract(bias_image)
+            if bias_image:
+                flat_image.subtract(bias_image)
             median = flat_image.get_median()
             flat_image.divide_scalar(median)
 
@@ -122,9 +122,9 @@ class ScienceDataProcessor(ui.PyRecipe):
             Msg.debug(self.name, "Loading image.")
             raw_image = core.Image.load(frame.file, extension=1)
 
-            #if bias_image:
-            #    Msg.debug(self.name, "Bias subtracting...")
-            #    raw_image.subtract(bias_image)
+            if bias_image:
+                Msg.debug(self.name, "Bias subtracting...")
+                raw_image.subtract(bias_image)
 
             if flat_image:
                 Msg.debug(self.name, "Flat fielding...")
@@ -136,7 +136,7 @@ class ScienceDataProcessor(ui.PyRecipe):
 
         # Combine the images in the image list using the image stacking
         # option requested by the user.
-        method = self.parameters["basic_science.stacking.method"].value
+        method = self.parameters["basic_reduction.stacking.method"].value
         Msg.info(self.name, f"Combining images using method {method!r}")
 
         combined_image = None
