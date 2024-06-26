@@ -61,7 +61,7 @@ class MetisLmImgFlat(MetisRecipe):
     def process_images(self) -> cpl.ui.FrameSet:
         # TODO: Detect detector
         # TODO: Twilight
-        output_file = "MASTER_IMG_FLAT_LAMP.fits"
+        output_file = "MASTER_IMG_FLAT_LAMP_LM.fits"
         print(frameset)
 
         # By default, images are loaded as Python float data. Raw image
@@ -107,9 +107,13 @@ class MetisLmImgFlat(MetisRecipe):
         # Create property list specifying the product tag of the processed image
         self.product_properties.append(
             # TODO: Twilight
+<<<<<<< HEAD
             cpl.core.Property("ESO PRO CATG",
                               cpl.core.Type.STRING,
                               rf"MASTER_IMG_FLAT_LAMP_{self.detector_name}")
+=======
+                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_IMG_FLAT_LAMP_LM")
+>>>>>>> 0244970 (Correct product name again)
         )
 
     def save_product(self) -> cpl.ui.FrameSet:
