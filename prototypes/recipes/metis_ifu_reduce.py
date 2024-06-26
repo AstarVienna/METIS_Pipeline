@@ -1,8 +1,6 @@
 from typing import Any, Dict
 
-from cpl import core
-from cpl import ui
-from cpl import dfs
+import cpl
 from cpl.core import Msg
 
 import sys
@@ -12,12 +10,11 @@ __package__ = 'prototypes'
 from .base import MetisRecipe
 
 
-
-class Metis_IFU_Reduce(MetisRecipe):
+class MetisIfuReduce(MetisRecipe):
     # Fill in recipe information
-    _name = "metis_ifu_reduce_new"
+    _name = "metis_ifu_reduce"
     _version = "0.1"
-    _author = "Martin"
+    _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Reduce raw science exposures of the IFU."
@@ -25,39 +22,34 @@ class Metis_IFU_Reduce(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    parameters = ui.ParameterList([
-        ui.ParameterEnum(
-           name="metis_lm_img_flat.stacking.method",
-           context="metis_lm_img_flat",
-           description="Name of the method used to combine the input images",
-           default="average",
-           alternatives=("add", "average", "median"),
+    # The recipe will have a single enumeration type parameter, which allows the
+    # user to select the frame combination method.
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="metis_ifu_reduce.stacking.method",
+            context="metis_ifu_reduce",
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median"),
         ),
     ])
 
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
+        self.combined_image = None
 
-        # The recipe will have a single enumeration type parameter, which allows the
-        # user to select the frame combination method.
-        self.parameters = ui.ParameterList(
-            (
-                ui.ParameterEnum(
-                   name="metis_lm_img_flat.stacking.method",
-                   context="metis_lm_img_flat",
-                   description="Name of the method used to combine the input images",
-                   default="average",
-                   alternatives=("add", "average", "median"),
-                ),
-            )
-        )
+    def load_input(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
+        for frame in frameset:
+            match frame.tag:
+                case "DARK_IFU_RAW":
+                    pass
 
-    def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
+        return frameset
+
+    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         super().run(frameset, settings)
 
-        raw_frames = ui.FrameSet()
-        product_frames = ui.FrameSet()
-        masterdark = None
+        master_dark = None
 
         # TODO: Detect detector
         # TODO: Twilight
@@ -66,27 +58,25 @@ class Metis_IFU_Reduce(MetisRecipe):
         # Go through the list of input frames, check the tag and act accordingly
         for frame in frameset:
             # TODO: N and GEO
-            if frame.tag == "LM_FLAT_LAMP_RAW":
-                frame.group = ui.Frame.FrameGroup.RAW
-                raw_frames.append(frame)
-                Msg.debug(self.name, f"Got raw frame: {frame.file}.")
-            elif frame.tag == "MASTER_DARK_2RG":
-                frame.group = ui.Frame.FrameGroup.RAW
-                masterdark = frame
-            else:
-                Msg.warning(
-                    self.name,
-                    f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.",
-                )
-
+            match frame.tag:
+                case "LM_FLAT_LAMP_RAW":
+                    frame.group = ui.Frame.FrameGroup.RAW
+                    self.raw_frames.append(frame)
+                    Msg.debug(self.name, f"Got raw frame: {frame.file}.")
+                case "MASTER_DARK_2RG":
+                    frame.group = ui.Frame.FrameGroup.RAW
+                    master_dark = frame
+                case _:
+                    Msg.warning(self.name,
+                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
         # For demonstration purposes we raise an exception here. Real world
         # recipes should rather print a message (also to have it in the log file)
         # and exit gracefully.
-        if len(raw_frames) == 0:
+        if len(self.raw_frames) == 0:
             raise core.DataNotFoundError("No raw frames in frameset.")
 
-        if masterdark is None:
+        if master_dark is None:
             raise core.DataNotFoundError("No masterdark frames in frameset.")
 
         # By default images are loaded as Python float data. Raw image
@@ -95,17 +85,16 @@ class Metis_IFU_Reduce(MetisRecipe):
         # a file. It is however also possible to load images without
         # performing this conversion.
 
-        masterdark_image = core.Image.load(masterdark.file, extension=0)
+        masterdark_image = core.Image.load(master_dark.file, extension=0)
 
-
-        header = None
+        self.header = None
         raw_images = core.ImageList()
 
-        for idx, frame in enumerate(raw_frames):
+        for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing {frame.file!r}...")
 
             if idx == 0:
-                header = core.PropertyList.load(frame.file, 0)
+                self.header = core.PropertyList.load(frame.file, 0)
 
             Msg.debug(self.name, "Loading image.")
             raw_image = core.Image.load(frame.file, extension=1)
@@ -125,46 +114,47 @@ class Metis_IFU_Reduce(MetisRecipe):
         combined_image = None
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         processed_images = raw_images
-        if method == "add":
-            for idx, image in enumerate(processed_images):
-                if idx == 0:
-                    combined_image = image
-                else:
-                    combined_image.add(image)
-        elif method == "average":
-            combined_image = processed_images.collapse_create()
-        elif method == "median":
-            combined_image = processed_images.collapse_median_create()
-        else:
-            Msg.error(
-                self.name,
-                f"Got unknown stacking method {method!r}. Stopping right here!",
-            )
-            # Since we did not create a product we need to return an empty
-            # ui.FrameSet object. The result frameset product_frames will do,
-            # it is still empty here!
-            return product_frames
+        match method:
+            case "add":
+                for idx, image in enumerate(processed_images):
+                    if idx == 0:
+                        combined_image = image
+                    else:
+                        combined_image.add(image)
+            case "average":
+                combined_image = processed_images.collapse_create()
+            case "median":
+                combined_image = processed_images.collapse_median_create()
+            case _:
+                Msg.error(
+                    self.name,
+                    f"Got unknown stacking method {method!r}. Stopping right here!",
+                )
+                # Since we did not create a product we need to return an empty
+                # ui.FrameSet object. The result frameset product_frames will do,
+                # it is still empty here!
+                return self.product_frames
 
     def add_product_properties(self) -> None:
         # Create property list specifying the product tag of the processed image
         product_properties = core.PropertyList()
-        product_properties.append(
+        self.product_properties.append(
             # TODO: Other detectors
             # TODO: Twilight
-                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_IMG_FLAT_LAMP_2RG")
+            core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_IFU_REDUCE")
         )
 
         # Save the result image as a standard pipeline product file
-        Msg.info(self.name, f"Saving product file as {output_file!r}.")
+        Msg.info(self.name, f"Saving product file as {self.output_file!r}.")
         dfs.save_image(
-            frameset,
+            self.frameset,
             self.parameters,
-            frameset,
-            combined_image,
+            self.frameset,
+            self.combined_image,
             self.name,
-            product_properties,
+            self.product_properties,
             f"demo/{self.version!r}",
-            output_file,
+            self.output_file_name,
             header=header,
         )
 
@@ -180,3 +170,12 @@ class Metis_IFU_Reduce(MetisRecipe):
         )
 
         return product_frames
+
+    @property
+    def detector_name(self) -> str:
+        """ All IFU recipes work with the HAWAII2RG array """
+        return "2RG"
+
+    @property
+    def output_file_name(self) -> str:
+        return f"IFU_SCI_REDUCED"

@@ -5,9 +5,7 @@ from cpl.core import Msg
 
 import sys
 sys.path.append('.')
-__package__ = 'prototypes'
-
-from .base import MetisRecipe
+from prototypes.base import MetisRecipe
 
 
 class MetisLmImgFlat(MetisRecipe):
@@ -41,7 +39,6 @@ class MetisLmImgFlat(MetisRecipe):
     def load_input(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
         """ Go through the list of input frames, check the tag and act accordingly """
         for frame in frameset:
-            # TODO: N and GEO
             match frame.tag:
                 case "LM_FLAT_LAMP_RAW":
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
@@ -50,6 +47,10 @@ class MetisLmImgFlat(MetisRecipe):
                 case "MASTER_DARK_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
                     self.masterdark = frame
+                case "MASTER_DARK_GEO":
+                    Msg.warning(self.name, f"GEO is not supported yet")
+                case "MASTER_DARK_IFU":
+                    Msg.warning(self.name, f"IFU dark is not supported yet")
                 case _:
                     Msg.warning(
                         self.name,
@@ -59,6 +60,7 @@ class MetisLmImgFlat(MetisRecipe):
             # For demonstration purposes we raise an exception here. Real world
             # recipes should rather print a message (also to have it in the log file)
             # and exit gracefully.
+            # [Martin]: Shouldn't this be esorex's problem?
             if len(self.raw_frames) == 0:
                 raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
@@ -71,7 +73,7 @@ class MetisLmImgFlat(MetisRecipe):
         # TODO: Detect detector
         # TODO: Twilight
 
-        # By default images are loaded as Python float data. Raw image
+        # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
         # FITS file is converted on the fly when an image is loaded from
         # a file. It is however also possible to load images without
@@ -87,7 +89,8 @@ class MetisLmImgFlat(MetisRecipe):
         method = self.parameters["metis_lm_img_flat.stacking.method"].value
         Msg.info(self.name, f"Combining images using method {method!r}")
 
-        # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
+        # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
+
         self.processed_images = self.raw_images
         if method == "add":
             for idx, image in enumerate(self.processed_images):
@@ -128,7 +131,7 @@ class MetisLmImgFlat(MetisRecipe):
             self.name,
             self.product_properties,
             f"demo/{self.version!r}",
-            self.output_file,
+            self.output_file_name,
             header=self.header,
         )
 
@@ -136,7 +139,7 @@ class MetisLmImgFlat(MetisRecipe):
         self.product_frames.append(
             cpl.ui.Frame(
                 file=self.output_file,
-                tag="MASTER_IMG_FLAT_LAMP_2RG",
+                tag=f"MASTER_IMG_FLAT_LAMP_{self.detector_name}",
                 group=cpl.ui.Frame.FrameGroup.PRODUCT,
                 level=cpl.ui.Frame.FrameLevel.FINAL,
                 frameType=cpl.ui.Frame.FrameType.IMAGE,
@@ -145,5 +148,7 @@ class MetisLmImgFlat(MetisRecipe):
 
         return self.product_frames
 
-    def get_output_file_name(self) -> str:
+    @property
+    def output_file_name(self) -> str:
+        """ Form the output file name (currently a constant) """
         return "MASTER_IMG_FLAT_LAMP.fits"

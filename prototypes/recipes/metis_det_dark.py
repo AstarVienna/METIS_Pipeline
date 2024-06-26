@@ -4,12 +4,10 @@ import cpl
 from cpl import dfs
 from cpl.core import Msg
 
+# TODO: fix importing. Where is the actual working directory?
 import sys
-
 sys.path.append('.')
-__package__ = 'prototypes'
-
-from .base import MetisRecipe
+from prototypes.base import MetisRecipe
 
 
 class MetisDetDark(MetisRecipe):
@@ -46,7 +44,7 @@ class MetisDetDark(MetisRecipe):
         for frame in frameset:
             # TODO: N and GEO
             match frame.tag:
-                case "DARK_LM_RAW":
+                case "DARK_LM_RAW":                 # Should be DARK_IFU_RAW?
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
                     self.raw_frames.append(frame)
                     Msg.debug(self.name, f"Got raw frame: {frame.file}.")
@@ -117,7 +115,7 @@ class MetisDetDark(MetisRecipe):
 
     def save_product(self) -> cpl.ui.FrameSet:
         """ Register the created product """
-        Msg.info(self.name, f"Saving product file as {self.output_file!r}.")
+        Msg.info(self.name, f"Saving product file as {self.output_file_name!r}.")
         dfs.save_image(
             self.frameset,
             self.parameters,
@@ -126,23 +124,36 @@ class MetisDetDark(MetisRecipe):
             self.name,
             self.product_properties,
             f"demo/{self.version!r}",
-            self.output_file,
+            self.output_file_name,
             header=self.header,
         )
 
-        self.product_frames = cpl.ui.FrameSet()
-        self.product_frames.append(
+        self.product_frames = cpl.ui.FrameSet([
             cpl.ui.Frame(
-                file=self.output_file,
-                tag="MASTER_DARK_2RG",
+                file=self.output_file_name,
+                tag=rf"MASTER_DARK_{self.detector_name}",
                 group=cpl.ui.Frame.FrameGroup.PRODUCT,
                 level=cpl.ui.Frame.FrameLevel.FINAL,
                 frameType=cpl.ui.Frame.FrameType.IMAGE,
             )
-        )
+        ])
 
         return self.product_frames
 
-    def get_output_file_name(self):
-        # TODO: Detect detector
-        return "MASTER_DARK_2RG.fits"
+    @property
+    def detector_name(self) -> str:
+        if self.header is None:
+            return NotImplemented
+        else:
+            match self.header['ESO DPR TECH'].value:
+                case "IMAGE,LM":
+                    return "2RG"
+                case "IMAGE,N":
+                    return "GEO"
+                case "IFU":
+                    return "IFU"
+
+    @property
+    def output_file_name(self):
+        """ Form the output file name (the detector part can change) """
+        return f"MASTER_DARK_{self.detector_name}.fits"
