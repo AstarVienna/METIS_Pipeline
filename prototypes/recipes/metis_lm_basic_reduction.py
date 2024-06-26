@@ -6,7 +6,7 @@ from cpl import dfs
 from cpl.core import Msg
 
 
-class ScienceDataProcessor(ui.PyRecipe):
+class MetisLMBasicRediction(ui.PyRecipe):
     # Fill in recipe information
     _name = "metis_lm_basic_reduction"
     _version = "0.1"
