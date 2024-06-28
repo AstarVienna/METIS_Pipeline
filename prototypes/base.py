@@ -35,8 +35,8 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
         self.frameset = frameset
 
         self.import_settings(settings)      # Import and process the provided settings dict
-        self.load_frameset(frameset)           # Load the input raw frames
-        self.filter_raw_frames()            # Filter raw images based on keywords
+        self.load_frameset(frameset)        # Load the input raw frames
+        self.categorize_raw_frames()        # Categorize raw images based on keywords
         self.process_images()               # Do the actual processing
         self.add_product_properties()       # Add properties to the output product
         self.save_product()                 # Save the output product
@@ -49,13 +49,11 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
             try:
                 self.parameters[key].value = value
             except KeyError:
-                Msg.warning(
-                    self.name,
-                    f"Settings includes '{key}':{value} but class {self.__class__.__name__} "
-                    f"has no parameter named {key}.",
-                )
+                Msg.warning(self.name,
+                            f"Settings includes '{key}':{value} but class {self.__class__.__name__} "
+                            f"has no parameter named {key}.")
 
-    def filter_raw_frames(self):
+    def categorize_raw_frames(self):
         """ Filter raw frames from the SOF """
         for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing raw frame #{idx}: {frame.file!r}...")

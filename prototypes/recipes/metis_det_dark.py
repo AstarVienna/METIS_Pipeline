@@ -61,6 +61,22 @@ class MetisDetDark(MetisRecipe):
 
         return self.raw_frames
 
+    def categorize_raw_frames(self):
+        super().categorize_raw_frames()
+
+        if self.header is None:
+            raise ValueError("No header is present, cannot determine detector name")
+        else:
+            det = self.header['ESO DPR TECH'].value
+            try:
+                self._detector_name = {
+                    'IMAGE,LM': '2RG',
+                    'IMAGE,N': 'GEO',
+                    'IFU': 'IFU'
+                }[det]
+            except KeyError as e:
+                raise KeyError(f"Invalid detector name! ESO DPR TECH is '{det}'") from e
+
     def process_images(self) -> cpl.ui.FrameSet:
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
@@ -141,18 +157,7 @@ class MetisDetDark(MetisRecipe):
 
     @property
     def detector_name(self) -> str:
-        if self.header is None:
-            raise ValueError("No header is present, cannot determine detector name")
-        else:
-            match (det := self.header['ESO DPR TECH'].value):
-                case "IMAGE,LM":
-                    return "2RG"
-                case "IMAGE,N":
-                    return "GEO"
-                case "IFU":
-                    return "IFU"
-                case _:
-                    raise ValueError(f"Invalid detector name: ESO DPR TECH is '{det}'")
+        return self._detector_name
 
     @property
     def output_file_name(self):

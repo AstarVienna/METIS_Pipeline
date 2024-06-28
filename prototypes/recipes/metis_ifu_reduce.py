@@ -26,28 +26,36 @@ class MetisIfuReduce(MetisRecipe):
     # user to select the frame combination method.
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_ifu_reduce.stacking.method",
+            name="metis_ifu_reduce.telluric",
             context="metis_ifu_reduce",
-            description="Name of the method used to combine the input images",
-            default="average",
-            alternatives=("add", "average", "median"),
+            description="Apply telluric correction",
+            default=False,
+            alternatives=(True, False),
         ),
     ])
 
     def __init__(self):
         super().__init__()
-        self.combined_image = None
+        self.reduced = None
+        self.background = None
+        self.reduced_cube = None
+        self.combined_cube = None
 
     def load_frameset(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
         for frame in frameset:
             match frame.tag:
                 case "MASTER_DARK_IFU":
-                    frame.group = cpl.ui.Frame.FrameGroup.MASTER_DARK_IFU
-                case _:
-                    Msg.warning(self.name,
-                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
 
         return frameset
+
+    def categorize_frame(self, frame: cpl.ui.Frame) -> cpl.ui.Frame:
+        match frame.tag:
+            case "MASTER_DARK_IFU":
+                frame.group = cpl.ui.Frame.FrameGroup.CALIB
+            case _:
+                Msg.warning(self.name,
+                            f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         super().run(frameset, settings)
@@ -58,29 +66,14 @@ class MetisIfuReduce(MetisRecipe):
         # TODO: Twilight
         output_file = "MASTER_IMG_FLAT_LAMP.fits"
 
-        # Go through the list of input frames, check the tag and act accordingly
-        for frame in frameset:
-            # TODO: N and GEO
-            match frame.tag:
-                case "LM_FLAT_LAMP_RAW":
-                    frame.group = ui.Frame.FrameGroup.RAW
-                    self.raw_frames.append(frame)
-                    Msg.debug(self.name, f"Got raw frame: {frame.file}.")
-                case "MASTER_DARK_2RG":
-                    frame.group = ui.Frame.FrameGroup.RAW
-                    master_dark = frame
-                case _:
-                    Msg.warning(self.name,
-                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
-
         # For demonstration purposes we raise an exception here. Real world
         # recipes should rather print a message (also to have it in the log file)
         # and exit gracefully.
         if len(self.raw_frames) == 0:
-            raise core.DataNotFoundError("No raw frames in frameset.")
+            raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
         if master_dark is None:
-            raise core.DataNotFoundError("No masterdark frames in frameset.")
+            raise cpl.core.DataNotFoundError("No masterdark frames in frameset.")
 
         # By default images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
@@ -88,19 +81,19 @@ class MetisIfuReduce(MetisRecipe):
         # a file. It is however also possible to load images without
         # performing this conversion.
 
-        masterdark_image = core.Image.load(master_dark.file, extension=0)
+        masterdark_image = cpl.core.Image.load(master_dark.file, extension=0)
 
         self.header = None
-        raw_images = core.ImageList()
+        raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing {frame.file!r}...")
 
             if idx == 0:
-                self.header = core.PropertyList.load(frame.file, 0)
+                self.header = cpl.core.PropertyList.load(frame.file, 0)
 
             Msg.debug(self.name, "Loading image.")
-            raw_image = core.Image.load(frame.file, extension=1)
+            raw_image = cpl.core.Image.load(frame.file, extension=1)
 
             # Subtract dark
             raw_image.subtract(masterdark_image)
