@@ -1,14 +1,13 @@
 import cpl
 from cpl.core import Msg
 
-
 import sys
 sys.path.append('.')
 
-from prototypes.base import MetisRecipe
+from prototypes.base import MetisRecipeImpl
 
 
-class MetisLmImgFlat(MetisRecipe):
+class MetisLmImgFlat(MetisRecipeImpl):
     # Fill in recipe information
     _name = "metis_lm_img_flat"
     _version = "0.1"

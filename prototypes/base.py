@@ -5,24 +5,28 @@ import cpl
 from cpl.core import Msg
 
 
-class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
-    """
-        Common METIS-specific steps.
-        We might want to refactor this some more, probably some more specific subclasses will show up.
-    """
-    _name: str = "metis_base_recipe"
-    _author: str = "Martin"
-    _email: str = "martin.balaz@univie.ac.at"
-    _copyright: str = "GPL-3.0-or-later"
-    _description: str = "Abstract base class for METIS pipeline recipes"
-    _synopsis: str = "Abstract base class"
-    _version: str = "1.0"
+class MetisRecipeImpl(metaclass=ABCMeta):
+    """ A base class for METIS recipe implementations """
+    parameters = cpl.ui.ParameterList([])
+
+    def __init__(self) -> None:
+        self.frameset = None
+        self.header = None
+        self.raw_frames = cpl.ui.FrameSet()
+        self.raw_images = cpl.core.ImageList()
+
+        self.product_frames = cpl.ui.FrameSet()
+        self.product_properties = cpl.core.PropertyList()
+
 
     # Available parameters are a class variable
     parameters = cpl.ui.ParameterList([])
 
-    def __init__(self) -> None:
+    def __init__(self, recipe) -> None:
         super().__init__()
+        self.name = recipe.name
+        self.version = recipe.version
+
         self.frameset = None
         self.header = None
         self.raw_frames = cpl.ui.FrameSet()

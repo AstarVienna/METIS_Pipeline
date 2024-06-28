@@ -1,22 +1,16 @@
+from typing import Dict, Any
+
+import sys
+sys.path.append('.')
+
 import cpl
 from cpl import dfs
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipe
+from prototypes.base import MetisRecipeImpl
 
 
-class MetisDetDark(MetisRecipe):
-    # Fill in recipe information
-    _name = "metis_det_dark"
-    _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo Martin"
-    _email = "hugo@buddelmeijer.nl"
-    _copyright = "GPL-3.0-or-later"
-    _synopsis = "Create master dark"
-    _description = (
-        "Prototype to create a METIS Masterdark."
-    )
-
+class MetisDetDarkImpl(MetisRecipeImpl):
     # The recipe will have a single enumeration type parameter, which allows the
     # user to select the frame combination method.
     parameters = cpl.ui.ParameterList([
@@ -29,8 +23,8 @@ class MetisDetDark(MetisRecipe):
         ),
     ])
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, recipe):
+        super().__init__(recipe)
         self.combined_image = None
         self._detector_name = ""
 
@@ -158,3 +152,35 @@ class MetisDetDark(MetisRecipe):
     def output_file_name(self):
         """ Form the output file name (the detector part is variable) """
         return f"MASTER_DARK_{self.detector_name}.fits"
+
+
+class MetisDetDark(cpl.ui.PyRecipe):
+    # Fill in recipe information
+    _name = "metis_det_dark"
+    _version = "0.1"
+    _author = "Kieran Chi-Hung Hugo Martin"
+    _email = "hugo@buddelmeijer.nl"
+    _copyright = "GPL-3.0-or-later"
+    _synopsis = "Create master dark"
+    _description = (
+        "Prototype to create a METIS Masterdark."
+    )
+
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="metis_det_dark.stacking.method",
+            context="metis_det_dark",
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median"),
+        ),
+    ])
+    implementation_class = MetisDetDarkImpl
+
+    def __init__(self):
+        super().__init__()
+        self.implementation = self.implementation_class(self)
+
+    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
+        return self.implementation.run(frameset, settings)
+
