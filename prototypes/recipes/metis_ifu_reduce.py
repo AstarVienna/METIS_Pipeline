@@ -6,10 +6,10 @@ sys.path.append('.')
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipe
+from prototypes.base import MetisRecipeImpl
 
 
-class MetisIfuReduce(MetisRecipe):
+class MetisIfuReduce(MetisRecipeImpl):
     # Fill in recipe information
     _name = "metis_ifu_reduce"
     _version = "0.1"
