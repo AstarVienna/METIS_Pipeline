@@ -31,11 +31,13 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
         self.product_properties = cpl.core.PropertyList()
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-        """ Main function of the recipe """
-        self.frameset = frameset
+        """ Main function of the recipe, must have this signature """
+
+        self.frameset = frameset            # First save the frameset
 
         self.import_settings(settings)      # Import and process the provided settings dict
         self.load_frameset(frameset)        # Load the input raw frames
+        self.verify_frameset()              # Verify that it is valid (maybe with `schema` too?)
         self.categorize_raw_frames()        # Categorize raw images based on keywords
         self.process_images()               # Do the actual processing
         self.add_product_properties()       # Add properties to the output product
@@ -50,11 +52,13 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
                 self.parameters[key].value = value
             except KeyError:
                 Msg.warning(self.name,
-                            f"Settings includes '{key}':{value} but class {self.__class__.__name__} "
+                            f"Settings includes '{key}':{value} "
+                            f"but class {self.__class__.__name__} "
                             f"has no parameter named {key}.")
 
     def categorize_raw_frames(self):
         """ Filter raw frames from the SOF """
+
         for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing raw frame #{idx}: {frame.file!r}...")
 
@@ -70,7 +74,17 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
 
     @abstractmethod
     def load_frameset(self, frameset) -> cpl.ui.FrameSet:
+        """ Load and categorize the frameset. """
         return cpl.ui.FrameSet()
+
+    @abstractmethod
+    def verify_frameset(self) -> None:
+        """
+            Verify that the loaded frameset is valid and conforms to the specification.
+            It would be also good to do this with some schema.
+            Returns None if OK, otherwise an exception is raised.
+        """
+        return None
 
     @abstractmethod
     def process_images(self) -> cpl.ui.FrameSet:

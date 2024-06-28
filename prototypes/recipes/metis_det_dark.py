@@ -5,8 +5,6 @@ from cpl import dfs
 from cpl.core import Msg
 
 # TODO: fix importing. Where is the actual working directory?
-import sys
-sys.path.append('.')
 from prototypes.base import MetisRecipe
 
 
@@ -53,13 +51,14 @@ class MetisDetDark(MetisRecipe):
                     Msg.warning(self.name,
                                 f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
+        return self.raw_frames
+
+    def verify_frameset(self) -> None:
         # For demonstration purposes we raise an exception here. Real world
         # recipes should rather print a message (also to have it in the log file)
         # and exit gracefully.
         if len(self.raw_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames in frameset.")
-
-        return self.raw_frames
 
     def categorize_raw_frames(self):
         super().categorize_raw_frames()
@@ -122,7 +121,6 @@ class MetisDetDark(MetisRecipe):
     def add_product_properties(self) -> None:
         """ Create property list specifying the product tag of the processed image """
         self.product_properties.append(
-            # TODO: Other detectors
             cpl.core.Property("ESO PRO CATG",
                               cpl.core.Type.STRING,
                               rf"MASTER_DARK_{self.detector_name}")

@@ -3,8 +3,6 @@ from typing import Any, Dict
 import cpl
 from cpl.core import Msg
 
-import sys
-sys.path.append('.')
 from prototypes.base import MetisRecipe
 
 
@@ -36,7 +34,7 @@ class MetisLmImgFlat(MetisRecipe):
         self.masterdark_image = None
         self.combined_image = None
 
-    def load_frameset(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
+    def load_frameset(self, frameset: cpl.ui.FrameSet) -> None:
         """ Go through the list of input frames, check the tags and act on it accordingly """
         for frame in frameset:
             match frame.tag:
@@ -51,17 +49,16 @@ class MetisLmImgFlat(MetisRecipe):
                 case _:
                     Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
-            # For demonstration purposes we raise an exception here. Real world
-            # recipes should rather print a message (also to have it in the log file)
-            # and exit gracefully.
-            # [Martin]: Shouldn't this be esorex's problem?
+    def verify_frameset(self) -> None:
+        # For demonstration purposes we raise an exception here. Real world
+        # recipes should rather print a message (also to have it in the log file)
+        # and exit gracefully.
+        # [Martin]: Shouldn't this be esorex's problem?
         if len(self.raw_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
         if self.masterdark is None:
             raise cpl.core.DataNotFoundError("No masterdark frames in frameset.")
-
-        return self.raw_frames
 
     def process_images(self) -> cpl.ui.FrameSet:
         # TODO: Detect detector
