@@ -10,7 +10,7 @@ class ScienceDataProcessor(ui.PyRecipe):
     # Fill in recipe information
     _name = "basic_science"
     _version = "1.0"
-    _author = "U.N. Owen"
+    _author = "U. N. Owen"
     _email = "unowen@somewhere.net"
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Basic science image data processing"

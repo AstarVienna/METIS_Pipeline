@@ -1,7 +1,9 @@
-from typing import Any, Dict
-
 import cpl
 from cpl.core import Msg
+
+
+import sys
+sys.path.append('.')
 
 from prototypes.base import MetisRecipe
 
@@ -50,10 +52,6 @@ class MetisLmImgFlat(MetisRecipe):
                     Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
     def verify_frameset(self) -> None:
-        # For demonstration purposes we raise an exception here. Real world
-        # recipes should rather print a message (also to have it in the log file)
-        # and exit gracefully.
-        # [Martin]: Shouldn't this be esorex's problem?
         if len(self.raw_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 

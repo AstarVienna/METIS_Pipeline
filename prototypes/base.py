@@ -72,25 +72,30 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
             # there is also an append() method available.
             self.raw_images.insert(idx, raw_image)
 
-    @abstractmethod
+    # @abstractmethod
     def load_frameset(self, frameset) -> cpl.ui.FrameSet:
         """ Load and categorize the frameset. """
         return cpl.ui.FrameSet()
 
-    @abstractmethod
+    # @abstractmethod
     def verify_frameset(self) -> None:
         """
             Verify that the loaded frameset is valid and conforms to the specification.
             It would be also good to do this with some schema.
             Returns None if OK, otherwise an exception is raised.
+
+            For demonstration purposes we raise an exception here. Real world
+            recipes should rather print a message (also to have it in the log file)
+            and exit gracefully.
+            [Martin]: Shouldn't this be esorex's problem?
         """
         return None
 
-    @abstractmethod
+    # @abstractmethod
     def process_images(self) -> cpl.ui.FrameSet:
         return cpl.ui.FrameSet()
 
-    @abstractmethod
+    # @abstractmethod
     def add_product_properties(self):
         pass
 
@@ -112,11 +117,11 @@ class MetisRecipe(cpl.ui.PyRecipe, metaclass=ABCMeta):
         return self.product_frame
 
     @property
-    @abstractmethod
+    # @abstractmethod
     def output_file_name(self) -> str:
         return ""
 
     @property
-    @abstractmethod
+    # @abstractmethod
     def detector_name(self) -> str:
         return "<invalid>"

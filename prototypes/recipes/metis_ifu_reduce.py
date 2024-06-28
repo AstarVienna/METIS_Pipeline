@@ -1,13 +1,12 @@
 from typing import Any, Dict
 
+import sys
+sys.path.append('.')
+
 import cpl
 from cpl.core import Msg
 
-import sys
-sys.path.append('.')
-__package__ = 'prototypes'
-
-from .base import MetisRecipe
+from prototypes.base import MetisRecipe
 
 
 class MetisIfuReduce(MetisRecipe):
