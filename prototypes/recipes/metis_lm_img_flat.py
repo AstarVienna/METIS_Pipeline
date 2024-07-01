@@ -87,13 +87,9 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
         # Create property list specifying the product tag of the processed image
         self.product_properties.append(
             # TODO: Twilight
-<<<<<<< HEAD
             cpl.core.Property("ESO PRO CATG",
                               cpl.core.Type.STRING,
-                              rf"MASTER_IMG_FLAT_LAMP_{self.detector_name}")
-=======
-                core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_IMG_FLAT_LAMP_LM")
->>>>>>> 0244970 (Correct product name again)
+                              rf"MASTER_IMG_FLAT_LAMP_LM")
         )
 
     def save_product(self) -> cpl.ui.FrameSet:
