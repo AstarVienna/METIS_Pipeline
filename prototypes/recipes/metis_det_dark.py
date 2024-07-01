@@ -8,33 +8,49 @@ from cpl import dfs
 from cpl.core import Msg
 
 from prototypes.base import MetisRecipeImpl
+from prototypes.product import PipelineProduct
 
 
 class MetisDetDarkImpl(MetisRecipeImpl):
-    # The recipe will have a single enumeration type parameter, which allows the
-    # user to select the frame combination method.
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="metis_det_dark.stacking.method",
-            context="metis_det_dark",
-            description="Name of the method used to combine the input images",
-            default="average",
-            alternatives=("add", "average", "median"),
-        ),
-    ])
+    class Product(PipelineProduct):
+        def __init__(self, recipe, header, frame, *, detector_name, **kwargs):
+            self.detector_name = detector_name
+            super().__init__(recipe, header, frame, **kwargs)
+
+        def add_properties(self):
+            self.properties.append(
+                cpl.core.Property("ESO PRO CATG",
+                                  cpl.core.Type.STRING,
+                                  rf"MASTER_DARK_{self.detector_name}")
+            )
+
+        def create_frame(self):
+            return cpl.ui.Frame(file=self.output_file_name,
+                                tag=rf"MASTER_DARK_{self.detector_name}",
+                                group=cpl.ui.Frame.FrameGroup.PRODUCT,
+                                level=cpl.ui.Frame.FrameLevel.FINAL,
+                                frameType=cpl.ui.Frame.FrameType.IMAGE)
+
+        @property
+        def category(self):
+            return rf"MASTER_DARK_{self.detector_name}"
+
+        @property
+        def output_file_name(self) -> str:
+            """ Form the output file name (the detector part is variable here) """
+            return rf"MASTER_DARK_{self.detector_name}.fits"
 
     def __init__(self, recipe):
         super().__init__(recipe)
-        self.combined_image = None
-        self._detector_name = ""
+        self._detector_name = None
 
-    def load_frameset(self, frameset) -> cpl.ui.FrameSet:
-        """ Go through the list of input frames, check the tag and act accordingly """
+    def load_input_frameset(self, frameset) -> cpl.ui.FrameSet:
+        """ Go through the list of input frames, check the tags and act accordingly """
 
         for frame in frameset:
             # TODO: N and GEO
             match frame.tag:
-                case "DARK_LM_RAW":                 # Should be DARK_IFU_RAW?
+                case "DARK_LM_RAW":
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
                     self.raw_frames.append(frame)
                     Msg.debug(self.name, f"Got raw frame: {frame.file}.")
@@ -44,28 +60,35 @@ class MetisDetDarkImpl(MetisRecipeImpl):
 
         return self.raw_frames
 
-    def verify_frameset(self) -> None:
-        # For demonstration purposes we raise an exception here. Real world
-        # recipes should rather print a message (also to have it in the log file)
-        # and exit gracefully.
+    def verify_input(self) -> None:
         if len(self.raw_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
-    def categorize_raw_frames(self):
-        super().categorize_raw_frames()
+        detectors = []
 
-        if self.header is None:
-            raise ValueError("No header is present, cannot determine detector name")
-        else:
-            det = self.header['ESO DPR TECH'].value
+        for idx, frame in enumerate(self.raw_frames):
+            header = cpl.core.PropertyList.load(frame.file, 0)
+            raw_image = cpl.core.Image.load(frame.file, extension=1)
+            det = header['ESO DPR TECH'].value
             try:
-                self._detector_name = {
+                detector_name = {
                     'IMAGE,LM': '2RG',
                     'IMAGE,N': 'GEO',
                     'IFU': 'IFU'
                 }[det]
             except KeyError as e:
                 raise KeyError(f"Invalid detector name! ESO DPR TECH is '{det}'") from e
+
+            detectors.append(detector_name)
+
+        if len(set(detectors)) == 1:
+            self._detector_name = detectors[0]
+        else:
+            # If there are multiple detectors, we have a problem
+            raise ValueError("Darks from more than one detector present!")
+
+    def categorize_raw_frames(self) -> None:
+        super().categorize_raw_frames()
 
     def process_images(self) -> cpl.ui.FrameSet:
         # By default, images are loaded as Python float data. Raw image
@@ -89,60 +112,45 @@ class MetisDetDarkImpl(MetisRecipeImpl):
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         processed_images = self.raw_images
+        combined_image = None
         match method:
             case "add":
                 for idx, image in enumerate(processed_images):
                     if idx == 0:
-                        self.combined_image = image
+                        combined_image = image
                     else:
-                        self.combined_image.add(image)
+                        combined_image.add(image)
             case "average":
-                self.combined_image = processed_images.collapse_create()
+                combined_image = processed_images.collapse_create()
             case "median":
-                self.combined_image = processed_images.collapse_median_create()
+                combined_image = processed_images.collapse_median_create()
             case _:
                 Msg.error(self.name, f"Got unknown stacking method {method!r}. Stopping right here!")
-            # Since we did not create a product we need to return an empty
-            # ui.FrameSet object. The result frameset product_frames will do,
-            # it is still empty here!
+
+        header = cpl.core.PropertyList.load(self.raw_frames[0].file, 0)
+
+        self.products = {
+            f'METIS_{self.detector_name}_DARK':
+                self.Product(self,
+                             header, combined_image,
+                             detector_name=self.detector_name,
+                             file_name=f"MASTER_DARK_{self.detector_name}.fits"),
+        }
+
         return self.product_frames
 
         # Save the result image as a standard pipeline product file
 
-    def add_product_properties(self) -> None:
-        """ Create property list specifying the product tag of the processed image """
-        self.product_properties.append(
-            cpl.core.Property("ESO PRO CATG",
-                              cpl.core.Type.STRING,
-                              rf"MASTER_DARK_{self.detector_name}")
-        )
-
     def save_product(self) -> cpl.ui.FrameSet:
         """ Register the created product """
-        Msg.info(self.name, f"Saving product file as {self.output_file_name!r}.")
-        dfs.save_image(
-            self.frameset,
-            self.parameters,
-            self.frameset,
-            self.combined_image,
-            self.name,
-            self.product_properties,
-            f"demo/{self.version!r}",
-            self.output_file_name,
-            header=self.header,
-        )
-
-        self.product_frames = cpl.ui.FrameSet([
-            cpl.ui.Frame(
-                file=self.output_file_name,
-                tag=rf"MASTER_DARK_{self.detector_name}",
-                group=cpl.ui.Frame.FrameGroup.PRODUCT,
-                level=cpl.ui.Frame.FrameLevel.FINAL,
-                frameType=cpl.ui.Frame.FrameType.IMAGE,
-            )
-        ])
+        for name, product in self.products.items():
+            product.save()
+            self.product_frames.append(product.create_frame())
 
         return self.product_frames
+
+    def add_product_properties(self) -> None:
+        pass
 
     @property
     def detector_name(self) -> str:
@@ -172,7 +180,7 @@ class MetisDetDark(cpl.ui.PyRecipe):
             context="metis_det_dark",
             description="Name of the method used to combine the input images",
             default="average",
-            alternatives=("add", "average", "median"),
+            alternatives=("add", "average", "median", "sigclip"),
         ),
     ])
     implementation_class = MetisDetDarkImpl

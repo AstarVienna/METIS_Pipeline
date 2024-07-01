@@ -85,4 +85,4 @@ metisp/hdrl/admin/
 metisp/reflex/metis.xml
 
 # We do not need FITS files in this repository
-.fits
+*.fits
