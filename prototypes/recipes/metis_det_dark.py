@@ -18,11 +18,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
             super().__init__(recipe, header, frame, **kwargs)
 
         def add_properties(self):
-            self.properties.append(
-                cpl.core.Property("ESO PRO CATG",
-                                  cpl.core.Type.STRING,
-                                  rf"MASTER_DARK_{self.detector_name}")
-            )
+            super().add_properties()
 
         def create_frame(self):
             return cpl.ui.Frame(file=self.output_file_name,
@@ -81,11 +77,11 @@ class MetisDetDarkImpl(MetisRecipeImpl):
 
             detectors.append(detector_name)
 
+        # Check if all the raws have the same detector, if not, we have a problem
         if len(set(detectors)) == 1:
             self._detector_name = detectors[0]
         else:
-            # If there are multiple detectors, we have a problem
-            raise ValueError("Darks from more than one detector present!")
+            raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
 
     def categorize_raw_frames(self) -> None:
         super().categorize_raw_frames()
