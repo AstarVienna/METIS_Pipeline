@@ -1,7 +1,8 @@
+from typing import Dict, Any
+
 import sys
 sys.path.append('.')
 
-from typing import Dict, Any
 
 import cpl
 from cpl.core import Msg

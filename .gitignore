@@ -1,8 +1,8 @@
 # Cache files and directory
 __pycache__
 
-# FITS data files
-*.fits
+# Get rid off log
+*.log
 
 # Prerequisites
 *.d
