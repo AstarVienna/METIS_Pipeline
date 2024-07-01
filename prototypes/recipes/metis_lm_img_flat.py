@@ -7,14 +7,34 @@ import cpl
 from cpl.core import Msg
 
 from prototypes.base import MetisRecipeImpl
+from prototypes.product import PipelineProduct
 
 
 class MetisLmImgFlatImpl(MetisRecipeImpl):
+    class Product(PipelineProduct):
+        def __init__(self, recipe, header, frame, **kwargs):
+            super().__init__(recipe, header, frame, **kwargs)
+
+        def create_frame(self):
+            return cpl.ui.Frame(file=self.output_file_name,
+                                tag=rf"MASTER_IMG_FLAT_LAMP_LM",
+                                group=cpl.ui.Frame.FrameGroup.PRODUCT,
+                                level=cpl.ui.Frame.FrameLevel.FINAL,
+                                frameType=cpl.ui.Frame.FrameType.IMAGE)
+
+        @property
+        def category(self) -> str:
+            return "MASTER_IMG_FLAT_LAMP_LM"
+
+        @property
+        def output_file_name(self) -> str:
+            """ Form the output file name (currently a constant) """
+            return "MASTER_IMG_FLAT_LAMP_LM.fits"
+
     def __init__(self, recipe) -> None:
         super().__init__(recipe)
         self.masterdark = None
         self.masterdark_image = None
-        self.combined_image = None
 
     def load_input_frameset(self, frameset: cpl.ui.FrameSet) -> None:
         """ Go through the list of input frames, check the tags and act on it accordingly """
@@ -33,16 +53,15 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
 
     def verify_input(self) -> None:
         if len(self.raw_frames) == 0:
-            raise cpl.core.DataNotFoundError("No raw frames in frameset.")
+            raise cpl.core.DataNotFoundError("No raw frames found in the frameset.")
 
         if self.masterdark is None:
-            raise cpl.core.DataNotFoundError("No masterdark frames in frameset.")
+            raise cpl.core.DataNotFoundError("No masterdark frames found in the frameset.")
 
     def process_images(self) -> cpl.ui.FrameSet:
         # TODO: Detect detector
         # TODO: Twilight
         output_file = "MASTER_IMG_FLAT_LAMP_LM.fits"
-        print(frameset)
 
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
@@ -63,71 +82,43 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
         self.processed_images = self.raw_images
-        if method == "add":
-            for idx, image in enumerate(self.processed_images):
-                if idx == 0:
-                    self.combined_image = image
-                else:
-                    self.combined_image.add(image)
-        elif method == "average":
-            self.combined_image = self.processed_images.collapse_create()
-        elif method == "median":
-            self.combined_image = self.processed_images.collapse_median_create()
-        else:
-            Msg.error(
-                self.name,
-                f"Got unknown stacking method {method!r}. Stopping right here!",
-            )
-            # Since we did not create a product we need to return an empty
-            # ui.FrameSet object. The result frameset product_frames will do,
-            # it is still empty here!
-            return self.product_frames
+        combined_image = None
 
-    def add_product_properties(self) -> None:
-        # Create property list specifying the product tag of the processed image
-        self.product_properties.append(
-            # TODO: Twilight
-            cpl.core.Property("ESO PRO CATG",
-                              cpl.core.Type.STRING,
-                              rf"MASTER_IMG_FLAT_LAMP_LM")
-        )
+        match method:
+            case "add":
+                for idx, image in enumerate(self.processed_images):
+                    if idx == 0:
+                        combined_image = image
+                    else:
+                        combined_image.add(image)
+            case "average":
+                combined_image = self.processed_images.collapse_create()
+            case "median":
+                combined_image = self.processed_images.collapse_median_create()
+            case _:
+                Msg.error(
+                    self.name,
+                    f"Got unknown stacking method {method!r}. Stopping right here!",
+                )
+                # Since we did not create a product we need to return an empty
+                # ui.FrameSet object. The result frameset product_frames will do,
+                # it is still empty here!
 
-    def save_product(self) -> cpl.ui.FrameSet:
-        # Save the result image as a standard pipeline product file
-        Msg.info(self.name, f"Saving product file as {self.output_file_name!r}.")
-        cpl.dfs.save_image(
-            self.frameset,
-            self.parameters,
-            self.frameset,
-            self.combined_image,
-            self.name,
-            self.product_properties,
-            f"demo/{self.version!r}",
-            self.output_file_name,
-            header=self.header,
-        )
+        header = cpl.core.PropertyList.load(self.raw_frames[0].file, 0)
 
-        # Register the created product
-        self.product_frames.append(
-            cpl.ui.Frame(
-                file=self.output_file_name,
-                tag=f"MASTER_IMG_FLAT_LAMP_{self.detector_name}",
-                group=cpl.ui.Frame.FrameGroup.PRODUCT,
-                level=cpl.ui.Frame.FrameLevel.FINAL,
-                frameType=cpl.ui.Frame.FrameType.IMAGE,
-            )
-        )
-
+        self.products = {
+            f'METIS_LM_IMG_FLAT':
+                self.Product(self,
+                             header, combined_image,
+                             file_name=f"MASTER_IMG_FLAT_LAMP_LM.fits"),
+        }
         return self.product_frames
+
 
     @property
     def detector_name(self) -> str:
         return "2RG"
 
-    @property
-    def output_file_name(self) -> str:
-        """ Form the output file name (currently a constant) """
-        return "MASTER_IMG_FLAT_LAMP.fits"
 
 
 class MetisLmImgFlat(cpl.ui.PyRecipe):

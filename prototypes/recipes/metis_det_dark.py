@@ -17,9 +17,6 @@ class MetisDetDarkImpl(MetisRecipeImpl):
             self.detector_name = detector_name
             super().__init__(recipe, header, frame, **kwargs)
 
-        def add_properties(self):
-            super().add_properties()
-
         def create_frame(self):
             return cpl.ui.Frame(file=self.output_file_name,
                                 tag=rf"MASTER_DARK_{self.detector_name}",
@@ -28,7 +25,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
                                 frameType=cpl.ui.Frame.FrameType.IMAGE)
 
         @property
-        def category(self):
+        def category(self) -> str:
             return rf"MASTER_DARK_{self.detector_name}"
 
         @property
@@ -83,9 +80,6 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         else:
             raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
 
-    def categorize_raw_frames(self) -> None:
-        super().categorize_raw_frames()
-
     def process_images(self) -> cpl.ui.FrameSet:
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
@@ -109,6 +103,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         processed_images = self.raw_images
         combined_image = None
+
         match method:
             case "add":
                 for idx, image in enumerate(processed_images):
@@ -135,27 +130,9 @@ class MetisDetDarkImpl(MetisRecipeImpl):
 
         return self.product_frames
 
-        # Save the result image as a standard pipeline product file
-
-    def save_product(self) -> cpl.ui.FrameSet:
-        """ Register the created product """
-        for name, product in self.products.items():
-            product.save()
-            self.product_frames.append(product.create_frame())
-
-        return self.product_frames
-
-    def add_product_properties(self) -> None:
-        pass
-
     @property
     def detector_name(self) -> str:
         return self._detector_name
-
-    @property
-    def output_file_name(self):
-        """ Form the output file name (the detector part is variable) """
-        return f"MASTER_DARK_{self.detector_name}.fits"
 
 
 class MetisDetDark(cpl.ui.PyRecipe):

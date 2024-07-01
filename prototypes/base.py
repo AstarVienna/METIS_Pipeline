@@ -41,11 +41,10 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         self.frameset = frameset            # First save the frameset
 
         self.import_settings(settings)      # Import and process the provided settings dict
-        self.load_input_frameset(frameset)        # Load the input raw frames
-        self.verify_input()              # Verify that it is valid (maybe with `schema` too?)
+        self.load_input_frameset(frameset)  # Load the input raw frames
+        self.verify_input()                 # Verify that it is valid (maybe with `schema` too?)
         self.categorize_raw_frames()        # Categorize raw images based on keywords
         self.process_images()               # Do the actual processing
-        self.add_product_properties()       # Add properties to the output product
         self.save_product()                 # Save the output product
 
         return self.product_frames
@@ -98,31 +97,13 @@ class MetisRecipeImpl(metaclass=ABCMeta):
     def process_images(self) -> cpl.ui.FrameSet:
         return cpl.ui.FrameSet()
 
-    @abstractmethod
-    def add_product_properties(self):
-        pass
-
     def save_product(self) -> cpl.ui.FrameSet:
         """ Register the created product """
-        Msg.info(self.name, f"Saving product file as {self.output_file_name!r}.")
-        cpl.dfs.save_image(
-            self.frameset,              # all frames
-            self.parameters,            # input parameters
-            self.frameset,              # used frames
-            self.combined_image,        # image to be saved
-            self.name,                  # recipe name
-            self.product_properties,    # product property list
-            f"demo/{self.version!r}",   # pipeline package ID
-            self.output_file_name,      # output file name
-            header=self.header,
-        )
+        for name, product in self.products.items():
+            product.save()
+            self.product_frames.append(product.create_frame())
 
-        return self.product_frame
-
-    @property
-    @abstractmethod
-    def output_file_name(self) -> str:
-        return ""
+        return self.product_frames
 
     @property
     @abstractmethod
