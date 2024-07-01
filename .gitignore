@@ -1,3 +1,9 @@
+# Cache files and directory
+__pycache__
+
+# FITS data files
+*.fits
+
 # Prerequisites
 *.d
 
