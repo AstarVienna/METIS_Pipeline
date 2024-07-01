@@ -40,7 +40,7 @@ class MetisIfuReduce(MetisRecipeImpl):
         self.reduced_cube = None
         self.combined_cube = None
 
-    def load_frameset(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
+    def load_input_frameset(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
         for frame in frameset:
             match frame.tag:
                 case "MASTER_DARK_IFU":
@@ -68,11 +68,6 @@ class MetisIfuReduce(MetisRecipeImpl):
         # For demonstration purposes we raise an exception here. Real world
         # recipes should rather print a message (also to have it in the log file)
         # and exit gracefully.
-        if len(self.raw_frames) == 0:
-            raise cpl.core.DataNotFoundError("No raw frames in frameset.")
-
-        if master_dark is None:
-            raise cpl.core.DataNotFoundError("No masterdark frames in frameset.")
 
         # By default images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a

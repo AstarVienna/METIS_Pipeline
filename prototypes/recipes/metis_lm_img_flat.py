@@ -1,41 +1,22 @@
-import cpl
-from cpl.core import Msg
-
 import sys
 sys.path.append('.')
+
+from typing import Dict, Any
+
+import cpl
+from cpl.core import Msg
 
 from prototypes.base import MetisRecipeImpl
 
 
-class MetisLmImgFlat(MetisRecipeImpl):
-    # Fill in recipe information
-    _name = "metis_lm_img_flat"
-    _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo Gilles Martin"
-    _email = "hugo@buddelmeijer.nl"
-    _copyright = "GPL-3.0-or-later"
-    _synopsis = "Create master flat"
-    _description = (
-        "Prototype to create a METIS Masterflat."
-    )
-
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="metis_lm_img_flat.stacking.method",
-            context="metis_lm_img_flat",
-            description="Name of the method used to combine the input images",
-            default="average",
-            alternatives=("add", "average", "median"),
-        ),
-    ])
-
-    def __init__(self) -> None:
-        super().__init__()
+class MetisLmImgFlatImpl(MetisRecipeImpl):
+    def __init__(self, recipe) -> None:
+        super().__init__(recipe)
         self.masterdark = None
         self.masterdark_image = None
         self.combined_image = None
 
-    def load_frameset(self, frameset: cpl.ui.FrameSet) -> None:
+    def load_input_frameset(self, frameset: cpl.ui.FrameSet) -> None:
         """ Go through the list of input frames, check the tags and act on it accordingly """
         for frame in frameset:
             match frame.tag:
@@ -50,7 +31,7 @@ class MetisLmImgFlat(MetisRecipeImpl):
                 case _:
                     Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
-    def verify_frameset(self) -> None:
+    def verify_input(self) -> None:
         if len(self.raw_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
@@ -151,3 +132,35 @@ class MetisLmImgFlat(MetisRecipeImpl):
     def output_file_name(self) -> str:
         """ Form the output file name (currently a constant) """
         return "MASTER_IMG_FLAT_LAMP.fits"
+
+
+class MetisLmImgFlat(cpl.ui.PyRecipe):
+    # Fill in recipe information
+    _name = "metis_lm_img_flat"
+    _version = "0.1"
+    _author = "Kieran Chi-Hung Hugo Gilles Martin"
+    _email = "hugo@buddelmeijer.nl"
+    _copyright = "GPL-3.0-or-later"
+    _synopsis = "Create master flat"
+    _description = (
+        "Prototype to create a METIS Masterflat."
+    )
+
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="metis_lm_img_flat.stacking.method",
+            context="metis_lm_img_flat",
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median"),
+        ),
+    ])
+
+    implementation_class = MetisLmImgFlatImpl
+
+    def __init__(self):
+        super().__init__()
+        self.implementation = self.implementation_class(self)
+
+    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
+        return self.implementation.run(frameset, settings)

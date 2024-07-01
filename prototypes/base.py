@@ -26,6 +26,7 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         super().__init__()
         self.name = recipe.name
         self.version = recipe.version
+        self.parameters = recipe.parameters
 
         self.frameset = None
         self.header = None
@@ -40,8 +41,8 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         self.frameset = frameset            # First save the frameset
 
         self.import_settings(settings)      # Import and process the provided settings dict
-        self.load_frameset(frameset)        # Load the input raw frames
-        self.verify_frameset()              # Verify that it is valid (maybe with `schema` too?)
+        self.load_input_frameset(frameset)        # Load the input raw frames
+        self.verify_input()              # Verify that it is valid (maybe with `schema` too?)
         self.categorize_raw_frames()        # Categorize raw images based on keywords
         self.process_images()               # Do the actual processing
         self.add_product_properties()       # Add properties to the output product
@@ -60,29 +61,27 @@ class MetisRecipeImpl(metaclass=ABCMeta):
                             f"but class {self.__class__.__name__} "
                             f"has no parameter named {key}.")
 
-    def categorize_raw_frames(self):
+    def categorize_raw_frames(self) -> None:
         """ Filter raw frames from the SOF """
 
         for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing raw frame #{idx}: {frame.file!r}...")
 
-            if idx == 0:
-                self.header = cpl.core.PropertyList.load(frame.file, 0)
-
             Msg.debug(self.name, f"Loading image {frame.file}")
+            header = cpl.core.PropertyList.load(frame.file, 0)
             raw_image = cpl.core.Image.load(frame.file, extension=1)
 
             # Insert the processed image in an image list. Of course
             # there is also an append() method available.
             self.raw_images.insert(idx, raw_image)
 
-    # @abstractmethod
-    def load_frameset(self, frameset) -> cpl.ui.FrameSet:
+    @abstractmethod
+    def load_input_frameset(self, frameset) -> cpl.ui.FrameSet:
         """ Load and categorize the frameset. """
         return cpl.ui.FrameSet()
 
-    # @abstractmethod
-    def verify_frameset(self) -> None:
+    @abstractmethod
+    def verify_input(self) -> None:
         """
             Verify that the loaded frameset is valid and conforms to the specification.
             It would be also good to do this with some schema.
@@ -95,11 +94,11 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         """
         return None
 
-    # @abstractmethod
+    @abstractmethod
     def process_images(self) -> cpl.ui.FrameSet:
         return cpl.ui.FrameSet()
 
-    # @abstractmethod
+    @abstractmethod
     def add_product_properties(self):
         pass
 
@@ -121,11 +120,11 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         return self.product_frame
 
     @property
-    # @abstractmethod
+    @abstractmethod
     def output_file_name(self) -> str:
         return ""
 
     @property
-    # @abstractmethod
+    @abstractmethod
     def detector_name(self) -> str:
         return "<invalid>"
