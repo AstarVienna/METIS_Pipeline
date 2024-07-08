@@ -32,29 +32,31 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         super().__init__(recipe)
         self._detector_name = None
 
-    def load_input_frameset(self, frameset) -> cpl.ui.FrameSet:
-        """ Go through the list of input frames, check the tags and act accordingly """
+    def categorize_frameset(self) -> cpl.ui.FrameSet:
+        """
+        Go through the list of input frames, check their tags and filter out suitable files.
+        """
 
-        for frame in frameset:
+        for frame in self.frameset:
             # TODO: N and GEO
             match frame.tag:
-                case "DARK_LM_RAW":
+                case x if x in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]:
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
-                    self.raw_frames.append(frame)
+                    self.input_frames.append(frame)
                     Msg.debug(self.name, f"Got raw frame: {frame.file}.")
                 case _:
                     Msg.warning(self.name,
                                 f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
-        return self.raw_frames
+        return self.input_frames
 
     def verify_input(self) -> None:
-        if len(self.raw_frames) == 0:
+        if len(self.input_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
         detectors = []
 
-        for idx, frame in enumerate(self.raw_frames):
+        for idx, frame in enumerate(self.input_frames):
             header = cpl.core.PropertyList.load(frame.file, 0)
             raw_image = cpl.core.Image.load(frame.file, extension=1)
             det = header['ESO DPR TECH'].value
@@ -65,7 +67,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
                     'IFU': 'IFU'
                 }[det]
             except KeyError as e:
-                raise KeyError(f"Invalid detector name! ESO DPR TECH is '{det}'") from e
+                raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
 
             detectors.append(detector_name)
 
@@ -75,7 +77,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         else:
             raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
 
-    def process_images(self) -> cpl.ui.FrameSet:
+    def process_images(self) -> Dict[str, PipelineProduct]:
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
         # FITS file is converted on the fly when an image is loaded from
@@ -96,7 +98,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         Msg.info(self.name, f"Combining images using method {method!r}")
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        processed_images = self.raw_images
+        processed_images = self.input_images
         combined_image = None
 
         match method:
@@ -113,7 +115,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
             case _:
                 Msg.error(self.name, f"Got unknown stacking method {method!r}. Stopping right here!")
 
-        header = cpl.core.PropertyList.load(self.raw_frames[0].file, 0)
+        header = cpl.core.PropertyList.load(self.input_frames[0].file, 0)
 
         self.products = {
             f'METIS_{self.detector_name}_DARK':
@@ -123,7 +125,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
                              file_name=f"MASTER_DARK_{self.detector_name}.fits"),
         }
 
-        return self.product_frames
+        return self.products
 
     @property
     def detector_name(self) -> str:

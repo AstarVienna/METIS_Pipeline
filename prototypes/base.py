@@ -4,6 +4,8 @@ from typing import Dict, Any
 import cpl
 from cpl.core import Msg
 
+from .product import PipelineProduct
+
 
 class MetisRecipeImpl(metaclass=ABCMeta):
     """
@@ -22,8 +24,8 @@ class MetisRecipeImpl(metaclass=ABCMeta):
 
         self.frameset = None
         self.header = None
-        self.raw_frames = cpl.ui.FrameSet()
-        self.raw_images = cpl.core.ImageList()
+        self.input_frames = cpl.ui.FrameSet()
+        self.input_images = cpl.core.ImageList()
         self.product_frames = cpl.ui.FrameSet()
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
@@ -31,9 +33,9 @@ class MetisRecipeImpl(metaclass=ABCMeta):
 
         self.frameset = frameset
         self.import_settings(settings)      # Import and process the provided settings dict
-        self.load_input_frameset(frameset)  # Load the input raw frames
-        self.verify_input()                 # Verify that it is valid (maybe with `schema` too?)
-        self.categorize_raw_frames()        # Categorize raw images based on keywords
+        self.categorize_frameset()          # Categorize raw frames based on keywords
+        self.load_input_frames()            # Load the actual input raw frames
+        self.verify_input()                 # Verify that they are valid (maybe with `schema` too?)
         self.process_images()               # Do the actual processing
         self.save_product()                 # Save the output product
 
@@ -50,24 +52,24 @@ class MetisRecipeImpl(metaclass=ABCMeta):
                             f"but class {self.__class__.__name__} "
                             f"has no parameter named {key}.")
 
-    def categorize_raw_frames(self) -> None:
-        """ Filter raw frames from the SOF """
+    def load_input_frames(self) -> cpl.ui.FrameSet:
+        """ Load and the filtered frames from the frameset """
 
-        for idx, frame in enumerate(self.raw_frames):
-            Msg.info(self.name, f"Processing raw frame #{idx}: {frame.file!r}...")
-
-            Msg.debug(self.name, f"Loading image {frame.file}")
+        for idx, frame in enumerate(self.input_frames):
+            Msg.info(self.name, f"Processing input frame #{idx}: {frame.file!r}...")
             header = cpl.core.PropertyList.load(frame.file, 0)
-            raw_image = cpl.core.Image.load(frame.file, extension=1)
 
-            # Insert the processed image in an image list. Of course
-            # there is also an append() method available.
-            self.raw_images.insert(idx, raw_image)
+            Msg.debug(self.name, f"Loading input image {frame.file}")
+            input_image = cpl.core.Image.load(frame.file, extension=1)
+
+            # Append the processed image to an image list
+            self.input_images.append(input_image)
+
+        return self.input_frames
 
     @abstractmethod
-    def load_input_frameset(self, frameset) -> cpl.ui.FrameSet:
-        """ Load and categorize the frameset. """
-        return cpl.ui.FrameSet()
+    def categorize_frameset(self) -> None:
+        """ Filter raw frames from the SOF """
 
     @abstractmethod
     def verify_input(self) -> None:
@@ -81,19 +83,16 @@ class MetisRecipeImpl(metaclass=ABCMeta):
             and exit gracefully.
             [Martin]: Shouldn't this be esorex's problem?
         """
-        return None
 
     @abstractmethod
-    def process_images(self) -> cpl.ui.FrameSet:
-        return cpl.ui.FrameSet()
+    def process_images(self) -> Dict[str, PipelineProduct]:
+        return {}
 
-    def save_product(self) -> cpl.ui.FrameSet:
+    def save_product(self) -> None:
         """ Register the created product """
         for name, product in self.products.items():
             product.save()
-            self.product_frames.append(product.create_frame())
-
-        return self.product_frames
+            self.product_frames.append(product.as_frame())
 
     @property
     @abstractmethod
