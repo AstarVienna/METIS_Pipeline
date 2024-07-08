@@ -1,10 +1,6 @@
-from typing import Any, Dict
-
-import sys
-sys.path.append('.')
-
 import cpl
 from cpl.core import Msg
+from typing import Any, Dict
 
 from prototypes.base import MetisRecipeImpl
 
@@ -35,10 +31,12 @@ class MetisIfuReduce(MetisRecipeImpl):
 
     def __init__(self):
         super().__init__()
-        self.reduced = None
-        self.background = None
-        self.reduced_cube = None
-        self.combined_cube = None
+        self.products = {
+            rf'IFU_{self.kind}_REDUCED': ProductReduced(),
+            rf'IFU_{self.kind}_BACKGROUND': ProductReduced(),
+            rf'IFU_{self.kind}_REDUCED_CUBE': ProductReduced(),
+            rf'IFU_{self.kind}_COMBINED': ProductReduced(),
+        }
 
     def load_input_frameset(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
         for frame in frameset:

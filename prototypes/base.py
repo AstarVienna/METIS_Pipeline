@@ -9,16 +9,6 @@ class MetisRecipeImpl(metaclass=ABCMeta):
     """ A base class for METIS recipe implementations """
     parameters = cpl.ui.ParameterList([])
 
-    def __init__(self) -> None:
-        self.frameset = None
-        self.header = None
-        self.raw_frames = cpl.ui.FrameSet()
-        self.raw_images = cpl.core.ImageList()
-
-        self.product_frames = cpl.ui.FrameSet()
-        self.product_properties = cpl.core.PropertyList()
-
-
     # Available parameters are a class variable
     parameters = cpl.ui.ParameterList([])
 
@@ -33,7 +23,6 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         self.raw_frames = cpl.ui.FrameSet()
         self.raw_images = cpl.core.ImageList()
         self.product_frames = cpl.ui.FrameSet()
-        self.product_properties = cpl.core.PropertyList()
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """ Main function of the recipe, must have this signature """

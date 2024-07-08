@@ -1,11 +1,6 @@
-from typing import Dict, Any
-
-import sys
-sys.path.append('.')
-
 import cpl
-from cpl import dfs
 from cpl.core import Msg
+from typing import Dict, Any
 
 from prototypes.base import MetisRecipeImpl
 from prototypes.product import PipelineProduct
