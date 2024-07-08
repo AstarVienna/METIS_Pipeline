@@ -10,10 +10,10 @@ class MetisNImgFlat(ui.PyRecipe):
     # Fill in recipe information
     _name = "metis_n_img_flat"
     _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo Gilles Martin"
+    _author = ["Kieran Leschinski", "Chi-Hung Yan", "Hugo Buddelmeijer", "Gilles PPL Otten", "Martin Baláž"]
     _email = "hugo@buddelmeijer.nl"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Create master flat"
+    _synopsis = "Create master flat for N band detectors"
     _description = (
         "Prototype to create a METIS Masterflat."
     )

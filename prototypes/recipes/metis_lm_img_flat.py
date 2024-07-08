@@ -117,7 +117,6 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
         return "2RG"
 
 
-
 class MetisLmImgFlat(cpl.ui.PyRecipe):
     # Fill in recipe information
     _name = "metis_lm_img_flat"
@@ -125,7 +124,7 @@ class MetisLmImgFlat(cpl.ui.PyRecipe):
     _author = "Kieran Chi-Hung Hugo Gilles Martin"
     _email = "hugo@buddelmeijer.nl"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Create master flat"
+    _synopsis = "Create master flat for L/M band detectors"
     _description = (
         "Prototype to create a METIS Masterflat."
     )

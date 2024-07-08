@@ -6,13 +6,15 @@ from cpl.core import Msg
 
 
 class MetisRecipeImpl(metaclass=ABCMeta):
-    """ A base class for METIS recipe implementations """
+    """
+        An abstract base class for all METIS recipe implementations
+        Contains main flow control and provides abstract methods to be overridden
+        by particular pipeline recipe implementations.
+    """
+    # Available parameters are a class variable. This must be present, even if empty.
     parameters = cpl.ui.ParameterList([])
 
-    # Available parameters are a class variable
-    parameters = cpl.ui.ParameterList([])
-
-    def __init__(self, recipe) -> None:
+    def __init__(self, recipe: cpl.ui.PyRecipe) -> None:
         super().__init__()
         self.name = recipe.name
         self.version = recipe.version
@@ -25,10 +27,9 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         self.product_frames = cpl.ui.FrameSet()
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-        """ Main function of the recipe, must have this signature """
+        """ Main function of the recipe implementation """
 
-        self.frameset = frameset            # First save the frameset
-
+        self.frameset = frameset
         self.import_settings(settings)      # Import and process the provided settings dict
         self.load_input_frameset(frameset)  # Load the input raw frames
         self.verify_input()                 # Verify that it is valid (maybe with `schema` too?)
