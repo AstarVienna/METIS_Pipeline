@@ -12,7 +12,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
             self.detector_name = detector_name
             super().__init__(recipe, header, frame, **kwargs)
 
-        def create_frame(self):
+        def as_frame(self):
             return cpl.ui.Frame(file=self.output_file_name,
                                 tag=rf"MASTER_DARK_{self.detector_name}",
                                 group=cpl.ui.Frame.FrameGroup.PRODUCT,
