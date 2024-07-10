@@ -1,5 +1,5 @@
 # METIS Pipeline
-
+METIS pipe line is the data reduction software for ELT early science instrument of Mid-IR imager and spectrograph.  
 
 ## Path Setting
 
@@ -13,6 +13,19 @@ export PYCPL_RECIPE_DIR='<path_of_METIS_pipeline>/prototypes/recipes/'
 ```
 
 ## Use with EDPS
+Before starting to use this pipeline with EDPS, make sure you have read the document of EDPS.  You may also 
+find some useful information [here](https://it.overleaf.com/project/65c1ef845dddcc9a7247e46c)
+
+Remember to define the workflow path in .edps/application.properties.
+
+```
+workflow_dir=/home/chyan/METIS_Pipeline/prototypes/
+```
+
+To be safe, this command clear our all the cache data, log, product.
+```
+edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf EDPS_data/*
+```
 
 Listing all avaliable data files
 ```
