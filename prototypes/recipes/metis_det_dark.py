@@ -8,9 +8,15 @@ from prototypes.product import PipelineProduct
 
 class MetisDetDarkImpl(MetisRecipeImpl):
     class Product(PipelineProduct):
-        def __init__(self, recipe, header, frame, *, detector_name, **kwargs):
+        def __init__(self,
+                     recipe: 'Recipe',
+                     header: cpl.core.PropertyList,
+                     image: cpl.core.Image,
+                     *,
+                     detector_name: str,
+                     **kwargs):
             self.detector_name = detector_name
-            super().__init__(recipe, header, frame, **kwargs)
+            super().__init__(recipe, header, image, **kwargs)
 
         def as_frame(self):
             return cpl.ui.Frame(file=self.output_file_name,
@@ -33,20 +39,17 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         self._detector_name = None
 
     def categorize_frameset(self) -> cpl.ui.FrameSet:
-        """
-        Go through the list of input frames, check their tags and filter out suitable files.
-        """
+        """ Go through the list of input frames, check their tags and filter out suitable files. """
 
         for frame in self.frameset:
             # TODO: N and GEO
             match frame.tag:
-                case x if x in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]:
+                case tag if tag in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]:
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
                     self.input_frames.append(frame)
                     Msg.debug(self.name, f"Got raw frame: {frame.file}.")
                 case _:
-                    Msg.warning(self.name,
-                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
+                    Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
         return self.input_frames
 
@@ -118,7 +121,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         header = cpl.core.PropertyList.load(self.input_frames[0].file, 0)
 
         self.products = {
-            f'METIS_{self.detector_name}_DARK':
+            fr'METIS_{self.detector_name}_DARK':
                 self.Product(self,
                              header, combined_image,
                              detector_name=self.detector_name,

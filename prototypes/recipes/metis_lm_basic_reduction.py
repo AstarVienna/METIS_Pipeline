@@ -1,12 +1,85 @@
 from typing import Any, Dict
 
-from cpl import core
-from cpl import ui
-from cpl import dfs
+import cpl
 from cpl.core import Msg
 
+from prototypes.base import MetisRecipeImpl
+from prototypes.product import PipelineProduct
 
-class MetisLMBasicRediction(ui.PyRecipe):
+
+class MetisLMBasicReductionImpl(MetisRecipeImpl):
+    class Product(PipelineProduct):
+
+        def as_frame(self) -> cpl.ui.Frame:
+            return cpl.ui.Frame(file=self.output_file_name,
+                                tag="OBJECT_REDUCED",
+                                group=cpl.ui.Frame.FrameGroup.PRODUCT,
+                                level=cpl.ui.Frame.FrameLevel.FINAL,
+                                frameType=cpl.ui.Frame.FrameType.IMAGE)
+
+        @property
+        def category(self) -> str:
+            return "OBJECT_REDUCED"
+
+        @property
+        def output_file_name(self):
+            return f"{self.category}.fits"
+
+    def __init__(self, recipe):
+        super().__init__(recipe)
+        self.bias_frame = None
+        self.bias_image = None
+        self.flat_frame = None
+        self.flat_image = None
+        self.raw_frames = cpl.ui.FrameSet()
+
+    def categorize_frameset(self) -> cpl.ui.FrameSet:
+        for frame in self.frameset:
+            if frame.tag == "LM_IMAGE_SCI_RAW":
+                frame.group = cpl.ui.Frame.FrameGroup.RAW
+                self.raw_frames.append(frame)
+                Msg.debug(self.name, f"Got raw frame: {frame.file}.")
+            elif frame.tag == "MASTER_DARK_2RG":
+                frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                self.bias_frame = frame
+                Msg.debug(self.name, f"Got bias frame: {frame.file}.")
+            elif frame.tag == "MASTER_FLAT_LAMP":
+                frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                self.flat_frame = frame
+                Msg.debug(self.name, f"Got flat field frame: {frame.file}.")
+            else:
+                Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
+
+    def verify_input(self) -> None:
+        # For demonstration purposes we raise an exception here. Real world
+        # recipes should rather print a message (also to have it in the log file)
+        # and exit gracefully.
+        if len(self.raw_frames) == 0:
+            raise cpl.core.DataNotFoundError("No raw frames in frameset.")
+
+        # By default images are loaded as Python float data. Raw image
+        # data which is usually represented as 2-byte integer data in a
+        # FITS file is converted on the fly when an image is loaded from
+        # a file. It is however also possible to load images without
+        # performing this conversion.
+        if self.bias_frame:
+            self.bias_image = cpl.core.Image.load(self.bias_frame.file, extension=0)
+            Msg.info(self.name, f"Loaded bias frame {self.bias_frame.file!r}.")
+        else:
+            #raise core.DataNotFoundError("No bias frame in frameset.")
+            Msg.warning(self.name, "No bias frame in frameset.")
+
+        flat_image = None
+        if self.flat_frame:
+            self.flat_image = cpl.core.Image.load(self.flat_frame.file, extension=0)
+            Msg.info(self.name, f"Loaded flat frame {self.flat_frame.file!r}.")
+        else:
+            # raise core.DataNotFoundError("No flat frame in frameset.")
+            Msg.warning(self.name, "No flat frame in frameset.")
+
+
+
+class MetisLMBasicReduction(cpl.ui.PyRecipe):
     # Fill in recipe information
     _name = "metis_lm_basic_reduction"
     _version = "0.1"
@@ -20,34 +93,23 @@ class MetisLMBasicRediction(ui.PyRecipe):
         + "and it is divided by the master flat."
     )
 
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="basic_reduction.stacking.method",
+            context="basic_reduction",
+            description="Name of the method used to combine the input images",
+            default="add",
+            alternatives=("add", "average", "median"),
+        )
+    ])
+    implementation_class = MetisLMBasicReductionImpl
+
     def __init__(self) -> None:
         super().__init__()
-
-        # The recipe will have a single enumeration type parameter, which allows the
-        # user to select the frame combination method.
-        self.parameters = ui.ParameterList(
-            (
-                ui.ParameterEnum(
-                    name="basic_reduction.stacking.method",
-                    context="basic_reduction",
-                    description="Name of the method used to combine the input images",
-                    default="add",
-                    alternatives=("add", "average", "median"),
-                ),
-            )
-        )
+        self.implementation = self.implementation_class(self)
 
     def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
-        # Update the recipe paramters with the values requested by the user through the
-        # settings argument
-        for key, value in settings.items():
-            try:
-                self.parameters[key].value = value
-            except KeyError:
-                Msg.warning(
-                    self.name,
-                    f"Settings includes {key}:{value} but {self} has no parameter named {key}.",
-                )
+
 
         raw_frames = ui.FrameSet()
         product_frames = ui.FrameSet()
@@ -56,57 +118,11 @@ class MetisLMBasicRediction(ui.PyRecipe):
 
         output_file = "OBJECT_REDUCED.fits"
 
-        # Go through the list of input frames, check the tag and act accordingly
-        for frame in frameset:
-            if frame.tag == "LM_IMAGE_SCI_RAW":
-                frame.group = ui.Frame.FrameGroup.RAW
-                raw_frames.append(frame)
-                Msg.debug(self.name, f"Got raw frame: {frame.file}.")
-            elif frame.tag == "MASTER_DARK_2RG":
-                frame.group = ui.Frame.FrameGroup.CALIB
-                bias_frame = frame
-                Msg.debug(self.name, f"Got bias frame: {frame.file}.")
-            elif frame.tag == "MASTER_FLAT_LAMP":
-                frame.group = ui.Frame.FrameGroup.CALIB
-                flat_frame = frame
-                Msg.debug(self.name, f"Got flat field frame: {frame.file}.")
-            else:
-                Msg.warning(
-                    self.name,
-                    f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.",
-                )
-
-        # For demonstration purposes we raise an exception here. Real world
-        # recipes should rather print a message (also to have it in the log file)
-        # and exit gracefully.
-        if len(raw_frames) == 0:
-            raise core.DataNotFoundError("No raw frames in frameset.")
-
-        # By default images are loaded as Python float data. Raw image
-        # data which is usually represented as 2-byte integer data in a
-        # FITS file is converted on the fly when an image is loaded from
-        # a file. It is however also possible to load images without
-        # performing this conversion.
-        bias_image = None
-        if bias_frame:
-            bias_image = core.Image.load(bias_frame.file, extension=0)
-            Msg.info(self.name, f"Loaded bias frame {bias_frame.file!r}.")
-        else:
-            #raise core.DataNotFoundError("No bias frame in frameset.")
-            Msg.warning(self.name, "No bias frame in frameset.")
-
-        flat_image = None
-        if flat_frame:
-            flat_image = core.Image.load(flat_frame.file, extension=0)
-            Msg.info(self.name, f"Loaded flat frame {flat_frame.file!r}.")
-        else:
-            # raise core.DataNotFoundError("No flat frame in frameset.")
-            Msg.warning(self.name, "No flat frame in frameset.")
 
         # Flat field preparation: subtract bias and normalize it to median 1
         Msg.info(self.name, "Preparing flat field")
-        if flat_image:
-            if bias_image:
+        if self.flat_image:
+            if self.bias_image:
                 flat_image.subtract(bias_image)
             median = flat_image.get_median()
             flat_image.divide_scalar(median)
@@ -117,16 +133,16 @@ class MetisLMBasicRediction(ui.PyRecipe):
             Msg.info(self.name, f"Processing {frame.file!r}...")
 
             if idx == 0:
-                header = core.PropertyList.load(frame.file, 0)
+                header = cpl.core.PropertyList.load(frame.file, 0)
 
             Msg.debug(self.name, "Loading image.")
-            raw_image = core.Image.load(frame.file, extension=1)
+            raw_image = cpl.core.Image.load(frame.file, extension=1)
 
-            if bias_image:
+            if self.bias_image:
                 Msg.debug(self.name, "Bias subtracting...")
-                raw_image.subtract(bias_image)
+                raw_image.subtract(self.bias_image)
 
-            if flat_image:
+            if self.flat_image:
                 Msg.debug(self.name, "Flat fielding...")
                 raw_image.divide(flat_image)
 
@@ -159,36 +175,5 @@ class MetisLMBasicRediction(ui.PyRecipe):
             # ui.FrameSet object. The result frameset product_frames will do,
             # it is still empty here!
             return product_frames
-
-        # Create property list specifying the product tag of the processed image
-        product_properties = core.PropertyList()
-        product_properties.append(
-            core.Property("ESO PRO CATG", core.Type.STRING, r"OBJECT_REDUCED")
-        )
-
-        # Save the result image as a standard pipeline product file
-        Msg.info(self.name, f"Saving product file as {output_file!r}.")
-        dfs.save_image(
-            frameset,
-            self.parameters,
-            frameset,
-            combined_image,
-            self.name,
-            product_properties,
-            f"demo/{self.version!r}",
-            output_file,
-            header=header,
-        )
-
-        # Register the created product
-        product_frames.append(
-            ui.Frame(
-                file=output_file,
-                tag="OBJECT_REDUCED",
-                group=ui.Frame.FrameGroup.PRODUCT,
-                level=ui.Frame.FrameLevel.FINAL,
-                frameType=ui.Frame.FrameType.IMAGE,
-            )
-        )
 
         return product_frames

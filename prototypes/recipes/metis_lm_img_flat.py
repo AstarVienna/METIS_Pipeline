@@ -33,7 +33,7 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
         self.masterdark_frame = None
         self.masterdark_image = None
 
-    def categorize_frameset(self) -> None:
+    def categorize_frameset(self) -> cpl.ui.FrameSet:
         """ Go through the list of input frames, check the tags and act on it accordingly """
         for frame in self.frameset:
             match frame.tag:
@@ -48,6 +48,8 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
                 case _:
                     Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
+        return self.input_frames
+
     def verify_input(self) -> None:
         if len(self.input_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames found in the frameset.")
@@ -55,7 +57,7 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
         if self.masterdark_frame is None:
             raise cpl.core.DataNotFoundError("No masterdark frames found in the frameset.")
 
-    def process_images(self) -> cpl.ui.FrameSet:
+    def process_images(self) -> Dict[str, PipelineProduct]:
         # TODO: Detect detector
         # TODO: Twilight
 
@@ -77,20 +79,20 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
-        self.processed_images = self.input_images
+        processed_images = self.input_images
         combined_image = None
 
         match method:
             case "add":
-                for idx, image in enumerate(self.processed_images):
+                for idx, image in enumerate(processed_images):
                     if idx == 0:
                         combined_image = image
                     else:
                         combined_image.add(image)
             case "average":
-                combined_image = self.processed_images.collapse_create()
+                combined_image = processed_images.collapse_create()
             case "median":
-                combined_image = self.processed_images.collapse_median_create()
+                combined_image = processed_images.collapse_median_create()
             case _:
                 Msg.error(
                     self.name,
@@ -103,13 +105,12 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
         header = cpl.core.PropertyList.load(self.input_frames[0].file, 0)
 
         self.products = {
-            f'METIS_LM_IMG_FLAT':
+            r'METIS_LM_IMG_FLAT':
                 self.Product(self,
                              header, combined_image,
                              file_name=f"MASTER_IMG_FLAT_LAMP_LM.fits"),
         }
         return self.products
-
 
     @property
     def detector_name(self) -> str:
@@ -137,7 +138,6 @@ class MetisLmImgFlat(cpl.ui.PyRecipe):
             alternatives=("add", "average", "median"),
         ),
     ])
-
     implementation_class = MetisLmImgFlatImpl
 
     def __init__(self):

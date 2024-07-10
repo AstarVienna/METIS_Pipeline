@@ -4,7 +4,7 @@ from typing import Dict, Any
 import cpl
 from cpl.core import Msg
 
-from .product import PipelineProduct
+from prototypes.product import PipelineProduct
 
 
 class MetisRecipeImpl(metaclass=ABCMeta):
@@ -38,8 +38,8 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         self.load_input_frames()            # Load the actual input raw frames
         self.verify_input()                 # Verify that they are valid (maybe with `schema` too?)
         self.process_images()               # Do the actual processing
-        self.save_products()                 # Save the output product
-        return self.get_product_frameset()
+        self.save_products()                # Save the output products
+        return self.get_product_frameset()  # Return the output as a pycpl FrameSet
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """ Update the recipe parameters with the values requested by the user """
