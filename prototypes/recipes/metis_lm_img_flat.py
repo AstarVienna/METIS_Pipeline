@@ -26,11 +26,11 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
         @property
         def output_file_name(self) -> str:
             """ Form the output file name (currently a constant) """
-            return "MASTER_IMG_FLAT_LAMP_LM.fits"
+            return f"{self.category}.fits"
 
     def __init__(self, recipe) -> None:
         super().__init__(recipe)
-        self.masterdark = None
+        self.masterdark_frame = None
         self.masterdark_image = None
 
     def categorize_frameset(self) -> None:
@@ -42,8 +42,8 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
                     self.input_frames.append(frame)
                     Msg.debug(self.name, f"Got raw frame: {frame.file}.")
                 case tag if tag in ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]:
+                    self.masterdark_frame = frame
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.masterdark = frame
                     Msg.debug(self.name, f"Got master dark frame: {frame.file}.")
                 case _:
                     Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
@@ -52,13 +52,12 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
         if len(self.input_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames found in the frameset.")
 
-        if self.masterdark is None:
+        if self.masterdark_frame is None:
             raise cpl.core.DataNotFoundError("No masterdark frames found in the frameset.")
 
     def process_images(self) -> cpl.ui.FrameSet:
         # TODO: Detect detector
         # TODO: Twilight
-        output_file = "MASTER_IMG_FLAT_LAMP_LM.fits"
 
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
@@ -66,7 +65,7 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
         # a file. It is however also possible to load images without
         # performing this conversion.
 
-        self.masterdark_image = cpl.core.Image.load(self.masterdark.file, extension=0)
+        self.masterdark_image = cpl.core.Image.load(self.masterdark_frame.file, extension=0)
 
         # Subtract the dark from every raw image
         for raw_image in self.input_images:
@@ -109,7 +108,7 @@ class MetisLmImgFlatImpl(MetisRecipeImpl):
                              header, combined_image,
                              file_name=f"MASTER_IMG_FLAT_LAMP_LM.fits"),
         }
-        return self.product_frames
+        return self.products
 
 
     @property

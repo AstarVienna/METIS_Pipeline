@@ -14,12 +14,12 @@ class PipelineProduct(metaclass=ABCMeta):
     def __init__(self,
                  recipe: 'Recipe',
                  header: cpl.core.PropertyList,
-                 frame: cpl.ui.Frame,
+                 image: cpl.core.Image,
                  *,
                  file_name: str):
-        self.recipe = recipe
-        self.header = header
-        self.frame = frame
+        self.recipe: cpl.ui.PyRecipe = recipe
+        self.header: cpl.core.PropertyList = header
+        self.image: cpl.core.Image = image
         self.properties = cpl.core.PropertyList()
         self.file_name = file_name
 
@@ -45,12 +45,12 @@ class PipelineProduct(metaclass=ABCMeta):
     def save(self):
         Msg.info(self.recipe.name, f"Saving product file as {self.file_name!r}.")
         cpl.dfs.save_image(
-            self.recipe.frameset,
-            self.recipe.parameters,
-            self.recipe.frameset,
-            self.frame,
-            self.recipe.name,
-            self.properties,
+            self.recipe.frameset,       # All frames for the recipe
+            self.recipe.parameters,     # The list of input parameters
+            self.recipe.frameset,       # The list of raw and calibration frames actually used
+            self.image,                 # Image to be saves
+            self.recipe.name,           # Name of the recipe
+            self.properties,            # Properties to be appended
             PIPELINE,
             self.file_name,
             header=self.header,

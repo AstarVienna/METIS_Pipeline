@@ -27,6 +27,7 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         self.input_frames = cpl.ui.FrameSet()
         self.input_images = cpl.core.ImageList()
         self.product_frames = cpl.ui.FrameSet()
+        self.products = {}
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """ Main function of the recipe implementation """
@@ -37,9 +38,8 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         self.load_input_frames()            # Load the actual input raw frames
         self.verify_input()                 # Verify that they are valid (maybe with `schema` too?)
         self.process_images()               # Do the actual processing
-        self.save_product()                 # Save the output product
-
-        return self.product_frames
+        self.save_products()                 # Save the output product
+        return self.get_product_frameset()
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """ Update the recipe parameters with the values requested by the user """
@@ -52,20 +52,18 @@ class MetisRecipeImpl(metaclass=ABCMeta):
                             f"but class {self.__class__.__name__} "
                             f"has no parameter named {key}.")
 
-    def load_input_frames(self) -> cpl.ui.FrameSet:
+    def load_input_frames(self) -> cpl.core.ImageList:
         """ Load and the filtered frames from the frameset """
 
         for idx, frame in enumerate(self.input_frames):
             Msg.info(self.name, f"Processing input frame #{idx}: {frame.file!r}...")
             header = cpl.core.PropertyList.load(frame.file, 0)
 
+            # Append the loaded image to an image list
             Msg.debug(self.name, f"Loading input image {frame.file}")
-            input_image = cpl.core.Image.load(frame.file, extension=1)
+            self.input_images.append(cpl.core.Image.load(frame.file, extension=1))
 
-            # Append the processed image to an image list
-            self.input_images.append(input_image)
-
-        return self.input_frames
+        return self.input_images
 
     @abstractmethod
     def categorize_frameset(self) -> None:
@@ -88,11 +86,19 @@ class MetisRecipeImpl(metaclass=ABCMeta):
     def process_images(self) -> Dict[str, PipelineProduct]:
         return {}
 
-    def save_product(self) -> None:
+    def save_products(self) -> None:
         """ Register the created product """
         for name, product in self.products.items():
+            Msg.debug(__name__, f"Saving {product}")
             product.save()
-            self.product_frames.append(product.as_frame())
+
+    def get_product_frameset(self) -> cpl.ui.FrameSet:
+        product_frames = cpl.ui.FrameSet()
+
+        for name, product in self.products.items():
+            product_frames.append(product.as_frame())
+
+        return product_frames
 
     @property
     @abstractmethod
