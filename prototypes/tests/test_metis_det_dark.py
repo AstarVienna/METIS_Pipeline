@@ -1,11 +1,17 @@
-import subprocess
 import pytest
+import subprocess
+
+import cpl.ui
 
 from prototypes.recipes.metis_det_dark import MetisDetDark, MetisDetDarkImpl
 
 
 class TestMetisDetDark:
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+
+    def test_create(self):
+        recipe = MetisDetDark()
+        assert isinstance(recipe, cpl.ui.PyRecipe)
 
     def test_is_working(self):
         output = subprocess.run(['pyesorex', 'metis_det_dark', 'prototypes/sof/masterdark.sof',

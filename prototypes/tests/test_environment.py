@@ -8,7 +8,8 @@ class TestConfigured:
     """
     def test_pythonpath(self):
         """
-            If this fails, your Python is unable to find the package. Set PYTHONPATH to "." in the root directory.
+            If this fails, your Python is unable to find the package.
+            Set PYTHONPATH to "." in the root directory.
             This is a temporary workaround and should be solved properly instead.
         """
         from prototypes.recipes.metis_det_dark import MetisDetDarkImpl

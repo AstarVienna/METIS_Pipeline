@@ -4,9 +4,10 @@ from typing import Dict, Any
 
 from prototypes.base import MetisRecipeImpl
 from prototypes.product import PipelineProduct
+from prototypes.raw_images import RawImageProcessor
 
 
-class MetisDetDarkImpl(MetisRecipeImpl):
+class MetisDetDarkImpl(RawImageProcessor):
     class Product(PipelineProduct):
         def __init__(self,
                      recipe: 'Recipe',
@@ -46,20 +47,20 @@ class MetisDetDarkImpl(MetisRecipeImpl):
             match frame.tag:
                 case tag if tag in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]:
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
-                    self.input_frames.append(frame)
+                    self.raw_frames.append(frame)
                     Msg.debug(self.name, f"Got raw frame: {frame.file}.")
                 case _:
                     Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
-        return self.input_frames
+        return self.raw_frames
 
-    def verify_input(self) -> None:
-        if len(self.input_frames) == 0:
+    def verify_input_frames(self) -> None:
+        if len(self.raw_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
         detectors = []
 
-        for idx, frame in enumerate(self.input_frames):
+        for idx, frame in enumerate(self.raw_frames):
             header = cpl.core.PropertyList.load(frame.file, 0)
             raw_image = cpl.core.Image.load(frame.file, extension=1)
             det = header['ESO DPR TECH'].value
@@ -101,7 +102,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         Msg.info(self.name, f"Combining images using method {method!r}")
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        processed_images = self.input_images
+        processed_images = self.raw_images
         combined_image = None
 
         match method:
@@ -118,7 +119,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
             case _:
                 Msg.error(self.name, f"Got unknown stacking method {method!r}. Stopping right here!")
 
-        header = cpl.core.PropertyList.load(self.input_frames[0].file, 0)
+        header = cpl.core.PropertyList.load(self.raw_frames[0].file, 0)
 
         self.products = {
             fr'METIS_{self.detector_name}_DARK':

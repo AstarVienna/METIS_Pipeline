@@ -38,7 +38,7 @@ class MetisIfuReduce(MetisRecipeImpl):
             rf'IFU_{self.kind}_COMBINED': ProductReduced(),
         }
 
-    def load_input_frames(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
+    def load_input_images(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
         for frame in frameset:
             match frame.tag:
                 case "MASTER_DARK_IFU":

@@ -24,22 +24,24 @@ class MetisRecipeImpl(metaclass=ABCMeta):
 
         self.frameset = None
         self.header = None
-        self.input_frames = cpl.ui.FrameSet()
-        self.input_images = cpl.core.ImageList()
         self.product_frames = cpl.ui.FrameSet()
         self.products = {}
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """ Main function of the recipe implementation """
 
-        self.frameset = frameset
-        self.import_settings(settings)      # Import and process the provided settings dict
-        self.categorize_frameset()          # Categorize raw frames based on keywords
-        self.load_input_frames()            # Load the actual input raw frames
-        self.verify_input()                 # Verify that they are valid (maybe with `schema` too?)
-        self.process_images()               # Do the actual processing
-        self.save_products()                # Save the output products
-        return self.get_product_frameset()  # Return the output as a pycpl FrameSet
+        try:
+            self.frameset = frameset
+            self.import_settings(settings)      # Import and process the provided settings dict
+            self.categorize_frameset()          # Categorize raw frames based on keywords
+            self.load_input_images()            # Load the actual input images from frames
+            self.verify_input_frames()                 # Verify that they are valid (maybe with `schema` too?)
+            self.process_images()               # Do the actual processing
+            self.save_products()                # Save the output products
+        except cpl.core.DataNotFoundError as e:
+            Msg.warning(f"Data not found: {e.message}")
+
+        return self.get_product_frameset()      # Return the output as a pycpl FrameSet
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """ Update the recipe parameters with the values requested by the user """
@@ -52,35 +54,26 @@ class MetisRecipeImpl(metaclass=ABCMeta):
                             f"but class {self.__class__.__name__} "
                             f"has no parameter named {key}.")
 
-    def load_input_frames(self) -> cpl.core.ImageList:
-        """ Load and the filtered frames from the frameset """
-
-        for idx, frame in enumerate(self.input_frames):
-            Msg.info(self.name, f"Processing input frame #{idx}: {frame.file!r}...")
-            header = cpl.core.PropertyList.load(frame.file, 0)
-
-            # Append the loaded image to an image list
-            Msg.debug(self.name, f"Loading input image {frame.file}")
-            self.input_images.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return self.input_images
-
     @abstractmethod
     def categorize_frameset(self) -> None:
         """ Filter raw frames from the SOF """
 
     @abstractmethod
-    def verify_input(self) -> None:
+    def verify_input_frames(self) -> None:
         """
             Verify that the loaded frameset is valid and conforms to the specification.
-            It would be also good to do this with some schema.
+            It would be also good to do this with some schema (but that might make Lars unhappy).
             Returns None if OK, otherwise an exception is raised.
 
             For demonstration purposes we raise an exception here. Real world
             recipes should rather print a message (also to have it in the log file)
             and exit gracefully.
-            [Martin]: Shouldn't this be esorex's problem?
+            [Martin]: Shouldn't this be esorex's problem? I want exceptions!
         """
+
+    @abstractmethod
+    def load_input_images(self) -> None:
+        """ Load and the filtered frames from the frameset """
 
     @abstractmethod
     def process_images(self) -> Dict[str, PipelineProduct]:

@@ -50,33 +50,45 @@ class MetisLMBasicReductionImpl(MetisRecipeImpl):
             else:
                 Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
-    def verify_input(self) -> None:
+    def verify_input_frames(self) -> None:
         # For demonstration purposes we raise an exception here. Real world
         # recipes should rather print a message (also to have it in the log file)
         # and exit gracefully.
         if len(self.raw_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
-        # By default images are loaded as Python float data. Raw image
-        # data which is usually represented as 2-byte integer data in a
-        # FITS file is converted on the fly when an image is loaded from
-        # a file. It is however also possible to load images without
-        # performing this conversion.
         if self.bias_frame:
             self.bias_image = cpl.core.Image.load(self.bias_frame.file, extension=0)
             Msg.info(self.name, f"Loaded bias frame {self.bias_frame.file!r}.")
         else:
-            #raise core.DataNotFoundError("No bias frame in frameset.")
-            Msg.warning(self.name, "No bias frame in frameset.")
+            raise cpl.core.DataNotFoundError("No bias frame in frameset.")
+            #Msg.warning(self.name, "No bias frame in frameset.")
 
-        flat_image = None
         if self.flat_frame:
             self.flat_image = cpl.core.Image.load(self.flat_frame.file, extension=0)
             Msg.info(self.name, f"Loaded flat frame {self.flat_frame.file!r}.")
         else:
-            # raise core.DataNotFoundError("No flat frame in frameset.")
-            Msg.warning(self.name, "No flat frame in frameset.")
+            raise cpl.core.DataNotFoundError("No flat frame in frameset.")
+            #Msg.warning(self.name, "No flat frame in frameset.")
 
+    def load_input_images(self) -> cpl.core.ImageList:
+        """ Load and the filtered frames from the frameset """
+
+        for idx, frame in enumerate(self.raw_frames):
+            Msg.info(self.name, f"Processing input frame #{idx}: {frame.file!r}...")
+
+            # Append the loaded image to an image list
+            Msg.debug(self.name, f"Loading input image {frame.file}")
+            self.raw_images.append(cpl.core.Image.load(frame.file, extension=1))
+
+        return self.raw_images
+
+    def process_images(self) -> Dict[str, PipelineProduct]:
+        return {}
+
+    @property
+    def detector_name(self) -> str:
+        return "2RG"
 
 
 class MetisLMBasicReduction(cpl.ui.PyRecipe):
@@ -108,11 +120,11 @@ class MetisLMBasicReduction(cpl.ui.PyRecipe):
         super().__init__()
         self.implementation = self.implementation_class(self)
 
-    def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
+    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
 
 
-        raw_frames = ui.FrameSet()
-        product_frames = ui.FrameSet()
+        raw_frames = cpl.ui.FrameSet()
+        product_frames = cpl.ui.FrameSet()
         bias_frame = None
         flat_frame = None
 
@@ -123,12 +135,12 @@ class MetisLMBasicReduction(cpl.ui.PyRecipe):
         Msg.info(self.name, "Preparing flat field")
         if self.flat_image:
             if self.bias_image:
-                flat_image.subtract(bias_image)
-            median = flat_image.get_median()
-            flat_image.divide_scalar(median)
+                self.flat_image.subtract(self.bias_image)
+            median = self.flat_image.get_median()
+            self.flat_image.divide_scalar(median)
 
         header = None
-        processed_images = core.ImageList()
+        processed_images = cpl.core.ImageList()
         for idx, frame in enumerate(raw_frames):
             Msg.info(self.name, f"Processing {frame.file!r}...")
 
@@ -144,7 +156,7 @@ class MetisLMBasicReduction(cpl.ui.PyRecipe):
 
             if self.flat_image:
                 Msg.debug(self.name, "Flat fielding...")
-                raw_image.divide(flat_image)
+                raw_image.divide(self.flat_image)
 
             # Insert the processed image in an image list. Of course
             # there is also an append() method available.
