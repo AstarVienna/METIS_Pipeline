@@ -3,13 +3,13 @@ from typing import Any, Dict
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipeImpl
+from prototypes.base import MetisRecipe
 from prototypes.product import PipelineProduct
+from prototypes.rawimage import RawImageProcessor
 
 
-class MetisLMBasicReductionImpl(MetisRecipeImpl):
+class MetisLMBasicReductionImpl(RawImageProcessor):
     class Product(PipelineProduct):
-
         def as_frame(self) -> cpl.ui.Frame:
             return cpl.ui.Frame(file=self.output_file_name,
                                 tag="OBJECT_REDUCED",
@@ -31,7 +31,6 @@ class MetisLMBasicReductionImpl(MetisRecipeImpl):
         self.bias_image = None
         self.flat_frame = None
         self.flat_image = None
-        self.raw_frames = cpl.ui.FrameSet()
 
     def categorize_frameset(self) -> cpl.ui.FrameSet:
         for frame in self.frameset:
@@ -50,6 +49,8 @@ class MetisLMBasicReductionImpl(MetisRecipeImpl):
             else:
                 Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
+        return self.raw_images
+
     def verify_input_frames(self) -> None:
         # For demonstration purposes we raise an exception here. Real world
         # recipes should rather print a message (also to have it in the log file)
@@ -57,80 +58,20 @@ class MetisLMBasicReductionImpl(MetisRecipeImpl):
         if len(self.raw_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
-        if self.bias_frame:
-            self.bias_image = cpl.core.Image.load(self.bias_frame.file, extension=0)
-            Msg.info(self.name, f"Loaded bias frame {self.bias_frame.file!r}.")
-        else:
-            raise cpl.core.DataNotFoundError("No bias frame in frameset.")
-            #Msg.warning(self.name, "No bias frame in frameset.")
+        if self.bias_frame is None:
+            raise cpl.core.DataNotFoundError("No bias frames in frameset.")
 
-        if self.flat_frame:
-            self.flat_image = cpl.core.Image.load(self.flat_frame.file, extension=0)
-            Msg.info(self.name, f"Loaded flat frame {self.flat_frame.file!r}.")
-        else:
-            raise cpl.core.DataNotFoundError("No flat frame in frameset.")
-            #Msg.warning(self.name, "No flat frame in frameset.")
+        if self.flat_frame is None:
+            raise cpl.core.DataNotFoundError("No flat frames in frameset.")
 
-    def load_input_images(self) -> cpl.core.ImageList:
-        """ Load and the filtered frames from the frameset """
-
-        for idx, frame in enumerate(self.raw_frames):
-            Msg.info(self.name, f"Processing input frame #{idx}: {frame.file!r}...")
-
-            # Append the loaded image to an image list
-            Msg.debug(self.name, f"Loading input image {frame.file}")
-            self.raw_images.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return self.raw_images
+    def load_input_images(self) -> None:
+        super().load_input_images()
+        self.bias_image = cpl.core.Image.load(self.bias_frame.file, extension=0)
+        Msg.info(self.name, f"Loaded bias frame {self.bias_frame.file!r}.")
+        self.flat_image = cpl.core.Image.load(self.flat_frame.file, extension=0)
+        Msg.info(self.name, f"Loaded flat frame {self.flat_frame.file!r}.")
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-        return {}
-
-    @property
-    def detector_name(self) -> str:
-        return "2RG"
-
-
-class MetisLMBasicReduction(cpl.ui.PyRecipe):
-    # Fill in recipe information
-    _name = "metis_lm_basic_reduction"
-    _version = "0.1"
-    _author = "Chi-Hung Yan"
-    _email = "chyan@asiaa.sinica.edu.tw"
-    _copyright = "GPL-3.0-or-later"
-    _synopsis = "Basic science image data processing"
-    _description = (
-        "The recipe combines all science input files in the input set-of-frames using\n"
-        + "the given method. For each input science image the master bias is subtracted,\n"
-        + "and it is divided by the master flat."
-    )
-
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="basic_reduction.stacking.method",
-            context="basic_reduction",
-            description="Name of the method used to combine the input images",
-            default="add",
-            alternatives=("add", "average", "median"),
-        )
-    ])
-    implementation_class = MetisLMBasicReductionImpl
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.implementation = self.implementation_class(self)
-
-    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-
-
-        raw_frames = cpl.ui.FrameSet()
-        product_frames = cpl.ui.FrameSet()
-        bias_frame = None
-        flat_frame = None
-
-        output_file = "OBJECT_REDUCED.fits"
-
-
         # Flat field preparation: subtract bias and normalize it to median 1
         Msg.info(self.name, "Preparing flat field")
         if self.flat_image:
@@ -141,7 +82,7 @@ class MetisLMBasicReduction(cpl.ui.PyRecipe):
 
         header = None
         processed_images = cpl.core.ImageList()
-        for idx, frame in enumerate(raw_frames):
+        for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing {frame.file!r}...")
 
             if idx == 0:
@@ -186,6 +127,41 @@ class MetisLMBasicReduction(cpl.ui.PyRecipe):
             # Since we did not create a product we need to return an empty
             # ui.FrameSet object. The result frameset product_frames will do,
             # it is still empty here!
-            return product_frames
 
-        return product_frames
+        self.products = {
+            r'LM_SCI_BASIC_REDUCED':
+                self.Product(self, header, combined_image,
+                             file_name=f"MASTER_DARK_{self.detector_name}.fits"),
+        }
+
+        return self.products
+
+    @property
+    def detector_name(self) -> str:
+        return "2RG"
+
+
+class MetisLmBasicReduction(MetisRecipe):
+    # Fill in recipe information
+    _name = "metis_lm_basic_reduction"
+    _version = "0.1"
+    _author = "Chi-Hung Yan"
+    _email = "chyan@asiaa.sinica.edu.tw"
+    _copyright = "GPL-3.0-or-later"
+    _synopsis = "Basic science image data processing"
+    _description = (
+        "The recipe combines all science input files in the input set-of-frames using\n"
+        + "the given method. For each input science image the master bias is subtracted,\n"
+        + "and it is divided by the master flat."
+    )
+
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="basic_reduction.stacking.method",
+            context="basic_reduction",
+            description="Name of the method used to combine the input images",
+            default="add",
+            alternatives=("add", "average", "median"),
+        )
+    ])
+    implementation_class = MetisLMBasicReductionImpl

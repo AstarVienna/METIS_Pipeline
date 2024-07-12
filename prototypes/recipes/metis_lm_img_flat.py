@@ -3,16 +3,13 @@ from typing import Dict, Any
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipeImpl
+from prototypes.base import MetisRecipe
 from prototypes.product import PipelineProduct
-from prototypes.raw_images import RawImageProcessor
+from prototypes.rawimage import RawImageProcessor
 
 
 class MetisLmImgFlatImpl(RawImageProcessor):
     class Product(PipelineProduct):
-        def __init__(self, recipe, header, frame, **kwargs):
-            super().__init__(recipe, header, frame, **kwargs)
-
         def as_frame(self):
             return cpl.ui.Frame(file=self.output_file_name,
                                 tag=rf"MASTER_IMG_FLAT_LAMP_LM",
@@ -52,6 +49,7 @@ class MetisLmImgFlatImpl(RawImageProcessor):
         return self.raw_frames
 
     def verify_input_frames(self) -> None:
+        # First verify the raw frames
         super().verify_input_frames()
 
         if self.masterdark_frame is None:
@@ -120,7 +118,7 @@ class MetisLmImgFlatImpl(RawImageProcessor):
         return "2RG"
 
 
-class MetisLmImgFlat(cpl.ui.PyRecipe):
+class MetisLmImgFlat(MetisRecipe):
     # Fill in recipe information
     _name = "metis_lm_img_flat"
     _version = "0.1"
@@ -142,10 +140,3 @@ class MetisLmImgFlat(cpl.ui.PyRecipe):
         ),
     ])
     implementation_class = MetisLmImgFlatImpl
-
-    def __init__(self):
-        super().__init__()
-        self.implementation = self.implementation_class(self)
-
-    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-        return self.implementation.run(frameset, settings)

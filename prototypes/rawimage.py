@@ -1,11 +1,12 @@
-import cpl
+from abc import ABCMeta
 
+import cpl
 from cpl.core import Msg
 
-from .base import MetisRecipeImpl
+from prototypes.base import MetisRecipeImpl
 
 
-class RawImageProcessor(MetisRecipeImpl):
+class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
     def __init__(self, recipe):
         super().__init__(recipe)
         self.raw_frames = cpl.ui.FrameSet()
@@ -16,7 +17,7 @@ class RawImageProcessor(MetisRecipeImpl):
         if len(self.raw_frames) == 0:
             raise cpl.core.DataNotFoundError("No raw frames found in the frameset.")
 
-    def load_input_images(self) -> cpl.core.ImageList:
+    def load_input_images(self) -> None:
         """ Always load a set of raw images """
         for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing input frame #{idx}: {frame.file!r}...")

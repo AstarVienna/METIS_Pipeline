@@ -1,7 +1,6 @@
-import pytest
 import subprocess
 
-import cpl.ui
+import cpl
 
 from prototypes.recipes.metis_det_dark import MetisDetDark, MetisDetDarkImpl
 

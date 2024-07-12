@@ -73,7 +73,7 @@ class MetisRecipeImpl(metaclass=ABCMeta):
 
     @abstractmethod
     def load_input_images(self) -> None:
-        """ Load and the filtered frames from the frameset """
+        """ Load the filtered frames from the frameset """
 
     @abstractmethod
     def process_images(self) -> Dict[str, PipelineProduct]:
@@ -97,3 +97,26 @@ class MetisRecipeImpl(metaclass=ABCMeta):
     @abstractmethod
     def detector_name(self) -> str:
         return "<invalid>"
+
+
+class MetisRecipe(cpl.ui.PyRecipe):
+    _name = "Base METIS recipe"
+    _version = "0.0.1"
+    _author = "Martin Baláž"
+    _email = "martin.balaz@univie.ac.at"
+    _copyright = "CPL-3.0-or-later"
+    _synopsis = "Abstract-like base class for METIS recipes"
+    _description = ("This class serves as the base class for all METIS recipes. "
+                    "In an ideal world it would also be abstract, but then pyseorex would instantiate it and crash.")
+
+    parameters = cpl.ui.ParameterList([])
+    implementation_class = str      # Dummy class, this has to be instantiated but not used
+
+    def __init__(self):
+        super().__init__()
+        self.implementation = self.implementation_class(self)
+
+    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
+        return self.implementation.run(frameset, settings)
+
+

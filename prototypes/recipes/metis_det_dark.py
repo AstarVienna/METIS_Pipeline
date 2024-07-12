@@ -2,9 +2,9 @@ import cpl
 from cpl.core import Msg
 from typing import Dict, Any
 
-from prototypes.base import MetisRecipeImpl
+from prototypes.base import MetisRecipeImpl, MetisRecipe
 from prototypes.product import PipelineProduct
-from prototypes.raw_images import RawImageProcessor
+from prototypes.rawimage import RawImageProcessor
 
 
 class MetisDetDarkImpl(RawImageProcessor):
@@ -62,7 +62,6 @@ class MetisDetDarkImpl(RawImageProcessor):
 
         for idx, frame in enumerate(self.raw_frames):
             header = cpl.core.PropertyList.load(frame.file, 0)
-            raw_image = cpl.core.Image.load(frame.file, extension=1)
             det = header['ESO DPR TECH'].value
             try:
                 detector_name = {
@@ -123,10 +122,8 @@ class MetisDetDarkImpl(RawImageProcessor):
 
         self.products = {
             fr'METIS_{self.detector_name}_DARK':
-                self.Product(self,
-                             header, combined_image,
-                             detector_name=self.detector_name,
-                             file_name=f"MASTER_DARK_{self.detector_name}.fits"),
+                self.Product(self, header, combined_image,
+                             detector_name=self.detector_name),
         }
 
         return self.products
@@ -136,7 +133,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         return self._detector_name
 
 
-class MetisDetDark(cpl.ui.PyRecipe):
+class MetisDetDark(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_dark"
     _version = "0.1"
@@ -158,11 +155,4 @@ class MetisDetDark(cpl.ui.PyRecipe):
         ),
     ])
     implementation_class = MetisDetDarkImpl
-
-    def __init__(self):
-        super().__init__()
-        self.implementation = self.implementation_class(self)
-
-    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-        return self.implementation.run(frameset, settings)
 

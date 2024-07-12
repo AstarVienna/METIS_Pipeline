@@ -1,9 +1,16 @@
 import subprocess
-import pytest
+
+import cpl
+
+from prototypes.recipes.metis_lm_img_flat import MetisLmImgFlat
 
 
 class TestMetisLmImgFlat:
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+
+    def test_create(self):
+        recipe = MetisLmImgFlat()
+        assert isinstance(recipe, cpl.ui.PyRecipe)
 
     def test_is_working(self):
         output = subprocess.run(['pyesorex', 'metis_lm_img_flat', 'prototypes/sof/masterflat.sof',
