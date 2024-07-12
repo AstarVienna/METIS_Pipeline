@@ -70,30 +70,34 @@ class MetisLmImgFlatImpl(RawImageProcessor):
         # a file. It is however also possible to load images without
         # performing this conversion.
 
-        for raw_image in self.raw_images:
-            Msg.debug(__name__, f"Subtracting image {raw_image}")
-            raw_image.subtract(self.masterdark_image)
-
-        # Combine the images in the image list using the image stacking option requested by the user.
         method = self.parameters["metis_lm_img_flat.stacking.method"].value
         Msg.info(self.name, f"Combining images using method {method!r}")
 
-        # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
-
-        processed_images = self.raw_images
         combined_image = None
+        images = cpl.core.ImageList()
+
+        for index, frame in enumerate(self.raw_frames):
+            Msg.debug(self.name, f"Loading input image {frame.file}")
+            images.append(cpl.core.Image.load(frame.file, extension=1))
+
+        for image in images:
+            Msg.debug(__name__, f"Subtracting image {image}")
+            image.subtract(self.masterdark_image)
+
+        # Combine the images in the image list using the image stacking option requested by the user.
+        # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
         match method:
             case "add":
-                for idx, image in enumerate(processed_images):
+                for idx, image in enumerate(images):
                     if idx == 0:
                         combined_image = image
                     else:
                         combined_image.add(image)
             case "average":
-                combined_image = processed_images.collapse_create()
+                combined_image = images.collapse_create()
             case "median":
-                combined_image = processed_images.collapse_median_create()
+                combined_image = images.collapse_median_create()
             case _:
                 Msg.error(
                     self.name,
@@ -107,8 +111,7 @@ class MetisLmImgFlatImpl(RawImageProcessor):
 
         self.products = {
             r'METIS_LM_IMG_FLAT':
-                self.Product(self,
-                             header, combined_image,
+                self.Product(self, header, combined_image,
                              file_name=f"MASTER_IMG_FLAT_LAMP_LM.fits"),
         }
         return self.products

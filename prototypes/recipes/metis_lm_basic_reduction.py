@@ -8,7 +8,7 @@ from prototypes.product import PipelineProduct
 from prototypes.rawimage import RawImageProcessor
 
 
-class MetisLMBasicReductionImpl(RawImageProcessor):
+class MetisLmMBasicReductionImpl(RawImageProcessor):
     class Product(PipelineProduct):
         def as_frame(self) -> cpl.ui.Frame:
             return cpl.ui.Frame(file=self.output_file_name,
@@ -80,13 +80,12 @@ class MetisLMBasicReductionImpl(RawImageProcessor):
             median = self.flat_image.get_median()
             self.flat_image.divide_scalar(median)
 
-        header = None
-        processed_images = cpl.core.ImageList()
+        header = cpl.core.PropertyList.load(self.raw_frames[0].file, 0)
+        processed_images = self.raw_images
+        combined_image = None
+
         for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing {frame.file!r}...")
-
-            if idx == 0:
-                header = cpl.core.PropertyList.load(frame.file, 0)
 
             Msg.debug(self.name, "Loading image.")
             raw_image = cpl.core.Image.load(frame.file, extension=1)
@@ -99,16 +98,13 @@ class MetisLMBasicReductionImpl(RawImageProcessor):
                 Msg.debug(self.name, "Flat fielding...")
                 raw_image.divide(self.flat_image)
 
-            # Insert the processed image in an image list. Of course
-            # there is also an append() method available.
-            processed_images.insert(idx, raw_image)
+            processed_images.append(raw_image)
 
         # Combine the images in the image list using the image stacking
         # option requested by the user.
         method = self.parameters["basic_reduction.stacking.method"].value
         Msg.info(self.name, f"Combining images using method {method!r}")
 
-        combined_image = None
         if method == "add":
             for idx, image in enumerate(processed_images):
                 if idx == 0:
@@ -142,7 +138,6 @@ class MetisLMBasicReductionImpl(RawImageProcessor):
 
 
 class MetisLmBasicReduction(MetisRecipe):
-    # Fill in recipe information
     _name = "metis_lm_basic_reduction"
     _version = "0.1"
     _author = "Chi-Hung Yan"
@@ -164,4 +159,4 @@ class MetisLmBasicReduction(MetisRecipe):
             alternatives=("add", "average", "median"),
         )
     ])
-    implementation_class = MetisLMBasicReductionImpl
+    implementation_class = MetisLmMBasicReductionImpl

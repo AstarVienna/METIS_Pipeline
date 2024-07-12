@@ -101,20 +101,24 @@ class MetisDetDarkImpl(RawImageProcessor):
         Msg.info(self.name, f"Combining images using method {method!r}")
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        processed_images = self.raw_images
         combined_image = None
+        images = cpl.core.ImageList()
+
+        for index, frame in enumerate(self.raw_frames):
+            Msg.debug(self.name, f"Loading input image {frame.file}")
+            images.append(cpl.core.Image.load(frame.file, extension=1))
 
         match method:
             case "add":
-                for idx, image in enumerate(processed_images):
+                for idx, image in enumerate(images):
                     if idx == 0:
                         combined_image = image
                     else:
                         combined_image.add(image)
             case "average":
-                combined_image = processed_images.collapse_create()
+                combined_image = images.collapse_create()
             case "median":
-                combined_image = processed_images.collapse_median_create()
+                combined_image = images.collapse_median_create()
             case _:
                 Msg.error(self.name, f"Got unknown stacking method {method!r}. Stopping right here!")
 

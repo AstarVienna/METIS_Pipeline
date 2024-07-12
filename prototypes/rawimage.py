@@ -19,6 +19,7 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
 
     def load_input_images(self) -> None:
         """ Always load a set of raw images """
+        return
         for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing input frame #{idx}: {frame.file!r}...")
 
