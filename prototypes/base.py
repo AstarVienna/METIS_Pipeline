@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from typing import Dict, Any
+from schema import Schema
 
 import cpl
 from cpl.core import Msg
@@ -22,6 +23,7 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         self.version = recipe.version
         self.parameters = recipe.parameters
 
+        self.input_schema = Schema({})
         self.frameset = None
         self.header = None
         self.product_frames = cpl.ui.FrameSet()
@@ -32,10 +34,12 @@ class MetisRecipeImpl(metaclass=ABCMeta):
 
         try:
             self.frameset = frameset
+            self.input = self.__class__.Input()
             self.import_settings(settings)      # Import and process the provided settings dict
             self.categorize_frameset()          # Categorize raw frames based on keywords
             self.load_input_images()            # Load the actual input images from frames
-            self.verify_input_frames()                 # Verify that they are valid (maybe with `schema` too?)
+            self.validate_input()
+            self.verify_input_frames()          # Verify that they are valid (maybe with `schema` too?)
             self.process_images()               # Do the actual processing
             self.save_products()                # Save the output products
         except cpl.core.DataNotFoundError as e:
@@ -57,6 +61,9 @@ class MetisRecipeImpl(metaclass=ABCMeta):
     @abstractmethod
     def categorize_frameset(self) -> None:
         """ Filter raw frames from the SOF """
+
+    def validate_input(self) -> None:
+        self.input_schema.validate(self.input.__dict__)
 
     @abstractmethod
     def verify_input_frames(self) -> None:

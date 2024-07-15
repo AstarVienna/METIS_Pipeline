@@ -19,11 +19,11 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
 
     def load_input_images(self) -> None:
         """ Always load a set of raw images """
-        for idx, frame in enumerate(self.raw_frames):
+        for idx, frame in enumerate(self.input.raw):
             Msg.info(self.name, f"Processing input frame #{idx}: {frame.file!r}...")
 
             # Append the loaded image to an image list
             Msg.debug(self.name, f"Loading input image {frame.file}")
-            self.raw_images.append(cpl.core.Image.load(frame.file, extension=1))
+            self.input.raw.append(cpl.core.Image.load(frame.file, extension=1))
 
-        return self.raw_images
+        return self.input.raw

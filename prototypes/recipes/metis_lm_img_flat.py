@@ -1,4 +1,5 @@
 from typing import Dict, Any
+from schema import Schema
 
 import cpl
 from cpl.core import Msg
@@ -9,6 +10,15 @@ from prototypes.rawimage import RawImageProcessor
 
 
 class MetisLmImgFlatImpl(RawImageProcessor):
+    input_schema = Schema({
+        'raw': cpl.ui.FrameSet,
+        'dark': cpl.ui.Frame,
+    })
+
+    class Input:
+        raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
+        master_dark: cpl.ui.Frame = None
+
     class Product(PipelineProduct):
         def as_frame(self):
             return cpl.ui.Frame(file=self.output_file_name,

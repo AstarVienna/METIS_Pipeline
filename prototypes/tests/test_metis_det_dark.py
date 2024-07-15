@@ -21,5 +21,5 @@ class TestMetisDetDark:
         assert last_line == ("  0  MASTER_DARK_2RG.fits  	MASTER_DARK_2RG  CPL_FRAME_TYPE_IMAGE  "
                              "CPL_FRAME_GROUP_PRODUCT  CPL_FRAME_LEVEL_FINAL  ")
 
-    def test_metis_lm_img_flat(self):
+    def test_parameter_count(self):
         assert len(MetisDetDark.parameters) == 1
