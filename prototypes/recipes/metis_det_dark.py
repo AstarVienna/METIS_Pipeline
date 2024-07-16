@@ -11,7 +11,7 @@ from prototypes.rawimage import RawImageProcessor
 
 class MetisDetDarkImpl(RawImageProcessor):
     class Input(RawImageProcessor.Input):
-        """ Nothing special """
+        """ Nothing special here """
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT

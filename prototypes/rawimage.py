@@ -28,7 +28,7 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
 
     def verify_input_frames(self) -> None:
         """ RawImageProcessor mixin wants to see a bunch of raw frames. """
-        self.input.verify()
+        pass
 
     def load_input_images(self) -> cpl.core.ImageList:
         """ Always load a set of raw images """

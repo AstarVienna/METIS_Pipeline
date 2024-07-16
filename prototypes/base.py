@@ -55,8 +55,8 @@ class MetisRecipeImpl(metaclass=ABCMeta):
             self.import_settings(settings)      # Import and process the provided settings dict
 
             self.input = self.Input(frameset)   # Create an appropriate Input object
-            self.validate_input()
-            self.verify_input_frames()          # Verify that they are valid (maybe with `schema` too?)
+            self.input.verify()                 # Verify that they are valid (maybe with `schema` too?)
+            self.verify_input_frames()          #
             self.process_images()               # Do the actual processing
             self.save_products()                # Save the output products
         except cpl.core.DataNotFoundError as e:
