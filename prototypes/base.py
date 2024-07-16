@@ -17,13 +17,28 @@ class MetisRecipeImpl(metaclass=ABCMeta):
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = cpl.ui.ParameterList([])
 
+    class Input(metaclass=ABCMeta):
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            """ Filter the input frameset, capture frames that match criteria and assign them to own attributes. """
+
+            for frame in frameset:
+                self.categorize_frame(frame)
+
+        @abstractmethod
+        def categorize_frame(self, frame):
+            """ Inspect a single frame and assign it to the proper attribute. """
+
+        @abstractmethod
+        def verify(self):
+            """ Verify that the input frameset conforms to requirements. """
+
     def __init__(self, recipe: cpl.ui.PyRecipe) -> None:
         super().__init__()
         self.name = recipe.name
         self.version = recipe.version
         self.parameters = recipe.parameters
 
-        self.input_schema = Schema({})
+        self.input = None
         self.frameset = None
         self.header = None
         self.product_frames = cpl.ui.FrameSet()
@@ -34,9 +49,8 @@ class MetisRecipeImpl(metaclass=ABCMeta):
 
         try:
             self.frameset = frameset
-            self.input = self.__class__.Input()
             self.import_settings(settings)      # Import and process the provided settings dict
-            self.categorize_frameset()          # Categorize raw frames based on keywords
+            self.input = self.Input(frameset)
             self.load_input_images()            # Load the actual input images from frames
             self.validate_input()
             self.verify_input_frames()          # Verify that they are valid (maybe with `schema` too?)
@@ -58,11 +72,8 @@ class MetisRecipeImpl(metaclass=ABCMeta):
                             f"but class {self.__class__.__name__} "
                             f"has no parameter named {key}.")
 
-    @abstractmethod
-    def categorize_frameset(self) -> None:
-        """ Filter raw frames from the SOF """
-
     def validate_input(self) -> None:
+        return
         self.input_schema.validate(self.input.__dict__)
 
     @abstractmethod

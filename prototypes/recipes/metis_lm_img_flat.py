@@ -15,9 +15,31 @@ class MetisLmImgFlatImpl(RawImageProcessor):
         'dark': cpl.ui.Frame,
     })
 
-    class Input:
-        raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
-        master_dark: cpl.ui.Frame = None
+    class Input(RawImageProcessor.Input):
+        raw: cpl.ui.FrameSet
+        master_dark: cpl.ui.Frame
+
+        def categorize_frame(self, frame):
+            super().categorize_frame(frame)
+
+            match frame.tag:
+                case "LM_FLAT_LAMP_RAW":
+                    frame.group = cpl.ui.Frame.FrameGroup.RAW
+                    self.raw.append(frame)
+                    Msg.debug(self.__class__.__name__, f"Got raw frame: {frame.file}.")
+                case tag if tag in ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]:
+                    self.master_dark = frame
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    Msg.debug(self.__class__.__name__, f"Got master dark frame: {frame.file}.")
+                case _:
+                    Msg.warning(self.__class__.__name__, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
+
+        def verify(self) -> None:
+            # First verify the raw frames (provided by base class)
+            super().verify()
+
+            if self.master_dark is None:
+                raise cpl.core.DataNotFoundError("No masterdark frames found in the frameset.")
 
     class Product(PipelineProduct):
         def as_frame(self):
@@ -36,39 +58,6 @@ class MetisLmImgFlatImpl(RawImageProcessor):
             """ Form the output file name (currently a constant) """
             return f"{self.category}.fits"
 
-    def __init__(self, recipe) -> None:
-        super().__init__(recipe)
-        self.masterdark_frame = None
-        self.masterdark_image = None
-
-    def categorize_frameset(self) -> cpl.ui.FrameSet:
-        """ Go through the list of input frames, check the tags and act on it accordingly """
-        for frame in self.frameset:
-            match frame.tag:
-                case "LM_FLAT_LAMP_RAW":
-                    frame.group = cpl.ui.Frame.FrameGroup.RAW
-                    self.raw_frames.append(frame)
-                    Msg.debug(self.name, f"Got raw frame: {frame.file}.")
-                case tag if tag in ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]:
-                    self.masterdark_frame = frame
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    Msg.debug(self.name, f"Got master dark frame: {frame.file}.")
-                case _:
-                    Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
-
-        return self.raw_frames
-
-    def verify_input_frames(self) -> None:
-        # First verify the raw frames
-        super().verify_input_frames()
-
-        if self.masterdark_frame is None:
-            raise cpl.core.DataNotFoundError("No masterdark frames found in the frameset.")
-
-    def load_input_images(self) -> None:
-        super().load_input_images()
-        self.masterdark_image = cpl.core.Image.load(self.masterdark_frame.file, extension=0)
-
     # Subtract the dark from every raw image
     def process_images(self) -> Dict[str, PipelineProduct]:
         # TODO: Detect detector
@@ -80,9 +69,12 @@ class MetisLmImgFlatImpl(RawImageProcessor):
         # a file. It is however also possible to load images without
         # performing this conversion.
 
-        for raw_image in self.raw_images:
+        raw_images = self.load_input_images()
+        master_dark = cpl.core.Image.load(self.input.master_dark.file, extension=0)
+
+        for raw_image in raw_images:
             Msg.debug(__name__, f"Subtracting image {raw_image}")
-            raw_image.subtract(self.masterdark_image)
+            raw_image.subtract(master_dark)
 
         # Combine the images in the image list using the image stacking option requested by the user.
         method = self.parameters["metis_lm_img_flat.stacking.method"].value
@@ -90,20 +82,20 @@ class MetisLmImgFlatImpl(RawImageProcessor):
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
-        processed_images = self.raw_images
+        raw_images = self.load_input_images()
         combined_image = None
 
         match method:
             case "add":
-                for idx, image in enumerate(processed_images):
+                for idx, image in enumerate(raw_images):
                     if idx == 0:
                         combined_image = image
                     else:
                         combined_image.add(image)
             case "average":
-                combined_image = processed_images.collapse_create()
+                combined_image = raw_images.collapse_create()
             case "median":
-                combined_image = processed_images.collapse_median_create()
+                combined_image = raw_images.collapse_median_create()
             case _:
                 Msg.error(
                     self.name,
@@ -113,7 +105,7 @@ class MetisLmImgFlatImpl(RawImageProcessor):
                 # ui.FrameSet object. The result frameset product_frames will do,
                 # it is still empty here!
 
-        header = cpl.core.PropertyList.load(self.raw_frames[0].file, 0)
+        header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
 
         self.products = {
             r'METIS_LM_IMG_FLAT':

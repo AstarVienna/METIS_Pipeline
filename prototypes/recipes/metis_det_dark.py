@@ -10,12 +10,8 @@ from prototypes.rawimage import RawImageProcessor
 
 
 class MetisDetDarkImpl(RawImageProcessor):
-    input_schema = Schema({
-        'raw': cpl.ui.FrameSet,
-    })
-
-    class Input:
-        raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
+    class Input(RawImageProcessor.Input):
+        pass
 
     class Product(PipelineProduct):
         def __init__(self,
@@ -48,23 +44,8 @@ class MetisDetDarkImpl(RawImageProcessor):
         super().__init__(recipe)
         self._detector_name = None
 
-    def categorize_frameset(self) -> None:
-        """ Go through the list of input frames, check their tags and filter out suitable files. """
-
-        for frame in self.frameset:
-            # TODO: N and GEO
-            match frame.tag:
-                case tag if tag in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]:
-                    frame.group = cpl.ui.Frame.FrameGroup.RAW
-                    self.input.raw.append(frame)
-                    Msg.debug(self.name, f"Got raw frame: {frame.file}.")
-                case _:
-                    Msg.warning(self.name, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
-
     def verify_input_frames(self) -> None:
-        if len(self.input.raw) == 0:
-            raise cpl.core.DataNotFoundError("No raw frames in frameset.")
-
+        super().verify_input_frames()
         detectors = []
 
         for idx, frame in enumerate(self.input.raw):
@@ -108,20 +89,20 @@ class MetisDetDarkImpl(RawImageProcessor):
         Msg.info(self.name, f"Combining images using method {method!r}")
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        processed_images = self.raw_images
+        raw_images = self.load_input_images()
         combined_image = None
 
         match method:
             case "add":
-                for idx, image in enumerate(processed_images):
+                for idx, image in enumerate(raw_images):
                     if idx == 0:
                         combined_image = image
                     else:
                         combined_image.add(image)
             case "average":
-                combined_image = processed_images.collapse_create()
+                combined_image = raw_images.collapse_create()
             case "median":
-                combined_image = processed_images.collapse_median_create()
+                combined_image = raw_images.collapse_median_create()
             case _:
                 Msg.error(self.name, f"Got unknown stacking method {method!r}. Stopping right here!")
 

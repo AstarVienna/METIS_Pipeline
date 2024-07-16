@@ -32,7 +32,7 @@ class MetisLMBasicReductionImpl(RawImageProcessor):
         self.flat_frame = None
         self.flat_image = None
 
-    def categorize_frameset(self) -> cpl.ui.FrameSet:
+    def categorize_input_frameset(self) -> cpl.ui.FrameSet:
         for frame in self.frameset:
             if frame.tag == "LM_IMAGE_SCI_RAW":
                 frame.group = cpl.ui.Frame.FrameGroup.RAW

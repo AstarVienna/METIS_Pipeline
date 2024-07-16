@@ -1,3 +1,3 @@
 #!/bin/bash
 export PYTHONPATH=.
-export SOF_DATA=../METIS_Simulations/ESO/output
+export SOF_DATA=~/astar/METIS_Simulations/ESO/output

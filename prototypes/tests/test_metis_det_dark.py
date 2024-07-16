@@ -23,3 +23,8 @@ class TestMetisDetDark:
 
     def test_parameter_count(self):
         assert len(MetisDetDark.parameters) == 1
+
+
+class TestImpl:
+    def test_input(self):
+        assert MetisDetDarkImpl.Input is not None
