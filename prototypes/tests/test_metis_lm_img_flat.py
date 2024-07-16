@@ -1,16 +1,29 @@
+import pytest
 import subprocess
 
 import cpl
+from pyesorex.pyesorex import Pyesorex
 
 from prototypes.recipes.metis_lm_img_flat import MetisLmImgFlat
 
 
-class TestMetisLmImgFlat:
+@pytest.fixture
+def pyesorex():
+    p = Pyesorex()
+    p.recipe = 'metis_lm_img_flat'
+    return p
+
+
+class TestRecipe:
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
 
     def test_create(self):
         recipe = MetisLmImgFlat()
         assert isinstance(recipe, cpl.ui.PyRecipe)
+
+    def test_pyesorex(self, pyesorex):
+        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
+        assert pyesorex.recipe.name == 'metis_lm_img_flat'
 
     def test_is_working(self):
         output = subprocess.run(['pyesorex', 'metis_lm_img_flat', 'prototypes/sof/masterflat.sof',

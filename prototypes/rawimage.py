@@ -19,8 +19,8 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
                     Msg.debug(self.__class__.__name__,
                               f"Got raw frame: {frame.file}.")
                 case _:
-                    Msg.warning(self.__class__.__name__,
-                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
+                    # If it is not recognized, let base classes handle it
+                    super().categorize_frame(frame)
 
         def verify(self):
             if len(self.raw) == 0:
@@ -35,10 +35,10 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
         output = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.input.raw):
-            Msg.info(self.name, f"Processing input frame #{idx}: {frame.file!r}...")
+            Msg.info(self.__class__.__name__, f"Processing input frame #{idx}: {frame.file!r}...")
 
             # Append the loaded image to an image list
-            Msg.debug(self.name, f"Loading input image {frame.file}")
+            Msg.debug(self.__class__.__name__, f"Loading input image {frame.file}")
             output.append(cpl.core.Image.load(frame.file, extension=1))
 
         return output

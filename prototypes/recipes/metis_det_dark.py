@@ -11,25 +11,17 @@ from prototypes.rawimage import RawImageProcessor
 
 class MetisDetDarkImpl(RawImageProcessor):
     class Input(RawImageProcessor.Input):
-        pass
+        """ Nothing special """
 
     class Product(PipelineProduct):
-        def __init__(self,
-                     recipe: 'Recipe',
-                     header: cpl.core.PropertyList,
-                     image: cpl.core.Image,
-                     *,
-                     detector_name: str,
-                     **kwargs):
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+        def __init__(self, recipe: 'Recipe', header: cpl.core.PropertyList, image: cpl.core.Image,
+                     *, detector_name: str, **kwargs):
             self.detector_name = detector_name
             super().__init__(recipe, header, image, **kwargs)
-
-        def as_frame(self):
-            return cpl.ui.Frame(file=self.output_file_name,
-                                tag=rf"MASTER_DARK_{self.detector_name}",
-                                group=cpl.ui.Frame.FrameGroup.PRODUCT,
-                                level=cpl.ui.Frame.FrameLevel.FINAL,
-                                frameType=cpl.ui.Frame.FrameType.IMAGE)
 
         @property
         def category(self) -> str:
@@ -39,6 +31,10 @@ class MetisDetDarkImpl(RawImageProcessor):
         def output_file_name(self) -> str:
             """ Form the output file name (the detector part is variable here) """
             return rf"MASTER_DARK_{self.detector_name}.fits"
+
+        @property
+        def tag(self) -> str:
+            return rf"MASTER_DARK_{self.detector_name}"
 
     def __init__(self, recipe):
         super().__init__(recipe)

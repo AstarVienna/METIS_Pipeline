@@ -11,6 +11,12 @@ class PipelineProduct(metaclass=ABCMeta):
         The abstract base class for a pipeline product:
         one file with associated headers and a frame
     """
+
+    tag: str = None
+    group: cpl.ui.Frame.FrameGroup = None
+    level: cpl.ui.Frame.FrameLevel = None
+    frame_type: cpl.ui.Frame.FrameType = None
+
     def __init__(self,
                  recipe: 'Recipe',
                  header: cpl.core.PropertyList,
@@ -20,6 +26,18 @@ class PipelineProduct(metaclass=ABCMeta):
         self.header: cpl.core.PropertyList = header
         self.image: cpl.core.Image = image
         self.properties = cpl.core.PropertyList()
+
+        if self.tag is None:
+            raise NotImplementedError("Products must define 'tag', {}")
+
+        if self.group is None:
+            raise NotImplementedError("Products must define 'group'")
+
+        if self.level is None:
+            raise NotImplementedError("Products must define 'level'")
+
+        if self.frame_type is None:
+            raise NotImplementedError(f"Products must define 'frame_type'")
 
         self.add_properties()
 
@@ -34,11 +52,15 @@ class PipelineProduct(metaclass=ABCMeta):
             )
         )
 
-    @property
-    @abstractmethod
-    def category(self) -> str:
-        """ Every product must define ESO PRO CATG """
-        pass
+    def as_frame(self):
+        """ Return this product as a CPL Frame"""
+        return cpl.ui.Frame(
+            file=self.output_file_name,
+            tag=self.tag,
+            group=self.group,
+            level=self.level,
+            frameType=self.frame_type,
+        )
 
     def save(self):
         Msg.info(self.recipe.name, f"Saving product file as {self.output_file_name!r}.")
@@ -58,4 +80,10 @@ class PipelineProduct(metaclass=ABCMeta):
     @abstractmethod
     def output_file_name(self) -> str:
         """ Form the output file name (the detector part is variable) """
-        return None
+
+    @property
+    @abstractmethod
+    def category(self) -> str:
+        """ Every product must define ESO PRO CATG """
+        pass
+

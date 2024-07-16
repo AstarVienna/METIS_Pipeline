@@ -1,11 +1,14 @@
+import inspect
 import subprocess
 
 import cpl
 
+from prototypes.base import MetisRecipeImpl
+from prototypes.product import PipelineProduct
 from prototypes.recipes.metis_det_dark import MetisDetDark, MetisDetDarkImpl
 
 
-class TestMetisDetDark:
+class TestRecipe:
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
 
     def test_create(self):
@@ -25,6 +28,14 @@ class TestMetisDetDark:
         assert len(MetisDetDark.parameters) == 1
 
 
-class TestImpl:
-    def test_input(self):
-        assert MetisDetDarkImpl.Input is not None
+class TestProduct:
+    def test_product(self):
+        assert issubclass(MetisDetDarkImpl.Product, PipelineProduct)
+
+
+class TestInput:
+    def test_is_input(self):
+        assert issubclass(MetisDetDarkImpl.Input, MetisRecipeImpl.Input)
+
+    def test_is_concrete(self):
+        assert not inspect.isabstract(MetisDetDarkImpl.Input)

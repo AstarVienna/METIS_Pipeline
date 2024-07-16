@@ -27,6 +27,9 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         @abstractmethod
         def categorize_frame(self, frame):
             """ Inspect a single frame and assign it to the proper attribute. """
+            # If we got all the way up here, no one recognizes this frame, warn!
+            Msg.warning(self.__class__.__name__,
+                        f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
         @abstractmethod
         def verify(self):
@@ -50,8 +53,8 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         try:
             self.frameset = frameset
             self.import_settings(settings)      # Import and process the provided settings dict
-            self.input = self.Input(frameset)
-            self.load_input_images()            # Load the actual input images from frames
+
+            self.input = self.Input(frameset)   # Create an appropriate Input object
             self.validate_input()
             self.verify_input_frames()          # Verify that they are valid (maybe with `schema` too?)
             self.process_images()               # Do the actual processing
@@ -71,10 +74,6 @@ class MetisRecipeImpl(metaclass=ABCMeta):
                             f"Settings includes '{key}':{value} "
                             f"but class {self.__class__.__name__} "
                             f"has no parameter named {key}.")
-
-    def validate_input(self) -> None:
-        return
-        self.input_schema.validate(self.input.__dict__)
 
     @abstractmethod
     def verify_input_frames(self) -> None:

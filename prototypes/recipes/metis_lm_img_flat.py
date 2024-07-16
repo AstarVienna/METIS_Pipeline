@@ -16,12 +16,10 @@ class MetisLmImgFlatImpl(RawImageProcessor):
     })
 
     class Input(RawImageProcessor.Input):
-        raw: cpl.ui.FrameSet
-        master_dark: cpl.ui.Frame
+        """ Flat Input takes a set of raw images and subtracts dark """
+        master_dark: cpl.ui.Frame = None
 
         def categorize_frame(self, frame):
-            super().categorize_frame(frame)
-
             match frame.tag:
                 case "LM_FLAT_LAMP_RAW":
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
@@ -32,7 +30,7 @@ class MetisLmImgFlatImpl(RawImageProcessor):
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     Msg.debug(self.__class__.__name__, f"Got master dark frame: {frame.file}.")
                 case _:
-                    Msg.warning(self.__class__.__name__, f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
+                    super().categorize_frame(frame)
 
         def verify(self) -> None:
             # First verify the raw frames (provided by base class)
@@ -42,12 +40,9 @@ class MetisLmImgFlatImpl(RawImageProcessor):
                 raise cpl.core.DataNotFoundError("No masterdark frames found in the frameset.")
 
     class Product(PipelineProduct):
-        def as_frame(self):
-            return cpl.ui.Frame(file=self.output_file_name,
-                                tag=rf"MASTER_IMG_FLAT_LAMP_LM",
-                                group=cpl.ui.Frame.FrameGroup.PRODUCT,
-                                level=cpl.ui.Frame.FrameLevel.FINAL,
-                                frameType=cpl.ui.Frame.FrameType.IMAGE)
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def category(self) -> str:
@@ -57,6 +52,10 @@ class MetisLmImgFlatImpl(RawImageProcessor):
         def output_file_name(self) -> str:
             """ Form the output file name (currently a constant) """
             return f"{self.category}.fits"
+
+        @property
+        def tag(self) -> str:
+            return self.category
 
     # Subtract the dark from every raw image
     def process_images(self) -> Dict[str, PipelineProduct]:
