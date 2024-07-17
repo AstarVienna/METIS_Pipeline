@@ -140,7 +140,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         but then pyesaorex would instantiate it on initialization and crash.
         The _fields must be present but should be overwritten by every child class.
     """
-    _name = "Base METIS recipe"
+    _name = "metis_abstract_base"
     _version = "0.0.1"
     _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"

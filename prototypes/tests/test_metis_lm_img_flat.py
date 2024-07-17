@@ -10,12 +10,12 @@ from prototypes.recipes.metis_lm_img_flat import MetisLmImgFlat
 @pytest.fixture
 def pyesorex():
     p = Pyesorex()
-    p.recipe = 'metis_lm_img_flat'
+    p.recipe = MetisLmImgFlat._name
     return p
 
 
 class TestRecipe:
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+    """ A bunch of extremely simple test cases... just to see if it does something """
 
     def test_create(self):
         recipe = MetisLmImgFlat()
@@ -31,5 +31,6 @@ class TestRecipe:
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]
+        # This is very stupid, but works for now
         assert last_line == ("  0  MASTER_IMG_FLAT_LAMP_LM.fits  	MASTER_IMG_FLAT_LAMP_LM  CPL_FRAME_TYPE_IMAGE  "
                              "CPL_FRAME_GROUP_PRODUCT  CPL_FRAME_LEVEL_FINAL  ")

@@ -10,8 +10,8 @@ from prototypes.rawimage import RawImageProcessor
 
 class MetisLmBasicReductionImpl(MetisRecipeImpl):
     class Input(RawImageProcessor.Input):
-        master_dark: cpl.ui.Frame
-        master_flat: cpl.ui.Frame
+        bias: cpl.ui.Frame
+        flat: cpl.ui.Frame
 
         def categorize_frame(self, frame):
             if frame.tag == "LM_IMAGE_SCI_RAW":
@@ -30,25 +30,19 @@ class MetisLmBasicReductionImpl(MetisRecipeImpl):
                 super().categorize_frame(frame)
 
         def verify(self):
-            # For demonstration purposes we raise an exception here. Real world
-            # recipes should rather print a message (also to have it in the log file)
-            # and exit gracefully.
-            if len(self.raw) == 0:
-                raise cpl.core.DataNotFoundError("No raw frames in frameset.")
+            super().verify()
 
             if self.bias:
-                self.bias_image = cpl.core.Image.load(self.bias_frame.file, extension=0)
-                Msg.info(self.__class__.__name__, f"Loaded bias frame {self.bias_frame.file!r}.")
+                self.bias_image = cpl.core.Image.load(self.bias.file, extension=0)
+                Msg.info(self.__class__.__name__, f"Loaded bias frame {self.bias.file!r}.")
             else:
                 raise cpl.core.DataNotFoundError("No bias frame in frameset.")
-                # Msg.warning(self.__class__.__name__, "No bias frame in frameset.")
 
             if self.flat:
-                self.flat_image = cpl.core.Image.load(self.flat_frame.file, extension=0)
-                Msg.info(self.__class__.__name__, f"Loaded flat frame {self.flat_frame.file!r}.")
+                self.flat_image = cpl.core.Image.load(self.flat.file, extension=0)
+                Msg.info(self.__class__.__name__, f"Loaded flat frame {self.flat.file!r}.")
             else:
                 raise cpl.core.DataNotFoundError("No flat frame in frameset.")
-                # Msg.warning(self.__class__.__name__, "No flat frame in frameset.")
 
     class Product(PipelineProduct):
         tag: str = "OBJECT_REDUCED"
@@ -58,7 +52,7 @@ class MetisLmBasicReductionImpl(MetisRecipeImpl):
 
         @property
         def category(self) -> str:
-            return "OBJECT_REDUCED"
+            return self.tag
 
         @property
         def output_file_name(self):
