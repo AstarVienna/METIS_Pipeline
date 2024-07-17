@@ -40,30 +40,6 @@ class MetisDetDarkImpl(RawImageProcessor):
         super().__init__(recipe)
         self._detector_name = None
 
-    def verify_input_frames(self) -> None:
-        super().verify_input_frames()
-        detectors = []
-
-        for idx, frame in enumerate(self.input.raw):
-            header = cpl.core.PropertyList.load(frame.file, 0)
-            det = header['ESO DPR TECH'].value
-            try:
-                detector_name = {
-                    'IMAGE,LM': '2RG',
-                    'IMAGE,N': 'GEO',
-                    'IFU': 'IFU'
-                }[det]
-            except KeyError as e:
-                raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
-
-            detectors.append(detector_name)
-
-        # Check if all the raws have the same detector, if not, we have a problem
-        if len(set(detectors)) == 1:
-            self._detector_name = detectors[0]
-        else:
-            raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
-
     def process_images(self) -> Dict[str, PipelineProduct]:
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
@@ -111,10 +87,6 @@ class MetisDetDarkImpl(RawImageProcessor):
         }
 
         return self.products
-
-    @property
-    def detector_name(self) -> str:
-        return self._detector_name
 
 
 class MetisDetDark(MetisRecipe):

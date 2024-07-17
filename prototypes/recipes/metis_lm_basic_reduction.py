@@ -71,14 +71,14 @@ class MetisLmBasicReductionImpl(MetisRecipeImpl):
     def load_input_images(self) -> cpl.core.ImageList:
         """ Load and the filtered frames from the frameset """
 
-        for idx, frame in enumerate(self.raw_frames):
+        for idx, frame in enumerate(self.input.raw):
             Msg.info(self.__class__.__name__, f"Processing input frame #{idx}: {frame.file!r}...")
 
             # Append the loaded image to an image list
             Msg.debug(self.__class__.__name__, f"Loading input image {frame.file}")
-            self.raw_images.append(cpl.core.Image.load(frame.file, extension=1))
+            self.input.raw.append(cpl.core.Image.load(frame.file, extension=1))
 
-        return self.raw_images
+        return self.input.raw
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         return {}

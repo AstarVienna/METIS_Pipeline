@@ -45,7 +45,7 @@ class ScienceDataProcessor(ui.PyRecipe):
                 self.parameters[key].value = value
             except KeyError:
                 Msg.warning(
-                    self.name,
+                    self.__class__.__name__,
                     f"Settings includes {key}:{value} but {self} has no parameter named {key}.",
                 )
 
@@ -61,18 +61,18 @@ class ScienceDataProcessor(ui.PyRecipe):
             if frame.tag == "N_IMAGE_SCI_RAW":
                 frame.group = ui.Frame.FrameGroup.RAW
                 raw_frames.append(frame)
-                Msg.debug(self.name, f"Got raw frame: {frame.file}.")
+                Msg.debug(self.__class__.__name__, f"Got raw frame: {frame.file}.")
             elif frame.tag == "MASTER_DARK_GEO":
                 frame.group = ui.Frame.FrameGroup.CALIB
                 bias_frame = frame
-                Msg.debug(self.name, f"Got bias frame: {frame.file}.")
+                Msg.debug(self.__class__.__name__, f"Got bias frame: {frame.file}.")
             elif frame.tag == "MASTER_FLAT_GEO":
                 frame.group = ui.Frame.FrameGroup.CALIB
                 flat_frame = frame
-                Msg.debug(self.name, f"Got flat field frame: {frame.file}.")
+                Msg.debug(self.__class__.__name__, f"Got flat field frame: {frame.file}.")
             else:
                 Msg.warning(
-                    self.name,
+                    self.__class__.__name__,
                     f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.",
                 )
 
@@ -90,21 +90,21 @@ class ScienceDataProcessor(ui.PyRecipe):
         bias_image = None
         if bias_frame:
             bias_image = core.Image.load(bias_frame.file, extension=1)
-            Msg.info(self.name, f"Loaded bias frame {bias_frame.file!r}.")
+            Msg.info(self.__class__.__name__, f"Loaded bias frame {bias_frame.file!r}.")
         else:
             #raise core.DataNotFoundError("No bias frame in frameset.")
-            Msg.warning(self.name, "No bias frame in frameset.")
+            Msg.warning(self.__class__.__name__, "No bias frame in frameset.")
 
         flat_image = None
         if flat_frame:
             flat_image = core.Image.load(flat_frame.file, extension=1)
-            Msg.info(self.name, f"Loaded flat frame {flat_frame.file!r}.")
+            Msg.info(self.__class__.__name__, f"Loaded flat frame {flat_frame.file!r}.")
         else:
             # raise core.DataNotFoundError("No flat frame in frameset.")
-            Msg.warning(self.name, "No flat frame in frameset.")
+            Msg.warning(self.__class__.__name__, "No flat frame in frameset.")
 
         # Flat field preparation: subtract bias and normalize it to median 1
-        Msg.info(self.name, "Preparing flat field")
+        Msg.info(self.__class__.__name__, "Preparing flat field")
         if flat_image:
             if bias_image:
                 flat_image.subtract(bias_image)
@@ -114,20 +114,20 @@ class ScienceDataProcessor(ui.PyRecipe):
         header = None
         processed_images = core.ImageList()
         for idx, frame in enumerate(raw_frames):
-            Msg.info(self.name, f"Processing {frame.file!r}...")
+            Msg.info(self.__class__.__name__, f"Processing {frame.file!r}...")
 
             if idx == 0:
                 header = core.PropertyList.load(frame.file, 0)
 
-            Msg.debug(self.name, "Loading image.")
+            Msg.debug(self.__class__.__name__, "Loading image.")
             raw_image = core.Image.load(frame.file, extension=1)
 
             if bias_image:
-                Msg.debug(self.name, "Bias subtracting...")
+                Msg.debug(self.__class__.__name__, "Bias subtracting...")
                 raw_image.subtract(bias_image)
 
             if flat_image:
-                Msg.debug(self.name, "Flat fielding...")
+                Msg.debug(self.__class__.__name__, "Flat fielding...")
                 raw_image.divide(flat_image)
 
             # Insert the processed image in an image list. Of course
@@ -137,7 +137,7 @@ class ScienceDataProcessor(ui.PyRecipe):
         # Combine the images in the image list using the image stacking
         # option requested by the user.
         method = self.parameters["basic_science.stacking.method"].value
-        Msg.info(self.name, f"Combining images using method {method!r}")
+        Msg.info(self.__class__.__name__, f"Combining images using method {method!r}")
 
         combined_image = None
         if method == "add":
@@ -152,7 +152,7 @@ class ScienceDataProcessor(ui.PyRecipe):
             combined_image = processed_images.collapse_median_create()
         else:
             Msg.error(
-                self.name,
+                self.__class__.__name__,
                 f"Got unknown stacking method {method!r}. Stopping right here!",
             )
             # Since we did not create a product we need to return an empty
@@ -167,7 +167,7 @@ class ScienceDataProcessor(ui.PyRecipe):
         )
 
         # Save the result image as a standard pipeline product file
-        Msg.info(self.name, f"Saving product file as {output_file!r}.")
+        Msg.info(self.__class__.__name__, f"Saving product file as {output_file!r}.")
         dfs.save_image(
             frameset,
             self.parameters,

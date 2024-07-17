@@ -18,6 +18,9 @@ class TestConfigured:
     def test_sof_data(self):
         """
             You need to point `pyesorex` to the SOF data (setting the `SOF_DATA` environment variable),
-            by default to ../METIS_Simulations/ESO/output/.
+            by default to ../METIS_Simulations/ESO/output/. Maybe this can be set for every run though?
         """
         assert os.environ['SOF_DATA'] is not None
+
+    def test_recipe_dir(self):
+        assert os.environ['PYESOREX_PLUGIN_DIR'] is not None
