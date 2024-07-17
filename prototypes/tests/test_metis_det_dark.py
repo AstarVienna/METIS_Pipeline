@@ -5,6 +5,7 @@ import cpl
 
 from prototypes.base import MetisRecipeImpl
 from prototypes.product import PipelineProduct
+from prototypes.input import PipelineInput
 from prototypes.recipes.metis_det_dark import MetisDetDark, MetisDetDarkImpl
 
 
@@ -35,7 +36,7 @@ class TestProduct:
 
 class TestInput:
     def test_is_input(self):
-        assert issubclass(MetisDetDarkImpl.Input, MetisRecipeImpl.Input)
+        assert issubclass(MetisDetDarkImpl.Input, PipelineInput)
 
     def test_is_concrete(self):
         assert not inspect.isabstract(MetisDetDarkImpl.Input)
