@@ -6,10 +6,11 @@ import cpl
 from cpl.core import Msg
 
 from prototypes.base import MetisRecipeImpl
+from prototypes.input import PipelineInput
 
 
 class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
-    class Input(MetisRecipeImpl.Input):
+    class Input(PipelineInput):
         raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
 
         def __init__(self, frameset: cpl.ui.FrameSet):

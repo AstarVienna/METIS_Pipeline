@@ -3,9 +3,30 @@ from cpl.core import Msg
 from typing import Any, Dict
 
 from prototypes.base import MetisRecipeImpl
+from prototypes.input import PipelineInput
 
 
 class MetisIfuReduce(MetisRecipeImpl):
+    class Input(PipelineInput):
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            super().__init__(frameset)
+            self._detector_name = None
+
+        def categorize_frame(self, frame):
+            match frame.tag:
+                case tag if tag in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]:
+                    frame.group = cpl.ui.Frame.FrameGroup.RAW
+                    self.raw.append(frame)
+                    Msg.debug(self.__class__.__name__,
+                              f"Got raw frame: {frame.file}.")
+                case _:
+                    # If it is not recognized, let base classes handle it
+                    super().categorize_frame(frame)
+
+        def verify(self):
+            if len(self.raw) == 0:
+                raise cpl.core.DataNotFoundError("No raw frames found in the frameset.")
+
     # Fill in recipe information
     _name = "metis_ifu_reduce"
     _version = "0.1"

@@ -48,7 +48,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         # performing this conversion.
 
         # Flat field preparation: subtract bias and normalize it to median 1
-        # Msg.info(self.name, "Preparing flat field")
+        # Msg.info(self.__class__.__name__, "Preparing flat field")
         # if flat_image:
         #     if bias_image:
         #         flat_image.subtract(bias_image)
@@ -58,7 +58,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         # Combine the images in the image list using the image stacking
         # option requested by the user.
         method = self.parameters["metis_det_dark.stacking.method"].value
-        Msg.info(self.name, f"Combining images using method {method!r}")
+        Msg.info(self.__class__.__name__, f"Combining images using method {method!r}")
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         raw_images = self.load_input_images()
@@ -76,7 +76,8 @@ class MetisDetDarkImpl(RawImageProcessor):
             case "median":
                 combined_image = raw_images.collapse_median_create()
             case _:
-                Msg.error(self.name, f"Got unknown stacking method {method!r}. Stopping right here!")
+                Msg.error(self.__class__.__name__,
+                          f"Got unknown stacking method {method!r}. Stopping right here!")
 
         header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
 
