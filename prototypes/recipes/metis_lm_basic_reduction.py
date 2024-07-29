@@ -1,14 +1,15 @@
 from typing import Any, Dict
+from schema import Schema
 
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipeImpl
+from prototypes.base import MetisRecipeImpl, MetisRecipe
 from prototypes.product import PipelineProduct
 from prototypes.rawimage import RawImageProcessor
 
 
-class MetisLmBasicReductionImpl(MetisRecipeImpl):
+class MetisLmBasicReductionImpl(RawImageProcessor):
     class Input(RawImageProcessor.Input):
         bias: cpl.ui.Frame
         flat: cpl.ui.Frame
@@ -22,6 +23,14 @@ class MetisLmBasicReductionImpl(MetisRecipeImpl):
                 frame.group = cpl.ui.Frame.FrameGroup.CALIB
                 self.master_dark = frame
                 Msg.debug(self.__class__.__name__, f"Got bias frame: {frame.file}.")
+            elif frame.tag == "MASTER_GAIN_2RG":
+                frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                self.master_gain = frame
+                Msg.debug(self.__class__.__name__, f"Got bias frame: {frame.file}.")
+            elif frame.tag == "MASTER_IMG_FLAT_LAMP_LM":
+                frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                self.master_flat = frame
+                Msg.debug(self.__class__.__name__, f"Got bias frame: {frame.file}.")
             elif frame.tag == "MASTER_FLAT_LAMP":
                 frame.group = cpl.ui.Frame.FrameGroup.CALIB
                 self.master_flat = frame
@@ -31,17 +40,18 @@ class MetisLmBasicReductionImpl(MetisRecipeImpl):
 
         def verify(self):
             super().verify()
-
-            if self.bias:
-                self.bias_image = cpl.core.Image.load(self.bias.file, extension=0)
-                Msg.info(self.__class__.__name__, f"Loaded bias frame {self.bias.file!r}.")
-            else:
+            #import pdb; pdb.set_trace()
+            
+            try:
+                self.bias = cpl.core.Image.load(self.master_dark.file, extension=0)
+                Msg.info(self.__class__.__name__, f"Loaded bias frame {self.master_dark.file!r}.")
+            except:
                 raise cpl.core.DataNotFoundError("No bias frame in frameset.")
 
-            if self.flat:
-                self.flat_image = cpl.core.Image.load(self.flat.file, extension=0)
-                Msg.info(self.__class__.__name__, f"Loaded flat frame {self.flat.file!r}.")
-            else:
+            try:
+                self.flat = cpl.core.Image.load(self.master_flat.file, extension=0)
+                Msg.info(self.__class__.__name__, f"Loaded flat frame {self.master_flat.file!r}.")
+            except:
                 raise cpl.core.DataNotFoundError("No flat frame in frameset.")
 
     class Product(PipelineProduct):
@@ -57,32 +67,53 @@ class MetisLmBasicReductionImpl(MetisRecipeImpl):
         @property
         def output_file_name(self):
             return f"{self.category}.fits"
+        
 
     def verify_input_frames(self) -> None:
         """ RawImageProcessor mixin wants to see a bunch of raw frames. """
         pass
 
+      
     def load_input_images(self) -> cpl.core.ImageList:
         """ Load and the filtered frames from the frameset """
-
-        for idx, frame in enumerate(self.input.raw):
-            Msg.info(self.__class__.__name__, f"Processing input frame #{idx}: {frame.file!r}...")
-
-            # Append the loaded image to an image list
-            Msg.debug(self.__class__.__name__, f"Loading input image {frame.file}")
-            self.input.raw.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return self.input.raw
+        pass
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-        return {}
+        method = self.parameters["basic_reduction.stacking.method"].value
+        Msg.info(self.__class__.__name__, f"Combining images using method {method!r}")
+        #import pdb; pdb.set_trace()
+        Msg.info(self.__class__.__name__, f"Starting processing image attibute.")
+        raw_images = self.load_input_images()
+        match method:
+            case "add":
+                for idx, image in enumerate(raw_images):
+                    if idx == 0:
+                        combined_image = image
+                    else:
+                        combined_image.add(image)
+            case "average":
+                combined_image = raw_images.collapse_create()
+            case "median":
+                combined_image = raw_images.collapse_median_create()
+            case _:
+                Msg.error(self.__class__.__name__,
+                          f"Got unknown stacking method {method!r}. Stopping right here!")
 
+        header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
+
+        self.products = {
+            fr'OBJECT_REDUCED_{self.detector_name}':
+                self.Product(self, header, combined_image,
+                             detector_name=self.detector_name),
+        }
+
+        return self.products
     @property
     def detector_name(self) -> str:
         return "2RG"
 
 
-class MetisLmBasicReduction(cpl.ui.PyRecipe):
+class MetisLmBasicReduction(MetisRecipe):
     # Fill in recipe information
     _name = "metis_lm_basic_reduction"
     _version = "0.1"
@@ -106,6 +137,7 @@ class MetisLmBasicReduction(cpl.ui.PyRecipe):
         )
     ])
     implementation_class = MetisLmBasicReductionImpl
+"""
 
     def __init__(self) -> None:
         super().__init__()
@@ -119,6 +151,7 @@ class MetisLmBasicReduction(cpl.ui.PyRecipe):
 
         output_file = "OBJECT_REDUCED.fits"
 
+        #import pdb; pdb.set_trace()
 
         # Flat field preparation: subtract bias and normalize it to median 1
         Msg.info(self.__class__.__name__, "Preparing flat field")
@@ -178,3 +211,4 @@ class MetisLmBasicReduction(cpl.ui.PyRecipe):
             return product_frames
 
         return product_frames
+"""
