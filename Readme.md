@@ -11,6 +11,27 @@ export PYTHONPATH=$METIS_SOFTPATH
 export SOF_DATA='<path_to_data>'
 export PYCPL_RECIPE_DIR='<path_of_METIS_pipeline>/prototypes/recipes/'
 ```
+## Checking with PyESOREX
+
+Firstly, run pyesorex.  We will see all avaliable receipes if there is not problem.
+
+```
+$ pyesorex --recipes
+[ INFO  ] pyesorex: This is PyEsoRex, version 1.0.0.
+
+     ***** ESO Recipe Execution Tool, Python version 1.0.0 *****
+
+List of available recipes:
+
+  metis_det_lingain     : Measure detector non-linearity and gain
+  metis_det_dark        : Create master dark
+  metis_abstract_base   : Abstract-like base class for METIS recipes
+  metis_lm_basic_reduction: Basic science image data processing
+  metis_n_img_flat      : Create master flat for N band detectors
+  basic_science         : Basic science image data processing
+  metis_lm_img_flat     : Create master flat for L/M band detectors
+```
+
 
 ## Use with EDPS
 Before starting to use this pipeline with EDPS, make sure you have read the document of EDPS.  You may also 
@@ -36,6 +57,18 @@ Listing all avaliable data files
 Listing all avaliable processing tasks
 ```
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -lt
+```
+
+Running one specific recipe
+```
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark
+```
+
+Getting report in a better way
+```
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -od
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -og
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -f
 ```
 
 
