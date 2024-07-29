@@ -73,11 +73,7 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
         """ RawImageProcessor mixin wants to see a bunch of raw frames. """
         pass
 
-      
-    def load_input_images(self) -> cpl.core.ImageList:
-        """ Load and the filtered frames from the frameset """
-        pass
-
+    
     def process_images(self) -> Dict[str, PipelineProduct]:
         method = self.parameters["basic_reduction.stacking.method"].value
         Msg.info(self.__class__.__name__, f"Combining images using method {method!r}")
