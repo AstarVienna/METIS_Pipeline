@@ -4,7 +4,7 @@ workflows. Note that this is work in progress and far from
 being perfect.
 
 ## Included files:
-README                          - this files
+README                          - this file
 build_*_graphs.sh               - bash scripts to easier produce
                                   workflow graphs
 metis_*_lss_wkf.py              - main EDPS workflow scripts
