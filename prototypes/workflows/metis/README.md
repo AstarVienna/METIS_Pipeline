@@ -1,7 +1,5 @@
 # LSS EDPS workflows
-This branch contains the first draft of the LSS LM-band EDPS
-workflows. Note that this is work in progress and far from
-being perfect.
+This branch contains the first draft of the LSS LM/N-band EDPS workflows. Note that this is work in progress and far from being perfect.
 
 ## Included files:
 ```
