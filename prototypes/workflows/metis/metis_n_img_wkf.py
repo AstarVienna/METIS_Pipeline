@@ -6,7 +6,8 @@ from .metis_n_img_datasources import *
 # --- Processing tasks ---
 detlin_task = (task("metis_det_lingain")
                .with_recipe("metis_det_lingain")
-               .with_main_input(detlin_raw)
+               .with_main_input(detlin_on)
+               .with_associated_input(detlin_off)
                .with_meta_targets([QC0, QC1_CALIB])
                .build())
 
@@ -20,6 +21,7 @@ flat_lamp_task = (task("metis_n_flat_lamp")
                   .with_recipe("metis_n_img_flat")
                   .with_main_input(flat_lamp_raw)
                   .with_associated_input(detlin_task)
+                  .with_input_filter(linearity_class, mode="SELECT")
                   .with_meta_targets([QC0, QC1_CALIB])
                   .build())
 

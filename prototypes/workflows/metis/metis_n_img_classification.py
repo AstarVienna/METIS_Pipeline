@@ -6,12 +6,24 @@ bpm_class = classification_rule("BADPIX_MAP_GEO",
                                  "pro.catg": "BADPIX_MAP_GEO"
                                  })
 
-detlin_class = classification_rule("DETLIN_GEO_RAW",
-                                   {"instrume": "METIS",
-                                    "dpr.catg": "CALIB",
-                                    "dpr.type": "DETLIN",
-                                    "dpr.tech": "IMAGE,N"
+detlin_on_class = classification_rule("DETLIN_GEO_ON",
+                                      {"instrume": "METIS",
+                                       "dpr.catg": "CALIB",
+                                       "dpr.type": "DETLIN",
+                                       "dpr.tech": "IMAGE,N"
                                     })
+
+detlin_off_class = classification_rule("DETLIN_GEO_OFF",
+                                       {"instrume": "METIS",
+                                        "dpr.catg": "CALIB",
+                                        "dpr.type": "DETLIN",
+                                        "dpr.tech": "IMAGE,N"
+                                    })
+
+linearity_class = classification_rule("LINEARITY_CUBE",
+                                      {"instrume": "METIS",
+                                       "pro.catg": "LINEARITY_CUBE"
+                                       })
 
 darkraw_class = classification_rule("DARK_GEO_RAW",
                                     {"instrume": "METIS",

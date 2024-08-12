@@ -2,8 +2,13 @@
 from edps import data_source
 from .metis_n_img_classification import *
 
-detlin_raw = (data_source()
-              .with_classification_rule(detlin_class)
+detlin_on = (data_source()
+             .with_classification_rule(detlin_on_class)
+             .with_match_keywords(["instrume"])
+             .build())
+
+detlin_off = (data_source()
+              .with_classification_rule(detlin_off_class)
               .with_match_keywords(["instrume"])
               .build())
 
