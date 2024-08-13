@@ -1,3 +1,10 @@
+# METIS LSS LM BAND EDPS workflow
+#
+# Auhor: W. Kausch / University of Innsbruck
+#
+# Version: 0.0.1
+#
+
 from edps import classification_rule
 
 
@@ -32,7 +39,7 @@ h2rg_wcu_off_class = classification_rule("DETLIN_2RG_OFF_RAW",
 dark_class = classification_rule("DARK_2RG_RAW",
                                     {"instrume":"METIS",
                                      "dpr.catg": "CALIB",
-                                     "dpr.type":"FLAT,LAMP",
+                                     "dpr.type":"DARK",
                                      "dpr.tech":"LSS,LM",
                                      })
 

@@ -1,3 +1,10 @@
+# METIS LSS N BAND EDPS workflow
+#
+# Auhor: W. Kausch / University of Innsbruck
+#
+# Version: 0.0.1
+#
+
 from edps import classification_rule
 
 

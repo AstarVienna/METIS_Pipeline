@@ -1,5 +1,21 @@
+# METIS LSS LM BAND EDPS workflow
+#
+# Auhor: W. Kausch / University of Innsbruck
+#
+# Version: 0.0.1
+#
+
 from edps import data_source
 from .metis_lm_lss_classification import *
+
+# ----------------------------------------------------------------------------
+# ----------------- Defining required number of input files ------------------
+# ----------------------------------------------------------------------------
+
+# NOTE: Currently these values are mostly dummy values!
+MIN_NUM_DARKS=5  # minimum # of darks
+MIN_NUM_RSRF=5
+MIN_NUM_PINH=5
 
 # ----------------------------------------------------------------------------
 # ------------------------------- Data sources -------------------------------
@@ -80,16 +96,19 @@ raw_slitloss = (data_source()
 
 raw_dark = (data_source()
             .with_classification_rule(dark_class)
+            .with_min_group_size(MIN_NUM_DARKS)
             .with_match_keywords(["instrume"])
             .build())
 
 lm_raw_rsrf = (data_source()
             .with_classification_rule(lm_rsrf_class)
+            .with_min_group_size(MIN_NUM_RSRF)
             .with_match_keywords(["instrume"])
             .build())
 
 lm_raw_rsrf_pinh = (data_source()
             .with_classification_rule(lm_rsrf_pinh_class)
+            .with_min_group_size(MIN_NUM_PINH)
             .with_match_keywords(["instrume"])
             .build())
 
