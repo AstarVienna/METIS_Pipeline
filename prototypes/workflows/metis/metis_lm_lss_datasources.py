@@ -2,7 +2,7 @@
 #
 # Auhor: W. Kausch / University of Innsbruck
 #
-# Version: 0.0.1
+# Version: see Changelog
 #
 
 from edps import data_source

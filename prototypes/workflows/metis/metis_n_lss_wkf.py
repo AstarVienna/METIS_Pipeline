@@ -2,7 +2,7 @@
 #
 # Auhor: W. Kausch / University of Innsbruck
 #
-# Version: 0.0.1
+# Version: see Changelog
 #
 
 """METIS LSS N-Band workflow"""
@@ -10,6 +10,7 @@ from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
 from edps import task, data_source, classification_rule
 from .metis_n_lss_classification import *
 from .metis_n_lss_datasources import *
+from .metis_n_lss_task_functions import *
 
 # --- Processing tasks ---
 # persistence_task = (task('metis_det_persistence')

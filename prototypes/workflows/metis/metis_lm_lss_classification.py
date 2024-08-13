@@ -2,11 +2,11 @@
 #
 # Auhor: W. Kausch / University of Innsbruck
 #
-# Version: 0.0.1
+# Version: see Changelog
 #
 
 from edps import classification_rule
-
+from . import metis_lm_lss_keywords as kwd
 
 # ----------------------------------------------------------------------------
 # ------------------------- Classification rules -----------------------------
