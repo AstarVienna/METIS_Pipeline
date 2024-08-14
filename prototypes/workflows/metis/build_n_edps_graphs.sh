@@ -1,4 +1,4 @@
-# Script for creating EDPS plots
+# Script for creating N band LSS EDPS plots
 #
 # Auhor: W. Kausch
 #
