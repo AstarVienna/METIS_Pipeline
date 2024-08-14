@@ -20,5 +20,6 @@ more files to follow...
 
 ```
 2024-08-08      V0.0.1          First prototype of *wkf.py, *datasources.py, *classification.py
-2024-08-14      V0.0.2          Including first comments of Lodo, adding first versions of supplementary files according to EDPS Tutorial (Lodo et al. 2023-12-01)
+2024-08-14      V0.0.2          Including first comments of Lodo, adding first versions of
+                                supplementary files according to EDPS Tutorial (Lodo et al. 2023-12-01)
 ```
