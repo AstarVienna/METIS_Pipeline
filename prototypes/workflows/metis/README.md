@@ -3,7 +3,7 @@ This branch contains the first draft of the LSS LM/N-band EDPS workflows. Note t
 
 ## Included files:
 ```
-README                          - This description
+README.md                       - This description
 build_*_graphs.sh               - Bash scripts to easier produce workflow graphs
 *.png                           - Workflow graphs created by EDPS
 metis_*_lss_wkf.py              - Main EDPS workflow scripts
@@ -14,8 +14,6 @@ metis_*_rules.py                - Rules and functions for association/classifica
 metis_*_task_functions.py       - Auxiliary functions required by tasks
 ```
 
-more files to follow...
-
 ## Changelog:
 
 ```
@@ -23,4 +21,5 @@ more files to follow...
 2024-08-14      V0.0.2          Including first comments of Lodo, adding first versions of
                                 supplementary files according to Sect 3.1 EDPS Tutorial v0.8
                                 (Lodo et al. 2023-12-01)
+2024-09-03      V0.0.3          Minor updates
 ```

@@ -30,7 +30,7 @@ lingain_class = classification_rule("DETLIN_2RG_RAW", {**lm_img_calibs, kwd.dpr_
 h2rg_wcu_off_class = classification_rule("DETLIN_2RG_OFF_RAW", {**lm_img_calibs, kwd.dpr_type:"DARK,WCUOFF"})
 # DARK class
 dark_class = classification_rule("DARK_2RG_RAW",{**lm_img_calibs, kwd.dpr_type:"DARK", })
-# Slitloss files (TODO: Check the difference to STATIC ones - doubly defined??  Also chekc whether img or lss mode)
+# Slitloss files (TODO: Check the difference to STATIC ones - doubly defined??  Also check whether img or lss mode)
 lm_slitloss_class = classification_rule("LM_SLITLOSSES_RAW", {**lm_img_calibs, kwd.dpr_type:"SLITLOSS", kwd.dpr_tech:"LSS,LM"})
 # RSRF / FLATFIELDS
 lm_rsrf_class = classification_rule("LM_LSS_RSRF_RAW", {**lm_lss_calibs, kwd.dpr_type:"FLAT,LAMP"})
