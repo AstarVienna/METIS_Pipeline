@@ -79,3 +79,9 @@ Making plots
 edps -w metis.metis_dark_wkf -i /home/chyan/METIS_Simulations/ESO/output -g > test.dot
 dot -T png test.dot > mygraph.png
 ```
+
+## Note for developers
+When you're using the Python Debugger (pdb) and an error occurs, pdb will automatically enter post-mortem debugging mode, allowing you to inspect the state of the program at the point where the error occurred. Here's how you can find out where the error happened:
+```
+import pdb ; pdb.set_trace()
+```

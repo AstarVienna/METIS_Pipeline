@@ -13,6 +13,7 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
     class Input(RawImageProcessor.Input):
         bias: cpl.ui.Frame
         flat: cpl.ui.Frame
+        gain: cpl.ui.Frame
 
         def categorize_frame(self, frame):
             if frame.tag == "LM_IMAGE_SCI_RAW":
@@ -45,6 +46,12 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
             try:
                 self.bias = cpl.core.Image.load(self.master_dark.file, extension=0)
                 Msg.info(self.__class__.__name__, f"Loaded bias frame {self.master_dark.file!r}.")
+            except:
+                raise cpl.core.DataNotFoundError("No bias frame in frameset.")
+            
+            try:
+                self.gain = cpl.core.Image.load(self.master_gain.file, extension=0)
+                Msg.info(self.__class__.__name__, f"Loaded bias frame {self.master_gain.file!r}.")
             except:
                 raise cpl.core.DataNotFoundError("No bias frame in frameset.")
 
@@ -80,13 +87,16 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
         #import pdb; pdb.set_trace()
         Msg.info(self.__class__.__name__, f"Starting processing image attibute.")
         raw_images = self.load_input_images()
+        
+        Msg.info(self.__class__.__name__, f"Detector name = {self.detector_name}")
+
+        combined_image = cpl.core.ImageList()
+        
         match method:
             case "add":
                 for idx, image in enumerate(raw_images):
-                    if idx == 0:
-                        combined_image = image
-                    else:
-                        combined_image.add(image)
+                    Msg.info(self.__class__.__name__, f"Processing frame #{idx}: {self.input.raw[idx].file}...")
+                    combined_image.append(image)
             case "average":
                 combined_image = raw_images.collapse_create()
             case "median":
@@ -133,78 +143,3 @@ class MetisLmBasicReduction(MetisRecipe):
         )
     ])
     implementation_class = MetisLmBasicReductionImpl
-"""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.implementation = self.implementation_class(self)
-
-    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-        raw_frames = cpl.ui.FrameSet()
-        product_frames = cpl.ui.FrameSet()
-        bias_frame = None
-        flat_frame = None
-
-        output_file = "OBJECT_REDUCED.fits"
-
-        #import pdb; pdb.set_trace()
-
-        # Flat field preparation: subtract bias and normalize it to median 1
-        Msg.info(self.__class__.__name__, "Preparing flat field")
-        if self.flat_image:
-            if self.bias_image:
-                self.flat_image.subtract(self.bias_image)
-            median = self.flat_image.get_median()
-            self.flat_image.divide_scalar(median)
-
-        header = None
-        processed_images = cpl.core.ImageList()
-        for idx, frame in enumerate(raw_frames):
-            Msg.info(self.__class__.__name__, f"Processing {frame.file!r}...")
-
-            if idx == 0:
-                header = cpl.core.PropertyList.load(frame.file, 0)
-
-            Msg.debug(self.__class__.__name__, "Loading image.")
-            raw_image = cpl.core.Image.load(frame.file, extension=1)
-
-            if self.bias_image:
-                Msg.debug(self.__class__.__name__, "Bias subtracting...")
-                raw_image.subtract(self.bias_image)
-
-            if self.flat_image:
-                Msg.debug(self.__class__.__name__, "Flat fielding...")
-                raw_image.divide(self.flat_image)
-
-            # Insert the processed image in an image list. Of course
-            # there is also an append() method available.
-            processed_images.insert(idx, raw_image)
-
-        # Combine the images in the image list using the image stacking
-        # option requested by the user.
-        method = self.parameters["basic_reduction.stacking.method"].value
-        Msg.info(self.__class__.__name__, f"Combining images using method {method!r}")
-
-        combined_image = None
-        if method == "add":
-            for idx, image in enumerate(processed_images):
-                if idx == 0:
-                    combined_image = image
-                else:
-                    combined_image.add(image)
-        elif method == "average":
-            combined_image = processed_images.collapse_create()
-        elif method == "median":
-            combined_image = processed_images.collapse_median_create()
-        else:
-            Msg.error(
-                self.__class__.__name__,
-                f"Got unknown stacking method {method!r}. Stopping right here!",
-            )
-            # Since we did not create a product we need to return an empty
-            # ui.FrameSet object. The result frameset product_frames will do,
-            # it is still empty here!
-            return product_frames
-
-        return product_frames
-"""
