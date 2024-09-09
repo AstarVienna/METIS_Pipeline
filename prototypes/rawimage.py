@@ -57,7 +57,7 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
         output = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.input.raw):
-            Msg.info(self.__class__.__name__, f"Processing input frame #{idx}: {frame.file!r}...")
+            Msg.info(self.__class__.__name__, f"Loading input frame #{idx}: {frame.file!r}...")
 
             # Append the loaded image to an image list
             Msg.debug(self.__class__.__name__, f"Loading input image {frame.file}")
