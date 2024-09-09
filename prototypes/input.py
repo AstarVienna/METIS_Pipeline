@@ -19,7 +19,7 @@ class PipelineInput(metaclass=ABCMeta):
             self.categorize_frame(frame)
 
     @abstractmethod
-    def categorize_frame(self, frame) -> None:
+    def categorize_frame(self, frame: cpl.ui.Frame) -> None:
         """
             Inspect a single frame and assign it to the proper attribute of the class.
             Every child class should try to recognize its own tags first and defer
@@ -42,11 +42,9 @@ class PipelineInput(metaclass=ABCMeta):
     def verify(self) -> None:
         """
             Verify that the loaded frameset is valid and conforms to the specification.
-            It would be also good to do this with some schema (but that might make Lars unhappy).
+            It would be also good to do this with some schema, ideally `schema` (but that might make Lars unhappy).
             Returns None if OK, otherwise an exception is raised.
             Optionally also extract additional information, such as detector names.
-
-            Raises an exception if anything goes wrong during initialization, otherwise returns None.
 
             Real world recipes should rather print a message (also to have it in the log file)
             and exit gracefully, but this should be handled upstream in the recipe

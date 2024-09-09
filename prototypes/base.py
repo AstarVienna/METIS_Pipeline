@@ -40,7 +40,7 @@ class MetisRecipeImpl(metaclass=ABCMeta):
             self.process_images()               # Do the actual processing
             self.save_products()                # Save the output products
         except cpl.core.DataNotFoundError as e:
-            Msg.warning(f"Data not found: {e.message}")
+            Msg.warning(self.__class__.__qualname__, f"Data not found: {e.message}")
 
         return self.get_product_frameset()      # Return the output as a pycpl FrameSet
 

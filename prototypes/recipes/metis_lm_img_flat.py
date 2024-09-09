@@ -7,6 +7,7 @@ from cpl.core import Msg
 from prototypes.base import MetisRecipe
 from prototypes.product import PipelineProduct
 from prototypes.rawimage import RawImageProcessor
+from prototypes.flat import FlatInput
 
 
 class MetisLmImgFlatImpl(RawImageProcessor):
@@ -15,31 +16,12 @@ class MetisLmImgFlatImpl(RawImageProcessor):
         'dark': cpl.ui.Frame,
     })
 
-    class Input(RawImageProcessor.Input):
-        """ Flat Input takes a set of raw images and subtracts dark """
-        master_dark: cpl.ui.Frame = None
-
-        def categorize_frame(self, frame):
-            match frame.tag:
-                case "LM_FLAT_LAMP_RAW":
-                    frame.group = cpl.ui.Frame.FrameGroup.RAW
-                    self.raw.append(frame)
-                    Msg.debug(self.__class__.__name__, f"Got raw frame: {frame.file}.")
-                case tag if tag in ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]:
-                    self.master_dark = frame
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    Msg.debug(self.__class__.__name__, f"Got master dark frame: {frame.file}.")
-                case _:
-                    super().categorize_frame(frame)
-
-        def verify(self) -> None:
-            # First verify the raw frames (provided by base class)
-            super().verify()
-
-            if self.master_dark is None:
-                raise cpl.core.DataNotFoundError("No masterdark frames found in the frameset.")
+    class Input(FlatInput):
+        tag_raw = "LM_FLAT_LAMP_RAW"
+        tags_dark = ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]
 
     class Product(PipelineProduct):
+        # It would be nice to be able to construct this declaratively somehow.
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE

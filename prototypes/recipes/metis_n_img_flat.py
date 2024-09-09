@@ -1,9 +1,21 @@
 from typing import Any, Dict
 
+import cpl
+from cpl.core import Msg
+
 from cpl import core
 from cpl import ui
 from cpl import dfs
 from cpl.core import Msg
+
+from prototypes.rawimage import RawImageProcessor
+from prototypes.flat import FlatInput
+
+
+class MetisNImgFlatImpl(RawImageProcessor):
+    class Input(FlatInput):
+        tag_raw = "N_FLAT_LAMP_RAW"
+        tags_dark = ["MASTER_DARK_2RG"]
 
 
 class MetisNImgFlat(ui.PyRecipe):

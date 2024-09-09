@@ -17,18 +17,18 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
             super().__init__(frameset)
             self._detector_name = None
 
-        def categorize_frame(self, frame):
+        def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
                 case tag if tag in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]:
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
                     self.raw.append(frame)
-                    Msg.debug(self.__class__.__name__,
+                    Msg.debug(self.__class__.__qualname__,
                               f"Got raw frame: {frame.file}.")
                 case _:
                     # If it is not recognized, let base classes handle it
                     super().categorize_frame(frame)
 
-        def verify(self):
+        def verify(self) -> None:
             if len(self.raw) == 0:
                 raise cpl.core.DataNotFoundError("No raw frames found in the frameset.")
 
@@ -57,10 +57,10 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
         output = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.input.raw):
-            Msg.info(self.__class__.__name__, f"Processing input frame #{idx}: {frame.file!r}...")
+            Msg.info(self.__class__.__qualname__, f"Processing input frame #{idx}: {frame.file!r}...")
 
             # Append the loaded image to an image list
-            Msg.debug(self.__class__.__name__, f"Loading input image {frame.file}")
+            Msg.debug(self.__class__.__qualname__, f"Loading input image {frame.file}")
             output.append(cpl.core.Image.load(frame.file, extension=1))
 
         return output
