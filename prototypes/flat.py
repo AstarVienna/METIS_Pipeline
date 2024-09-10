@@ -5,12 +5,15 @@ from prototypes.rawimage import RawImageProcessor
 
 
 class FlatInput(RawImageProcessor.Input):
+    """
+    Base class for Inputs which create flats. Requires a bunch of raw frames and a master dark.
+    """
     tag_raw = None
     tags_dark = None
 
     def __init__(self, frameset: cpl.ui.FrameSet):
-        super().__init__(frameset)
         self.master_dark: cpl.ui.Frame | None = None
+        super().__init__(frameset)
 
     def categorize_frame(self, frame: cpl.ui.Frame) -> None:
         match frame.tag:
@@ -29,5 +32,6 @@ class FlatInput(RawImageProcessor.Input):
         # First verify the raw frames (provided by base class)
         super().verify()
 
+        print(self.master_dark)
         if self.master_dark is None:
             raise cpl.core.DataNotFoundError("No masterdark frames found in the frameset.")

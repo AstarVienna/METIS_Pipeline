@@ -10,6 +10,10 @@ from prototypes.input import PipelineInput
 
 
 class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
+    """
+    The RawImageProcessor is a recipe implementation that takes a bunch of raw frames,
+    categorizes them according to their properties and outputs and performs a sanity check or two.
+    """
     class Input(PipelineInput):
         raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
 

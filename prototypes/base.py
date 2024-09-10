@@ -29,7 +29,10 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         self.products = {}
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-        """ Main function of the recipe implementation """
+        """
+            Main function of the recipe implementation, mirrors the signature of Recipe.run.
+            All recipe implementations should follow this procedure schema:
+        """
 
         try:
             self.frameset = frameset
@@ -50,9 +53,9 @@ class MetisRecipeImpl(metaclass=ABCMeta):
             try:
                 self.parameters[key].value = value
             except KeyError:
-                Msg.warning(self.__class__.__name__,
+                Msg.warning(self.__class__.__qualname__,
                             f"Settings includes '{key}':{value} "
-                            f"but class {self.__class__.__name__} "
+                            f"but class {self.__class__.__qualname__} "
                             f"has no parameter named {key}.")
 
     @abstractmethod

@@ -19,7 +19,7 @@ class PipelineInput(metaclass=ABCMeta):
             self.categorize_frame(frame)
 
     @abstractmethod
-    def categorize_frame(self, frame: cpl.ui.Frame) -> None:
+    def categorize_frame(self, frame) -> None:
         """
             Inspect a single frame and assign it to the proper attribute of the class.
             Every child class should try to recognize its own tags first and defer
@@ -31,20 +31,22 @@ class PipelineInput(metaclass=ABCMeta):
                     case _: super().categorize_frame()
             ```
 
-            Hence, this method only provides the final resolution of unknown tags (emit a warning)
-            and should be always called as a last resort.
+            Hence, this method's implementation here only provides the final resolution of unknown tags
+            (emit a warning) and should be **always** called as a last resort.
         """
         # If we got all the way up here, no one recognizes this frame, warn!
-        Msg.warning(self.__class__.__name__,
+        Msg.warning(self.__class__.__qualname__,
                     f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
     @abstractmethod
     def verify(self) -> None:
         """
             Verify that the loaded frameset is valid and conforms to the specification.
-            It would be also good to do this with some schema, ideally `schema` (but that might make Lars unhappy).
+            It would be also good to do this with some `schema` (but that might make Lars unhappy).
             Returns None if OK, otherwise an exception is raised.
             Optionally also extract additional information, such as detector names.
+
+            Raises an exception if anything goes wrong during initialization, otherwise returns None.
 
             Real world recipes should rather print a message (also to have it in the log file)
             and exit gracefully, but this should be handled upstream in the recipe
