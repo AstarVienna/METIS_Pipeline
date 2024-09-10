@@ -42,8 +42,8 @@ class MetisDetDarkImpl(RawImageProcessor):
             return rf"MASTER_DARK_{self.detector_name}"
 
     def __init__(self, recipe):
-        super().__init__(recipe)
         self._detector_name = None
+        super().__init__(recipe)
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # By default, images are loaded as Python float data. Raw image

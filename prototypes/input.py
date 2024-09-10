@@ -34,7 +34,7 @@ class PipelineInput(metaclass=ABCMeta):
             Hence, this method's implementation here only provides the final resolution of unknown tags
             (emit a warning) and should be **always** called as a last resort.
         """
-        # If we got all the way up here, no one recognizes this frame, warn!
+        # If we got all the way up here, no one recognized this frame, warn!
         Msg.warning(self.__class__.__qualname__,
                     f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
 
