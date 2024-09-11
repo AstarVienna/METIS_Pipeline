@@ -10,7 +10,7 @@ from prototypes.product import PipelineProduct
 class MetisRecipeImpl(metaclass=ABCMeta):
     """
         An abstract base class for all METIS recipe implementations
-        Contains main flow control and provides abstract methods to be overridden
+        Contains central flow control and provides abstract methods to be overridden
         by particular pipeline recipe implementations.
     """
     # Available parameters are a class variable. This must be present, even if empty.
@@ -30,8 +30,8 @@ class MetisRecipeImpl(metaclass=ABCMeta):
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """
-            Main function of the recipe implementation, mirrors the signature of Recipe.run.
-            All recipe implementations should follow this procedure schema:
+            The main function of the recipe implementation, mirrors the signature of Recipe.run.
+            All recipe implementations should follow this procedure schema.
         """
 
         try:
@@ -45,7 +45,7 @@ class MetisRecipeImpl(metaclass=ABCMeta):
         except cpl.core.DataNotFoundError as e:
             Msg.warning(self.__class__.__qualname__, f"Data not found: {e.message}")
 
-        return self.get_product_frameset()      # Return the output as a pycpl FrameSet
+        return self.build_product_frameset()      # Return the output as a pycpl FrameSet
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """ Update the recipe parameters with the values requested by the user """
@@ -69,10 +69,11 @@ class MetisRecipeImpl(metaclass=ABCMeta):
     def save_products(self) -> None:
         """ Register the created product """
         for name, product in self.products.items():
-            Msg.debug(__name__, f"Saving {product}")
+            Msg.debug(self.__class__.__qualname__, f"Saving {product}")
             product.save()
 
-    def get_product_frameset(self) -> cpl.ui.FrameSet:
+    def build_product_frameset(self) -> cpl.ui.FrameSet:
+        """ Gather all the products and build a FrameSet from their frames. """
         product_frames = cpl.ui.FrameSet()
 
         for name, product in self.products.items():
@@ -83,6 +84,7 @@ class MetisRecipeImpl(metaclass=ABCMeta):
     @property
     @abstractmethod
     def detector_name(self) -> str:
+        """ Return the name of the detector that is processed by this recipe. """
         return "<invalid>"
 
 
@@ -90,7 +92,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
     """
         The abstract base class for all METIS recipes.
         In an ideal world it would also be abstract (metaclass=abc.ABCMeta),
-        but then pyesaorex would instantiate it on initialization and crash.
+        but then `pyesorex` would instantiate it on initialization and crash.
         The _fields must be present but should be overwritten by every child class.
     """
     _name = "metis_abstract_base"
@@ -102,13 +104,12 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _description = "This class serves as the base class for all METIS recipes."
 
     parameters = cpl.ui.ParameterList([])   # By default, classes do not have any parameters
-    implementation_class = str              # Dummy class, this is instantiated but not used, `str` does not hurt
+    implementation_class = str              # Dummy class, this is instantiated but not used, `str` does not hurt.
 
     def __init__(self):
         super().__init__()
         self.implementation = self.implementation_class(self)
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
+        """ The main method, as required by PyCPL. It just calls the same method in the decoupled implementation. """
         return self.implementation.run(frameset, settings)
-
-

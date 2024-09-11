@@ -13,19 +13,25 @@ class MetisLmBasicReductionImpl(MetisRecipeImpl):
         bias: cpl.ui.Frame
         flat: cpl.ui.Frame
 
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            self.master_dark: cpl.ui.Frame | None = None
+            self.master_flat: cpl.ui.Frame | None = None
+            self.bias_image: cpl.ui.Frame | None = None
+            super().__init__(frameset)
+
         def categorize_frame(self, frame):
             if frame.tag == "LM_IMAGE_SCI_RAW":
                 frame.group = cpl.ui.Frame.FrameGroup.RAW
                 self.raw.append(frame)
-                Msg.debug(self.__class__.__name__, f"Got raw frame: {frame.file}.")
+                Msg.debug(self.__class__.__qualname__, f"Got raw frame: {frame.file}.")
             elif frame.tag == "MASTER_DARK_2RG":
                 frame.group = cpl.ui.Frame.FrameGroup.CALIB
                 self.master_dark = frame
-                Msg.debug(self.__class__.__name__, f"Got bias frame: {frame.file}.")
+                Msg.debug(self.__class__.__qualname__, f"Got bias frame: {frame.file}.")
             elif frame.tag == "MASTER_FLAT_LAMP":
                 frame.group = cpl.ui.Frame.FrameGroup.CALIB
                 self.master_flat = frame
-                Msg.debug(self.__class__.__name__, f"Got flat field frame: {frame.file}.")
+                Msg.debug(self.__class__.__qualname__, f"Got flat field frame: {frame.file}.")
             else:
                 super().categorize_frame(frame)
 
@@ -34,13 +40,13 @@ class MetisLmBasicReductionImpl(MetisRecipeImpl):
 
             if self.bias:
                 self.bias_image = cpl.core.Image.load(self.bias.file, extension=0)
-                Msg.info(self.__class__.__name__, f"Loaded bias frame {self.bias.file!r}.")
+                Msg.info(self.__class__.__qualname__, f"Loaded bias frame {self.bias.file!r}.")
             else:
                 raise cpl.core.DataNotFoundError("No bias frame in frameset.")
 
             if self.flat:
                 self.flat_image = cpl.core.Image.load(self.flat.file, extension=0)
-                Msg.info(self.__class__.__name__, f"Loaded flat frame {self.flat.file!r}.")
+                Msg.info(self.__class__.__qualname__, f"Loaded flat frame {self.flat.file!r}.")
             else:
                 raise cpl.core.DataNotFoundError("No flat frame in frameset.")
 
@@ -121,7 +127,7 @@ class MetisLmBasicReduction(cpl.ui.PyRecipe):
 
 
         # Flat field preparation: subtract bias and normalize it to median 1
-        Msg.info(self.__class__.__name__, "Preparing flat field")
+        Msg.info(self.__class__.__qualname__, "Preparing flat field")
         if self.flat_image:
             if self.bias_image:
                 self.flat_image.subtract(self.bias_image)
@@ -131,20 +137,20 @@ class MetisLmBasicReduction(cpl.ui.PyRecipe):
         header = None
         processed_images = cpl.core.ImageList()
         for idx, frame in enumerate(raw_frames):
-            Msg.info(self.__class__.__name__, f"Processing {frame.file!r}...")
+            Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
 
             if idx == 0:
                 header = cpl.core.PropertyList.load(frame.file, 0)
 
-            Msg.debug(self.__class__.__name__, "Loading image.")
+            Msg.debug(self.__class__.__qualname__, "Loading image.")
             raw_image = cpl.core.Image.load(frame.file, extension=1)
 
             if self.bias_image:
-                Msg.debug(self.__class__.__name__, "Bias subtracting...")
+                Msg.debug(self.__class__.__qualname__, "Bias subtracting...")
                 raw_image.subtract(self.bias_image)
 
             if self.flat_image:
-                Msg.debug(self.__class__.__name__, "Flat fielding...")
+                Msg.debug(self.__class__.__qualname__, "Flat fielding...")
                 raw_image.divide(self.flat_image)
 
             # Insert the processed image in an image list. Of course
@@ -154,7 +160,7 @@ class MetisLmBasicReduction(cpl.ui.PyRecipe):
         # Combine the images in the image list using the image stacking
         # option requested by the user.
         method = self.parameters["basic_reduction.stacking.method"].value
-        Msg.info(self.__class__.__name__, f"Combining images using method {method!r}")
+        Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
         combined_image = None
         if method == "add":
@@ -169,7 +175,7 @@ class MetisLmBasicReduction(cpl.ui.PyRecipe):
             combined_image = processed_images.collapse_median_create()
         else:
             Msg.error(
-                self.__class__.__name__,
+                self.__class__.__qualname__,
                 f"Got unknown stacking method {method!r}. Stopping right here!",
             )
             # Since we did not create a product we need to return an empty

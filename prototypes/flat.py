@@ -1,4 +1,5 @@
-from typing import Dict, Any
+import abc
+from typing import Dict
 
 import cpl
 from cpl.core import Msg
@@ -7,13 +8,13 @@ from prototypes.product import PipelineProduct
 from prototypes.rawimage import RawImageProcessor
 
 
-class MetisBaseImgFlatImpl(RawImageProcessor):
+class MetisBaseImgFlatImpl(RawImageProcessor, metaclass=abc.ABCMeta):
     class Input(RawImageProcessor.Input):
         """
-        Base class for Inputs which create flats. Requires a bunch of raw frames and a master dark.
+        Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
-        tag_raw = None
-        tags_dark = None
+        tag_raw: str = None
+        tags_dark: str = None
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.master_dark: cpl.ui.Frame | None = None
@@ -33,10 +34,10 @@ class MetisBaseImgFlatImpl(RawImageProcessor):
                     super().categorize_frame(frame)
 
         def verify(self) -> None:
-            # First verify the raw frames (provided by base class)
+            # First, verify the raw frames (provided by base class)
             super().verify()
 
-            print(self.master_dark)
+            # If there is no master dark, raise an exception (or alternatively just warn).
             if self.master_dark is None:
                 raise cpl.core.DataNotFoundError("No masterdark frames found in the frameset.")
 
@@ -59,15 +60,20 @@ class MetisBaseImgFlatImpl(RawImageProcessor):
         def tag(self) -> str:
             return self.category
 
-    # Subtract the dark from every raw image
     def process_images(self) -> Dict[str, PipelineProduct]:
+        """
+        Do the actual processing of the images.
+        Here, it means loading the input images
+        and a master dark, then subtracting the master dark from every flat,
+        and combining them into a master flat.
+        """
         # TODO: Detect detector
         # TODO: Twilight
 
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
         # FITS file is converted on the fly when an image is loaded from
-        # a file. It is however also possible to load images without
+        # a file. It is, however, also possible to load images without
         # performing this conversion.
 
         raw_images = self.load_input_images()
@@ -79,12 +85,12 @@ class MetisBaseImgFlatImpl(RawImageProcessor):
 
         # Combine the images in the image list using the image stacking option requested by the user.
         method = self.parameters[f"{self.name}.stacking.method"].value
-        Msg.info(self.name, f"Combining images using method {method!r}")
+        Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
-        raw_images = self.load_input_images()
         combined_image = None
+        raw_images = self.load_input_images()
 
         match method:
             case "add":

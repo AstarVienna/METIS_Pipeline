@@ -1,12 +1,15 @@
 import cpl
 from cpl.core import Msg
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 
-from prototypes.base import MetisRecipeImpl
+from prototypes.base import MetisRecipeImpl, MetisRecipe
 from prototypes.input import PipelineInput
+from prototypes.product import PipelineProduct
 
 
-class MetisIfuReduce(MetisRecipeImpl):
+class MetisIfuReduceImpl(MetisRecipeImpl):
+    kind: Literal["SCI"] | Literal["STD"] = None
+
     class Input(PipelineInput):
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
@@ -16,36 +19,18 @@ class MetisIfuReduce(MetisRecipeImpl):
             if len(self.raw) == 0:
                 raise cpl.core.DataNotFoundError("No raw frames found in the frameset.")
 
-    # Fill in recipe information
-    _name = "metis_ifu_reduce"
-    _version = "0.1"
-    _author = "Martin Baláž"
-    _email = "martin.balaz@univie.ac.at"
-    _copyright = "GPL-3.0-or-later"
-    _synopsis = "Reduce raw science exposures of the IFU."
-    _description = (
-        "Currently just a skeleton prototype."
-    )
-
-    # The recipe will have a single enumeration type parameter, which allows the
-    # user to select the frame combination method.
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="metis_ifu_reduce.telluric",
-            context="metis_ifu_reduce",
-            description="Apply telluric correction",
-            default=False,
-            alternatives=(True, False),
-        ),
-    ])
+    class ProductReduced(PipelineProduct):
+        @property
+        def category(self) -> str:
+            return fr"IFU_"
 
     def __init__(self):
         super().__init__()
         self.products = {
             rf'IFU_{self.kind}_REDUCED': ProductReduced(),
-            rf'IFU_{self.kind}_BACKGROUND': ProductReduced(),
-            rf'IFU_{self.kind}_REDUCED_CUBE': ProductReduced(),
-            rf'IFU_{self.kind}_COMBINED': ProductReduced(),
+            rf'IFU_{self.kind}_BACKGROUND': ProductBackground(),
+            rf'IFU_{self.kind}_REDUCED_CUBE': ProductReducedCube(),
+            rf'IFU_{self.kind}_COMBINED': ProductCombined(),
         }
 
     def load_input_images(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
@@ -177,3 +162,27 @@ class MetisIfuReduce(MetisRecipeImpl):
     @property
     def output_file_name(self) -> str:
         return f"IFU_SCI_REDUCED"
+
+
+class MetisIfuReduce(MetisRecipe):
+    _name = "metis_ifu_reduce"
+    _version = "0.1"
+    _author = "Martin Baláž"
+    _email = "martin.balaz@univie.ac.at"
+    _copyright = "GPL-3.0-or-later"
+    _synopsis = "Reduce raw science exposures of the IFU."
+    _description = (
+        "Currently just a skeleton prototype."
+    )
+
+    # The recipe will have a single enumeration type parameter, which allows the
+    # user to select the frame combination method.
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="metis_ifu_reduce.telluric",
+            context="metis_ifu_reduce",
+            description="Apply telluric correction",
+            default=False,
+            alternatives=(True, False),
+        ),
+    ])

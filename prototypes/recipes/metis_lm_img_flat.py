@@ -1,5 +1,3 @@
-from schema import Schema
-
 import cpl
 
 from prototypes.base import MetisRecipe
@@ -7,11 +5,6 @@ from prototypes.flat import MetisBaseImgFlatImpl
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
-    input_schema = Schema({
-        'raw': cpl.ui.FrameSet,
-        'dark': cpl.ui.Frame,
-    })
-
     class Input(MetisBaseImgFlatImpl.Input):
         tag_raw = "LM_FLAT_LAMP_RAW"
         tags_dark = ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]
@@ -32,9 +25,7 @@ class MetisLmImgFlat(MetisRecipe):
     _email = "hugo@buddelmeijer.nl"
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Create master flat for L/M band detectors"
-    _description = (
-        "Prototype to create a METIS Masterflat."
-    )
+    _description = "Prototype to create a METIS Masterflat."
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(

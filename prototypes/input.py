@@ -9,7 +9,7 @@ class PipelineInput(metaclass=ABCMeta):
         The Input class is a singleton subclass for a recipe.
         It reads and filters the input FrameSet, categorizes the frames by their metadata
         and stores them in its own attributes.
-        Also provides verification mechanisms and methods for extraction of additional information from the frames.
+        It also provides verification mechanisms and methods for extraction of additional information from the frames.
     """
 
     def __init__(self, frameset: cpl.ui.FrameSet):
@@ -32,7 +32,7 @@ class PipelineInput(metaclass=ABCMeta):
             ```
 
             Hence, this method's implementation here only provides the final resolution of unknown tags
-            (emit a warning) and should be **always** called as a last resort.
+            (emit a warning) and should **always** be called as a last resort.
         """
         # If we got all the way up here, no one recognized this frame, warn!
         Msg.warning(self.__class__.__qualname__,
@@ -46,7 +46,7 @@ class PipelineInput(metaclass=ABCMeta):
             Returns None if OK, otherwise an exception is raised.
             Optionally also extract additional information, such as detector names.
 
-            Raises an exception if anything goes wrong during initialization, otherwise returns None.
+            Should raise an exception if anything goes wrong during initialization, otherwise returns None.
 
             Real world recipes should rather print a message (also to have it in the log file)
             and exit gracefully, but this should be handled upstream in the recipe

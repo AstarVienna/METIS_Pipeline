@@ -29,13 +29,27 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
                     Msg.debug(self.__class__.__qualname__,
                               f"Got raw frame: {frame.file}.")
                 case _:
-                    # If it is not recognized, let base classes handle it
+                    # If frame tag is not recognized, let base classes handle it
                     super().categorize_frame(frame)
 
         def verify(self) -> None:
             if len(self.raw) == 0:
                 raise cpl.core.DataNotFoundError("No raw frames found in the frameset.")
 
+            self._verify_same_detector()
+
+        def _verify_same_detector(self) -> None:
+            """
+            Verify whether all the raw frames originate from the same detector.
+
+            Returns
+            -------
+
+            KeyError
+                If the detector name is not a valid detector name
+            ValueError
+                If dark frames from more than one detector are found
+            """
             detectors = []
 
             for frame in self.raw:
@@ -57,7 +71,11 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
                 raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
 
     def load_input_images(self) -> cpl.core.ImageList:
-        """ Always load a set of raw images """
+        """
+        Always load a set of raw images.
+        Chi-Hung has warned Martin that this is unnecessary and fills the memory quickly,
+        but if we are to use CPL functions, Martin does not see a way around it.
+        """
         output = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.input.raw):

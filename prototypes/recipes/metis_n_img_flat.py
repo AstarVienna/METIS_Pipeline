@@ -1,7 +1,6 @@
 import cpl
 
 from prototypes.base import MetisRecipe
-from prototypes.rawimage import RawImageProcessor
 from prototypes.flat import MetisBaseImgFlatImpl
 
 
