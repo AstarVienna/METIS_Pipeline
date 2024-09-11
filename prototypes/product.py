@@ -9,7 +9,7 @@ PIPELINE = r"METIS"
 class PipelineProduct(metaclass=ABCMeta):
     """
         The abstract base class for a pipeline product:
-        one file with associated headers and a frame
+        one FITS file with associated headers and a frame
     """
 
     tag: str = None
@@ -18,7 +18,7 @@ class PipelineProduct(metaclass=ABCMeta):
     frame_type: cpl.ui.Frame.FrameType = None
 
     def __init__(self,
-                 recipe: 'Recipe',
+                 recipe: 'MetisRecipe',
                  header: cpl.core.PropertyList,
                  image: cpl.core.Image,
                  **kwargs):
@@ -27,8 +27,9 @@ class PipelineProduct(metaclass=ABCMeta):
         self.image: cpl.core.Image = image
         self.properties = cpl.core.PropertyList()
 
+        # Raise NotImplemented in case a child class forgets to set these
         if self.tag is None:
-            raise NotImplementedError("Products must define 'tag', {}")
+            raise NotImplementedError("Products must define 'tag'")
 
         if self.group is None:
             raise NotImplementedError("Products must define 'group'")
@@ -42,11 +43,11 @@ class PipelineProduct(metaclass=ABCMeta):
         self.add_properties()
 
     def add_properties(self):
-        """ Hook for adding properties: by default it does not do anything """
+        """ Hook for adding properties: by default, it does not do anything """
         # Every product must have a ESO PRO CATG
         self.properties.append(
             cpl.core.Property(
-                "ESO PRO CATG",
+                "ESO PRO CATG",         # I suspect this is ESO product category
                 cpl.core.Type.STRING,
                 self.category,
             )
@@ -68,6 +69,7 @@ class PipelineProduct(metaclass=ABCMeta):
             self.recipe.frameset,       # All frames for the recipe
             self.recipe.parameters,     # The list of input parameters
             self.recipe.frameset,       # The list of raw and calibration frames actually used
+                                        # (same as all frames, as we always use all the frames)
             self.image,                 # Image to be saves
             self.recipe.name,           # Name of the recipe
             self.properties,            # Properties to be appended
