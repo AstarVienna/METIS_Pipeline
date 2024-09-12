@@ -86,6 +86,28 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
 
         return output
 
+    @classmethod
+    def combine_images(cls, images, method):
+        combined_image = None
+        match method:
+            case "add":
+                for idx, image in enumerate(images):
+                    if idx == 0:
+                        combined_image = image
+                    else:
+                        combined_image.add(image)
+            case "average":
+                combined_image = images.collapse_create()
+            case "median":
+                combined_image = images.collapse_median_create()
+            case _:
+                Msg.error(cls.__qualname__,
+                          f"Got unknown stacking method {method!r}. Stopping right here!")
+                # Maybe this should raise an exception instead?
+
+        return combined_image
+
+
     @property
     def detector_name(self) -> str:
         return self.input._detector_name

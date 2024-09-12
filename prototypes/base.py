@@ -5,14 +5,18 @@ import cpl
 from cpl.core import Msg
 
 from prototypes.product import PipelineProduct
+from prototypes.input import PipelineInput
 
 
 class MetisRecipeImpl(metaclass=ABCMeta):
     """
-        An abstract base class for all METIS recipe implementations
+        An abstract base class for all METIS recipe implementations.
         Contains central flow control and provides abstract methods to be overridden
         by particular pipeline recipe implementations.
     """
+    Input = PipelineInput
+    Product = PipelineProduct
+
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = cpl.ui.ParameterList([])
 
@@ -83,9 +87,12 @@ class MetisRecipeImpl(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def detector_name(self) -> str:
-        """ Return the name of the detector that is processed by this recipe. """
-        return "<invalid>"
+    def detector_name(self) -> str | None:
+        """
+        Return the name of the detector that is processed by this recipe.
+        Default is None -- to assist in crashing your precious program.
+        """
+        return None
 
 
 class MetisRecipe(cpl.ui.PyRecipe):

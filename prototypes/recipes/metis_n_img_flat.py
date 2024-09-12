@@ -22,7 +22,7 @@ class MetisNImgFlat(MetisRecipe):
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Create master flat for N band detectors"
     _description = (
-        "Prototype to create a METIS Masterflat."
+        "Prototype to create a METIS master flat."
     )
 
     parameters = cpl.ui.ParameterList([

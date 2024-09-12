@@ -1,3 +1,4 @@
+from platform import processor
 from typing import Any, Dict
 
 import cpl
@@ -14,53 +15,45 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
             self.master_dark: cpl.ui.Frame | None = None
             self.master_flat: cpl.ui.Frame | None = None
             self.master_gain: cpl.ui.Frame | None = None
-            self.bias_image: cpl.ui.Frame | None = None
+            self.bias: cpl.ui.Frame | None = None
             super().__init__(frameset)
 
         def categorize_frame(self, frame):
-            if frame.tag == "LM_IMAGE_SCI_RAW":
-                frame.group = cpl.ui.Frame.FrameGroup.RAW
-                self.raw.append(frame)
-                Msg.debug(self.__class__.__qualname__, f"Got raw frame: {frame.file}.")
-            elif frame.tag == "MASTER_DARK_2RG":
-                frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                self.master_dark = frame
-                Msg.debug(self.__class__.__qualname__, f"Got master dark frame: {frame.file}.")
-            elif frame.tag == "MASTER_GAIN_2RG":
-                frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                self.master_gain = frame
-                Msg.debug(self.__class__.__qualname__, f"Got bias frame: {frame.file}.")
-            elif frame.tag == "MASTER_IMG_FLAT_LAMP_LM":
-                frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                self.master_flat = frame
-                Msg.debug(self.__class__.__qualname__, f"Got flat lamp frame: {frame.file}.")
-            elif frame.tag == "MASTER_FLAT_LAMP":
-                frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                self.master_flat = frame
-                Msg.debug(self.__class__.__qualname__, f"Got flat field frame: {frame.file}.")
-            else:
-                super().categorize_frame(frame)
+            match frame.tag:
+                case "LM_IMAGE_SCI_RAW":
+                    frame.group = cpl.ui.Frame.FrameGroup.RAW
+                    self.raw.append(frame)
+                    Msg.debug(self.__class__.__qualname__, f"Got raw frame: {frame.file}.")
+                case "MASTER_DARK_2RG":
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    self.master_dark = frame
+                    Msg.debug(self.__class__.__qualname__, f"Got master dark frame: {frame.file}.")
+                case "MASTER_GAIN_2RG":
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    self.master_gain = frame
+                    Msg.debug(self.__class__.__qualname__, f"Got bias frame: {frame.file}.")
+                case "MASTER_IMG_FLAT_LAMP_LM":
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    self.master_flat = frame
+                    Msg.debug(self.__class__.__qualname__, f"Got flat lamp frame: {frame.file}.")
+                case "MASTER_FLAT_LAMP":
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    self.master_flat = frame
+                    Msg.debug(self.__class__.__qualname__, f"Got flat field frame: {frame.file}.")
+                case _:
+                    super().categorize_frame(frame)
 
         def verify(self):
             super().verify()
 
-            if self.bias_image:
-                self.bias_image = cpl.core.Image.load(self.bias.file, extension=0)
-                Msg.info(self.__class__.__qualname__, f"Loaded bias frame {self.bias.file!r}.")
-            else:
-                raise cpl.core.DataNotFoundError("No bias frame in frameset.")
+            if self.master_flat is None:
+                raise cpl.core.DataNotFoundError("No master flat frames found in the frameset.")
 
-            try:
-                self.gain = cpl.core.Image.load(self.master_gain.file, extension=0)
-                Msg.info(self.__class__.__qualname__, f"Loaded bias frame {self.master_gain.file!r}.")
-            except:
-                raise cpl.core.DataNotFoundError("No bias frame in frameset.")
+            if self.master_gain is None:
+                raise cpl.core.DataNotFoundError("No master gain frames found in the frameset.")
 
-            if self.flat:
-                self.flat_image = cpl.core.Image.load(self.flat.file, extension=0)
-                Msg.info(self.__class__.__qualname__, f"Loaded flat frame {self.flat.file!r}.")
-            else:
-                raise cpl.core.DataNotFoundError("No flat frame in frameset.")
+            if self.bias is None:
+                raise cpl.core.DataNotFoundError("No bias frame found in the frameset.")
 
     class Product(PipelineProduct):
         tag: str = "OBJECT_REDUCED"
@@ -76,46 +69,55 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
         def output_file_name(self):
             return f"{self.category}.fits"
 
-    def verify_input_frames(self) -> None:
-        """ RawImageProcessor mixin wants to see a bunch of raw frames. """
-        pass
+    def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
+        """ Flat field preparation: subtract bias and normalize it to median 1 """
+        Msg.info(self.__class__.__qualname__, "Preparing flat field")
+        if flat is None:
+            raise RuntimeError("No flat frames found in the frameset.")
+        else:
+            if bias is not None:
+                flat.subtract(bias)
+            median = flat.get_median()
+            return flat.divide_scalar(median)
 
-    def load_input_images(self) -> cpl.core.ImageList:
-        """ Load and the filtered frames from the frameset """
+    def prepare_images(self,
+                       raw_frames: cpl.ui.FrameSet, *,
+                       bias: cpl.core.Image | None = None,
+                       flat: cpl.core.Image | None = None) -> cpl.core.ImageList:
+        prepared_images = cpl.core.ImageList()
 
-        for idx, frame in enumerate(self.input.raw):
-            Msg.info(self.__class__.__qualname__, f"Processing input frame #{idx}: {frame.file!r}...")
+        for index, frame in enumerate(raw_frames):
+            Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
 
-            # Append the loaded image to an image list
-            Msg.debug(self.__class__.__qualname__, f"Loading input image {frame.file}")
-            self.input.raw.append(cpl.core.Image.load(frame.file, extension=1))
+            Msg.debug(self.__class__.__qualname__, "Loading image {}")
+            raw_image = cpl.core.Image.load(frame.file, extension=1)
 
-        return self.input.raw
+            if bias:
+                Msg.debug(self.__class__.__qualname__, "Bias subtracting...")
+                raw_image.subtract(bias)
+
+            if flat:
+                Msg.debug(self.__class__.__qualname__, "Flat fielding...")
+                raw_image.divide(flat)
+
+            prepared_images.append(raw_image)
+
+        return prepared_images
+
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-        method = self.parameters["basic_reduction.stacking.method"].value
-        Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
-        #import pdb; pdb.set_trace()
         Msg.info(self.__class__.__qualname__, f"Starting processing image attibute.")
-        raw_images = self.load_input_images()
+
+        dark = cpl.core.Image.load(self.input.master_dark.file, extension=0)
+        flat = cpl.core.Image.load(self.input.master_flat.file, extension=0)
+        bias = cpl.core.Image.load(self.input.master_bias.file, extension=0)
+        gain = cpl.core.Image.load(self.input.master_gain.file, extension=0)
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector_name}")
 
-        combined_image = cpl.core.ImageList()
-
-        match method:
-            case "add":
-                for idx, image in enumerate(raw_images):
-                    Msg.info(self.__class__.__qualname__, f"Processing frame #{idx}: {self.input.raw[idx].file}...")
-                    combined_image.append(image)
-            case "average":
-                combined_image = raw_images.collapse_create()
-            case "median":
-                combined_image = raw_images.collapse_median_create()
-            case _:
-                Msg.error(self.__class__.__qualname__,
-                          f"Got unknown stacking method {method!r}. Stopping right here!")
-
+        flat = self.prepare_flat(flat, bias)
+        images = self.prepare_images(self.input.raw, flat, bias)
+        combined_image = self.combine_images(images, self.parameters["basic_reduction.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
 
         self.products = {
@@ -125,6 +127,7 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
         }
 
         return self.products
+
     @property
     def detector_name(self) -> str:
         return "2RG"
@@ -220,8 +223,8 @@ class MetisLmBasicReduction(MetisRecipe):
                 self.__class__.__qualname__,
                 f"Got unknown stacking method {method!r}. Stopping right here!",
             )
-            # Since we did not create a product we need to return an empty
-            # ui.FrameSet object. The result frameset product_frames will do,
+            # Since we did not create a product, we need to return an empty
+            # `ui.FrameSet` object. The result frameset product_frames will do,
             # it is still empty here!
             return product_frames
 

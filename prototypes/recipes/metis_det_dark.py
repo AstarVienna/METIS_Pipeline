@@ -48,7 +48,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
         # FITS file is converted on the fly when an image is loaded from
-        # a file. It is however also possible to load images without
+        # a file. It is, however, also possible to load images without
         # performing this conversion.
 
         # Flat field preparation: subtract bias and normalize it to median 1
@@ -66,23 +66,7 @@ class MetisDetDarkImpl(RawImageProcessor):
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         raw_images = self.load_input_images()
-        combined_image = None
-
-        match method:
-            case "add":
-                for idx, image in enumerate(raw_images):
-                    if idx == 0:
-                        combined_image = image
-                    else:
-                        combined_image.add(image)
-            case "average":
-                combined_image = raw_images.collapse_create()
-            case "median":
-                combined_image = raw_images.collapse_median_create()
-            case _:
-                Msg.error(self.__class__.__qualname__,
-                          f"Got unknown stacking method {method!r}. Stopping right here!")
-
+        combined_image = self.combine_images(raw_images, method)
         header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
 
         self.products = {
