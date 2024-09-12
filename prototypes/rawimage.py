@@ -1,6 +1,6 @@
 import dataclasses
 from abc import ABCMeta
-from typing import Any
+from typing import Any, Literal
 
 import cpl
 from cpl.core import Msg
@@ -87,7 +87,9 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
         return output
 
     @classmethod
-    def combine_images(cls, images, method):
+    def combine_images(cls,
+                       images: cpl.core.ImageList,
+                       method: Literal['add'] | Literal['average'] | Literal['median']):
         combined_image = None
         match method:
             case "add":

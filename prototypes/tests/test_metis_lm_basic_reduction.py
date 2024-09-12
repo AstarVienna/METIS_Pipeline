@@ -1,5 +1,4 @@
 import pytest
-import subprocess
 
 import cpl
 from pyesorex.pyesorex import Pyesorex
@@ -23,4 +22,3 @@ class TestMetisLmBasicReduction:
     def test_pyesorex(self, pyesorex):
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
         assert pyesorex.recipe.name == 'metis_lm_basic_reduction'
-
