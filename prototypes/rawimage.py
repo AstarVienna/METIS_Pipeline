@@ -22,7 +22,7 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
-                case tag if tag in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]:
+                case tag if tag in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]: # This will have to be parameterized
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
                     self.raw.append(frame)
                     Msg.debug(self.__class__.__qualname__,
@@ -90,6 +90,11 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
     def combine_images(cls,
                        images: cpl.core.ImageList,
                        method: Literal['add'] | Literal['average'] | Literal['median']):
+        """
+        Basic helper method to combine images using one of `add`, `average` or `median`.
+        Probably not a panacea, but it recurs often enough to warrant being here.
+        """
+        Msg.info(cls.__qualname__, f"Combining images using method {method!r}")
         combined_image = None
         match method:
             case "add":
@@ -105,10 +110,9 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
             case _:
                 Msg.error(cls.__qualname__,
                           f"Got unknown stacking method {method!r}. Stopping right here!")
-                # Maybe this should raise an exception instead?
+                raise ValueError(f"Unknown stacking method {method!r}")
 
         return combined_image
-
 
     @property
     def detector_name(self) -> str:

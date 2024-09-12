@@ -85,31 +85,11 @@ class MetisBaseImgFlatImpl(RawImageProcessor, metaclass=abc.ABCMeta):
 
         # Combine the images in the image list using the image stacking option requested by the user.
         method = self.parameters[f"{self.name}.stacking.method"].value
-        Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
-        combined_image = None
-        raw_images = self.load_input_images()
-
-        match method:
-            case "add":
-                for idx, image in enumerate(raw_images):
-                    if idx == 0:
-                        combined_image = image
-                    else:
-                        combined_image.add(image)
-            case "average":
-                combined_image = raw_images.collapse_create()
-            case "median":
-                combined_image = raw_images.collapse_median_create()
-            case _:
-                Msg.error(
-                    self.__class__.__qualname__,
-                    f"Got unknown stacking method {method!r}. Stopping right here!",
-                )
-
         header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
+        combined_image = self.combine_images(self.load_input_images(), method)
 
         self.products = {
             self.name.upper():

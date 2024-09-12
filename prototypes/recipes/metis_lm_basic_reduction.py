@@ -12,10 +12,9 @@ from prototypes.rawimage import RawImageProcessor
 class MetisLmBasicReductionImpl(RawImageProcessor):
     class Input(RawImageProcessor.Input):
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.master_dark: cpl.ui.Frame | None = None
             self.master_flat: cpl.ui.Frame | None = None
             self.master_gain: cpl.ui.Frame | None = None
-            self.bias: cpl.ui.Frame | None = None
+            self.master_bias: cpl.ui.Frame | None = None
             super().__init__(frameset)
 
         def categorize_frame(self, frame):
@@ -26,12 +25,12 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
                     Msg.debug(self.__class__.__qualname__, f"Got raw frame: {frame.file}.")
                 case "MASTER_DARK_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.master_dark = frame
+                    self.master_bias = frame
                     Msg.debug(self.__class__.__qualname__, f"Got master dark frame: {frame.file}.")
                 case "MASTER_GAIN_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_gain = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got bias frame: {frame.file}.")
+                    Msg.debug(self.__class__.__qualname__, f"Got master gain frame: {frame.file}.")
                 case "MASTER_IMG_FLAT_LAMP_LM":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_flat = frame
@@ -47,13 +46,13 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
             super().verify()
 
             if self.master_flat is None:
-                raise cpl.core.DataNotFoundError("No master flat frames found in the frameset.")
+                raise cpl.core.DataNotFoundError("No master flat frame found in the frameset.")
 
             if self.master_gain is None:
-                raise cpl.core.DataNotFoundError("No master gain frames found in the frameset.")
+                raise cpl.core.DataNotFoundError("No master gain frame found in the frameset.")
 
-            if self.bias is None:
-                raise cpl.core.DataNotFoundError("No bias frame found in the frameset.")
+            if self.master_bias is None:
+                raise cpl.core.DataNotFoundError("No master bias frame found in the frameset.")
 
     class Product(PipelineProduct):
         tag: str = "OBJECT_REDUCED"
