@@ -15,6 +15,12 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
     categorizes them according to their properties and outputs and performs a sanity check or two.
     """
     class Input(PipelineInput):
+        """
+        Generic Input class for RawImageProcessor.
+        Must define `raw_tags`, the set of tags which match files that should be processed by the `RecipeImpl`.
+        """
+        raw_tags: [str] = []
+
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
             self._detector_name = None
@@ -22,13 +28,13 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
-                case tag if tag in ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]: # This will have to be parameterized
+                case tag if tag in self.raw_tags:
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
                     self.raw.append(frame)
                     Msg.debug(self.__class__.__qualname__,
                               f"Got raw frame: {frame.file}.")
                 case _:
-                    # If frame tag is not recognized, let base classes handle it
+                    # If `frame.tag` was not recognized, let base classes handle it
                     super().categorize_frame(frame)
 
         def verify(self) -> None:
@@ -41,13 +47,17 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
             """
             Verify whether all the raw frames originate from the same detector.
 
-            Returns
-            -------
-
+            Raises
+            ------
             KeyError
                 If the detector name is not a valid detector name
             ValueError
                 If dark frames from more than one detector are found
+
+            Returns
+            -------
+            None
+                None on success
             """
             detectors = []
 

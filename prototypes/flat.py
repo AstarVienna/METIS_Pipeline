@@ -54,7 +54,7 @@ class MetisBaseImgFlatImpl(RawImageProcessor, metaclass=abc.ABCMeta):
 
         @property
         def output_file_name(self) -> str:
-            return fr"MASTER_IMG_FLAT_LAMP_{self.band}.fits"
+            return fr"{self.category}.fits"
 
         @property
         def tag(self) -> str:
@@ -63,9 +63,9 @@ class MetisBaseImgFlatImpl(RawImageProcessor, metaclass=abc.ABCMeta):
     def process_images(self) -> Dict[str, PipelineProduct]:
         """
         Do the actual processing of the images.
-        Here, it means loading the input images
-        and a master dark, then subtracting the master dark from every flat,
-        and combining them into a master flat.
+        Here, it means loading the input images and a master dark,
+        then subtracting the master dark from every flat,
+        and finally combining them into a master flat.
         """
         # TODO: Detect detector
         # TODO: Twilight
@@ -92,8 +92,6 @@ class MetisBaseImgFlatImpl(RawImageProcessor, metaclass=abc.ABCMeta):
         combined_image = self.combine_images(self.load_input_images(), method)
 
         self.products = {
-            self.name.upper():
-                self.Product(self, header, combined_image,
-                             file_name=f"MASTER_IMG_FLAT_LAMP_LM.fits"),
+            self.name.upper(): self.Product(self, header, combined_image),
         }
         return self.products

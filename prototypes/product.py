@@ -47,7 +47,7 @@ class PipelineProduct(metaclass=ABCMeta):
         # Every product must have a ESO PRO CATG
         self.properties.append(
             cpl.core.Property(
-                "ESO PRO CATG",         # I suspect this is ESO product category
+                "ESO PRO CATG",         # I suspect this means ESO product category
                 cpl.core.Type.STRING,
                 self.category,
             )
@@ -64,13 +64,13 @@ class PipelineProduct(metaclass=ABCMeta):
         )
 
     def save(self):
-        Msg.info(self.recipe.name, f"Saving product file as {self.output_file_name!r}.")
+        Msg.info(self.__class__.__qualname__, f"Saving product file as {self.output_file_name!r}.")
         cpl.dfs.save_image(
             self.recipe.frameset,       # All frames for the recipe
             self.recipe.parameters,     # The list of input parameters
             self.recipe.frameset,       # The list of raw and calibration frames actually used
                                         # (same as all frames, as we always use all the frames)
-            self.image,                 # Image to be saves
+            self.image,                 # Image to be saved
             self.recipe.name,           # Name of the recipe
             self.properties,            # Properties to be appended
             PIPELINE,
@@ -87,5 +87,3 @@ class PipelineProduct(metaclass=ABCMeta):
     @abstractmethod
     def category(self) -> str:
         """ Every product must define ESO PRO CATG """
-        pass
-

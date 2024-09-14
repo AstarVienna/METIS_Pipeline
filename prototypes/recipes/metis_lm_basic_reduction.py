@@ -11,6 +11,8 @@ from prototypes.rawimage import RawImageProcessor
 
 class MetisLmBasicReductionImpl(RawImageProcessor):
     class Input(RawImageProcessor.Input):
+        raw_tags: [str] = ["LM_IMAGE_SCI_RAW"]
+
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.master_flat: cpl.ui.Frame | None = None
             self.master_gain: cpl.ui.Frame | None = None
@@ -19,10 +21,6 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
 
         def categorize_frame(self, frame):
             match frame.tag:
-                case "LM_IMAGE_SCI_RAW":
-                    frame.group = cpl.ui.Frame.FrameGroup.RAW
-                    self.raw.append(frame)
-                    Msg.debug(self.__class__.__qualname__, f"Got raw frame: {frame.file}.")
                 case "MASTER_DARK_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_bias = frame

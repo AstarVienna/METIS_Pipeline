@@ -1,39 +1,65 @@
 from typing import Any, Dict
 
-from cpl import core
-from cpl import ui
-from cpl import dfs
+import cpl
 from cpl.core import Msg
 
+from prototypes.base import MetisRecipe
+from prototypes.rawimage import RawImageProcessor
+from prototypes.product import PipelineProduct
 
-class MetisDetLinearGain(ui.PyRecipe):
+
+class MetisDetLinGainImpl(RawImageProcessor):
+    class Input(RawImageProcessor.Input):
+        raw_tags: [str] = ["DETLIN_DET_RAW"]
+
+        def categorize_frame(self, frame) -> None:
+            match frame.tag:
+                case "MASTER_DARK_2RG":
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    self.bias_frame = frame
+                    Msg.debug(self.__class__.__qualname__, f"Got dark frame: {frame.file}.")
+                case _:
+                    super().categorize_frame(frame)
+
+            def verify(self) -> None:
+                if self.master_dark is None:
+                    raise cpl.core.DataNotFoundError("No master bias frame found in the frameset.")
+
+                super().verify()
+
+    class Product(PipelineProduct):
+        pass
+
+    def process_images(self) -> Dict[str, PipelineProduct]:
+        ...
+
+
+
+class MetisDetLinearGain(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_lingain"
     _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo"
+    _author = "Kieran Chi-Hung Hugo Martin"
     _email = "hugo@buddelmeijer.nl"
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Measure detector non-linearity and gain"
     _description = (
-        "Prototype to create a METIS Masterdark."
+        "Prototype to create a METIS linear gain map."
     )
 
-    def __init__(self) -> None:
-        super().__init__()
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+           name="metis_det_lingain.stacking.method",
+           context="metis_det_lingain",
+           description="Name of the method used to combine the input images",
+           default="average",
+           alternatives=("add", "average", "median"),
+        ),
+    ])
+    implementation_class = MetisDetLinGainImpl
 
-        # The recipe will have a single enumeration type parameter, which allows the
-        # user to select the frame combination method.
-        self.parameters = ui.ParameterList(
-            (
-                ui.ParameterEnum(
-                   name="metis_det_lingain.stacking.method",
-                   context="metis_det_lingain",
-                   description="Name of the method used to combine the input images",
-                   default="average",
-                   alternatives=("add", "average", "median"),
-                ),
-            )
-        )
+    super().__init__()
+
 
     def run(self, frameset: ui.FrameSet, settings: Dict[str, Any]) -> ui.FrameSet:
         print(42)
@@ -75,7 +101,7 @@ class MetisDetLinearGain(ui.PyRecipe):
         # recipes should rather print a message (also to have it in the log file)
         # and exit gracefully.
         if len(raw_frames) == 0:
-            raise core.DataNotFoundError("No raw frames in frameset.")
+            raise cpl.core.DataNotFoundError("No raw frames in frameset.")
 
         # By default images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a

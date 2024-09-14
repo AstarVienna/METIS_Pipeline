@@ -6,10 +6,16 @@ from cpl.core import Msg
 
 class PipelineInput(metaclass=ABCMeta):
     """
-        The Input class is a singleton subclass for a recipe.
-        It reads and filters the input FrameSet, categorizes the frames by their metadata
+        The `PipelineInput` class is a singleton subclass for a recipe.
+        It reads and filters the input FrameSet,
+        categorizes the frames by their metadata,
         and stores them in its own attributes.
-        It also provides verification mechanisms and methods for extraction of additional information from the frames.
+        It also provides verification mechanisms and methods
+        for extraction of additional information from the frames.
+
+        Every `RecipeImpl` should have exactly one `Input` class (possibly shared by more recipes though).
+        Currently, we define them as internal classes of the corresponding `RecipeImpl`,
+        but that might change if such a need arises.
     """
 
     def __init__(self, frameset: cpl.ui.FrameSet):
@@ -36,7 +42,7 @@ class PipelineInput(metaclass=ABCMeta):
         """
         # If we got all the way up here, no one recognized this frame, warn!
         Msg.warning(self.__class__.__qualname__,
-                    f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring.")
+                    f"Got a frame '{frame.file!r}' with unexpected tag {frame.tag!r}, ignoring.")
 
     @abstractmethod
     def verify(self) -> None:
@@ -51,5 +57,12 @@ class PipelineInput(metaclass=ABCMeta):
             Real world recipes should rather print a message (also to have it in the log file)
             and exit gracefully, but this should be handled upstream in the recipe
             or maybe in the `run` method.
+
+            By default, nothing is done (there is no sensible default behaviour and
+            every child class should implement its own checks).
+
+            Returns
+            -------
+            None
         """
 
