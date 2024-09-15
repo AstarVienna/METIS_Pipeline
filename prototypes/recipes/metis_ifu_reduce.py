@@ -22,16 +22,17 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
     class ProductReduced(PipelineProduct):
         @property
         def category(self) -> str:
-            return fr"IFU_"
+            return rf"IFU_{self.target}_REDUCED"
 
-    def __init__(self):
-        super().__init__()
-        self.products = {
-            rf'IFU_{self.kind}_REDUCED': ProductReduced(),
-            rf'IFU_{self.kind}_BACKGROUND': ProductBackground(),
-            rf'IFU_{self.kind}_REDUCED_CUBE': ProductReducedCube(),
-            rf'IFU_{self.kind}_COMBINED': ProductCombined(),
-        }
+    class ProductBackground(PipelineProduct):
+        @property
+        def category(self) -> str:
+            return rf"IFU_{self.target}_BACKGROUND"
+
+    class ProductReducedCube(PipelineProduct):
+        @property
+        def category(self) -> str:
+            return r"IFU_REDUCED_CUBE"
 
     def load_input_images(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
         for frame in frameset:
@@ -48,6 +49,15 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
             case _:
                 Msg.warning(self.name,
                             f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
+
+    def process_images(self) -> Dict[str, PipelineProduct]:
+        self.products = {
+            rf'IFU_{self.kind}_REDUCED': self.ProductReduced(),
+            rf'IFU_{self.kind}_BACKGROUND': self.ProductBackground(),
+            rf'IFU_{self.kind}_REDUCED_CUBE': self.ProductReducedCube(),
+            rf'IFU_{self.kind}_COMBINED': self.ProductCombined(),
+        }
+        return self.products
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         super().run(frameset, settings)
@@ -118,41 +128,6 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
                 # it is still empty here!
                 return self.product_frames
 
-    def add_product_properties(self) -> None:
-        # Create property list specifying the product tag of the processed image
-        product_properties = core.PropertyList()
-        self.product_properties.append(
-            # TODO: Other detectors
-            # TODO: Twilight
-            core.Property("ESO PRO CATG", core.Type.STRING, r"MASTER_IFU_REDUCE")
-        )
-
-        # Save the result image as a standard pipeline product file
-        Msg.info(self.name, f"Saving product file as {self.output_file!r}.")
-        dfs.save_image(
-            self.frameset,
-            self.parameters,
-            self.frameset,
-            self.combined_image,
-            self.name,
-            self.product_properties,
-            f"demo/{self.version!r}",
-            self.output_file_name,
-            header=header,
-        )
-
-        # Register the created product
-        product_frames.append(
-            ui.Frame(
-                file=output_file,
-                tag="MASTER_IMG_FLAT_LAMP_2RG",
-                group=ui.Frame.FrameGroup.PRODUCT,
-                level=ui.Frame.FrameLevel.FINAL,
-                frameType=ui.Frame.FrameType.IMAGE,
-            )
-        )
-
-        return product_frames
 
     @property
     def detector_name(self) -> str:

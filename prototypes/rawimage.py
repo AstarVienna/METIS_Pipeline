@@ -17,22 +17,24 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
     class Input(PipelineInput):
         """
         Generic Input class for RawImageProcessor.
-        Must define `raw_tags`, the set of tags which match files that should be processed by the `RecipeImpl`.
+        Must define `tags_raw`, the set of tags which match files that should be processed.
         """
-        raw_tags: [str] = []
+        tags_raw: [str] = []
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
             self._detector_name = None
+            if not self.tags_raw:
+                raise NotImplementedError("Raw image processor Input must define `tags_raw`.")
+
             super().__init__(frameset)
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
-                case tag if tag in self.raw_tags:
+                case tag if tag in self.tags_raw:
                     frame.group = cpl.ui.Frame.FrameGroup.RAW
                     self.raw.append(frame)
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Got raw frame: {frame.file}.")
+                    Msg.debug(self.__class__.__qualname__, f"Got raw frame: {frame.file}.")
                 case _:
                     # If `frame.tag` was not recognized, let base classes handle it
                     super().categorize_frame(frame)
@@ -56,7 +58,7 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
 
             Returns
             -------
-            None
+            None:
                 None on success
             """
             detectors = []
@@ -81,7 +83,7 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
 
     def load_input_images(self) -> cpl.core.ImageList:
         """
-        Always load a set of raw images.
+        Always load a set of raw images, as determined by the tags.
         Chi-Hung has warned Martin that this is unnecessary and fills the memory quickly,
         but if we are to use CPL functions, Martin does not see a way around it.
         """
@@ -102,7 +104,7 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
                        method: Literal['add'] | Literal['average'] | Literal['median']):
         """
         Basic helper method to combine images using one of `add`, `average` or `median`.
-        Probably not a panacea, but it recurs often enough to warrant being here.
+        Probably not a universal panacea, but it recurs often enough to warrant being here.
         """
         Msg.info(cls.__qualname__, f"Combining images using method {method!r}")
         combined_image = None
@@ -127,3 +129,4 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
     @property
     def detector_name(self) -> str:
         return self.input._detector_name
+

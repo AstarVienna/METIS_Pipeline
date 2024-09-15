@@ -6,7 +6,7 @@ from prototypes.flat import MetisBaseImgFlatImpl
 
 class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
     class Input(MetisBaseImgFlatImpl.Input):
-        tag_raw = "N_FLAT_LAMP_RAW"
+        tags_raw = "N_FLAT_LAMP_RAW"
         tags_dark = ["MASTER_DARK_2RG"]
 
     class Product(MetisBaseImgFlatImpl.Product):
@@ -27,8 +27,8 @@ class MetisNImgFlat(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-           name="metis_n_img_flat.stacking.method",
-           context="metis_n_img_flat",
+           name=f"{_name}.stacking.method",
+           context=_name,
            description="Name of the method used to combine the input images",
            default="average",
            alternatives=("add", "average", "median"),

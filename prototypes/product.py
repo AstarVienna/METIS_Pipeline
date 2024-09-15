@@ -18,11 +18,11 @@ class PipelineProduct(metaclass=ABCMeta):
     frame_type: cpl.ui.Frame.FrameType = None
 
     def __init__(self,
-                 recipe: 'MetisRecipe',
+                 recipe: 'MetisRecipeImpl',
                  header: cpl.core.PropertyList,
                  image: cpl.core.Image,
                  **kwargs):
-        self.recipe: cpl.ui.PyRecipe = recipe
+        self.recipe: 'MetisRecipeImpl' = recipe
         self.header: cpl.core.PropertyList = header
         self.image: cpl.core.Image = image
         self.properties = cpl.core.PropertyList()
@@ -80,10 +80,22 @@ class PipelineProduct(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def output_file_name(self) -> str:
-        """ Form the output file name (the detector part is variable) """
-
-    @property
-    @abstractmethod
     def category(self) -> str:
         """ Every product must define ESO PRO CATG """
+
+    @property
+    def output_file_name(self) -> str:
+        """ Form the output file name (the detector part is variable) """
+        return f"{self.category}.fits"
+
+
+class DetectorProduct(PipelineProduct, metaclass=ABCMeta):
+    def __init__(self,
+                 recipe: 'MetisRecipe',
+                 header: cpl.core.PropertyList,
+                 image: cpl.core.Image,
+                 *,
+                 detector: str,
+                 **kwargs):
+        super().__init__(recipe, header, image, **kwargs)
+        self.detector = detector

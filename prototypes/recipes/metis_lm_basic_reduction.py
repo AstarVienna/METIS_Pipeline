@@ -11,19 +11,20 @@ from prototypes.rawimage import RawImageProcessor
 
 class MetisLmBasicReductionImpl(RawImageProcessor):
     class Input(RawImageProcessor.Input):
-        raw_tags: [str] = ["LM_IMAGE_SCI_RAW"]
+        tags_raw: [str] = ["LM_IMAGE_SCI_RAW"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.master_flat: cpl.ui.Frame | None = None
             self.master_gain: cpl.ui.Frame | None = None
-            self.master_bias: cpl.ui.Frame | None = None
+            self.master_dark: cpl.ui.Frame | None = None
+            self.linearity: cpl.ui.Frame | None = None
             super().__init__(frameset)
 
         def categorize_frame(self, frame):
             match frame.tag:
                 case "MASTER_DARK_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.master_bias = frame
+                    self.master_dark = frame
                     Msg.debug(self.__class__.__qualname__, f"Got master dark frame: {frame.file}.")
                 case "MASTER_GAIN_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
@@ -37,6 +38,10 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_flat = frame
                     Msg.debug(self.__class__.__qualname__, f"Got flat field frame: {frame.file}.")
+                case "LINEARITY_2RG":
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    self.linearity = frame
+                    Msg.debug(self.__class__.__qualname__, f"Got linearity frame: {frame.file}.")
                 case _:
                     super().categorize_frame(frame)
 
@@ -49,8 +54,12 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
             if self.master_gain is None:
                 raise cpl.core.DataNotFoundError("No master gain frame found in the frameset.")
 
-            if self.master_bias is None:
+            if self.master_dark is None:
                 raise cpl.core.DataNotFoundError("No master bias frame found in the frameset.")
+
+            if self.linearity is None:
+                Msg.warning(self.__class__.__qualname__,
+                            "No optional linearity frame found, not correcting for linearity")
 
     class Product(PipelineProduct):
         tag: str = "OBJECT_REDUCED"
@@ -106,7 +115,7 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
         Msg.info(self.__class__.__qualname__, f"Starting processing image attibute.")
 
         flat = cpl.core.Image.load(self.input.master_flat.file, extension=0)
-        bias = cpl.core.Image.load(self.input.master_bias.file, extension=0)
+        bias = cpl.core.Image.load(self.input.master_dark.file, extension=0)
         gain = cpl.core.Image.load(self.input.master_gain.file, extension=0)
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector_name}")
@@ -118,8 +127,7 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
 
         self.products = {
             fr'OBJECT_REDUCED_{self.detector_name}':
-                self.Product(self, header, combined_image,
-                             detector_name=self.detector_name),
+                self.Product(self, header, combined_image, detector_name=self.detector_name),
         }
 
         return self.products

@@ -11,7 +11,7 @@ from prototypes.rawimage import RawImageProcessor
 
 class MetisDetDarkImpl(RawImageProcessor):
     class Input(RawImageProcessor.Input):
-        raw_tags = ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]
+        tags_raw = ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -19,7 +19,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         def __init__(self,
-                     recipe: 'MetisRecipe',
+                     recipe: 'MetisRecipeImpl',
                      header: cpl.core.PropertyList,
                      image: cpl.core.Image,
                      *,

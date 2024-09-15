@@ -6,8 +6,9 @@ from prototypes.flat import MetisBaseImgFlatImpl
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
     class Input(MetisBaseImgFlatImpl.Input):
-        tag_raw = "LM_FLAT_LAMP_RAW"
+        tags_raw = ["LM_FLAT_LAMP_RAW"]
         tags_dark = ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]
+        # TODO This is probably not consistent with detector name
 
     class Product(MetisBaseImgFlatImpl.Product):
         band: str = "LM"
