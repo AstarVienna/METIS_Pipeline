@@ -1,5 +1,5 @@
 import dataclasses
-from abc import ABCMeta
+from abc import ABC
 from typing import Any, Literal
 
 import cpl
@@ -9,9 +9,9 @@ from prototypes.base import MetisRecipeImpl
 from prototypes.input import PipelineInput
 
 
-class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
+class RawImageProcessor(MetisRecipeImpl, ABC):
     """
-    The RawImageProcessor is a recipe implementation that takes a bunch of raw frames,
+    RawImageProcessor is a recipe implementation that takes a bunch of raw frames,
     categorizes them according to their properties and outputs and performs a sanity check or two.
     """
     class Input(PipelineInput):
@@ -25,8 +25,7 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
             self.raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
             self._detector_name = None
             if not self.tags_raw:
-                raise NotImplementedError("Raw image processor Input must define `tags_raw`.")
-
+                raise NotImplementedError("RawImageProcessor Input must define `tags_raw`.")
             super().__init__(frameset)
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
@@ -81,7 +80,7 @@ class RawImageProcessor(MetisRecipeImpl, metaclass=ABCMeta):
             else:
                 raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
 
-    def load_input_images(self) -> cpl.core.ImageList:
+    def load_raw_images(self) -> cpl.core.ImageList:
         """
         Always load a set of raw images, as determined by the tags.
         Chi-Hung has warned Martin that this is unnecessary and fills the memory quickly,

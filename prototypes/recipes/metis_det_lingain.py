@@ -33,11 +33,11 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         def category(self) -> str:
             return f"BADPIX_MAP_{self.detector}"
 
-    def load_input_images(self) -> cpl.core.ImageList:
+    def load_raw_images(self) -> cpl.core.ImageList:
         pass
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-        raw_images = self.load_input_images()
+        raw_images = self.load_raw_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)
 
@@ -50,9 +50,9 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         #     flat_image.divide_scalar(median)
         header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
 
-        gain_image = combined_image # TODO fix
-        linearity_image = combined_image # TODO fix
-        badpix_map = combined_image # TODO fix
+        gain_image = combined_image         # TODO Actual implementation missing
+        linearity_image = combined_image    # TODO Actual implementation missing
+        badpix_map = combined_image         # TODO Actual implementation missing
 
         self.products = {
             f'MASTER_GAIN_{self.detector_name}':
@@ -100,6 +100,3 @@ class MetisDetLinearGain(MetisRecipe):
         ),
     ])
     implementation_class = MetisDetLinGainImpl
-
-
-

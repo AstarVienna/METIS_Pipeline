@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Dict, Any
 
 import cpl
@@ -8,7 +8,7 @@ from prototypes.product import PipelineProduct
 from prototypes.input import PipelineInput
 
 
-class MetisRecipeImpl(metaclass=ABCMeta):
+class MetisRecipeImpl(ABC):
     """
         An abstract base class for all METIS recipe implementations.
         Contains central flow control and provides abstract methods to be overridden
@@ -63,7 +63,7 @@ class MetisRecipeImpl(metaclass=ABCMeta):
                             f"has no parameter named {key}.")
 
     @abstractmethod
-    def load_input_images(self) -> None:
+    def load_raw_images(self) -> None:
         """ Load the filtered frames from the frameset """
 
     @abstractmethod

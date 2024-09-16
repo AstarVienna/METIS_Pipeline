@@ -1,4 +1,4 @@
-from abc import ABCMeta
+from abc import ABC
 
 import cpl
 from cpl.core import Msg
@@ -6,16 +6,22 @@ from cpl.core import Msg
 from prototypes.rawimage import RawImageProcessor
 
 
-class DarkImageProcessor(RawImageProcessor, metaclass=ABCMeta):
+class DarkImageProcessor(RawImageProcessor, ABC):
+    """
+    DarkImageProcessor is a subclass of RawImageProcessor that also requires a single `master_dark` frame.
+    Provides methods for loading and verification of the dark frame, warns if multiple master darks are provided, etc.
+    """
     class Input(RawImageProcessor.Input):
         tags_dark: [str] = []
 
         def __init__(self, frameset: cpl.ui.FrameSet) -> None:
             self.master_dark: cpl.ui.Frame | None = None
+            if not self.tags_dark:
+                raise NotImplementedError("DarkImageProcessor Input must define `tags_dark`")
             super().__init__(frameset)
 
         def load_dark_frame(self) -> cpl.core.Image:
-            pass
+            return cpl.core.Image(self.master_dark)
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:

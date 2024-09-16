@@ -1,31 +1,26 @@
-from platform import processor
 from typing import Any, Dict
 
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipeImpl, MetisRecipe
+from prototypes.base import MetisRecipe
 from prototypes.product import PipelineProduct
-from prototypes.rawimage import RawImageProcessor
+from prototypes.darkimage import DarkImageProcessor
 
 
-class MetisLmBasicReductionImpl(RawImageProcessor):
-    class Input(RawImageProcessor.Input):
+class MetisLmBasicReductionImpl(DarkImageProcessor):
+    class Input(DarkImageProcessor.Input):
         tags_raw: [str] = ["LM_IMAGE_SCI_RAW"]
+        tags_dark: [str] = ["MASTER_DARK_2RG"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.master_flat: cpl.ui.Frame | None = None
             self.master_gain: cpl.ui.Frame | None = None
-            self.master_dark: cpl.ui.Frame | None = None
             self.linearity: cpl.ui.Frame | None = None
             super().__init__(frameset)
 
         def categorize_frame(self, frame):
             match frame.tag:
-                case "MASTER_DARK_2RG":
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.master_dark = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got master dark frame: {frame.file}.")
                 case "MASTER_GAIN_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_gain = frame
@@ -59,7 +54,7 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
 
             if self.linearity is None:
                 Msg.warning(self.__class__.__qualname__,
-                            "No optional linearity frame found, not correcting for linearity")
+                            "No linearity frame found, not correcting for linearity")
 
     class Product(PipelineProduct):
         tag: str = "OBJECT_REDUCED"
@@ -95,7 +90,7 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
         for index, frame in enumerate(raw_frames):
             Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
 
-            Msg.debug(self.__class__.__qualname__, "Loading image {}")
+            Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file!r}")
             raw_image = cpl.core.Image.load(frame.file, extension=1)
 
             if bias:
@@ -109,7 +104,6 @@ class MetisLmBasicReductionImpl(RawImageProcessor):
             prepared_images.append(raw_image)
 
         return prepared_images
-
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         Msg.info(self.__class__.__qualname__, f"Starting processing image attibute.")

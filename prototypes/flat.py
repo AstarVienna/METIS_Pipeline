@@ -45,7 +45,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):
         # TODO: Detect detector
         # TODO: Twilight
 
-        raw_images = self.load_input_images()
+        raw_images = self.load_raw_images()
         master_dark = cpl.core.Image.load(self.input.master_dark.file, extension=0)
 
         for raw_image in raw_images:
@@ -58,7 +58,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
         header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
-        combined_image = self.combine_images(self.load_input_images(), method)
+        combined_image = self.combine_images(self.load_raw_images(), method)
 
         self.products = {
             self.name.upper(): self.Product(self, header, combined_image),

@@ -32,9 +32,14 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
     class ProductReducedCube(PipelineProduct):
         @property
         def category(self) -> str:
-            return r"IFU_REDUCED_CUBE"
+            return rf"IFU_{self.target}_REDUCED_CUBE"
 
-    def load_input_images(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
+    class ProductCombined(PipelineProduct):
+        @property
+        def category(self) -> str:
+            return rf"IFU_{self.target}_COMBINED"
+
+    def load_raw_images(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
         for frame in frameset:
             match frame.tag:
                 case "MASTER_DARK_IFU":
@@ -62,8 +67,6 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         super().run(frameset, settings)
 
-        master_dark = None
-
         # TODO: Detect detector
         # TODO: Twilight
         output_file = "MASTER_IMG_FLAT_LAMP.fits"
@@ -72,7 +75,7 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
         # recipes should rather print a message (also to have it in the log file)
         # and exit gracefully.
 
-        # By default images are loaded as Python float data. Raw image
+        # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
         # FITS file is converted on the fly when an image is loaded from
         # a file. It is however also possible to load images without
@@ -150,8 +153,6 @@ class MetisIfuReduce(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    # The recipe will have a single enumeration type parameter, which allows the
-    # user to select the frame combination method.
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name="metis_ifu_reduce.telluric",
@@ -161,3 +162,4 @@ class MetisIfuReduce(MetisRecipe):
             alternatives=(True, False),
         ),
     ])
+    implementation_class = MetisIfuReduceImpl
