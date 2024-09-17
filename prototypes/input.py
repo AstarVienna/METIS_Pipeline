@@ -18,14 +18,14 @@ class PipelineInput(metaclass=ABCMeta):
         but that might change if such a need arises.
     """
 
-    def __init__(self, frameset: cpl.ui.FrameSet):
+    def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):
         """ Filter the input frameset, capture frames that match criteria and assign them to own attributes. """
 
         for frame in frameset:
             self.categorize_frame(frame)
 
     @abstractmethod
-    def categorize_frame(self, frame) -> None:
+    def categorize_frame(self, frame: cpl.ui.Frame) -> None:
         """
             Inspect a single frame and assign it to the proper attribute of the class.
             Every child class should try to recognize its own tags first and defer
@@ -66,3 +66,20 @@ class PipelineInput(metaclass=ABCMeta):
             None
         """
 
+    @staticmethod
+    def _verify_frame_present(frame: cpl.ui.Frame, title: str) -> None:
+        """
+        Verification shorthand: if a required frame is not present, i.e. `None`,
+        raise a `cpl.core.DataNotFoundError` with the appropriate message.
+        """
+        if frame is None:
+            raise cpl.core.DataNotFoundError(f"No {title} found in the frameset.")
+
+    @staticmethod
+    def _verify_frameset_not_empty(frameset: cpl.ui.FrameSet, title: str) -> None:
+        """
+        Verification shorthand: if a required frameset is not present or empty,
+        raise a `cpl.core.DataNotFoundError` with the appropriate message.
+        """
+        if frameset is None or len(frameset) == 0:
+            raise cpl.core.DataNotFoundError(f"No {title} found in the frameset.")

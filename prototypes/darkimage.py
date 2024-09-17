@@ -16,9 +16,11 @@ class DarkImageProcessor(RawImageProcessor, ABC):
 
         def __init__(self, frameset: cpl.ui.FrameSet) -> None:
             self.master_dark: cpl.ui.Frame | None = None
+
+            super().__init__(frameset)
+
             if not self.tags_dark:
                 raise NotImplementedError("DarkImageProcessor Input must define `tags_dark`")
-            super().__init__(frameset)
 
         def load_dark_frame(self) -> cpl.core.Image:
             return cpl.core.Image(self.master_dark)
@@ -29,16 +31,15 @@ class DarkImageProcessor(RawImageProcessor, ABC):
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     if self.master_dark is None:
                         Msg.debug(self.__class__.__qualname__,
-                                  f"Got raw frame: {frame.file}.")
+                                  f"Got master dark frame: {frame.file}.")
                     else:
                         Msg.warning(self.__class__.__qualname__,
-                                    f"Got another dark frame: {frame.file}. "
+                                    f"Got another master dark frame: {frame.file}. "
                                     f"Discarding previously loaded {self.master_dark.file}.")
                     self.master_dark = frame
                 case _:
                     super().categorize_frame(frame)
 
         def verify(self) -> None:
-            if self.master_dark is None:
-                raise cpl.core.DataNotFoundError("No master dark frame found in the frameset.")
+            self._verify_frame_present(self.master_dark, "master dark frame")
             super().verify()

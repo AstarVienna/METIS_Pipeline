@@ -78,6 +78,12 @@ class MetisDetDarkImpl(RawImageProcessor):
         return self.products
 
 
+class Metis2rgDarkImpl(Detector2RGMixin, MetisDetDarkImpl):
+    tags_dark = ["DARK_IFU_RAW"]
+
+
+
+
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_dark"

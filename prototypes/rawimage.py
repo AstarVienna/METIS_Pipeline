@@ -24,9 +24,11 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
             self._detector_name = None
+
+            super().__init__(frameset)
+
             if not self.tags_raw:
                 raise NotImplementedError("RawImageProcessor Input must define `tags_raw`.")
-            super().__init__(frameset)
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
@@ -39,9 +41,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
                     super().categorize_frame(frame)
 
         def verify(self) -> None:
-            if len(self.raw) == 0:
-                raise cpl.core.DataNotFoundError("No raw frames found in the frameset.")
-
+            self._verify_frameset_not_empty(self.raw, "raw frames")
             self._verify_same_detector()
 
         def _verify_same_detector(self) -> None:

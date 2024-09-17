@@ -155,7 +155,3 @@ class MetisLmBasicReduction(MetisRecipe):
         )
     ])
     implementation_class = MetisLmBasicReductionImpl
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.implementation = self.implementation_class(self)

@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 import cpl
 from cpl.core import Msg
@@ -6,7 +6,7 @@ from cpl.core import Msg
 PIPELINE = r"METIS"
 
 
-class PipelineProduct(metaclass=ABCMeta):
+class PipelineProduct(ABC):
     """
         The abstract base class for a pipeline product:
         one FITS file with associated headers and a frame
@@ -27,7 +27,7 @@ class PipelineProduct(metaclass=ABCMeta):
         self.image: cpl.core.Image = image
         self.properties = cpl.core.PropertyList()
 
-        # Raise NotImplemented in case a child class forgets to set these
+        # Raise NotImplemented in case a derived class forgot to set a class attribute
         if self.tag is None:
             raise NotImplementedError("Products must define 'tag'")
 
@@ -40,21 +40,27 @@ class PipelineProduct(metaclass=ABCMeta):
         if self.frame_type is None:
             raise NotImplementedError(f"Products must define 'frame_type'")
 
+        if self.category is None:
+            raise NotImplementedError(f"Products must define 'category'")
+
         self.add_properties()
 
     def add_properties(self):
-        """ Hook for adding properties: by default, it does not do anything """
-        # Every product must have a ESO PRO CATG
+        """
+        Hook for adding properties.
+        Currently only adds the ESO PRO CATG to every product,
+        but derived classes are more than welcome to add their own stuff.
+        """
         self.properties.append(
             cpl.core.Property(
-                "ESO PRO CATG",         # I suspect this means ESO product category
+                "ESO PRO CATG",         # Martin suspects this means ESO product category
                 cpl.core.Type.STRING,
                 self.category,
             )
         )
 
     def as_frame(self):
-        """ Return this product as a CPL Frame"""
+        """ Create a CPL Frame from this Product """
         return cpl.ui.Frame(
             file=self.output_file_name,
             tag=self.tag,

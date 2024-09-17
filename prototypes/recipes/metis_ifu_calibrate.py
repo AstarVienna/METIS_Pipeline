@@ -2,56 +2,46 @@ import cpl
 from cpl.core import Msg
 from typing import Any, Dict, Literal
 
-from prototypes.base import MetisRecipeImpl, MetisRecipe
+from prototypes.base import MetisRecipe
+from prototypes.darkimage import DarkImageProcessor
 from prototypes.input import PipelineInput
 from prototypes.product import PipelineProduct
 
 
-class MetisIfuReduceImpl(MetisRecipeImpl):
+class MetisIfuReduceImpl(DarkImageProcessor):
     kind: Literal["SCI"] | Literal["STD"] = None
 
-    class Input(PipelineInput):
+    class Input(DarkImageProcessor.Input):
         tags_raw = ["IFU_SCI_RAW", "IFU_STD_RAW"]
         tags_dark = ["MASTER_DARK_IFU"]
         detector_name = '2RG'
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.ifu_wavecal: cpl.ui.Frame | None = None
-            self.ifu_distortion_table: cpl.ui.Frame | None = None
             super().__init__(frameset)
+            self._detector_name = "2RG"
 
-        def categorize_frame(self, frame: cpl.ui.Frame) -> None:
+        def verify(self):
+            pass
+
+
+    class ProductSciCubeCalibrated(PipelineProduct):
+        category = rf"IFU_SCI_CUBE_CALIBRATED"
+
+    def load_raw_images(self, frameset: cpl.ui.FrameSet) -> cpl.ui.FrameSet:
+        for frame in frameset:
             match frame.tag:
                 case "MASTER_DARK_IFU":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                case _:
-                    Msg.warning(self.name,
-                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
 
-        def verify(self):
-            self._verify_frame_present(self.ifu_wavecal)
-            super().verify()
+        return frameset
 
-    class ProductReduced(PipelineProduct):
-        @property
-        def category(self) -> str:
-            return rf"IFU_{self.target}_REDUCED"
-
-    class ProductBackground(PipelineProduct):
-        @property
-        def category(self) -> str:
-            return rf"IFU_{self.target}_BACKGROUND"
-
-    class ProductReducedCube(PipelineProduct):
-        @property
-        def category(self) -> str:
-            return rf"IFU_{self.target}_REDUCED_CUBE"
-
-    class ProductCombined(PipelineProduct):
-        @property
-        def category(self) -> str:
-            return rf"IFU_{self.target}_COMBINED"
-
+    def categorize_frame(self, frame: cpl.ui.Frame) -> cpl.ui.Frame:
+        match frame.tag:
+            case "MASTER_DARK_IFU":
+                frame.group = cpl.ui.Frame.FrameGroup.CALIB
+            case _:
+                Msg.warning(self.name,
+                            f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         self.products = {
