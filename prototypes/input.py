@@ -67,6 +67,33 @@ class PipelineInput(metaclass=ABCMeta):
         """
 
     @staticmethod
+    def _override_with_warning(stored: cpl.ui.Frame,
+                               found: cpl.ui.Frame,
+                               *,
+                               origin: str,
+                               title: str) -> bool:
+        """
+        Shorthand for loading a calibration frame.
+        If no calibration frame of this type has been found yet, emit a debug message.
+        If more than one is present, emit a warning message (this is not supposed to happen).
+
+        Returns
+        -------
+        bool
+            False on first occurrence of a calibration frame of this class,
+            True on all other occurrences (which is potentially a problem)
+        """
+        if stored is None:
+            Msg.debug(origin,
+                      f"Found a {title} frame: {found.file}.")
+        else:
+            Msg.warning(origin,
+                        f"Found another {title} frame: {found.file}! "
+                        f"Discarding previously loaded {stored.file}.")
+        stored = found
+        return stored
+
+    @staticmethod
     def _verify_frame_present(frame: cpl.ui.Frame, title: str) -> None:
         """
         Verification shorthand: if a required frame is not present, i.e. `None`,

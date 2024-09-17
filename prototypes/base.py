@@ -63,10 +63,6 @@ class MetisRecipeImpl(ABC):
                             f"has no parameter named {key}.")
 
     @abstractmethod
-    def load_raw_images(self) -> None:
-        """ Load the filtered frames from the frameset """
-
-    @abstractmethod
     def process_images(self) -> Dict[str, PipelineProduct]:
         return {}
 

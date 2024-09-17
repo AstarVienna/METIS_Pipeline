@@ -6,14 +6,17 @@ from prototypes.base import MetisRecipeImpl, MetisRecipe
 from prototypes.input import PipelineInput
 from prototypes.product import PipelineProduct
 
+from prototypes.rawimage import RawImageProcessor
+from prototypes.mixins import MasterDarkInputMixin
+from prototypes.mixins.detectors import Detector2rgMixin
 
 class MetisIfuReduceImpl(MetisRecipeImpl):
     kind: Literal["SCI"] | Literal["STD"] = None
 
-    class Input(PipelineInput):
+    class Input(Detector2rgMixin, MasterDarkInputMixin, RawImageProcessor.Input):
         tags_raw = ["IFU_SCI_RAW", "IFU_STD_RAW"]
         tags_dark = ["MASTER_DARK_IFU"]
-        detector_name = '2RG'
+        tags_wavecal = ["IFU_WAVECAL"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.ifu_wavecal: cpl.ui.Frame | None = None
@@ -22,8 +25,6 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
-                case "MASTER_DARK_IFU":
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
                 case _:
                     Msg.warning(self.name,
                                 f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
@@ -67,22 +68,6 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
 
         # TODO: Detect detector
         # TODO: Twilight
-        output_file = "MASTER_IMG_FLAT_LAMP.fits"
-
-        # For demonstration purposes we raise an exception here. Real world
-        # recipes should rather print a message (also to have it in the log file)
-        # and exit gracefully.
-
-        # By default, images are loaded as Python float data. Raw image
-        # data which is usually represented as 2-byte integer data in a
-        # FITS file is converted on the fly when an image is loaded from
-        # a file. It is however also possible to load images without
-        # performing this conversion.
-
-        masterdark_image = cpl.core.Image.load(master_dark.file, extension=0)
-
-        self.header = None
-        raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.input_frames):
             Msg.info(self.name, f"Processing {frame.file!r}...")

@@ -2,6 +2,7 @@ import cpl
 
 from prototypes.base import MetisRecipe
 from prototypes.flat import MetisBaseImgFlatImpl
+from prototypes.mixins import MasterDarkInputMixin
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):

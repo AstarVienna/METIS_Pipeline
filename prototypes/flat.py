@@ -13,14 +13,11 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):
         """
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
-        tags_raw: str = None
-        tags_dark: str = None
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-
         band: str = None
 
         @property

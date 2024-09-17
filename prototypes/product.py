@@ -95,7 +95,7 @@ class PipelineProduct(ABC):
         return f"{self.category}.fits"
 
 
-class DetectorProduct(PipelineProduct, metaclass=ABCMeta):
+class DetectorProduct(PipelineProduct, ABC):
     def __init__(self,
                  recipe: 'MetisRecipe',
                  header: cpl.core.PropertyList,

@@ -8,6 +8,8 @@ from prototypes.base import MetisRecipeImpl, MetisRecipe
 from prototypes.product import PipelineProduct
 from prototypes.rawimage import RawImageProcessor
 
+from prototypes.mixins.detectors import Detector2rgMixin
+
 
 class MetisDetDarkImpl(RawImageProcessor):
     class Input(RawImageProcessor.Input):
@@ -34,11 +36,11 @@ class MetisDetDarkImpl(RawImageProcessor):
         @property
         def output_file_name(self) -> str:
             """ Form the output file name (the detector part is variable here) """
-            return rf"MASTER_DARK_{self.detector_name}.fits"
+            return rf"{self.category}.fits"
 
         @property
         def tag(self) -> str:
-            return rf"MASTER_DARK_{self.detector_name}"
+            return rf"{self.category}"
 
     def __init__(self, recipe):
         self._detector_name = None
@@ -78,7 +80,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         return self.products
 
 
-class Metis2rgDarkImpl(Detector2RGMixin, MetisDetDarkImpl):
+class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):
     tags_dark = ["DARK_IFU_RAW"]
 
 

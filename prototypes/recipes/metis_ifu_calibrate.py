@@ -69,8 +69,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         # a file. It is however also possible to load images without
         # performing this conversion.
 
-        masterdark_image = cpl.core.Image.load(master_dark.file, extension=0)
-
         self.header = None
         raw_images = cpl.core.ImageList()
 
@@ -130,8 +128,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         return f"IFU_SCI_REDUCED"
 
 
-class MetisIfuReduce(MetisRecipe):
-    _name = "metis_ifu_reduce"
+class MetisIfuCalibrate(MetisRecipe):
+    _name = "metis_ifu_calibrate"
     _version = "0.1"
     _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"
@@ -141,13 +139,5 @@ class MetisIfuReduce(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="metis_ifu_reduce.telluric",
-            context="metis_ifu_reduce",
-            description="IFU basic data reduction",
-            default=False,
-            alternatives=(True, False),
-        ),
-    ])
+    parameters = cpl.ui.ParameterList([])
     implementation_class = MetisIfuReduceImpl

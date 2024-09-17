@@ -7,11 +7,13 @@ from prototypes.base import MetisRecipe
 from prototypes.product import PipelineProduct
 from prototypes.darkimage import DarkImageProcessor
 
+from prototypes.mixins.detectors import Detector2rgMixin
 
 class MetisLmBasicReductionImpl(DarkImageProcessor):
-    class Input(DarkImageProcessor.Input):
-        tags_raw: [str] = ["LM_IMAGE_SCI_RAW"]
-        tags_dark: [str] = ["MASTER_DARK_2RG"]
+    class Input(Detector2rgMixin, DarkImageProcessor.Input):
+        tags_raw: [str] = [r"LM_IMAGE_SCI_RAW"]
+        tags_dark: [str] = [fr"MASTER_DARK_2RG"]
+        tags_flat: [str] = [r"MASTER_FLAT_LAMP"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.master_flat: cpl.ui.Frame | None = None
@@ -48,9 +50,6 @@ class MetisLmBasicReductionImpl(DarkImageProcessor):
 
             if self.master_gain is None:
                 raise cpl.core.DataNotFoundError("No master gain frame found in the frameset.")
-
-            if self.master_dark is None:
-                raise cpl.core.DataNotFoundError("No master bias frame found in the frameset.")
 
             if self.linearity is None:
                 Msg.warning(self.__class__.__qualname__,
