@@ -10,7 +10,7 @@ class PersistenceInputMixin(PipelineInput):
         self.persistence_map: cpl.core.Image | None = None
 
         if not self.tags_persistence:
-            raise NotImplementedError(f"Inputs with {self.__class__.__qualname__} must define `tags_dark`")
+            raise NotImplementedError(f"Inputs with {self.__class__.__qualname__} must define `tags_persistence`")
 
         super().__init__(frameset, **kwargs)
 

@@ -80,7 +80,7 @@ class PipelineInput(metaclass=ABCMeta):
         Returns
         -------
         bool
-            False on first occurrence of a calibration frame of this class,
+            False on the first occurrence of a calibration frame of this class,
             True on all other occurrences (which is potentially a problem)
         """
         if stored is None:

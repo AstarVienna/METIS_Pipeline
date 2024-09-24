@@ -2,74 +2,56 @@ import cpl
 from cpl.core import Msg
 from typing import Any, Dict, Literal
 
-from prototypes.base import MetisRecipeImpl, MetisRecipe
-from prototypes.input import PipelineInput
+from prototypes.base import MetisRecipe
+from prototypes.darkimage import DarkImageProcessor
+from prototypes.mixins import PersistenceInputMixin, BadpixMapInputMixin, LinearityInputMixin
+from prototypes.mixins.detectors import Detector2rgMixin
 from prototypes.product import PipelineProduct
 
-from prototypes.rawimage import RawImageProcessor
-from prototypes.mixins import MasterDarkInputMixin
-from prototypes.mixins.detectors import Detector2rgMixin
 
-class MetisIfuReduceImpl(MetisRecipeImpl):
+class MetisIfuDistortionImpl(DarkImageProcessor):
     kind: Literal["SCI"] | Literal["STD"] = None
 
-    class Input(Detector2rgMixin, MasterDarkInputMixin, RawImageProcessor.Input):
-        tags_raw = ["IFU_SCI_RAW", "IFU_STD_RAW"]
+    class Input(Detector2rgMixin, PersistenceInputMixin, LinearityInputMixin, BadpixMapInputMixin,
+                DarkImageProcessor.Input):
+        tags_raw = ["IFU_DISTORTION_RAW"]
         tags_dark = ["MASTER_DARK_IFU"]
-        tags_wavecal = ["IFU_WAVECAL"]
+        tag_pinhole = "PINHOLE_TABLE"
+        detector_name = '2RG'
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.ifu_wavecal: cpl.ui.Frame | None = None
-            self.ifu_distortion_table: cpl.ui.Frame | None = None
+            self.pinhole_table: cpl.ui.Frame | None = None
             super().__init__(frameset)
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
+                case self.tag_pinhole:
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    self.pinhole_table = self._override_with_warning(self.pinhole_table, frame,
+                                                                     origin=self.__class__.__qualname__,
+                                                                     title="pinhole table")
+                    Msg.debug(self.__class__.__qualname__, f"Got a pinhole table frame: {frame.file}.")
                 case _:
-                    Msg.warning(self.name,
-                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
+                    super().categorize_frame(frame)
 
         def verify(self):
-            self._verify_frame_present(self.ifu_wavecal)
-            super().verify()
+            pass
 
-    class ProductReduced(PipelineProduct):
-        @property
-        def category(self) -> str:
-            return rf"IFU_{self.target}_REDUCED"
-
-    class ProductBackground(PipelineProduct):
-        @property
-        def category(self) -> str:
-            return rf"IFU_{self.target}_BACKGROUND"
-
-    class ProductReducedCube(PipelineProduct):
-        @property
-        def category(self) -> str:
-            return rf"IFU_{self.target}_REDUCED_CUBE"
-
-    class ProductCombined(PipelineProduct):
-        @property
-        def category(self) -> str:
-            return rf"IFU_{self.target}_COMBINED"
-
+    class ProductSciCubeCalibrated(PipelineProduct):
+        category = rf"IFU_SCI_CUBE_CALIBRATED"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-
-
         self.products = {
-            rf'IFU_{self.kind}_REDUCED': self.ProductReduced(),
-            rf'IFU_{self.kind}_BACKGROUND': self.ProductBackground(),
-            rf'IFU_{self.kind}_REDUCED_CUBE': self.ProductReducedCube(),
-            rf'IFU_{self.kind}_COMBINED': self.ProductCombined(),
+            product.category: product
+            for product in [self.ProductSciCubeCalibrated]
         }
         return self.products
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         super().run(frameset, settings)
 
-        # TODO: Detect detector
-        # TODO: Twilight
+        self.header = None
+        raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.input_frames):
             Msg.info(self.name, f"Processing {frame.file!r}...")
@@ -89,7 +71,7 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
 
         # Combine the images in the image list using the image stacking
         # option requested by the user.
-        method = self.parameters["metis_lm_img_flat.stacking.method"].value
+        method = self.parameters["metis_ifu_calibrate.stacking.method"].value
         Msg.info(self.name, f"Combining images using method {method!r}")
 
         combined_image = None
@@ -111,7 +93,7 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
                     self.name,
                     f"Got unknown stacking method {method!r}. Stopping right here!",
                 )
-                # Since we did not create a product we need to return an empty
+                # Since we did not create a product, we need to return an empty
                 # ui.FrameSet object. The result frameset product_frames will do,
                 # it is still empty here!
                 return self.product_frames
@@ -127,8 +109,8 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
         return f"IFU_SCI_REDUCED"
 
 
-class MetisIfuReduce(MetisRecipe):
-    _name = "metis_ifu_reduce"
+class MetisIfuCalibrate(MetisRecipe):
+    _name = "metis_ifu_calibrate"
     _version = "0.1"
     _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"
@@ -138,13 +120,5 @@ class MetisIfuReduce(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="metis_ifu_reduce.telluric",
-            context="metis_ifu_reduce",
-            description="IFU basic data reduction",
-            default=False,
-            alternatives=(True, False),
-        ),
-    ])
-    implementation_class = MetisIfuReduceImpl
+    parameters = cpl.ui.ParameterList([])
+    implementation_class = MetisIfuDistortionImpl
