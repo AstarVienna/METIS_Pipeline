@@ -27,7 +27,7 @@ class PipelineProduct(ABC):
         self.image: cpl.core.Image = image
         self.properties = cpl.core.PropertyList()
 
-        # Raise NotImplemented in case a derived class forgot to set a class attribute
+        # Raise a NotImplementedError in case a derived class forgot to set a class attribute
         if self.tag is None:
             raise NotImplementedError("Products must define 'tag'")
 

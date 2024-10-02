@@ -14,6 +14,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     RawImageProcessor is a recipe implementation that takes a bunch of raw frames,
     categorizes them according to their properties and outputs and performs a sanity check or two.
     """
+
     class Input(PipelineInput):
         """
         Generic Input class for RawImageProcessor.

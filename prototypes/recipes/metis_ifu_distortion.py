@@ -4,7 +4,7 @@ from typing import Any, Dict, Literal
 
 from prototypes.base import MetisRecipe
 from prototypes.darkimage import DarkImageProcessor
-from prototypes.mixins import PersistenceInputMixin, BadpixMapInputMixin, LinearityInputMixin
+from prototypes.mixins import PersistenceInputMixin, BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
 from prototypes.mixins.detectors import Detector2rgMixin
 from prototypes.product import PipelineProduct
 
@@ -12,7 +12,7 @@ from prototypes.product import PipelineProduct
 class MetisIfuDistortionImpl(DarkImageProcessor):
     kind: Literal["SCI"] | Literal["STD"] = None
 
-    class Input(Detector2rgMixin, PersistenceInputMixin, LinearityInputMixin, BadpixMapInputMixin,
+    class Input(Detector2rgMixin, PersistenceInputMixin, LinearityInputMixin, GainMapInputMixin, BadpixMapInputMixin,
                 DarkImageProcessor.Input):
         tags_raw = ["IFU_DISTORTION_RAW"]
         tags_dark = ["MASTER_DARK_IFU"]

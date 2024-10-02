@@ -84,8 +84,6 @@ class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):
     tags_dark = ["DARK_IFU_RAW"]
 
 
-
-
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_dark"

@@ -25,7 +25,9 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
-                case _:
+                case x if x in self.tags_wavecal:
+                    self.wave
+
                     Msg.warning(self.name,
                                 f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
 
@@ -36,26 +38,26 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
     class ProductReduced(PipelineProduct):
         @property
         def category(self) -> str:
-            return rf"IFU_{self.target}_REDUCED"
+            return rf"IFU_{self.kind}_REDUCED"
 
     class ProductBackground(PipelineProduct):
         @property
         def category(self) -> str:
-            return rf"IFU_{self.target}_BACKGROUND"
+            return rf"IFU_{self.kind}_BACKGROUND"
 
     class ProductReducedCube(PipelineProduct):
         @property
         def category(self) -> str:
-            return rf"IFU_{self.target}_REDUCED_CUBE"
+            return rf"IFU_{self.kind}_REDUCED_CUBE"
 
     class ProductCombined(PipelineProduct):
         @property
         def category(self) -> str:
-            return rf"IFU_{self.target}_COMBINED"
+            return rf"IFU_{self.kind}_COMBINED"
 
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-
+        # do something... a lot of something
 
         self.products = {
             rf'IFU_{self.kind}_REDUCED': self.ProductReduced(),
