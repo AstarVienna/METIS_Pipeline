@@ -1,7 +1,23 @@
 import os
 import pytest
+from typing import Type
+
+from pyesorex.pyesorex import Pyesorex
+
+from prototypes.base import MetisRecipeImpl
 
 import cpl
+
+
+@pytest.fixture
+def create_pyesorex():
+    def inner(cls: Type[MetisRecipeImpl]):
+        p = Pyesorex()
+        p.recipe = cls._name
+        return p
+
+    return inner
+
 
 @pytest.fixture
 def sof():

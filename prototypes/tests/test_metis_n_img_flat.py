@@ -4,26 +4,23 @@ import subprocess
 import cpl
 from pyesorex.pyesorex import Pyesorex
 
-from prototypes.recipes.img.metis_n_img_flat import MetisNImgFlat
+from prototypes.recipes.img.metis_n_img_flat import MetisNImgFlat, MetisNImgFlatImpl
+from generic import create_pyesorex
 
-
-@pytest.fixture
-def pyesorex():
-    p = Pyesorex()
-    p.recipe = MetisNImgFlat._name
-    return p
 
 
 class TestRecipe:
     """ A bunch of extremely simple test cases... just to see if it does something """
+    cls = MetisNImgFlat
 
     def test_create(self):
         recipe = MetisNImgFlat()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_pyesorex(self, pyesorex):
-        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
-        assert pyesorex.recipe.name == 'metis_n_img_flat'
+    def test_pyesorex(self, create_pyesorex):
+        p = create_pyesorex(self.cls)
+        assert isinstance(p.recipe, cpl.ui.PyRecipe)
+        assert p.recipe.name == 'metis_n_img_flat'
 
     def test_is_working(self):
         output = subprocess.run(['pyesorex', 'metis_n_img_flat', 'prototypes/sof/masterflat-n.sof',
