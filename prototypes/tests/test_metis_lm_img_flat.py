@@ -4,8 +4,7 @@ import inspect
 import cpl
 from pyesorex.pyesorex import Pyesorex
 
-from prototypes.recipes.metis_lm_img_flat import MetisLmImgFlat, MetisLmImgFlatImpl
-from prototypes.product import PipelineProduct
+from prototypes.recipes.img.metis_lm_img_flat import MetisLmImgFlat, MetisLmImgFlatImpl
 from prototypes.input import PipelineInput
 
 from prototypes.tests.generic import sof

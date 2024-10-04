@@ -71,13 +71,11 @@ class MetisDetDarkImpl(RawImageProcessor):
         combined_image = self.combine_images(raw_images, method)
         header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
 
-        self.products = {
+        return {
             fr'METIS_{self.detector_name}_DARK':
                 self.Product(self, header, combined_image,
                              detector_name=self.detector_name),
         }
-
-        return self.products
 
 
 class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):

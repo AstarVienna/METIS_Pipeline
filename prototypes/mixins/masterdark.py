@@ -1,9 +1,6 @@
 import cpl
 
 from prototypes.input import PipelineInput
-from prototypes.mixins.persistence import PersistenceInputMixin
-from prototypes.mixins.linearity import LinearityInputMixin
-from prototypes.mixins.badpixmap import BadpixMapInputMixin
 
 
 class MasterDarkInputMixin(PipelineInput):

@@ -4,7 +4,7 @@ import subprocess
 import cpl
 from pyesorex.pyesorex import Pyesorex
 
-from prototypes.recipes.metis_n_img_flat import MetisNImgFlat
+from prototypes.recipes.img.metis_n_img_flat import MetisNImgFlat
 
 
 @pytest.fixture

@@ -34,22 +34,21 @@ class MetisRecipeImpl(ABC):
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """
-            The main function of the recipe implementation, mirrors the signature of Recipe.run.
-            All recipe implementations should follow this procedure schema.
+            The main function of the recipe implementation. Mirrors the signature of Recipe.run.
+            All recipe implementations follow this schema (and hence it does not have to be repeated).
         """
 
         try:
             self.frameset = frameset
-            self.import_settings(settings)      # Import and process the provided settings dict
-
-            self.input = self.Input(frameset)   # Create an appropriate Input object
-            self.input.verify()                 # Verify that they are valid (maybe with `schema` too?)
-            self.process_images()               # Do the actual processing
-            self.save_products()                # Save the output products
+            self.import_settings(settings)              # Import and process the provided settings dict
+            self.input = self.Input(frameset)           # Create an appropriate Input object
+            self.input.verify()                         # Verify that they are valid (maybe with `schema` too?)
+            products = self.process_images()            # Do all the actual processing
+            self.save_products(products)                # Save the output products
         except cpl.core.DataNotFoundError as e:
-            Msg.warning(self.__class__.__qualname__, f"Data not found: {e.message}")
+            Msg.error(self.__class__.__qualname__, f"Data not found: {e.message}")
 
-        return self.build_product_frameset()      # Return the output as a pycpl FrameSet
+        return self.build_product_frameset(products)    # Return the output as a pycpl FrameSet
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """ Update the recipe parameters with the values requested by the user """
@@ -64,19 +63,34 @@ class MetisRecipeImpl(ABC):
 
     @abstractmethod
     def process_images(self) -> Dict[str, PipelineProduct]:
+        """
+        The core method of the recipe implementation. It should contain all the processing logic.
+        At its entry point the Input class must be already loaded and verified.
+
+        The basic workflow inside should be as follows:
+
+        1.  Load the actual CPL Images associated with Input frames.
+        2.  Do the preprocessing (dark, bias, flat, ...) as needed
+        3.  Build the output images as specified in the DRLD.
+            Each product should be an instance of the associated Product class.
+        4.  Return a dictionary in the form {tag: Product(...)}
+
+        The resulting products are passed to `save_products()`.
+        """
         return {}
 
-    def save_products(self) -> None:
-        """ Register the created product """
-        for name, product in self.products.items():
+    def save_products(self, products: Dict[str, PipelineProduct]) -> None:
+        """ Save and register the created products """
+        for name, product in products.items():
             Msg.debug(self.__class__.__qualname__, f"Saving {product}")
             product.save()
 
-    def build_product_frameset(self) -> cpl.ui.FrameSet:
+    def build_product_frameset(self, products: Dict[str, PipelineProduct]) -> cpl.ui.FrameSet:
         """ Gather all the products and build a FrameSet from their frames. """
+        Msg.debug(self.__class__.__qualname__, f"Building the product frameset")
         product_frames = cpl.ui.FrameSet()
 
-        for name, product in self.products.items():
+        for name, product in products.items():
             product_frames.append(product.as_frame())
 
         return product_frames
@@ -85,8 +99,8 @@ class MetisRecipeImpl(ABC):
     @abstractmethod
     def detector_name(self) -> str | None:
         """
-        Return the name of the detector that is processed by this recipe.
-        Default is None -- to assist in crashing your precious program.
+            Return the name of the detector that is processed by this recipe.
+            Default is None -- to assist in crashing your precious program.
         """
         return None
 
@@ -94,9 +108,11 @@ class MetisRecipeImpl(ABC):
 class MetisRecipe(cpl.ui.PyRecipe):
     """
         The abstract base class for all METIS recipes.
-        In an ideal world it would also be abstract (metaclass=abc.ABCMeta),
-        but then `pyesorex` would instantiate it on initialization and crash.
-        The _fields must be present but should be overwritten by every child class.
+        In an ideal world it would also be abstract (derived from ABC, or metaclass=abc.ABCMeta),
+        but `pyesorex` wants to instantiate all recipes it finds
+        and would crash with an abstract class.
+        The underscored _fields must be present but should be overwritten
+        by every child class (`pyesorex` actually checks for their presence).
     """
     _name = "metis_abstract_base"
     _version = "0.0.1"
@@ -114,5 +130,8 @@ class MetisRecipe(cpl.ui.PyRecipe):
         self.implementation = self.implementation_class(self)
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-        """ The main method, as required by PyCPL. It just calls the same method in the decoupled implementation. """
+        """
+            The main method, as required by PyCPL.
+            It just calls the same method in the decoupled implementation.
+        """
         return self.implementation.run(frameset, settings)

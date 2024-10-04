@@ -1,11 +1,11 @@
 import cpl
 from cpl.core import Msg
-from typing import Any, Dict, Literal
+from typing import Dict
 
 from prototypes.base import MetisRecipe, MetisRecipeImpl
 from prototypes.input import PipelineInput
 from prototypes.product import PipelineProduct
-from prototypes.recipes.metis_ifu_distortion import MetisIfuDistortionImpl
+from prototypes.recipes.ifu.metis_ifu_distortion import MetisIfuDistortionImpl
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):

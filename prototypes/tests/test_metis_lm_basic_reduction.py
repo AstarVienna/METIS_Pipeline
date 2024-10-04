@@ -2,7 +2,7 @@ import pytest
 
 import cpl
 from pyesorex.pyesorex import Pyesorex
-from prototypes.recipes.metis_lm_basic_reduction import MetisLmBasicReduction
+from prototypes.recipes.img.metis_lm_basic_reduction import MetisLmBasicReduction
 
 
 @pytest.fixture
