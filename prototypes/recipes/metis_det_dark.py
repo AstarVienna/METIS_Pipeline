@@ -47,6 +47,8 @@ class MetisDetDarkImpl(RawImageProcessor):
         super().__init__(recipe)
 
     def process_images(self) -> Dict[str, PipelineProduct]:
+        import pdb ; pdb.set_trace()
+
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
         # FITS file is converted on the fly when an image is loaded from
@@ -103,5 +105,6 @@ class MetisDetDark(MetisRecipe):
             alternatives=("add", "average", "median", "sigclip"),
         ),
     ])
+
     implementation_class = MetisDetDarkImpl
 

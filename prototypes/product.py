@@ -103,5 +103,5 @@ class DetectorProduct(PipelineProduct, ABC):
                  *,
                  detector: str,
                  **kwargs):
-        super().__init__(recipe, header, image, **kwargs)
         self.detector = detector
+        super().__init__(recipe, header, image, **kwargs)

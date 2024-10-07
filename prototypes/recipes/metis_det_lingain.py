@@ -3,7 +3,7 @@ from typing import Any, Dict
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipe
+from prototypes.base import MetisRecipe, MetisRecipeImpl
 from prototypes.rawimage import RawImageProcessor
 from prototypes.darkimage import DarkImageProcessor
 from prototypes.product import PipelineProduct, DetectorProduct
@@ -19,24 +19,46 @@ class MetisDetLinGainImpl(DarkImageProcessor):
             super().__init__(frameset)
 
     class ProductGain(DetectorProduct):
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
         @property
         def category(self) -> str:
             return f"GAIN_MAP_{self.detector}"
+        @property
+        def tag(self) -> str:
+            return rf"{self.category}"
+        
 
     class ProductLinearity(DetectorProduct):
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
         @property
         def category(self) -> str:
             return f"LINEARITY_{self.detector}"
-
+        @property
+        def tag(self) -> str:
+            return rf"{self.category}"
+        
     class ProductBadpixMap(DetectorProduct):
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
         @property
         def category(self) -> str:
             return f"BADPIX_MAP_{self.detector}"
+        @property
+        def tag(self) -> str:
+            return rf"{self.category}"
+        
 
-    def load_raw_images(self) -> cpl.core.ImageList:
-        pass
+    #def load_raw_images(self) -> cpl.core.ImageList:
+    #    pass
 
     def process_images(self) -> Dict[str, PipelineProduct]:
+        #
+
         raw_images = self.load_raw_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)
@@ -54,13 +76,17 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         linearity_image = combined_image    # TODO Actual implementation missing
         badpix_map = combined_image         # TODO Actual implementation missing
 
+        #import pdb ; pdb.set_trace()
         self.products = {
             f'MASTER_GAIN_{self.detector_name}':
-                self.ProductGain(self.recipe, header, gain_image, detector=self.detector_name),
+                self.ProductGain(self, header, gain_image, 
+                                detector=self.detector_name),
             f'LINEARITY_{self.detector_name}':
-                self.ProductLinearity(self.recipe, header, linearity_image, detector=self.detector_name),
+                self.ProductLinearity(self, header, linearity_image, 
+                                detector=self.detector_name),
             f'BADPIX_MAP_{self.detector_name}':
-                self.ProductBadpixMap(self.recipe, header, badpix_map, detector=self.detector_name),
+                self.ProductBadpixMap(self, header, badpix_map, 
+                                detector=self.detector_name),
         }
 
         return self.products
@@ -78,12 +104,13 @@ class MetisDetLinearGain(MetisRecipe):
         "Prototype to create a METIS linear gain map."
     )
 
+
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name="metis_det_lingain.stacking.method",
             context="metis_det_lingain",
             description="Name of the method used to combine the input images",
-            default="average",
+            default="median",
             alternatives=("add", "average", "median"),
         ),
         cpl.ui.ParameterValue(
@@ -99,4 +126,5 @@ class MetisDetLinearGain(MetisRecipe):
             default=0,
         ),
     ])
+
     implementation_class = MetisDetLinGainImpl
