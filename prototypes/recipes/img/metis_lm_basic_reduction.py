@@ -91,7 +91,7 @@ class MetisLmBasicReductionImpl(DarkImageProcessor):
             return flat.divide_scalar(median)
 
     def prepare_images(self,
-                       raw_frames: cpl.ui.FrameSet, *,
+                       raw_frames: cpl.ui.FrameSet,
                        bias: cpl.core.Image | None = None,
                        flat: cpl.core.Image | None = None) -> cpl.core.ImageList:
         prepared_images = cpl.core.ImageList()
@@ -125,7 +125,7 @@ class MetisLmBasicReductionImpl(DarkImageProcessor):
 
 
         flat = self.prepare_flat(flat, bias)
-        images = self.prepare_images(self.input.raw)#, flat, bias)
+        images = self.prepare_images(self.input.raw, flat, bias)
         combined_image = self.combine_images(images, self.parameters["basic_reduction.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
 
