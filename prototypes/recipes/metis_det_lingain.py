@@ -57,8 +57,7 @@ class MetisDetLinGainImpl(DarkImageProcessor):
     #    pass
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-        #
-
+    
         raw_images = self.load_raw_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)

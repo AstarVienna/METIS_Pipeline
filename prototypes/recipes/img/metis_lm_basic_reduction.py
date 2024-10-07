@@ -23,6 +23,14 @@ class MetisLmBasicReductionImpl(DarkImageProcessor):
 
         def categorize_frame(self, frame):
             match frame.tag:
+                case "GAIN_MAP_2RG":
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    self.master_gain = frame
+                    Msg.debug(self.__class__.__qualname__, f"Got master gain frame: {frame.file}.")
+                case "BADPIX_MAP_2RG":
+                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
+                    self.master_badpix = frame
+                    Msg.debug(self.__class__.__qualname__, f"Got master gain frame: {frame.file}.")
                 case "MASTER_GAIN_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_gain = frame
@@ -72,6 +80,8 @@ class MetisLmBasicReductionImpl(DarkImageProcessor):
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
         Msg.info(self.__class__.__qualname__, "Preparing flat field")
+        
+        #import pdb ; pdb.set_trace()
         if flat is None:
             raise RuntimeError("No flat frames found in the frameset.")
         else:
@@ -113,8 +123,9 @@ class MetisLmBasicReductionImpl(DarkImageProcessor):
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector_name}")
 
+
         flat = self.prepare_flat(flat, bias)
-        images = self.prepare_images(self.input.raw, flat, bias)
+        images = self.prepare_images(self.input.raw)#, flat, bias)
         combined_image = self.combine_images(images, self.parameters["basic_reduction.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
 
