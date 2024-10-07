@@ -23,13 +23,15 @@ $ pyesorex --recipes
 
 List of available recipes:
 
-  metis_det_lingain     : Measure detector non-linearity and gain
   metis_det_dark        : Create master dark
   metis_abstract_base   : Abstract-like base class for METIS recipes
+  metis_det_lingain     : Measure detector non-linearity and gain
+  metis_ifu_calibrate   : Calibrate IFU science data
+  metis_ifu_reduce      : Reduce raw science exposures of the IFU.
+  metis_ifu_telluric    : Derive telluric absorption correction and optionally flux calibration
   metis_lm_basic_reduction: Basic science image data processing
-  metis_n_img_flat      : Create master flat for N band detectors
-  basic_science         : Basic science image data processing
   metis_lm_img_flat     : Create master flat for L/M band detectors
+  metis_n_img_flat      : Create master flat for N band detectors
 ```
 
 
@@ -62,7 +64,7 @@ Listing all avaliable processing tasks
 Running one specific recipe
 ```
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark
- edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t basic_reduction
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_basic_reduction
 
 ```
 
