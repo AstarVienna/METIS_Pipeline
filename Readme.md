@@ -76,7 +76,7 @@ Getting report in a better way
 
 Making plots
 ```
-edps -w metis.metis_dark_wkf -i /home/chyan/METIS_Simulations/ESO/output -g > test.dot
+edps -w metis.metis_lm_img_wkf -i /home/chyan/METIS_Simulations/ESO/output -g > test.dot
 dot -T png test.dot > mygraph.png
 ```
 
