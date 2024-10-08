@@ -31,13 +31,23 @@ class PipelineInput(metaclass=ABCMeta):
             Every child class should try to recognize its own tags first and defer
             resolving the unknown ones to the parent class with something like
             ```
+                if frame.tag in self.tags_foo:
+                    self.do_something(frame)
+                else:
+                    super().categorize_frame(frame)
+            ```
+            or, if there are multiple tags to be recognized,
+            ```
                 match frame.tag:
-                    case FOO: do_this()
-                    case BAR: do_that()
-                    case _: super().categorize_frame()
+                    case FOO: do_this(frame)
+                    case BAR: do_that(frame)
+                    case BAZ: do_something_else(frame)
+                    case _: super().categorize_frame(frame)
             ```
 
-            Hence, this method's implementation here only provides the final resolution of unknown tags
+            Due to how super() works in Python, this naturally supports mixin classes.
+            If a frame percolates all the way to the top, none of the mixins nor the final Input class recognized it.
+            Therefore, this method's implementation only provides the final resolution of unknown tags
             (emit a warning) and should **always** be called as a last resort.
         """
         # If we got all the way up here, no one recognized this frame, warn!
@@ -105,7 +115,7 @@ class PipelineInput(metaclass=ABCMeta):
     @staticmethod
     def _verify_frameset_not_empty(frameset: cpl.ui.FrameSet, title: str) -> None:
         """
-        Verification shorthand: if a required frameset is not present or empty,
+        Verification shorthand: if a required frameset is not present or is empty,
         raise a `cpl.core.DataNotFoundError` with the appropriate message.
         """
         if frameset is None or len(frameset) == 0:

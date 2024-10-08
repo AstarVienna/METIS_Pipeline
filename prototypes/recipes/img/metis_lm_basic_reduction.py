@@ -7,13 +7,15 @@ from prototypes.base import MetisRecipe
 from prototypes.product import PipelineProduct
 from prototypes.darkimage import DarkImageProcessor
 
+from prototypes.mixins import BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
 from prototypes.mixins.detectors import Detector2rgMixin
 
 class MetisLmBasicReductionImpl(DarkImageProcessor):
-    class Input(Detector2rgMixin, DarkImageProcessor.Input):
+    class Input(Detector2rgMixin, BadpixMapInputMixin, GainMapInputMixin, LinearityInputMixin, DarkImageProcessor.Input):
         tags_raw: [str] = [r"LM_IMAGE_SCI_RAW"]
-        tags_dark: [str] = [fr"MASTER_DARK_2RG"]
+        tags_dark: [str] = [r"MASTER_DARK_2RG"]
         tags_flat: [str] = [r"MASTER_FLAT_LAMP"]
+        tags_gain: [str] = [r"MASTER_GAIN_2RG"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.master_flat: cpl.ui.Frame | None = None

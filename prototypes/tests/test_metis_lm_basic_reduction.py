@@ -2,14 +2,9 @@ import pytest
 
 import cpl
 from pyesorex.pyesorex import Pyesorex
-from prototypes.recipes.img.metis_lm_basic_reduction import MetisLmBasicReduction
 
-
-@pytest.fixture
-def pyesorex():
-    p = Pyesorex()
-    p.recipe = MetisLmBasicReduction._name
-    return p
+from prototypes.recipes.img.metis_lm_basic_reduction import MetisLmBasicReduction, MetisLmBasicReductionImpl
+from generic import create_pyesorex
 
 
 class TestMetisLmBasicReduction:
@@ -19,6 +14,7 @@ class TestMetisLmBasicReduction:
         recipe = MetisLmBasicReduction()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_pyesorex(self, pyesorex):
+    def test_pyesorex(self, create_pyesorex):
+        pyesorex = create_pyesorex(MetisLmBasicReduction)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
         assert pyesorex.recipe.name == 'metis_lm_basic_reduction'

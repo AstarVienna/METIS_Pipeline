@@ -7,18 +7,33 @@ from prototypes.input import PipelineInput
 from prototypes.product import PipelineProduct
 
 from prototypes.rawimage import RawImageProcessor
-from prototypes.mixins import MasterDarkInputMixin
+from prototypes.mixins import MasterDarkInputMixin, LinearityInputMixin, PersistenceInputMixin
 from prototypes.mixins.detectors import Detector2rgMixin
 
 class MetisIfuReduceImpl(MetisRecipeImpl):
-    kind: Literal["SCI"] | Literal["STD"] = None
+    target: Literal["SCI"] | Literal["STD"] = None
 
-    class Input(Detector2rgMixin, MasterDarkInputMixin, RawImageProcessor.Input):
+    class Input(Detector2rgMixin,
+                LinearityInputMixin,
+                PersistenceInputMixin,
+                MasterDarkInputMixin,
+                RawImageProcessor.Input):
+        """
+            The Input class for Metis IFU reduction. Utilizes InputMixins:
+
+            - Detector2rgMixin, which handles the 2RG detector and substitudes '2RG' for 'det' in tags
+            - LinearityInputMixin, which
+        """
+        # We know which files to handle and how, but we need to specify how to identify them: define tags_something
+        # for every mixin and the class itself.
         tags_raw = ["IFU_SCI_RAW", "IFU_STD_RAW"]
         tags_dark = ["MASTER_DARK_IFU"]
         tags_wavecal = ["IFU_WAVECAL"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
+            """
+                Here we also define all input frames specific for this recipe, except those handled by mixins.
+            """
             self.ifu_wavecal: cpl.ui.Frame | None = None
             self.ifu_distortion_table: cpl.ui.Frame | None = None
             super().__init__(frameset)
@@ -26,44 +41,47 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
                 case x if x in self.tags_wavecal:
-                    self.wave
-
-                    Msg.warning(self.name,
-                                f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
+                    self.ifu_wavecal =
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
 
         def verify(self):
-            self._verify_frame_present(self.ifu_wavecal)
+            """
+                During verification, we see if there is the correct number of frames.
+                Note that mixins and parent methods are called last.
+            """
+            self._verify_frame_present(self.ifu_wavecal, "IFU wavelength calibration")
             super().verify()
 
     class ProductReduced(PipelineProduct):
         @property
         def category(self) -> str:
-            return rf"IFU_{self.kind}_REDUCED"
+            return rf"IFU_{self.target}_REDUCED"
 
     class ProductBackground(PipelineProduct):
         @property
         def category(self) -> str:
-            return rf"IFU_{self.kind}_BACKGROUND"
+            return rf"IFU_{self.target}_BACKGROUND"
 
     class ProductReducedCube(PipelineProduct):
         @property
         def category(self) -> str:
-            return rf"IFU_{self.kind}_REDUCED_CUBE"
+            return rf"IFU_{self.target}_REDUCED_CUBE"
 
     class ProductCombined(PipelineProduct):
         @property
         def category(self) -> str:
-            return rf"IFU_{self.kind}_COMBINED"
+            return rf"IFU_{self.target}_COMBINED"
 
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # do something... a lot of something
 
         self.products = {
-            rf'IFU_{self.kind}_REDUCED': self.ProductReduced(),
-            rf'IFU_{self.kind}_BACKGROUND': self.ProductBackground(),
-            rf'IFU_{self.kind}_REDUCED_CUBE': self.ProductReducedCube(),
-            rf'IFU_{self.kind}_COMBINED': self.ProductCombined(),
+            rf'IFU_{self.target}_REDUCED': self.ProductReduced(),
+            rf'IFU_{self.target}_BACKGROUND': self.ProductBackground(),
+            rf'IFU_{self.target}_REDUCED_CUBE': self.ProductReducedCube(),
+            rf'IFU_{self.target}_COMBINED': self.ProductCombined(),
         }
         return self.products
 
