@@ -2,15 +2,25 @@ import cpl
 
 from prototypes.base import MetisRecipe
 from prototypes.flat import MetisBaseImgFlatImpl
+from prototypes.inputs import PipelineInputSet
+from prototypes.inputs.raw import raw_input, master_dark_input
 
 
 class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
-    class Input(MetisBaseImgFlatImpl.Input):
-        tags_raw = "N_FLAT_LAMP_RAW"
-        tags_dark = ["MASTER_DARK_2RG"]
+    class InputSet(PipelineInputSet):
+        def __init__(self, frameset: cpl.ui.FrameSet = None, **kwargs):
+            self.raw = raw_input(tags=["N_FLAT_LAMP_RAW"])(frameset)
+            self.master_dark = master_dark_input(tags=["MASTER_DARK_{det}"], det="GEO")(frameset)
+            self.inputs = [self.raw, self.master_dark]
+            super().__init__(frameset, **kwargs)
 
     class Product(MetisBaseImgFlatImpl.Product):
         band: str = "N"
+
+    @property
+    def detector_name(self) -> str:
+        return "GEO"
+
 
 
 class MetisNImgFlat(MetisRecipe):

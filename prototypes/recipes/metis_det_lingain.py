@@ -10,7 +10,7 @@ from prototypes.product import PipelineProduct, DetectorProduct
 
 
 class MetisDetLinGainImpl(DarkImageProcessor):
-    class Input(DarkImageProcessor.Input):
+    class InputSet(DarkImageProcessor.InputSet):
         tags_raw: [str] = ["DETLIN_DET_RAW"]
         tags_dark: [str] = ["MASTER_DARK_2RG"]
 

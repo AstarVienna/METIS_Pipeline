@@ -1,10 +1,11 @@
 from typing import Dict, Any
-from schema import Schema
 
 import cpl
 from cpl.core import Msg
 
 from prototypes.base import MetisRecipeImpl, MetisRecipe
+from prototypes.inputs import PipelineInputSet
+from prototypes.inputs.raw import raw_input
 from prototypes.product import PipelineProduct
 from prototypes.rawimage import RawImageProcessor
 
@@ -12,8 +13,15 @@ from prototypes.mixins.detectors import Detector2rgMixin
 
 
 class MetisDetDarkImpl(RawImageProcessor):
-    class Input(RawImageProcessor.Input):
-        tags_raw = ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]
+    @property
+    def detector_name(self) -> str | None:
+        return "2RG"
+
+    class InputSet(PipelineInputSet):
+        def __init__(self, frameset: cpl.ui.FrameSet = None, **kwargs):
+            self.raw = raw_input(tags=["DARK_{det}_RAW"], det="LM")(frameset)
+            self.inputs = [self.raw]
+            super().__init__(frameset, **kwargs)
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -25,13 +33,13 @@ class MetisDetDarkImpl(RawImageProcessor):
                      header: cpl.core.PropertyList,
                      image: cpl.core.Image,
                      *,
-                     detector_name: str, **kwargs):
-            self.detector_name = detector_name
+                     detector: str, **kwargs):
+            self.detector = detector
             super().__init__(recipe, header, image, **kwargs)
 
         @property
         def category(self) -> str:
-            return rf"MASTER_DARK_{self.detector_name}"
+            return rf"MASTER_DARK_{self.detector}"
 
         @property
         def output_file_name(self) -> str:
@@ -70,12 +78,12 @@ class MetisDetDarkImpl(RawImageProcessor):
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         raw_images = self.load_raw_images()
         combined_image = self.combine_images(raw_images, method)
-        header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
+        header = cpl.core.PropertyList.load(self.input.raw.frameset[0].file, 0)
 
         return {
             fr'METIS_{self.detector_name}_DARK':
                 self.Product(self, header, combined_image,
-                             detector_name=self.detector_name),
+                             detector=self.detector_name),
         }
 
 

@@ -11,7 +11,7 @@ from prototypes.mixins import BadpixMapInputMixin, LinearityInputMixin, GainMapI
 from prototypes.mixins.detectors import Detector2rgMixin
 
 class MetisLmBasicReductionImpl(DarkImageProcessor):
-    class Input(Detector2rgMixin, BadpixMapInputMixin, GainMapInputMixin, LinearityInputMixin, DarkImageProcessor.Input):
+    class InputSet(DarkImageProcessor.InputSet):
         tags_raw: [str] = [r"LM_IMAGE_SCI_RAW"]
         tags_dark: [str] = [r"MASTER_DARK_2RG"]
         tags_flat: [str] = [r"MASTER_FLAT_LAMP"]

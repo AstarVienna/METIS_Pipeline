@@ -6,6 +6,9 @@ from prototypes.base import MetisRecipeImpl, MetisRecipe
 from prototypes.input import PipelineInput
 from prototypes.product import PipelineProduct
 
+from prototypes.inputs import PipelineInputSet
+from prototypes.inputs.raw import linearity_input
+
 from prototypes.rawimage import RawImageProcessor
 from prototypes.mixins import MasterDarkInputMixin, LinearityInputMixin, PersistenceInputMixin
 from prototypes.mixins.detectors import Detector2rgMixin
@@ -13,11 +16,18 @@ from prototypes.mixins.detectors import Detector2rgMixin
 class MetisIfuReduceImpl(MetisRecipeImpl):
     target: Literal["SCI"] | Literal["STD"] = None
 
-    class Input(Detector2rgMixin,
-                LinearityInputMixin,
-                PersistenceInputMixin,
-                MasterDarkInputMixin,
-                RawImageProcessor.Input):
+    class InputSet(PipelineInputSet):
+        def __init__(self, frameset: cpl.ui.FrameSet = None, **kwargs):
+            self.linearity = linearity_input(tags=["LINEARITY_IFU"], detector="2RG", required=True)(frameset)
+#        persistence_map: PersistenceMapInput(tags=["PERSISTENCE_MAP"], detector='2RG')
+#        master_dark: MasterDarkInput(tags=["MASTER_DARK_{det}"], detector='2RG')
+#        rsrf: RsrfInput(tags=["RSRF_IFU"])
+#        wavecal: WavecalInput(tags=["IFU_WAVECAL"])
+#        distortion_table: DistortionTableInput(tags=["IFU_DISTORTION_TABLE"])
+#        gain_map: GainMapInput(tags=[""])
+            super().__init__(frameset, **kwargs)
+
+    class InputSet(RawImageProcessor.InputSet):
         """
             The Input class for Metis IFU reduction. Utilizes InputMixins:
 
@@ -41,7 +51,7 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
                 case x if x in self.tags_wavecal:
-                    self.ifu_wavecal =
+                    self.ifu_wavecal = frame
                     Msg.debug(self.__class__.__qualname__,
                               f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
 

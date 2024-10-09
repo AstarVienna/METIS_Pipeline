@@ -12,8 +12,8 @@ from prototypes.product import PipelineProduct
 class MetisIfuDistortionImpl(DarkImageProcessor):
     target: Literal["SCI"] | Literal["STD"] = None
 
-    class Input(Detector2rgMixin, PersistenceInputMixin, LinearityInputMixin, GainMapInputMixin, BadpixMapInputMixin,
-                DarkImageProcessor.Input):
+    class InputSet(Detector2rgMixin, PersistenceInputMixin, LinearityInputMixin, GainMapInputMixin, BadpixMapInputMixin,
+                DarkImageProcessor.InputSet):
         tags_raw = ["IFU_DISTORTION_RAW"]
         tags_dark = ["MASTER_DARK_IFU"]
         tag_pinhole = "PINHOLE_TABLE"

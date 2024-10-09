@@ -15,7 +15,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     categorizes them according to their properties and outputs and performs a sanity check or two.
     """
 
-    class Input(PipelineInput):
+    class InputSet(PipelineInput):
         """
         Generic Input class for RawImageProcessor.
         Must define `tags_raw`, the set of tags which match files that should be processed.
@@ -89,7 +89,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         """
         output = cpl.core.ImageList()
 
-        for idx, frame in enumerate(self.input.raw):
+        for idx, frame in enumerate(self.input.raw.frameset):
             Msg.info(self.__class__.__qualname__, f"Processing input frame #{idx}: {frame.file!r}...")
 
             # Append the loaded image to an image list

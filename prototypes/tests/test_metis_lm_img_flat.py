@@ -5,7 +5,7 @@ import cpl
 from pyesorex.pyesorex import Pyesorex
 
 from prototypes.recipes.img.metis_lm_img_flat import MetisLmImgFlat, MetisLmImgFlatImpl
-from prototypes.input import PipelineInput
+from prototypes.inputs import PipelineInputSet
 
 from prototypes.tests.generic import sof
 
@@ -41,14 +41,14 @@ class TestRecipe:
 
 class TestInput:
     def test_is_input(self):
-        assert issubclass(MetisLmImgFlatImpl.Input, PipelineInput)
+        assert issubclass(MetisLmImgFlatImpl.InputSet, PipelineInputSet)
 
     def test_is_concrete(self):
-        assert not inspect.isabstract(MetisLmImgFlatImpl.Input)
+        assert not inspect.isabstract(MetisLmImgFlatImpl.InputSet)
 
     def test_can_load(self, sof):
         files = sof("prototypes/sof/masterflat.sof")
-        instance = MetisLmImgFlatImpl.Input(files)
+        instance = MetisLmImgFlatImpl.InputSet(files)
         assert instance.verify() is None
-        assert len(instance.raw) == 1
+        assert len(instance.raw.frameset) == 1
 

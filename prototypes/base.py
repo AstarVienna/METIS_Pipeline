@@ -5,7 +5,7 @@ import cpl
 from cpl.core import Msg
 
 from prototypes.product import PipelineProduct
-from prototypes.input import PipelineInput
+from prototypes.inputs import PipelineInputSet
 
 
 class MetisRecipeImpl(ABC):
@@ -14,7 +14,7 @@ class MetisRecipeImpl(ABC):
         Contains central flow control and provides abstract methods to be overridden
         by particular pipeline recipe implementations.
     """
-    Input = PipelineInput
+    InputSet = PipelineInputSet
     Product = PipelineProduct
 
     # Available parameters are a class variable. This must be present, even if empty.
@@ -38,17 +38,13 @@ class MetisRecipeImpl(ABC):
             All recipe implementations follow this schema (and hence it does not have to be repeated).
         """
 
-        try:
-            self.frameset = frameset
-            self.import_settings(settings)              # Import and process the provided settings dict
-            self.input = self.Input(frameset)           # Create an appropriate Input object
-            self.input.verify()                         # Verify that they are valid (maybe with `schema` too?)
-            products = self.process_images()            # Do all the actual processing
-            self.save_products(products)                # Save the output products
-        except cpl.core.DataNotFoundError as e:
-            Msg.error(self.__class__.__qualname__, f"Data not found: {e.message}")
-
-        return self.build_product_frameset(products)    # Return the output as a pycpl FrameSet
+        self.frameset = frameset
+        self.import_settings(settings)              # Import and process the provided settings dict
+        self.input = self.InputSet(frameset)        # Create an appropriate Input object
+        self.input.verify()                         # Verify that they are valid (maybe with `schema` too?)
+        products = self.process_images()            # Do all the actual processing
+        self.save_products(products)                # Save the output products
+        return self.build_product_frameset(products)  # Return the output as a pycpl FrameSet
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """ Update the recipe parameters with the values requested by the user """

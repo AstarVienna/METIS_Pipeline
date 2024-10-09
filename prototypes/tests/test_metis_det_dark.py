@@ -4,7 +4,7 @@ import subprocess
 import cpl
 
 from prototypes.product import PipelineProduct
-from prototypes.input import PipelineInput
+from prototypes.inputs import PipelineInputSet
 from prototypes.recipes.metis_det_dark import MetisDetDark, MetisDetDarkImpl
 
 from prototypes.tests.generic import sof
@@ -32,16 +32,16 @@ class TestRecipe:
 
 class TestInput:
     def test_is_input(self):
-        assert issubclass(MetisDetDarkImpl.Input, PipelineInput)
+        assert issubclass(MetisDetDarkImpl.InputSet, PipelineInputSet)
 
     def test_is_concrete(self):
-        assert not inspect.isabstract(MetisDetDarkImpl.Input)
+        assert not inspect.isabstract(MetisDetDarkImpl.InputSet)
 
     def test_can_load(self, sof):
         files = sof("prototypes/sof/masterdark.sof")
-        instance = MetisDetDarkImpl.Input(files)
+        instance = MetisDetDarkImpl.InputSet(files)
         assert instance.verify() is None
-        assert len(instance.raw) == 5
+        assert len(instance.raw.frameset) == 5
 
 
 
