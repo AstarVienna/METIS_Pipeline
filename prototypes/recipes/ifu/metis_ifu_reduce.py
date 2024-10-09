@@ -86,12 +86,11 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
         return self.products
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-        super().run(frameset, settings)
-
-        # TODO: Detect detector
-        # TODO: Twilight
-
-        for idx, frame in enumerate(self.input_frames):
+        """
+        This is obsolete: move functionality to process_iamges
+        and abolish this function (it is calle dbut from root class)
+        """
+        for idx, frame in enumerate(self.raw_frames):
             Msg.info(self.name, f"Processing {frame.file!r}...")
 
             if idx == 0:
@@ -109,8 +108,6 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
 
         # Combine the images in the image list using the image stacking
         # option requested by the user.
-        method = self.parameters["metis_lm_img_flat.stacking.method"].value
-        Msg.info(self.name, f"Combining images using method {method!r}")
 
         combined_image = None
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
