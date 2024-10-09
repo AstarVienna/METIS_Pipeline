@@ -41,7 +41,7 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
             match frame.tag:
                 case x if x in self.tags_wavecal:
-                    self.ifu_wavecal =
+                    self.ifu_wavecal = frame
                     Msg.debug(self.__class__.__qualname__,
                               f"Got frame {frame.file!r} with unexpected tag {frame.tag!r}, ignoring it")
 
