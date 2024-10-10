@@ -7,6 +7,7 @@ from .base import MultiplePipelineInput, SinglePipelineInput
 def raw_input(*, tags: [str] = None, detector: str = None, **kwargs) -> type:
     class RawInput(MultiplePipelineInput):
         _title: str = "raw"
+        _group = cpl.ui.Frame.FrameGroup.RAW
         _tags: str = [tag.format(**kwargs) for tag in tags]
 
     return RawInput

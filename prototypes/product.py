@@ -71,6 +71,7 @@ class PipelineProduct(ABC):
 
     def save(self):
         Msg.info(self.__class__.__qualname__, f"Saving product file as {self.output_file_name!r}.")
+        print(self.recipe.frameset)
         cpl.dfs.save_image(
             self.recipe.frameset,       # All frames for the recipe
             self.recipe.parameters,     # The list of input parameters

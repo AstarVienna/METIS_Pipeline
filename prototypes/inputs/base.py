@@ -10,6 +10,7 @@ class PipelineInput:
     _title: str = None
     _required: bool = True
     _tags: [str] = None
+    _group: str = None
 
     @property
     def title(self):
@@ -22,6 +23,10 @@ class PipelineInput:
     @property
     def required(self):
         return self._required
+
+    @property
+    def group(self):
+        return self._group
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
@@ -90,6 +95,7 @@ class MultiplePipelineInput(PipelineInput):
 
         for frame in frameset:
             if frame.tag in self.tags:
+                frame.group = self.group
                 self.frameset.append(frame)
                 Msg.debug(self.__class__.__qualname__,
                           f"Found a {self.title} frame: {frame.file}.")
