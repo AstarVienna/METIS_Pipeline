@@ -44,24 +44,18 @@ class SinglePipelineInput(PipelineInput):
     """
     A pipeline input that expects a single frame to be present.
     """
-    def __init__(self,
-                 frameset: cpl.ui.FrameSet,
-                 *,
-                 tags: [str] = None,
-                 title: str = None,
-                 required: bool = None,
-                 **kwargs):
+    def __init__(self, frameset: cpl.ui.FrameSet):
         self.frame: cpl.ui.Frame | None = None
-        super().__init__(frameset, tags=tags, title=title, required=required, **kwargs)
+        super().__init__(frameset)
 
         for frame in frameset:
             if frame.tag in self.tags:
                 if self.frame is None:
                     Msg.debug(self.__class__.__qualname__,
-                              f"Found a {title} frame: {frame.file}.")
+                              f"Found a {self.title} frame: {frame.file}.")
                 else:
                     Msg.warning(self.__class__.__qualname__,
-                                f"Found another {title} frame: {frame.file}! "
+                                f"Found another {self.title} frame: {frame.file}! "
                                 f"Discarding previously loaded {self.frame.file}.")
                 self.frame = frame
 
@@ -90,19 +84,15 @@ class MultiplePipelineInput(PipelineInput):
     """
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
-                 *,                             # All further arguments are kw-only
-                 tags: [str] = None,            # List of tags to accept
-                 title: str = None,             # Title of the input (mostly for logging and debugging)
-                 required: bool = True,         # If not required, certain checks might be skipped
                  **kwargs):                     # Any other args
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
-        super().__init__(frameset, tags=tags, title=title, required=required, **kwargs)
+        super().__init__(frameset)
 
         for frame in frameset:
             if frame.tag in self.tags:
                 self.frameset.append(frame)
                 Msg.debug(self.__class__.__qualname__,
-                          f"Found a {title} frame: {frame.file}.")
+                          f"Found a {self.title} frame: {frame.file}.")
             else:
                 print(frame)
 
