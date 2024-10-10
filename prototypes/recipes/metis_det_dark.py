@@ -16,10 +16,10 @@ from prototypes.mixins.detectors import Detector2rgMixin
 
 class MetisDetDarkImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        raw_class = raw_input(tags=["DARK_{det}_RAW"], det="LM")
+        class_raw = raw_input(tags=["DARK_{det}_RAW"], det="LM")
 
         def __init__(self, frameset):
-            self.raw = self.raw_class(frameset)
+            self.raw = self.class_raw(frameset)
             self.inputs = [self.raw]
             super().__init__(frameset)
 

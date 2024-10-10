@@ -7,6 +7,7 @@ from cpl.core import Msg
 
 from prototypes.base import MetisRecipeImpl
 from prototypes.input import PipelineInput
+from prototypes.inputs import PipelineInputSet
 
 
 class RawImageProcessor(MetisRecipeImpl, ABC):
@@ -15,7 +16,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     categorizes them according to their properties and outputs and performs a sanity check or two.
     """
 
-    class Input(PipelineInput):
+    class InputSet(PipelineInputSet):
         """
         Generic Input class for RawImageProcessor.
         Must define `tags_raw`, the set of tags which match files that should be processed.

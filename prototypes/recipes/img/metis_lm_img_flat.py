@@ -2,11 +2,23 @@ import cpl
 
 from prototypes.base import MetisRecipe
 from prototypes.flat import MetisBaseImgFlatImpl
+from prototypes.inputs.raw import raw_input, master_dark_input
 from prototypes.mixins import MasterDarkInputMixin
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
-    class Input(MetisBaseImgFlatImpl.Input):
+
+    class InputSet(MetisBaseImgFlatImpl.InputSet):
+        class_raw = raw_input(tags=["LM_FLAT_{calib}_RAW"], det="LM", calib='LAMP')
+        class_master_dark = master_dark_input(tags="MASTER_DARK_{det}", det="2RG")
+
+        def __init__(self, frameset):
+            self.raw = self.class_raw(frameset)
+            self.master_dark = self.class_master_dark(frameset)
+
+            self.inputs = [self.raw, self.master_dark]
+            super().__init__(frameset)
+
         tags_raw = ["LM_FLAT_LAMP_RAW"]
         tags_dark = ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]
         # TODO This is probably not consistent with detector name
