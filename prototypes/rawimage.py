@@ -38,7 +38,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
                     self.raw.append(frame)
                     Msg.debug(self.__class__.__qualname__, f"Got raw frame: {frame.file}.")
                 case _:
-                    # If `frame.tag` was not recognized, let base classes handle it
+                    # If `frame.tag` was not recognized, percolate up and let base classes handle it
                     super().categorize_frame(frame)
 
         def verify(self) -> None:

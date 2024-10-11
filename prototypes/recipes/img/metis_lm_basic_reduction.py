@@ -10,17 +10,20 @@ from prototypes.darkimage import DarkImageProcessor
 from prototypes.mixins import BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
 from prototypes.mixins.detectors import Detector2rgMixin
 
-class MetisLmBasicReductionImpl(DarkImageProcessor):
+class MetisLmBasicReduceImpl(DarkImageProcessor):
     class Input(Detector2rgMixin, BadpixMapInputMixin, GainMapInputMixin, LinearityInputMixin, DarkImageProcessor.Input):
-        tags_raw: [str] = [r"LM_IMAGE_SCI_RAW"]
+        tags_raw: [str] = [r"LM_IMAGE_SCI_RAW", r"LM_IKMAGE_STD_RAW"]
         tags_dark: [str] = [r"MASTER_DARK_2RG"]
-        tags_flat: [str] = [r"MASTER_FLAT_LAMP"]
-        tags_gain: [str] = [r"MASTER_GAIN_2RG"]
+        tags_flat: [str] = [r"MASTER_IMG_FLAT_LAMP_LM"]
+        tags_gain: [str] = [r"GAIN_MAP_2RG"]
+        tags_linearity: [str] = [r"LINEARITY_2RG"]
+        tags_persistence: [str] = [r"PERSISTENCE_MAP"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.master_flat: cpl.ui.Frame | None = None
             self.master_gain: cpl.ui.Frame | None = None
             self.linearity: cpl.ui.Frame | None = None
+            self.persistence: cpl.ui.Frame | None = None
             super().__init__(frameset)
 
         def categorize_frame(self, frame):
@@ -28,27 +31,33 @@ class MetisLmBasicReductionImpl(DarkImageProcessor):
                 case "GAIN_MAP_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_gain = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got master gain frame: {frame.file}.")
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Got master gain frame: {frame.file}.")
                 case "BADPIX_MAP_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_badpix = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got master gain frame: {frame.file}.")
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Got master gain frame: {frame.file}.")
                 case "MASTER_GAIN_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_gain = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got master gain frame: {frame.file}.")
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Got master gain frame: {frame.file}.")
                 case "MASTER_IMG_FLAT_LAMP_LM":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_flat = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got flat lamp frame: {frame.file}.")
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Got flat lamp frame: {frame.file}.")
                 case "MASTER_FLAT_LAMP":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.master_flat = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got flat field frame: {frame.file}.")
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Got flat field frame: {frame.file}.")
                 case "LINEARITY_2RG":
                     frame.group = cpl.ui.Frame.FrameGroup.CALIB
                     self.linearity = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got linearity frame: {frame.file}.")
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Got linearity frame: {frame.file}.")
                 case _:
                     super().categorize_frame(frame)
 
@@ -166,4 +175,4 @@ class MetisLmBasicReduction(MetisRecipe):
             alternatives=("add", "average", "median"),
         )
     ])
-    implementation_class = MetisLmBasicReductionImpl
+    implementation_class = MetisLmBasicReduceImpl
