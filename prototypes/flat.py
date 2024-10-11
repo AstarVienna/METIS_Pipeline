@@ -5,6 +5,7 @@ import cpl
 from cpl.core import Msg
 
 from prototypes.inputs import PipelineInputSet
+from prototypes.inputs.raw import RawInput, MasterDarkInput
 from prototypes.product import PipelineProduct
 from prototypes.darkimage import DarkImageProcessor
 
@@ -14,6 +15,26 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):
         """
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
+        class RawFlatInput(RawInput):
+            _tags = ["{band}_FLAT_LAMP_RAW", "{band}_FLAT_TWILIGHT_RAW"]
+
+        class DarkFlatInput(MasterDarkInput):
+            """
+            Just the plain MasterDarkInput.
+            """
+            pass
+
+        def __init__(self, frameset):
+            self.raw = self.RawFlatInput(frameset, band=self.band)
+            self.master_dark = self.DarkFlatInput(frameset, det=self.detector)
+
+            self.inputs = [self.raw, self.master_dark]
+
+            for inp in self.inputs:
+                print(inp.tags)
+
+            super().__init__(frameset)
+
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT

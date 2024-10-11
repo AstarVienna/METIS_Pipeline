@@ -8,23 +8,9 @@ from prototypes.mixins import MasterDarkInputMixin
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
-    class InputSet(PipelineInputSet):
-        class RawFlatInput(RawInput):
-            _tags = ["{band}_FLAT_LAMP_RAW", "{band}_FLAT_TWILIGHT_RAW"]
-
-        class DarkFlatInput(MasterDarkInput):
-            pass
-
-        def __init__(self, frameset):
-            self.raw = self.RawFlatInput(frameset, band="LM")
-            self.master_dark = self.DarkFlatInput(frameset, det='2RG')
-
-            self.inputs = [self.raw, self.master_dark]
-            super().__init__(frameset)
-
-        tags_raw = ["LM_FLAT_LAMP_RAW"]
-        tags_dark = ["MASTER_DARK_2RG", "MASTER_DARK_GEO", "MASTER_DARK_IFU"]
-        # TODO This is probably not consistent with detector name
+    class InputSet(MetisBaseImgFlatImpl.InputSet):
+        band = "LM"
+        detector = "2RG"
 
     class Product(MetisBaseImgFlatImpl.Product):
         band: str = "LM"

@@ -24,7 +24,7 @@ class TestRecipe:
 
     def test_direct(self, sof, masterdark):
         instance = Recipe()
-        frameset = cpl.ui.FrameSet(sof(masterdark),)
+        frameset = cpl.ui.FrameSet(sof(masterdark))
         instance.run(frameset, {})
 
     def test_pyesorex(self):

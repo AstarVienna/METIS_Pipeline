@@ -17,6 +17,7 @@ dark:
 
 flat:
 	$(call pyesorex,metis_lm_img_flat,masterflat)
+	$(call pyesorex,metis_n_img_flat,masterflat-n)
 
 reduce:
 	$(call pyesorex,metis_lm_basic_reduction,basicreduction)

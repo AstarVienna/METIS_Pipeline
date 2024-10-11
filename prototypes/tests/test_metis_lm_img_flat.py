@@ -48,7 +48,7 @@ class TestInput:
 
     def test_can_load(self, sof):
         files = sof("prototypes/sof/masterflat.sof")
-        instance = MetisLmImgFlatImpl.Input(files)
+        instance = MetisLmImgFlatImpl.InputSet(files)
         assert instance.verify() is None
-        assert len(instance.raw) == 1
+        assert len(instance.raw.frameset) == 1
 

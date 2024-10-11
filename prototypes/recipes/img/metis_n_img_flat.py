@@ -5,12 +5,13 @@ from prototypes.flat import MetisBaseImgFlatImpl
 
 
 class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
-    class Input(MetisBaseImgFlatImpl.Input):
-        tags_raw = "N_FLAT_LAMP_RAW"
-        tags_dark = ["MASTER_DARK_2RG"]
+    class InputSet(MetisBaseImgFlatImpl.InputSet):
+        band = "N"
+        detector = "GEO"
 
     class Product(MetisBaseImgFlatImpl.Product):
         band: str = "N"
+
 
 
 class MetisNImgFlat(MetisRecipe):
