@@ -4,6 +4,25 @@ from cpl.core import Msg
 from .base import MultiplePipelineInput, SinglePipelineInput
 
 
+class InputFactory:
+    def create(self,
+               name: str,
+               parents: [type],
+               *,
+               tags: [str] = None,
+               **kwargs):
+        tags = [tag.format(**kwargs) for tag in tags]    # Build all accepted tag names from tag prototypes and **kwargs
+
+        # Finally construct and return the new class
+        return type(
+            name,
+            parents,
+            {
+            }
+        )
+
+
+
 def raw_input(*, tags: [str] = None, detector: str = None, **kwargs) -> type:
     class RawInput(MultiplePipelineInput):
         _title: str = "raw"

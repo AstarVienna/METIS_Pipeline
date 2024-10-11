@@ -19,7 +19,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         class_raw = raw_input(tags=["DARK_{det}_RAW"], det="LM")
 
         def __init__(self, frameset):
-            self.raw = self.class_raw(frameset)
+            self.raw = MultiplePipelineInput(tags="DARK_{det}_RAW", group=cpl.ui.Frame.FrameGroup.RAW, det="LM")
             self.inputs = [self.raw]
             super().__init__(frameset)
 

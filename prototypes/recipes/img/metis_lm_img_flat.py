@@ -7,7 +7,6 @@ from prototypes.mixins import MasterDarkInputMixin
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
-
     class InputSet(MetisBaseImgFlatImpl.InputSet):
         class_raw = raw_input(tags=["LM_FLAT_{calib}_RAW"], det="LM", calib='LAMP')
         class_master_dark = master_dark_input(tags="MASTER_DARK_{det}", det="2RG")
