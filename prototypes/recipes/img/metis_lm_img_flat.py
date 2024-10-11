@@ -2,18 +2,22 @@ import cpl
 
 from prototypes.base import MetisRecipe
 from prototypes.flat import MetisBaseImgFlatImpl
-from prototypes.inputs.raw import raw_input, master_dark_input
+from prototypes.inputs import PipelineInputSet
+from prototypes.inputs.raw import RawInput, MasterDarkInput
 from prototypes.mixins import MasterDarkInputMixin
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
-    class InputSet(MetisBaseImgFlatImpl.InputSet):
-        class_raw = raw_input(tags=["LM_FLAT_{calib}_RAW"], det="LM", calib='LAMP')
-        class_master_dark = master_dark_input(tags="MASTER_DARK_{det}", det="2RG")
+    class InputSet(PipelineInputSet):
+        class RawFlatInput(RawInput):
+            _tags = ["{band}_FLAT_LAMP_RAW", "{band}_FLAT_TWILIGHT_RAW"]
+
+        class DarkFlatInput(MasterDarkInput):
+            pass
 
         def __init__(self, frameset):
-            self.raw = self.class_raw(frameset)
-            self.master_dark = self.class_master_dark(frameset)
+            self.raw = self.RawFlatInput(frameset, band="LM")
+            self.master_dark = self.DarkFlatInput(frameset, det='2RG')
 
             self.inputs = [self.raw, self.master_dark]
             super().__init__(frameset)

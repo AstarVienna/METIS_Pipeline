@@ -6,7 +6,7 @@ from cpl.core import Msg
 
 from prototypes.base import MetisRecipeImpl, MetisRecipe
 from prototypes.inputs.base import MultiplePipelineInput
-from prototypes.inputs.raw import raw_input
+from prototypes.inputs.raw import RawInput
 from prototypes.product import PipelineProduct
 from prototypes.inputs import PipelineInputSet
 from prototypes.rawimage import RawImageProcessor
@@ -16,10 +16,13 @@ from prototypes.mixins.detectors import Detector2rgMixin
 
 class MetisDetDarkImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class_raw = raw_input(tags=["DARK_{det}_RAW"], det="LM")
+        class RawDarkInput(Detector2rgMixin, RawInput):
+            _tags = ["DARK_{det}_RAW"]
 
         def __init__(self, frameset):
-            self.raw = MultiplePipelineInput(tags="DARK_{det}_RAW", group=cpl.ui.Frame.FrameGroup.RAW, det="LM")
+            self.raw = self.RawDarkInput(frameset, det="LM")
+            #self.linearity = self.LinearityInput(frameset)
+
             self.inputs = [self.raw]
             super().__init__(frameset)
 

@@ -7,9 +7,10 @@ from cpl.core import Msg
 
 
 class PipelineInput:
-    _title: str = None
-    _required: bool = True
-    _tags: [str] = None
+    _title: str = None                      # No univerrsal title makes sense
+    _required: bool = True                  # By default, inputs are required to be present
+    _tags: [str] = None                     # No universal tags are provided
+    _tag_kwargs: dict[str, str] = None
     _group: str = None
 
     @property
@@ -31,12 +32,16 @@ class PipelineInput:
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
                  **kwargs):
-
         if self.title is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
 
+        self._tags = [tag.format(**kwargs) for tag in self._tags]
+
         if not self.tags:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined tags")
+
+        if not self.group:
+            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group")
 
     @abstractmethod
     def verify(self) -> None:
@@ -49,9 +54,11 @@ class SinglePipelineInput(PipelineInput):
     """
     A pipeline input that expects a single frame to be present.
     """
-    def __init__(self, frameset: cpl.ui.FrameSet):
+    def __init__(self,
+                 frameset: cpl.ui.FrameSet,
+                 **kwargs):
         self.frame: cpl.ui.Frame | None = None
-        super().__init__(frameset)
+        super().__init__(frameset, **kwargs)
 
         for frame in frameset:
             if frame.tag in self.tags:
@@ -91,7 +98,7 @@ class MultiplePipelineInput(PipelineInput):
                  frameset: cpl.ui.FrameSet,
                  **kwargs):                     # Any other args
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
-        super().__init__(frameset)
+        super().__init__(frameset, **kwargs)
 
         for frame in frameset:
             if frame.tag in self.tags:
@@ -99,6 +106,9 @@ class MultiplePipelineInput(PipelineInput):
                 self.frameset.append(frame)
                 Msg.debug(self.__class__.__qualname__,
                           f"Found a {self.title} frame: {frame.file}.")
+            else:
+                Msg.debug(self.__class__.__qualname__,
+                          f"Ignoring {frame.file}, {self.tags}.")
 
 
     def verify(self):

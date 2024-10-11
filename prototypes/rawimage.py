@@ -8,6 +8,7 @@ from cpl.core import Msg
 from prototypes.base import MetisRecipeImpl
 from prototypes.input import PipelineInput
 from prototypes.inputs import PipelineInputSet
+from prototypes.inputs.base import SinglePipelineInput
 
 
 class RawImageProcessor(MetisRecipeImpl, ABC):
@@ -16,20 +17,16 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     categorizes them according to their properties and outputs and performs a sanity check or two.
     """
 
-    class InputSet(PipelineInputSet):
+    class Input(PipelineInput):
         """
         Generic Input class for RawImageProcessor.
         Must define `tags_raw`, the set of tags which match files that should be processed.
         """
-        tags_raw: [str] = []
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.raw: cpl.ui.FrameSet = cpl.ui.FrameSet()
-            self._detector_name = None
-
             super().__init__(frameset)
 
-            if not self.tags_raw:
+            if not self.tags:
                 raise NotImplementedError("RawImageProcessor Input must define `tags_raw`.")
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
@@ -90,7 +87,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         """
         output = cpl.core.ImageList()
 
-        for idx, frame in enumerate(self.input.raw):
+        for idx, frame in enumerate(self.inputset.raw.frameset):
             Msg.info(self.__class__.__qualname__, f"Processing input frame #{idx}: {frame.file!r}...")
 
             # Append the loaded image to an image list
