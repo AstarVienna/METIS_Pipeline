@@ -30,9 +30,14 @@ class PipelineInput:
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
+                 *,
+                 tags: [str] = None,
                  **kwargs):
         if self.title is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
+
+        if tags is not None:
+            self._tags = tags
 
         # Now expand the tags with local context
         try:
@@ -40,6 +45,7 @@ class PipelineInput:
             self._tags = [tag.format(**kwargs) for tag in self._tags]
         except KeyError as e:
             Msg.error(self.__class__.__qualname__, f"Could not substitute tag placeholders: {e}")
+            raise e
 
         # Check if tags are defined...
         if not self.tags:
@@ -69,9 +75,11 @@ class SinglePipelineInput(PipelineInput):
     """
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
+                 *,
+                 tags: [str] = None,
                  **kwargs):
         self.frame: cpl.ui.Frame | None = None
-        super().__init__(frameset, **kwargs)
+        super().__init__(frameset, tags=tags, **kwargs)
 
         for frame in frameset:
             if frame.tag in self.tags:
@@ -109,9 +117,11 @@ class MultiplePipelineInput(PipelineInput):
     """
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
+                 *,
+                 tags: [str] = None,
                  **kwargs):                     # Any other args
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
-        super().__init__(frameset, **kwargs)
+        super().__init__(frameset, tags=tags, **kwargs)
 
         for frame in frameset:
             if frame.tag in self.tags:
@@ -133,11 +143,13 @@ class MultiplePipelineInput(PipelineInput):
         Verification shorthand: if a required frameset is not present or empty,
         raise a `cpl.core.DataNotFoundError` with the appropriate message.
         """
-        if len(self.frameset) == 0:
+        if (count := len(self.frameset)) == 0:
             if self.required:
                 raise cpl.core.DataNotFoundError(f"No {self.title} found in the frameset.")
             else:
                 Msg.debug(f"{self.title} not found but not required.")
+        else:
+            Msg(self.__class__.__qualname__, f"OK: {count} frames found")
 
     def _verify_same_detector(self) -> None:
         """

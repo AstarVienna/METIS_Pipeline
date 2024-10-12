@@ -23,4 +23,5 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         """
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.master_dark = MasterDarkInput()
+            self.master_dark = MasterDarkInput(frameset)
+            super().__init__(frameset)

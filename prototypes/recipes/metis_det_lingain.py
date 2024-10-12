@@ -4,8 +4,11 @@ from typing import Dict
 import cpl
 
 from prototypes.base.impl import MetisRecipe
+from prototypes.inputs.base import MultiplePipelineInput
+from prototypes.inputs.common import RawInput, MasterDarkInput
 from prototypes.prefabricates.darkimage import DarkImageProcessor
 from prototypes.base.product import PipelineProduct, DetectorProduct
+from prototypes.prefabricates.rawimage import RawImageProcessor
 
 
 class LinGainProduct(DetectorProduct, ABC):
@@ -19,8 +22,12 @@ class LinGainProduct(DetectorProduct, ABC):
 
 
 class MetisDetLinGainImpl(DarkImageProcessor):
-    class InputSet(DarkImageProcessor.InputSet):
+    class InputSet(RawImageProcessor.InputSet):
+        detector = '2RG'
+
         def __init__(self, frameset: cpl.ui.FrameSet):
+            self.raw = RawInput(frameset, tags=["DETLIN_DET_RAW"])
+            self.master_dark = MasterDarkInput(frameset, det=self.detector)
             self.bias_frame: cpl.ui.Frame | None = None
             super().__init__(frameset)
 
