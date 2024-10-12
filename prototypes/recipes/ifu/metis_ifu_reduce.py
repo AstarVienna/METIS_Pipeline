@@ -4,25 +4,31 @@ from typing import Any, Dict, Literal
 
 from prototypes.base.impl import MetisRecipeImpl, MetisRecipe
 from prototypes.base.product import PipelineProduct
+from prototypes.inputs.base import SinglePipelineInput
+from prototypes.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
+from prototypes.prefabricates.darkimage import DarkImageProcessor
 
 from prototypes.prefabricates.rawimage import RawImageProcessor
 from prototypes.mixins import MasterDarkInputMixin, LinearityInputMixin, PersistenceInputMixin
 from prototypes.mixins.detectors import Detector2rgMixin
 
+
 class MetisIfuReduceImpl(MetisRecipeImpl):
     target: Literal["SCI"] | Literal["STD"] = None
 
-    class Input(Detector2rgMixin,
-                LinearityInputMixin,
-                PersistenceInputMixin,
-                MasterDarkInputMixin,
-                RawImageProcessor.Input):
+    class InputSet(DarkImageProcessor.InputSet):
         """
             The Input class for Metis IFU reduction. Utilizes InputMixins:
 
             - Detector2rgMixin, which handles the 2RG detector and substitudes '2RG' for 'det' in tags
             - LinearityInputMixin, which
         """
+        detector = "IFU"
+
+        class RawInput(RawInput):
+            _tags = ["IFU_SCI_RAW", "IFU_STD_RAW"]
+
+
         # We know which files to handle and how, but we need to specify how to identify them: define tags_something
         # for every mixin and the class itself.
         tags_raw = ["IFU_SCI_RAW", "IFU_STD_RAW"]
@@ -33,8 +39,12 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
             """
                 Here we also define all input frames specific for this recipe, except those handled by mixins.
             """
-            self.ifu_wavecal: cpl.ui.Frame | None = None
-            self.ifu_distortion_table: cpl.ui.Frame | None = None
+            self.raw = RawInput(frameset, det=self)
+            self.linearity_map = LinearityInput(frameset)
+            self.persistence_map = PersistenceMapInput(frameset)
+            self.master_dark = MasterDarkInput(frameset, det="IFU")
+            self.ifu_wavecal = SinglePipelineInput(frameset, tags=["IFU_WAVECAL"])
+            self.ifu_distortion_table = SinglePipelineInput(frameset, tags=["IFU_DISTORTION_TABLE"])
             super().__init__(frameset)
 
         def categorize_frame(self, frame: cpl.ui.Frame) -> None:
@@ -148,7 +158,6 @@ class MetisIfuReduce(MetisRecipe):
     _version = "0.1"
     _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"
-    _copyright = "GPL-3.0-or-later"
     _synopsis = "Reduce raw science exposures of the IFU."
     _description = (
         "Currently just a skeleton prototype."

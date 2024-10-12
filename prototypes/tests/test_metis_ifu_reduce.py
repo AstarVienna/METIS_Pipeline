@@ -19,6 +19,3 @@ class TestMetisIfuReduce:
         pyesorex = create_pyesorex(Recipe)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
         assert pyesorex.recipe.name == 'metis_ifu_reduce'
-
-    def test_mro(self):
-        assert MasterDarkInputMixin in Impl.Input.__mro__

@@ -10,6 +10,7 @@ from prototypes.recipes.metis_det_lingain import MetisDetLinGain as Recipe, Meti
 
 from prototypes.tests.fixtures import load_frameset, BaseInputTest
 
+
 @pytest.fixture
 def sof():
     return "prototypes/sof/detlin.sof"
@@ -22,9 +23,9 @@ class TestRecipe:
         recipe = Recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_direct(self, load_frameset, masterdark):
+    def test_direct(self, load_frameset, sof):
         instance = Recipe()
-        frameset = cpl.ui.FrameSet(load_frameset(masterdark))
+        frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
 
     def test_pyesorex(self, sof):
@@ -43,7 +44,6 @@ class TestRecipe:
 class TestInput(BaseInputTest):
     impl = Impl
     count = 3
-
 
 
 class TestProduct:

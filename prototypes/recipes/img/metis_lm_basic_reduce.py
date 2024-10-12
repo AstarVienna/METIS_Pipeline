@@ -5,6 +5,7 @@ from cpl.core import Msg
 
 from prototypes.base.impl import MetisRecipe
 from prototypes.base.product import PipelineProduct
+from prototypes.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
 from prototypes.prefabricates.darkimage import DarkImageProcessor
 
 from prototypes.mixins import BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
@@ -12,63 +13,19 @@ from prototypes.mixins.detectors import Detector2rgMixin
 
 class MetisLmBasicReduceImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
-        pass
-#        class MasterFlatInput(FlatInput):
-#            tags: [str] = []
+        detector: str = '2RG'
 
-    class Input(Detector2rgMixin, BadpixMapInputMixin, GainMapInputMixin, LinearityInputMixin, DarkImageProcessor.Input):
         tags_raw: [str] = [r"LM_IMAGE_SCI_RAW"]
         tags_dark: [str] = [r"MASTER_DARK_2RG"]
         tags_flat: [str] = [r"MASTER_FLAT_LAMP"]
         tags_gain: [str] = [r"MASTER_GAIN_2RG"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.master_flat: cpl.ui.Frame | None = None
-            self.master_gain: cpl.ui.Frame | None = None
-            self.linearity: cpl.ui.Frame | None = None
+            self.master_flat = MasterFlatInput(frameset, tags=["MASTER_IMG_FLAT_LAMP_{band}", "MASTER_IMG_FLAT_TWILIGHT_{det}"])
+            self.linearity = LinearityInput(frameset, det=self.detector)
+            self.persistence = PersistenceMapInput(frameset)
+            self.gain_map = GainMapInput(frameset)
             super().__init__(frameset)
-
-        def categorize_frame(self, frame):
-            match frame.tag:
-                case "GAIN_MAP_2RG":
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.master_gain = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got master gain frame: {frame.file}.")
-                case "BADPIX_MAP_2RG":
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.master_badpix = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got master gain frame: {frame.file}.")
-                case "MASTER_GAIN_2RG":
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.master_gain = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got master gain frame: {frame.file}.")
-                case "MASTER_IMG_FLAT_LAMP_LM":
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.master_flat = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got flat lamp frame: {frame.file}.")
-                case "MASTER_FLAT_LAMP":
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.master_flat = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got flat field frame: {frame.file}.")
-                case "LINEARITY_2RG":
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.linearity = frame
-                    Msg.debug(self.__class__.__qualname__, f"Got linearity frame: {frame.file}.")
-                case _:
-                    super().categorize_frame(frame)
-
-        def verify(self):
-            super().verify()
-
-            if self.master_flat is None:
-                raise cpl.core.DataNotFoundError("No master flat frame found in the frameset.")
-
-            if self.master_gain is None:
-                raise cpl.core.DataNotFoundError("No master gain frame found in the frameset.")
-
-            if self.linearity is None:
-                Msg.warning(self.__class__.__qualname__,
-                            "No linearity frame found, not correcting for linearity")
 
     class Product(PipelineProduct):
         tag: str = "OBJECT_REDUCED"

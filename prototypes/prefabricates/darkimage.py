@@ -1,5 +1,8 @@
 from abc import ABC
 
+import cpl.ui
+
+from prototypes.inputs.common import MasterDarkInput
 from prototypes.prefabricates.rawimage import RawImageProcessor
 
 
@@ -16,6 +19,8 @@ class DarkImageProcessor(RawImageProcessor, ABC):
     """
     class InputSet(RawImageProcessor.InputSet):
         """
-        A DarkImageProcessor's Input is just a raw image processor input with a master dark frame mixin.
-        No further actions or methods are required.
+        A DarkImageProcessor's Input is just a raw image processor input with a master dark frame.
         """
+
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            self.master_dark = MasterDarkInput()

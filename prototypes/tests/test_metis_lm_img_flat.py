@@ -4,32 +4,36 @@ import inspect
 import cpl
 from pyesorex.pyesorex import Pyesorex
 
-from prototypes.recipes.img.metis_lm_img_flat import MetisLmImgFlat, MetisLmImgFlatImpl
+from prototypes.recipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
 from prototypes.base.input import RecipeInput
 
-from prototypes.tests.fixtures import load_frameset
+from prototypes.tests.fixtures import create_pyesorex, load_frameset, BaseInputTest
 
 
 @pytest.fixture
-def pyesorex():
-    p = Pyesorex()
-    p.recipe = MetisLmImgFlat._name
-    return p
+def sof():
+    return "prototypes/sof/masterflat.sof"
 
 
 class TestRecipe:
     """ A bunch of extremely simple test cases... just to see if it does something """
 
     def test_create(self):
-        recipe = MetisLmImgFlat()
+        recipe = Recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_pyesorex(self, pyesorex):
+    def test_direct(self, load_frameset, sof):
+        instance = Recipe()
+        frameset = cpl.ui.FrameSet(load_frameset(sof))
+        instance.run(frameset, {})
+
+    def test_pyesorex(self, create_pyesorex):
+        pyesorex = create_pyesorex(Recipe)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
         assert pyesorex.recipe.name == 'metis_lm_img_flat'
 
-    def test_is_working(self):
-        output = subprocess.run(['pyesorex', 'metis_lm_img_flat', 'prototypes/sof/masterflat.sof',
+    def test_is_working(self, sof):
+        output = subprocess.run(['pyesorex', 'metis_lm_img_flat', sof,
                                  '--recipe-dir', 'prototypes/recipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
@@ -39,16 +43,6 @@ class TestRecipe:
                              "CPL_FRAME_GROUP_PRODUCT  CPL_FRAME_LEVEL_FINAL  ")
 
 
-class TestInput:
-    def test_is_input(self):
-        assert issubclass(MetisLmImgFlatImpl.Input, RecipeInput)
-
-    def test_is_concrete(self):
-        assert not inspect.isabstract(MetisLmImgFlatImpl.Input)
-
-    def test_can_load(self, load_frameset):
-        files = load_frameset("prototypes/sof/masterflat.sof")
-        instance = MetisLmImgFlatImpl.InputSet(files)
-        assert instance.verify() is None
-        assert len(instance.raw.frameset) == 1
-
+class TestInput(BaseInputTest):
+    impl = Impl
+    count = 1

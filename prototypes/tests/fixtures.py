@@ -8,14 +8,14 @@ from typing import Type
 from pyesorex.pyesorex import Pyesorex
 
 from prototypes.inputs.inputset import PipelineInputSet
-from prototypes.base.impl import MetisRecipeImpl
+from prototypes.base.impl import MetisRecipe
 
 import cpl
 
 
 @pytest.fixture
 def create_pyesorex():
-    def inner(cls: Type[MetisRecipeImpl]):
+    def inner(cls: Type[MetisRecipe]):
         p = Pyesorex()
         p.recipe = cls._name
         return p

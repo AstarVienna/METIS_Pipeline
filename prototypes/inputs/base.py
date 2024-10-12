@@ -65,7 +65,7 @@ class PipelineInput:
 
 class SinglePipelineInput(PipelineInput):
     """
-    A pipeline input that expects a single frame to be present.
+    A pipeline input that expects a single frame to be present. Also provides methods for basic validation.
     """
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
@@ -146,7 +146,7 @@ class MultiplePipelineInput(PipelineInput):
         Raises
         ------
         KeyError
-            If the detector name is not a valid detector name
+            If the found detector name is not a valid detector name
         ValueError
             If dark frames from more than one detector are found
 

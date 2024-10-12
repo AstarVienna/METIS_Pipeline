@@ -12,20 +12,15 @@ class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
     class Product(MetisBaseImgFlatImpl.Product):
         band: str = "LM"
 
-    @property
-    def detector_name(self) -> str:
-        return "2RG"
-
 
 class MetisLmImgFlat(MetisRecipe):
     # Fill in recipe information
     _name = "metis_lm_img_flat"
     _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo Gilles Martin"
+    _author = ["Kieran Leschinski", "Chi-Hung Yan", "Hugo Buddelmeijer", "Gilles PPL Otten", "Martin Baláž"]
     _email = "hugo@buddelmeijer.nl"
-    _copyright = "GPL-3.0-or-later"
     _synopsis = "Create master flat for L/M band detectors"
-    _description = "Prototype to create a METIS Masterflat."
+    _description = "Prototype to create a METIS Masterflat for L/M band"
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
