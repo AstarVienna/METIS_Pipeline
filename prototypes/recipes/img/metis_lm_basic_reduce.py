@@ -1,16 +1,21 @@
-from typing import Any, Dict
+from typing import Dict
 
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipe
-from prototypes.product import PipelineProduct
-from prototypes.darkimage import DarkImageProcessor
+from prototypes.base.impl import MetisRecipe
+from prototypes.base.product import PipelineProduct
+from prototypes.prefabricates.darkimage import DarkImageProcessor
 
 from prototypes.mixins import BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
 from prototypes.mixins.detectors import Detector2rgMixin
 
-class MetisLmBasicReductionImpl(DarkImageProcessor):
+class MetisLmBasicReduceImpl(DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
+        pass
+#        class MasterFlatInput(FlatInput):
+#            tags: [str] = []
+
     class Input(Detector2rgMixin, BadpixMapInputMixin, GainMapInputMixin, LinearityInputMixin, DarkImageProcessor.Input):
         tags_raw: [str] = [r"LM_IMAGE_SCI_RAW"]
         tags_dark: [str] = [r"MASTER_DARK_2RG"]
@@ -143,7 +148,7 @@ class MetisLmBasicReductionImpl(DarkImageProcessor):
         return "2RG"
 
 
-class MetisLmBasicReduction(MetisRecipe):
+class MetisLmBasicReduce(MetisRecipe):
     # Fill in recipe information
     _name = "metis_lm_basic_reduction"
     _version = "0.1"
@@ -166,4 +171,4 @@ class MetisLmBasicReduction(MetisRecipe):
             alternatives=("add", "average", "median"),
         )
     ])
-    implementation_class = MetisLmBasicReductionImpl
+    implementation_class = MetisLmBasicReduceImpl

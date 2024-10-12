@@ -1,10 +1,10 @@
 import cpl
 from cpl.core import Msg
-from typing import Any, Dict, Literal
+from typing import Dict
 
-from prototypes.base import MetisRecipe, MetisRecipeImpl
-from prototypes.input import PipelineInput
-from prototypes.product import PipelineProduct
+from prototypes.base.impl import MetisRecipe, MetisRecipeImpl
+from prototypes.base.input import RecipeInput
+from prototypes.base.product import PipelineProduct
 
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
@@ -12,7 +12,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
     def detector_name(self) -> str | None:
         return "2RG"
 
-    class Input(PipelineInput):
+    class Input(RecipeInput):
         tag_sci_reduced = "IFU_SCI_REDUCED"
         tag_telluric = "IFU_TELLURIC"
         tag_fluxcal = "FLUXCAL_TAB"

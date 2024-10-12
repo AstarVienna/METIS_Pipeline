@@ -2,11 +2,10 @@ import cpl
 from cpl.core import Msg
 from typing import Any, Dict, Literal
 
-from prototypes.base import MetisRecipeImpl, MetisRecipe
-from prototypes.input import PipelineInput
-from prototypes.product import PipelineProduct
+from prototypes.base.impl import MetisRecipeImpl, MetisRecipe
+from prototypes.base.product import PipelineProduct
 
-from prototypes.rawimage import RawImageProcessor
+from prototypes.prefabricates.rawimage import RawImageProcessor
 from prototypes.mixins import MasterDarkInputMixin, LinearityInputMixin, PersistenceInputMixin
 from prototypes.mixins.detectors import Detector2rgMixin
 

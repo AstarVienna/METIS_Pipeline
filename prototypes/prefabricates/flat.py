@@ -1,16 +1,17 @@
-import abc
+from abc import ABC
 from typing import Dict
 
 import cpl
 from cpl.core import Msg
 
 from prototypes.inputs import PipelineInputSet
-from prototypes.inputs.raw import RawInput, MasterDarkInput
-from prototypes.product import PipelineProduct
-from prototypes.darkimage import DarkImageProcessor
+from prototypes.inputs.common import RawInput, MasterDarkInput
+from prototypes.base.product import PipelineProduct
+
+from prototypes.prefabricates.darkimage import DarkImageProcessor
 
 
-class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):
+class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
     class InputSet(PipelineInputSet):
         """
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
@@ -26,12 +27,9 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):
 
         def __init__(self, frameset):
             self.raw = self.RawFlatInput(frameset, band=self.band)
-            self.master_dark = self.DarkFlatInput(frameset, det=self.detector)
+            self.master_dark = MasterDarkInput(frameset, det=self.detector)
 
             self.inputs = [self.raw, self.master_dark]
-
-            for inp in self.inputs:
-                print(inp.tags)
 
             super().__init__(frameset)
 

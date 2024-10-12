@@ -1,48 +1,43 @@
-from typing import Dict, Any, Literal
-from schema import Schema
+from typing import Dict
 
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipeImpl, MetisRecipe
-from prototypes.inputs.base import MultiplePipelineInput
-from prototypes.inputs.raw import RawInput
-from prototypes.product import PipelineProduct
+from prototypes.base.impl import MetisRecipeImpl, MetisRecipe
+from prototypes.inputs.common import RawInput, LinearityInput
+from prototypes.base.product import PipelineProduct
 from prototypes.inputs import PipelineInputSet
-from prototypes.rawimage import RawImageProcessor
+from prototypes.prefabricates.rawimage import RawImageProcessor
 
 from prototypes.mixins.detectors import Detector2rgMixin
 
 
-class MetisDetDarkImpl(MetisRecipeImpl):
-    class InputSet(PipelineInputSet):
-        class RawDarkInput(Detector2rgMixin, RawInput):
-            _tags = ["DARK_{det}_RAW"]
+class MetisDetDarkImpl(RawImageProcessor):
+    class InputSet(Detector2rgMixin, PipelineInputSet):
+        class RawDarkInput(Detector2rgMixin, RawImageProcessor.InputSet.RawDarkInput):
+            pass
 
-        def __init__(self, frameset):
-            self.raw = self.RawDarkInput(frameset, det="LM")
-            #self.linearity = self.LinearityInput(frameset)
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            self.raw = self.RawDarkInput(frameset, det=self.band)       # ToDo: inconsistent, should be detector "2RG"
+            self.linearity = LinearityInput(frameset, det=self.band)    # ToDO: but files are named with "LM"
 
             self.inputs = [self.raw]
             super().__init__(frameset)
 
-    class Product(PipelineProduct):
+    class Product(Detector2rgMixin, PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         def __init__(self,
-                     recipe: 'MetisRecipeImpl',
+                     recipe: MetisRecipeImpl,
                      header: cpl.core.PropertyList,
-                     image: cpl.core.Image,
-                     *,
-                     detector_name: str, **kwargs):
-            self.detector_name = detector_name
-            super().__init__(recipe, header, image, **kwargs)
+                     image: cpl.core.Image):
+            super().__init__(recipe, header, image)
 
         @property
         def category(self) -> str:
-            return rf"MASTER_DARK_{self.detector_name}"
+            return rf"MASTER_DARK_{self.detector}"
 
         @property
         def output_file_name(self) -> str:
@@ -52,54 +47,6 @@ class MetisDetDarkImpl(MetisRecipeImpl):
         @property
         def tag(self) -> str:
             return rf"{self.category}"
-
-    def __init__(self, recipe):
-        self._detector_name = None
-        super().__init__(recipe)
-
-    def load_raw_images(self) -> cpl.core.ImageList:
-        """
-        Always load a set of raw images, as determined by the tags.
-        Chi-Hung has warned Martin that this is unnecessary and fills the memory quickly,
-        but if we are to use CPL functions, Martin does not see a way around it.
-        """
-        output = cpl.core.ImageList()
-        for idx, frame in enumerate(self.inputset.raw.frameset):
-            Msg.info(self.__class__.__qualname__, f"Processing input frame #{idx}: {frame.file!r}...")
-
-            # Append the loaded image to an image list
-            Msg.debug(self.__class__.__qualname__, f"Loading input image {frame.file}")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
-
-    @classmethod
-    def combine_images(cls,
-                       images: cpl.core.ImageList,
-                       method: Literal['add'] | Literal['average'] | Literal['median']):
-        """
-        Basic helper method to combine images using one of `add`, `average` or `median`.
-        Probably not a universal panacea, but it recurs often enough to warrant being here.
-        """
-        Msg.info(cls.__qualname__, f"Combining images using method {method!r}")
-        combined_image = None
-        match method:
-            case "add":
-                for idx, image in enumerate(images):
-                    if idx == 0:
-                        combined_image = image
-                    else:
-                        combined_image.add(image)
-            case "average":
-                combined_image = images.collapse_create()
-            case "median":
-                combined_image = images.collapse_median_create()
-            case _:
-                Msg.error(cls.__qualname__,
-                          f"Got unknown stacking method {method!r}. Stopping right here!")
-                raise ValueError(f"Unknown stacking method {method!r}")
-
-        return combined_image
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # By default, images are loaded as Python float data. Raw image
@@ -128,8 +75,7 @@ class MetisDetDarkImpl(MetisRecipeImpl):
 
         return {
             fr'METIS_{self.detector_name}_DARK':
-                self.Product(self, header, combined_image,
-                             detector_name=self.detector_name),
+                self.Product(self, header, combined_image),
         }
 
     @property
@@ -143,7 +89,6 @@ class MetisDetDark(MetisRecipe):
     _version = "0.1"
     _author = "Kieran Chi-Hung Hugo Martin"
     _email = "hugo@buddelmeijer.nl"
-    _copyright = "GPL-3.0-or-later"
     _synopsis = "Create master dark"
     _description = (
         "Prototype to create a METIS Masterdark."

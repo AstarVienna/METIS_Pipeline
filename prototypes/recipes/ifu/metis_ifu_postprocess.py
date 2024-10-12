@@ -2,9 +2,9 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
-from prototypes.base import MetisRecipe, MetisRecipeImpl
-from prototypes.input import PipelineInput
-from prototypes.product import PipelineProduct
+from prototypes.base.impl import MetisRecipe, MetisRecipeImpl
+from prototypes.base.input import RecipeInput
+from prototypes.base.product import PipelineProduct
 from prototypes.recipes.ifu.metis_ifu_distortion import MetisIfuDistortionImpl
 
 
@@ -13,7 +13,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
     def detector_name(self) -> str | None:
         return "2RG"
 
-    class Input(PipelineInput):
+    class Input(RecipeInput):
         tag_sci_cube_calibrated = "IFU_SCI_CUBE_CALIBRATED"
         detector_name = '2RG'
 

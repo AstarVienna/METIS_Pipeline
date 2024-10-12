@@ -21,3 +21,4 @@ class LinearityInput(SinglePipelineInput):
     _title: str = "linearity map"
     _tags: [str] = ["LINEARITY_{det}"]
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _required: bool = True

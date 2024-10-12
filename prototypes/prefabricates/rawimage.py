@@ -1,14 +1,13 @@
-import dataclasses
 from abc import ABC
-from typing import Any, Literal
+from typing import Literal
 
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipeImpl
-from prototypes.input import PipelineInput
+from prototypes.base.impl import MetisRecipeImpl
+from prototypes.base.input import RecipeInput
 from prototypes.inputs import PipelineInputSet
-from prototypes.inputs.base import SinglePipelineInput
+from prototypes.inputs.common import RawInput
 
 
 class RawImageProcessor(MetisRecipeImpl, ABC):
@@ -17,7 +16,19 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     categorizes them according to their properties and outputs and performs a sanity check or two.
     """
 
-    class Input(PipelineInput):
+    class InputSet(PipelineInputSet):
+        detector = None
+
+        class RawDarkInput(RawInput):
+            _tags = ["DARK_{det}_RAW"]
+
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            self.raw = self.RawDarkInput(frameset, det=self.detector)
+
+            self.inputs += [self.raw]
+            super().__init__(frameset)
+
+    class Input(RecipeInput):
         """
         Generic Input class for RawImageProcessor.
         Must define `tags_raw`, the set of tags which match files that should be processed.
@@ -43,41 +54,6 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
             self._verify_frameset_not_empty(self.raw, "raw frames")
             self._verify_same_detector()
 
-        def _verify_same_detector(self) -> None:
-            """
-            Verify whether all the raw frames originate from the same detector.
-
-            Raises
-            ------
-            KeyError
-                If the detector name is not a valid detector name
-            ValueError
-                If dark frames from more than one detector are found
-
-            Returns
-            -------
-            None:
-                None on success
-            """
-            detectors = []
-
-            for frame in self.raw:
-                header = cpl.core.PropertyList.load(frame.file, 0)
-                det = header['ESO DPR TECH'].value
-                try:
-                    detectors.append({
-                        'IMAGE,LM': '2RG',
-                        'IMAGE,N': 'GEO',
-                        'IFU': 'IFU',
-                    }[det])
-                except KeyError as e:
-                    raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
-
-            # Check if all the raws have the same detector, if not, we have a problem
-            if len(unique := list(set(detectors))) == 1:
-                self._detector_name = unique[0]
-            else:
-                raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
 
     def load_raw_images(self) -> cpl.core.ImageList:
         """

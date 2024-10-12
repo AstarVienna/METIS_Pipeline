@@ -4,7 +4,7 @@ from typing import Dict, Any
 import cpl
 from cpl.core import Msg
 
-from prototypes.product import PipelineProduct
+from prototypes.base.product import PipelineProduct
 from prototypes.inputs import PipelineInputSet
 
 
@@ -38,10 +38,12 @@ class MetisRecipeImpl(ABC):
             All recipe implementations follow this schema (and hence it does not have to be repeated).
         """
 
+
         try:
             self.frameset = frameset
             self.import_settings(settings)                # Import and process the provided settings dict
             self.inputset = self.InputSet(frameset)       # Create an appropriate Input object
+            self.inputset.print_debug()
             self.inputset.verify()                        # Verify that they are valid (maybe with `schema` too?)
             products = self.process_images()              # Do all the actual processing
             self.save_products(products)                  # Save the output products

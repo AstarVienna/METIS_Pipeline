@@ -5,7 +5,7 @@ import cpl
 from pyesorex.pyesorex import Pyesorex
 
 from prototypes.recipes.img.metis_n_img_flat import MetisNImgFlat, MetisNImgFlatImpl
-from generic import create_pyesorex
+from fixtures import create_pyesorex
 
 
 

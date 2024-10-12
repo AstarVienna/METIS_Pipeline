@@ -1,10 +1,14 @@
+from abc import ABC
+
+import inspect
 import os
 import pytest
 from typing import Type
 
 from pyesorex.pyesorex import Pyesorex
 
-from prototypes.base import MetisRecipeImpl
+from prototypes.inputs.inputset import PipelineInputSet
+from prototypes.base.impl import MetisRecipeImpl
 
 import cpl
 
@@ -20,7 +24,7 @@ def create_pyesorex():
 
 
 @pytest.fixture
-def sof():
+def load_frameset():
     def inner(filename: str):
         frameset = cpl.ui.FrameSet()
         with open(filename) as f:
@@ -31,3 +35,18 @@ def sof():
         return frameset
     return inner
 
+
+class BaseInputTest(ABC):
+    impl = None
+    count = None
+
+    def test_is_input(self):
+        assert issubclass(self.impl.InputSet, PipelineInputSet)
+
+    def test_is_concrete(self):
+        assert not inspect.isabstract(self.impl.InputSet)
+
+    def test_can_load(self, load_frameset, sof):
+        instance = self.impl.InputSet(load_frameset(sof))
+        assert instance.verify() is None
+        assert len(instance.raw.frameset) == self.count

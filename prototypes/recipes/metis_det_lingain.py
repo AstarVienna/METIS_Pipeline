@@ -1,63 +1,45 @@
-from typing import Any, Dict
+from abc import ABCMeta, ABC
+from typing import Dict
 
 import cpl
-from cpl.core import Msg
 
-from prototypes.base import MetisRecipe, MetisRecipeImpl
-from prototypes.rawimage import RawImageProcessor
-from prototypes.darkimage import DarkImageProcessor
-from prototypes.product import PipelineProduct, DetectorProduct
+from prototypes.base.impl import MetisRecipe
+from prototypes.prefabricates.darkimage import DarkImageProcessor
+from prototypes.base.product import PipelineProduct, DetectorProduct
+
+
+class LinGainProduct(DetectorProduct, ABC):
+    group = cpl.ui.Frame.FrameGroup.PRODUCT
+    level = cpl.ui.Frame.FrameLevel.FINAL
+    frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+    @property
+    def tag(self) -> str:
+        return rf"{self.category}"
 
 
 class MetisDetLinGainImpl(DarkImageProcessor):
-    class Input(DarkImageProcessor.Input):
-        tags_raw: [str] = ["DETLIN_DET_RAW"]
-        tags_dark: [str] = ["MASTER_DARK_2RG"]
-
+    class InputSet(DarkImageProcessor.InputSet):
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.bias_frame: cpl.ui.Frame | None = None
             super().__init__(frameset)
 
-    class ProductGain(DetectorProduct):
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+    class ProductGain(LinGainProduct):
         @property
         def category(self) -> str:
             return f"GAIN_MAP_{self.detector}"
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
-        
 
-    class ProductLinearity(DetectorProduct):
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+    class ProductLinearity(LinGainProduct):
         @property
         def category(self) -> str:
             return f"LINEARITY_{self.detector}"
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
-        
-    class ProductBadpixMap(DetectorProduct):
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+    class ProductBadpixMap(LinGainProduct):
         @property
         def category(self) -> str:
             return f"BADPIX_MAP_{self.detector}"
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
-        
-
-    #def load_raw_images(self) -> cpl.core.ImageList:
-    #    pass
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-    
         raw_images = self.load_raw_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)
@@ -91,13 +73,12 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         return self.products
 
 
-class MetisDetLinearGain(MetisRecipe):
+class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_lingain"
     _version = "0.1"
     _author = "Kieran Chi-Hung Hugo Martin"
     _email = "hugo@buddelmeijer.nl"
-    _copyright = "GPL-3.0-or-later"
     _synopsis = "Measure detector non-linearity and gain"
     _description = (
         "Prototype to create a METIS linear gain map."

@@ -1,7 +1,7 @@
 import cpl
 
-from prototypes.base import MetisRecipe
-from prototypes.flat import MetisBaseImgFlatImpl
+from prototypes.base.impl import MetisRecipe
+from prototypes.prefabricates.flat import MetisBaseImgFlatImpl
 
 
 class MetisNImgFlatImpl(MetisBaseImgFlatImpl):

@@ -1,10 +1,7 @@
 import cpl
 
-from prototypes.base import MetisRecipe
-from prototypes.flat import MetisBaseImgFlatImpl
-from prototypes.inputs import PipelineInputSet
-from prototypes.inputs.raw import RawInput, MasterDarkInput
-from prototypes.mixins import MasterDarkInputMixin
+from prototypes.base.impl import MetisRecipe
+from prototypes.prefabricates.flat import MetisBaseImgFlatImpl
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):

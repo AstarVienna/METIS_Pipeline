@@ -31,3 +31,10 @@ class PipelineInputSet(metaclass=ABCMeta):
 
         for inp in self.inputs:
             inp.verify()
+
+    def print_debug(self):
+        Msg.debug(self.__class__.__qualname__, "-- Detailed class info ---")
+        Msg.debug(self.__class__.__qualname__, f"{len(self.inputs)} inputs:")
+
+        for inp in self.inputs:
+            inp.print_debug()

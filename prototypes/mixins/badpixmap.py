@@ -1,9 +1,9 @@
 import cpl
 
-from prototypes.input import PipelineInput
+from prototypes.base.input import RecipeInput
 
 
-class BadpixMapInputMixin(PipelineInput):
+class BadpixMapInputMixin(RecipeInput):
     tags_badpix_map: [str] = None
 
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):

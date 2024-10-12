@@ -13,7 +13,7 @@ class PipelineProduct(ABC):
     """
 
     tag: str = None
-    group: cpl.ui.Frame.FrameGroup = None
+    group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
 
@@ -48,8 +48,9 @@ class PipelineProduct(ABC):
     def add_properties(self):
         """
         Hook for adding properties.
-        Currently only adds the ESO PRO CATG to every product,
+        Currently only adds ESO PRO CATG to every product,
         but derived classes are more than welcome to add their own stuff.
+        Do not forget to call super().add_properties() then.
         """
         self.properties.append(
             cpl.core.Property(
@@ -70,8 +71,8 @@ class PipelineProduct(ABC):
         )
 
     def save(self):
+        """ Save this Product to a file """
         Msg.info(self.__class__.__qualname__, f"Saving product file as {self.output_file_name!r}.")
-        print(self.recipe.frameset)
         cpl.dfs.save_image(
             self.recipe.frameset,       # All frames for the recipe
             self.recipe.parameters,     # The list of input parameters

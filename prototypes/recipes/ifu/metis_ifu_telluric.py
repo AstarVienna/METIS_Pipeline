@@ -1,10 +1,10 @@
 import cpl
 from cpl.core import Msg
-from typing import Any, Dict, Literal
+from typing import Dict
 
-from prototypes.base import MetisRecipe, MetisRecipeImpl
-from prototypes.input import PipelineInput
-from prototypes.product import PipelineProduct
+from prototypes.base.impl import MetisRecipe, MetisRecipeImpl
+from prototypes.base.input import RecipeInput
+from prototypes.base.product import PipelineProduct
 
 
 class MetisIfuTelluricImpl(MetisRecipeImpl):
@@ -12,7 +12,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     def detector_name(self) -> str | None:
         return "2RG"
 
-    class Input(PipelineInput):
+    class Input(RecipeInput):
         tags_combined = ["IFU_SCI_COMBINED", "IFU_STD_COMBINED"]
         detector_name = '2RG'
 
