@@ -29,19 +29,20 @@ class PipelineInput:
         return self._group
 
     def __init__(self,
-                 frameset: cpl.ui.FrameSet,
                  *,
                  tags: [str] = None,
+                 required: bool = None,
                  **kwargs):
         if self.title is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
 
+        # First override the tags if provided in the ctor
         if tags is not None:
             self._tags = tags
+            Msg.debug(self.__class__.__qualname__, f"Overriding tags to {self.tags}")
 
-        # Now expand the tags with local context
+        # Now expand the tags with provided context from **kwargs
         try:
-            print(self._tags, kwargs)
             self._tags = [tag.format(**kwargs) for tag in self._tags]
         except KeyError as e:
             Msg.error(self.__class__.__qualname__, f"Could not substitute tag placeholders: {e}")
@@ -51,13 +52,18 @@ class PipelineInput:
         if not self.tags:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined tags")
 
-        # ...and that they are a list of strings (not a single string!)
+        # ...and that they are a list of strings (not a single string -- this leads to nasty errors)
         if not isinstance(self.tags, list):
             raise TypeError(f"Tags must be a list of template strings, got '{self.tags}'")
 
-        # Check is frame_group is defined (if not, this gives rise to very strange bugs deep within CPL)
+        # Override `required` if requested
+        if required is not None:
+            self._required = required
+            Msg.debug(self.__class__.__qualname__, f"Overriding required to {self.required}")
+
+        # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL)
         if not self.group:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group")
+            raise NotImplementedError(f"Pipeline input has no defined group!")
 
     @abstractmethod
     def verify(self) -> None:
@@ -77,9 +83,10 @@ class SinglePipelineInput(PipelineInput):
                  frameset: cpl.ui.FrameSet,
                  *,
                  tags: [str] = None,
+                 required: bool = None,
                  **kwargs):
         self.frame: cpl.ui.Frame | None = None
-        super().__init__(frameset, tags=tags, **kwargs)
+        super().__init__(tags=tags, required=required, **kwargs)
 
         for frame in frameset:
             if frame.tag in self.tags:
@@ -100,12 +107,14 @@ class SinglePipelineInput(PipelineInput):
         """
         Verification shorthand: if a required frame is not present, i.e. `None`,
         raise a `cpl.core.DataNotFoundError` with the appropriate message.
+        If it is not required, emit a warning but continue.
         """
         if frame is None:
             if self.required:
                 raise cpl.core.DataNotFoundError(f"No {self.title} found in the frameset.")
             else:
-                Msg.debug(f"{self.title} not found but not required.")
+                Msg.debug(self.__class__.__qualname__,
+                          f"{self.title} not found but not required.")
         else:
             Msg.debug(self.__class__.__qualname__,
                       f"Found a {self.title} frame {frame.file}")
@@ -113,15 +122,16 @@ class SinglePipelineInput(PipelineInput):
 
 class MultiplePipelineInput(PipelineInput):
     """
-    A pipeline input that expects multiple frames, such as raw.
+    A pipeline input that expects multiple frames, such as raw processor.
     """
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
                  *,
                  tags: [str] = None,
+                 required: bool = None,
                  **kwargs):                     # Any other args
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
-        super().__init__(frameset, tags=tags, **kwargs)
+        super().__init__(tags=tags, required=required, **kwargs)
 
         for frame in frameset:
             if frame.tag in self.tags:

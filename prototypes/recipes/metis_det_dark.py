@@ -17,11 +17,14 @@ class MetisDetDarkImpl(RawImageProcessor):
         class RawDarkInput(Detector2rgMixin, RawInput):
             _tags = ["DARK_{det}_RAW"]
 
+        class LinearityInput(LinearityInput):
+            _tags = ["LINEARITY_{det}"]
+
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.raw = self.RawDarkInput(frameset, det=self.band)       # ToDo: inconsistent, should be detector "2RG"
-            self.linearity = LinearityInput(frameset, det=self.band)    # ToDO: but files are named with "LM"
+            self.linearity = self.LinearityInput(frameset, det=self.band, required=False)
 
-            self.inputs = [self.raw]
+            self.inputs = [self.raw, self.linearity]
             super().__init__(frameset)
 
     class Product(Detector2rgMixin, PipelineProduct):

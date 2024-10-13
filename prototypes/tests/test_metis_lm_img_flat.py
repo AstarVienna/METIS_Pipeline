@@ -1,18 +1,15 @@
 import pytest
 import subprocess
-import inspect
 import cpl
-from pyesorex.pyesorex import Pyesorex
 
 from prototypes.recipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
-from prototypes.base.input import RecipeInput
 
-from prototypes.tests.fixtures import create_pyesorex, load_frameset, BaseInputTest
+from fixtures import create_pyesorex, load_frameset, BaseInputTest
 
 
 @pytest.fixture
 def sof():
-    return "prototypes/sof/masterflat.sof"
+    return "prototypes/sof/masterflat-lm.sof"
 
 
 class TestRecipe:
