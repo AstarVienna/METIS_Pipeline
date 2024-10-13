@@ -29,8 +29,10 @@ install_requires =
     astropy
 packages =
     pymetis
+    pymetis.mixins
 package_dir =
     pymetis = ./src/pymetis
+    pymetis.mixins = ./src/pymetis/mixins
 zip_safe = False
 
 [options.extras_require]
