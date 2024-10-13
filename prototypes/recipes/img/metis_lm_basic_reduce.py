@@ -96,7 +96,9 @@ class MetisLmBasicReduceImpl(DarkImageProcessor):
             if bias is not None:
                 flat.subtract(bias)
             median = flat.get_median()
-            return flat.divide_scalar(median)
+            return flat
+
+            # return flat.divide_scalar(median)
 
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet,
@@ -126,7 +128,7 @@ class MetisLmBasicReduceImpl(DarkImageProcessor):
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions, or use functions from the parent classes:
-        for instance combine_images is a helped function that takes a frameset and a method and returns
+        for instance combine_images is a helper function that takes a frameset and a method and returns
         a single combined frame that is used throughout the pipeline.
         """
 
@@ -139,9 +141,9 @@ class MetisLmBasicReduceImpl(DarkImageProcessor):
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector_name}")
 
         flat = self.prepare_flat(flat, bias)
-        images = self.prepare_images(self.input.raw, flat, bias)
+        images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
         combined_image = self.combine_images(images, self.parameters["basic_reduction.stacking.method"].value)
-        header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
+        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
         self.products = {
             fr'OBJECT_REDUCED_{self.detector_name}':
