@@ -30,9 +30,16 @@ class PipelineInput:
 
     def __init__(self,
                  *,
+                 title: str = None,
                  tags: [str] = None,
                  required: bool = None,
                  **kwargs):
+        # First override the title, if provided in the constructor
+        if title is not None:
+            self._title = title
+            Msg.debug(self.__class__.__qualname__, f"Overriding title to {self.title}")
+
+        # Check if it is defined
         if self.title is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
 
@@ -178,7 +185,7 @@ class MultiplePipelineInput(PipelineInput):
             None on success
         """
         detectors = []
-
+        return
         for frame in self.frameset:
             header = cpl.core.PropertyList.load(frame.file, 0)
             det = header['ESO DPR TECH'].value

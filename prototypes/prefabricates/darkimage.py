@@ -21,7 +21,9 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         """
         A DarkImageProcessor's Input is just a raw image processor input with a master dark frame.
         """
+        MasterDarkInput: type = None
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.master_dark = MasterDarkInput(frameset)
             super().__init__(frameset)
+            self.master_dark = self.MasterDarkInput(frameset, det=self.detector)
+            self.inputs += [self.master_dark]

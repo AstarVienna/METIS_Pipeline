@@ -100,15 +100,6 @@ class MetisRecipeImpl(ABC):
 
         return product_frames
 
-    @property
-    @abstractmethod
-    def detector_name(self) -> str | None:
-        """
-            Return the name of the detector that is processed by this recipe.
-            Default is None -- to assist in crashing your precious program.
-        """
-        return None
-
 
 class MetisRecipe(cpl.ui.PyRecipe):
     """

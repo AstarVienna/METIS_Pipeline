@@ -20,7 +20,6 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         RawInput: type = None
         detector = None
 
-
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.raw = self.RawInput(frameset, det=self.detector)
             self.inputs += [self.raw]

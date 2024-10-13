@@ -81,10 +81,6 @@ class MetisDetDarkImpl(RawImageProcessor):
                 self.Product(self, header, combined_image),
         }
 
-    @property
-    def detector_name(self) -> str | None:
-        return "2RG"
-
 
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information
