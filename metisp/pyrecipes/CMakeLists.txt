@@ -1,4 +1,4 @@
-# This file is part of the ESO IIINSTRUMENT Pipeline
+# This file is part of the ESO METIS Pipeline
 # Copyright (C) 2001-2024 European Southern Observatory
 #
 # This program is free software: you can redistribute it and/or modify

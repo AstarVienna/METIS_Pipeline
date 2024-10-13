@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-##   This file is part of the IIINSTRUMENT Pipeline
+##   This file is part of the METIS Pipeline
 ##   Copyright (C) 2002-2017 European Southern Observatory
 
 ##   This library is free software; you can redistribute it and/or modify
