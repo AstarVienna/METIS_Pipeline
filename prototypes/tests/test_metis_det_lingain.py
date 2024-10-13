@@ -34,7 +34,7 @@ class TestRecipe:
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]
-        assert last_line == ("  0  MASTER_DARK_2RG.fits  	MASTER_DARK_2RG  CPL_FRAME_TYPE_IMAGE  "
+        assert last_line == ("  2  BADPIX_MAP_2RG.fits  	BADPIX_MAP_2RG  CPL_FRAME_TYPE_IMAGE  "
                              "CPL_FRAME_GROUP_PRODUCT  CPL_FRAME_LEVEL_FINAL  ")
 
     def test_parameter_count(self):
@@ -43,7 +43,7 @@ class TestRecipe:
 
 class TestInput(BaseInputTest):
     impl = Impl
-    count = 3
+    count = 7
 
 
 class TestProduct:

@@ -14,8 +14,8 @@ from prototypes.mixins.detectors import Detector2rgMixin
 
 class MetisDetDarkImpl(RawImageProcessor):
     class InputSet(Detector2rgMixin, PipelineInputSet):
-        class RawDarkInput(Detector2rgMixin, RawImageProcessor.InputSet.RawDarkInput):
-            pass
+        class RawDarkInput(Detector2rgMixin, RawInput):
+            _tags = ["DARK_{det}_RAW"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.raw = self.RawDarkInput(frameset, det=self.band)       # ToDo: inconsistent, should be detector "2RG"

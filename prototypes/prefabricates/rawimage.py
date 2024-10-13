@@ -17,43 +17,14 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     """
 
     class InputSet(PipelineInputSet):
+        RawInput: type = None
         detector = None
 
-        class RawDarkInput(RawInput):
-            _tags = ["DARK_{det}_RAW"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.raw = self.RawDarkInput(frameset, det=self.detector)
-
+            self.raw = self.RawInput(frameset, det=self.detector)
             self.inputs += [self.raw]
             super().__init__(frameset)
-
-    class Input(RecipeInput):
-        """
-        Generic Input class for RawImageProcessor.
-        Must define `tags_raw`, the set of tags which match files that should be processed.
-        """
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-
-            if not self.tags:
-                raise NotImplementedError("RawImageProcessor Input must define `tags_raw`.")
-
-        def categorize_frame(self, frame: cpl.ui.Frame) -> None:
-            match frame.tag:
-                case tag if tag in self.tags_raw:
-                    frame.group = cpl.ui.Frame.FrameGroup.RAW
-                    self.raw.append(frame)
-                    Msg.debug(self.__class__.__qualname__, f"Got raw frame: {frame.file}.")
-                case _:
-                    # If `frame.tag` was not recognized, let base classes handle it
-                    super().categorize_frame(frame)
-
-        def verify(self) -> None:
-            self._verify_frameset_not_empty(self.raw, "raw frames")
-            self._verify_same_detector()
-
 
     def load_raw_images(self) -> cpl.core.ImageList:
         """
@@ -102,5 +73,5 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
 
     @property
     def detector_name(self) -> str:
-        return self.input._detector_name
+        return self.inputset.detector
 

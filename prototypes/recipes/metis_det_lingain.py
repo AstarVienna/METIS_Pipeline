@@ -25,11 +25,12 @@ class MetisDetLinGainImpl(DarkImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         detector = '2RG'
 
+        class RawInput(RawInput):
+            _tags = ["DETLIN_DET_RAW"]
+
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.raw = RawInput(frameset, tags=["DETLIN_DET_RAW"])
-            self.master_dark = MasterDarkInput(frameset, det=self.detector)
-            self.bias_frame: cpl.ui.Frame | None = None
             super().__init__(frameset)
+            self.raw = self.RawInput(frameset)
 
     class ProductGain(LinGainProduct):
         @property
@@ -58,7 +59,7 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         #         flat_image.subtract(bias_image)
         #     median = flat_image.get_median()
         #     flat_image.divide_scalar(median)
-        header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
+        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
         gain_image = combined_image         # TODO Actual implementation missing
         linearity_image = combined_image    # TODO Actual implementation missing

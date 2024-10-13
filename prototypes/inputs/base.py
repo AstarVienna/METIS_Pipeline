@@ -65,8 +65,8 @@ class PipelineInput:
         Verify that the input has all the required inputs
         """
 
-    def print_debug(self):
-        Msg.debug(self.__class__.__qualname__, f"Tags: {self.tags}")
+    def print_debug(self, *, offset: int = 0):
+        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tags: {self.tags}")
 
 
 class SinglePipelineInput(PipelineInput):
@@ -131,7 +131,7 @@ class MultiplePipelineInput(PipelineInput):
                           f"Found a {self.title} frame: {frame.file}.")
             else:
                 Msg.debug(self.__class__.__qualname__,
-                          f"Ignoring {frame.file}, {self.tags}.")
+                          f"Ignoring {frame.file}: tag {frame.tag} not in {self.tags}.")
 
 
     def verify(self):
@@ -149,7 +149,7 @@ class MultiplePipelineInput(PipelineInput):
             else:
                 Msg.debug(f"{self.title} not found but not required.")
         else:
-            Msg(self.__class__.__qualname__, f"OK: {count} frames found")
+            Msg.debug(self.__class__.__qualname__, f"OK: {count} frames found")
 
     def _verify_same_detector(self) -> None:
         """

@@ -26,15 +26,18 @@ class PipelineInputSet(metaclass=ABCMeta):
         if not self.inputs:
             raise NotImplementedError(f"PipelineInput must define at least one `input`.")
 
+        self.print_debug()
+
     def verify(self):
         Msg.debug(self.__class__.__qualname__, f"Verifying the inputset {self.inputs}")
 
         for inp in self.inputs:
             inp.verify()
 
-    def print_debug(self):
-        Msg.debug(self.__class__.__qualname__, "-- Detailed class info ---")
-        Msg.debug(self.__class__.__qualname__, f"{len(self.inputs)} inputs:")
+    def print_debug(self, *, offset: int = 0):
+        Msg.debug(self.__class__.__qualname__, f"{' ' * offset} -- Detailed class info ---")
+        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}{len(self.inputs)} inputs:")
+        Msg.debug(self.__class__.__qualname__, str(self.inputs))
 
         for inp in self.inputs:
-            inp.print_debug()
+            inp.print_debug(offset=offset + 4)
