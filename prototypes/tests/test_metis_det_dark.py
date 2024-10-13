@@ -3,11 +3,11 @@ import subprocess
 
 import cpl
 
-from prototypes.product import PipelineProduct
-from prototypes.input import PipelineInput
-from prototypes.recipes.metis_det_dark import MetisDetDark, MetisDetDarkImpl
+from pymetis.product import PipelineProduct
+from pymetis.input import PipelineInput
+from pymetis.recipes.metis_det_dark import MetisDetDark, MetisDetDarkImpl
 
-from prototypes.tests.generic import sof
+from pymetis.tests.generic import sof
 
 
 class TestRecipe:

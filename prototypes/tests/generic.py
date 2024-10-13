@@ -4,7 +4,7 @@ from typing import Type
 
 from pyesorex.pyesorex import Pyesorex
 
-from prototypes.base import MetisRecipeImpl
+from pymetis.base import MetisRecipeImpl
 
 import cpl
 

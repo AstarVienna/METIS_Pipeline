@@ -12,7 +12,7 @@ class TestConfigured:
             Set PYTHONPATH to "." in the root directory.
             This is a temporary workaround and should be solved properly instead.
         """
-        from prototypes.recipes.metis_det_dark import MetisDetDarkImpl
+        from pymetis.recipes.metis_det_dark import MetisDetDarkImpl
         assert MetisDetDarkImpl.__name__ == 'MetisDetDarkImpl', "Could not import, review your PYTHONPATH"
 
     def test_sof_data(self):

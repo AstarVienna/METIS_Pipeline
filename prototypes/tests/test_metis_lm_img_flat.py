@@ -4,10 +4,10 @@ import inspect
 import cpl
 from pyesorex.pyesorex import Pyesorex
 
-from prototypes.recipes.img.metis_lm_img_flat import MetisLmImgFlat, MetisLmImgFlatImpl
-from prototypes.input import PipelineInput
+from pymetis.recipes.img.metis_lm_img_flat import MetisLmImgFlat, MetisLmImgFlatImpl
+from pymetis.input import PipelineInput
 
-from prototypes.tests.generic import sof
+from pymetis.tests.generic import sof
 
 
 @pytest.fixture
