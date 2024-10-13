@@ -28,7 +28,7 @@ SUBDIRS = irplib hdrl metis recipes pymetis pyrecipes reflex regtests
 DIST_SUBDIRS = irplib hdrl metis recipes pymetis pyrecipes reflex regtests
 
 DOXYGEN_SUBDIRS =
-PYTHON_SUBDIRS = pyiiinstrument
+PYTHON_SUBDIRS = pymetis
 
 EXTRA_DIST = BUGS Doxyfile.in admin/doxygen.am admin/python.am
 
