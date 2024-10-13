@@ -1,6 +1,6 @@
 import cpl
 
-from prototypes.input import PipelineInput
+from pymetis.input import PipelineInput
 
 
 class PersistenceInputMixin(PipelineInput):

@@ -5,8 +5,8 @@ from typing import Any, Literal
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipeImpl
-from prototypes.input import PipelineInput
+from pymetis.base import MetisRecipeImpl
+from pymetis.input import PipelineInput
 
 
 class RawImageProcessor(MetisRecipeImpl, ABC):

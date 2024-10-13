@@ -3,12 +3,12 @@ from typing import Any, Dict
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipe
-from prototypes.product import PipelineProduct
-from prototypes.darkimage import DarkImageProcessor
+from pymetis.base import MetisRecipe
+from pymetis.product import PipelineProduct
+from pymetis.darkimage import DarkImageProcessor
 
-from prototypes.mixins import BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
-from prototypes.mixins.detectors import Detector2rgMixin
+from pymetis.mixins import BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
+from pymetis.mixins.detectors import Detector2rgMixin
 
 class MetisLmBasicReduceImpl(DarkImageProcessor):
     class Input(Detector2rgMixin, BadpixMapInputMixin, GainMapInputMixin, LinearityInputMixin, DarkImageProcessor.Input):

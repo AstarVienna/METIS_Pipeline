@@ -1,8 +1,8 @@
 import cpl
 
-from prototypes.base import MetisRecipe
-from prototypes.flat import MetisBaseImgFlatImpl
-from prototypes.mixins import MasterDarkInputMixin
+from pymetis.base import MetisRecipe
+from pymetis.flat import MetisBaseImgFlatImpl
+from pymetis.mixins import MasterDarkInputMixin
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):

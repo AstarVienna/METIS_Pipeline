@@ -3,10 +3,10 @@ from typing import Any, Dict
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipe, MetisRecipeImpl
-from prototypes.rawimage import RawImageProcessor
-from prototypes.darkimage import DarkImageProcessor
-from prototypes.product import PipelineProduct, DetectorProduct
+from pymetis.base import MetisRecipe, MetisRecipeImpl
+from pymetis.rawimage import RawImageProcessor
+from pymetis.darkimage import DarkImageProcessor
+from pymetis.product import PipelineProduct, DetectorProduct
 
 
 class MetisDetLinGainImpl(DarkImageProcessor):

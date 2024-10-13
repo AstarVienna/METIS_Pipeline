@@ -2,9 +2,9 @@ import cpl
 from cpl.core import Msg
 from typing import Any, Dict, Literal
 
-from prototypes.base import MetisRecipe, MetisRecipeImpl
-from prototypes.input import PipelineInput
-from prototypes.product import PipelineProduct
+from pymetis.base import MetisRecipe, MetisRecipeImpl
+from pymetis.input import PipelineInput
+from pymetis.product import PipelineProduct
 
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):

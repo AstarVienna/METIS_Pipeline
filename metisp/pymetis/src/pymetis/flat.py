@@ -4,8 +4,8 @@ from typing import Dict
 import cpl
 from cpl.core import Msg
 
-from prototypes.product import PipelineProduct
-from prototypes.darkimage import DarkImageProcessor
+from pymetis.product import PipelineProduct
+from pymetis.darkimage import DarkImageProcessor
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):

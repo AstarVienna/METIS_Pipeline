@@ -2,13 +2,13 @@ import cpl
 from cpl.core import Msg
 from typing import Any, Dict, Literal
 
-from prototypes.base import MetisRecipeImpl, MetisRecipe
-from prototypes.input import PipelineInput
-from prototypes.product import PipelineProduct
+from pymetis.base import MetisRecipeImpl, MetisRecipe
+from pymetis.input import PipelineInput
+from pymetis.product import PipelineProduct
 
-from prototypes.rawimage import RawImageProcessor
-from prototypes.mixins import MasterDarkInputMixin, LinearityInputMixin, PersistenceInputMixin
-from prototypes.mixins.detectors import Detector2rgMixin
+from pymetis.rawimage import RawImageProcessor
+from pymetis.mixins import MasterDarkInputMixin, LinearityInputMixin, PersistenceInputMixin
+from pymetis.mixins.detectors import Detector2rgMixin
 
 class MetisIfuReduceImpl(MetisRecipeImpl):
     target: Literal["SCI"] | Literal["STD"] = None

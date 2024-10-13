@@ -3,8 +3,8 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
-from prototypes.rawimage import RawImageProcessor
-from prototypes.mixins import MasterDarkInputMixin
+from pymetis.rawimage import RawImageProcessor
+from pymetis.mixins import MasterDarkInputMixin
 
 
 class DarkImageProcessor(RawImageProcessor, ABC):

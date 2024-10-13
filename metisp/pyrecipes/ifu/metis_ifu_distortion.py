@@ -2,11 +2,11 @@ import cpl
 from cpl.core import Msg
 from typing import Any, Dict, Literal
 
-from prototypes.base import MetisRecipe
-from prototypes.darkimage import DarkImageProcessor
-from prototypes.mixins import PersistenceInputMixin, BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
-from prototypes.mixins.detectors import Detector2rgMixin
-from prototypes.product import PipelineProduct
+from pymetis.base import MetisRecipe
+from pymetis.darkimage import DarkImageProcessor
+from pymetis.mixins import PersistenceInputMixin, BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
+from pymetis.mixins.detectors import Detector2rgMixin
+from pymetis.product import PipelineProduct
 
 
 class MetisIfuDistortionImpl(DarkImageProcessor):

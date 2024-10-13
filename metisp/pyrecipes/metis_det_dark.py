@@ -4,11 +4,11 @@ from schema import Schema
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipeImpl, MetisRecipe
-from prototypes.product import PipelineProduct
-from prototypes.rawimage import RawImageProcessor
+from pymetis.base import MetisRecipeImpl, MetisRecipe
+from pymetis.product import PipelineProduct
+from pymetis.rawimage import RawImageProcessor
 
-from prototypes.mixins.detectors import Detector2rgMixin
+from pymetis.mixins.detectors import Detector2rgMixin
 
 
 class MetisDetDarkImpl(RawImageProcessor):
