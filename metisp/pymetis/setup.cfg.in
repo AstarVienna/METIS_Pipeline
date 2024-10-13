@@ -4,7 +4,7 @@ version = @PACKAGE_VERSION@
 license = GPL-3.0-or-later
 author = European Southern Observatory
 author_email = cpl-help@eso.org
-description = Python module for iiinstrument python recipes
+description = Python module for metis python recipes
 long_description = file: README.md
 long_description_content_type = text/markdown
 url = https://www.eso.org/sci/software/pipelines/
@@ -30,7 +30,7 @@ install_requires =
 packages =
     pymetis
 package_dir =
-    pyiiinstrument = ./src/pymetis
+    pymetis = ./src/pymetis
 zip_safe = False
 
 [options.extras_require]
