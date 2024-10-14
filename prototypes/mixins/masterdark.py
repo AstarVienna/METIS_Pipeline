@@ -1,9 +1,9 @@
 import cpl
 
-from prototypes.input import PipelineInput
+from prototypes.base.input import RecipeInput
 
 
-class MasterDarkInputMixin(PipelineInput):
+class MasterDarkInputMixin(RecipeInput):
     tags_dark: [str] = None
 
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):

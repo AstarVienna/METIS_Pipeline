@@ -1,54 +1,24 @@
 import cpl
 from cpl.core import Msg
-from typing import Any, Dict, Literal
+from typing import Dict
 
-from prototypes.base import MetisRecipe, MetisRecipeImpl
-from prototypes.input import PipelineInput
-from prototypes.product import PipelineProduct
+from prototypes.base.impl import MetisRecipe, MetisRecipeImpl
+from prototypes.base.input import RecipeInput
+from prototypes.base.product import PipelineProduct
+from prototypes.inputs import SinglePipelineInput, PipelineInputSet
 
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
-    @property
-    def detector_name(self) -> str | None:
-        return "2RG"
-
-    class Input(PipelineInput):
-        tag_sci_reduced = "IFU_SCI_REDUCED"
-        tag_telluric = "IFU_TELLURIC"
-        tag_fluxcal = "FLUXCAL_TAB"
-        detector_name = '2RG'
+    class InputSet(PipelineInputSet):
+        detector = '2RG'
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.sci_reduced: cpl.ui.Frame | None = None
-            self.telluric: cpl.ui.Frame | None = None
-            self.fluxcal: cpl.ui.Frame | None = None
             super().__init__(frameset)
+            self.sci_reduced: SinglePipelineInput(frameset, tags=["IFU_SCI_REDUCED"])
+            self.telluric: SinglePipelineInput(frameset, tags=["IFU_TELLURIC"])
+            self.fluxcal: SinglePipelineInput(frameset, tags=["FLUXCAL_TAB"])
 
-        def categorize_frame(self, frame: cpl.ui.Frame) -> None:
-            match frame.tag:
-                case self.tag_sci_reduced:
-                    frame.group = cpl.ui.Frame.FrameGroup.RAW # TODO What group is this really?
-                    self.sci_reduced = self._override_with_warning(self.sci_reduced, frame,
-                                                                   origin=self.__class__.__qualname__,
-                                                                   title="sci reduced")
-                    Msg.debug(self.__class__.__qualname__, f"Got sci reduced frame: {frame.file}.")
-                case self.tag_telluric:
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.telluric = self._override_with_warning(self.sci_reduced, frame,
-                                                                origin=self.__class__.__qualname__,
-                                                                title="sci reduced")
-                    Msg.debug(self.__class__.__qualname__, f"Got telluric correction frame: {frame.file}.")
-                case self.tag_fluxcal:
-                    frame.group = cpl.ui.Frame.FrameGroup.CALIB
-                    self.fluxcal = self._override_with_warning(self.fluxcal, frame,
-                                                               origin=self.__class__.__qualname__,
-                                                               title="flux calibration")
-                    Msg.debug(self.__class__.__qualname__, f"Got a flux calibration frame: {frame.file}.")
-                case _:
-                    super().categorize_frame(frame)
-
-        def verify(self) -> None:
-            pass
+            self.inputs += [self.sci_reduced, self.telluric, self.fluxcal]
 
     class ProductSciCubeCalibrated(PipelineProduct):
         category = rf"IFU_SCI_CUBE_CALIBRATED"
@@ -59,7 +29,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 
         self.products = {
             product.category: product()
-            for product in [self.ProductSciCubeCalibrated]
+            for product in [self.ProductSciCubeCalibrated(header)]
         }
         return self.products
 

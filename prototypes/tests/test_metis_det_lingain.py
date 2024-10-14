@@ -6,14 +6,14 @@ import pytest
 
 from prototypes.base.product import PipelineProduct
 from prototypes.inputs.inputset import PipelineInputSet
-from prototypes.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
+from prototypes.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
 from prototypes.tests.fixtures import load_frameset, BaseInputTest
 
 
 @pytest.fixture
 def sof():
-    return "prototypes/sof/masterdark.sof"
+    return "prototypes/sof/detlin.sof"
 
 
 class TestRecipe:
@@ -28,22 +28,22 @@ class TestRecipe:
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
 
-    def test_pyesorex(self):
-        output = subprocess.run(['pyesorex', 'metis_det_dark', 'prototypes/sof/masterdark.sof',
+    def test_pyesorex(self, sof):
+        output = subprocess.run(['pyesorex', 'metis_det_lingain', sof,
                                  '--recipe-dir', 'prototypes/recipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]
-        assert last_line == ("  0  MASTER_DARK_2RG.fits  	MASTER_DARK_2RG  CPL_FRAME_TYPE_IMAGE  "
+        assert last_line == ("  2  BADPIX_MAP_2RG.fits  	BADPIX_MAP_2RG  CPL_FRAME_TYPE_IMAGE  "
                              "CPL_FRAME_GROUP_PRODUCT  CPL_FRAME_LEVEL_FINAL  ")
 
     def test_parameter_count(self):
-        assert len(Recipe.parameters) == 1
+        assert len(Recipe.parameters) == 3
 
 
 class TestInput(BaseInputTest):
     impl = Impl
-    count = 5
+    count = 7
 
 
 class TestProduct:

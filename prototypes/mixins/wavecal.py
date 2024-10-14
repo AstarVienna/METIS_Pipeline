@@ -1,9 +1,9 @@
 import cpl
 
-from prototypes.input import PipelineInput
+from prototypes.base.input import RecipeInput
 
 
-class WavecalInputMixin(PipelineInput):
+class WavecalInputMixin(RecipeInput):
     tags_wavecal = ["IFU_WAVECAL"]
 
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):

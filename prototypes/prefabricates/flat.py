@@ -1,18 +1,38 @@
-import abc
+from abc import ABC
 from typing import Dict
 
 import cpl
 from cpl.core import Msg
 
-from prototypes.product import PipelineProduct
-from prototypes.darkimage import DarkImageProcessor
+from prototypes.inputs import PipelineInputSet
+from prototypes.inputs.common import RawInput, MasterDarkInput
+from prototypes.base.product import PipelineProduct
+
+from prototypes.prefabricates.darkimage import DarkImageProcessor
 
 
-class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):
-    class Input(DarkImageProcessor.Input):
+class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
+    class InputSet(PipelineInputSet):
         """
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
+        class RawFlatInput(RawInput):
+            _tags = ["{band}_FLAT_LAMP_RAW", "{band}_FLAT_TWILIGHT_RAW"]
+
+        class DarkFlatInput(MasterDarkInput):
+            """
+            Just the plain MasterDarkInput.
+            """
+            pass
+
+        def __init__(self, frameset):
+            self.raw = self.RawFlatInput(frameset, band=self.band)
+            self.master_dark = MasterDarkInput(frameset, det=self.detector)
+
+            self.inputs = [self.raw, self.master_dark]
+
+            super().__init__(frameset)
+
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -43,7 +63,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):
         # TODO: Twilight
 
         raw_images = self.load_raw_images()
-        master_dark = cpl.core.Image.load(self.input.master_dark.file, extension=0)
+        master_dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
 
         for raw_image in raw_images:
             Msg.debug(self.__class__.__qualname__, f"Subtracting image {raw_image}")
@@ -54,7 +74,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, metaclass=abc.ABCMeta):
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
-        header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
+        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         combined_image = self.combine_images(self.load_raw_images(), method)
 
         self.products = {

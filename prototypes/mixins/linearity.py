@@ -1,9 +1,9 @@
 import cpl
 
-from prototypes.input import PipelineInput
+from prototypes.base.input import RecipeInput
 
 
-class LinearityInputMixin(PipelineInput):
+class LinearityInputMixin(RecipeInput):
     tags_linearity = [] # ["LINEARITY_det"]
 
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):

@@ -1,13 +1,13 @@
 import cpl
 
-from prototypes.base import MetisRecipe
-from prototypes.flat import MetisBaseImgFlatImpl
+from prototypes.base.impl import MetisRecipe
+from prototypes.prefabricates.flat import MetisBaseImgFlatImpl
 
 
 class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
-    class Input(MetisBaseImgFlatImpl.Input):
-        tags_raw = "N_FLAT_LAMP_RAW"
-        tags_dark = ["MASTER_DARK_2RG"]
+    class InputSet(MetisBaseImgFlatImpl.InputSet):
+        band = "N"
+        detector = "GEO"
 
     class Product(MetisBaseImgFlatImpl.Product):
         band: str = "N"
@@ -19,19 +19,16 @@ class MetisNImgFlat(MetisRecipe):
     _version = "0.1"
     _author = ["Kieran Leschinski", "Chi-Hung Yan", "Hugo Buddelmeijer", "Gilles PPL Otten", "Martin Baláž"]
     _email = "hugo@buddelmeijer.nl"
-    _copyright = "GPL-3.0-or-later"
     _synopsis = "Create master flat for N band detectors"
-    _description = (
-        "Prototype to create a METIS master flat."
-    )
+    _description = "Prototype to create a METIS master flat for N band"
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-           name=f"{_name}.stacking.method",
-           context=_name,
-           description="Name of the method used to combine the input images",
-           default="average",
-           alternatives=("add", "average", "median"),
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median"),
         ),
     ])
     implementation_class = MetisNImgFlatImpl

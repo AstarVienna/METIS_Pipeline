@@ -5,7 +5,7 @@ import cpl
 from prototypes.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe,
                                                      MetisIfuReduceImpl as Impl)
 from prototypes.mixins import MasterDarkInputMixin
-from generic import create_pyesorex
+from fixtures import create_pyesorex
 
 
 class TestMetisIfuReduce:
@@ -19,6 +19,3 @@ class TestMetisIfuReduce:
         pyesorex = create_pyesorex(Recipe)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
         assert pyesorex.recipe.name == 'metis_ifu_reduce'
-
-    def test_mro(self):
-        assert MasterDarkInputMixin in Impl.Input.__mro__

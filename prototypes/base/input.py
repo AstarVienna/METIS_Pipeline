@@ -4,7 +4,7 @@ import cpl
 from cpl.core import Msg
 
 
-class PipelineInput(metaclass=ABCMeta):
+class RecipeInput(metaclass=ABCMeta):
     """
         The `PipelineInput` class is a singleton subclass for a recipe.
         It reads and filters the input FrameSet,

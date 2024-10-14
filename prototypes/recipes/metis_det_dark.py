@@ -1,37 +1,46 @@
-from typing import Dict, Any
-from schema import Schema
+from typing import Dict
 
 import cpl
 from cpl.core import Msg
 
-from prototypes.base import MetisRecipeImpl, MetisRecipe
-from prototypes.product import PipelineProduct
-from prototypes.rawimage import RawImageProcessor
+from prototypes.base.impl import MetisRecipeImpl, MetisRecipe
+from prototypes.inputs.common import RawInput, LinearityInput
+from prototypes.base.product import PipelineProduct
+from prototypes.inputs import PipelineInputSet
+from prototypes.prefabricates.rawimage import RawImageProcessor
 
 from prototypes.mixins.detectors import Detector2rgMixin
 
 
 class MetisDetDarkImpl(RawImageProcessor):
-    class Input(RawImageProcessor.Input):
-        tags_raw = ["DARK_LM_RAW", "DARK_N_RAW", "DARK_IFU_RAW"]
+    class InputSet(Detector2rgMixin, PipelineInputSet):
+        class RawDarkInput(Detector2rgMixin, RawInput):
+            _tags = ["DARK_{det}_RAW"]
 
-    class Product(PipelineProduct):
+        class LinearityInput(LinearityInput):
+            _tags = ["LINEARITY_{det}"]
+
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            self.raw = self.RawDarkInput(frameset, det=self.band)       # ToDo: inconsistent, should be detector "2RG"
+            self.linearity = self.LinearityInput(frameset, det=self.band, required=False)
+
+            self.inputs = [self.raw, self.linearity]
+            super().__init__(frameset)
+
+    class Product(Detector2rgMixin, PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         def __init__(self,
-                     recipe: 'MetisRecipeImpl',
+                     recipe: MetisRecipeImpl,
                      header: cpl.core.PropertyList,
-                     image: cpl.core.Image,
-                     *,
-                     detector_name: str, **kwargs):
-            self.detector_name = detector_name
-            super().__init__(recipe, header, image, **kwargs)
+                     image: cpl.core.Image):
+            super().__init__(recipe, header, image)
 
         @property
         def category(self) -> str:
-            return rf"MASTER_DARK_{self.detector_name}"
+            return rf"MASTER_DARK_{self.detector}"
 
         @property
         def output_file_name(self) -> str:
@@ -42,12 +51,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         def tag(self) -> str:
             return rf"{self.category}"
 
-    def __init__(self, recipe):
-        self._detector_name = None
-        super().__init__(recipe)
-
     def process_images(self) -> Dict[str, PipelineProduct]:
-        
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
         # FITS file is converted on the fly when an image is loaded from
@@ -70,17 +74,12 @@ class MetisDetDarkImpl(RawImageProcessor):
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         raw_images = self.load_raw_images()
         combined_image = self.combine_images(raw_images, method)
-        header = cpl.core.PropertyList.load(self.input.raw[0].file, 0)
+        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
         return {
             fr'METIS_{self.detector_name}_DARK':
-                self.Product(self, header, combined_image,
-                             detector_name=self.detector_name),
+                self.Product(self, header, combined_image),
         }
-
-
-class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):
-    tags_dark = ["DARK_IFU_RAW"]
 
 
 class MetisDetDark(MetisRecipe):
@@ -89,7 +88,6 @@ class MetisDetDark(MetisRecipe):
     _version = "0.1"
     _author = "Kieran Chi-Hung Hugo Martin"
     _email = "hugo@buddelmeijer.nl"
-    _copyright = "GPL-3.0-or-later"
     _synopsis = "Create master dark"
     _description = (
         "Prototype to create a METIS Masterdark."

@@ -1,9 +1,9 @@
 import cpl
 
-from prototypes.input import PipelineInput
+from prototypes.base.input import RecipeInput
 
 
-class MasterFlatInputMixin(PipelineInput):
+class MasterFlatInputMixin(RecipeInput):
     tags_flat: [str] = None
 
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):
