@@ -2,9 +2,7 @@ import pytest
 
 import cpl
 
-from prototypes.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe,
-                                                     MetisIfuReduceImpl as Impl)
-from prototypes.mixins import MasterDarkInputMixin
+from metisp.pyrecipes.ifu.metis_ifu_reduce import MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl
 from fixtures import create_pyesorex
 
 

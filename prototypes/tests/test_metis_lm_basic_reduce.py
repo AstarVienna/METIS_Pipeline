@@ -2,7 +2,7 @@ import pytest
 import subprocess
 import cpl
 
-from prototypes.recipes.img.metis_lm_basic_reduce import MetisLmBasicReduce as Recipe, MetisLmBasicReduceImpl as Impl
+from metisp.pyrecipes.img.metis_lm_basic_reduce import MetisLmBasicReduce as Recipe, MetisLmBasicReduceImpl as Impl
 from fixtures import create_pyesorex
 
 
@@ -30,7 +30,7 @@ class TestRecipe:
 
     def test_is_working(self, sof):
         output = subprocess.run(['pyesorex', 'metis_lm_basic_reduce', sof,
-                                 '--recipe-dir', 'prototypes/recipes/',
+                                 '--recipe-dir', 'metisp/pyrecipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]

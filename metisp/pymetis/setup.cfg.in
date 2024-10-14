@@ -1,0 +1,42 @@
+[metadata]
+name = pymetis
+version = @PACKAGE_VERSION@
+license = GPL-3.0-or-later
+author = European Southern Observatory
+author_email = cpl-help@eso.org
+description = Python module for metis python recipes
+long_description = file: README.md
+long_description_content_type = text/markdown
+url = https://www.eso.org/sci/software/pipelines/
+project_urls =
+    Homepage = https://www.eso.org/sci/software/pipelines/
+classifiers =
+    Programming Language :: Python :: 3
+    License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
+    Intended Audience :: Science/Research
+    Topic :: Scientific/Engineering :: Astronomy
+    Topic :: Software Development
+    Operating System :: POSIX :: Linux
+    Operating System :: MacOS :: MacOS X
+    Operating System :: Unix
+    Development Status :: 2 - Pre-Alpha
+
+[options]
+python_requires = >=3.8
+install_requires =
+    pycpl
+    pyesorex
+    astropy
+packages =
+    pymetis
+    pymetis.mixins
+package_dir =
+    pymetis = ./src/pymetis
+    pymetis.mixins = ./src/pymetis/mixins
+zip_safe = False
+
+[options.extras_require]
+doc = 
+    sphinx
+test =
+    pytest

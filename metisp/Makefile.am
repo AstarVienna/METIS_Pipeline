@@ -24,12 +24,13 @@ ACLOCAL_AMFLAGS = -I m4
 DISTCLEANFILES = *~
 
 
-SUBDIRS = irplib hdrl metis recipes reflex regtests
-DIST_SUBDIRS = irplib hdrl metis recipes reflex regtests
+SUBDIRS = irplib hdrl metis recipes pymetis pyrecipes reflex regtests
+DIST_SUBDIRS = irplib hdrl metis recipes pymetis pyrecipes reflex regtests
 
 DOXYGEN_SUBDIRS =
+PYTHON_SUBDIRS = pymetis
 
-EXTRA_DIST = BUGS Doxyfile.in admin/doxygen.am
+EXTRA_DIST = BUGS Doxyfile.in admin/doxygen.am admin/python.am
 
 
 pipedocs_DATA = ChangeLog AUTHORS NEWS README TODO COPYING
@@ -70,3 +71,4 @@ libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
 
 include $(top_srcdir)/admin/doxygen.am
+include $(top_srcdir)/admin/python.am
