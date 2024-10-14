@@ -3,7 +3,7 @@ import subprocess
 import cpl
 
 from metisp.pyrecipes.img.metis_lm_basic_reduce import MetisLmBasicReduce as Recipe, MetisLmBasicReduceImpl as Impl
-from fixtures import create_pyesorex
+from fixtures import create_pyesorex, load_frameset
 
 
 @pytest.fixture
