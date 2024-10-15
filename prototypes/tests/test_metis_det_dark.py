@@ -2,7 +2,7 @@ import subprocess
 import cpl
 import pytest
 
-from metisp.pymetis.src.base.product import PipelineProduct
+from base.product import PipelineProduct
 from metisp.pyrecipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
 from prototypes.tests.fixtures import load_frameset, BaseInputTest

@@ -1,6 +1,6 @@
 import cpl
 
-from metisp.pymetis.src.base.impl import MetisRecipe
+from impl.base import MetisRecipe
 from metisp.pymetis.src.prefabricates.flat import MetisBaseImgFlatImpl
 
 

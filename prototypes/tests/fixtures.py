@@ -8,7 +8,7 @@ from typing import Type
 from pyesorex.pyesorex import Pyesorex
 
 from metisp.pymetis.src.inputs.inputset import PipelineInputSet
-from metisp.pymetis.src.base.impl import MetisRecipe
+from impl.base import MetisRecipe
 
 import cpl
 

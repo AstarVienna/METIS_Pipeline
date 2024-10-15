@@ -4,7 +4,7 @@ from typing import Literal
 import cpl
 from cpl.core import Msg
 
-from metisp.pymetis.src.base.impl import MetisRecipeImpl
+from impl.base import MetisRecipeImpl
 from metisp.pymetis.src.inputs import PipelineInputSet
 
 

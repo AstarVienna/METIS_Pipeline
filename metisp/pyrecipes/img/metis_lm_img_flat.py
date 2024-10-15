@@ -1,16 +1,6 @@
 import cpl
 
-from metisp.pymetis.src.base.impl import MetisRecipe
-from metisp.pymetis.src.prefabricates.flat import MetisBaseImgFlatImpl
-
-
-class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
-    class InputSet(MetisBaseImgFlatImpl.InputSet):
-        band = "LM"
-        detector = "2RG"
-
-    class Product(MetisBaseImgFlatImpl.Product):
-        band: str = "LM"
+from . import MetisRecipe
 
 
 class MetisLmImgFlat(MetisRecipe):

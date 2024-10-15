@@ -2,8 +2,8 @@ import pytest
 import subprocess
 import cpl
 
-from metisp.pymetis.src.base.product import PipelineProduct
-from metisp.pyrecipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
+from base.product import PipelineProduct
+from pyrecipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
 
 from fixtures import create_pyesorex, load_frameset, BaseInputTest
 
