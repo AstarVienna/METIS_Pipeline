@@ -66,7 +66,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         return self.products
 
 
-class MetisIfuCalibrate(MetisRecipe):
+class MetisIfuDistortion(MetisRecipe):
     _name = "metis_ifu_calibrate"
     _version = "0.1"
     _author = "Martin Baláž"
