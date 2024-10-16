@@ -36,6 +36,7 @@ packages =
     pymetis.recipes
     pymetis.recipes.img
     pymetis.recipes.ifu
+    pymetis.tests
 package_dir =
     pymetis = ./src/pymetis
     pymetis.base = ./src/pymetis/base
@@ -45,6 +46,7 @@ package_dir =
     pymetis.recipes = ./src/pymetis/recipes
     pymetis.recipes.img = ./src/pymetis/recipes/img
     pymetis.recipes.ifu = ./src/pymetis/recipes/ifu
+    pymetis.tests = ./src/pymetis/tests
 zip_safe = False
 
 [options.extras_require]
