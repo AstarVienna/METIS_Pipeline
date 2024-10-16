@@ -15,16 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(recipe_SOURCES
-    metis_det_lingain.py
-    img/metis_lm_basic_reduction.py
-    img/metis_n_img_flat.py
-    img/metis_lm_img_flat.py
-    ifu/metis_ifu_calibrate.py
-    ifu/metis_ifu_distortion.py
-    ifu/metis_ifu_telluric.py
-    ifu/metis_ifu_reduce.py
-    ifu/metis_ifu_postprocess.py
-    metis_det_dark.py)
+    metis_recipes.py)
 
 install(FILES ${recipe_SOURCES}
         DESTINATION ${PACKAGE_RECIPE_DIR}/${PACKAGE_NAME}-${PACKAGE_VERSION}
