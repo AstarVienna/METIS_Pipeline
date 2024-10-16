@@ -34,6 +34,8 @@ packages =
     pymetis.mixins
     pymetis.prefabricates
     pymetis.recipes
+    pymetis.recipes.img
+    pymetis.recipes.ifu
 package_dir =
     pymetis = ./src/pymetis
     pymetis.base = ./src/pymetis/base
@@ -41,6 +43,8 @@ package_dir =
     pymetis.mixins = ./src/pymetis/mixins
     pymetis.prefabricates = ./src/pymetis/prefabricates
     pymetis.recipes = ./src/pymetis/recipes
+    pymetis.recipes.img = ./src/pymetis/recipes/img
+    pymetis.recipes.ifu = ./src/pymetis/recipes/ifu
 zip_safe = False
 
 [options.extras_require]
