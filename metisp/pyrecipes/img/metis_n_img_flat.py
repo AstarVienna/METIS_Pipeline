@@ -1,16 +1,7 @@
 import cpl
 
-from impl.base import MetisRecipe
-from metisp.pymetis.src.prefabricates.flat import MetisBaseImgFlatImpl
-
-
-class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
-    class InputSet(MetisBaseImgFlatImpl.InputSet):
-        band = "N"
-        detector = "GEO"
-
-    class Product(MetisBaseImgFlatImpl.Product):
-        band: str = "N"
+from ..base import MetisRecipe
+from impl.img.metis_n_img_flat import MetisNImgFlatImpl
 
 
 class MetisNImgFlat(MetisRecipe):

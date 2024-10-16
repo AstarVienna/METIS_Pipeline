@@ -1,6 +1,7 @@
 import cpl
 
-from . import MetisRecipe
+from .. import MetisRecipe
+from impl.img.metis_lm_img_flat import MetisLmImgFlatImpl
 
 
 class MetisLmImgFlat(MetisRecipe):

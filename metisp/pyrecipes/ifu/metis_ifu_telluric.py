@@ -1,29 +1,8 @@
 import cpl
 from typing import Dict
 
-from impl.base import MetisRecipe, MetisRecipeImpl
+from .base import MetisRecipe, MetisRecipeImpl
 from metisp.pymetis.src.base.product import PipelineProduct
-
-
-class MetisIfuTelluricImpl(MetisRecipeImpl):
-    class ProductSciReduced1D(PipelineProduct):
-        category = rf"IFU_SCI_REDUCED_1D"
-
-    class ProductIfuTelluric(PipelineProduct):
-        category = "IFU_TELLURIC"
-
-    class ProductFluxcalTab(PipelineProduct):
-        category = "FLUXCAL_TAB"
-
-    def process_images(self) -> Dict[str, PipelineProduct]:
-        # self.correct_telluric()
-        # self.apply_fluxcal()
-
-        self.products = {
-            product.category: product()
-            for product in [self.ProductSciReduced1D, self.ProductIfuTelluric, self.ProductFluxcalTab]
-        }
-        return self.products
 
 
 class MetisIfuTelluric(MetisRecipe):
