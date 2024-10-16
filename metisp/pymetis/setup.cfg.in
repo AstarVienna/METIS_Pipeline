@@ -29,8 +29,11 @@ install_requires =
     astropy
 packages =
     pymetis
-    pymetis.mixins
     pymetis.base
+    pymetis.inputs
+    pymetis.mixins
+    pymetis.prefabricates
+    pymetis.recipes
 package_dir =
     pymetis = ./src/pymetis
     pymetis.base = ./src/pymetis/base
