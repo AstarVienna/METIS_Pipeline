@@ -1,5 +1,6 @@
 import inspect
 import subprocess
+from pathlib import Path
 
 import cpl
 import pytest
@@ -13,7 +14,7 @@ from pymetis.tests.fixtures import load_frameset, BaseInputTest
 
 @pytest.fixture
 def sof():
-    return "pymetis/sof/detlin.sof"
+    return Path(__file__).parent.parent.parent.parent / "sof" / "detlin.sof"
 
 
 class TestRecipe:

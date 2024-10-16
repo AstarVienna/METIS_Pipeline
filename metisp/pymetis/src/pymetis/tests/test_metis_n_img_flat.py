@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 import subprocess
 import cpl
@@ -9,7 +11,7 @@ from fixtures import create_pyesorex, load_frameset,  BaseInputTest
 
 @pytest.fixture
 def sof():
-    return "pymetis/sof/masterflat-n.sof"
+    return Path(__file__).parent.parent.parent.parent / "sof" / "masterflat-n.sof"
 
 
 class TestRecipe:
