@@ -2,15 +2,15 @@ import cpl
 from cpl.core import Msg
 from typing import Any, Dict, Literal
 
-from prototypes.base.impl import MetisRecipeImpl, MetisRecipe
-from prototypes.base.product import PipelineProduct
-from prototypes.inputs.base import SinglePipelineInput
-from prototypes.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
-from prototypes.prefabricates.darkimage import DarkImageProcessor
+from pymetis.base.impl import MetisRecipeImpl, MetisRecipe
+from pymetis.base.product import PipelineProduct
+from pymetis.inputs.base import SinglePipelineInput
+from pymetis.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
+from pymetis.prefabricates.darkimage import DarkImageProcessor
 
-from prototypes.prefabricates.rawimage import RawImageProcessor
-from prototypes.mixins import MasterDarkInputMixin, LinearityInputMixin, PersistenceInputMixin
-from prototypes.mixins.detectors import Detector2rgMixin
+from pymetis.prefabricates.rawimage import RawImageProcessor
+from pymetis.mixins import MasterDarkInputMixin, LinearityInputMixin, PersistenceInputMixin
+from pymetis.mixins.detectors import Detector2rgMixin
 
 
 class MetisIfuReduceImpl(MetisRecipeImpl):

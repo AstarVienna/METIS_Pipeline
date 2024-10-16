@@ -3,11 +3,11 @@ from typing import Dict
 import cpl
 from cpl.core import Msg
 
-from prototypes.base.impl import MetisRecipe
-from prototypes.base.product import PipelineProduct
-from prototypes.inputs import RawInput
-from prototypes.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
-from prototypes.prefabricates.darkimage import DarkImageProcessor
+from pymetis.base.impl import MetisRecipe
+from pymetis.base.product import PipelineProduct
+from pymetis.inputs import RawInput
+from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
+from pymetis.prefabricates.darkimage import DarkImageProcessor
 
 
 class MetisLmBasicReduceImpl(DarkImageProcessor):
@@ -28,7 +28,7 @@ class MetisLmBasicReduceImpl(DarkImageProcessor):
             Again, the frame set may be empty if required is set to False.
 
         You may instantiate your inputs directly as SinglePipelineInput or MultiplePipelineInput with appropriate tags,
-        or use or extend one of the predefined classes (see `prototypes.inputs.common`).
+        or use or extend one of the predefined classes (see `pymetis.inputs.common`).
 
         The input is automatically verified (see the base InputSet class and its Single and Multiple children)
         and an exception is raised whenever something is amiss.

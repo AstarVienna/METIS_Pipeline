@@ -3,13 +3,13 @@ from typing import Dict
 import cpl
 from cpl.core import Msg
 
-from prototypes.base.impl import MetisRecipeImpl, MetisRecipe
-from prototypes.inputs.common import RawInput, LinearityInput
-from prototypes.base.product import PipelineProduct
-from prototypes.inputs import PipelineInputSet
-from prototypes.prefabricates.rawimage import RawImageProcessor
+from pymetis.base.impl import MetisRecipeImpl, MetisRecipe
+from pymetis.inputs.common import RawInput, LinearityInput
+from pymetis.base.product import PipelineProduct
+from pymetis.inputs import PipelineInputSet
+from pymetis.prefabricates.rawimage import RawImageProcessor
 
-from prototypes.mixins.detectors import Detector2rgMixin
+from pymetis.mixins.detectors import Detector2rgMixin
 
 
 class MetisDetDarkImpl(RawImageProcessor):

@@ -4,11 +4,11 @@ from typing import Dict
 import cpl
 from cpl.core import Msg
 
-from prototypes.inputs import PipelineInputSet
-from prototypes.inputs.common import RawInput, MasterDarkInput
-from prototypes.base.product import PipelineProduct
+from pymetis.inputs import PipelineInputSet
+from pymetis.inputs.common import RawInput, MasterDarkInput
+from pymetis.base.product import PipelineProduct
 
-from prototypes.prefabricates.darkimage import DarkImageProcessor
+from pymetis.prefabricates.darkimage import DarkImageProcessor
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):

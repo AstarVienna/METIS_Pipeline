@@ -3,12 +3,12 @@ from typing import Dict
 
 import cpl
 
-from prototypes.base.impl import MetisRecipe
-from prototypes.inputs.base import MultiplePipelineInput
-from prototypes.inputs.common import RawInput, MasterDarkInput
-from prototypes.prefabricates.darkimage import DarkImageProcessor
-from prototypes.base.product import PipelineProduct, DetectorProduct
-from prototypes.prefabricates.rawimage import RawImageProcessor
+from pymetis.base.impl import MetisRecipe
+from pymetis.inputs.base import MultiplePipelineInput
+from pymetis.inputs.common import RawInput, MasterDarkInput
+from pymetis.prefabricates.darkimage import DarkImageProcessor
+from pymetis.base.product import PipelineProduct, DetectorProduct
+from pymetis.prefabricates.rawimage import RawImageProcessor
 
 
 class LinGainProduct(DetectorProduct, ABC):

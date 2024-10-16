@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 import cpl
 from cpl.core import Msg
 
-from prototypes.inputs.base import PipelineInput
+from pymetis.inputs.base import PipelineInput
 
 
 class PipelineInputSet(metaclass=ABCMeta):

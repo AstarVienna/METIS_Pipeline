@@ -4,10 +4,10 @@ from typing import Literal
 import cpl
 from cpl.core import Msg
 
-from prototypes.base.impl import MetisRecipeImpl
-from prototypes.base.input import RecipeInput
-from prototypes.inputs import PipelineInputSet
-from prototypes.inputs.common import RawInput
+from pymetis.base.impl import MetisRecipeImpl
+from pymetis.base.input import RecipeInput
+from pymetis.inputs import PipelineInputSet
+from pymetis.inputs.common import RawInput
 
 
 class RawImageProcessor(MetisRecipeImpl, ABC):

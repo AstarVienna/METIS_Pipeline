@@ -4,8 +4,8 @@ from typing import Dict, Any
 import cpl
 from cpl.core import Msg
 
-from prototypes.base.product import PipelineProduct
-from prototypes.inputs import PipelineInputSet
+from pymetis.base.product import PipelineProduct
+from pymetis.inputs import PipelineInputSet
 
 
 class MetisRecipeImpl(ABC):

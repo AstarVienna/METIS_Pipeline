@@ -2,8 +2,8 @@ from abc import ABC
 
 import cpl.ui
 
-from prototypes.inputs.common import MasterDarkInput
-from prototypes.prefabricates.rawimage import RawImageProcessor
+from pymetis.inputs.common import MasterDarkInput
+from pymetis.prefabricates.rawimage import RawImageProcessor
 
 
 class DarkImageProcessor(RawImageProcessor, ABC):

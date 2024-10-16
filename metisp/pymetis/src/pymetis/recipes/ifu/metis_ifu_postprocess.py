@@ -2,10 +2,10 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
-from prototypes.base.impl import MetisRecipe, MetisRecipeImpl
-from prototypes.base.input import RecipeInput
-from prototypes.base.product import PipelineProduct
-from prototypes.recipes.ifu.metis_ifu_distortion import MetisIfuDistortionImpl
+from pymetis.base.impl import MetisRecipe, MetisRecipeImpl
+from pymetis.base.input import RecipeInput
+from pymetis.base.product import PipelineProduct
+from pymetis.recipes.ifu.metis_ifu_distortion import MetisIfuDistortionImpl
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):

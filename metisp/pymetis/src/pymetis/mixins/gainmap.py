@@ -1,6 +1,6 @@
 import cpl
 
-from prototypes.base.input import RecipeInput
+from pymetis.base.input import RecipeInput
 
 
 class GainMapInputMixin(RecipeInput):
