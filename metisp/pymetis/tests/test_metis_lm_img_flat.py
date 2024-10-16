@@ -2,14 +2,14 @@ import pytest
 import subprocess
 import cpl
 
-from prototypes.recipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
+from pymetis.recipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
 
 from fixtures import create_pyesorex, load_frameset, BaseInputTest
 
 
 @pytest.fixture
 def sof():
-    return "prototypes/sof/masterflat-lm.sof"
+    return "pymetis/sof/masterflat-lm.sof"
 
 
 class TestRecipe:
@@ -31,7 +31,7 @@ class TestRecipe:
 
     def test_is_working(self, sof):
         output = subprocess.run(['pyesorex', 'metis_lm_img_flat', sof,
-                                 '--recipe-dir', 'prototypes/recipes/',
+                                 '--recipe-dir', 'pymetis/recipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]

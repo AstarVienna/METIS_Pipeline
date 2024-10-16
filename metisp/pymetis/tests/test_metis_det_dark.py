@@ -4,16 +4,16 @@ import subprocess
 import cpl
 import pytest
 
-from prototypes.base.product import PipelineProduct
-from prototypes.inputs.inputset import PipelineInputSet
-from prototypes.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
+from pymetis.base.product import PipelineProduct
+from pymetis.inputs.inputset import PipelineInputSet
+from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
-from prototypes.tests.fixtures import load_frameset, BaseInputTest
+from pymetis.tests.fixtures import load_frameset, BaseInputTest
 
 
 @pytest.fixture
 def sof():
-    return "prototypes/sof/masterdark.sof"
+    return "pymetis/sof/masterdark.sof"
 
 
 class TestRecipe:
@@ -29,8 +29,8 @@ class TestRecipe:
         instance.run(frameset, {})
 
     def test_pyesorex(self):
-        output = subprocess.run(['pyesorex', 'metis_det_dark', 'prototypes/sof/masterdark.sof',
-                                 '--recipe-dir', 'prototypes/recipes/',
+        output = subprocess.run(['pyesorex', 'metis_det_dark', 'pymetis/sof/masterdark.sof',
+                                 '--recipe-dir', 'pymetis/recipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]

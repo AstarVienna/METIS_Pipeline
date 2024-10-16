@@ -4,16 +4,16 @@ import subprocess
 import cpl
 import pytest
 
-from prototypes.base.product import PipelineProduct
-from prototypes.inputs.inputset import PipelineInputSet
-from prototypes.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
+from pymetis.base.product import PipelineProduct
+from pymetis.inputs.inputset import PipelineInputSet
+from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
-from prototypes.tests.fixtures import load_frameset, BaseInputTest
+from pymetis.tests.fixtures import load_frameset, BaseInputTest
 
 
 @pytest.fixture
 def sof():
-    return "prototypes/sof/detlin.sof"
+    return "pymetis/sof/detlin.sof"
 
 
 class TestRecipe:
@@ -30,7 +30,7 @@ class TestRecipe:
 
     def test_pyesorex(self, sof):
         output = subprocess.run(['pyesorex', 'metis_det_lingain', sof,
-                                 '--recipe-dir', 'prototypes/recipes/',
+                                 '--recipe-dir', 'pymetis/recipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]
