@@ -9,7 +9,7 @@ c_default   := $(shell tput sgr0; tput setaf 7)
 
 define pyesorex
 	@echo -e '$(c_action)[pyesorex] Running recipe $(c_special)$1$(c_action) on $(c_filename)$(2)$(c_filename).sof$(c_default)'
-	pyesorex --recipe-dir metisp/pyrecipes/ $(1) prototypes/sof/$(2).sof --log-level DEBUG
+	pyesorex --recipe-dir metisp/pyrecipes/ $(1) metisp/pymetis/sof/$(2).sof --log-level DEBUG
 endef
 
 dark:
