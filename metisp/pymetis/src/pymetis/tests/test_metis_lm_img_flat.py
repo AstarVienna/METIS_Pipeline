@@ -6,33 +6,25 @@ import cpl
 
 from pymetis.recipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
 
-from fixtures import create_pyesorex, load_frameset, BaseInputTest
+from fixtures import create_pyesorex, load_frameset
+from generic import BaseInputTest, BaseRecipeTest
 
 
 @pytest.fixture
 def sof():
     return Path(__file__).parent.parent.parent.parent / "sof" / "masterflat-lm.sof"
 
+@pytest.fixture
+def name():
+    return 'metis_lm_img_flat'
 
-class TestRecipe:
+
+class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple test cases... just to see if it does something """
+    _recipe = Recipe
 
-    def test_create(self):
-        recipe = Recipe()
-        assert isinstance(recipe, cpl.ui.PyRecipe)
-
-    def test_direct(self, load_frameset, sof):
-        instance = Recipe()
-        frameset = cpl.ui.FrameSet(load_frameset(sof))
-        instance.run(frameset, {})
-
-    def test_pyesorex(self, create_pyesorex):
-        pyesorex = create_pyesorex(Recipe)
-        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
-        assert pyesorex.recipe.name == 'metis_lm_img_flat'
-
-    def test_is_working(self, sof):
-        output = subprocess.run(['pyesorex', 'metis_lm_img_flat', sof,
+    def test_is_working(self, name, sof):
+        output = subprocess.run(['pyesorex', name, sof,
                                  '--recipe-dir', 'metisp/pyrecipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)

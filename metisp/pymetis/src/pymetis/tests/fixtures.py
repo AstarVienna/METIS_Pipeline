@@ -34,19 +34,3 @@ def load_frameset():
 
         return frameset
     return inner
-
-
-class BaseInputTest(ABC):
-    impl = None
-    count = None
-
-    def test_is_input(self):
-        assert issubclass(self.impl.InputSet, PipelineInputSet)
-
-    def test_is_concrete(self):
-        assert not inspect.isabstract(self.impl.InputSet)
-
-    def test_can_load(self, load_frameset, sof):
-        instance = self.impl.InputSet(load_frameset(sof))
-        assert instance.verify() is None
-        assert len(instance.raw.frameset) == self.count

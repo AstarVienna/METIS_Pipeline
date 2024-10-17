@@ -7,7 +7,8 @@ import pytest
 from pymetis.base.product import PipelineProduct
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
-from pymetis.tests.fixtures import load_frameset, BaseInputTest
+from pymetis.tests.fixtures import load_frameset
+from generic import BaseInputTest
 
 
 @pytest.fixture
@@ -18,7 +19,7 @@ def sof():
 class TestRecipe:
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
 
-    def test_create(self):
+    def test_can_be_created(self):
         recipe = Recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
