@@ -5,7 +5,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import PipelineInputSet
+from pymetis.inputs.inputset import PipelineInputSet
 
 
 class MetisRecipeImpl(ABC):
@@ -99,35 +99,3 @@ class MetisRecipeImpl(ABC):
             product_frames.append(product.as_frame())
 
         return product_frames
-
-
-class MetisRecipe(cpl.ui.PyRecipe):
-    """
-        The abstract base class for all METIS recipes.
-        In an ideal world it would also be abstract (derived from ABC, or metaclass=abc.ABCMeta),
-        but `pyesorex` wants to instantiate all recipes it finds
-        and would crash with an abstract class.
-        The underscored _fields must be present but should be overwritten
-        by every child class (`pyesorex` actually checks for their presence).
-    """
-    _name = "metis_abstract_base"
-    _version = "0.0.1"
-    _author = "Martin Baláž"
-    _email = "martin.balaz@univie.ac.at"
-    _copyright = "CPL-3.0-or-later"
-    _synopsis = "Abstract-like base class for METIS recipes"
-    _description = "This class serves as the base class for all METIS recipes."
-
-    parameters = cpl.ui.ParameterList([])   # By default, classes do not have any parameters
-    implementation_class = str              # Dummy class, this is instantiated but not used, `str` does not hurt.
-
-    def __init__(self):
-        super().__init__()
-        self.implementation = self.implementation_class(self)
-
-    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
-        """
-            The main method, as required by PyCPL.
-            It just calls the same method in the decoupled implementation.
-        """
-        return self.implementation.run(frameset, settings)

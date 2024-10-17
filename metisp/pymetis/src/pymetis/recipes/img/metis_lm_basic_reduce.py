@@ -3,18 +3,18 @@ from typing import Dict
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.impl import MetisRecipe
+from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
-from pymetis.prefabricates.darkimage import DarkImageProcessor
+from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisLmBasicReduceImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
         """
-        The first step of writing a recipe is to define an InputSet: the class that wraps all the recipe inputs.
-        It puts together
+        The first step of writing a recipe is to define an InputSet: the singleton class
+        that wraps all the recipe inputs. It encapsulates the entire input and
 
         - defines which tags to look for, optionally with placeholders like `{det}`, that can be set globally
         - which of the inputs are optional (just set `required = False`)
@@ -24,8 +24,8 @@ class MetisLmBasicReduceImpl(DarkImageProcessor):
 
         - children of SinglePipelineInput, which expect exactly one frame to be present (or at most one if optional).
             They will warn is multiple frames are found and keep the last one.
-        - children of MultiplePipelineInput, which expect multiple frames with the same tag, usually RAWs.
-            Again, the frame set may be empty if required is set to False.
+        - children of MultiplePipelineInput, which expect multiple frames with the same tag (usually RAWs).
+            Again, the frame set may be empty if `required` is set to False.
 
         You may instantiate your inputs directly as SinglePipelineInput or MultiplePipelineInput with appropriate tags,
         or use or extend one of the predefined classes (see `pymetis.inputs.common`).
@@ -170,9 +170,9 @@ class MetisLmBasicReduce(MetisRecipe):
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Basic science image data processing"
     _description = (
-        "The recipe combines all science input files in the input set-of-frames using\n"
-        + "the given method. For each input science image the master bias is subtracted,\n"
-        + "and it is divided by the master flat."
+            "The recipe combines all science input files in the input set-of-frames using\n"
+            + "the given method. For each input science image the master bias is subtracted,\n"
+            + "and it is divided by the master flat."
     )
 
     parameters = cpl.ui.ParameterList([

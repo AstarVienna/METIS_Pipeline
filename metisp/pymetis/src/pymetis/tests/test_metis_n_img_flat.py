@@ -7,6 +7,7 @@ import cpl
 from pymetis.recipes.img.metis_n_img_flat import MetisNImgFlat as Recipe, MetisNImgFlatImpl as Impl
 
 from fixtures import create_pyesorex, load_frameset,  BaseInputTest
+from generic import create_pyesorex
 
 
 @pytest.fixture
@@ -33,7 +34,7 @@ class TestRecipe:
 
     def test_is_working(self, sof):
         output = subprocess.run(['pyesorex', 'metis_n_img_flat', sof,
-                                 '--recipe-dir', 'pymetis/recipes/',
+                                 '--recipe-dir', 'metisp/pyrecipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]

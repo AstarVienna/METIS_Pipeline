@@ -2,11 +2,9 @@ import cpl
 from cpl.core import Msg
 from typing import Dict, Literal
 
-from pymetis.base.impl import MetisRecipe
-from pymetis.prefabricates.darkimage import DarkImageProcessor
-from pymetis.mixins import PersistenceInputMixin, BadpixMapInputMixin, LinearityInputMixin, GainMapInputMixin
-from pymetis.mixins.detectors import Detector2rgMixin
+from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
+from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuDistortionImpl(DarkImageProcessor):
@@ -67,11 +65,10 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
 
 class MetisIfuDistortion(MetisRecipe):
-    _name = "metis_ifu_calibrate"
+    _name = "metis_ifu_distortion"
     _version = "0.1"
     _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"
-    _copyright = "GPL-3.0-or-later"
     _synopsis = "Reduce raw science exposures of the IFU."
     _description = (
         "Currently just a skeleton prototype."

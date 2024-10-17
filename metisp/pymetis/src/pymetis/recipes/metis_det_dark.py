@@ -3,13 +3,13 @@ from typing import Dict
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.impl import MetisRecipeImpl, MetisRecipe
 from pymetis.inputs.common import RawInput, LinearityInput
+from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import PipelineInputSet
-from pymetis.prefabricates.rawimage import RawImageProcessor
+from pymetis.prefab.rawimage import RawImageProcessor
 
-from pymetis.mixins.detectors import Detector2rgMixin
+from pymetis.inputs.detectors import Detector2rgMixin
 
 
 class MetisDetDarkImpl(RawImageProcessor):
@@ -17,14 +17,14 @@ class MetisDetDarkImpl(RawImageProcessor):
         class RawDarkInput(Detector2rgMixin, RawInput):
             _tags = ["DARK_{det}_RAW"]
 
-        class LinearityInput(LinearityInput):
+        class LinearityInput(Detector2rgMixin, LinearityInput):
             _tags = ["LINEARITY_{det}"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.raw = self.RawDarkInput(frameset, det=self.band)       # ToDo: inconsistent, should be detector "2RG"
-            self.linearity = self.LinearityInput(frameset, det=self.band, required=False)
+            self.raw = self.RawDarkInput(frameset, det='LM')       # ToDo: inconsistent, should be detector "2RG"
+            self.linearity = self.LinearityInput(frameset, det='LM', required=False)
 
-            self.inputs = [self.raw, self.linearity]
+            self.inputs += [self.raw, self.linearity]
             super().__init__(frameset)
 
     class Product(Detector2rgMixin, PipelineProduct):
@@ -90,7 +90,7 @@ class MetisDetDark(MetisRecipe):
     _email = "hugo@buddelmeijer.nl"
     _synopsis = "Create master dark"
     _description = (
-        "Prototype to create a METIS Masterdark."
+        "Prototype to create a METIS masterdark."
     )
 
     parameters = cpl.ui.ParameterList([

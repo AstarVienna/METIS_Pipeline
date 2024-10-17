@@ -2,10 +2,9 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
-from pymetis.base.impl import MetisRecipe, MetisRecipeImpl
-from pymetis.base.input import RecipeInput
+from pymetis.base import MetisRecipe, MetisRecipeImpl
+from pymetis.inputs import PipelineInput
 from pymetis.base.product import PipelineProduct
-from pymetis.recipes.ifu.metis_ifu_distortion import MetisIfuDistortionImpl
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
@@ -13,7 +12,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
     def detector_name(self) -> str | None:
         return "2RG"
 
-    class Input(RecipeInput):
+    class Input(PipelineInput):
         tag_sci_cube_calibrated = "IFU_SCI_CUBE_CALIBRATED"
         detector_name = '2RG'
 
@@ -64,4 +63,4 @@ class MetisIfuPostprocess(MetisRecipe):
     )
 
     parameters = cpl.ui.ParameterList([])
-    implementation_class = MetisIfuDistortionImpl
+    implementation_class = MetisIfuPostprocessImpl

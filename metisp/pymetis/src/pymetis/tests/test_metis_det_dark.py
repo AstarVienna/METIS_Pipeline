@@ -1,4 +1,3 @@
-import inspect
 import subprocess
 from pathlib import Path
 
@@ -6,7 +5,6 @@ import cpl
 import pytest
 
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs.inputset import PipelineInputSet
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
 from pymetis.tests.fixtures import load_frameset, BaseInputTest
@@ -29,9 +27,9 @@ class TestRecipe:
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
 
-    def test_pyesorex(self):
-        output = subprocess.run(['pyesorex', 'metis_det_dark', 'pymetis/sof/masterdark.sof',
-                                 '--recipe-dir', 'pymetis/recipes/',
+    def test_pyesorex(self, sof):
+        output = subprocess.run(['pyesorex', 'metis_det_dark', sof,
+                                 '--recipe-dir', 'metisp/pyrecipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]

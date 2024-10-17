@@ -1,4 +1,3 @@
-import inspect
 import subprocess
 from pathlib import Path
 
@@ -6,7 +5,6 @@ import cpl
 import pytest
 
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs.inputset import PipelineInputSet
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
 from pymetis.tests.fixtures import load_frameset, BaseInputTest
@@ -31,7 +29,7 @@ class TestRecipe:
 
     def test_pyesorex(self, sof):
         output = subprocess.run(['pyesorex', 'metis_det_lingain', sof,
-                                 '--recipe-dir', 'pymetis/recipes/',
+                                 '--recipe-dir', 'metisp/pyrecipes/',
                                  '--log-level', 'DEBUG'],
                                 capture_output=True)
         last_line = output.stdout.decode('utf-8').split('\n')[-3]

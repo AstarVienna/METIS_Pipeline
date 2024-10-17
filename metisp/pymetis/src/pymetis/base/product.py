@@ -18,11 +18,11 @@ class PipelineProduct(ABC):
     frame_type: cpl.ui.Frame.FrameType = None
 
     def __init__(self,
-                 recipe: 'MetisRecipeImpl',
+                 recipe_impl: 'MetisRecipeImpl',
                  header: cpl.core.PropertyList,
                  image: cpl.core.Image,
                  **kwargs):
-        self.recipe: 'MetisRecipeImpl' = recipe
+        self.recipe: 'MetisRecipeImpl' = recipe_impl
         self.header: cpl.core.PropertyList = header
         self.image: cpl.core.Image = image
         self.properties = cpl.core.PropertyList()
