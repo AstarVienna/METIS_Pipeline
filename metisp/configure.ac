@@ -85,11 +85,16 @@ HDRL_CHECK([hdrl])
 METIS_SET_PATHS
 METIS_CREATE_SYMBOLS
 
+AC_CONFIG_COMMANDS(pymetis/setup.cfg, [
+                    cd pymetis && cp -a setup.cfg $ac_srcdir/setup.cfg
+                ])
 AC_CONFIG_FILES(Makefile
                 Doxyfile
                 metis/Makefile
                 metis/tests/Makefile
                 recipes/Makefile
+                pymetis/Makefile
+                pyrecipes/Makefile
                 irplib/Makefile
                 irplib/tests/Makefile
                 reflex/Makefile

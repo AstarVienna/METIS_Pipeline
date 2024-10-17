@@ -90,5 +90,9 @@ metisp/admin/test-driver
 metisp/hdrl/admin/
 metisp/reflex/metis.xml
 
+build
+pymetis.egg-info
+metisp/pymetis/setup.cfg
+
 # We do not need FITS files in this repository
 *.fits
