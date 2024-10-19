@@ -29,5 +29,4 @@ MAINTAINERCLEANFILES = Makefile.in
 endif
 
 
-plugin_DATA = metis_det_lingain.py img/metis_lm_basic_reduction.py img/metis_n_img_flat.py img/metis_lm_img_flat.py ifu/metis_ifu_calibrate.py ifu/metis_ifu_distortion.py ifu/metis_ifu_telluric.py ifu/metis_ifu_reduce.py ifu/metis_ifu_postprocess.py metis_det_dark.py
-
+plugin_DATA = metis_recipes.py
