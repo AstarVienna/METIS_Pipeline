@@ -132,7 +132,7 @@ class MetisLmBasicReduceImpl(DarkImageProcessor):
         a single combined frame that is used throughout the pipeline.
         """
 
-        Msg.info(self.__class__.__qualname__, f"Starting processing image attibute.")
+        Msg.info(self.__class__.__qualname__, f"Starting processing image attribute.")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)

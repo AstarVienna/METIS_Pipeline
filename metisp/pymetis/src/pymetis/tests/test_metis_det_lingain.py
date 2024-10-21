@@ -23,12 +23,12 @@ class TestRecipe:
         recipe = Recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_direct(self, load_frameset, sof):
+    def test_can_be_run_directly(self, load_frameset, sof):
         instance = Recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
 
-    def test_pyesorex(self, sof):
+    def test_can_be_run_with_pyesorex(self, sof):
         output = subprocess.run(['pyesorex', 'metis_det_lingain', sof,
                                  '--recipe-dir', 'metisp/pyrecipes/',
                                  '--log-level', 'DEBUG'],

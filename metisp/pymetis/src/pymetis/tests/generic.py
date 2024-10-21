@@ -1,11 +1,9 @@
 import inspect
 from abc import ABC
+import subprocess
 
 import cpl
 
-import os
-import pytest
-from typing import Type
 
 from pymetis.base import MetisRecipe
 from pymetis.inputs import PipelineInputSet
@@ -29,12 +27,22 @@ class BaseInputTest(ABC):
 
 
 class BaseRecipeTest(ABC):
+    _recipe = None
+
+    @staticmethod
+    def run_with_pyesorex(name, sof):
+        output = subprocess.run(['pyesorex', name, sof,
+                                 '--recipe-dir', 'metisp/pyrecipes/',
+                                 '--log-level', 'DEBUG'],
+                                capture_output=True)
+        return output.stdout.decode('utf-8').split('\n')[-3]
+
     def test_create(self):
         recipe = self._recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
 
-    def test_direct(self, load_frameset, sof):
+    def test_can_be_run_directly(self, load_frameset, sof):
         instance = self._recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
