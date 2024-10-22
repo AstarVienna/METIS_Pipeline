@@ -50,6 +50,12 @@ class LinearityInput(SinglePipelineInput):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
 
+class BadpixMapInput(SinglePipelineInput):
+    _title: str = "bad pixel map"
+    _tags: [str] = ["BADPIX_MAP_{det}"]
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+
+
 class PersistenceMapInput(SinglePipelineInput):
     _title: str = "persistence map"
     _tags: [str] = ["PERSISTENCE_MAP"]

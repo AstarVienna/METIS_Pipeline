@@ -9,7 +9,7 @@ class PipelineInput:
     _title: str = None                      # No univerrsal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _tags: [str] = None                     # No universal tags are provided
-    _group: str = None
+    _group: str = None                      # No sensible default, must be provided explicitly
 
     @property
     def title(self):
@@ -61,6 +61,9 @@ class PipelineInput:
         # ...and that they are a list of strings (not a single string -- this leads to nasty errors)
         if not isinstance(self.tags, list):
             raise TypeError(f"Tags must be a list of string templates, got '{self.tags}'")
+        for tag in self.tags:
+            if not isinstance(tag, str):
+                raise TypeError(f"Tags must be a list of string templates, got '{type(tag)}'")
 
         # Override `required` if requested
         if required is not None:
@@ -74,7 +77,7 @@ class PipelineInput:
     @abstractmethod
     def verify(self) -> None:
         """
-        Verify that the input has all the required inputs
+        Verify that the input has all the required frames. There is no default logic.
         """
 
     def print_debug(self, *, offset: int = 0):

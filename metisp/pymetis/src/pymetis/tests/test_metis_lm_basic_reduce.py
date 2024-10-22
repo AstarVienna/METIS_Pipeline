@@ -5,7 +5,7 @@ import subprocess
 import pyesorex
 import cpl
 
-from pymetis.recipes.img.metis_lm_basic_reduce import MetisLmBasicReduce as Recipe, MetisLmBasicReduceImpl as Impl
+from pymetis.recipes.img.metis_lm_img_basic_reduce import MetisLmImgBasicReduce as Recipe, MetisLmImgBasicReduceImpl as Impl
 from fixtures import create_pyesorex, load_frameset
 from generic import BaseRecipeTest
 

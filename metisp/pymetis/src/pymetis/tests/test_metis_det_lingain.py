@@ -8,7 +8,7 @@ from pymetis.base.product import PipelineProduct
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
 from pymetis.tests.fixtures import load_frameset
-from generic import BaseInputTest
+from generic import BaseInputSetTest
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ class TestRecipe:
         assert len(Recipe.parameters) == 3
 
 
-class TestInput(BaseInputTest):
+class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 7
 

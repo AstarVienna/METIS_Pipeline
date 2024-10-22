@@ -14,14 +14,14 @@ class MetisRecipe(cpl.ui.PyRecipe):
     """
     _name = "metis_abstract_base"
     _version = "0.0.1"
-    _author = "Martin Baláž"
-    _email = "martin.balaz@univie.ac.at"
+    _author = "METIS PIP team"
+    _email = "astar.vienna@univie.ac.at" # ToDo some sensible default maybe?
     _copyright = "CPL-3.0-or-later"
     _synopsis = "Abstract-like base class for METIS recipes"
     _description = "This class serves as the base class for all METIS recipes."
 
-    parameters = cpl.ui.ParameterList([])           # By default, classes do not have any parameters
-    implementation_class: 'MetisRecipeImpl'         # Dummy class, this must be overridden in the derived classes anyway
+    parameters = cpl.ui.ParameterList([])          # By default, classes do not have any parameters
+    implementation_class: type                     # Dummy class, this must be overridden in the derived classes anyway
 
     def __init__(self):
         super().__init__()

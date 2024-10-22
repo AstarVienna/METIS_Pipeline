@@ -10,7 +10,7 @@ from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMa
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
-class MetisLmBasicReduceImpl(DarkImageProcessor):
+class MetisLmImgBasicReduceImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the singleton class
@@ -153,7 +153,7 @@ class MetisLmBasicReduceImpl(DarkImageProcessor):
         return self.products
 
 
-class MetisLmBasicReduce(MetisRecipe):
+class MetisLmImgBasicReduce(MetisRecipe):
     """
     Apart from our own recipe implementation we have to provide the actual recipe for PyEsoRex.
     This is very simple: just the
@@ -184,4 +184,4 @@ class MetisLmBasicReduce(MetisRecipe):
             alternatives=("add", "average", "median"),
         )
     ])
-    implementation_class = MetisLmBasicReduceImpl
+    implementation_class = MetisLmImgBasicReduceImpl

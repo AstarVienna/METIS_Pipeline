@@ -8,7 +8,7 @@ from pymetis.base.product import PipelineProduct
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
 from pymetis.tests.fixtures import load_frameset
-from generic import BaseInputTest, BaseRecipeTest
+from generic import BaseInputSetTest, BaseRecipeTest
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ class TestRecipe(BaseRecipeTest):
         assert len(Recipe.parameters) == 1
 
 
-class TestInput(BaseInputTest):
+class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 5
 

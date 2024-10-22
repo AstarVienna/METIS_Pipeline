@@ -7,7 +7,7 @@ import cpl
 from pymetis.recipes.img.metis_n_img_flat import MetisNImgFlat as Recipe, MetisNImgFlatImpl as Impl
 
 from fixtures import create_pyesorex, load_frameset
-from generic import BaseInputTest
+from generic import BaseInputSetTest
 from pymetis.tests.generic import BaseRecipeTest
 
 
@@ -44,6 +44,6 @@ class TestRecipe(BaseRecipeTest):
                              "CPL_FRAME_GROUP_PRODUCT  CPL_FRAME_LEVEL_FINAL  ")
 
 
-class TestInput(BaseInputTest):
+class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1

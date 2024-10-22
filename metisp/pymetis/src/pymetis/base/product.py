@@ -87,9 +87,9 @@ class PipelineProduct(ABC):
         )
 
     @property
-    @abstractmethod
     def category(self) -> str:
         """ Every product must define ESO PRO CATG """
+        return self.tag
 
     @property
     def output_file_name(self) -> str:
