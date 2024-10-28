@@ -18,6 +18,14 @@ class RsrfMasterDarkInput(Detector2rgMixin, MasterDarkInput):
     pass
 
 
+class DistortionTableInput(SinglePipelineInput):
+    _tags = ["IFU_DISTORTION_TABLE"]
+
+
+class WavecalInput(SinglePipelineInput):
+    _tags = ["IFU_WAVECAL"]
+
+
 class MetisIfuRsrfImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
         detector = '2RG'
