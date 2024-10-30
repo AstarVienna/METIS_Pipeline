@@ -1,6 +1,19 @@
 # METIS Pipeline
 METIS pipe line is the data reduction software for ELT early science instrument of Mid-IR imager and spectrograph.  
 
+## Installation
+
+```
+cd metisp
+./bootstrap
+./configure --prefix=/tmp/wherever
+make
+make python
+make install
+make install-python
+```
+
+
 ## Path Setting
 
 Including the following two line in your .bashrc
