@@ -1,0 +1,16 @@
+default_parameters: &default
+  is_default: yes
+  workflow_parameters:
+    my_workflow_parameter_for_metis: "auto"
+
+qc0_parameters:
+  <<: *default
+  is_default: no
+
+science_parameters:
+  <<: *default
+  is_default: no
+  recipe_parameters:
+    <<: *default_r
+    my_task_name:
+      metis.my_recipe_name.my_parameter_name: "auto"
