@@ -33,7 +33,7 @@ PYTHON_SUBDIRS = pymetis
 EXTRA_DIST = BUGS Doxyfile.in admin/doxygen.am admin/python.am
 
 
-pipedocs_DATA = ChangeLog AUTHORS NEWS README TODO COPYING
+pipedocs_DATA = ChangeLog AUTHORS NEWS README.md TODO COPYING
 
 
 if MAINTAINER_MODE
