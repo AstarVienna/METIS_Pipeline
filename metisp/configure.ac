@@ -97,6 +97,7 @@ AC_CONFIG_FILES(Makefile
                 pyrecipes/Makefile
                 irplib/Makefile
                 irplib/tests/Makefile
+                workflows/Makefile
                 reflex/Makefile
                 reflex/metis.xml
                 regtests/Makefile
