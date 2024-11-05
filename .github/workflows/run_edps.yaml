@@ -1,0 +1,37 @@
+name: Run EDPS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Run every day at 2:00 UTC
+    - cron: "0 2 * * *"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: fedora-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          ./toolbox/install_dependencies_fedora.sh
+          ./toolbox/install_edps.sh
+          ./toolbox/create_config.sh
+      - name: Fetch test data
+        run: |
+          git clone https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
+      - name: Run EDPS
+        run: |
+          pyesorex --recipes
+          pyesorex metis_det_lingain "${SOF_DIR}/metis_lm_lingain.sof"
+          edps -lw
+          edps -w metis.metis_lm_img_wkf -i $SOF_DATA -c
+          edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_lingain
+          edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_detlin
