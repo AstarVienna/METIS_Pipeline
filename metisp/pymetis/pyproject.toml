@@ -3,3 +3,8 @@ requires = [
     "setuptools >= 45",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "pymetis"
+version = "0.0.1"
+
