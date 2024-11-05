@@ -1,7 +1,7 @@
 apt-get update
 apt-get install -y \
     wget gcc  automake autogen libtool gsl-bin libgsl-dev libfftw3-bin libfftw3-dev fftw-dev \
-    curl bzip2 less subversion git which cppcheck lcov valgrind \
+    curl bzip2 less subversion git gnu-which cppcheck lcov valgrind \
     zlib1g zlib1g-dev \
     liberfa1 liberfa-dev \
     libcurl4-openssl-dev libcurl4 \
