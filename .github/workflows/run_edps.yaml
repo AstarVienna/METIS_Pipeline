@@ -21,9 +21,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          ./toolbox/install_dependencies_ubuntu.sh
-          python3 -m venv metispipe
-          . metispipe/bin/activate
+          sudo ./toolbox/install_dependencies_ubuntu.sh
+          # python3 -m venv metispipe
+          # . metispipe/bin/activate
           ./toolbox/install_edps.sh
           ./toolbox/create_config.sh
       - name: Fetch test data
@@ -31,7 +31,7 @@ jobs:
           git clone https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
       - name: Run EDPS
         run: |
-          . metispipe/bin/activate
+          # . metispipe/bin/activate
           export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
           export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
           export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/metis_sim_small_1/data"
