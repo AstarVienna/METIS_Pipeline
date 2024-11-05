@@ -44,3 +44,4 @@ jobs:
           edps -w metis.metis_lm_img_wkf -i $SOF_DATA -c
           # edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_lingain
           edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_detlin
+          edps -w metis.metis_lm_img_wkf -i $SOF_DATA
