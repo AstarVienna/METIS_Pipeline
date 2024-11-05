@@ -16,12 +16,14 @@ on:
 
 jobs:
   run:
-    runs-on: fedora-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          ./toolbox/install_dependencies_fedora.sh
+          ./toolbox/install_dependencies_ubuntu.sh
+          python3 -m venv metispipe
+          . metispipe/bin/activate
           ./toolbox/install_edps.sh
           ./toolbox/create_config.sh
       - name: Fetch test data
@@ -29,6 +31,11 @@ jobs:
           git clone https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
       - name: Run EDPS
         run: |
+          . metispipe/bin/activate
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/metis_sim_small_1/data"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/metis_sim_small_1/sof"
           pyesorex --recipes
           pyesorex metis_det_lingain "${SOF_DIR}/metis_lm_lingain.sof"
           edps -lw
