@@ -74,7 +74,7 @@ lingain_task = (task('metis_det_detlin')
 flat_task = (task("metis_lm_img_flat")
             .with_main_input(lm_lamp_flat)
             .with_associated_input(dark_task)
-            .with_recipe("metis_lm_img_flat")
+            .with_recipe("metis_lm_img_flatHB")
             .build())
 
 basic_reduction = (task('metis_lm_basic_reduce')
