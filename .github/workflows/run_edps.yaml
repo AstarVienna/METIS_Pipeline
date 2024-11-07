@@ -42,6 +42,5 @@ jobs:
           pyesorex metis_det_lingain "${SOF_DIR}/metis_lm_lingain.sof"
           edps -lw
           edps -w metis.metis_lm_img_wkf -i $SOF_DATA -c
-          # edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_lingain
-          edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_detlin
-          edps -w metis.metis_lm_img_wkf -i $SOF_DATA
+          edps -w metis.metis_lm_img_wkf -i $SOF_DATA | tee edps.stdout.txt
+          ! grep "'FAILED'" edps.stdout.txt
