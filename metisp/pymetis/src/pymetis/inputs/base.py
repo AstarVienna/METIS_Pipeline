@@ -6,7 +6,7 @@ from cpl.core import Msg
 
 
 class PipelineInput:
-    _title: str = None                      # No univerrsal title makes sense
+    _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _tags: [str] = None                     # No universal tags are provided
     _group: str = None                      # No sensible default, must be provided explicitly

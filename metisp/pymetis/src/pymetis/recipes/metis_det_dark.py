@@ -13,20 +13,19 @@ from pymetis.inputs.mixins import Detector2rgMixin
 
 
 class MetisDetDarkImpl(RawImageProcessor):
-    class InputSet(Detector2rgMixin, PipelineInputSet):
+    class InputSet(Detector2rgMixin, RawImageProcessor.InputSet):
         detector = "LM"
 
         class RawDarkInput(RawInput):
             _tags = ["DARK_{det}_RAW"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.raw = self.RawDarkInput(frameset, det=self.detector)   # ToDo: inconsistent, should be detector "2RG"
             self.linearity = LinearityInput(frameset, det=self.detector, required=False) # But should be
             self.badpix_map = BadpixMapInput(frameset, det=self.detector, required=False)
             self.persistence_map = PersistenceMapInput(frameset, required=False) # But should be
             self.gain_map = GainMapInput(frameset, det=self.detector, required=False) # But should be
 
-            self.inputs += [self.raw, self.linearity, self.badpix_map, self.persistence_map, self.gain_map]
+            self.inputs += [self.linearity, self.badpix_map, self.persistence_map, self.gain_map]
             super().__init__(frameset)
 
     class Product(Detector2rgMixin, PipelineProduct):
