@@ -15,7 +15,7 @@ from pymetis.mixins.detectors import Detector2rgMixin
 class MetisDetDarkImpl(RawImageProcessor):
     class InputSet(Detector2rgMixin, PipelineInputSet):
         class RawDarkInput(Detector2rgMixin, RawInput):
-            _tags = ["DARK_{det}_RAW"]
+            _tags = ["DARK_2RG_RAW"]
 
         class LinearityInput(LinearityInput):
             _tags = ["LINEARITY_{det}"]
