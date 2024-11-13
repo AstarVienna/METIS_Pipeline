@@ -29,7 +29,7 @@ jobs:
           ./toolbox/create_config.sh
       - name: Fetch test data
         run: |
-          git clone --branch hb/updatesofs https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
+          git clone --branch hb/addmorerecipes https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
       - name: Run pyESOREX test
         run: |
           # . metispipe/bin/activate
