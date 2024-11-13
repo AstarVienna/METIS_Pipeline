@@ -6,9 +6,7 @@ from pytest import fixture
 
 import cpl
 
-from pymetis.base import MetisRecipe
 from pymetis.inputs import PipelineInputSet
-from pymetis.tests.fixtures import load_frameset, create_pyesorex
 
 
 class BaseInputSetTest(ABC):

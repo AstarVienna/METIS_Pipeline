@@ -7,7 +7,6 @@ import pytest
 from pymetis.base.product import PipelineProduct
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
-from pymetis.tests.fixtures import load_frameset
 from generic import BaseInputSetTest, BaseRecipeTest
 
 

@@ -1,14 +1,12 @@
-import os
 import pytest
-from typing import Type
+import os
+
 from pathlib import Path
-
-from pyesorex.pyesorex import Pyesorex
-
-from pymetis.inputs.inputset import PipelineInputSet
-from pymetis.base import MetisRecipe
+from typing import Type
 
 import cpl
+from pyesorex.pyesorex import Pyesorex
+from pymetis.base import MetisRecipe
 
 
 root = Path(os.path.expandvars("$SOF"))

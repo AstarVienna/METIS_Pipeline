@@ -6,7 +6,6 @@ import cpl
 
 from pymetis.recipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
 
-from fixtures import create_pyesorex, load_frameset
 from generic import BaseInputSetTest, BaseRecipeTest
 
 

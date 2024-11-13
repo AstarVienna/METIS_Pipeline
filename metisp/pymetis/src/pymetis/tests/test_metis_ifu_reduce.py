@@ -1,7 +1,6 @@
 import cpl
 
 from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl)
-from fixtures import create_pyesorex
 
 
 class TestMetisIfuReduce:
