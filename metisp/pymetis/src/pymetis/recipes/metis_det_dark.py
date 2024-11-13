@@ -9,7 +9,7 @@ from pymetis.base.product import PipelineProduct
 from pymetis.inputs import PipelineInputSet
 from pymetis.prefab.rawimage import RawImageProcessor
 
-from pymetis.inputs.mixins import Detector2rgMixin
+from pymetis.inputs.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
 class MetisDetDarkImpl(RawImageProcessor):
@@ -81,6 +81,18 @@ class MetisDetDarkImpl(RawImageProcessor):
             fr'METIS_{self.detector_name}_DARK':
                 self.Product(self, header, combined_image),
         }
+
+
+class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):
+    pass
+
+
+class MetisGeoDarkImpl(DetectorGeoMixin, MetisDetDarkImpl):
+    pass
+
+
+class MetisIfuDarkImpl(DetectorIfuMixin, MetisDetDarkImpl):
+    pass
 
 
 class MetisDetDark(MetisRecipe):
