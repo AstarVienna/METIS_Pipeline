@@ -1,7 +1,7 @@
 from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
 from edps import task, data_source, classification_rule
 
-detlin_class = classification_rule("DETLIN_DET_RAW",
+detlin_class = classification_rule("DETLIN_2RG_RAW",
                                     {"instrume":"METIS", 
                                      "dpr.catg": "CALIB", 
                                      "dpr.type":"DETLIN",

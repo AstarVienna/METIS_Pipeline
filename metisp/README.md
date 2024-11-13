@@ -76,9 +76,11 @@ Listing all avaliable processing tasks
 
 Running one specific recipe
 ```
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_detlin
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark
- edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_basic_reduction
-
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_lm_img_flat
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_lm_basic_reduce
+ 
 ```
 
 Getting report in a better way
