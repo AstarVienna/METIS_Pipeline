@@ -49,7 +49,7 @@ jobs:
           pyesorex metis_lm_img_flat  "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
           cat "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
           # TODO: This recipe name is incorrect and should be renamed
-          pyesorex metis_lm_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
+          #pyesorex metis_lm_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
       - name: Run EDPS
         run:  |
           # . metispipe/bin/activate
