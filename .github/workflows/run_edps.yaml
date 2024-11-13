@@ -40,6 +40,14 @@ jobs:
           export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/metis_sim_small_1/sof"
           pyesorex --recipes
           pyesorex metis_det_lingain "${SOF_DIR}/metis_lm_lingain.sof"
+          cp LINEARITY_2RG.fits $SOF_DATA/LINEARITY_LM.fits
+          cp BADPIX_MAP_2RG.fits $SOF_DATA/PERSISTENCE_MAP.fits
+          cp GAIN_MAP_2RG.fits $SOF_DATA/GAIN_MAP_LM.fits
+          pyesorex metis_det_dark "${SOF_DIR}/metis_lm_dark.sof"
+          cp MASTER_DARK_2RG.fits $SOF_DATA/MASTER_DARK_LM.fits
+          pyesorex metis_lm_img_flat "${SOF_DIR}/metis_lm_img_flat_lamp.sof"
+          cp MASTER_IMAGE_FLAT_LAMP_LM.fits $SOF_DATA/MASTER_IMAGE_FLAT_LAMP_LM.fits
+          pyesorex metis_lm_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
       - name: Run EDPS
         run:  |
           # . metispipe/bin/activate

@@ -8,7 +8,7 @@ detlin_class = classification_rule("DETLIN_2RG_RAW",
                                      "dpr.tech":"IMAGE,LM",
                                      })
 
-rawdark_class = classification_rule("DARK_LM_RAW",
+rawdark_class = classification_rule("DARK_2RG_RAW",
                                     {"instrume":"METIS", 
                                      "dpr.catg": "CALIB", 
                                      "dpr.type":"DARK",
