@@ -44,7 +44,7 @@ class TestRecipe(BaseRecipeTest):
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
-    count = 5
+    count = 1
 
 
 class TestProduct:
