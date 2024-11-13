@@ -42,7 +42,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         # Also one master flat is required. We use a prefabricated class
         class MasterFlat(MasterFlatInput):
-            _tags = ["MASTER_IMAGE_FLAT_LAMP_LM", "MASTER_IMG_FLAT_TWILIGHT_LM"]
+            _tags = ["MASTER_IMG_FLAT_LAMP_LM", "MASTER_IMG_FLAT_TWILIGHT_LM"]
 
         # We could define the master dark explicitly too, but we can use a prefabricated class instead.
         # That already has its tags defined (for master darks it's always "MASTER_DARK_{det}"), so we just define
@@ -58,7 +58,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.master_flat = self.MasterFlat(frameset,
-                                               tags=["MASTER_IMAGE_FLAT_LAMP_{band}", "MASTER_IMG_FLAT_TWILIGHT_{band}"],
+                                               tags=["MASTER_IMG_FLAT_LAMP_{band}", "MASTER_IMG_FLAT_TWILIGHT_{band}"],
                                                band="LM", det=self.detector)
             self.linearity = LinearityInput(frameset, det=self.detector)
             self.persistence = PersistenceMapInput(frameset, required=False)
