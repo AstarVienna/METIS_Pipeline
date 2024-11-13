@@ -47,7 +47,7 @@ jobs:
           cp MASTER_DARK_2RG.fits $SOF_DATA/MASTER_DARK_LM.fits
           pyesorex metis_lm_img_flat "${SOF_DIR}/metis_lm_img_flat_lamp.sof"
           cp MASTER_IMAGE_FLAT_LAMP_LM.fits $SOF_DATA/MASTER_IMAGE_FLAT_LAMP_LM.fits
-          pyesorex metis_lm_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
       - name: Run EDPS
         run:  |
           # . metispipe/bin/activate
