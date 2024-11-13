@@ -93,12 +93,22 @@ AC_DEFUN([METIS_SET_PATHS],
         wkfcopydir='${datadir}/reflex/workflows/${PACKAGE}-${VERSION}'
     fi
 
+    if test -z "$workflowdir"; then
+        workflowdir='${datadir}/esopipes/workflows/${PACKAGE}-${VERSION}/${PACKAGE}'
+    fi
+
+    if test -z "$reportsdir"; then
+       reportsdir='${datadir}/esopipes/reports/${PACKAGE}-${VERSION}'
+    fi
+
+
     AC_SUBST(plugindir)
     AC_SUBST(privatelibdir)
     AC_SUBST(apidocdir)
     AC_SUBST(pipedocsdir)
     AC_SUBST(configdir)
     AC_SUBST(wkfextradir)
+    AC_SUBST(workflowdir)
     AC_SUBST(wkfcopydir)
 
 

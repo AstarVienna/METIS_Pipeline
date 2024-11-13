@@ -25,7 +25,7 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         detector = '2RG'
 
         class RawInput(RawInput):
-            _tags = ["DETLIN_DET_RAW"]
+            _tags = ["DETLIN_2RG_RAW"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

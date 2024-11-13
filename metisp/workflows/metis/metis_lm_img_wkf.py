@@ -1,7 +1,7 @@
 from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
 from edps import task, data_source, classification_rule
 
-detlin_class = classification_rule("DETLIN_DET_RAW",
+detlin_class = classification_rule("DETLIN_2RG_RAW",
                                     {"instrume":"METIS", 
                                      "dpr.catg": "CALIB", 
                                      "dpr.type":"DETLIN",
@@ -77,8 +77,8 @@ flat_task = (task("metis_lm_img_flat")
             .with_recipe("metis_lm_img_flat")
             .build())
 
-basic_reduction = (task('metis_lm_basic_reduction')
-                    .with_recipe('metis_lm_basic_reduction')
+basic_reduction = (task('metis_lm_basic_reduce')
+                    .with_recipe('metis_lm_basic_reduce')
                     .with_main_input(lm_raw_science)
                     .with_associated_input(lingain_task)
                     .with_associated_input(dark_task)
