@@ -42,7 +42,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
         @property
         def category(self) -> str:
-            return fr"MASTER_IMG_FLAT_LAMP_{self.band}"
+            return fr"MASTER_IMAGE_FLAT_LAMP_{self.band}"
 
         @property
         def output_file_name(self) -> str:
