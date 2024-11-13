@@ -21,8 +21,8 @@ class MetisDetDarkImpl(RawImageProcessor):
             _tags = ["LINEARITY_{det}"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.raw = self.RawDarkInput(frameset, det=self.band)       # ToDo: inconsistent, should be detector "2RG"
-            self.linearity = self.LinearityInput(frameset, det=self.band, required=False)
+            self.raw = self.RawDarkInput(frameset, det=self.detector)
+            self.linearity = self.LinearityInput(frameset, det=self.detector, required=False)
 
             self.inputs = [self.raw, self.linearity]
             super().__init__(frameset)
