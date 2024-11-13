@@ -12,13 +12,13 @@ from generic import BaseInputSetTest, BaseRecipeTest
 
 
 @pytest.fixture
-def sof():
-    return Path(__file__).parent.parent.parent.parent / "sof" / "masterdark.sof"
+def name():
+    return 'metis_det_dark'
 
 
 @pytest.fixture
-def name():
-    return 'metis_det_dark'
+def sof():
+    return "metis_det_dark.lm.sof"
 
 
 class TestRecipe(BaseRecipeTest):

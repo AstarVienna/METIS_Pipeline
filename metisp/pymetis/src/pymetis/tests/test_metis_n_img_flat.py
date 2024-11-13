@@ -12,12 +12,13 @@ from pymetis.tests.generic import BaseRecipeTest
 
 
 @pytest.fixture
-def sof():
-    return Path(__file__).parent.parent.parent.parent / "sof" / "masterflat-n.sof"
-
-@pytest.fixture
 def name():
     return 'metis_n_img_flat'
+
+
+@pytest.fixture
+def sof():
+    return 'metis_n_img_flat.lamp.sof'
 
 
 class TestRecipe(BaseRecipeTest):
@@ -32,11 +33,6 @@ class TestRecipe(BaseRecipeTest):
         instance = Recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
-
-    def test_pyesorex(self, create_pyesorex):
-        pyesorex = create_pyesorex(Recipe)
-        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
-        assert pyesorex.recipe.name == 'metis_n_img_flat'
 
     def test_can_be_run_with_pyesorex(self, name, sof):
         last_line = self.run_with_pyesorex(name, sof)

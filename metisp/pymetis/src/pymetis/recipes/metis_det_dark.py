@@ -14,10 +14,12 @@ from pymetis.inputs.mixins import Detector2rgMixin
 
 class MetisDetDarkImpl(RawImageProcessor):
     class InputSet(Detector2rgMixin, RawImageProcessor.InputSet):
-        detector = "LM"
+        detector = "2RG"
 
         class RawDarkInput(RawInput):
             _tags = ["DARK_{det}_RAW"]
+
+        RawInput = RawDarkInput
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.linearity = LinearityInput(frameset, det=self.detector, required=False) # But should be

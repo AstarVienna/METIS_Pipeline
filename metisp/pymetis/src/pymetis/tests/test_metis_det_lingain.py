@@ -8,16 +8,22 @@ from pymetis.base.product import PipelineProduct
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
 from pymetis.tests.fixtures import load_frameset
-from generic import BaseInputSetTest
+from generic import BaseInputSetTest, BaseRecipeTest
+
+
+@pytest.fixture
+def name():
+    return 'metis_lm_lingain'
 
 
 @pytest.fixture
 def sof():
-    return Path(__file__).parent.parent.parent.parent / "sof" / "detlin.sof"
+    return 'metis_det_lingain.lm.sof'
 
 
-class TestRecipe:
+class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+    _recipe = Recipe
 
     def test_create(self):
         recipe = Recipe()
@@ -28,12 +34,8 @@ class TestRecipe:
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
 
-    def test_can_be_run_with_pyesorex(self, sof):
-        output = subprocess.run(['pyesorex', 'metis_det_lingain', sof,
-                                 '--recipe-dir', 'metisp/pyrecipes/',
-                                 '--log-level', 'DEBUG'],
-                                capture_output=True)
-        last_line = output.stdout.decode('utf-8').split('\n')[-3]
+    def test_can_be_run_with_pyesorex(self, name, sof):
+        last_line = self.run_with_pyesorex(name, sof)
         assert last_line == ("  2  BADPIX_MAP_2RG.fits  	BADPIX_MAP_2RG  CPL_FRAME_TYPE_IMAGE  "
                              "CPL_FRAME_GROUP_PRODUCT  CPL_FRAME_LEVEL_FINAL  ")
 

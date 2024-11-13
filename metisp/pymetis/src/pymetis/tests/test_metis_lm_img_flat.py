@@ -11,13 +11,13 @@ from generic import BaseInputSetTest, BaseRecipeTest
 
 
 @pytest.fixture
-def sof():
-    return Path(__file__).parent.parent.parent.parent / "sof" / "masterflat-lm.sof"
-
-@pytest.fixture
 def name():
     return 'metis_lm_img_flat'
 
+
+@pytest.fixture
+def sof():
+    return "metis_lm_img_flat.lamp.sof"
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple test cases... just to see if it does something """

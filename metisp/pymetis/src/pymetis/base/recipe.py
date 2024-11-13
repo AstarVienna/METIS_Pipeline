@@ -21,7 +21,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _description = "This class serves as the base class for all METIS recipes."
 
     parameters = cpl.ui.ParameterList([])          # By default, classes do not have any parameters
-    implementation_class: type                     # Dummy class, this must be overridden in the derived classes anyway
+    implementation_class: type = str               # Dummy class, this must be overridden in the derived classes anyway
 
     def __init__(self):
         super().__init__()

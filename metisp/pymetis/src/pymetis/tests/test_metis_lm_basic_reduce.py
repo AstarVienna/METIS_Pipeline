@@ -1,21 +1,17 @@
-from pathlib import Path
-
 import pytest
-import subprocess
-import pyesorex
-import cpl
 
 from pymetis.recipes.img.metis_lm_img_basic_reduce import MetisLmImgBasicReduce as Recipe, MetisLmImgBasicReduceImpl as Impl
-from fixtures import create_pyesorex, load_frameset
 from generic import BaseRecipeTest
 
-@pytest.fixture
-def sof():
-    return Path(__file__).parent.parent.parent.parent / "sof" / "basicreduction.sof"
 
 @pytest.fixture
 def name():
     return 'metis_lm_basic_reduce'
+
+
+@pytest.fixture
+def sof():
+    return 'metis_lm_img_basic_reduce.sof'
 
 
 class TestRecipe(BaseRecipeTest):
