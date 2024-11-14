@@ -10,7 +10,7 @@ import cpl
 from pymetis.inputs import PipelineInputSet
 
 
-root = Path(os.path.expandvars("$SOF"))
+root = Path(os.path.expandvars("$SOF_DIR"))
 
 
 class BaseInputSetTest(ABC):
