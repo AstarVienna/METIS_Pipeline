@@ -1,4 +1,5 @@
 import inspect
+import os.path
 import subprocess
 from abc import ABC
 from pathlib import Path
@@ -7,6 +8,9 @@ from pytest import fixture
 import cpl
 
 from pymetis.inputs import PipelineInputSet
+
+
+root = Path(os.path.expandvars("$SOF"))
 
 
 class BaseInputSetTest(ABC):
@@ -31,14 +35,6 @@ class BaseInputSetTest(ABC):
 class BaseRecipeTest(ABC):
     _recipe = None
 
-    @staticmethod
-    def run_with_pyesorex(name, sof):
-        output = subprocess.run(['pyesorex', name, sof,
-                                 '--recipe-dir', 'metisp/pyrecipes/',
-                                 '--log-level', 'DEBUG'],
-                                capture_output=True)
-        return output.stdout.decode('utf-8').split('\n')[-3]
-
     def test_can_be_created(self):
         recipe = self._recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
@@ -52,3 +48,10 @@ class BaseRecipeTest(ABC):
         pyesorex = create_pyesorex(self._recipe)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
         assert pyesorex.recipe.name == name
+
+    @staticmethod
+    def test_pyesorex_runs_without_stderr(name, sof, create_pyesorex):
+        output = subprocess.run(['pyesorex', name, root / sof, '--log-level', 'DEBUG'],
+                                capture_output=True)
+        assert output.returncode == 0
+        assert output.stderr == b""

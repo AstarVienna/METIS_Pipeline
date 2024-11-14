@@ -13,9 +13,9 @@ from pymetis.inputs.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIf
 
 
 class MetisDetDarkImpl(RawImageProcessor):
-    class InputSet(Detector2rgMixin, RawImageProcessor.InputSet):
+    class InputSet(RawImageProcessor.InputSet):
         class RawDarkInput(Detector2rgMixin, RawInput):
-            _tags = ["DARK_{det}_RAW"]
+            _tags = [r"DARK_2RG_RAW", r"DARK_GEO_RAW", r"DARK_IFU_RAW"]
 
         RawInput = RawDarkInput
 
@@ -84,15 +84,17 @@ class MetisDetDarkImpl(RawImageProcessor):
 
 
 class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):
-    pass
+    class InputSet(Detector2rgMixin, MetisDetDarkImpl.InputSet):
+        pass
 
 
 class MetisGeoDarkImpl(DetectorGeoMixin, MetisDetDarkImpl):
-    pass
-
+    class InputSet(DetectorGeoMixin, MetisDetDarkImpl.InputSet):
+        pass
 
 class MetisIfuDarkImpl(DetectorIfuMixin, MetisDetDarkImpl):
-    pass
+    class InputSet(DetectorIfuMixin, MetisDetDarkImpl.InputSet):
+        pass
 
 
 class MetisDetDark(MetisRecipe):
@@ -116,5 +118,5 @@ class MetisDetDark(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisDetDarkImpl
+    implementation_class = Metis2rgDarkImpl
 

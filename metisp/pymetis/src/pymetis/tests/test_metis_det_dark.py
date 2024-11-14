@@ -1,3 +1,4 @@
+import os.path
 import subprocess
 from pathlib import Path
 
@@ -5,7 +6,7 @@ import cpl
 import pytest
 
 from pymetis.base.product import PipelineProduct
-from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
+from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, Metis2rgDarkImpl as Impl
 
 from generic import BaseInputSetTest, BaseRecipeTest
 
@@ -32,11 +33,6 @@ class TestRecipe(BaseRecipeTest):
         instance = Recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
-
-    def test_can_be_run_with_pyesorex(self, name, sof):
-        last_line = self.run_with_pyesorex(name, sof)
-        assert last_line == ("  0  MASTER_DARK_2RG.fits  	MASTER_DARK_2RG  CPL_FRAME_TYPE_IMAGE  "
-                             "CPL_FRAME_GROUP_PRODUCT  CPL_FRAME_LEVEL_FINAL  ")
 
     def test_parameter_count(self):
         assert len(Recipe.parameters) == 1
