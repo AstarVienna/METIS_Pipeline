@@ -30,6 +30,17 @@ jobs:
       - name: Fetch test data
         run: |
           git clone https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
+      - name: Run pytest tests
+        run: |
+          set +x
+          # . metispipe/bin/activate
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/metis_sim_small_1/data"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/metis_sim_small_1/sof"
+          export PYESOREX_OUTPUT_DIR="$SOF_DATA"
+          python -m pytest -s
       - name: Run pyESOREX test
         run: |
           set +x
