@@ -6,7 +6,7 @@ from generic import BaseRecipeTest
 
 @pytest.fixture
 def name():
-    return 'metis_lm_basic_reduce'
+    return 'metis_lm_img_basic_reduce'
 
 
 @pytest.fixture
