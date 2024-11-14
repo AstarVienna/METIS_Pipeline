@@ -2,7 +2,7 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
-from pymetis.base.impl import MetisRecipe, MetisRecipeImpl
+from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.input import RecipeInput
 from pymetis.base.product import PipelineProduct
 

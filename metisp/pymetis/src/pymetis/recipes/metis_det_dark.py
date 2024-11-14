@@ -3,28 +3,29 @@ from typing import Dict
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.impl import MetisRecipeImpl, MetisRecipe
-from pymetis.inputs.common import RawInput, LinearityInput
+from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
+from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import PipelineInputSet
-from pymetis.prefabricates.rawimage import RawImageProcessor
+from pymetis.prefab.rawimage import RawImageProcessor
 
-from pymetis.mixins.detectors import Detector2rgMixin
+from pymetis.inputs.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
 class MetisDetDarkImpl(RawImageProcessor):
-    class InputSet(Detector2rgMixin, PipelineInputSet):
+    class InputSet(Detector2rgMixin, RawImageProcessor.InputSet):
         class RawDarkInput(Detector2rgMixin, RawInput):
             _tags = ["DARK_{det}_RAW"]
 
-        class LinearityInput(LinearityInput):
-            _tags = ["LINEARITY_{det}"]
+        RawInput = RawDarkInput
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.raw = self.RawDarkInput(frameset, det=self.detector)
-            self.linearity = self.LinearityInput(frameset, det=self.detector, required=False)
+            self.linearity = LinearityInput(frameset, det=self.detector, required=False) # But should be
+            self.badpix_map = BadpixMapInput(frameset, det=self.detector, required=False)
+            self.persistence_map = PersistenceMapInput(frameset, required=False) # But should be
+            self.gain_map = GainMapInput(frameset, det=self.detector, required=False) # But should be
 
-            self.inputs = [self.raw, self.linearity]
+            self.inputs += [self.linearity, self.badpix_map, self.persistence_map, self.gain_map]
             super().__init__(frameset)
 
     class Product(Detector2rgMixin, PipelineProduct):
@@ -82,6 +83,18 @@ class MetisDetDarkImpl(RawImageProcessor):
         }
 
 
+class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):
+    pass
+
+
+class MetisGeoDarkImpl(DetectorGeoMixin, MetisDetDarkImpl):
+    pass
+
+
+class MetisIfuDarkImpl(DetectorIfuMixin, MetisDetDarkImpl):
+    pass
+
+
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_dark"
@@ -90,7 +103,7 @@ class MetisDetDark(MetisRecipe):
     _email = "hugo@buddelmeijer.nl"
     _synopsis = "Create master dark"
     _description = (
-        "Prototype to create a METIS Masterdark."
+        "Prototype to create a METIS masterdark."
     )
 
     parameters = cpl.ui.ParameterList([

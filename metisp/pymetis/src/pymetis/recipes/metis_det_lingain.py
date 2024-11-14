@@ -1,14 +1,13 @@
-from abc import ABCMeta, ABC
+from abc import ABC
 from typing import Dict
 
 import cpl
 
-from pymetis.base.impl import MetisRecipe
-from pymetis.inputs.base import MultiplePipelineInput
-from pymetis.inputs.common import RawInput, MasterDarkInput
-from pymetis.prefabricates.darkimage import DarkImageProcessor
+from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct, DetectorProduct
-from pymetis.prefabricates.rawimage import RawImageProcessor
+from pymetis.inputs.common import RawInput
+from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class LinGainProduct(DetectorProduct, ABC):
@@ -68,14 +67,14 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         #import pdb ; pdb.set_trace()
         self.products = {
             f'MASTER_GAIN_{self.detector_name}':
-                self.ProductGain(self, header, gain_image, 
-                                detector=self.detector_name),
+                self.ProductGain(self, header, gain_image,
+                                 detector=self.detector_name),
             f'LINEARITY_{self.detector_name}':
-                self.ProductLinearity(self, header, linearity_image, 
-                                detector=self.detector_name),
+                self.ProductLinearity(self, header, linearity_image,
+                                      detector=self.detector_name),
             f'BADPIX_MAP_{self.detector_name}':
-                self.ProductBadpixMap(self, header, badpix_map, 
-                                detector=self.detector_name),
+                self.ProductBadpixMap(self, header, badpix_map,
+                                      detector=self.detector_name),
         }
 
         return self.products
@@ -91,7 +90,6 @@ class MetisDetLinGain(MetisRecipe):
     _description = (
         "Prototype to create a METIS linear gain map."
     )
-
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(

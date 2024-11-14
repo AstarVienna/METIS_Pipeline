@@ -6,42 +6,28 @@ import cpl
 
 from pymetis.recipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
 
-from fixtures import create_pyesorex, load_frameset, BaseInputTest
+from generic import BaseInputSetTest, BaseRecipeTest
+
+
+@pytest.fixture
+def name():
+    return 'metis_lm_img_flat'
 
 
 @pytest.fixture
 def sof():
-    return Path(__file__).parent.parent.parent.parent / "sof" / "masterflat-lm.sof"
+    return "metis_lm_img_flat.lamp.sof"
 
-
-class TestRecipe:
+class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple test cases... just to see if it does something """
+    _recipe = Recipe
 
-    def test_create(self):
-        recipe = Recipe()
-        assert isinstance(recipe, cpl.ui.PyRecipe)
-
-    def test_direct(self, load_frameset, sof):
-        instance = Recipe()
-        frameset = cpl.ui.FrameSet(load_frameset(sof))
-        instance.run(frameset, {})
-
-    def test_pyesorex(self, create_pyesorex):
-        pyesorex = create_pyesorex(Recipe)
-        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
-        assert pyesorex.recipe.name == 'metis_lm_img_flat'
-
-    def test_is_working(self, sof):
-        output = subprocess.run(['pyesorex', 'metis_lm_img_flat', sof,
-                                 '--recipe-dir', 'pymetis/recipes/',
-                                 '--log-level', 'DEBUG'],
-                                capture_output=True)
-        last_line = output.stdout.decode('utf-8').split('\n')[-3]
-        # This is very stupid, but works for now
+    def test_can_be_run_with_pyesorex(self, name, sof):
+        last_line = self.run_with_pyesorex(name, sof)
         assert last_line == ("  0  MASTER_IMG_FLAT_LAMP_LM.fits  	MASTER_IMG_FLAT_LAMP_LM  CPL_FRAME_TYPE_IMAGE  "
                              "CPL_FRAME_GROUP_PRODUCT  CPL_FRAME_LEVEL_FINAL  ")
 
 
-class TestInput(BaseInputTest):
+class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1

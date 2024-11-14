@@ -2,15 +2,12 @@ import cpl
 from cpl.core import Msg
 from typing import Any, Dict, Literal
 
-from pymetis.base.impl import MetisRecipeImpl, MetisRecipe
+from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs.base import SinglePipelineInput
+from pymetis.inputs import SinglePipelineInput
 from pymetis.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
-from pymetis.prefabricates.darkimage import DarkImageProcessor
 
-from pymetis.prefabricates.rawimage import RawImageProcessor
-from pymetis.mixins import MasterDarkInputMixin, LinearityInputMixin, PersistenceInputMixin
-from pymetis.mixins.detectors import Detector2rgMixin
+from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuReduceImpl(MetisRecipeImpl):
@@ -39,7 +36,7 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
             """
                 Here we also define all input frames specific for this recipe, except those handled by mixins.
             """
-            self.raw = RawInput(frameset, det=self)
+            self.raw = RawInput(frameset, det=self.detector)
             self.linearity_map = LinearityInput(frameset)
             self.persistence_map = PersistenceMapInput(frameset)
             self.master_dark = MasterDarkInput(frameset, det="IFU")
@@ -141,16 +138,6 @@ class MetisIfuReduceImpl(MetisRecipeImpl):
                 # ui.FrameSet object. The result frameset product_frames will do,
                 # it is still empty here!
                 return self.product_frames
-
-
-    @property
-    def detector_name(self) -> str:
-        """ All IFU recipes work with the HAWAII2RG array """
-        return "2RG"
-
-    @property
-    def output_file_name(self) -> str:
-        return f"IFU_SCI_REDUCED"
 
 
 class MetisIfuReduce(MetisRecipe):

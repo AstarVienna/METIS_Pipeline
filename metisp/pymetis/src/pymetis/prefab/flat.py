@@ -6,9 +6,9 @@ from cpl.core import Msg
 
 from pymetis.inputs import PipelineInputSet
 from pymetis.inputs.common import RawInput, MasterDarkInput
-from pymetis.base.product import PipelineProduct
 
-from pymetis.prefabricates.darkimage import DarkImageProcessor
+from .darkimage import DarkImageProcessor
+from ..base.product import PipelineProduct
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):

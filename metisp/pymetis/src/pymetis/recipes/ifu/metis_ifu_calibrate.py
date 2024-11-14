@@ -1,9 +1,7 @@
 import cpl
-from cpl.core import Msg
 from typing import Dict
 
-from pymetis.base.impl import MetisRecipe, MetisRecipeImpl
-from pymetis.base.input import RecipeInput
+from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 
@@ -14,9 +12,9 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.sci_reduced: SinglePipelineInput(frameset, tags=["IFU_SCI_REDUCED"])
-            self.telluric: SinglePipelineInput(frameset, tags=["IFU_TELLURIC"])
-            self.fluxcal: SinglePipelineInput(frameset, tags=["FLUXCAL_TAB"])
+            self.sci_reduced = SinglePipelineInput(frameset, tags=["IFU_SCI_REDUCED"])
+            self.telluric = SinglePipelineInput(frameset, tags=["IFU_TELLURIC"])
+            self.fluxcal = SinglePipelineInput(frameset, tags=["FLUXCAL_TAB"])
 
             self.inputs += [self.sci_reduced, self.telluric, self.fluxcal]
 
@@ -29,7 +27,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 
         self.products = {
             product.category: product()
-            for product in [self.ProductSciCubeCalibrated(header)]
+            for product in [self.ProductSciCubeCalibrated]
         }
         return self.products
 

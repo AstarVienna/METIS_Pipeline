@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from xml.sax.handler import property_dom_node
 
 import cpl
 
@@ -7,10 +6,10 @@ from cpl.core import Msg
 
 
 class PipelineInput:
-    _title: str = None                      # No univerrsal title makes sense
+    _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _tags: [str] = None                     # No universal tags are provided
-    _group: str = None
+    _group: str = None                      # No sensible default, must be provided explicitly
 
     @property
     def title(self):
@@ -61,7 +60,10 @@ class PipelineInput:
 
         # ...and that they are a list of strings (not a single string -- this leads to nasty errors)
         if not isinstance(self.tags, list):
-            raise TypeError(f"Tags must be a list of template strings, got '{self.tags}'")
+            raise TypeError(f"Tags must be a list of string templates, got '{self.tags}'")
+        for tag in self.tags:
+            if not isinstance(tag, str):
+                raise TypeError(f"Tags must be a list of string templates, got '{type(tag)}'")
 
         # Override `required` if requested
         if required is not None:
@@ -75,7 +77,7 @@ class PipelineInput:
     @abstractmethod
     def verify(self) -> None:
         """
-        Verify that the input has all the required inputs
+        Verify that the input has all the required frames. There is no default logic.
         """
 
     def print_debug(self, *, offset: int = 0):
@@ -185,21 +187,29 @@ class MultiplePipelineInput(PipelineInput):
             None on success
         """
         detectors = []
-        return
         for frame in self.frameset:
             header = cpl.core.PropertyList.load(frame.file, 0)
-            det = header['ESO DPR TECH'].value
             try:
-                detectors.append({
-                                     'IMAGE,LM': '2RG',
-                                     'IMAGE,N': 'GEO',
-                                     'IFU': 'IFU',
-                                 }[det])
+                det = header['ESO DPR TECH'].value
+                try:
+                    detectors.append({
+                                         'IMAGE,LM': '2RG',
+                                         'IMAGE,N': 'GEO',
+                                         'IFU': 'IFU',
+                                     }[det])
+                except KeyError as e:
+                    raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
             except KeyError as e:
-                raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
+                Msg.warning(self.__class__.__qualname__, f"No detector (ESO DPR TECH) set!")
+
 
         # Check if all the raws have the same detector, if not, we have a problem
         if len(unique := list(set(detectors))) == 1:
             self._detector_name = unique[0]
+        elif len(unique) == 0:
+            Msg.warning(self.__class__.__qualname__,
+                        f"No detectors specified (this is probably fine in skeleton stage)")
         else:
-            raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
+            # raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
+            Msg.warning(self.__class__.__qualname__,
+                        f"Darks from more than one detector found: {set(detectors)}!")
