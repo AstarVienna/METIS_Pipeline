@@ -163,7 +163,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
     - and finally define the implementation class, which we have just written
     """
     # Fill in recipe information
-    _name = "metis_lm_basic_reduce"
+    _name = "metis_lm_img_basic_reduce"
     _version = "0.1"
     _author = "Chi-Hung Yan"
     _email = "chyan@asiaa.sinica.edu.tw"
