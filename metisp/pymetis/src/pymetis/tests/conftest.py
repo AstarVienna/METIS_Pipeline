@@ -9,7 +9,7 @@ from pyesorex.pyesorex import Pyesorex
 from pymetis.base import MetisRecipe
 
 
-root = Path(os.path.expandvars("$SOF"))
+root = Path(os.path.expandvars("$SOF_DIR"))
 
 
 @pytest.fixture
