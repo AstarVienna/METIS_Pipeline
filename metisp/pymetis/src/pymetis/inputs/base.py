@@ -36,7 +36,7 @@ class PipelineInput:
         # First override the title, if provided in the constructor
         if title is not None:
             self._title = title
-            Msg.debug(self.__class__.__qualname__, f"Overriding title to {self.title}")
+            Msg.debug(self.__class__.__qualname__, f"Overriding `title` to {self.title}")
 
         # Check if it is defined
         if self.title is None:
@@ -45,7 +45,7 @@ class PipelineInput:
         # First override the tags if provided in the ctor
         if tags is not None:
             self._tags = tags
-            Msg.debug(self.__class__.__qualname__, f"Overriding tags to {self.tags}")
+            Msg.debug(self.__class__.__qualname__, f"Overriding `tags` to {self.tags}")
 
         # Now expand the tags with provided context from **kwargs
         try:
@@ -68,7 +68,7 @@ class PipelineInput:
         # Override `required` if requested
         if required is not None:
             self._required = required
-            Msg.debug(self.__class__.__qualname__, f"Overriding required to {self.required}")
+            Msg.debug(self.__class__.__qualname__, f"Overriding `required` to {self.required}")
 
         # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL)
         if not self.group:
@@ -120,10 +120,10 @@ class SinglePipelineInput(PipelineInput):
         """
         if frame is None:
             if self.required:
-                raise cpl.core.DataNotFoundError(f"No {self.title} found in the frameset.")
+                raise cpl.core.DataNotFoundError(f"No {self.title} frame found in the frameset.")
             else:
                 Msg.debug(self.__class__.__qualname__,
-                          f"{self.title} not found but not required.")
+                          f"No {self.title} frame found, but not required.")
         else:
             Msg.debug(self.__class__.__qualname__,
                       f"Found a {self.title} frame {frame.file}")
@@ -164,9 +164,9 @@ class MultiplePipelineInput(PipelineInput):
         """
         if (count := len(self.frameset)) == 0:
             if self.required:
-                raise cpl.core.DataNotFoundError(f"No {self.title} found in the frameset.")
+                raise cpl.core.DataNotFoundError(f"No {self.title} frames found in the frameset.")
             else:
-                Msg.debug(f"{self.title} not found but not required.")
+                Msg.debug(f"No {self.title} frames found but not required.")
         else:
             Msg.debug(self.__class__.__qualname__, f"OK: {count} frames found")
 

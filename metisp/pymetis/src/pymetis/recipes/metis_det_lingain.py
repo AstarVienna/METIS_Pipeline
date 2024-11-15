@@ -6,6 +6,7 @@ import cpl
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct, DetectorProduct
 from pymetis.inputs.common import RawInput
+from pymetis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 from pymetis.prefab.darkimage import DarkImageProcessor
 
@@ -22,14 +23,12 @@ class LinGainProduct(DetectorProduct, ABC):
 
 class MetisDetLinGainImpl(DarkImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
-        detector = '2RG'
-
         class RawInput(RawInput):
-            _tags = ["DETLIN_2RG_RAW"]
+            _tags = [r"DETLIN_{det}_RAW"]
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.raw = self.RawInput(frameset)
+            self.raw = self.RawInput(frameset, det=self.detector)
 
     class ProductGain(LinGainProduct):
         @property
@@ -80,6 +79,21 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         return self.products
 
 
+class Metis2rgLinGainImpl(Detector2rgMixin, MetisDetLinGainImpl):
+    class InputSet(Detector2rgMixin, MetisDetLinGainImpl.InputSet):
+        pass
+
+
+class MetisGeoLinGainImpl(DetectorGeoMixin, MetisDetLinGainImpl):
+    class InputSet(DetectorGeoMixin, MetisDetLinGainImpl.InputSet):
+        pass
+
+
+class MetisIfuLinGainImpl(DetectorIfuMixin, MetisDetLinGainImpl):
+    class InputSet(DetectorIfuMixin, MetisDetLinGainImpl.InputSet):
+        pass
+
+
 class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_lingain"
@@ -113,4 +127,4 @@ class MetisDetLinGain(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisDetLinGainImpl
+    implementation_class = Metis2rgLinGainImpl
