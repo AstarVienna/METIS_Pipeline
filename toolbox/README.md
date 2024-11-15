@@ -25,7 +25,7 @@ docker build -t metispipeline .
 Run the image
 
 ```
-docker run -ti --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/home/metis/.Xauthority:rw" --mount type=bind,source="$(pwd)",target=/home/metis/METIS_Pipeline metispipeline
+docker run -ti --net=host metispipeline
 ```
 
 
@@ -49,7 +49,8 @@ While inside the docker image
 
 ```
 pyesorex --recipes 
-pyesorex metis_det_lingain "${SOF_DIR}/metis_lm_lingain.sof"
+pyesorex metis_det_lingain "${SOF_DIR}/metis_det_lingain.lm.sof"
+edps -s
 edps -w metis.metis_lm_img_wkf -i $SOF_DATA -c
 edps -w metis.metis_lm_img_wkf -i $SOF_DATA
 ```
