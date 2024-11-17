@@ -23,41 +23,35 @@ from typing import Dict, Literal
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
+from pymetis.inputs import PipelineInputSet, RawInput, MasterDarkInput, BadpixMapInput, SinglePipelineInput
+from pymetis.mixins import GainMapInputMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuDistortionImpl(DarkImageProcessor):
     target: Literal["SCI"] | Literal["STD"] = None
 
-    #class Input(Detector2rgMixin, PersistenceInputMixin, LinearityInputMixin, GainMapInputMixin, BadpixMapInputMixin,
-    #            DarkImageProcessor.Input):
-    #    tags_raw = ["IFU_DISTORTION_RAW"]
-    #    tags_dark = ["MASTER_DARK_IFU"]
-    #    tag_pinhole = "PINHOLE_TABLE"
+    class InputSet(DarkImageProcessor.InputSet):
+        detector = "IFU"
 
-    #    def __init__(self, frameset: cpl.ui.FrameSet):
-    #        self.pinhole_table: cpl.ui.Frame | None = None
-    #        super().__init__(frameset)
+        class RawInput(RawInput):
+            tags = ["IFU_DISTORTION_RAW"]
 
-    #    def categorize_frame(self, frame: cpl.ui.Frame) -> None:
-    #        match frame.tag:
-    #            case self.tag_pinhole:
-    #                frame.group = cpl.ui.Frame.FrameGroup.CALIB
-    #                self.pinhole_table = self._override_with_warning(self.pinhole_table, frame,
-    #                                                                 origin=self.__class__.__qualname__,
-    #                                                                 title="pinhole table")
-    #                Msg.debug(self.__class__.__qualname__, f"Got a pinhole table frame: {frame.file}.")
-    #            case _:
-    #                super().categorize_frame(frame)
+        class MasterDarkInput(MasterDarkInput):
+            tags = ["MASTER_DARK_IFU"]
 
-    #    def verify(self):
-    #        """
-    #        This Input is just a simple composition of mixins and does not require any further action
-    #        """
-    #        pass
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            super().__init__(frameset)
+            self.badpix_map = BadpixMapInput(frameset, det=self.detector, required=False)
+            self.gain_map = GainMapInputMixin(frameset, det=self.detector)
+            self.pinhole_table = SinglePipelineInput(frameset, tags=["PINHOLE_TABLE"])
 
-    class ProductSciCubeCalibrated(PipelineProduct):
+
+    class ProductIfuDistortionTable(PipelineProduct):
         category = rf"IFU_SCI_CUBE_CALIBRATED"
+
+    class ProductIfuDistortionReduced(PipelineProduct):
+        category = rf"IFU_DIST_REDUCED"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         masterdark_image = cpl.core.Image.load(self.inputset.master_dark.file)

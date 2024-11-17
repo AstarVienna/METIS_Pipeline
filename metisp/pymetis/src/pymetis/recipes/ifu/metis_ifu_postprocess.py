@@ -22,18 +22,18 @@ from cpl.core import Msg
 from typing import Dict
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.inputs import PipelineInput
+from pymetis.inputs import PipelineInputSet
 from pymetis.base.product import PipelineProduct
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
     @property
     def detector_name(self) -> str | None:
-        return "2RG"
+        return "IFU"
 
-    class Input(PipelineInput):
+    class InputSet(PipelineInputSet):
         tag_sci_cube_calibrated = "IFU_SCI_CUBE_CALIBRATED"
-        detector_name = '2RG'
+        detector_name = 'IFU'
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             self.sci_cube_calibrated: cpl.ui.Frame | None = None
@@ -56,12 +56,21 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
     class ProductSciCoadd(PipelineProduct):
         category = rf"IFU_SCI_COADD"
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
-        # self.determine_output_grid()
-        # self.resample_cubes()
-        # self.coadd_cubes()
+    def determine_output_grid(self):
+        pass
 
-        header = cpl.core.PropertyList.load(self.input.sci_cube_calibrated.file, 0)
+    def resample_cubes(self):
+        pass
+
+    def coadd_cubes(self):
+        pass
+
+    def process_images(self) -> Dict[str, PipelineProduct]:
+        self.determine_output_grid()
+        self.resample_cubes()
+        self.coadd_cubes()
+
+        header = cpl.core.PropertyList.load(self.inputset.sci_cube_calibrated.file, 0)
         coadded_image = cpl.core.Image()
 
         self.products = {
