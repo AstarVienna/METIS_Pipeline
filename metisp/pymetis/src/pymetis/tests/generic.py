@@ -69,7 +69,7 @@ class BaseRecipeTest(ABC):
         assert pyesorex.recipe.name == name
 
     @staticmethod
-    def test_pyesorex_runs_without_stderr(name, sof, create_pyesorex):
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
         output = subprocess.run(['pyesorex', name, root / sof, '--log-level', 'DEBUG'],
                                 capture_output=True)
         assert output.returncode == 0

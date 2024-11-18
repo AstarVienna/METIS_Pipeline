@@ -36,11 +36,14 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
         class RawFlatInput(RawInput):
+            """
+            A subclass of RawInput that is handling the flat image raws.
+            """
             _tags = ["{band}_FLAT_LAMP_RAW", "{band}_FLAT_TWILIGHT_RAW"]
 
         class DarkFlatInput(MasterDarkInput):
             """
-            Just the plain MasterDarkInput.
+            Just a plain MasterDarkInput.
             """
             pass
 
