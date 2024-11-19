@@ -92,6 +92,9 @@ class PipelineProduct(ABC):
     def save(self):
         """ Save this Product to a file """
         Msg.info(self.__class__.__qualname__, f"Saving product file as {self.output_file_name!r}.")
+
+        Msg.warning(self.__class__.__qualname__, str(self.recipe.frameset))
+        # At least one frame must be tagged as RAW, otherwise it *will not* save (rite of passage!)
         cpl.dfs.save_image(
             self.recipe.frameset,       # All frames for the recipe
             self.recipe.parameters,     # The list of input parameters

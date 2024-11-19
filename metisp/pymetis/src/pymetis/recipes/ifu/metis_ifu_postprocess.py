@@ -22,39 +22,30 @@ from cpl.core import Msg
 from typing import Dict
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.inputs import PipelineInputSet
+from pymetis.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.base.product import PipelineProduct
+from pymetis.inputs.mixins import DetectorIfuMixin
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
-    @property
-    def detector_name(self) -> str | None:
-        return "IFU"
-
-    class InputSet(PipelineInputSet):
-        tag_sci_cube_calibrated = "IFU_SCI_CUBE_CALIBRATED"
-        detector_name = 'IFU'
+    class InputSet(DetectorIfuMixin, PipelineInputSet):
+        class SciCubeCalibratedInput(SinglePipelineInput):
+            _tags = [r"IFU_SCI_CUBE_CALIBRATED"]
+            _title = "rectified spectral cube"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.sci_cube_calibrated: cpl.ui.Frame | None = None
+            self.sci_cube_calibrated = self.SciCubeCalibratedInput(frameset)
+            self.inputs += [self.sci_cube_calibrated]
             super().__init__(frameset)
 
-        def categorize_frame(self, frame: cpl.ui.Frame) -> None:
-            match frame.tag:
-                case self.tag_sci_cube_calibrated:
-                    frame.group = cpl.ui.Frame.FrameGroup.RAW # TODO What group is this really?
-                    self.sci_cube_calibrated = self._override_with_warning(self.sci_cube_calibrated, frame,
-                                                                           origin=self.__class__.__qualname__,
-                                                                           title="sci cube calibrated")
-                    Msg.debug(self.__class__.__qualname__, f"Got sci cube calibrated frame: {frame.file}.")
-                case _:
-                    super().categorize_frame(frame)
-
-        def verify(self) -> None:
-            pass
-
     class ProductSciCoadd(PipelineProduct):
-        category = rf"IFU_SCI_COADD"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+        @property
+        def tag(self) -> str:
+            return rf"IFU_SCI_COADD"
 
     def determine_output_grid(self):
         pass
@@ -70,11 +61,12 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         self.resample_cubes()
         self.coadd_cubes()
 
-        header = cpl.core.PropertyList.load(self.inputset.sci_cube_calibrated.file, 0)
-        coadded_image = cpl.core.Image()
+        header = cpl.core.PropertyList()
+        coadded_image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file) # ToDo actual processing
+        print(self.inputset.sci_cube_calibrated.frame.file)
 
         self.products = {
-            'IFU_SCI_COADD': self.ProductSciCoadd(self, header, coadded_image, detector_name=self.detector_name),
+            r'IFU_SCI_COADD': self.ProductSciCoadd(self, header, coadded_image),
         }
         return self.products
 
@@ -90,5 +82,13 @@ class MetisIfuPostprocess(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    parameters = cpl.ui.ParameterList([])
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="metis_ifu_reduce.telluric",
+            context="metis_ifu_reduce",
+            description="Use telluric correction",
+            default=False,
+            alternatives=(True, False),
+        ),
+    ])
     implementation_class = MetisIfuPostprocessImpl

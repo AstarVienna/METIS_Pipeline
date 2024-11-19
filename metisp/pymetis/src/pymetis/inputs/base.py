@@ -91,7 +91,7 @@ class PipelineInput:
 
         # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL)
         if not self.group:
-            raise NotImplementedError(f"Pipeline input has no defined group!")
+            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group!")
 
     @abstractmethod
     def verify(self) -> None:

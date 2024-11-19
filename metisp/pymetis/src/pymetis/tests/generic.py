@@ -54,11 +54,11 @@ class BaseInputSetTest(ABC):
 class BaseRecipeTest(ABC):
     _recipe = None
 
-    def test_can_be_created(self):
+    def test_recipe_can_be_instantiated(self):
         recipe = self._recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_can_be_run_directly(self, load_frameset, sof):
+    def test_recipe_can_be_run_directly(self, load_frameset, sof):
         instance = self._recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})

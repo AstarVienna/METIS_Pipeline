@@ -46,7 +46,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             _tags = ["IFU_SCI_RAW", "IFU_STD_RAW"]
 
         class MasterDarkInput(DetectorIfuMixin, MasterDarkInput):
-            pass
+            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
 
         class WavecalInput(SinglePipelineInput):
             _tags = ["IFU_WAVECAL"]

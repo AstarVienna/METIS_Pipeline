@@ -48,7 +48,7 @@ You should override class attributes:
 
 class RawInput(MultiplePipelineInput):
     _title: str = "raw"
-    _group = cpl.ui.Frame.FrameGroup.RAW
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
 
 
 class MasterDarkInput(SinglePipelineInput):
