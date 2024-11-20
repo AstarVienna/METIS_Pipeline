@@ -2,10 +2,10 @@ from edps import task, data_source, classification_rule
 
 # --- Classification Rules ---
 detlin_class = classification_rule("DETLIN_IFU_RAW",
-                                   {"instrume:": "METIS",
+                                   {"instrume": "METIS",
                                     "dpr.catg": "CALIB",
-                                    "dpr.tech": "IFU",
                                     "dpr.type": "DETLIN",
+                                    "dpr.tech": "IFU",                                    
                                     })
 
 lin_det_class = classification_rule("LINEARITY_det",
@@ -227,33 +227,33 @@ sci_task = (task("metis_sci_reduce")
             .with_recipe("metis_ifu_reduce")
             .build())
 
-# telluric_sci_task = (task("metis_sci_telluric")
-#                 .with_main_input(sci_task)
-#                 .with_input_filter(sci_comb_class)
-#                 .with_associated_input(calib_flux_std)
-#                 .with_associated_input(calib_lsf_kernel)
-#                 .with_associated_input(calib_atm_profile)
-#                 .with_recipe("metis_ifu_telluric")
-#                 .build())
+telluric_sci_task = (task("metis_sci_telluric")
+                .with_main_input(sci_task)
+                .with_input_filter(sci_comb_class)
+                .with_associated_input(calib_flux_std)
+                .with_associated_input(calib_lsf_kernel)
+                .with_associated_input(calib_atm_profile)
+                .with_recipe("metis_ifu_telluric")
+                .build())
 
-# telluric_std_task = (task("metis_std_telluric")
-#                  .with_main_input(std_task)
-#                  .with_input_filter(std_comb_class)
-#                  .with_associated_input(calib_flux_std)
-#                  .with_associated_input(calib_lsf_kernel)
-#                  .with_associated_input(calib_atm_profile)
-#                  .with_recipe("metis_ifu_telluric")
-#                  .build())
+telluric_std_task = (task("metis_std_telluric")
+                 .with_main_input(std_task)
+                 .with_input_filter(std_comb_class)
+                 .with_associated_input(calib_flux_std)
+                 .with_associated_input(calib_lsf_kernel)
+                 .with_associated_input(calib_atm_profile)
+                 .with_recipe("metis_ifu_telluric")
+                 .build())
 
-# calibrate_task = (task("metis_ifu_calibrate")
-#                   .with_main_input(sci_task)
-#                   .with_associated_input(telluric_sci_task)
-#                   .with_input_filter(sci_telluric_class)
-#                   .with_associated_input(telluric_std_task)
-#                   .with_recipe("metis_ifu_calibrate")
-#                   .build())
+calibrate_task = (task("metis_ifu_calibrate")
+                  .with_main_input(sci_task)
+                  .with_associated_input(telluric_sci_task)
+                  .with_input_filter(sci_telluric_class)
+                  .with_associated_input(telluric_std_task)
+                  .with_recipe("metis_ifu_calibrate")
+                  .build())
 
-# post_process_task = (task("metis_ifu_prostprocess")
-#                      .with_main_input(calibrate_task)
-#                      .with_recipe("metis_ifu_postprocess")
-#                      .build())
+post_process_task = (task("metis_ifu_postprocess")
+                     .with_main_input(calibrate_task)
+                     .with_recipe("metis_ifu_postprocess")
+                     .build())
