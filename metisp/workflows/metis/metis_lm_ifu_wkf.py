@@ -1,12 +1,21 @@
 from edps import task, data_source, classification_rule
 
 # --- Classification Rules ---
+
+badpix_class = classification_rule("BADPIX_MAP_IFU",
+                                   {"pro.catg": "BADPIX_MAP_det",
+                                    })
+
 detlin_class = classification_rule("DETLIN_IFU_RAW",
                                    {"instrume": "METIS",
                                     "dpr.catg": "CALIB",
                                     "dpr.type": "DETLIN",
                                     "dpr.tech": "IFU",                                    
                                     })
+
+gain_map_class = classification_rule("GAIN_MAP_det",
+                                     {"pro.catg": "GAIN_MAP_det",
+                                      })
 
 lin_det_class = classification_rule("LINEARITY_det",
                                     {"pro.catg": "LINEARITY_det",
@@ -77,6 +86,10 @@ sci_comb_class = classification_rule("IFU_SCI_COMBINED",
                                 {"pro.catg": "IFU_SCI_COMBINED",
                                  })
 
+sci_reduce_class = classification_rule("IFU_SCI_REDUCED",
+                                       {"pro.catg": "IFU_SCI_REDUCED",
+                                        })
+
 std_comb_class = classification_rule("IFU_STD_COMBINED",
                                      {"pro.catg": "IFU_STD_COMBINED",
                                       })
@@ -93,10 +106,18 @@ atm_profile_class = classification_rule("ATM_PROFILE",
                                         {"pro.catg": "ATM_PROFILE",
                                          })
 
-sci_telluric_class =classification_rule("IFU_TELLURIC",
+telluric_class =classification_rule("IFU_TELLURIC",
                                         {"pro.catg": "IFU_TELLURIC"})
 
+flux_tab_class = classification_rule("FLUXCAL_TAB",
+                                     {"pro.catg": "FLUXCAL_TAB"})
+
 # --- Data sources ---
+
+bad_pix_calib = (data_source()
+                 .with_classification_rule(badpix_class)
+                 .build())
+
 detlin_raw = (data_source()
               .with_classification_rule(detlin_class)
               .with_match_keywords(["instrume"])
@@ -158,72 +179,69 @@ calib_atm_profile = (data_source()
 lingain_task = (task("metis_ifu_lingain")
                 .with_main_input(detlin_raw)
                 .with_recipe("metis_det_lingain")
+                .with_associated_input(bad_pix_calib, min_ret=0)
                 .build())
 
 dark_task = (task("metis_ifu_dark")
              .with_main_input(dark_raw)
-             .with_associated_input(lingain_task)
-             .with_input_filter(lin_det_class)
+             .with_associated_input(bad_pix_calib, min_ret=0)
+             .with_associated_input(lingain_task, [lin_det_class, gain_map_class])
              .with_associated_input(calib_persistence)
              .with_recipe("metis_det_dark")
              .build())
 
 distortion_task = (task("metis_ifu_distortion")
                    .with_main_input(raw_distortion)
+                   .with_associated_input(bad_pix_calib, min_ret=0)
+                   .with_associated_input(lingain_task, [lin_det_class, gain_map_class])
+                   .with_associated_input(calib_persistence)
                    .with_associated_input(calib_pinhole)
-                   .with_associated_input(dark_task)
-                   .with_input_filter(master_dark_class)
+                   .with_associated_input(dark_task, [master_dark_class])
                    .with_recipe("metis_ifu_distortion")
                    .build())
 
 wave_task = (task("metis_ifu_wavecal")
              .with_main_input(raw_wave)
+             .with_associated_input(bad_pix_calib, min_ret=0)
+             .with_associated_input(lin_det_class, [lin_det_class, gain_map_class])
              .with_associated_input(calib_persistence)
-             .with_associated_input(dark_task)
-             .with_input_filter(master_dark_class)
-             .with_associated_input(distortion_task)
-             .with_input_filter(distortion_table_class)
+             .with_associated_input(dark_task, [master_dark_class])
+             .with_associated_input(distortion_task, [distortion_table_class])
              .with_recipe("metis_ifu_wavecal")
              .build())
 
 rsrf_task = (task("metis_ifu_rsrf")
              .with_main_input(raw_rsrf)
+             .with_associated_input(bad_pix_calib, min_ret=0)
+             .with_associated_input(lingain_task, [lin_det_class, gain_map_class])
              .with_associated_input(calib_persistence)
-             .with_associated_input(dark_task)
-             .with_input_filter(master_dark_class)
-             .with_associated_input(distortion_task)
-             .with_input_filter(distortion_table_class)
+             .with_associated_input(dark_task, [master_dark_class])
+             .with_associated_input(distortion_task, [distortion_table_class])
              .with_associated_input(wave_task)
              .with_recipe("metis_ifu_rsrf")
              .build())
 
 std_task = (task("metis_std_reduce")
             .with_main_input(raw_std)
-            .with_associated_input(lingain_task)
-            .with_input_filter(lin_det_class)
+            .with_associated_input(bad_pix_calib, min_ret=0)
+            .with_associated_input(lingain_task, [lin_det_class, gain_map_class])
             .with_associated_input(calib_persistence)
-            .with_associated_input(dark_task)
-            .with_input_filter(master_dark_class)
-            .with_associated_input(distortion_task)
-            .with_input_filter(distortion_table_class)
+            .with_associated_input(dark_task, [master_dark_class])
+            .with_associated_input(distortion_task, [distortion_table_class])
             .with_associated_input(wave_task)
-            .with_associated_input(rsrf_task)
-            .with_input_filter(calib_rsrf_class)
+            .with_associated_input(rsrf_task, [calib_rsrf_class])
             .with_recipe("metis_ifu_reduce")
             .build())
 
 sci_task = (task("metis_sci_reduce")
             .with_main_input(raw_sci)
-            .with_associated_input(lingain_task)
-            .with_input_filter(lin_det_class)
+            .with_associated_input(bad_pix_calib, min_ret=0)
+            .with_associated_input(lingain_task, [lin_det_class, gain_map_class])
             .with_associated_input(calib_persistence)
-            .with_associated_input(dark_task)
-            .with_input_filter(master_dark_class)
-            .with_associated_input(distortion_task)
-            .with_input_filter(distortion_table_class)
+            .with_associated_input(dark_task, [master_dark_class])
+            .with_associated_input(distortion_task, [distortion_table_class])
             .with_associated_input(wave_task)
-            .with_associated_input(rsrf_task)
-            .with_input_filter(calib_rsrf_class)
+            .with_associated_input(rsrf_task, [calib_rsrf_class])
             .with_recipe("metis_ifu_reduce")
             .build())
 
@@ -247,9 +265,9 @@ telluric_std_task = (task("metis_std_telluric")
 
 calibrate_task = (task("metis_ifu_calibrate")
                   .with_main_input(sci_task)
-                  .with_associated_input(telluric_sci_task)
-                  .with_input_filter(sci_telluric_class)
-                  .with_associated_input(telluric_std_task)
+                  .with_input_filter(sci_reduce_class)
+                  .with_associated_input(telluric_std_task, [telluric_class])
+                  .with_associated_input(telluric_sci_task, [flux_tab_class])
                   .with_recipe("metis_ifu_calibrate")
                   .build())
 
