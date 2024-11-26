@@ -50,6 +50,10 @@ class BaseInputSetTest(ABC):
         assert instance.verify() is None
         assert len(instance.raw.frameset) == self.count
 
+    def test_can_write_debug(self, load_frameset, sof):
+        instance = self.impl.InputSet(load_frameset(sof))
+        assert instance.de
+
 
 class BaseRecipeTest(ABC):
     _recipe = None

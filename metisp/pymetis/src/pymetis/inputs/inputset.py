@@ -47,13 +47,13 @@ class PipelineInputSet(metaclass=ABCMeta):
 
         self.print_debug()
 
-    def verify(self):
+    def verify(self) -> None:
         Msg.debug(self.__class__.__qualname__, f"Verifying the inputset {self.inputs}")
 
         for inp in self.inputs:
             inp.verify()
 
-    def print_debug(self, *, offset: int = 0):
+    def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset} -- Detailed class info ---")
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}{len(self.inputs)} inputs:")
         Msg.debug(self.__class__.__qualname__, str(self.inputs))

@@ -90,6 +90,9 @@ class MetisRecipeImpl(ABC):
         The core method of the recipe implementation. It should contain all the processing logic.
         At its entry point the Input class must be already loaded and verified.
 
+        All pixel manipulation should happen inside this function (or something it calls:
+        that means no pixel manipulation before entering `process_images` and no pixel
+
         The basic workflow inside should be as follows:
 
         1.  Load the actual CPL Images associated with Input frames.

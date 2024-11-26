@@ -96,16 +96,20 @@ class PipelineInput:
     @abstractmethod
     def verify(self) -> None:
         """
-        Verify that the input has all the required frames. There is no default logic.
+        Verify that the input has all the required frames and that they are valid themselves.
+        There is no default logic, implementation is deferred to derived classes.
         """
 
-    def print_debug(self, *, offset: int = 0):
+    def print_debug(self, *, offset: int = 0) -> None:
+        """
+        Print a short description of the tags with a small offset (spaces).
+        """
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tags: {self.tags}")
 
 
 class SinglePipelineInput(PipelineInput):
     """
-    A pipeline input that expects a single frame to be present. Also provides methods for basic validation.
+    A pipeline input that expects a single frame to be present.
     """
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
