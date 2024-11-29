@@ -43,7 +43,7 @@ class PipelineInputSet(metaclass=ABCMeta):
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):
         """ Filter the input frameset, capture frames that match criteria and assign them to own attributes. """
         if not self.inputs:
-            raise NotImplementedError(f"PipelineInput must define at least one `input`.")
+            raise NotImplementedError(f"PipelineInput must define at least one input.")
 
         self.print_debug()
 

@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.recipes.img.metis_lm_img_basic_reduce import MetisLmImgBasicReduce as Recipe, MetisLmImgBasicReduceImpl as Impl
-from generic import BaseRecipeTest
+from generic import BaseRecipeTest, BaseInputSetTest
 
 
 @pytest.fixture
@@ -36,3 +36,8 @@ def sof():
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
+
+
+class TestInputSet(BaseInputSetTest):
+    impl = Impl
+    count = 1

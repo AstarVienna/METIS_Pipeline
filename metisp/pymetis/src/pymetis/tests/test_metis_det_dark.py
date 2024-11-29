@@ -17,17 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import os.path
-import subprocess
-from pathlib import Path
-
 import cpl
 import pytest
 
-from pymetis.base.product import PipelineProduct
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, Metis2rgDarkImpl as Impl
 
-from generic import BaseInputSetTest, BaseRecipeTest
+from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 
 
 @pytest.fixture
@@ -62,6 +57,6 @@ class TestInputSet(BaseInputSetTest):
     count = 1
 
 
-class TestProduct:
-    def test_product(self):
-        assert issubclass(Impl.Product, PipelineProduct)
+class TestProduct(BaseProductTest):
+    impl = Impl
+    pass

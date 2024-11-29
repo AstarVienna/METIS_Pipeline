@@ -22,15 +22,23 @@ import os.path
 import subprocess
 from abc import ABC
 from pathlib import Path
-from pytest import fixture
+
+import pytest
 
 import cpl
 
 from pymetis.inputs import PipelineInputSet
+from pymetis.base.product import PipelineProduct
 
 
 root = Path(os.path.expandvars("$SOF_DIR"))
 
+
+class BaseProductTest(ABC):
+    impl = None
+
+    def test_product(self):
+        assert issubclass(self.impl.Product, PipelineProduct)
 
 class BaseInputSetTest(ABC):
     """
@@ -49,10 +57,6 @@ class BaseInputSetTest(ABC):
         instance = self.impl.InputSet(load_frameset(sof))
         assert instance.verify() is None
         assert len(instance.raw.frameset) == self.count
-
-    def test_can_write_debug(self, load_frameset, sof):
-        instance = self.impl.InputSet(load_frameset(sof))
-        assert instance.de
 
 
 class BaseRecipeTest(ABC):

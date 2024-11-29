@@ -29,9 +29,9 @@ from pymetis.inputs.inputset import PipelineInputSet
 
 class MetisRecipeImpl(ABC):
     """
-        An abstract base class for all METIS recipe implementations.
-        Contains central flow control and provides abstract methods to be overridden
-        by particular pipeline recipe implementations.
+    An abstract base class for all METIS recipe implementations.
+    Contains central data flow control and also provides abstract methods to be overridden
+    by particular pipeline recipe implementations.
     """
     InputSet = PipelineInputSet
     Product = PipelineProduct
@@ -49,14 +49,16 @@ class MetisRecipeImpl(ABC):
         self.frameset = None
         self.header = None
         self.product_frames = cpl.ui.FrameSet()
-        self.products = {}
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """
-            The main function of the recipe implementation. Mirrors the signature of Recipe.run.
-            All recipe implementations follow this schema (and hence it does not have to be repeated).
-        """
+            The main function of the recipe implementation. It mirrors the signature of `Recipe.run`
+            and is meant to be called directly by the owner recipe.
+            All recipe implementations should follow this schema (and hence it does not have to be repeated
+            or overridden anywhere). ToDo: at least Martin thinks so now.
 
+            If this structure does not cover the needs of your particular recipe, we should discuss and adapt.
+        """
 
         try:
             self.frameset = frameset
@@ -90,18 +92,24 @@ class MetisRecipeImpl(ABC):
         The core method of the recipe implementation. It should contain all the processing logic.
         At its entry point the Input class must be already loaded and verified.
 
-        All pixel manipulation should happen inside this function (or something it calls:
-        that means no pixel manipulation before entering `process_images` and no pixel
+        All pixel manipulation should happen inside this function (or something it calls from within).
+        That means, no pixel manipulation before entering `process_images`
+        and no pixel manipulation after exiting `process_images`.
 
         The basic workflow inside should be as follows:
 
         1.  Load the actual CPL Images associated with Input frames.
-        2.  Do the preprocessing (dark, bias, flat, ...) as needed
+        2.  Do the preprocessing (dark, bias, flat, ...) as needed.
+                - Use provided functions if possible. Much of the functionality is common to many recipes.
+                - Use HDRL functions, if available.
+                - Use CPL functions, if available.
+                - Implement what you need yourself.
         3.  Build the output images as specified in the DRLD.
-            Each product should be an instance of the associated Product class.
-        4.  Return a dictionary in the form {tag: Product(...)}
+            Each product should be an instance of the associated `Product` class.
+            There should be exactly one `Product` for every file produced (at least for now).
+        4.  Return a dictionary in the form {tag: ProductTag(...)}
 
-        The resulting products are passed to `save_products()`.
+        The resulting products dict will then be passed to `save_products()`.
         """
         return {}
 
@@ -113,7 +121,9 @@ class MetisRecipeImpl(ABC):
             product.save()
 
     def build_product_frameset(self, products: Dict[str, PipelineProduct]) -> cpl.ui.FrameSet:
-        """ Gather all the products and build a FrameSet from their frames. """
+        """
+        Gather all the products and build a FrameSet from their frames.
+        """
         Msg.debug(self.__class__.__qualname__, f"Building the product frameset")
         product_frames = cpl.ui.FrameSet()
 
