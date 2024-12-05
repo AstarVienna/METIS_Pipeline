@@ -35,10 +35,22 @@ root = Path(os.path.expandvars("$SOF_DIR"))
 
 
 class BaseProductTest(ABC):
-    impl = None
+    product = None
 
-    def test_product(self):
-        assert issubclass(self.impl.Product, PipelineProduct)
+    def test_is_it_even_a_product(self):
+        assert issubclass(self.product, PipelineProduct)
+
+    def test_does_it_have_a_group(self):
+        assert self.product.group is not None
+
+    def test_does_it_have_a_level(self):
+        assert self.product.level is not None
+
+    def test_does_it_have_a_frame_type(self):
+        assert self.product.frame_type is not None
+
+
+
 
 class BaseInputSetTest(ABC):
     """
@@ -57,6 +69,11 @@ class BaseInputSetTest(ABC):
         instance = self.impl.InputSet(load_frameset(sof))
         assert instance.verify() is None
         assert len(instance.raw.frameset) == self.count
+
+    def test_all_inputs(self):
+        for inp in self.impl.InputSet.inputs:
+            assert inp._group is not None
+            assert isinstance(inp._title, str)
 
 
 class BaseRecipeTest(ABC):

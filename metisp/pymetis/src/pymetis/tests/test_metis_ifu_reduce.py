@@ -29,8 +29,8 @@ def name():
 
 
 @pytest.fixture
-def sof():
-    return 'metis_ifu_reduce.std.sof'
+def sof(name):
+    return f'{name}.std.sof'
 
 
 class TestRecipe(BaseRecipeTest):
@@ -39,16 +39,16 @@ class TestRecipe(BaseRecipeTest):
 
     @pytest.mark.skip
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
-        super().test_recipe_can_be_run_directly(load_frameset, sof)
+        pass
 
     @pytest.mark.skip
     def test_can_be_run_with_pyesorex(self, name, create_pyesorex):
-        super().test_can_be_run_with_pyesorex(name, create_pyesorex)
+        pass
 
     @staticmethod
     @pytest.mark.skip
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+        pass
 
 
 class TestInputSet(BaseInputSetTest):

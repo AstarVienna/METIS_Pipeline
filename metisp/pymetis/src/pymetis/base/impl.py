@@ -33,8 +33,8 @@ class MetisRecipeImpl(ABC):
     Contains central data flow control and also provides abstract methods to be overridden
     by particular pipeline recipe implementations.
     """
-    InputSet = PipelineInputSet
-    Product = PipelineProduct
+    InputSet: PipelineInputSet = None
+    Product: PipelineProduct = None
 
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = cpl.ui.ParameterList([])
@@ -109,12 +109,14 @@ class MetisRecipeImpl(ABC):
             There should be exactly one `Product` for every file produced (at least for now).
         4.  Return a dictionary in the form {tag: ProductTag(...)}
 
-        The resulting products dict will then be passed to `save_products()`.
+        The resulting products dict is then be passed to `save_products()`.
         """
         return {}
 
     def save_products(self, products: Dict[str, PipelineProduct]) -> None:
-        """ Save and register the created products """
+        """
+        Save and register the created products.
+        """
         for name, product in products.items():
             Msg.debug(self.__class__.__qualname__,
                       f"Saving {name}")
@@ -122,12 +124,7 @@ class MetisRecipeImpl(ABC):
 
     def build_product_frameset(self, products: Dict[str, PipelineProduct]) -> cpl.ui.FrameSet:
         """
-        Gather all the products and build a FrameSet from their frames.
+        Gather all the products and build a FrameSet from their frames so that is can be returned.
         """
         Msg.debug(self.__class__.__qualname__, f"Building the product frameset")
-        product_frames = cpl.ui.FrameSet()
-
-        for name, product in products.items():
-            product_frames.append(product.as_frame())
-
-        return product_frames
+        return cpl.ui.FrameSet([product.as_frame() for product in products.values()])

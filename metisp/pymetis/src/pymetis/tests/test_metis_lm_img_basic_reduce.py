@@ -19,8 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.img.metis_lm_img_basic_reduce import MetisLmImgBasicReduce as Recipe, MetisLmImgBasicReduceImpl as Impl
-from generic import BaseRecipeTest, BaseInputSetTest
+from pymetis.recipes.img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
+                                                           MetisLmImgBasicReduceImpl as Impl)
+from generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
 @pytest.fixture
@@ -41,3 +42,7 @@ class TestRecipe(BaseRecipeTest):
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
+
+
+class TestProduct(BaseProductTest):
+    product = Impl.Product

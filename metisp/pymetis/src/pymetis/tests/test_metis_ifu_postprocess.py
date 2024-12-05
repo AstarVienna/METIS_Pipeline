@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.recipes.ifu.metis_ifu_postprocess import (MetisIfuPostprocess as Recipe, MetisIfuPostprocessImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
 @pytest.fixture
@@ -29,8 +29,8 @@ def name():
 
 
 @pytest.fixture
-def sof():
-    return 'metis_ifu_postprocess.sof'
+def sof(name):
+    return f'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
@@ -39,13 +39,17 @@ class TestRecipe(BaseRecipeTest):
 
     @pytest.mark.skip
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
-        super().test_recipe_can_be_run_directly(load_frameset, sof)
+        pass
 
     @pytest.mark.skip
     def test_can_be_run_with_pyesorex(self, name, create_pyesorex):
-        super().test_can_be_run_with_pyesorex(name, create_pyesorex)
+        pass
 
     @staticmethod
     @pytest.mark.skip
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+        pass
+
+
+class DisabledTestInputSet(BaseInputSetTest):
+    impl = Impl

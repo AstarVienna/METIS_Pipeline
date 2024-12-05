@@ -17,16 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import subprocess
-from pathlib import Path
-
 import cpl
 import pytest
 
 from pymetis.base.product import PipelineProduct
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, Metis2rgLinGainImpl as Impl
 
-from generic import BaseInputSetTest, BaseRecipeTest
+from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 
 
 @pytest.fixture
@@ -43,24 +40,19 @@ class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
-    def test_create(self):
-        recipe = Recipe()
-        assert isinstance(recipe, cpl.ui.PyRecipe)
-
-    def test_can_be_run_directly(self, load_frameset, sof):
-        instance = Recipe()
-        frameset = cpl.ui.FrameSet(load_frameset(sof))
-        instance.run(frameset, {})
-
-    def test_parameter_count(self):
-        assert len(Recipe.parameters) == 3
-
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
 
 
-class TestProduct:
-    def test_product(self):
-        assert issubclass(Impl.Product, PipelineProduct)
+class TestProductGain(BaseProductTest):
+    product = Impl.ProductGain
+
+
+class TestProductLinearity(BaseProductTest):
+    product = Impl.ProductLinearity
+
+
+class TestProductBadpixMap(BaseProductTest):
+    product = Impl.ProductBadpixMap

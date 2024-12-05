@@ -25,7 +25,6 @@ from cpl.core import Msg
 from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import PipelineInputSet
 from pymetis.prefab.rawimage import RawImageProcessor
 
 from pymetis.inputs.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin

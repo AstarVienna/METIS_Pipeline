@@ -58,5 +58,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProduct(BaseProductTest):
-    impl = Impl
-    pass
+    product = Impl.Product
