@@ -22,7 +22,7 @@ Including the following two line in your .bashrc
 export METIS_SOFTPATH='<path_of_METIS_pipeline>' 
 export PYTHONPATH=$METIS_SOFTPATH
 export SOF_DATA='<path_to_data>'
-export PYCPL_RECIPE_DIR='<path_of_METIS_pipeline>/prototypes/recipes/'
+export PYCPL_RECIPE_DIR='<path_of_METIS_pipeline>/metisp/pymetis/src/pymetis/recipes/'
 ```
 ## Checking with PyESOREX
 
@@ -55,7 +55,7 @@ find some useful information [here](https://it.overleaf.com/project/65c1ef845ddd
 Remember to define the workflow path in .edps/application.properties.
 
 ```
-workflow_dir=/home/chyan/METIS_Pipeline/prototypes/
+workflow_dir='<Parent path>'/METIS_Pipeline/metisp/workflows
 ```
 
 To be safe, this command clear our all the cache data, log, product.
