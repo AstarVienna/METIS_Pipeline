@@ -1,3 +1,6 @@
+# Skip vscode setting
+.vscode
+
 # Cache files and directory
 __pycache__
 
