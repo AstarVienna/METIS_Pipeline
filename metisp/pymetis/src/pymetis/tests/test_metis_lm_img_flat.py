@@ -17,15 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pathlib import Path
-
 import pytest
-import subprocess
-import cpl
 
 from pymetis.recipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
-
-from generic import BaseInputSetTest, BaseRecipeTest
+from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 
 
 @pytest.fixture
@@ -34,8 +29,9 @@ def name():
 
 
 @pytest.fixture
-def sof():
-    return "metis_lm_img_flat.lamp.sof"
+def sof(name):
+    return f"{name}.lamp.sof"
+
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple test cases... just to see if it does something """
@@ -45,3 +41,7 @@ class TestRecipe(BaseRecipeTest):
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
+
+
+class TestProduct(BaseProductTest):
+    product = Impl.Product

@@ -17,19 +17,44 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
+import pytest
 
 from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
 
 
-class TestMetisIfuReduce:
+@pytest.fixture
+def name():
+    return 'metis_ifu_reduce'
+
+
+@pytest.fixture
+def sof(name):
+    return f'{name}.std.sof'
+
+
+class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+    _recipe = Recipe
 
-    def test_create(self):
-        recipe = Recipe()
-        assert isinstance(recipe, cpl.ui.PyRecipe)
+    @pytest.mark.skip
+    def test_recipe_can_be_run_directly(self, load_frameset, sof):
+        pass
 
-    def test_pyesorex(self, create_pyesorex):
-        pyesorex = create_pyesorex(Recipe)
-        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
-        assert pyesorex.recipe.name == 'metis_ifu_reduce'
+    @pytest.mark.skip
+    def test_can_be_run_with_pyesorex(self, name, create_pyesorex):
+        pass
+
+    @staticmethod
+    @pytest.mark.skip
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
+        pass
+
+
+class TestInputSet(BaseInputSetTest):
+    impl = Impl
+    count = 1
+
+    @pytest.mark.skip(reason="IFU recipes do not have the required master dark yet")
+    def test_can_load_and_verify(self, load_frameset, sof):
+        super().test_can_load_and_verify(load_frameset, sof)

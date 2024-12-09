@@ -89,7 +89,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
     class Product(PipelineProduct):
         """
         The second big part is defining the products. For every product we create a separate class
-        which defines the tag, group, level and frame type.
+        which defines the tag, group, level and frame type. Here we only have one kind of product,
+        so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
+        But feel free to be more creative with names.
         """
         tag: str = "LM_{target}_REDUCED"
         group = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -108,7 +110,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
         Msg.info(self.__class__.__qualname__, "Preparing flat field")
         
-        #import pdb ; pdb.set_trace()
         if flat is None:
             raise RuntimeError("No flat frames found in the frameset.")
         else:

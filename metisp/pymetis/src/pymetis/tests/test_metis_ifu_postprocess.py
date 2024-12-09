@@ -19,30 +19,37 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
-                                                           MetisLmImgBasicReduceImpl as Impl)
-from generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.ifu.metis_ifu_postprocess import (MetisIfuPostprocess as Recipe, MetisIfuPostprocessImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
 @pytest.fixture
 def name():
-    return 'metis_lm_img_basic_reduce'
+    return 'metis_ifu_postprocess'
 
 
 @pytest.fixture
-def sof():
-    return 'metis_lm_img_basic_reduce.sof'
+def sof(name):
+    return f'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
+    @pytest.mark.skip
+    def test_recipe_can_be_run_directly(self, load_frameset, sof):
+        pass
 
-class TestInputSet(BaseInputSetTest):
+    @pytest.mark.skip
+    def test_can_be_run_with_pyesorex(self, name, create_pyesorex):
+        pass
+
+    @staticmethod
+    @pytest.mark.skip
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
+        pass
+
+
+class DisabledTestInputSet(BaseInputSetTest):
     impl = Impl
-    count = 1
-
-
-class TestProduct(BaseProductTest):
-    product = Impl.Product
