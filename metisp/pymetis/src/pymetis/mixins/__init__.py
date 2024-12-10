@@ -23,7 +23,7 @@ from .masterflat import MasterFlatInputMixin
 from .linearity import LinearityInputMixin
 from .badpixmap import BadpixMapInputMixin
 from .persistence import PersistenceInputMixin
-from .gainmap import GainMapInputMixin, GainMap2rgInputMixin
+from .gainmap import GainMapInputMixin
 
 """
     Mixins are classes that provide some easily includible optional functionality.

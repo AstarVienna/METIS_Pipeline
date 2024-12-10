@@ -25,15 +25,13 @@ from cpl.core import Msg
 
 from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.base.product import PipelineProduct
+from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
 from pymetis.prefab.rawimage import RawImageProcessor
-
-from pymetis.inputs.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
 class MetisDetDarkImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
-        class RawDarkInput(Detector2rgMixin, RawInput):
+        class RawDarkInput(RawInput):
             _tags = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
 
         RawInput = RawDarkInput
@@ -47,20 +45,14 @@ class MetisDetDarkImpl(RawImageProcessor):
             self.inputs += [self.linearity, self.badpix_map, self.persistence_map, self.gain_map]
             super().__init__(frameset)
 
-    class Product(Detector2rgMixin, PipelineProduct):
+    class Product(DetectorSpecificProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-        def __init__(self,
-                     recipe: MetisRecipeImpl,
-                     header: cpl.core.PropertyList,
-                     image: cpl.core.Image):
-            super().__init__(recipe, header, image)
-
         @property
         def category(self) -> str:
-            return rf"MASTER_DARK_{self.detector}"
+            return rf"MASTER_DARK_{self.detector:s}"
 
         @property
         def output_file_name(self) -> str:
@@ -98,7 +90,7 @@ class MetisDetDarkImpl(RawImageProcessor):
 
         return {
             fr'METIS_{self.detector_name}_DARK':
-                self.Product(self, header, combined_image),
+                self.Product(self, header, combined_image, detector=self.detector_name),
         }
 
 
