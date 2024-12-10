@@ -31,27 +31,6 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     def detector_name(self) -> str | None:
         return "2RG"
 
-    class Input(RecipeInput):
-        tags_combined = ["IFU_SCI_COMBINED", "IFU_STD_COMBINED"]
-        detector_name = '2RG'
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            self.combined: cpl.ui.Frame | None = None
-            super().__init__(frameset)
-
-        def categorize_frame(self, frame: cpl.ui.Frame) -> None:
-            if frame.tag in self.tags_combined:
-                frame.group = cpl.ui.Frame.FrameGroup.RAW # TODO What group is this really?
-                self.combined = self._override_with_warning(self.combined, frame,
-                                                            origin=self.__class__.__qualname__,
-                                                            title="combined")
-                Msg.debug(self.__class__.__qualname__, f"Got IFU science combined frame: {frame.file}.")
-            else:
-                super().categorize_frame(frame)
-
-        def verify(self) -> None:
-            pass
-
     class ProductSciReduced1D(PipelineProduct):
         category = rf"IFU_SCI_REDUCED_1D"
 

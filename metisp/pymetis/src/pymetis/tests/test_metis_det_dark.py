@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 import pytest
 
-from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, Metis2rgDarkImpl as Impl
+from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
 from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 

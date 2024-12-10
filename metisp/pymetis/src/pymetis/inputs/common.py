@@ -17,8 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
 import cpl
-from cpl.core import Msg
+from typing import Pattern
 
 from .base import MultiplePipelineInput, SinglePipelineInput
 
@@ -52,36 +53,36 @@ class RawInput(MultiplePipelineInput):
 
 class MasterDarkInput(SinglePipelineInput):
     _title: str = "master dark"
-    _tags: [str] = ["MASTER_DARK_{det}"]
+    _tags: Pattern = re.compile(r"MASTER_DARK_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
 
 class MasterFlatInput(SinglePipelineInput):
     _title: str = "master flat"
-    _tags: [str] = ["MASTER_IMG_FLAT_LAMP_{det}"]
+    _tags: Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
 
 class LinearityInput(SinglePipelineInput):
     _title: str = "linearity map"
-    _tags: [str] = ["LINEARITY_{det}"]
+    _tags: Pattern = re.compile(r"LINEARITY_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
 
 class BadpixMapInput(SinglePipelineInput):
     _title: str = "bad pixel map"
-    _tags: [str] = ["BADPIX_MAP_{det}"]
+    _tags: Pattern = re.compile(r"BADPIX_MAP_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
 
 class PersistenceMapInput(SinglePipelineInput):
     _title: str = "persistence map"
-    _tags: [str] = ["PERSISTENCE_MAP"]
+    _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _required: bool = False     # Persistence maps are usually optional (can be overridden)
 
 
 class GainMapInput(SinglePipelineInput):
     _title: str = "gain map"
-    _tags = ["GAIN_MAP_{det}"]
+    _tags: Pattern = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB

@@ -17,11 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
 import pytest
 
-from pymetis.base.product import PipelineProduct
-from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, Metis2rgLinGainImpl as Impl
+from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
 from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 

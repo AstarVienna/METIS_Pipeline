@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
 from typing import Dict
 
 import cpl
@@ -33,7 +34,7 @@ from pymetis.inputs.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIf
 class MetisDetDarkImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawDarkInput(Detector2rgMixin, RawInput):
-            _tags = [r"DARK_2RG_RAW", r"DARK_GEO_RAW", r"DARK_IFU_RAW"]
+            _tags = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
 
         RawInput = RawDarkInput
 
@@ -101,20 +102,6 @@ class MetisDetDarkImpl(RawImageProcessor):
         }
 
 
-class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):
-    class InputSet(Detector2rgMixin, MetisDetDarkImpl.InputSet):
-        pass
-
-
-class MetisGeoDarkImpl(DetectorGeoMixin, MetisDetDarkImpl):
-    class InputSet(DetectorGeoMixin, MetisDetDarkImpl.InputSet):
-        pass
-
-class MetisIfuDarkImpl(DetectorIfuMixin, MetisDetDarkImpl):
-    class InputSet(DetectorIfuMixin, MetisDetDarkImpl.InputSet):
-        pass
-
-
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_dark"
@@ -136,5 +123,5 @@ class MetisDetDark(MetisRecipe):
         ),
     ])
 
-    implementation_class = Metis2rgDarkImpl
+    implementation_class = MetisDetDarkImpl
 

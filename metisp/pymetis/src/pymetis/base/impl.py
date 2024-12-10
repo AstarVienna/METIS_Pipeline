@@ -48,6 +48,7 @@ class MetisRecipeImpl(ABC):
         self.inputset = None
         self.frameset = None
         self.header = None
+        self.products: Dict[str, PipelineProduct] = {}
         self.product_frames = cpl.ui.FrameSet()
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:

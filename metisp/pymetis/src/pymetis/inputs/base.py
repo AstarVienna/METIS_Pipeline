@@ -18,6 +18,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from abc import abstractmethod
+import re
+from typing import Pattern
 
 import cpl
 
@@ -27,7 +29,7 @@ from cpl.core import Msg
 class PipelineInput:
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
-    _tags: [str] = None                     # No universal tags are provided
+    _tags: Pattern = None                   # No universal tags are provided
     _group: str = None                      # No sensible default, must be provided explicitly
 
     @property
@@ -49,7 +51,7 @@ class PipelineInput:
     def __init__(self,
                  *,
                  title: str = None,
-                 tags: [str] = None,
+                 tags: Pattern = None,
                  required: bool = None,
                  **kwargs):
         # First override the title, if provided in the constructor
@@ -66,30 +68,21 @@ class PipelineInput:
             self._tags = tags
             Msg.debug(self.__class__.__qualname__, f"Overriding `tags` to {self.tags}")
 
-        # Now expand the tags with provided context from **kwargs
-        try:
-            self._tags = [tag.format(**kwargs) for tag in self._tags]
-        except KeyError as e:
-            Msg.error(self.__class__.__qualname__, f"Could not substitute tag placeholders: {e}")
-            raise e
-
         # Check if tags are defined...
         if not self.tags:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined tags")
+            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined tag pattern")
 
-        # ...and that they are a list of strings (not a single string -- this leads to nasty errors)
-        if not isinstance(self.tags, list):
-            raise TypeError(f"Tags must be a list of string templates, got '{self.tags}'")
-        for tag in self.tags:
-            if not isinstance(tag, str):
-                raise TypeError(f"Tags must be a list of string templates, got '{type(tag)}'")
+        # ...and that they are a re pattern
+        if not isinstance(self.tags, re.Pattern):
+            raise TypeError(f"Tags must be a `re` pattern, got '{self.tags}'")
 
         # Override `required` if requested
         if required is not None:
             self._required = required
             Msg.debug(self.__class__.__qualname__, f"Overriding `required` to {self.required}")
 
-        # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL)
+        # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL
+        # that you really do not want to deal with)
         if not self.group:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group!")
 
@@ -121,7 +114,7 @@ class SinglePipelineInput(PipelineInput):
         super().__init__(tags=tags, required=required, **kwargs)
 
         for frame in frameset:
-            if frame.tag in self.tags:
+            if self.tags.fullmatch(frame.tag):
                 if self.frame is None:
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a {self.title} frame: {frame.file}.")
@@ -130,8 +123,14 @@ class SinglePipelineInput(PipelineInput):
                                 f"Found another {self.title} frame: {frame.file}! "
                                 f"Discarding previously loaded {self.frame.file}.")
                 self.frame = frame
+            else:
+                Msg.debug(self.__class__.__qualname__,
+                          f"Ignoring {frame.file}: tag {frame.tag} does not match.")
 
     def verify(self):
+        """
+        Run all the required instantiation time checks
+        """
         self._verify_frame_present(self.frame)
 
     def _verify_frame_present(self,
@@ -159,21 +158,21 @@ class MultiplePipelineInput(PipelineInput):
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
                  *,
-                 tags: [str] = None,
+                 tags: Pattern = None,
                  required: bool = None,
                  **kwargs):                     # Any other args
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
         super().__init__(tags=tags, required=required, **kwargs)
 
         for frame in frameset:
-            if frame.tag in self.tags:
+            if self.tags.fullmatch(frame.tag):
                 frame.group = self.group
                 self.frameset.append(frame)
                 Msg.debug(self.__class__.__qualname__,
                           f"Found a {self.title} frame: {frame.file}.")
             else:
                 Msg.debug(self.__class__.__qualname__,
-                          f"Ignoring {frame.file}: tag {frame.tag} not in {self.tags}.")
+                          f"Ignoring {frame.file}: tag {frame.tag} does not match.")
 
 
     def verify(self):
@@ -189,7 +188,7 @@ class MultiplePipelineInput(PipelineInput):
             if self.required:
                 raise cpl.core.DataNotFoundError(f"No {self.title} frames found in the frameset.")
             else:
-                Msg.debug(f"No {self.title} frames found but not required.")
+                Msg.debug(self.__class__.__qualname__, f"No {self.title} frames found but not required.")
         else:
             Msg.debug(self.__class__.__qualname__, f"OK: {count} frames found")
 
@@ -222,7 +221,7 @@ class MultiplePipelineInput(PipelineInput):
                                      }[det])
                 except KeyError as e:
                     raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
-            except KeyError as e:
+            except KeyError:
                 Msg.warning(self.__class__.__qualname__, f"No detector (ESO DPR TECH) set!")
 
 

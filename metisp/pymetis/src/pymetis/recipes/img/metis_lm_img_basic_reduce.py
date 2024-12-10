@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
 from typing import Dict
 
 import cpl
@@ -57,31 +58,26 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # RawImageProcessor.InputSet. It already knows that it wants a RawInput and MasterDarkInput class,
         # but does not know about the tags yet. So here we define tags for the raw input
         class Raw(RawInput):
-            _tags = ["LM_IMAGE_SCI_RAW", "LM_IMAGE_STD_RAW"]
+            _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|STD)_RAW")
 
         # Also one master flat is required. We use a prefabricated class
         class MasterFlat(MasterFlatInput):
-            _tags = ["MASTER_IMG_FLAT_LAMP_LM", "MASTER_IMG_FLAT_TWILIGHT_LM"]
+            _tags = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
 
         # We could define the master dark explicitly too, but we can use a prefabricated class instead.
         # That already has its tags defined (for master darks it's always "MASTER_DARK_{det}"), so we just define
         # the detector and band. Those are now available for all Input classes here.
         # Of course, we could be more explicit and define them directly.
 
-        detector: str = '2RG'
-        band: str = 'LM'
-
         RawInput = Raw
         MasterDarkInput = MasterDarkInput
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.master_flat = self.MasterFlat(frameset,
-                                               tags=["MASTER_IMG_FLAT_LAMP_{band}", "MASTER_IMG_FLAT_TWILIGHT_{band}"],
-                                               band="LM", det=self.detector)
-            self.linearity = LinearityInput(frameset, det=self.detector)
+            self.master_flat = self.MasterFlat(frameset)
+            self.linearity = LinearityInput(frameset)
             self.persistence = PersistenceMapInput(frameset, required=False)
-            self.gain_map = GainMapInput(frameset, det=self.detector)
+            self.gain_map = GainMapInput(frameset)
 
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
             self.inputs += [self.master_flat, self.linearity, self.persistence, self.gain_map]

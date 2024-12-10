@@ -38,10 +38,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         detector: str = None
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            if self.detector is None:
-                raise NotImplementedError(f"{self.__class__.__qualname__} must define the detector")
-
-            self.raw = self.RawInput(frameset, det=self.detector)
+            self.raw = self.RawInput(frameset)
             self.inputs += [self.raw]
             super().__init__(frameset)
 

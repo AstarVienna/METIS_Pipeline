@@ -17,15 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
+
 from abc import ABC
 from typing import Dict
 
 import cpl
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
+from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct, DetectorProduct
 from pymetis.inputs.common import RawInput
-from pymetis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 from pymetis.prefab.darkimage import DarkImageProcessor
 
@@ -43,11 +44,11 @@ class LinGainProduct(DetectorProduct, ABC):
 class MetisDetLinGainImpl(DarkImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = [r"DETLIN_{det}_RAW"]
+            _tags = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.raw = self.RawInput(frameset, det=self.detector)
+            self.raw = self.RawInput(frameset)
 
     class ProductGain(LinGainProduct):
         @property
@@ -98,21 +99,6 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         return self.products
 
 
-class Metis2rgLinGainImpl(Detector2rgMixin, MetisDetLinGainImpl):
-    class InputSet(Detector2rgMixin, MetisDetLinGainImpl.InputSet):
-        pass
-
-
-class MetisGeoLinGainImpl(DetectorGeoMixin, MetisDetLinGainImpl):
-    class InputSet(DetectorGeoMixin, MetisDetLinGainImpl.InputSet):
-        pass
-
-
-class MetisIfuLinGainImpl(DetectorIfuMixin, MetisDetLinGainImpl):
-    class InputSet(DetectorIfuMixin, MetisDetLinGainImpl.InputSet):
-        pass
-
-
 class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_lingain"
@@ -146,4 +132,4 @@ class MetisDetLinGain(MetisRecipe):
         ),
     ])
 
-    implementation_class = Metis2rgLinGainImpl
+    implementation_class = MetisDetLinGainImpl

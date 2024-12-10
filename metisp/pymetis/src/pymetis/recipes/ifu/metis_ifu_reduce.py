@@ -17,8 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
+
 import cpl
-from cpl.core import Msg
 from typing import Any, Dict, Literal
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
@@ -43,18 +44,18 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         detector = "IFU"
 
         class RawInput(RawInput):
-            _tags = ["IFU_SCI_RAW", "IFU_STD_RAW"]
+            _tags = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
 
         class MasterDarkInput(DetectorIfuMixin, MasterDarkInput):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
 
         class WavecalInput(SinglePipelineInput):
-            _tags = ["IFU_WAVECAL"]
+            _tags = re.compile(r"IFU_WAVECAL")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title = "Wavelength calibration"
 
         class DistortionTableInput(SinglePipelineInput):
-            _tags = ["IFU_DISTORTION_TABLE"]
+            _tags = re.compile(r"IFU_DISTORTION_TABLE")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title = "Distortion table"
 
@@ -62,10 +63,10 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             """
                 Here we also define all input frames specific for this recipe, except those handled by mixins.
             """
-            self.raw = self.RawInput(frameset, det=self.detector)
-            self.linearity_map = LinearityInput(frameset, det=self.detector)
+            self.raw = self.RawInput(frameset)
+            self.linearity_map = LinearityInput(frameset)
             self.persistence_map = PersistenceMapInput(frameset)
-            self.master_dark = self.MasterDarkInput(frameset, det="IFU")
+            self.master_dark = self.MasterDarkInput(frameset)
             self.ifu_wavecal = self.WavecalInput(frameset)
             self.ifu_distortion_table = self.DistortionTableInput(frameset)
             self.inputs += [self.linearity_map, self.persistence_map, self.master_dark, self.ifu_wavecal, self.ifu_distortion_table]
