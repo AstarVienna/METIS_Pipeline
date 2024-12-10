@@ -137,3 +137,23 @@ class DetectorSpecificProduct(PipelineProduct, ABC):
             raise NotImplementedError("Products specific to a detector must define 'detector'")
 
         super().__init__(recipe, header, image, **kwargs)
+
+
+class TargetSpecificProduct(PipelineProduct, ABC):
+    target = None
+
+    def __init__(self,
+                 recipe: 'MetisRecipe',
+                 header: cpl.core.PropertyList,
+                 image: cpl.core.Image,
+                 *,
+                 target: str = None,
+                 **kwargs):
+
+        if target is not None:
+            self.target = target
+
+        if self.target is None:
+            raise NotImplementedError("Products specific to a target must define 'target'")
+
+        super().__init__(recipe, header, image, **kwargs)
