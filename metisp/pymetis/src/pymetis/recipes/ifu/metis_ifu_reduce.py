@@ -20,13 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 
 import cpl
-from typing import Any, Dict, Literal
+from typing import Dict, Literal
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
+from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput
 from pymetis.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
-from pymetis.mixins import DetectorIfuMixin
 
 from pymetis.prefab.darkimage import DarkImageProcessor
 
@@ -46,7 +45,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         class RawInput(RawInput):
             _tags = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
 
-        class MasterDarkInput(DetectorIfuMixin, MasterDarkInput):
+        class MasterDarkInput(MasterDarkInput):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
 
         class WavecalInput(SinglePipelineInput):

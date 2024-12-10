@@ -25,7 +25,6 @@ from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet, MultiplePipelineInput, BadpixMapInput, \
                            MasterDarkInput, LinearityInput, GainMapInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin
-from pymetis.mixins import Detector2rgMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
@@ -33,7 +32,7 @@ class RawInput(MultiplePipelineInput):
     _tags = ["IFU_RSRF_RAW"]
 
 
-class RsrfMasterDarkInput(Detector2rgMixin, MasterDarkInput):
+class RsrfMasterDarkInput(MasterDarkInput):
     pass
 
 
@@ -77,7 +76,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
 
 class MetisIfuRsrf(MetisRecipe):
-    _name = "metis_ifu_calibrate"
+    _name = "metis_ifu_rsrf"
     _version = "0.1"
     _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"
@@ -85,5 +84,7 @@ class MetisIfuRsrf(MetisRecipe):
     _description = (
         "Currently just a skeleton prototype."
     )
+
+    parameters = cpl.ui.ParameterList([])
 
     implementation_class = MetisIfuRsrfImpl

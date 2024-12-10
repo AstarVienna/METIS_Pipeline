@@ -23,8 +23,7 @@ from typing import Dict, Literal
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import PipelineInputSet, RawInput, MasterDarkInput, BadpixMapInput, SinglePipelineInput
-from pymetis.mixins import GainMapInputMixin
+from pymetis.inputs import RawInput, MasterDarkInput, BadpixMapInput, SinglePipelineInput, GainMapInput
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
@@ -43,7 +42,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.badpix_map = BadpixMapInput(frameset, det=self.detector, required=False)
-            self.gain_map = GainMapInputMixin(frameset, det=self.detector)
+            self.gain_map = GainMapInput(frameset, det=self.detector)
             self.pinhole_table = SinglePipelineInput(frameset, tags=["PINHOLE_TABLE"])
 
 
