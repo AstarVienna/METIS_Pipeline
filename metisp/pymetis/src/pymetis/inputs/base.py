@@ -31,6 +31,7 @@ class PipelineInput:
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided
     _group: str = None                      # No sensible default, must be provided explicitly
+    _detector: str = None              # No default
 
     @property
     def title(self):
@@ -47,6 +48,10 @@ class PipelineInput:
     @property
     def group(self):
         return self._group
+
+    @property
+    def detector(self):
+        return self._detector
 
     def __init__(self,
                  *,
@@ -97,7 +102,7 @@ class PipelineInput:
         """
         Print a short description of the tags with a small offset (spaces).
         """
-        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tags: {self.tags}")
+        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags}")
 
 
 class SinglePipelineInput(PipelineInput):
@@ -190,7 +195,7 @@ class MultiplePipelineInput(PipelineInput):
             else:
                 Msg.debug(self.__class__.__qualname__, f"No {self.title} frames found but not required.")
         else:
-            Msg.debug(self.__class__.__qualname__, f"OK: {count} frames found")
+            Msg.debug(self.__class__.__qualname__, f"Frameset OK: {count} frame{'s' if count > 1 else ''} found")
 
     def _verify_same_detector(self) -> None:
         """
@@ -224,10 +229,11 @@ class MultiplePipelineInput(PipelineInput):
             except KeyError:
                 Msg.warning(self.__class__.__qualname__, f"No detector (ESO DPR TECH) set!")
 
-
         # Check if all the raws have the same detector, if not, we have a problem
         if len(unique := list(set(detectors))) == 1:
-            self._detector_name = unique[0]
+            self._detector = unique[0]
+            Msg.debug(self.__class__.__qualname__,
+                      f"Detector determined: {self.detector}")
         elif len(unique) == 0:
             Msg.warning(self.__class__.__qualname__,
                         f"No detectors specified (this is probably fine in skeleton stage)")

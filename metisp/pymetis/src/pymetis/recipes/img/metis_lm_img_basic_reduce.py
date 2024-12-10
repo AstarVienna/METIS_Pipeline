@@ -64,7 +64,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         class MasterFlat(MasterFlatInput):
             _tags = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
 
-        # We could define the master dark explicitly too, but we can use a prefabricated class instead.
+        # We could define the master dark explicitly too, but we can use a whole prefabricated class instead.
         # That already has its tags defined (for master darks it's always "MASTER_DARK_{det}"), so we just define
         # the detector and band. Those are now available for all Input classes here.
         # Of course, we could be more explicit and define them directly.
@@ -89,7 +89,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
         But feel free to be more creative with names.
         """
-        tag: str = "LM_{target}_REDUCED"
+        tag: str = "LM_{self.target}_REDUCED"
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
@@ -123,9 +123,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         prepared_images = cpl.core.ImageList()
 
         for index, frame in enumerate(raw_frames):
-            Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
+            Msg.info(self.__class__.__qualname__, f"Processing {frame.file}...")
 
-            Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file!r}")
+            Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file}")
             raw_image = cpl.core.Image.load(frame.file, extension=1)
 
             if bias:

@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import re
 
 import cpl
 
@@ -23,7 +24,7 @@ from pymetis.base.input import RecipeInput
 
 
 class GainMapInputMixin(RecipeInput):
-    tags_gain_map = [] # ["GAIN_MAP_det"]
+    tags_gain_map = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
 
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):
         self.gain_map: cpl.core.Image | None = None
@@ -46,13 +47,3 @@ class GainMapInputMixin(RecipeInput):
     def verify(self) -> None:
         self._verify_frame_present(self.gain_map, "gain map")
         super().verify()
-
-
-class GainMap2rgInputMixin(GainMapInputMixin):
-    """ A gain map for the IFU """
-    tags_gain_map = ["GAIN_MAP_2RG"]
-
-
-class GainMapGeoInputMixin(GainMapInputMixin):
-    """ A gain map for the N band """
-    tags_gain_map = ["GAIN_MAP_GEO"]

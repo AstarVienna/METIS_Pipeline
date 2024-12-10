@@ -39,6 +39,7 @@ class PipelineInputSet(metaclass=ABCMeta):
     """
 
     inputs: [PipelineInput] = []
+    detector: str = None
 
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):
         """ Filter the input frameset, capture frames that match criteria and assign them to own attributes. """
@@ -52,6 +53,21 @@ class PipelineInputSet(metaclass=ABCMeta):
 
         for inp in self.inputs:
             inp.verify()
+
+        self.verify_detectors()
+
+    def verify_detectors(self) -> None:
+        """
+        Verify that the provided SOF contains frames from only a single detector.
+        Some Inputs have None if they are not specific to a detector.
+        """
+        detectors = list(set([inp.detector for inp in self.inputs]) - {None})
+        if (detector_count := len(detectors)) != 1:
+            Msg.debug(self.__class__.__qualname__, f"No detector could be identified from the SOF")
+        elif detector_count == 1:
+            self.detector = detectors[0]
+        else:
+            raise ValueError(f"More than one detector found in inputset: {detectors}")
 
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset} -- Detailed class info ---")

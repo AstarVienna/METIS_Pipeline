@@ -119,13 +119,21 @@ class PipelineProduct(ABC):
         return f"{self.category}.fits"
 
 
-class DetectorProduct(PipelineProduct, ABC):
+class DetectorSpecificProduct(PipelineProduct, ABC):
+    detector = None
+
     def __init__(self,
                  recipe: 'MetisRecipe',
                  header: cpl.core.PropertyList,
                  image: cpl.core.Image,
                  *,
-                 detector: str,
+                 detector: str = None,
                  **kwargs):
-        self.detector = detector
+
+        if detector is not None:
+            self.detector = detector
+
+        if self.detector is None:
+            raise NotImplementedError("Products specific to a detector must define 'detector'")
+
         super().__init__(recipe, header, image, **kwargs)

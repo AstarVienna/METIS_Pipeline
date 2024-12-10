@@ -23,8 +23,6 @@ import subprocess
 from abc import ABC
 from pathlib import Path
 
-import pytest
-
 import cpl
 
 from pymetis.inputs import PipelineInputSet

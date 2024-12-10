@@ -25,13 +25,13 @@ from typing import Dict
 import cpl
 
 from pymetis.base import MetisRecipe
-from pymetis.base.product import PipelineProduct, DetectorProduct
+from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
 from pymetis.inputs.common import RawInput
 from pymetis.prefab.rawimage import RawImageProcessor
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
-class LinGainProduct(DetectorProduct, ABC):
+class LinGainProduct(DetectorSpecificProduct, ABC):
     group = cpl.ui.Frame.FrameGroup.PRODUCT
     level = cpl.ui.Frame.FrameLevel.FINAL
     frame_type = cpl.ui.Frame.FrameType.IMAGE
@@ -53,17 +53,17 @@ class MetisDetLinGainImpl(DarkImageProcessor):
     class ProductGain(LinGainProduct):
         @property
         def category(self) -> str:
-            return f"GAIN_MAP_{self.detector}"
+            return f"GAIN_MAP_{self.detector:s}"
 
     class ProductLinearity(LinGainProduct):
         @property
         def category(self) -> str:
-            return f"LINEARITY_{self.detector}"
+            return f"LINEARITY_{self.detector:s}"
 
     class ProductBadpixMap(LinGainProduct):
         @property
         def category(self) -> str:
-            return f"BADPIX_MAP_{self.detector}"
+            return f"BADPIX_MAP_{self.detector:s}"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         raw_images = self.load_raw_images()
@@ -83,7 +83,6 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         linearity_image = combined_image    # TODO Actual implementation missing
         badpix_map = combined_image         # TODO Actual implementation missing
 
-        #import pdb ; pdb.set_trace()
         self.products = {
             f'MASTER_GAIN_{self.detector_name}':
                 self.ProductGain(self, header, gain_image,
