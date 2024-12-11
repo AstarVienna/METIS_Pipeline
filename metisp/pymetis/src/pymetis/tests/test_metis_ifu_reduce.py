@@ -17,19 +17,27 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
+import pytest
 
 from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
 
 
-class TestMetisIfuReduce:
+@pytest.fixture
+def name():
+    return 'metis_ifu_reduce'
+
+
+@pytest.fixture
+def sof(name):
+    return f'{name}.std.sof'
+
+
+class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+    _recipe = Recipe
 
-    def test_create(self):
-        recipe = Recipe()
-        assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_pyesorex(self, create_pyesorex):
-        pyesorex = create_pyesorex(Recipe)
-        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
-        assert pyesorex.recipe.name == 'metis_ifu_reduce'
+class TestInputSet(BaseInputSetTest):
+    impl = Impl
+    count = 1

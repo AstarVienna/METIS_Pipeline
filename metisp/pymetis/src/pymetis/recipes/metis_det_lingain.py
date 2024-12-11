@@ -17,20 +17,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
+
 from abc import ABC
 from typing import Dict
 
 import cpl
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.base.product import PipelineProduct, DetectorProduct
+from pymetis.base import MetisRecipe
+from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
 from pymetis.inputs.common import RawInput
-from pymetis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
-class LinGainProduct(DetectorProduct, ABC):
+class LinGainProduct(DetectorSpecificProduct, ABC):
     group = cpl.ui.Frame.FrameGroup.PRODUCT
     level = cpl.ui.Frame.FrameLevel.FINAL
     frame_type = cpl.ui.Frame.FrameType.IMAGE
@@ -43,26 +44,26 @@ class LinGainProduct(DetectorProduct, ABC):
 class MetisDetLinGainImpl(DarkImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = [r"DETLIN_{det}_RAW"]
+            _tags = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.raw = self.RawInput(frameset, det=self.detector)
+            self.raw = self.RawInput(frameset)
 
     class ProductGain(LinGainProduct):
         @property
         def category(self) -> str:
-            return f"GAIN_MAP_{self.detector}"
+            return f"GAIN_MAP_{self.detector:s}"
 
     class ProductLinearity(LinGainProduct):
         @property
         def category(self) -> str:
-            return f"LINEARITY_{self.detector}"
+            return f"LINEARITY_{self.detector:s}"
 
     class ProductBadpixMap(LinGainProduct):
         @property
         def category(self) -> str:
-            return f"BADPIX_MAP_{self.detector}"
+            return f"BADPIX_MAP_{self.detector:s}"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         raw_images = self.load_raw_images()
@@ -82,7 +83,6 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         linearity_image = combined_image    # TODO Actual implementation missing
         badpix_map = combined_image         # TODO Actual implementation missing
 
-        #import pdb ; pdb.set_trace()
         self.products = {
             f'MASTER_GAIN_{self.detector_name}':
                 self.ProductGain(self, header, gain_image,
@@ -96,21 +96,6 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         }
 
         return self.products
-
-
-class Metis2rgLinGainImpl(Detector2rgMixin, MetisDetLinGainImpl):
-    class InputSet(Detector2rgMixin, MetisDetLinGainImpl.InputSet):
-        pass
-
-
-class MetisGeoLinGainImpl(DetectorGeoMixin, MetisDetLinGainImpl):
-    class InputSet(DetectorGeoMixin, MetisDetLinGainImpl.InputSet):
-        pass
-
-
-class MetisIfuLinGainImpl(DetectorIfuMixin, MetisDetLinGainImpl):
-    class InputSet(DetectorIfuMixin, MetisDetLinGainImpl.InputSet):
-        pass
 
 
 class MetisDetLinGain(MetisRecipe):
@@ -146,4 +131,4 @@ class MetisDetLinGain(MetisRecipe):
         ),
     ])
 
-    implementation_class = Metis2rgLinGainImpl
+    implementation_class = MetisDetLinGainImpl

@@ -17,17 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import os.path
-import subprocess
-from pathlib import Path
-
 import cpl
 import pytest
 
-from pymetis.base.product import PipelineProduct
-from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, Metis2rgDarkImpl as Impl
+from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
-from generic import BaseInputSetTest, BaseRecipeTest
+from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 
 
 @pytest.fixture
@@ -37,24 +32,13 @@ def name():
 
 @pytest.fixture
 def sof():
-    return "metis_det_dark.lm.sof"
+    return f"metis_det_dark.lm.sof"
 
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
-
-    def test_can_be_created(self):
-        recipe = Recipe()
-        assert isinstance(recipe, cpl.ui.PyRecipe)
-
-    def test_can_be_run_directly(self, load_frameset, sof):
-        instance = Recipe()
-        frameset = cpl.ui.FrameSet(load_frameset(sof))
-        instance.run(frameset, {})
-
-    def test_parameter_count(self):
-        assert len(Recipe.parameters) == 1
+    count = 1
 
 
 class TestInputSet(BaseInputSetTest):
@@ -62,6 +46,5 @@ class TestInputSet(BaseInputSetTest):
     count = 1
 
 
-class TestProduct:
-    def test_product(self):
-        assert issubclass(Impl.Product, PipelineProduct)
+class TestProduct(BaseProductTest):
+    product = Impl.Product

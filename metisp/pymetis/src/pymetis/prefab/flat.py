@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
 from abc import ABC
 from typing import Dict
 
@@ -36,17 +37,20 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
         class RawFlatInput(RawInput):
-            _tags = ["{band}_FLAT_LAMP_RAW", "{band}_FLAT_TWILIGHT_RAW"]
+            """
+            A subclass of RawInput that is handling the flat image raws.
+            """
+            _tags = re.compile(r"(?P<band>(LM|N))_FLAT_(?P<target>LAMP|TWILIGHT)_RAW")
 
         class DarkFlatInput(MasterDarkInput):
             """
-            Just the plain MasterDarkInput.
+            Just a plain MasterDarkInput.
             """
             pass
 
         def __init__(self, frameset):
-            self.raw = self.RawFlatInput(frameset, band=self.band)
-            self.master_dark = MasterDarkInput(frameset, det=self.detector)
+            self.raw = self.RawFlatInput(frameset)
+            self.master_dark = MasterDarkInput(frameset)
 
             self.inputs = [self.raw, self.master_dark]
 

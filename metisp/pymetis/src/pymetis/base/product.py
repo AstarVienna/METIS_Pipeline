@@ -92,6 +92,9 @@ class PipelineProduct(ABC):
     def save(self):
         """ Save this Product to a file """
         Msg.info(self.__class__.__qualname__, f"Saving product file as {self.output_file_name!r}.")
+
+        Msg.warning(self.__class__.__qualname__, str(self.recipe.frameset))
+        # At least one frame must be tagged as RAW, otherwise it *will not* save (rite of passage!)
         cpl.dfs.save_image(
             self.recipe.frameset,       # All frames for the recipe
             self.recipe.parameters,     # The list of input parameters
@@ -116,13 +119,41 @@ class PipelineProduct(ABC):
         return f"{self.category}.fits"
 
 
-class DetectorProduct(PipelineProduct, ABC):
+class DetectorSpecificProduct(PipelineProduct, ABC):
+    detector = None
+
     def __init__(self,
                  recipe: 'MetisRecipe',
                  header: cpl.core.PropertyList,
                  image: cpl.core.Image,
                  *,
-                 detector: str,
+                 detector: str = None,
                  **kwargs):
-        self.detector = detector
+
+        if detector is not None:
+            self.detector = detector
+
+        if self.detector is None:
+            raise NotImplementedError("Products specific to a detector must define 'detector'")
+
+        super().__init__(recipe, header, image, **kwargs)
+
+
+class TargetSpecificProduct(PipelineProduct, ABC):
+    target = None
+
+    def __init__(self,
+                 recipe: 'MetisRecipe',
+                 header: cpl.core.PropertyList,
+                 image: cpl.core.Image,
+                 *,
+                 target: str = None,
+                 **kwargs):
+
+        if target is not None:
+            self.target = target
+
+        if self.target is None:
+            raise NotImplementedError("Products specific to a target must define 'target'")
+
         super().__init__(recipe, header, image, **kwargs)

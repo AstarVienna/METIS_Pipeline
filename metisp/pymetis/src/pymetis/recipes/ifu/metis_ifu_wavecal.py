@@ -18,71 +18,62 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
-
 import cpl
-from cpl.core import Msg
 from typing import Dict
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
+from pymetis.inputs.common import MasterDarkInput, GainMapInput, RawInput, DistortionTableInput
+from pymetis.inputs.mixins import PersistenceInputSetMixin
+from pymetis.prefab.darkimage import DarkImageProcessor
 
 
-class MetisIfuPostprocessImpl(MetisRecipeImpl):
-    class InputSet(PipelineInputSet):
-        class SciCubeCalibratedInput(SinglePipelineInput):
-            _tags = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
-            _title = "rectified spectral cube"
-            _group = cpl.ui.Frame.FrameGroup.CALIB
+class MetisIfuWavecalImpl(DarkImageProcessor):
+    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+        class RawInput(RawInput):
+            _tags = re.compile(r"IFU_WAVE_RAW")
+
+        MasterDarkInput = MasterDarkInput
 
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.sci_cube_calibrated = self.SciCubeCalibratedInput(frameset)
-            self.inputs += [self.sci_cube_calibrated]
             super().__init__(frameset)
+            self.gain_map = GainMapInput(frameset)
+            self.distortion_table = DistortionTableInput(frameset)
 
-    class ProductSciCoadd(PipelineProduct):
+            self.inputs += [self.gain_map, self.distortion_table]
+
+    class ProductIfuWavecal(PipelineProduct):
+        category = rf"IFU_WAVECAL"
+        tag = category
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-        @property
-        def tag(self) -> str:
-            return rf"IFU_SCI_COADD"
-
-    def determine_output_grid(self):
-        pass
-
-    def resample_cubes(self):
-        pass
-
-    def coadd_cubes(self):
-        pass
-
     def process_images(self) -> Dict[str, PipelineProduct]:
-        self.determine_output_grid()
-        self.resample_cubes()
-        self.coadd_cubes()
+        # self.correct_telluric()
+        # self.apply_fluxcal()
 
         header = cpl.core.PropertyList()
-        coadded_image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file) # ToDo actual processing
-        print(self.inputset.sci_cube_calibrated.frame.file)
+        images = self.load_raw_images()
+        image = self.combine_images(images, "add")
 
         self.products = {
-            r'IFU_SCI_COADD': self.ProductSciCoadd(self, header, coadded_image),
+            product.category: product(self, header, image)
+            for product in [self.ProductIfuWavecal]
         }
         return self.products
 
 
-class MetisIfuPostprocess(MetisRecipe):
-    _name = "metis_ifu_postprocess"
+class MetisIfuWavecal(MetisRecipe):
+    _name = "metis_ifu_wavecal"
     _version = "0.1"
     _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"
-    _copyright = "GPL-3.0-or-later"
-    _synopsis = "Calibrate IFU science data"
+    _synopsis = "Determine the relative spectral response function"
     _description = (
         "Currently just a skeleton prototype."
     )
 
+    # This should not be here but without it pyesorex crashes
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name="metis_ifu_reduce.telluric",
@@ -92,4 +83,4 @@ class MetisIfuPostprocess(MetisRecipe):
             alternatives=(True, False),
         ),
     ])
-    implementation_class = MetisIfuPostprocessImpl
+    implementation_class = MetisIfuWavecalImpl
