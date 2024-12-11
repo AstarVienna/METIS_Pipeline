@@ -41,7 +41,3 @@ class TestRecipe(BaseRecipeTest):
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
-
-    @pytest.mark.skip(reason="IFU recipes do not have the required master dark yet")
-    def test_can_load_and_verify(self, load_frameset, sof):
-        pass
