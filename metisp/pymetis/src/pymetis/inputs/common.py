@@ -21,7 +21,8 @@ import re
 import cpl
 from typing import Pattern
 
-from .base import MultiplePipelineInput, SinglePipelineInput
+from .single import SinglePipelineInput
+from .multiple import MultiplePipelineInput
 
 """
 This file contains various ready-to-use `PipelineInput` classes.

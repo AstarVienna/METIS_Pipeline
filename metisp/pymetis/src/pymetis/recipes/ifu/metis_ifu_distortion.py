@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
+
 import cpl
 from cpl.core import Msg
 from typing import Dict, Literal
@@ -34,17 +36,21 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         detector = "IFU"
 
         class RawInput(RawInput):
-            tags = ["IFU_DISTORTION_RAW"]
+            _tags = re.compile(r"IFU_DISTORTION_RAW")
 
         class MasterDarkInput(MasterDarkInput):
-            tags = ["MASTER_DARK_IFU"]
+            _tags = re.compile(r"MASTER_DARK_IFU")
+
+        class PinholeTableInput(SinglePipelineInput):
+            _tags = re.compile(r"PINHOLE_TABLE")
+            _title = "pinhole table"
+            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.badpix_map = BadpixMapInput(frameset, det=self.detector, required=False)
-            self.gain_map = GainMapInput(frameset, det=self.detector)
-            self.pinhole_table = SinglePipelineInput(frameset, tags=["PINHOLE_TABLE"])
-
+            self.badpix_map = BadpixMapInput(frameset)
+            self.gain_map = GainMapInput(frameset)
+            self.pinhole_table = self.PinholeTableInput(frameset)
 
     class ProductIfuDistortionTable(PipelineProduct):
         category = rf"IFU_SCI_CUBE_CALIBRATED"

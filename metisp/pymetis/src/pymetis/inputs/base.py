@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import abstractmethod
 import re
+from functools import reduce
 from typing import Pattern
 
 import cpl
@@ -105,113 +106,9 @@ class PipelineInput:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags}")
 
 
-class SinglePipelineInput(PipelineInput):
-    """
-    A pipeline input that expects a single frame to be present.
-    """
-    def __init__(self,
-                 frameset: cpl.ui.FrameSet,
-                 *,
-                 tags: [str] = None,
-                 required: bool = None,
-                 **kwargs):
-        self.frame: cpl.ui.Frame | None = None
-        super().__init__(tags=tags, required=required, **kwargs)
-
-        for frame in frameset:
-            if self.tags.fullmatch(frame.tag):
-                if self.frame is None:
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Found a {self.title} frame: {frame.file}.")
-                else:
-                    Msg.warning(self.__class__.__qualname__,
-                                f"Found another {self.title} frame: {frame.file}! "
-                                f"Discarding previously loaded {self.frame.file}.")
-                self.frame = frame
-            else:
-                Msg.debug(self.__class__.__qualname__,
-                          f"Ignoring {frame.file}: tag {frame.tag} does not match.")
-
-    def verify(self):
+    def _verify_same_detector_from_header(self) -> None:
         """
-        Run all the required instantiation time checks
-        """
-        self._verify_frame_present(self.frame)
-
-    def _verify_frame_present(self,
-                              frame: cpl.ui.Frame) -> None:
-        """
-        Verification shorthand: if a required frame is not present, i.e. `None`,
-        raise a `cpl.core.DataNotFoundError` with the appropriate message.
-        If it is not required, emit a warning but continue.
-        """
-        if frame is None:
-            if self.required:
-                raise cpl.core.DataNotFoundError(f"No {self.title} frame found in the frameset.")
-            else:
-                Msg.debug(self.__class__.__qualname__,
-                          f"No {self.title} frame found, but not required.")
-        else:
-            Msg.debug(self.__class__.__qualname__,
-                      f"Found a {self.title} frame {frame.file}")
-
-
-class MultiplePipelineInput(PipelineInput):
-    """
-    A pipeline input that expects multiple frames, such as raw processor.
-    """
-    def __init__(self,
-                 frameset: cpl.ui.FrameSet,
-                 *,
-                 tags: Pattern = None,
-                 required: bool = None,
-                 **kwargs):                     # Any other args
-        self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
-        super().__init__(tags=tags, required=required, **kwargs)
-
-        for frame in frameset:
-            if self.tags.fullmatch(frame.tag):
-                frame.group = self.group
-                self.frameset.append(frame)
-                Msg.debug(self.__class__.__qualname__,
-                          f"Found a {self.title} frame: {frame.file}.")
-            else:
-                Msg.debug(self.__class__.__qualname__,
-                          f"Ignoring {frame.file}: tag {frame.tag} does not match.")
-
-
-    def verify(self):
-        self._verify_frameset_not_empty()
-        self._verify_same_detector()
-
-    def _verify_frameset_not_empty(self) -> None:
-        """
-        Verification shorthand: if a required frameset is not present or empty,
-        raise a `cpl.core.DataNotFoundError` with the appropriate message.
-        """
-        if (count := len(self.frameset)) == 0:
-            if self.required:
-                raise cpl.core.DataNotFoundError(f"No {self.title} frames found in the frameset.")
-            else:
-                Msg.debug(self.__class__.__qualname__, f"No {self.title} frames found but not required.")
-        else:
-            Msg.debug(self.__class__.__qualname__, f"Frameset OK: {count} frame{'s' if count > 1 else ''} found")
-
-    def _verify_same_detector(self) -> None:
-        """
-        Verify whether all the raw frames originate from the same detector.
-
-        Raises
-        ------
-        KeyError
-            If the found detector name is not a valid detector name
-        ValueError
-            If dark frames from more than one detector are found
-
-        Returns
-        -------
-        None:
-            None on success
+        Verification for headers, currently disabled
         """
         detectors = []
         for frame in self.frameset:

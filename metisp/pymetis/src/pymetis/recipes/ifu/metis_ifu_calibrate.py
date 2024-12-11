@@ -23,11 +23,10 @@ from typing import Dict
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.inputs.mixins import DetectorIfuMixin
 
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
-    class InputSet(DetectorIfuMixin, PipelineInputSet):
+    class InputSet(PipelineInputSet):
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.sci_reduced = SinglePipelineInput(frameset, tags=["IFU_SCI_REDUCED"])

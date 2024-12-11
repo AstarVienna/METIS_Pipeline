@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
+
 import cpl
 from cpl.core import Msg
 from typing import Dict
@@ -24,13 +26,12 @@ from typing import Dict
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs.mixins import DetectorIfuMixin
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
-    class InputSet(DetectorIfuMixin, PipelineInputSet):
+    class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(SinglePipelineInput):
-            _tags = [r"IFU_SCI_CUBE_CALIBRATED"]
+            _tags = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
             _title = "rectified spectral cube"
             _group = cpl.ui.Frame.FrameGroup.CALIB
 
