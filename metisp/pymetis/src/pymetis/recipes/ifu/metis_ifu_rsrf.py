@@ -56,19 +56,32 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
     class ProductMasterFlatIfu(PipelineProduct):
         category = rf"MASTER_FLAT_IFU"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     class ProductRsrfIfu(PipelineProduct):
         category = rf"RSRF_IFU"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     class ProductBadpixMapIfu(PipelineProduct):
         category = rf"BADPIX_MAP_IFU"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
+        header = cpl.core.PropertyList()
+        images = self.load_raw_images()
+        image = self.combine_images(images, "add")
+
         self.products = {
-            product.category: product()
+            product.category: product(self, header, image)
             for product in [self.ProductMasterFlatIfu, self.ProductRsrfIfu, self.ProductBadpixMapIfu]
         }
         return self.products
