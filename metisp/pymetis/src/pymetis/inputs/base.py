@@ -59,6 +59,7 @@ class PipelineInput:
                  title: str = None,
                  tags: Pattern = None,
                  required: bool = None,
+                 group: cpl.ui.Frame.FrameGroup = None,
                  **kwargs):
         # First override the title, if provided in the constructor
         if title is not None:
@@ -86,6 +87,10 @@ class PipelineInput:
         if required is not None:
             self._required = required
             Msg.debug(self.__class__.__qualname__, f"Overriding `required` to {self.required}")
+
+        if group is not None:
+            self._group = group
+            Msg.debug(self.__class__.__qualname__, f"Overriding `group` to {self.group}")
 
         # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)

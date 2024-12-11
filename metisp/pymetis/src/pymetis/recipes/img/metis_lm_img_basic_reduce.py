@@ -68,7 +68,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         class MasterFlat(MasterFlatInput):
             _tags = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
 
-        # Alternatively, we could directly use MasterFlatInput(tags=re.compile(r"...")) in __init__
+
+        # Alternatively, we could directly use MasterFlatInput(tags=re.compile(r"...")) in __init__,
+        # or go fully manual and specify it as
+        # SinglePipelineInput(tags=re.compile(r"..."), title="master flat", group=cpl.ui.Frame.FrameGroup.CALIB)
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

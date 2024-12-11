@@ -23,27 +23,16 @@ from typing import Dict
 
 from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import SinglePipelineInput, MultiplePipelineInput, BadpixMapInput, \
-                           MasterDarkInput, LinearityInput, RawInput, GainMapInput
+from pymetis.inputs import SinglePipelineInput
+from pymetis.inputs.common import BadpixMapInput, MasterDarkInput, LinearityInput, GainMapInput, RawInput, DistortionTableInput, WavecalInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
-class RsrfMasterDarkInput(MasterDarkInput):
-    pass
-
-
-class DistortionTableInput(SinglePipelineInput):
-    _tags = re.compile(r"IFU_DISTORTION_TABLE")
-    _title = "distortion table"
-    _group = cpl.ui.Frame.FrameGroup.CALIB
-
-
-class MetisIfuRsrfImpl(DarkImageProcessor):
+class MetisIfuWavecalImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"IFU_RSRF_RAW")
-            _title = "IFU rsrf raw"
+            _tags = re.compile(r"IFU_WAVE_RAW")
 
         MasterDarkInput = MasterDarkInput
 
@@ -54,28 +43,29 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
             self.inputs += [self.gain_map, self.distortion_table]
 
-    class ProductMasterFlatIfu(PipelineProduct):
-        category = rf"MASTER_FLAT_IFU"
-
-    class ProductRsrfIfu(PipelineProduct):
-        category = rf"RSRF_IFU"
-
-    class ProductBadpixMapIfu(PipelineProduct):
-        category = rf"BADPIX_MAP_IFU"
+    class ProductSciCubeCalibrated(PipelineProduct):
+        category = rf"IFU_SCI_CUBE_CALIBRATED"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
+        header = cpl.core.PropertyList()
+        images = self.load_raw_images()
+        image = self.combine_images(images, "add")
+
         self.products = {
-            product.category: product()
-            for product in [self.ProductMasterFlatIfu, self.ProductRsrfIfu, self.ProductBadpixMapIfu]
+            product.category: product(self, header, image)
+            for product in [self.ProductSciCubeCalibrated]
         }
         return self.products
 
 
-class MetisIfuRsrf(MetisRecipe):
-    _name = "metis_ifu_rsrf"
+class MetisIfuWavecal(MetisRecipe):
+    _name = "metis_ifu_wavecal"
     _version = "0.1"
     _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"
@@ -94,4 +84,4 @@ class MetisIfuRsrf(MetisRecipe):
             alternatives=(True, False),
         ),
     ])
-    implementation_class = MetisIfuRsrfImpl
+    implementation_class = MetisIfuWavecalImpl

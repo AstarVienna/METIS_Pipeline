@@ -48,8 +48,6 @@ class BaseProductTest(ABC):
         assert self.product.frame_type is not None
 
 
-
-
 class BaseInputSetTest(ABC):
     """
     A set of basic tests common for all InputSets

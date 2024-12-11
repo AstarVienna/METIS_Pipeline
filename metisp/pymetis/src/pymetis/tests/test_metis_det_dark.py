@@ -32,24 +32,13 @@ def name():
 
 @pytest.fixture
 def sof():
-    return "metis_det_dark.lm.sof"
+    return f"metis_det_dark.lm.sof"
 
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
-
-    def test_can_be_created(self):
-        recipe = Recipe()
-        assert isinstance(recipe, cpl.ui.PyRecipe)
-
-    def test_can_be_run_directly(self, load_frameset, sof):
-        instance = Recipe()
-        frameset = cpl.ui.FrameSet(load_frameset(sof))
-        instance.run(frameset, {})
-
-    def test_parameter_count(self):
-        assert len(Recipe.parameters) == 1
+    count = 1
 
 
 class TestInputSet(BaseInputSetTest):

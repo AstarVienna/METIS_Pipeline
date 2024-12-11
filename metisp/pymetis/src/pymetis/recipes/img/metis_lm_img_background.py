@@ -27,7 +27,6 @@ from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.inputs.mixins import TargetSciMixin, TargetStdMixin
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):

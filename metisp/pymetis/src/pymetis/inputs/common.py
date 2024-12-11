@@ -87,3 +87,17 @@ class GainMapInput(SinglePipelineInput):
     _title: str = "gain map"
     _tags: Pattern = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+
+
+class DistortionTableInput(SinglePipelineInput):
+    _title: str = "distortion table"
+    _tags: Pattern = re.compile(r"IFU_DISTORTION_TABLE")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+
+
+class WavecalInput(SinglePipelineInput):
+    _title: str = "wavelength calibration"
+    _tags: Pattern = re.compile(r"IFU_WAVECAL")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+
+

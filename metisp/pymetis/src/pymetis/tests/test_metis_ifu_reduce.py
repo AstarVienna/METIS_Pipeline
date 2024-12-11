@@ -37,15 +37,6 @@ class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
-    @pytest.mark.skip
-    def test_recipe_can_be_run_directly(self, load_frameset, sof):
-        pass
-
-    @staticmethod
-    @pytest.mark.skip
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
-        pass
-
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl

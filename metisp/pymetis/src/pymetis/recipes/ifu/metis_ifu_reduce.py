@@ -134,6 +134,7 @@ class MetisIfuReduce(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
+    # This should not be here but without it pyesorex crashes
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name="metis_ifu_reduce.telluric",

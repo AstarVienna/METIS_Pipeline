@@ -21,25 +21,18 @@ import re
 
 import cpl
 from cpl.core import Msg
-from typing import Dict, Literal
+from typing import Dict
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, MasterDarkInput, BadpixMapInput, SinglePipelineInput, GainMapInput
-from pymetis.prefab.darkimage import DarkImageProcessor
+from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class MetisIfuDistortionImpl(DarkImageProcessor):
-    target: Literal["SCI"] | Literal["STD"] = None
-
-    class InputSet(DarkImageProcessor.InputSet):
-        detector = "IFU"
-
+class MetisIfuDistortionImpl(RawImageProcessor):
+    class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags = re.compile(r"IFU_DISTORTION_RAW")
-
-        class MasterDarkInput(MasterDarkInput):
-            _tags = re.compile(r"MASTER_DARK_IFU")
 
         class PinholeTableInput(SinglePipelineInput):
             _tags = re.compile(r"PINHOLE_TABLE")
@@ -48,18 +41,26 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.badpix_map = BadpixMapInput(frameset)
-            self.gain_map = GainMapInput(frameset)
-            self.pinhole_table = self.PinholeTableInput(frameset)
+            self.pinhole_table = SinglePipelineInput(frameset,
+                                                     tags=re.compile(r"PINHOLE_TABLE"),
+                                                     title="pinhole table",
+                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
+            self.inputs += [self.pinhole_table]
+
 
     class ProductIfuDistortionTable(PipelineProduct):
-        category = rf"IFU_SCI_CUBE_CALIBRATED"
+        category = rf"IFU_DISTORTION_TABLE"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.TABLE
 
     class ProductIfuDistortionReduced(PipelineProduct):
         category = rf"IFU_DIST_REDUCED"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-        masterdark_image = cpl.core.Image.load(self.inputset.master_dark.file)
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -69,15 +70,13 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
                 self.header = cpl.core.PropertyList.load(frame.file, 0)
 
             raw_image = cpl.core.Image.load(frame.file, extension=1)
-            raw_image.subtract(masterdark_image)
             raw_images.append(raw_image)
 
-        method = self.parameters["metis_ifu_calibrate.stacking.method"].value
-        combined_image = self.combine_images(raw_images, method)
+        combined_image = self.combine_images(raw_images, "average")
 
         self.products = {
-            product.category: product(self, self.header, combined_image, detector_name=self.detector_name)
-            for product in [self.ProductSciCubeCalibrated]
+            product.category: product(self, self.header, combined_image)
+            for product in [self.ProductIfuDistortionTable, self.ProductIfuDistortionReduced]
         }
         return self.products
 
@@ -92,5 +91,13 @@ class MetisIfuDistortion(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    parameters = cpl.ui.ParameterList([])
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="metis_det_dark.stacking.method",
+            context="metis_det_dark",
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
+    ])
     implementation_class = MetisIfuDistortionImpl
