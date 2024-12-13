@@ -29,8 +29,8 @@ jobs:
           ./configure
           make
           make python
-          make install
-          make install-python
+          sudo make install
+          sudo make install-python
       - name: Check recipes
         # TODO: Actually check something here.
         run: |
