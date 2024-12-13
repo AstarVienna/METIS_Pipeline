@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
 from typing import Dict
 
 import cpl
@@ -26,13 +27,12 @@ from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.inputs.mixins import TargetSciMixin, TargetStdMixin
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class LmBasicReducedInput(SinglePipelineInput):
-            _tags: [str] = ["LM_{target}_BASIC_REDUCED"]
+            _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

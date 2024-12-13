@@ -27,8 +27,6 @@ from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        detector = '2RG'
-
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.sci_reduced = SinglePipelineInput(frameset, tags=["IFU_SCI_REDUCED"])
