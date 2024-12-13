@@ -1,0 +1,37 @@
+name: Install METIS_Pipeline through autotools
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Run every day at 2:00 UTC
+    - cron: "0 2 * * *"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo ./toolbox/install_dependencies_ubuntu.sh
+      - name: Run autotools
+        run: |
+          cd metisp
+          ./bootstrap
+          ./configure
+          make
+          make python
+          sudo make install
+          sudo make install-python
+      #- name: Check recipes
+        # TODO: Actually check something here.
+      #  run: |
+      #    pyesorex --recipes
