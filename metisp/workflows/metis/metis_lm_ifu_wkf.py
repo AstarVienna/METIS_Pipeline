@@ -13,11 +13,11 @@ detlin_class = classification_rule("DETLIN_IFU_RAW",
                                     "dpr.tech": "IFU",                                    
                                     })
 
-gain_map_class = classification_rule("GAIN_MAP_det",
+gain_map_class = classification_rule("GAIN_MAP_IFU",
                                      {"pro.catg": "GAIN_MAP_det",
                                       })
 
-lin_det_class = classification_rule("LINEARITY_det",
+lin_det_class = classification_rule("LINEARITY_IFU",
                                     {"pro.catg": "LINEARITY_det",
                                     })
 
@@ -32,7 +32,7 @@ distortion_class = classification_rule("IFU_DISTORTION_RAW",
                                        {"instrume": "METIS",
                                         "dpr.catg": "CALIB",
                                         "dpr.tech": "IFU",
-                                        "dipr.type": "DISTORTION",
+                                        "dpr.type": "DISTORTION",
                                         })
 
 wave_class = classification_rule("IFU_WAVE_RAW",
@@ -68,7 +68,8 @@ persistence_class = classification_rule("PERSISTENCE_MAP",
                                          })
 
 pinhole_class = classification_rule("PINHOLE_TABLE",
-                                    {"pro.catg": "PINHOLE_TABLE"})
+                                    {"pro.catg": "PINHOLE_TABLE",
+                                     })
 
 master_dark_class = classification_rule("MASTER_DARK_IFU",
                                         {"pro.catg": "MASTER_DARK_IFU",
@@ -129,7 +130,7 @@ dark_raw = (data_source()
             .build())
 
 raw_distortion = (data_source()
-                  .with_classification_rule(rawdark_class)
+                  .with_classification_rule(distortion_class)
                   .with_match_keywords(["instrume"])
                   .build())
 
@@ -186,7 +187,8 @@ dark_task = (task("metis_ifu_dark")
              .with_main_input(dark_raw)
              .with_associated_input(bad_pix_calib, min_ret=0)
              .with_associated_input(lingain_task, [lin_det_class, gain_map_class])
-             .with_associated_input(calib_persistence)
+             .with_associated_input(calib_persistence, min_ret=0)
+             .with_input_filter(lin_det_class, gain_map_class)
              .with_recipe("metis_det_dark")
              .build())
 
@@ -194,9 +196,10 @@ distortion_task = (task("metis_ifu_distortion")
                    .with_main_input(raw_distortion)
                    .with_associated_input(bad_pix_calib, min_ret=0)
                    .with_associated_input(lingain_task, [lin_det_class, gain_map_class])
-                   .with_associated_input(calib_persistence)
-                   .with_associated_input(calib_pinhole)
+                   .with_associated_input(calib_persistence, min_ret=0)
+                   .with_associated_input(calib_pinhole, min_ret=0)
                    .with_associated_input(dark_task, [master_dark_class])
+                   .with_input_filter(lin_det_class, gain_map_class, master_dark_class)
                    .with_recipe("metis_ifu_distortion")
                    .build())
 
