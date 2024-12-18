@@ -110,7 +110,7 @@ class MetisRecipeImpl(ABC):
             There should be exactly one `Product` for every file produced (at least for now).
         4.  Return a dictionary in the form {tag: ProductTag(...)}
 
-        The resulting products dict is then be passed to `save_products()`.
+        The resulting products dict is then passed to `save_products()`.
         """
         return {}
 

@@ -100,8 +100,8 @@ class MetisIfuRsrf(MetisRecipe):
     # This should not be here but without it pyesorex crashes
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_ifu_reduce.telluric",
-            context="metis_ifu_reduce",
+            name="metis_ifu_rsrf.telluric",
+            context="metis_ifu_rsrf",
             description="Use telluric correction",
             default=False,
             alternatives=(True, False),
