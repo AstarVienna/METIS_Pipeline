@@ -17,13 +17,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-class Detector2rgMixin:
-    detector: str = '2RG'
-    band: str = 'LM'
+import pytest
 
-class DetectorGeoMixin:
-    detector: str = 'GEO'
-    band: str = 'N'
+from pymetis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe, MetisIfuDistortionImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest
 
-class DetectorIfuMixin:
-    detector: str = 'IFU'
+
+@pytest.fixture
+def name():
+    return 'metis_ifu_distortion'
+
+
+@pytest.fixture
+def sof():
+    return 'metis_ifu_distortion.sof'
+
+
+class TestRecipe(BaseRecipeTest):
+    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+    _recipe = Recipe

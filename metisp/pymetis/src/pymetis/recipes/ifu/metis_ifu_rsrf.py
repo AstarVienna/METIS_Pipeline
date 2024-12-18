@@ -17,67 +17,78 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
 import cpl
 from typing import Dict
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
+from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import SinglePipelineInput, PipelineInputSet, MultiplePipelineInput, BadpixMapInput, \
-                           MasterDarkInput, LinearityInput, GainMapInput
+from pymetis.inputs import SinglePipelineInput, MultiplePipelineInput, BadpixMapInput, \
+                           MasterDarkInput, LinearityInput, RawInput, GainMapInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin
-from pymetis.mixins import Detector2rgMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
-class RawInput(MultiplePipelineInput):
-    _tags = ["IFU_RSRF_RAW"]
-
-
-class RsrfMasterDarkInput(Detector2rgMixin, MasterDarkInput):
+class RsrfMasterDarkInput(MasterDarkInput):
     pass
 
 
 class DistortionTableInput(SinglePipelineInput):
-    _tags = ["IFU_DISTORTION_TABLE"]
-
-
-class WavecalInput(SinglePipelineInput):
-    _tags = ["IFU_WAVECAL"]
+    _tags = re.compile(r"IFU_DISTORTION_TABLE")
+    _title = "distortion table"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
-        detector = '2RG'
+        class RawInput(RawInput):
+            _tags = re.compile(r"IFU_RSRF_RAW")
+            _title = "IFU rsrf raw"
 
-        RawInput = RawInput
-        MasterDarkInput = RsrfMasterDarkInput
+        MasterDarkInput = MasterDarkInput
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.linearity = LinearityInput(frameset)
             self.gain_map = GainMapInput(frameset)
             self.distortion_table = DistortionTableInput(frameset)
-            self.wavecal = WavecalInput(frameset)
 
-            self.inputs += [self.badpix_map, self.linearity, self.gain_map]
+            self.inputs += [self.gain_map, self.distortion_table]
 
-    class ProductSciCubeCalibrated(PipelineProduct):
-        category = rf"IFU_SCI_CUBE_CALIBRATED"
+    class ProductMasterFlatIfu(PipelineProduct):
+        category = rf"MASTER_FLAT_IFU"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+    class ProductRsrfIfu(PipelineProduct):
+        category = rf"RSRF_IFU"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+    class ProductBadpixMapIfu(PipelineProduct):
+        category = rf"BADPIX_MAP_IFU"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
+        header = cpl.core.PropertyList()
+        images = self.load_raw_images()
+        image = self.combine_images(images, "add")
+
         self.products = {
-            product.category: product()
-            for product in [self.ProductSciCubeCalibrated]
+            product.category: product(self, header, image)
+            for product in [self.ProductMasterFlatIfu, self.ProductRsrfIfu, self.ProductBadpixMapIfu]
         }
         return self.products
 
 
 class MetisIfuRsrf(MetisRecipe):
-    _name = "metis_ifu_calibrate"
+    _name = "metis_ifu_rsrf"
     _version = "0.1"
     _author = "Martin Baláž"
     _email = "martin.balaz@univie.ac.at"
@@ -86,4 +97,14 @@ class MetisIfuRsrf(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
+    # This should not be here but without it pyesorex crashes
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="metis_ifu_rsrf.telluric",
+            context="metis_ifu_rsrf",
+            description="Use telluric correction",
+            default=False,
+            alternatives=(True, False),
+        ),
+    ])
     implementation_class = MetisIfuRsrfImpl
