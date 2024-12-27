@@ -26,7 +26,8 @@ from cpl.core import Msg
 from pymetis.base.recipe import MetisRecipe
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import (LinearityInput, GainMapInput,
-                                   PersistenceMapInput, BadpixMapInput)
+                                   PersistenceMapInput, BadpixMapInput,
+                                   PinholeTableInput)
 from pymetis.base.product import PipelineProduct
 from pymetis.prefab.rawimage import RawImageProcessor
 
@@ -50,7 +51,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO parent class
             self.badpixmap = BadpixMapInput(frameset, required=False)
             self.pinhole_table = PinholeTableInput(frameset, required=True)
 
-            self.inputs += [self.linearity, self.gain_map, self,badpixmap,
+            self.inputs += [self.linearity, self.gain_map, self.badpixmap,
                             self.persistence]
 
 
@@ -126,5 +127,12 @@ class MetisCalChophome(MetisRecipe):
     metrology."""
 
     parameters = cpl.ui.ParameterList([
-        ])     # no parameters defined in DRLD
+        cpl.ui.ParameterEnum(
+            name="metis_cal_chophome.stacking.method",
+            context="metis_cal_chophome",
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
+])     # no parameters defined in DRLD
     implementation_class = MetisCalChophomeImpl
