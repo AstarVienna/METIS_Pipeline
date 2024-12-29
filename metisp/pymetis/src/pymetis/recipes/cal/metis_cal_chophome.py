@@ -31,7 +31,7 @@ from pymetis.inputs.common import (LinearityInput, GainMapInput,
 from pymetis.base.product import PipelineProduct
 from pymetis.prefab.rawimage import RawImageProcessor
 
-class MetisCalChophomeImpl(RawImageProcessor):  # TODO parent class
+class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
     target = "LM_CHOPHOME"
 
@@ -45,14 +45,16 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO parent class
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
+            self.raw = self.RawInput(frameset)
+            self.background = self.DarkInput(frameset)
             self.linearity = LinearityInput(frameset)
             self.gain_map = GainMapInput(frameset)
             self.persistence = PersistenceMapInput(frameset, required=False)
             self.badpixmap = BadpixMapInput(frameset, required=False)
             self.pinhole_table = PinholeTableInput(frameset, required=True)
 
-            self.inputs += [self.linearity, self.gain_map, self.badpixmap,
-                            self.persistence]
+            self.inputs += [self.raw, self.background, self.linearity, self.gain_map,
+                            self.badpixmap, self.persistence]
 
 
     class ProductCombined(PipelineProduct):
@@ -100,15 +102,40 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO parent class
     def process_images(self) -> Dict[str, PipelineProduct]:
         """do something"""
 
-        header = cpl.core.PropertyList()
-        images = self.load_raw_images()
-        image = self.combine_images(images, "add")
+        background_hdr = cpl.core.PropertyList()
+        self.inputset.background.frameset.dump()
+        bg_images = self.load_images(self.inputset.background.frameset)
+        background_img = self.combine_images(bg_images, "median")
+
+        combined_hdr = cpl.core.PropertyList()
+        raw_images = self.load_images(self.inputset.raw.frameset)
+        raw_images.subtract_image(background_img)
+        combined_img = self.combine_images(raw_images, "median")
 
         self.products = {
-            rf"{self.target}_COMBINED": self.ProductCombined(self, header, image),
-            rf"{self.target}_BACKGROUND": self.ProductBackground(self, header, image),
+            rf"{self.target}_COMBINED":
+            self.ProductCombined(self, combined_hdr, combined_img),
+            rf"{self.target}_BACKGROUND":
+            self.ProductBackground(self, background_hdr, background_img),
         }
         return self.products
+
+    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
+        """Load an imagelist from a FrameSet
+
+        This is a temporary implementation that should be generalised to the
+        entire pipeline package. It uses cpl functions - these should be
+        replaced with hdrl functions once they become available, in order
+        to use uncertainties and masks.
+        """
+        output = cpl.core.ImageList()
+
+        for idx, frame in enumerate(frameset):
+            Msg.info(self.__class__.__qualname__,
+                     f"Processing input frame #{idx}: {frame.file!r}...")
+            output.append(cpl.core.Image.load(frame.file, extension=1))
+
+        return output
 
 
 class MetisCalChophome(MetisRecipe):
