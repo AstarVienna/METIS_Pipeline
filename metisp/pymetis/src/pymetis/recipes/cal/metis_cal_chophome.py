@@ -106,6 +106,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         self.inputset.background.frameset.dump()
         bg_images = self.load_images(self.inputset.background.frameset)
         background_img = self.combine_images(bg_images, "median")
+        # TODO: define usedframes
 
         combined_hdr = cpl.core.PropertyList()
         raw_images = self.load_images(self.inputset.raw.frameset)
