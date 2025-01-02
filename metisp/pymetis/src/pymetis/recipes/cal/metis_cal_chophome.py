@@ -150,9 +150,27 @@ class MetisCalChophome(MetisRecipe):
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Determination of chopper home position"
     _description = """\
-    The recipe determines the chopper home position from LM-imaging of the WCU pinhole mask.
-    It measures the position of the pinhole image on the detector and compares to the WFS
-    metrology."""
+    Determine the chopper home position from LM-imaging of the WCU pinhole mask.
+
+        Inputs
+            LM_CHOPHOME_RAW: Raw LM band images [1-n]
+            LM_WCU_RAW_OFF:  Background images with WCU black-body closed [1-n]
+            GAIN_MAP_2RG:    Gain map for 2RG detector
+            LINEARITY_2RG:   Linearity map for 2RG detector
+            BADPIX_MAP_2RG:  Bad-pixel map for 2RG detector [optional]
+            PINHOLE_TABLE:   Table with location of pinhole on mask
+            PERSISTENCE_MAP: Persistence map [optional]
+
+        Outputs
+            LM_CHOPHOME_BACKGROUND: Average of background images (WCU_OFF)
+            LM_CHOPHOME_COMBINED: Stacked background-subtracted images of pinhole mask
+                                  The chopper offset is in the header.
+
+        Algorithm
+           The position of the pinhole image on the detector is measured from the stacked
+           background-subtracted images. The measured position is compared to the WFS
+           metrology to give the chopper home position.
+    """
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
