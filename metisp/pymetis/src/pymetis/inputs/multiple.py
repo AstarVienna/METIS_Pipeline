@@ -63,7 +63,7 @@ class MultiplePipelineInput(PipelineInput):
 
         self._detector = params.get('detector', None)
 
-    def verify(self):
+    def validate(self):
         self._verify_frameset_not_empty()
         self._verify_same_detector()
 

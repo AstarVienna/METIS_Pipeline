@@ -74,7 +74,7 @@ class RecipeInput(metaclass=ABCMeta):
                     f"Got a frame '{frame.file!r}' with unexpected tag {frame.tag!r}, ignoring.")
 
     @abstractmethod
-    def verify(self) -> None:
+    def validate(self) -> None:
         """
             Verify that the loaded frameset is valid and conforms to the specification.
             It would be also good to do this with some `schema` (but that might make Lars unhappy).

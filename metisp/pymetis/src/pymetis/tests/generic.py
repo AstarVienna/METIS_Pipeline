@@ -63,7 +63,7 @@ class BaseInputSetTest(ABC):
 
     def test_can_load_and_verify(self, load_frameset, sof):
         instance = self.impl.InputSet(load_frameset(sof))
-        assert instance.verify() is None
+        assert instance.validate() is None
         assert len(instance.raw.frameset) == self.count
 
     def test_all_inputs(self):

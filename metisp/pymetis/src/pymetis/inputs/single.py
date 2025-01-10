@@ -66,7 +66,7 @@ class SinglePipelineInput(PipelineInput):
 
         self._detector = self.tag_match.get('detector', None)
 
-    def verify(self):
+    def validate(self):
         """
         Run all the required instantiation time checks
         """

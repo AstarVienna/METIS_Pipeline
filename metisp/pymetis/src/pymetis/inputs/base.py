@@ -98,15 +98,15 @@ class PipelineInput:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group!")
 
     @abstractmethod
-    def verify(self) -> None:
+    def validate(self) -> None:
         """
         Verify that the input has all the required frames and that they are valid themselves.
-        There is no default logic, implementation is deferred to derived classes.
+        There is no default logic, implementation is fully deferred to derived classes.
         """
 
     def print_debug(self, *, offset: int = 0) -> None:
         """
-        Print a short description of the tags with a small offset (spaces).
+        Print a short description of the tags with a small offset (n spaces).
         """
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags}")
 
@@ -132,14 +132,14 @@ class PipelineInput:
                 Msg.warning(self.__class__.__qualname__, f"No detector (ESO DPR TECH) set!")
 
         # Check if all the raws have the same detector, if not, we have a problem
-        if len(unique := list(set(detectors))) == 1:
+        if (detector_count := len(unique := list(set(detectors)))) == 1:
             self._detector = unique[0]
             Msg.debug(self.__class__.__qualname__,
                       f"Detector determined: {self.detector}")
-        elif len(unique) == 0:
+        elif detector_count == 0:
             Msg.warning(self.__class__.__qualname__,
                         f"No detectors specified (this is probably fine in skeleton stage)")
         else:
             # raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
             Msg.warning(self.__class__.__qualname__,
-                        f"Darks from more than one detector found: {set(detectors)}!")
+                        f"Darks from more than one detector found: {unique}!")

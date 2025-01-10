@@ -66,7 +66,7 @@ class MetisRecipeImpl(ABC):
             self.import_settings(settings)                # Import and process the provided settings dict
             self.inputset = self.InputSet(frameset)       # Create an appropriate Input object
             self.inputset.print_debug()
-            self.inputset.verify()                        # Verify that they are valid (maybe with `schema` too?)
+            self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
             products = self.process_images()              # Do all the actual processing
             self.save_products(products)                  # Save the output products
 

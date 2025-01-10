@@ -27,15 +27,16 @@ from pymetis.inputs.base import PipelineInput
 
 class PipelineInputSet(metaclass=ABCMeta):
     """
-        The `PipelineInput` class is a singleton utility class for a recipe.
-        It reads and filters the input FrameSet, categorizes the frames by their metadata,
-        and finally stores them in its own attributes for further use.
-        It also provides verification mechanisms and methods
-        for extraction of additional information from the frames.
+    The `PipelineInputSet` class is a utility class for a recipe.
+    It reads and filters the input FrameSet, categorizes the frames by their metadata,
+    and finally stores them in its own attributes for further use.
+    It also provides verification mechanisms and methods
+    for extraction of additional information from the frames.
 
-        Every `RecipeImpl` should have exactly one `InputSet` class (though possibly shared by more recipes though).
-        Currently, we define them as internal classes of the corresponding `RecipeImpl`,
-        but in Python it does not really matter much, they can be instatiated or derived from from the outside too.
+    Every `RecipeImpl` should have exactly one `InputSet` class (possibly shared by multiple recipes).
+    Currently, we define them as internal classes of the corresponding `RecipeImpl`,
+    but in Python it does not really matter much and does not imply any particular relationship
+    between the classes -- it is just a namespacing convention.
     """
 
     inputs: [PipelineInput] = []
@@ -48,18 +49,18 @@ class PipelineInputSet(metaclass=ABCMeta):
 
         self.print_debug()
 
-    def verify(self) -> None:
+    def validate(self) -> None:
         Msg.debug(self.__class__.__qualname__, f"Verifying the inputset {self.inputs}")
 
         for inp in self.inputs:
-            inp.verify()
+            inp.validate()
 
-        self.verify_detectors()
+        self.validate_detectors()
 
-    def verify_detectors(self) -> None:
+    def validate_detectors(self) -> None:
         """
         Verify that the provided SOF contains frames from only a single detector.
-        Some Inputs have None if they are not specific to a detector.
+        Some Inputs may have None if they are not specific to a detector.
         """
         detectors = list(set([inp.detector for inp in self.inputs]) - {None})
         if (detector_count := len(detectors)) != 1:
