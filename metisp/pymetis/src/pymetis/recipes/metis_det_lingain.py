@@ -102,7 +102,7 @@ class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_lingain"
     _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo Martin"
+    _author = "A*Vienna"
     _email = "hugo@buddelmeijer.nl"
     _synopsis = "Measure detector non-linearity and gain"
     _description = (

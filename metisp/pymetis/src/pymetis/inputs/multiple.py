@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import functools
+import operator
 from typing import Pattern
 
 import cpl
@@ -28,7 +30,7 @@ from pymetis.inputs.base import PipelineInput
 
 class MultiplePipelineInput(PipelineInput):
     """
-    A pipeline input that expects multiple frames, such as raw processor.
+    A pipeline input that expects multiple frames, such as a raw processor.
     """
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
@@ -54,11 +56,7 @@ class MultiplePipelineInput(PipelineInput):
         self.extract_tag_parameters(tag_matches)
 
     def extract_tag_parameters(self, matches: [dict[str, str]]):
-        params = {}
-
-        for match in matches:
-            params |= match
-
+        params = functools.reduce(operator.or_, matches, {})
         self.tag_parameters = {}
 
         self._detector = params.get('detector', None)

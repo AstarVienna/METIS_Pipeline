@@ -32,7 +32,7 @@ class PipelineInput:
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided
     _group: str = None                      # No sensible default, must be provided explicitly
-    _detector: str = None              # No default
+    _detector: str | None = None            # Not specific to a detector until determined otherwise
 
     @property
     def title(self):
