@@ -1,39 +1,42 @@
 from edps import classification_rule
-
 from . import metis_keywords as metis_kwd
 
+# Detector linearity calibration classification
 detlin_class = classification_rule("DETLIN_2RG_RAW",
-                                    {metis_kwd.instrume:"METIS", 
-                                     metis_kwd.dpr_catg: "CALIB", 
-                                     "dpr.type":"DETLIN",
-                                     "dpr.tech":"IMAGE,LM",
-                                     })
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "DETLIN",
+     metis_kwd.drp_tech: "IMAGE,LM",
+    })
 
+# Dark frame calibration classification
 rawdark_class = classification_rule("DARK_2RG_RAW",
-                                    {metis_kwd.instrume:"METIS", 
-                                     "dpr.catg": "CALIB", 
-                                     "dpr.type":"DARK",
-                                     "dpr.tech":"IMAGE,LM",
-                                     })
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "DARK",
+     metis_kwd.drp_tech: "IMAGE,LM",
+    })
 
+# Lamp flat calibration classification
 lm_lampflat_class = classification_rule("LM_FLAT_LAMP_RAW",
-                                {metis_kwd.instrume:"METIS", 
-                                 "dpr.catg":"CALIB", 
-                                 "dpr.type":"FLAT,LAMP",
-                                 "dpr.tech":"IMAGE,LM",
-                                 })
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "FLAT,LAMP",
+     metis_kwd.drp_tech: "IMAGE,LM",
+    })
 
-twlightflat_class = classification_rule("TWLIGHT_FLAT",
-                                {metis_kwd.instrume:"METIS", 
-                                 "dpr.catg": "CALIB", 
-                                 "dpr.type":"FLAT,TWILIGHT",
-                                 "dpr.tech":"IMAGE,LM",
-                                 })
+# Twilight flat calibration classification
+twilightflat_class = classification_rule("TWILIGHT_FLAT",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "FLAT,TWILIGHT",
+     metis_kwd.drp_tech: "IMAGE,LM",
+    })
 
-
+# Science observation classification
 raw_science_class = classification_rule("LM_IMAGE_SCI_RAW",
-                                {metis_kwd.instrume:"METIS", 
-                                 "dpr.catg":"SCIENCE", 
-                                 "dpr.type":"OBJECT",
-                                 "dpr.tech":"IMAGE,LM",
-                                 })
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "SCIENCE",
+     metis_kwd.dpr_type: "OBJECT",
+     metis_kwd.drp_tech: "IMAGE,LM",
+    })
