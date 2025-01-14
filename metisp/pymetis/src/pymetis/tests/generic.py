@@ -75,6 +75,11 @@ class BaseInputSetTest(ABC):
 class BaseRecipeTest(ABC):
     _recipe = None
 
+    @classmethod
+    def _run_pyesorex(cls, name, sof):
+        return subprocess.run(['pyesorex', name, root / sof, '--log-level', 'DEBUG'],
+                              capture_output=True)
+
     def test_recipe_can_be_instantiated(self):
         recipe = self._recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)

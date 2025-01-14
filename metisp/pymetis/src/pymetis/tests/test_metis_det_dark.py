@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
 import pytest
 
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
@@ -39,6 +38,9 @@ class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
     count = 1
+
+    def test_fails_with_inconsistent_tags(self, name):
+        self._run_pyesorex(name, "incorrect/metis_det_dark.lm.mixed_detectors.sof")
 
 
 class TestInputSet(BaseInputSetTest):

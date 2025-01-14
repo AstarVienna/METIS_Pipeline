@@ -24,7 +24,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
-from pymetis.base import MetisRecipe, MetisRecipeImpl
+from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
 from pymetis.prefab.rawimage import RawImageProcessor
 
@@ -108,7 +108,7 @@ class MetisDetDark(MetisRecipe):
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name="metis_det_dark.stacking.method",
-            context="metis_det_dark",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
@@ -116,4 +116,3 @@ class MetisDetDark(MetisRecipe):
     ])
 
     implementation_class = MetisDetDarkImpl
-
