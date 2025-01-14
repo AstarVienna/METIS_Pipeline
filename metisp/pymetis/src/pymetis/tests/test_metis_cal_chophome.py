@@ -18,38 +18,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import pytest
-import os
 
-from pathlib import Path
-from typing import Type
-
-import cpl
-from pyesorex.pyesorex import Pyesorex
-from pymetis.base import MetisRecipe
-
-
-root = Path(os.path.expandvars("$SOF_DIR"))
+from pymetis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
+                                                    MetisCalChophomeImpl as Impl)
+from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 
 
 @pytest.fixture
-def create_pyesorex():
-    def inner(cls: Type[MetisRecipe]):
-        p = Pyesorex()
-        p.recipe = cls._name
-        return p
-
-    return inner
+def name():
+    return 'metis_cal_chophome'
 
 
 @pytest.fixture
-def load_frameset():
-    def inner(filename: str):
-        frameset = cpl.ui.FrameSet()
-        with open(root / filename) as f:
-            for line in f.readlines():
-                tokens = line.rstrip('\n').split()
-                path = os.path.expandvars(tokens[0])
-                frameset.append(cpl.ui.Frame(path, tag=tokens[1]))
+def sof(name):
+    return f"{name}.sof"
 
-        return frameset
-    return inner
+
+class TestRecipe(BaseRecipeTest):
+    """ A bunch of extremely simple test cases... just to see if it does something """
+    _recipe = Recipe
+
+
+class TestInputSet(BaseInputSetTest):
+    impl = Impl
+    count = 3
+
+
+class TestProductCombined(BaseProductTest):
+    product = Impl.ProductCombined
+
+class TestProductBackground(BaseProductTest):
+    product = Impl.ProductBackground

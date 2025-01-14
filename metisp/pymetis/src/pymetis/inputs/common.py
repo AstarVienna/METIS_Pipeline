@@ -30,7 +30,7 @@ You should never derive directly from `PipelineInput`, but rather from
 
  -  `SinglePipelineInput` (for `Input` classes with a single Frame)
  -  `MultiplePipelineInput` (for `Input` classes with a FrameSet)
- 
+
 You should override class attributes:
 
  -  `_title`
@@ -101,3 +101,7 @@ class WavecalInput(SinglePipelineInput):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
 
+class PinholeTableInput(SinglePipelineInput):
+    _title: str = "pinhole table"
+    _tags: Pattern = re.compile(r"WCU_PINHOLE_TABLE")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
