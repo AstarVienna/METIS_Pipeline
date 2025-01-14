@@ -56,10 +56,15 @@ class MultiplePipelineInput(PipelineInput):
         self.extract_tag_parameters(tag_matches)
 
     def extract_tag_parameters(self, matches: [dict[str, str]]):
-        params = functools.reduce(operator.or_, matches, {})
-        self.tag_parameters = {}
+        if len(matches) == 0:
+            return
 
-        self._detector = params.get('detector', None)
+        # Check if all matches are created equal
+        if matches[:-1] == matches[1:]:
+            self.tag_parameters = matches[0]
+            self._detector = matches[0].get('detector', None)
+        else:
+            raise ValueError(f"Tag parameters are not equal for all frames! Found {matches}")
 
     def validate(self):
         self._verify_frameset_not_empty()

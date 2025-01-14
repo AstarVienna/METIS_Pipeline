@@ -37,9 +37,9 @@ class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
-    @pytest.mark.skip
+    @pytest.mark.xfail
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
-        pass
+        super().test_recipe_can_be_run_directly(load_frameset, sof)
 
     @pytest.mark.skip
     def test_can_be_run_with_pyesorex(self, name, create_pyesorex):
