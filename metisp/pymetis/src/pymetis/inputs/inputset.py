@@ -50,7 +50,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         self.print_debug()
 
     def validate(self) -> None:
-        Msg.debug(self.__class__.__qualname__, f"Verifying the inputset {self.inputs}")
+        Msg.debug(self.__class__.__qualname__, f"Validating the inputset {self.inputs}")
 
         for inp in self.inputs:
             inp.validate()
