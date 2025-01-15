@@ -83,6 +83,12 @@ Running one specific recipe
  
 ```
 
+Running Meta-target
+```
+ edps -w metis.metis_wkf -i $SOF_DATA -m science 
+```
+
+
 Getting report in a better way
 ```
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -od
