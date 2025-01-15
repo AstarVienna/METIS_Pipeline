@@ -34,7 +34,7 @@ from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
 from pymetis.prefab.darkimage import DarkImageProcessor
-from pymetis.inputs.mixins import Detector2rgMixin, DetectorGeoMixin
+
 
 class MetisPupilImagingImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
