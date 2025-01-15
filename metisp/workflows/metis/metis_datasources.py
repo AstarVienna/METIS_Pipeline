@@ -19,8 +19,8 @@ instrument_setup = [metis_kwd.instrume] + setup
 
 
 # --- Data sources ---
-detlin_raw = (data_source()
-            .with_classification_rule(detlin_class)
+detlin_2rg_raw = (data_source()
+            .with_classification_rule(detlin_2rg_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
@@ -36,5 +36,10 @@ lm_lamp_flat = (data_source()
 
 lm_raw_science = (data_source()
             .with_classification_rule(raw_science_class)        
+            .with_match_keywords(["instrume"])
+            .build())
+
+lm_raw_sky = (data_source()
+            .with_classification_rule(raw_sky_class)        
             .with_match_keywords(["instrume"])
             .build())

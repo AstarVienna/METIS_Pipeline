@@ -31,6 +31,8 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
+    #import pdb ; pdb.set_trace()
+
     class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the singleton class
@@ -58,7 +60,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # RawImageProcessor.InputSet. It already knows that it wants a RawInput and MasterDarkInput class,
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|STD)_RAW")
+            _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
 
         # Now we need a master dark. Since nothing is changed and the tag is always the same,
         # we just point to the provided MasterDarkInput.

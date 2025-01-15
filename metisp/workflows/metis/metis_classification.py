@@ -2,7 +2,7 @@ from edps import classification_rule
 from . import metis_keywords as metis_kwd
 
 # Detector linearity calibration classification
-detlin_class = classification_rule("DETLIN_2RG_RAW",
+detlin_2rg_raw_class = classification_rule("DETLIN_2RG_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
      metis_kwd.dpr_type: "DETLIN",
@@ -38,5 +38,12 @@ raw_science_class = classification_rule("LM_IMAGE_SCI_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "SCIENCE",
      metis_kwd.dpr_type: "OBJECT",
+     metis_kwd.drp_tech: "IMAGE,LM",
+    })
+
+raw_sky_class = classification_rule("LM_IMAGE_SKY_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "SCIENCE",
+     metis_kwd.dpr_type: "SKY",
      metis_kwd.drp_tech: "IMAGE,LM",
     })
