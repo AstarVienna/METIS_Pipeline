@@ -31,7 +31,6 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
-    #import pdb ; pdb.set_trace()
 
     class InputSet(DarkImageProcessor.InputSet):
         """
@@ -167,8 +166,11 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
         combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+        
+        import pdb ; pdb.set_trace()
 
-        self.target = "SCI" # hardcoded for now
+        #self.target = self.inputset.RawInput.getTargetName(self.inputset.raw.frameset)
+        self.target = 'SCI'
         self.products = {
             fr'OBJECT_REDUCED_{self.detector}':
                 self.Product(self, header, combined_image, target=self.target),
