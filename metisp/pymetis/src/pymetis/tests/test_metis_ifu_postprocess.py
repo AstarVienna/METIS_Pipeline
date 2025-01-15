@@ -41,14 +41,14 @@ class TestRecipe(BaseRecipeTest):
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
         super().test_recipe_can_be_run_directly(load_frameset, sof)
 
-    @pytest.mark.skip
+    @pytest.mark.xfail
     def test_can_be_run_with_pyesorex(self, name, create_pyesorex):
-        pass
+        super().test_can_be_run_with_pyesorex(name, create_pyesorex)
 
     @staticmethod
-    @pytest.mark.skip
+    @pytest.mark.xfail
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
-        pass
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(sof, create_pyesorex)
 
 
 class DisabledTestInputSet(BaseInputSetTest):

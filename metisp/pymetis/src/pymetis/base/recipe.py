@@ -40,14 +40,22 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _synopsis = "Abstract-like base class for METIS recipes"
     _description = "This class serves as the base class for all METIS recipes."
 
-    parameters = cpl.ui.ParameterList([])          # By default, classes do not have any parameters
-    implementation_class: type = str               # Dummy class, this must be overridden in the derived classes anyway
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="void",
+            context=_name,
+            description="Void parameter because otherwise it does not work",
+            default="",
+            alternatives=["", ""],
+        ),
+    ])
+
+    implementation_class: type["MetisRecipeImpl"]  # Dummy class, this must be overridden in the derived classes anyway
 
     def __init__(self):
         super().__init__()
-        self.implementation = self.dispatch_implementation_class()(self)
 
-    def dispatch_implementation_class(self) -> type["MetisRecipeImpl"]:
+    def dispatch_implementation_class(self, frameset) -> type["MetisRecipeImpl"]:
         return self.implementation_class
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
@@ -55,4 +63,5 @@ class MetisRecipe(cpl.ui.PyRecipe):
             The main method, as required by PyCPL.
             It just calls the same method in the decoupled implementation.
         """
+        self.implementation = self.dispatch_implementation_class(frameset)(self)
         return self.implementation.run(frameset, settings)

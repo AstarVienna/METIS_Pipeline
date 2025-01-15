@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
+
 import cpl
 from typing import Dict
 
@@ -29,9 +31,9 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.sci_reduced = SinglePipelineInput(frameset, tags=["IFU_SCI_REDUCED"])
-            self.telluric = SinglePipelineInput(frameset, tags=["IFU_TELLURIC"])
-            self.fluxcal = SinglePipelineInput(frameset, tags=["FLUXCAL_TAB"])
+            self.sci_reduced = SinglePipelineInput(frameset, tag=re.compile(r"IFU_SCI_REDUCED"))
+            self.telluric = SinglePipelineInput(frameset, tag=re.compile(r"IFU_TELLURIC"))
+            self.fluxcal = SinglePipelineInput(frameset, tag=re.compile(r"FLUXCAL_TAB"))
 
             self.inputs += [self.sci_reduced, self.telluric, self.fluxcal]
 
@@ -59,8 +61,6 @@ class MetisIfuCalibrate(MetisRecipe):
     _description = (
         "Currently just a skeleton prototype."
     )
-
-    parameters = cpl.ui.ParameterList([])
 
     def dispatch_implementation_class(self) -> type[MetisRecipeImpl]:
         return MetisIfuCalibrateImpl

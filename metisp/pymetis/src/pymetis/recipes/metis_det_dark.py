@@ -127,13 +127,6 @@ class MetisDetDark(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_det_dark.detector",
-            context=_name,
-            description="Detector name",
-            default="2RG",
-            alternatives=("2RG", "GEO", "IFU"),
-        ),
-        cpl.ui.ParameterEnum(
             name="metis_det_dark.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
@@ -142,9 +135,12 @@ class MetisDetDark(MetisRecipe):
         ),
     ])
 
-    def dispatch_implementation_class(self):
+    implementation_class = MetisDetDarkImpl
+
+    def dispatch_implementation_class(self, frameset):
+        inputset = self.implementation_class.InputSet.RawDarkInput(frameset)
         return {
             '2RG': Metis2rgDarkImpl,
             'GEO': MetisGeoDarkImpl,
             'IFU': MetisIfuDarkImpl,
-        }[self.parameters["metis_det_dark.detector"].value]
+        }[inputset.detector]

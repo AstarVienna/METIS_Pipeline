@@ -138,9 +138,12 @@ class MetisDetLinGain(MetisRecipe):
         ),
     ])
 
-    def dispatch_implementation_class(self):
+    implementation_class = MetisDetLinGainImpl
+
+    def dispatch_implementation_class(self, frameset):
+        input = self.implementation_class.InputSet.RawInput(frameset)
         return {
             '2RG': MetisDetLinGainImpl,
             'GEO': MetisDetLinGainImpl,
             'IFU': MetisDetLinGainImpl,
-        }[self.parameters["metis_det_lingain.detector"].value]
+        }[input.detector]

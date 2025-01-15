@@ -101,5 +101,4 @@ class MetisIfuDistortion(MetisRecipe):
         ),
     ])
 
-    def dispatch_implementation_class(self) -> type["MetisRecipeImpl"]:
-        return MetisIfuDistortionImpl
+    implementation_class = MetisIfuDistortionImpl

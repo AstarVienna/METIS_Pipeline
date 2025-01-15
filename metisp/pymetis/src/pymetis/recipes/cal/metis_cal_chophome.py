@@ -182,5 +182,4 @@ class MetisCalChophome(MetisRecipe):
         ),
     ])     # no parameters defined in DRLD
 
-    def dispatch_implementation_class(self) -> type["MetisRecipeImpl"]:
-        return MetisCalChophomeImpl
+    implementation_class = MetisCalChophomeImpl
