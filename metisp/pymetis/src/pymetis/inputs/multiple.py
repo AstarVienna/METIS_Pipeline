@@ -59,6 +59,7 @@ class MultiplePipelineInput(PipelineInput):
         if len(matches) == 0:
             return
 
+        Msg.debug(self.__class__.__qualname__, f"Verifying tag parameters are equal for all frames...")
         # Check if all matches are created equal
         if matches[:-1] == matches[1:]:
             self.tag_parameters = matches[0]

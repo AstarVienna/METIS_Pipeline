@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
+import cpl
+
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
 from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
@@ -39,8 +41,11 @@ class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
     count = 1
 
-    def test_fails_with_inconsistent_tags(self, name):
-        self._run_pyesorex(name, "incorrect/metis_det_dark.lm.mixed_detectors.sof")
+    def test_fails_with_files_from_multiple_detectors(self, load_frameset):
+        with pytest.raises(ValueError):
+            instance = self._recipe()
+            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_detectors.sof"))
+            instance.run(frameset, {})
 
 
 class TestInputSet(BaseInputSetTest):
