@@ -18,11 +18,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Msg
 from typing import Dict
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.base.input import RecipeInput
 from pymetis.base.product import PipelineProduct
 
 
@@ -63,4 +61,5 @@ class MetisIfuTelluric(MetisRecipe):
     )
 
     parameters = cpl.ui.ParameterList([])
+
     implementation_class = MetisIfuTelluricImpl

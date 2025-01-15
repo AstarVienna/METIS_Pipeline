@@ -61,4 +61,6 @@ class MetisIfuCalibrate(MetisRecipe):
     )
 
     parameters = cpl.ui.ParameterList([])
-    implementation_class = MetisIfuCalibrateImpl
+
+    def dispatch_implementation_class(self) -> type[MetisRecipeImpl]:
+        return MetisIfuCalibrateImpl

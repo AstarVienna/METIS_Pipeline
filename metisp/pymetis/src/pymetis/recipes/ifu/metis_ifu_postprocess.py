@@ -92,4 +92,5 @@ class MetisIfuPostprocess(MetisRecipe):
             alternatives=(True, False),
         ),
     ])
+
     implementation_class = MetisIfuPostprocessImpl

@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 from abc import abstractmethod
 from typing import Dict, Any
 
@@ -44,7 +45,10 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
     def __init__(self):
         super().__init__()
-        self.implementation = self.implementation_class(self)
+        self.implementation = self.dispatch_implementation_class()(self)
+
+    def dispatch_implementation_class(self) -> type["MetisRecipeImpl"]:
+        return self.implementation_class
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """

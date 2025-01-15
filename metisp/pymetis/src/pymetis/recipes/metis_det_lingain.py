@@ -111,24 +111,36 @@ class MetisDetLinGain(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_det_lingain.stacking.method",
-            context="metis_det_lingain",
+            name=rf"{_name}.detector",
+            context=_name,
+            description="Detector name",
+            default="2RG",
+            alternatives=("2RG", "GEO", "IFU"),
+        ),
+        cpl.ui.ParameterEnum(
+            name=rf"{_name}.stacking.method",
+            context="_name",
             description="Name of the method used to combine the input images",
             default="median",
             alternatives=("add", "average", "median"),
         ),
         cpl.ui.ParameterValue(
-            name="metis_det_lingain.threshold.lowlim",
+            name=rf"{_name}.threshold.lowlim",
             context=_name,
             description="Thresholding threshold lower limit",
             default=0,
         ),
         cpl.ui.ParameterValue(
-            name="metis_det_lingain.threshold.uplim",
+            name=rf"{_name}.threshold.uplim",
             context=_name,
             description="Thresholding threshold upper limit",
             default=0,
         ),
     ])
 
-    implementation_class = MetisDetLinGainImpl
+    def dispatch_implementation_class(self):
+        return {
+            '2RG': MetisDetLinGainImpl,
+            'GEO': MetisDetLinGainImpl,
+            'IFU': MetisDetLinGainImpl,
+        }[self.parameters["metis_det_lingain.detector"].value]

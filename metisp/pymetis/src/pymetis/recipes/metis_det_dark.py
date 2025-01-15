@@ -26,7 +26,9 @@ from cpl.core import Msg
 from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
 from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
+from pymetis.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.prefab.rawimage import RawImageProcessor
+
 
 
 class MetisDetDarkImpl(RawImageProcessor):
@@ -45,14 +47,14 @@ class MetisDetDarkImpl(RawImageProcessor):
             self.inputs += [self.linearity, self.badpix_map, self.persistence_map, self.gain_map]
             super().__init__(frameset)
 
-    class Product(DetectorSpecificProduct):
+    class Product(Detector2rgMixin, DetectorSpecificProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def category(self) -> str:
-            return rf"MASTER_DARK_{self.detector:s}"
+            return rf"MASTER_DARK_{self._detector:s}"
 
         @property
         def output_file_name(self) -> str:
@@ -94,6 +96,24 @@ class MetisDetDarkImpl(RawImageProcessor):
         }
 
 
+class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):
+    class InputSet(MetisDetDarkImpl.InputSet):
+        class RawDarkInput(RawInput):
+            _tags = re.compile(r"DARK_2RG_RAW")
+
+
+class MetisGeoDarkImpl(DetectorGeoMixin, MetisDetDarkImpl):
+    class InputSet(MetisDetDarkImpl.InputSet):
+        class RawDarkInput(RawInput):
+            _tags = re.compile(r"DARK_GEO_RAW")
+
+
+class MetisIfuDarkImpl(DetectorIfuMixin, MetisDetDarkImpl):
+    class InputSet(MetisDetDarkImpl.InputSet):
+        class RawDarkInput(RawInput):
+            _tags = re.compile(r"DARK_IFU_RAW")
+
+
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_dark"
@@ -107,6 +127,13 @@ class MetisDetDark(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
+            name="metis_det_dark.detector",
+            context=_name,
+            description="Detector name",
+            default="2RG",
+            alternatives=("2RG", "GEO", "IFU"),
+        ),
+        cpl.ui.ParameterEnum(
             name="metis_det_dark.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
@@ -115,4 +142,9 @@ class MetisDetDark(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisDetDarkImpl
+    def dispatch_implementation_class(self):
+        return {
+            '2RG': Metis2rgDarkImpl,
+            'GEO': MetisGeoDarkImpl,
+            'IFU': MetisIfuDarkImpl,
+        }[self.parameters["metis_det_dark.detector"].value]

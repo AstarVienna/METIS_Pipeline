@@ -180,5 +180,7 @@ class MetisCalChophome(MetisRecipe):
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
-])     # no parameters defined in DRLD
-    implementation_class = MetisCalChophomeImpl
+    ])     # no parameters defined in DRLD
+
+    def dispatch_implementation_class(self) -> type["MetisRecipeImpl"]:
+        return MetisCalChophomeImpl
