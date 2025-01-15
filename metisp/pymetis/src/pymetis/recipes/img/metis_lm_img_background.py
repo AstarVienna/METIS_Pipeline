@@ -32,7 +32,7 @@ from pymetis.inputs import PipelineInputSet, SinglePipelineInput
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class LmBasicReducedInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
+            _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|SKY|STD)_BASIC_REDUCED")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
@@ -88,5 +88,14 @@ class MetisLmImgBackground(MetisRecipe):
     _synopsis = "Basic reduction of raw exposures from the LM-band imager"
     _description = ""
 
-    parameters = cpl.ui.ParameterList([])
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="background.stacking.method",
+            context="background",
+            description="Name of the method used to combine the input images",
+            default="add",
+            alternatives=("add", "average", "median"),
+        )
+    ])
+
     implementation_class = MetisLmImgBackgroundImpl

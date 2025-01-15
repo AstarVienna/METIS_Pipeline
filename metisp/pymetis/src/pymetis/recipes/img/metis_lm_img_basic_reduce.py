@@ -31,6 +31,8 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
+    #import pdb ; pdb.set_trace()
+
     class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the singleton class
@@ -58,7 +60,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # RawImageProcessor.InputSet. It already knows that it wants a RawInput and MasterDarkInput class,
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|STD)_RAW")
+            _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
 
         # Now we need a master dark. Since nothing is changed and the tag is always the same,
         # we just point to the provided MasterDarkInput.
@@ -163,7 +165,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         flat = self.prepare_flat(flat, bias)
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
-        combined_image = self.combine_images(images, self.parameters["basic_reduction.stacking.method"].value)
+        combined_image = self.combine_images(images, self.parameters["basic_reduce.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
         self.target = "SCI" # hardcoded for now
@@ -200,8 +202,8 @@ class MetisLmImgBasicReduce(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="basic_reduction.stacking.method",
-            context="basic_reduction",
+            name="basic_reduce.stacking.method",
+            context="basic_reduce",
             description="Name of the method used to combine the input images",
             default="add",
             alternatives=("add", "average", "median"),
