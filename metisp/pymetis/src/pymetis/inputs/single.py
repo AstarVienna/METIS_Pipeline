@@ -66,6 +66,8 @@ class SinglePipelineInput(PipelineInput):
                 Msg.debug(self.__class__.__qualname__,
                           f"Matched a tag parameter: '{key}' = '{value}'.")
 
+        self.tag_parameters = self.tag_matches
+
         self._detector = self.tag_matches.get('detector', None)
 
     def validate(self):

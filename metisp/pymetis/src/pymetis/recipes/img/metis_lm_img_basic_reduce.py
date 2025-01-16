@@ -159,7 +159,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
-        Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector_name}")
+        Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
 
         flat = self.prepare_flat(flat, bias)
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
@@ -168,7 +168,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         self.target = "SCI" # hardcoded for now
         self.products = {
-            fr'OBJECT_REDUCED_{self.detector_name}':
+            fr'OBJECT_REDUCED_{self.detector}':
                 self.Product(self, header, combined_image, target=self.target),
         }
 

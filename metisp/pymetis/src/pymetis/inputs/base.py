@@ -81,7 +81,7 @@ class PipelineInput:
 
         # ...and that they are a re pattern
         if not isinstance(self.tags, re.Pattern):
-            raise TypeError(f"Tags must be a `re` pattern, got '{self.tags}'")
+            raise TypeError(f"PipelineInput `tags` must be a `re.Pattern`, got '{self.tags}'")
 
         # Override `required` if requested
         if required is not None:
@@ -96,6 +96,11 @@ class PipelineInput:
         # that you really do not want to deal with)
         if not self.group:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group!")
+
+        # A list of matched groups from `tags`. Acquisition differs
+        # between Single and Multiple, so we just declare it here.
+        self.tag_parameters: dict[str, str] = {}
+
 
     @abstractmethod
     def validate(self) -> None:

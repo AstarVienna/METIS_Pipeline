@@ -48,5 +48,5 @@ class TestRecipe(BaseRecipeTest):
     @staticmethod
     @pytest.mark.xfail
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(sof, create_pyesorex)
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 

@@ -23,7 +23,7 @@ import cpl
 from typing import Dict, Literal
 
 from pymetis.base import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.base.product import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import SinglePipelineInput
 from pymetis.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
 
@@ -34,12 +34,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     target: Literal["SCI"] | Literal["STD"] = None
 
     class InputSet(DarkImageProcessor.InputSet):
-        """
-            The Input class for Metis IFU reduction. Utilizes InputMixins:
-
-            - Detector2rgMixin, which handles the 2RG detector and substitudes '2RG' for 'det' in tags
-            - LinearityInputMixin, which
-        """
         detector = "IFU"
 
         class RawInput(RawInput):
@@ -62,6 +56,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             """
                 Here we also define all input frames specific for this recipe, except those handled by mixins.
             """
+            super().__init__(frameset)
             self.raw = self.RawInput(frameset)
             self.linearity_map = LinearityInput(frameset)
             self.persistence_map = PersistenceMapInput(frameset)
@@ -69,10 +64,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             self.ifu_wavecal = self.WavecalInput(frameset)
             self.ifu_distortion_table = self.DistortionTableInput(frameset)
             self.inputs += [self.linearity_map, self.persistence_map, self.master_dark, self.ifu_wavecal, self.ifu_distortion_table]
-            super().__init__(frameset)
 
-    class ProductReduced(PipelineProduct):
-        target = "SCI"
+    class ProductReduced(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -80,8 +73,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(self) -> str:
             return rf"IFU_{self.target}_REDUCED"
 
-    class ProductBackground(PipelineProduct):
-        target = "SCI"
+    class ProductBackground(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -89,22 +81,20 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(self) -> str:
             return rf"IFU_{self.target}_BACKGROUND"
 
-    class ProductReducedCube(PipelineProduct):
-        target = "SCI"
+    class ProductReducedCube(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
-        def tag(self) -> str:
+        def category(self) -> str:
             return rf"IFU_{self.target}_REDUCED_CUBE"
 
-    class ProductCombined(PipelineProduct):
-        target = "SCI"
+    class ProductCombined(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
-        def tag(self) -> str:
+        def category(self) -> str:
             return rf"IFU_{self.target}_COMBINED"
 
 
@@ -116,10 +106,10 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         image = self.combine_images(images, "add")
 
         self.products = {
-            rf'IFU_{self.target}_REDUCED': self.ProductReduced(self, header, image),
-            rf'IFU_{self.target}_BACKGROUND': self.ProductBackground(self, header, image),
-            rf'IFU_{self.target}_REDUCED_CUBE': self.ProductReducedCube(self, header, image),
-            rf'IFU_{self.target}_COMBINED': self.ProductCombined(self, header, image),
+            rf'IFU_{self.target}_REDUCED': self.ProductReduced(self, header, image, target=self.target),
+            rf'IFU_{self.target}_BACKGROUND': self.ProductBackground(self, header, image, target=self.target),
+            rf'IFU_{self.target}_REDUCED_CUBE': self.ProductReducedCube(self, header, image, target=self.target),
+            rf'IFU_{self.target}_COMBINED': self.ProductCombined(self, header, image, target=self.target),
         }
         return self.products
 

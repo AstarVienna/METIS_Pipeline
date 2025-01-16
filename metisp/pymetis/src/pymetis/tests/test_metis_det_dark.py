@@ -47,6 +47,12 @@ class TestRecipe(BaseRecipeTest):
             frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_detectors.sof"))
             instance.run(frameset, {})
 
+    def test_fails_with_files_from_multiple_detectors_gainmap(self, load_frameset):
+        with pytest.raises(ValueError):
+            instance = self._recipe()
+            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_detectors.again.sof"))
+            instance.run(frameset, {})
+
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl

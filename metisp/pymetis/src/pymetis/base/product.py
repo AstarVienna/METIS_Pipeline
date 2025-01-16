@@ -48,19 +48,19 @@ class PipelineProduct(ABC):
 
         # Raise a NotImplementedError in case a derived class forgot to set a class attribute
         if self.tag is None:
-            raise NotImplementedError("Products must define 'tag'")
+            raise NotImplementedError(f"Products must define 'tag', but {self.__class__.__qualname__} does not")
 
         if self.group is None:
-            raise NotImplementedError("Products must define 'group'")
+            raise NotImplementedError(f"Products must define 'group', but {self.__class__.__qualname__} does not")
 
         if self.level is None:
-            raise NotImplementedError("Products must define 'level'")
+            raise NotImplementedError(f"Products must define 'level', but {self.__class__.__qualname__} does not")
 
         if self.frame_type is None:
-            raise NotImplementedError(f"Products must define 'frame_type'")
+            raise NotImplementedError(f"Products must define 'frame_type', but {self.__class__.__qualname__} does not")
 
         if self.category is None:
-            raise NotImplementedError(f"Products must define 'category'")
+            raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
 
         self.add_properties()
 
@@ -108,14 +108,17 @@ class PipelineProduct(ABC):
         )
 
     @property
-    def category(self) -> str:
-        """ Every product must define ESO PRO CATG """
-        return self.tag
-
-    @property
     def output_file_name(self) -> str:
         """ Form the output file name (the detector part is variable) """
         return f"{self.category}.fits"
+
+    @property
+    def category(self) -> str:
+        """ Return the category of this product
+
+        By default, the tag is the same as the category
+        """
+        return self.tag
 
 
 class DetectorSpecificProduct(PipelineProduct, ABC):
@@ -133,7 +136,8 @@ class DetectorSpecificProduct(PipelineProduct, ABC):
             self.detector = detector
 
         if self.detector is None:
-            raise NotImplementedError("Products specific to a detector must define 'detector'")
+            raise NotImplementedError(f"Products specific to a detector must define 'detector', but "
+                                      f"{self.__class__.__qualname__} does not")
 
         super().__init__(recipe, header, image, **kwargs)
 
@@ -152,7 +156,14 @@ class TargetSpecificProduct(PipelineProduct, ABC):
         if target is not None:
             self.target = target
 
+        """
+            At the moment of instantiation, the `target` attribute must be set *somehow*. Either
+            -   as a class attribute (if it is constant)
+            -   from the constructor (if it is determined from the data)
+            -   or as a provided property (if it has to be computed dynamically)
+        """
         if self.target is None:
-            raise NotImplementedError("Products specific to a target must define 'target'")
+            raise NotImplementedError(f"Products specific to a target must define 'target', but "
+                                      f"{self.__class__.__qualname__} does not")
 
         super().__init__(recipe, header, image, **kwargs)

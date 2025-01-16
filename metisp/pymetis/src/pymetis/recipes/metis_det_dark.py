@@ -33,37 +33,31 @@ from pymetis.prefab.rawimage import RawImageProcessor
 
 class MetisDetDarkImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
-        class RawDarkInput(RawInput):
+        class RawInput(RawInput):
             _tags = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
 
-        RawInput = RawDarkInput
-
         def __init__(self, frameset: cpl.ui.FrameSet):
-            self.linearity = LinearityInput(frameset, det=self.detector, required=False) # But should be
-            self.badpix_map = BadpixMapInput(frameset, det=self.detector, required=False)
+            super().__init__(frameset)
+            self.linearity = LinearityInput(frameset, required=False) # But should be
+            self.badpix_map = BadpixMapInput(frameset, required=False)
             self.persistence_map = PersistenceMapInput(frameset, required=False) # But should be
-            self.gain_map = GainMapInput(frameset, det=self.detector, required=False) # But should be
+            self.gain_map = GainMapInput(frameset, required=False) # But should be
 
             self.inputs += [self.linearity, self.badpix_map, self.persistence_map, self.gain_map]
-            super().__init__(frameset)
 
-    class Product(Detector2rgMixin, DetectorSpecificProduct):
+    class Product(DetectorSpecificProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
-        def category(self) -> str:
-            return rf"MASTER_DARK_{self._detector:s}"
+        def tag(self) -> str:
+            return rf"MASTER_DARK_{self.detector:s}"
 
         @property
         def output_file_name(self) -> str:
             """ Form the output file name (the detector part is variable here) """
             return rf"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # By default, images are loaded as Python float data. Raw image
@@ -91,8 +85,8 @@ class MetisDetDarkImpl(RawImageProcessor):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
         return {
-            fr'METIS_{self.detector_name}_DARK':
-                self.Product(self, header, combined_image, detector=self.detector_name),
+            fr'METIS_{self.detector}_DARK':
+                self.Product(self, header, combined_image, detector=self.detector),
         }
 
 
@@ -127,7 +121,7 @@ class MetisDetDark(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_det_dark.stacking.method",
+            name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
             default="average",
@@ -137,8 +131,27 @@ class MetisDetDark(MetisRecipe):
 
     implementation_class = MetisDetDarkImpl
 
-    def dispatch_implementation_class(self, frameset):
-        inputset = self.implementation_class.InputSet.RawDarkInput(frameset)
+    def dispatch_implementation_class(self, frameset: cpl.ui.FrameSet) -> type[MetisDetDarkImpl]:
+        """
+        Find the implementation class based on the detector specified in the inputset's tags.
+        Tries to instantiate the RawInput and use its detector attribute to determine the correct implementation class.
+
+        Parameters:
+        frameset: cpl.ui.FrameSet
+            The input data used to create the `RawInput` object for dispatching the
+            implementation class.
+
+        Returns:
+        Type[Metis2rgDarkImpl | MetisGeoDarkImpl | MetisIfuDarkImpl]
+            The implementation class corresponding to the detector specified in the
+            `RawInput` object.
+
+        Raises:
+        KeyError
+            If the detector obtained from the `RawInput` object is not found in the
+            implementation mapping.
+        """
+        inputset = self.implementation_class.InputSet.RawInput(frameset)
         return {
             '2RG': Metis2rgDarkImpl,
             'GEO': MetisGeoDarkImpl,

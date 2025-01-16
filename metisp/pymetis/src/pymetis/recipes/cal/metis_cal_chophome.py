@@ -53,7 +53,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             self.badpixmap = BadpixMapInput(frameset, required=False)
             self.pinhole_table = PinholeTableInput(frameset, required=True)
 
-            self.inputs += [self.raw, self.background, self.linearity, self.gain_map,
+            self.inputs += [self.background, self.linearity, self.gain_map,
                             self.badpixmap, self.persistence]
 
 

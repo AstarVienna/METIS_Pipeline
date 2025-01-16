@@ -26,7 +26,7 @@ from pymetis.base.product import PipelineProduct
 
 class MetisIfuTelluricImpl(MetisRecipeImpl):
     @property
-    def detector_name(self) -> str | None:
+    def detector(self) -> str | None:
         return "2RG"
 
     class ProductSciReduced1D(PipelineProduct):

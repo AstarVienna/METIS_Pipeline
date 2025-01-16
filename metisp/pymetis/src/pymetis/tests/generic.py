@@ -66,8 +66,9 @@ class BaseInputSetTest(ABC):
         assert instance.validate() is None
         assert len(instance.raw.frameset) == self.count
 
-    def test_all_inputs(self):
-        for inp in self.impl.InputSet.inputs:
+    def test_all_inputs(self, load_frameset, sof):
+        instance = self.impl.InputSet(load_frameset(sof))
+        for inp in instance.inputs:
             assert inp._group is not None
             assert isinstance(inp._title, str)
 

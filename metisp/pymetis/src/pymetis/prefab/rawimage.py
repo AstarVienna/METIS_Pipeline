@@ -38,9 +38,9 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         detector: str = None
 
         def __init__(self, frameset: cpl.ui.FrameSet):
+            super().__init__(frameset)
             self.raw = self.RawInput(frameset)
             self.inputs += [self.raw]
-            super().__init__(frameset)
 
     def load_raw_images(self) -> cpl.core.ImageList:
         """
@@ -88,6 +88,6 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         return combined_image
 
     @property
-    def detector_name(self) -> str:
+    def detector(self) -> str:
         return self.inputset.detector
 
