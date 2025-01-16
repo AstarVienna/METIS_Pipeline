@@ -102,6 +102,9 @@ Making plots
 edps -w metis.metis_lm_img_wkf -i $SOF_DATA -g > test.dot
 dot -T png test.dot > mygraph.png
 ```
+The gerated plotting code can plot using online tool as well
+[GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)
+
 
 ## Note for developers
 When you're using the Python Debugger (pdb) and an error occurs, pdb will automatically enter post-mortem debugging mode, allowing you to inspect the state of the program at the point where the error occurred. Here's how you can find out where the error happened:
