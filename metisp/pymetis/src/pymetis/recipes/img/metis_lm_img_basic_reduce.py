@@ -97,7 +97,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         @property
         def category(self) -> str:
-            return rf"LM_{self.target:s}_REDUCED"
+            return rf"LM_{self.target:s}_BASIC_REDUCED"
 
         @property
         def output_file_name(self):
@@ -167,10 +167,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         
-        import pdb ; pdb.set_trace()
-
-        #self.target = self.inputset.RawInput.getTargetName(self.inputset.raw.frameset)
-        self.target = 'SCI'
+        
+        self.target = self.inputset.RawInput.getTargetName(self.inputset.raw.frameset)
+        #self.target = 'SCI'
         self.products = {
             fr'OBJECT_REDUCED_{self.detector}':
                 self.Product(self, header, combined_image, target=self.target),
