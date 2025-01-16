@@ -43,3 +43,8 @@ lm_raw_sky = (data_source()
             .with_classification_rule(raw_sky_class)        
             .with_match_keywords(["instrume"])
             .build())
+
+lm_sci_basic_reduced = (data_source()
+            .with_classification_rule(lm_sci_basic_reduced_class)        
+            .with_match_keywords(["instrume"])
+            .build())
