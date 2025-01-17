@@ -62,5 +62,5 @@ class MetisIfuCalibrate(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    def dispatch_implementation_class(self) -> type[MetisRecipeImpl]:
+    def dispatch_implementation_class(self, frameset: cpl.ui.FrameSet) -> type[MetisRecipeImpl]:
         return MetisIfuCalibrateImpl

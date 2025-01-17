@@ -85,8 +85,8 @@ class MetisIfuPostprocess(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_ifu_reduce.telluric",
-            context="metis_ifu_reduce",
+            name="metis_ifu_postprocess.telluric",
+            context="metis_ifu_postprocess",
             description="Use telluric correction",
             default=False,
             alternatives=(True, False),

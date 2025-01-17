@@ -67,6 +67,7 @@ class BaseInputSetTest(ABC):
         assert len(instance.raw.frameset) == self.count
 
     def test_all_inputs(self, load_frameset, sof):
+        # We should really be testing a class here, not an instance
         instance = self.impl.InputSet(load_frameset(sof))
         for inp in instance.inputs:
             assert inp._group is not None
@@ -101,3 +102,11 @@ class BaseRecipeTest(ABC):
                                 capture_output=True)
         assert output.returncode == 0
         assert output.stderr == b""
+
+    def test_all_parameters_have_correct_context(self):
+        for param in self._recipe.parameters:
+            assert param.context == self._recipe._name
+
+    def test_all_parameters_name_starts_with_context(self):
+        for param in self._recipe.parameters:
+            assert param.name.startswith(self._recipe._name)

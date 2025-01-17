@@ -123,15 +123,8 @@ class MetisDetLinGain(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name=rf"{_name}.detector",
-            context=_name,
-            description="Detector name",
-            default="2RG",
-            alternatives=("2RG", "GEO", "IFU"),
-        ),
-        cpl.ui.ParameterEnum(
             name=rf"{_name}.stacking.method",
-            context="_name",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="median",
             alternatives=("add", "average", "median"),

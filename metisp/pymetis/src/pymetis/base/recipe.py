@@ -27,34 +27,28 @@ class MetisRecipe(cpl.ui.PyRecipe):
         The abstract base class for all METIS recipes.
         In an ideal world it would also be abstract (derived from ABC, or metaclass=abc.ABCMeta),
         but `pyesorex` wants to instantiate all recipes it finds
-        and would crash with an abstract class.
+        and would crash if it were an abstract class.
+
         The underscored _fields must be present but should be overwritten
-        by every child class (`pyesorex` actually checks for their presence).
+        by every child class (and `pyesorex` actually checks for their presence).
     """
     _name = "metis_abstract_base"
     _version = "0.0.1"
     _author = "METIS PIP team"
-    _email = "astar.vienna@univie.ac.at" # ToDo some sensible default maybe?
-    _copyright = "CPL-3.0-or-later"
+    _email = "astar.vienna@univie.ac.at"                        # ToDo is this a sensible default?
+    _copyright = "GPL-3.0-or-later"                             # I guess we're using the same copyright everywhere
     _synopsis = "Abstract-like base class for METIS recipes"
-    _description = "This class serves as the base class for all METIS recipes."
+    _description = ("This class serves as the base class for all METIS recipes."
+                    "Bonus points if it is not visible from pyesorex.")
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="void",
-            context=_name,
-            description="Void parameter because otherwise it does not work",
-            default="",
-            alternatives=["", ""],
-        ),
-    ])
-
-    implementation_class: type["MetisRecipeImpl"]  # Dummy class, this must be overridden in the derived classes anyway
-
-    def __init__(self):
-        super().__init__()
+    parameters = cpl.ui.ParameterList([])           # By default, a recipe does not have any parameters.
+    implementation_class: type["MetisRecipeImpl"]   # Dummy class, this must be overridden in the derived classes anyway
 
     def dispatch_implementation_class(self, frameset) -> type["MetisRecipeImpl"]:
+        """
+        Return the actual implementation class. By default, just returns `implementation_class`,
+        but more complex recipes may need to select the appropriate class based on the frameset.
+        """
         return self.implementation_class
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
