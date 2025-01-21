@@ -39,6 +39,8 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 
     class ProductSciCubeCalibrated(PipelineProduct):
         category = rf"IFU_SCI_CUBE_CALIBRATED"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # self.correct_telluric()

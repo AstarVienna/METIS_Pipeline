@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
-from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
+from generic import RawInputSetTest, BaseRecipeTest, BaseProductTest
 
 
 @pytest.fixture
@@ -39,7 +39,7 @@ class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
 
 
-class TestInputSet(BaseInputSetTest):
+class TestInputSet(RawInputSetTest):
     impl = Impl
     count = 1
 

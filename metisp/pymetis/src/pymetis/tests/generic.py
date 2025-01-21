@@ -64,7 +64,6 @@ class BaseInputSetTest(ABC):
     def test_can_load_and_verify(self, load_frameset, sof):
         instance = self.impl.InputSet(load_frameset(sof))
         assert instance.validate() is None
-        assert len(instance.raw.frameset) == self.count
 
     def test_all_inputs(self, load_frameset, sof):
         # We should really be testing a class here, not an instance
@@ -72,6 +71,12 @@ class BaseInputSetTest(ABC):
         for inp in instance.inputs:
             assert inp._group is not None
             assert isinstance(inp._title, str)
+
+
+class RawInputSetTest(BaseInputSetTest):
+    def test_raw_input_count(self, load_frameset, sof):
+        instance = self.impl.InputSet(load_frameset(sof))
+        assert len(instance.raw.frameset) == self.count
 
 
 class BaseRecipeTest(ABC):

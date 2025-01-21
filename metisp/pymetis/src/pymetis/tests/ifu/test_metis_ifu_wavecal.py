@@ -19,8 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_wavecal import (MetisIfuWavecal as Recipe, MetisIfuWavecalImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest
+from pymetis.recipes.ifu.metis_ifu_wavecal import (MetisIfuWavecal as Recipe,
+                                                   MetisIfuWavecalImpl as Impl)
 
 
 @pytest.fixture
@@ -36,3 +37,4 @@ def sof():
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
+

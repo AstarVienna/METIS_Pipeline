@@ -46,17 +46,17 @@ class MetisDetLinGainImpl(DarkImageProcessor):
 
     class ProductGain(LinGainProduct):
         @property
-        def category(self) -> str:
+        def tag(self) -> str:
             return f"GAIN_MAP_{self.detector:s}"
 
     class ProductLinearity(LinGainProduct):
         @property
-        def category(self) -> str:
+        def tag(self) -> str:
             return f"LINEARITY_{self.detector:s}"
 
     class ProductBadpixMap(LinGainProduct):
         @property
-        def category(self) -> str:
+        def tag(self) -> str:
             return f"BADPIX_MAP_{self.detector:s}"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
@@ -93,21 +93,15 @@ class MetisDetLinGainImpl(DarkImageProcessor):
 
 
 class Metis2rgLinGainImpl(Detector2rgMixin, MetisDetLinGainImpl):
-    class InputSet(MetisDetLinGainImpl.InputSet):
-        class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            _tags = re.compile(r"DETLIN_2RG_RAW")
+    pass
 
 
 class MetisGeoLinGainImpl(DetectorGeoMixin, MetisDetLinGainImpl):
-    class InputSet(MetisDetLinGainImpl.InputSet):
-        class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            _tags = re.compile(r"DETLIN_GEO_RAW")
+    pass
 
 
 class MetisIfuLinGainImpl(DetectorIfuMixin, MetisDetLinGainImpl):
-    class InputSet(MetisDetLinGainImpl.InputSet):
-        class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            _tags = re.compile(r"DETLIN_IFU_RAW")
+    pass
 
 
 class MetisDetLinGain(MetisRecipe):

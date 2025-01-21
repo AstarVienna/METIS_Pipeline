@@ -17,33 +17,56 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
+
 import cpl
 from typing import Dict
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct
+from pymetis.inputs import SinglePipelineInput
+from pymetis.inputs.mixins import PersistenceInputSetMixin
+
+
+class ProductTelluric(PipelineProduct):
+    category = rf"IFU_TELLURIC"
+    level = cpl.ui.Frame.FrameLevel.FINAL
+    frame_type = cpl.ui.Frame.FrameType.IMAGE
 
 
 class MetisIfuTelluricImpl(MetisRecipeImpl):
-    @property
-    def detector(self) -> str | None:
-        return "2RG"
+    detector = '2RG'
 
-    class ProductSciReduced1D(PipelineProduct):
-        category = rf"IFU_SCI_REDUCED_1D"
+    class InputSet(PersistenceInputSetMixin):
+        class CombinedInput(SinglePipelineInput):
+            _title = "combined science and standard frames"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _tags = re.compile(r"IFU_(?P<target>SCI|STD)_COMBINED")
 
-    class ProductIfuTelluric(PipelineProduct):
-        category = "IFU_TELLURIC"
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            super().__init__(frameset)
+            self.combined = self.CombinedInput(frameset)
+            self.inputs += [self.combined]
 
-    class ProductFluxcalTab(PipelineProduct):
-        category = "FLUXCAL_TAB"
+
+    class ProductSciReduced1D(ProductTelluric):
+        tag = rf"IFU_SCI_REDUCED_1D"
+
+    class ProductIfuTelluric(ProductTelluric):
+        tag = "IFU_TELLURIC"
+
+    class ProductFluxcalTab(ProductTelluric):
+        tag = "FLUXCAL_TAB"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
+        header = cpl.core.PropertyList()
+        image = cpl.core.Image.load(self.inputset.combined.frame.file)
+
         self.products = {
-            product.category: product()
+            product.category: product(self, header, image)
             for product in [self.ProductSciReduced1D, self.ProductIfuTelluric, self.ProductFluxcalTab]
         }
         return self.products
@@ -59,7 +82,5 @@ class MetisIfuTelluric(MetisRecipe):
     _description = (
         "Currently just a skeleton prototype."
     )
-
-    parameters = cpl.ui.ParameterList([])
 
     implementation_class = MetisIfuTelluricImpl

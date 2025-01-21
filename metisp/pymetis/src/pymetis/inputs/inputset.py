@@ -61,8 +61,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         for inp in self.inputs:
             inp.validate()
 
-
-            print(inp.tag_parameters)
+            print(f"{self.__class__.__qualname__}::{inp.__class__.__qualname__} input tag parameters: {inp.tag_parameters}")
 
         #functools.reduce(operator.or_, [inp.parameter_tags for inp in self.inputs])
 
@@ -74,7 +73,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         Some Inputs may have None if they are not specific to a detector.
         """
         detectors = list(set([inp.detector for inp in self.inputs]) - {None})
-        if (detector_count := len(detectors)) != 1:
+        if (detector_count := len(detectors)) == 0:
             Msg.warning(self.__class__.__qualname__, f"No detector could be identified from the SOF")
         elif detector_count == 1:
             self.detector = detectors[0]

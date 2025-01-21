@@ -23,7 +23,7 @@ import cpl
 
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
-from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
+from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest, RawInputSetTest
 
 
 @pytest.fixture
@@ -37,7 +37,7 @@ def sof():
 
 
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+    """ A bunch of simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
     count = 1
 
@@ -54,7 +54,7 @@ class TestRecipe(BaseRecipeTest):
             instance.run(frameset, {})
 
 
-class TestInputSet(BaseInputSetTest):
+class TestInputSet(RawInputSetTest):
     impl = Impl
     count = 1
 

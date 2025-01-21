@@ -32,6 +32,7 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 
 class MetisIfuReduceImpl(DarkImageProcessor):
     target: Literal["SCI"] | Literal["STD"] = None
+    target: Literal["SCI"] | Literal["STD"] = "STD" # TODO FIX THIS
 
     class InputSet(DarkImageProcessor.InputSet):
         detector = "IFU"
@@ -86,7 +87,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
-        def category(self) -> str:
+        def tag(self) -> str:
             return rf"IFU_{self.target}_REDUCED_CUBE"
 
     class ProductCombined(TargetSpecificProduct):
@@ -94,7 +95,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
-        def category(self) -> str:
+        def tag(self) -> str:
             return rf"IFU_{self.target}_COMBINED"
 
 

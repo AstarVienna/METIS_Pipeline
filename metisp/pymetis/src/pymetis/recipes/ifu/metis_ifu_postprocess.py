@@ -64,7 +64,6 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
 
         header = cpl.core.PropertyList()
         coadded_image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file) # ToDo actual processing
-        print(self.inputset.sci_cube_calibrated.frame.file)
 
         self.products = {
             r'IFU_SCI_COADD': self.ProductSciCoadd(self, header, coadded_image),
