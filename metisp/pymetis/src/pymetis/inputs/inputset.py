@@ -16,9 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-import copy
-import functools
-import operator
+
 from abc import ABCMeta
 
 import cpl
@@ -57,13 +55,10 @@ class PipelineInputSet(metaclass=ABCMeta):
             raise NotImplementedError(f"PipelineInput must define at least one input.")
 
         self.print_debug()
-
+        
         for inp in self.inputs:
             inp.validate()
-
             print(f"{self.__class__.__qualname__}::{inp.__class__.__qualname__} input tag parameters: {inp.tag_parameters}")
-
-        #functools.reduce(operator.or_, [inp.parameter_tags for inp in self.inputs])
 
         self.validate_detectors()
 
