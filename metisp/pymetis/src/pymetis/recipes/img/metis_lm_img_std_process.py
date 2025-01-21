@@ -18,57 +18,47 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
-from typing import Dict
 
 import cpl
 from cpl.core import Msg
+from typing import Dict
 
-from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct, TargetSpecificProduct
+from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput, SinglePipelineInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class MetisLmImgBackgroundImpl(RawImageProcessor):
-    
+class MetisLmImgsStdProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_(?P<target>SCI|SKY|STD)_BASIC_REDUCED")
+            _tags = re.compile(r"LM_STD_BKG_SUBTRACTED")
 
-        
+        class FluxTableInput(SinglePipelineInput):
+            _tags = re.compile(r"FLUXSTD_CATALOG")
+            _title = "flux standard star catalogue table"
+            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.basic_reduced = self.RawInput(frameset)
+            self.fluxstd_table = SinglePipelineInput(frameset,
+                                                     tags=re.compile(r"FLUXSTD_CATALOG"),
+                                                     title="flux standard star catalogue table",
+                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
+            self.inputs += [self.fluxstd_table]
 
-            # We need to register the inputs (just to be able to do `for x in self.inputs:`)
-            self.inputs |= {self.basic_reduced}
 
-
-    class ProductBkg(TargetSpecificProduct):
-        @property
-        def category(self):
-            return f"LM_{self.target:s}_BKG"
-        #category = rf"LM_{self.target}_BKG"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-    class ProductBkgSubtracted(TargetSpecificProduct):
-        @property
-        def category(self):
-            return f"LM_{self.target:s}_BKG_SUBTRACTED"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-    
-    class ProductObjectCat(TargetSpecificProduct):
-        @property
-        def category(self):
-            return rf"LM_{self.target:s}_OBJECT_CAT"
+    class ProductLmImgFluxCalTable(PipelineProduct):
+        category = rf"FLUXCAL_TAB"
         tag = category
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
+
+    class ProductLmImgStdCombined(PipelineProduct):
+        category = rf"LM_STD_COMBINED"
+        tag = category
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -83,37 +73,32 @@ class MetisLmImgBackgroundImpl(RawImageProcessor):
             raw_images.append(raw_image)
 
         combined_image = self.combine_images(raw_images, "average")
-        #import pdb ; pdb.set_trace()
 
-        #dir(self.InputSet)
-        #print(self.inputset.RawInput.get_target_name())
-        self.target = self.inputset.RawInput.getTargetName(self.inputset.raw.frameset)
-        
         self.products = {
-            product.category: product(self, self.header, combined_image, target=self.target)
-            for product in [self.ProductBkg, self.ProductBkgSubtracted, self.ProductObjectCat]
+            product.category: product(self, self.header, combined_image)
+            for product in [self.ProductLmImgFluxCalTable, self.ProductLmImgStdCombined]
         }
         return self.products
 
 
-
-class MetisLmImgBackground(MetisRecipe):
-    _name = "metis_lm_img_background"
+class MetisLmImgsStdProcess(MetisRecipe):
+    _name = "metis_lm_img_std_process"
     _version = "0.1"
     _author = "Chi-Hung Yan"
     _email = "chyan@asiaa.sinica.edu.tw"
-    _copyright = "GPL-3.0-or-later"
-    _synopsis = "Basic reduction of raw exposures from the LM-band imager"
-    _description = ""
+    _synopsis = "Determine conversion factor between detector counts and physical source flux"
+    _description = (
+        "Currently just a skeleton prototype."
+    )
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="background.stacking.method",
-            context="background",
+            name="metis_lm_img_std_process.stacking.method",
+            context="metis_lm_img_std_process",
             description="Name of the method used to combine the input images",
-            default="add",
-            alternatives=("add", "average", "median"),
-        )
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
     ])
 
-    implementation_class = MetisLmImgBackgroundImpl
+    implementation_class = MetisLmImgsStdProcessImpl

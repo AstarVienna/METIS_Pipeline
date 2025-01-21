@@ -48,9 +48,12 @@ raw_sky_class = classification_rule("LM_IMAGE_SKY_RAW",
      metis_kwd.drp_tech: "IMAGE,LM",
     })
 
-lm_sci_basic_reduced_class = classification_rule("LM_SCI_BASIC_REDUCED",
+raw_std_class = classification_rule("LM_IMAGE_STD_RAW",
     {metis_kwd.instrume: "METIS",
-     metis_kwd.dpr_catg: "LM_SCI_BASIC_REDUCED",
-     metis_kwd.dpr_type: "REDUCED",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "STD",
      metis_kwd.drp_tech: "IMAGE,LM",
     })
+
+# Flux standard catalog classification
+fluxstd_catalog_class = classification_rule("FLUXSTD_CATALOG")

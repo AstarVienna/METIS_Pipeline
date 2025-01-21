@@ -44,7 +44,11 @@ lm_raw_sky = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-lm_sci_basic_reduced = (data_source()
-            .with_classification_rule(lm_sci_basic_reduced_class)        
+lm_raw_std = (data_source()
+            .with_classification_rule(raw_std_class)        
             .with_match_keywords(["instrume"])
             .build())
+
+fluxstd_catalog = (data_source()
+                .with_classification_rule(fluxstd_catalog_class)        
+                .build())
