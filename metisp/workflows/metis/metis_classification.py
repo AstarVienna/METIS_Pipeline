@@ -17,6 +17,21 @@ rawdark_class = classification_rule("DARK_2RG_RAW",
      metis_kwd.drp_tech: "IMAGE,LM",
     })
 
+lm_distortion_raw_class = classification_rule("LM_DISTORTION_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "DISTORTION",
+     metis_kwd.drp_tech: "IMAGE,LM",
+    })
+
+lm_wcu_off_raw_class = classification_rule("LM_WCU_OFF_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "DARK,WCUOFF",
+     metis_kwd.drp_tech: "IMAGE,LM",
+    })
+
+
 # Lamp flat calibration classification
 lm_lampflat_class = classification_rule("LM_FLAT_LAMP_RAW",
     {metis_kwd.instrume: "METIS",
@@ -58,4 +73,9 @@ raw_std_class = classification_rule("LM_IMAGE_STD_RAW",
 # Flux standard catalog classification
 fluxstd_catalog_class = classification_rule("FLUXSTD_CATALOG",
      {metis_kwd.pro_catg: "FLUXSTD_CATALOG",
+    })
+
+# Pinhole table classification
+pinhole_table_class = classification_rule("PINHOLE_TABLE",
+    {metis_kwd.pro_catg: "PINHOLE_TABLE",
     })
