@@ -81,7 +81,7 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
         return self.products
 
 
-class MetisLmImgsStdProcess(MetisRecipe):
+class MetisLmImgStdProcess(MetisRecipe):
     _name = "metis_lm_img_std_process"
     _version = "0.1"
     _author = "Chi-Hung Yan"
