@@ -32,7 +32,6 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 
 class MetisIfuReduceImpl(DarkImageProcessor):
     target: Literal["SCI"] | Literal["STD"] = None
-    target: Literal["SCI"] | Literal["STD"] = "STD" # TODO FIX THIS
 
     class InputSet(DarkImageProcessor.InputSet):
         detector = "IFU"
@@ -98,9 +97,11 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(self) -> str:
             return rf"IFU_{self.target}_COMBINED"
 
-
     def process_images(self) -> Dict[str, PipelineProduct]:
         # do something... a lot of something
+
+        print(self.inputset.tag_parameters)
+        self.target = self.inputset.tag_parameters["target"]
 
         header = cpl.core.PropertyList()
         images = self.load_raw_images()

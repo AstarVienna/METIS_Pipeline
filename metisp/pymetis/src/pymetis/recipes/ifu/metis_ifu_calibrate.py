@@ -29,25 +29,45 @@ from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
+        class SciReducedInput(SinglePipelineInput):
+            _title = "science reduced"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _tags = re.compile(r"IFU_SCI_REDUCED")
+
+        class TelluricInput(SinglePipelineInput):
+            _title = "telluric correction"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _tags = re.compile(r"IFU_TELLURIC")
+
+        class FluxcalTabInput(SinglePipelineInput):
+            _title = "flux calibration table"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _tags = re.compile(r"FLUXCAL_TAB")
+
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.sci_reduced = SinglePipelineInput(frameset, tag=re.compile(r"IFU_SCI_REDUCED"))
-            self.telluric = SinglePipelineInput(frameset, tag=re.compile(r"IFU_TELLURIC"))
-            self.fluxcal = SinglePipelineInput(frameset, tag=re.compile(r"FLUXCAL_TAB"))
+            self.sci_reduced = self.SciReducedInput(frameset)
+            self.telluric = self.TelluricInput(frameset)
+            self.fluxcal = self.FluxcalTabInput(frameset)
 
             self.inputs += [self.sci_reduced, self.telluric, self.fluxcal]
 
     class ProductSciCubeCalibrated(PipelineProduct):
-        category = rf"IFU_SCI_CUBE_CALIBRATED"
+        tag = rf"IFU_SCI_CUBE_CALIBRATED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
+        header = self._create_dummy_header()
+        image = self._create_dummy_image()
+
         self.products = {
-            product.category: product()
+            product.category: product(self, header, image)
             for product in [self.ProductSciCubeCalibrated]
         }
         return self.products

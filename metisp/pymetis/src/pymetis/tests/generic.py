@@ -96,15 +96,14 @@ class BaseRecipeTest(ABC):
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
 
-    def test_can_be_run_with_pyesorex(self, name, create_pyesorex):
+    def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
         pyesorex = create_pyesorex(self._recipe)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
         assert pyesorex.recipe.name == name
 
     @staticmethod
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
-        output = subprocess.run(['pyesorex', name, root / sof, '--log-level', 'DEBUG'],
-                                capture_output=True)
+        output = __class__._run_pyesorex(name, sof)
         assert output.returncode == 0
         assert output.stderr == b""
 

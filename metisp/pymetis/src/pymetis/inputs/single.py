@@ -74,6 +74,8 @@ class SinglePipelineInput(PipelineInput):
         """
         Run all the required instantiation time checks
         """
+        Msg.debug(self.__class__.__qualname__,
+                  f"Input tag parameters: {self.tag_parameters}")
         self._verify_frame_present(self.frame)
 
     def _verify_frame_present(self,

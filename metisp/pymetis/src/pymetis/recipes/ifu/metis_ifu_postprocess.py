@@ -36,9 +36,9 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             _group = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):
+            super().__init__(frameset)
             self.sci_cube_calibrated = self.SciCubeCalibratedInput(frameset)
             self.inputs += [self.sci_cube_calibrated]
-            super().__init__(frameset)
 
     class ProductSciCoadd(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL

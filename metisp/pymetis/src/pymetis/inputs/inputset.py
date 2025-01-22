@@ -17,12 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import functools
+import operator
+
 from abc import ABCMeta
 
 import cpl
 from cpl.core import Msg
-
-from pymetis.inputs.base import PipelineInput
 
 
 class PipelineInputSet(metaclass=ABCMeta):
@@ -58,9 +59,10 @@ class PipelineInputSet(metaclass=ABCMeta):
         
         for inp in self.inputs:
             inp.validate()
-            print(f"{self.__class__.__qualname__}::{inp.__class__.__qualname__} input tag parameters: {inp.tag_parameters}")
 
         self.validate_detectors()
+
+        self.tag_parameters = functools.reduce(operator.or_, [inp.tag_parameters for inp in self.inputs], {})
 
     def validate_detectors(self) -> None:
         """
