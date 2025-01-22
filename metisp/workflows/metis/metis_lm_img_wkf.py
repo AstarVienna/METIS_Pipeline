@@ -85,5 +85,9 @@ img_calib = (task('metis_lm_img_calib')
              .with_meta_targets([SCIENCE])
              .build())
              
-
+img_coadd = (task('metis_lm_img_coadd')
+             .with_recipe('metis_lm_img_sci_postprocess')
+             .with_main_input(img_calib)
+             .with_meta_targets([SCIENCE])
+             .build())
 # QC1

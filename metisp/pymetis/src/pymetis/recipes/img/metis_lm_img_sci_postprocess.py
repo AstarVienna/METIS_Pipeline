@@ -23,49 +23,29 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
-from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput, SinglePipelineInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class MetisLmImgCalibrateImpl(RawImageProcessor):
+class MetisLmImgSciPostProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_SCI_BKG_SUBTRACTED")
+            _tags = re.compile(r"LM_SCI_CALIBRATED")
 
-        class PinholeTableInput(SinglePipelineInput):
-            _tags = re.compile(r"FLUXCAL_TAB")
-            _title = "flux table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-
-        class PinholeTableInput(SinglePipelineInput):
-            _tags = re.compile(r"ILM_DISTORTION_TABLE")
-            _title = "distortion table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.flux_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"FLUXCAL_TAB"),
-                                                     title="pinhole table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
             
-            self.distortion_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"ILM_DISTORTION_TABLE"),
-                                                     title="distortion table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
-          
-            
-            self.inputs += [self.flux_table, self.distortion_table]
+            #self.inputs += [self.fluxstd_table]
 
-    class ProductLmSciCalibrated(PipelineProduct):
-        category = rf"LM_SCI_CALIBRATED"
+
+    class ProductLmImgSciCoadd(PipelineProduct):
+        category = rf"LM_SCI_COADD"
         tag = category
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -83,29 +63,29 @@ class MetisLmImgCalibrateImpl(RawImageProcessor):
 
         self.products = {
             product.category: product(self, self.header, combined_image)
-            for product in [self.ProductLmSciCalibrated]
+            for product in [self.ProductLmImgSciCoadd]
         }
         return self.products
 
 
-class MetisLmImgCalibrate(MetisRecipe):
-    _name = "metis_lm_img_calibrate"
+class MetisLmImgSciPostProcess(MetisRecipe):
+    _name = "metis_lm_img_sci_postprocess"
     _version = "0.1"
     _author = "Chi-Hung Yan"
     _email = "chyan@asiaa.sinica.edu.tw"
-    _synopsis = "Determine optical distortion coefficients for the LM imager."
+    _synopsis = "Coadd reduced images"
     _description = (
         "Currently just a skeleton prototype."
     )
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_lm_img_calibrate.stacking.method",
-            context="metis_lm_img_calibrate",
+            name="metis_lm_img_sci_postprocess.stacking.method",
+            context="metis_lm_img_sci_postprocess",
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
     ])
-
-    implementation_class = MetisLmImgCalibrateImpl
+    #import pdb ; pdb.set_trace()
+    implementation_class = MetisLmImgSciPostProcessImpl
