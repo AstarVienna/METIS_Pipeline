@@ -38,5 +38,6 @@ class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
 
 
-class DisabledTestInputSet(BaseInputSetTest):
+class TestInputSet(BaseInputSetTest):
     impl = Impl
+    count = 1

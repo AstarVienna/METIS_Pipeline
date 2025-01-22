@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import inspect
 import os.path
+import pprint
 import subprocess
 from abc import ABC
 from pathlib import Path
@@ -95,6 +96,7 @@ class BaseRecipeTest(ABC):
         instance = self._recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
+        #pprint.pprint(instance.implementation.as_dict())
 
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
         pyesorex = create_pyesorex(self._recipe)

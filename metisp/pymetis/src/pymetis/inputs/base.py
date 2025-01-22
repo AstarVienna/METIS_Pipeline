@@ -19,8 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import abstractmethod
 import re
-from functools import reduce
-from typing import Pattern
+from typing import Pattern, Any
 
 import cpl
 
@@ -114,6 +113,14 @@ class PipelineInput:
         Print a short description of the tags with a small offset (n spaces).
         """
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags}")
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            'title': self.title,
+            'tags': self.tags,
+            'required': self.required,
+            'group': self._group.name,
+        }
 
 
     def _verify_same_detector_from_header(self) -> None:

@@ -44,10 +44,11 @@ class PipelineInputSet(metaclass=ABCMeta):
 
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):
         """
-            Filter the input frameset, capture frames that match criteria and assign them to own attributes.
-            By default, there is nothing.
+            Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
+            By default, there is nothing: no inputs, no tag_parameters.
         """
-        self.inputs = []
+        self.inputs = []            # A list of all inputs for this InputSet.
+        self.tag_parameters = {}    # A set of all tunable parameters determined from tags
 
     def validate(self) -> None:
         Msg.debug(self.__class__.__qualname__, f"Validating the inputset {self.inputs}")
@@ -55,14 +56,13 @@ class PipelineInputSet(metaclass=ABCMeta):
         if not self.inputs:
             raise NotImplementedError(f"PipelineInput must define at least one input.")
 
-        self.print_debug()
-        
         for inp in self.inputs:
             inp.validate()
 
         self.validate_detectors()
 
         self.tag_parameters = functools.reduce(operator.or_, [inp.tag_parameters for inp in self.inputs], {})
+        self.print_debug()
 
     def validate_detectors(self) -> None:
         """
@@ -85,3 +85,9 @@ class PipelineInputSet(metaclass=ABCMeta):
 
         for inp in self.inputs:
             inp.print_debug(offset=offset + 4)
+
+    def as_dict(self) -> dict[str, type]:
+        return {
+            inp.tags: inp.as_dict()
+            for inp in self.inputs
+        }

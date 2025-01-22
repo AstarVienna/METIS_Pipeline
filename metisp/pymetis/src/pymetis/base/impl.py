@@ -134,6 +134,22 @@ class MetisRecipeImpl(ABC):
         Msg.debug(self.__class__.__qualname__, f"Building the product frameset")
         return cpl.ui.FrameSet([product.as_frame() for product in products.values()])
 
+    def as_dict(self) -> dict[str, Any]:
+        """
+        Converts the object and its related data into a dictionary representation.
+
+        Return:
+            dict[str, Any]: A dictionary that contains the serialized representation
+            of the object's data, including both input set data and product data.
+        """
+        return {
+            'title': self.name,
+            'inputset': self.inputset.as_dict(),
+            'products': {
+                product.tag: product.as_dict() for product in self.products.values()
+            }
+        }
+
     @staticmethod
     def _create_dummy_header():
         """

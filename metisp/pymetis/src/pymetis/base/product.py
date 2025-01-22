@@ -89,6 +89,15 @@ class PipelineProduct(ABC):
             frameType=self.frame_type,
         )
 
+    def as_dict(self):
+        """ Return a dictionary representation of this Product """
+        return {
+            'tag': self.tag,
+        }
+
+    def __str__(self):
+        return f"{self.__class__.__qualname__} ({self.tag})"
+
     def save(self):
         """ Save this Product to a file """
         Msg.info(self.__class__.__qualname__, f"Saving product file as {self.output_file_name!r}.")
@@ -108,17 +117,17 @@ class PipelineProduct(ABC):
         )
 
     @property
-    def output_file_name(self) -> str:
-        """ Form the output file name (the detector part is variable) """
-        return f"{self.category}.fits"
-
-    @property
     def category(self) -> str:
         """ Return the category of this product
 
-        By default, the tag is the same as the category
+        By default, the tag is the same as the category. Feel free to override.
         """
         return self.tag
+
+    @property
+    def output_file_name(self) -> str:
+        """ Form the output file name (the detector part is variable) """
+        return f"{self.category}.fits"
 
 
 class DetectorSpecificProduct(PipelineProduct, ABC):
