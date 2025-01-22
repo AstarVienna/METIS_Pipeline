@@ -56,4 +56,6 @@ raw_std_class = classification_rule("LM_IMAGE_STD_RAW",
     })
 
 # Flux standard catalog classification
-fluxstd_catalog_class = classification_rule("FLUXSTD_CATALOG")
+fluxstd_catalog_class = classification_rule("FLUXSTD_CATALOG",
+     {metis_kwd.pro_catg: "FLUXSTD_CATALOG",
+    })

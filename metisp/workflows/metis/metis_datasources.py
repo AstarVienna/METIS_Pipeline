@@ -50,5 +50,6 @@ lm_raw_std = (data_source()
             .build())
 
 fluxstd_catalog = (data_source()
-                .with_classification_rule(fluxstd_catalog_class)        
+                .with_classification_rule(fluxstd_catalog_class)
+                .with_match_keywords(["instrume"])
                 .build())

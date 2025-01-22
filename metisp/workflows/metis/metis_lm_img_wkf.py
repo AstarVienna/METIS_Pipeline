@@ -64,7 +64,10 @@ background_std_task = (task('metis_lm_img_background_std')
 
 standard_flux_task = (task('metis_lm_img_standard_flux')
                     .with_recipe('metis_lm_img_std_process')
-                    .with_main_input(fluxstd_catalog)
-                    .with_associated_input(background_std_task)
+                    .with_main_input(background_std_task)
+                    .with_associated_input(fluxstd_catalog)
                     .with_meta_targets([SCIENCE])
                     .build())
+
+
+# QC1
