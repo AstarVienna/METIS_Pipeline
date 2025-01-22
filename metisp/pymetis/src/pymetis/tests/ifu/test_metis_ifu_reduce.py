@@ -41,6 +41,7 @@ class TestRecipe(BaseRecipeTest):
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
+
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
