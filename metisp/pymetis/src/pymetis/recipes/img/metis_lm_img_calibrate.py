@@ -41,7 +41,7 @@ class MetisLmImgCalibrateImpl(RawImageProcessor):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         class PinholeTableInput(SinglePipelineInput):
-            _tags = re.compile(r"LM_DISTORTION_TAB")
+            _tags = re.compile(r"ILM_DISTORTION_TABLE")
             _title = "distortion table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
@@ -53,7 +53,7 @@ class MetisLmImgCalibrateImpl(RawImageProcessor):
                                                      group=cpl.ui.Frame.FrameGroup.CALIB)
             
             self.distortion_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"LM_DISTORTION_TAB"),
+                                                     tags=re.compile(r"ILM_DISTORTION_TABLE"),
                                                      title="distortion table",
                                                      group=cpl.ui.Frame.FrameGroup.CALIB)
           

@@ -77,5 +77,13 @@ standard_flux_task = (task('metis_lm_img_standard_flux')
                     .with_meta_targets([SCIENCE])
                     .build())
 
+img_calib = (task('metis_lm_img_calib')
+             .with_recipe('metis_lm_img_calibrate')
+             .with_main_input(background_sci_task)
+             .with_associated_input(standard_flux_task)
+             .with_associated_input(distortion_task)
+             .with_meta_targets([SCIENCE])
+             .build())
+             
 
 # QC1
