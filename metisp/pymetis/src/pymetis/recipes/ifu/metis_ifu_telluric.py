@@ -84,3 +84,12 @@ class MetisIfuTelluric(MetisRecipe):
     )
 
     implementation_class = MetisIfuTelluricImpl
+
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterValue(
+            name=f"{_name}.dummy",
+            context=_name,
+            description="Dummy parameter",
+            default="dummy",
+        )
+    ])

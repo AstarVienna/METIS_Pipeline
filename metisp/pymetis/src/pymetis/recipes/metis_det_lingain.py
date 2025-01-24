@@ -24,7 +24,7 @@ from typing import Dict
 
 import cpl
 
-from pymetis.base import MetisRecipe
+from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
 from pymetis.inputs.common import RawInput
 from pymetis.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin

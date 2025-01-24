@@ -74,3 +74,12 @@ class MetisIfuWavecal(MetisRecipe):
     )
 
     implementation_class = MetisIfuWavecalImpl
+
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterValue(
+            name=f"{_name}.dummy",
+            context=_name,
+            description="Dummy parameter",
+            default="dummy",
+        )
+    ])

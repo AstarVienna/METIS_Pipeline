@@ -44,6 +44,10 @@ class MetisRecipe(cpl.ui.PyRecipe):
     parameters = cpl.ui.ParameterList([])           # By default, a recipe does not have any parameters.
     implementation_class: type["MetisRecipeImpl"]   # Dummy class, this must be overridden in the derived classes anyway
 
+    def __init__(self):
+        super().__init__()
+        self.implementation: "MetisRecipeImpl" = None
+
     def dispatch_implementation_class(self, frameset) -> type["MetisRecipeImpl"]:
         """
         Return the actual implementation class. By default, just returns `implementation_class`,
