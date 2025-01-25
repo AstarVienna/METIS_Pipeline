@@ -42,22 +42,22 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
             self.raw = self.RawInput(frameset)
             self.inputs += [self.raw]
 
-    def load_raw_images(self) -> cpl.core.ImageList:
-        """
-        Always load a set of raw images, as determined by the tags.
-        Chi-Hung has warned Martin that this is unnecessary and fills the memory quickly,
-        but if we are to use CPL functions, Martin does not see a way around it.
-        """
-        output = cpl.core.ImageList()
+        def load_raw_images(self) -> cpl.core.ImageList:
+            """
+            Always load a set of raw images, as determined by the tags.
+            Chi-Hung has warned Martin that this is unnecessary and fills the memory quickly,
+            but if we are to use CPL functions, Martin does not see a way around it.
+            """
+            output = cpl.core.ImageList()
 
-        for idx, frame in enumerate(self.inputset.raw.frameset):
-            Msg.info(self.__class__.__qualname__, f"Processing input frame #{idx}: {frame.file!r}...")
+            for idx, frame in enumerate(self.raw.frameset):
+                Msg.info(self.__class__.__qualname__, f"Processing input frame #{idx}: {frame.file!r}...")
 
-            # Append the loaded image to an image list
-            Msg.debug(self.__class__.__qualname__, f"Loading input image {frame.file}")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
+                # Append the loaded image to an image list
+                Msg.debug(self.__class__.__qualname__, f"Loading input image {frame.file}")
+                output.append(cpl.core.Image.load(frame.file, extension=1))
 
-        return output
+            return output
 
     @classmethod
     def combine_images(cls,

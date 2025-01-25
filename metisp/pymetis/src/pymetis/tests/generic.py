@@ -26,7 +26,7 @@ from pathlib import Path
 
 import cpl
 
-from pymetis.inputs import PipelineInputSet
+from pymetis.inputs import PipelineInputSet, MultiplePipelineInput
 from pymetis.base.product import PipelineProduct
 
 
@@ -75,9 +75,13 @@ class BaseInputSetTest(ABC):
 
 
 class RawInputSetTest(BaseInputSetTest):
-    def test_raw_input_count(self, load_frameset, sof):
+    def test_is_raw_input_count_correct(self, load_frameset, sof):
         instance = self.impl.InputSet(load_frameset(sof))
         assert len(instance.raw.frameset) == self.count
+
+    def test_inputset_has_raw(self, load_frameset, sof):
+        instance = self.impl.InputSet(load_frameset(sof))
+        assert isinstance(instance.raw, MultiplePipelineInput)
 
 
 class BaseRecipeTest(ABC):
