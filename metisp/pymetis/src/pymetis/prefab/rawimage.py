@@ -51,10 +51,8 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
             output = cpl.core.ImageList()
 
             for idx, frame in enumerate(self.raw.frameset):
-                Msg.info(self.__class__.__qualname__, f"Processing input frame #{idx}: {frame.file!r}...")
-
-                # Append the loaded image to an image list
-                Msg.debug(self.__class__.__qualname__, f"Loading input image {frame.file}")
+                Msg.info(self.__class__.__qualname__,
+                         f"Processing input frame #{idx}: {frame.file!r}...")
                 output.append(cpl.core.Image.load(frame.file, extension=1))
 
             return output
@@ -62,12 +60,13 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     @classmethod
     def combine_images(cls,
                        images: cpl.core.ImageList,
-                       method: Literal['add'] | Literal['average'] | Literal['median']):
+                       method: Literal['add'] | Literal['average'] | Literal['median']) -> cpl.core.Image:
         """
         Basic helper method to combine images using one of `add`, `average` or `median`.
         Probably not a universal panacea, but it recurs often enough to warrant being here.
         """
-        Msg.info(cls.__qualname__, f"Combining images using method {method!r}")
+        Msg.info(cls.__qualname__,
+                 f"Combining images using method {method!r}")
         combined_image = None
         match method:
             case "add":
