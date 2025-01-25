@@ -80,7 +80,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        raw_images = self.load_raw_images()
+        raw_images = self.inputset.load_raw_images()
         combined_image = self.combine_images(raw_images, method)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
