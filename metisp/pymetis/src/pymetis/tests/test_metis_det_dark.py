@@ -39,7 +39,10 @@ def sof():
 class TestRecipe(BaseRecipeTest):
     """ A bunch of simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
-    count = 1
+
+    @pytest.mark.parametrize("sof", ["metis_det_dark.lm.sof", "metis_det_dark.n.sof", "metis_det_dark.ifu.sof"])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
     def test_fails_with_files_from_multiple_detectors(self, load_frameset):
         with pytest.raises(ValueError):
