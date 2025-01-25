@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import os
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
@@ -67,7 +67,7 @@ class MetisRecipeImpl(ABC):
             self.import_settings(settings)                # Import and process the provided settings dict
             self.inputset = self.InputSet(frameset)       # Create an appropriate InputSet object
             self.inputset.print_debug()
-            self.inputset.verify()                        # Verify that they are valid (maybe with `schema` too?)
+            self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
             products = self.process_images()              # Do all the actual processing
             self.save_products(products)                  # Save the output products
 
@@ -133,3 +133,35 @@ class MetisRecipeImpl(ABC):
         """
         Msg.debug(self.__class__.__qualname__, f"Building the product frameset")
         return cpl.ui.FrameSet([product.as_frame() for product in products.values()])
+
+    def as_dict(self) -> dict[str, Any]:
+        """
+        Converts the object and its related data into a dictionary representation.
+
+        Return:
+            dict[str, Any]: A dictionary that contains the serialized representation
+            of the object's data, including both input set data and product data.
+        """
+        return {
+            'title': self.name,
+            'inputset': self.inputset.as_dict(),
+            'products': {
+                product.tag: product.as_dict() for product in self.products.values()
+            }
+        }
+
+    @staticmethod
+    def _create_dummy_header():
+        """
+        Create a dummy header (absolutely no assumptions, just to have something to work with).
+        This function should not survive in the future.
+        """
+        return cpl.core.PropertyList()
+
+    @staticmethod
+    def _create_dummy_image():
+        """
+        Create a dummy image (absolutely no assumptions, just to have something to work with).
+        This function should not survive in the future.
+        """
+        return cpl.core.Image.load(os.path.expandvars("$SOF_DATA/LINEARITY_2RG.fits"))

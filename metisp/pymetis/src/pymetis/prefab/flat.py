@@ -49,12 +49,10 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             pass
 
         def __init__(self, frameset):
+            super().__init__(frameset)
             self.raw = self.RawFlatInput(frameset)
             self.master_dark = MasterDarkInput(frameset)
-
             self.inputs = [self.raw, self.master_dark]
-
-            super().__init__(frameset)
 
 
     class Product(PipelineProduct):

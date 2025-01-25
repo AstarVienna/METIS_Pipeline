@@ -19,19 +19,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
-
-from generic import RawInputSetTest, BaseRecipeTest, BaseProductTest
+from pymetis.recipes.ifu.metis_ifu_postprocess import (MetisIfuPostprocess as Recipe, MetisIfuPostprocessImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
 @pytest.fixture
 def name():
-    return 'metis_det_lingain'
+    return 'metis_ifu_postprocess'
 
 
 @pytest.fixture
-def sof():
-    return 'metis_det_lingain.lm.sof'
+def sof(name):
+    return f'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
@@ -39,18 +38,6 @@ class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
 
 
-class TestInputSet(RawInputSetTest):
+class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
-
-
-class TestProductGain(BaseProductTest):
-    product = Impl.ProductGain
-
-
-class TestProductLinearity(BaseProductTest):
-    product = Impl.ProductLinearity
-
-
-class TestProductBadpixMap(BaseProductTest):
-    product = Impl.ProductBadpixMap

@@ -53,7 +53,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             self.badpixmap = BadpixMapInput(frameset, required=False)
             self.pinhole_table = PinholeTableInput(frameset, required=True)
 
-            self.inputs += [self.raw, self.background, self.linearity, self.gain_map,
+            self.inputs += [self.background, self.linearity, self.gain_map,
                             self.badpixmap, self.persistence]
 
 
@@ -124,7 +124,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
 
-        This is a temporary implementation that should be generalised to the
+        This is a temporary implementation that should be generalized to the
         entire pipeline package. It uses cpl functions - these should be
         replaced with hdrl functions once they become available, in order
         to use uncertainties and masks.
@@ -180,5 +180,6 @@ class MetisCalChophome(MetisRecipe):
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
-])     # no parameters defined in DRLD
+    ])     # no parameters defined in DRLD
+
     implementation_class = MetisCalChophomeImpl

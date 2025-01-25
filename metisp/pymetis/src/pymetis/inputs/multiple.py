@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import functools
+import operator
 from typing import Pattern
 
 import cpl
@@ -28,7 +30,7 @@ from pymetis.inputs.base import PipelineInput
 
 class MultiplePipelineInput(PipelineInput):
     """
-    A pipeline input that expects multiple frames, such as raw processor.
+    A pipeline input that expects multiple frames, such as a raw processor.
     """
     def __init__(self,
                  frameset: cpl.ui.FrameSet,
@@ -54,16 +56,19 @@ class MultiplePipelineInput(PipelineInput):
         self.extract_tag_parameters(tag_matches)
 
     def extract_tag_parameters(self, matches: [dict[str, str]]):
-        params = {}
+        if len(matches) == 0:
+            return
 
-        for match in matches:
-            params |= match
+        Msg.debug(self.__class__.__qualname__, f"Verifying tag parameters are equal for all frames...")
+        # Check if all matches are created equal
+        if matches[:-1] == matches[1:]:
+            self.tag_parameters = matches[0]
+            self._detector = matches[0].get('detector', None)
+            Msg.debug(self.__class__.__qualname__, f"Tag parameters are equal for all frames: {self.tag_parameters}")
+        else:
+            raise ValueError(f"Tag parameters are not equal for all frames! Found {matches}")
 
-        self.tag_parameters = {}
-
-        self._detector = params.get('detector', None)
-
-    def verify(self):
+    def validate(self):
         self._verify_frameset_not_empty()
         self._verify_same_detector()
 

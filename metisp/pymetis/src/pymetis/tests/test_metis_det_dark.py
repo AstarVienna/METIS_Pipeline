@@ -17,12 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
 import pytest
+
+import cpl
 
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
-from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
+from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest, RawInputSetTest
 
 
 @pytest.fixture
@@ -36,12 +37,24 @@ def sof():
 
 
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+    """ A bunch of simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
     count = 1
 
+    def test_fails_with_files_from_multiple_detectors(self, load_frameset):
+        with pytest.raises(ValueError):
+            instance = self._recipe()
+            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_detectors.sof"))
+            instance.run(frameset, {})
 
-class TestInputSet(BaseInputSetTest):
+    def test_fails_with_files_from_multiple_detectors_gainmap(self, load_frameset):
+        with pytest.raises(ValueError):
+            instance = self._recipe()
+            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_detectors.again.sof"))
+            instance.run(frameset, {})
+
+
+class TestInputSet(RawInputSetTest):
     impl = Impl
     count = 1
 

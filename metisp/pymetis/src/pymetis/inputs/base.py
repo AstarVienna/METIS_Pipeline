@@ -19,8 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import abstractmethod
 import re
-from functools import reduce
-from typing import Pattern
+from typing import Pattern, Any
 
 import cpl
 
@@ -32,7 +31,7 @@ class PipelineInput:
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided
     _group: str = None                      # No sensible default, must be provided explicitly
-    _detector: str = None              # No default
+    _detector: str | None = None            # Not specific to a detector until determined otherwise
 
     @property
     def title(self):
@@ -81,7 +80,7 @@ class PipelineInput:
 
         # ...and that they are a re pattern
         if not isinstance(self.tags, re.Pattern):
-            raise TypeError(f"Tags must be a `re` pattern, got '{self.tags}'")
+            raise TypeError(f"PipelineInput `tags` must be a `re.Pattern`, got '{self.tags}'")
 
         # Override `required` if requested
         if required is not None:
@@ -97,18 +96,31 @@ class PipelineInput:
         if not self.group:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group!")
 
+        # A list of matched groups from `tags`. Acquisition differs
+        # between Single and Multiple, so we just declare it here.
+        self.tag_parameters: dict[str, str] = {}
+
+
     @abstractmethod
-    def verify(self) -> None:
+    def validate(self) -> None:
         """
         Verify that the input has all the required frames and that they are valid themselves.
-        There is no default logic, implementation is deferred to derived classes.
+        There is no default logic, implementation is fully deferred to derived classes.
         """
 
     def print_debug(self, *, offset: int = 0) -> None:
         """
-        Print a short description of the tags with a small offset (spaces).
+        Print a short description of the tags with a small offset (n spaces).
         """
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags}")
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            'title': self.title,
+            'tags': self.tags,
+            'required': self.required,
+            'group': self._group.name,
+        }
 
 
     def _verify_same_detector_from_header(self) -> None:
@@ -132,14 +144,14 @@ class PipelineInput:
                 Msg.warning(self.__class__.__qualname__, f"No detector (ESO DPR TECH) set!")
 
         # Check if all the raws have the same detector, if not, we have a problem
-        if len(unique := list(set(detectors))) == 1:
+        if (detector_count := len(unique := list(set(detectors)))) == 1:
             self._detector = unique[0]
             Msg.debug(self.__class__.__qualname__,
                       f"Detector determined: {self.detector}")
-        elif len(unique) == 0:
+        elif detector_count == 0:
             Msg.warning(self.__class__.__qualname__,
                         f"No detectors specified (this is probably fine in skeleton stage)")
         else:
             # raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
             Msg.warning(self.__class__.__qualname__,
-                        f"Darks from more than one detector found: {set(detectors)}!")
+                        f"Darks from more than one detector found: {unique}!")

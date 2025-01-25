@@ -163,7 +163,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
-        Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector_name}")
+        Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
 
         flat = self.prepare_flat(flat, bias)
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
@@ -171,8 +171,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
         self.products = {
-            fr'{self.detector_name}_PUPIL_REDUCED':
-                self.Product(self, header, combined_image, detector_name=self.detector_name),
+            fr'{self.detector}_PUPIL_REDUCED':
+                self.Product(self, header, combined_image, detector=self.detector),
         }
 
         return self.products

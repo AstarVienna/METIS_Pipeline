@@ -47,5 +47,6 @@ class TestInputSet(BaseInputSetTest):
 class TestProductCombined(BaseProductTest):
     product = Impl.ProductCombined
 
+
 class TestProductBackground(BaseProductTest):
     product = Impl.ProductBackground

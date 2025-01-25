@@ -27,6 +27,7 @@ from pymetis.recipes.ifu.metis_ifu_calibrate import MetisIfuCalibrate
 from pymetis.recipes.ifu.metis_ifu_postprocess import MetisIfuPostprocess
 from pymetis.recipes.ifu.metis_ifu_reduce import MetisIfuReduce
 from pymetis.recipes.ifu.metis_ifu_telluric import MetisIfuTelluric
+from pymetis.recipes.ifu.metis_ifu_wavecal import MetisIfuWavecal
 from pymetis.recipes.cal.metis_cal_chophome import MetisCalChophome
 from pymetis.recipes.instrument.metis_pupil_imaging import MetisPupilImaging
 
@@ -41,6 +42,7 @@ __all__ = [
     MetisIfuPostprocess,
     MetisIfuReduce,
     MetisIfuTelluric,
+    MetisIfuWavecal,
     MetisCalChophome,
     MetisPupilImaging,
 ]

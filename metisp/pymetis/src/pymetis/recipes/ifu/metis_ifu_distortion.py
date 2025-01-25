@@ -91,13 +91,14 @@ class MetisIfuDistortion(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="metis_det_dark.stacking.method",
-            context="metis_det_dark",
-            description="Name of the method used to combine the input images",
-            default="average",
-            alternatives=("add", "average", "median", "sigclip"),
-        ),
-    ])
     implementation_class = MetisIfuDistortionImpl
+
+    # Dummy parameter to circumvent a potential bug in `pyesorex`
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterValue(
+            name=f"{_name}.dummy",
+            context=_name,
+            description="Dummy parameter",
+            default="dummy",
+        )
+    ])

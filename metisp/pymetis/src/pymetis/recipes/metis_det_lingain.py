@@ -24,21 +24,19 @@ from typing import Dict
 
 import cpl
 
-from pymetis.base import MetisRecipe
+from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
 from pymetis.inputs.common import RawInput
+from pymetis.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class LinGainProduct(DetectorSpecificProduct, ABC):
+    """ Common base class for all linearity and gain products. Just sets `group`, `level` and `frame_type`. """
     group = cpl.ui.Frame.FrameGroup.PRODUCT
     level = cpl.ui.Frame.FrameLevel.FINAL
     frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-    @property
-    def tag(self) -> str:
-        return rf"{self.category}"
 
 
 class MetisDetLinGainImpl(DarkImageProcessor):
@@ -46,23 +44,19 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         class RawInput(RawInput):
             _tags = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.raw = self.RawInput(frameset)
-
     class ProductGain(LinGainProduct):
         @property
-        def category(self) -> str:
+        def tag(self) -> str:
             return f"GAIN_MAP_{self.detector:s}"
 
     class ProductLinearity(LinGainProduct):
         @property
-        def category(self) -> str:
+        def tag(self) -> str:
             return f"LINEARITY_{self.detector:s}"
 
     class ProductBadpixMap(LinGainProduct):
         @property
-        def category(self) -> str:
+        def tag(self) -> str:
             return f"BADPIX_MAP_{self.detector:s}"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
@@ -84,25 +78,37 @@ class MetisDetLinGainImpl(DarkImageProcessor):
         badpix_map = combined_image         # TODO Actual implementation missing
 
         self.products = {
-            f'MASTER_GAIN_{self.detector_name}':
+            f'MASTER_GAIN_{self.detector}':
                 self.ProductGain(self, header, gain_image,
-                                 detector=self.detector_name),
-            f'LINEARITY_{self.detector_name}':
+                                 detector=self.detector),
+            f'LINEARITY_{self.detector}':
                 self.ProductLinearity(self, header, linearity_image,
-                                      detector=self.detector_name),
-            f'BADPIX_MAP_{self.detector_name}':
+                                      detector=self.detector),
+            f'BADPIX_MAP_{self.detector}':
                 self.ProductBadpixMap(self, header, badpix_map,
-                                      detector=self.detector_name),
+                                      detector=self.detector),
         }
 
         return self.products
+
+
+class Metis2rgLinGainImpl(Detector2rgMixin, MetisDetLinGainImpl):
+    pass
+
+
+class MetisGeoLinGainImpl(DetectorGeoMixin, MetisDetLinGainImpl):
+    pass
+
+
+class MetisIfuLinGainImpl(DetectorIfuMixin, MetisDetLinGainImpl):
+    pass
 
 
 class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information
     _name = "metis_det_lingain"
     _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo Martin"
+    _author = "A*Vienna"
     _email = "hugo@buddelmeijer.nl"
     _synopsis = "Measure detector non-linearity and gain"
     _description = (
@@ -111,20 +117,20 @@ class MetisDetLinGain(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_det_lingain.stacking.method",
-            context="metis_det_lingain",
+            name=rf"{_name}.stacking.method",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="median",
             alternatives=("add", "average", "median"),
         ),
         cpl.ui.ParameterValue(
-            name="metis_det_lingain.threshold.lowlim",
+            name=rf"{_name}.threshold.lowlim",
             context=_name,
             description="Thresholding threshold lower limit",
             default=0,
         ),
         cpl.ui.ParameterValue(
-            name="metis_det_lingain.threshold.uplim",
+            name=rf"{_name}.threshold.uplim",
             context=_name,
             description="Thresholding threshold upper limit",
             default=0,
@@ -132,3 +138,11 @@ class MetisDetLinGain(MetisRecipe):
     ])
 
     implementation_class = MetisDetLinGainImpl
+
+    def dispatch_implementation_class(self, frameset):
+        input = self.implementation_class.InputSet.RawInput(frameset)
+        return {
+            '2RG': Metis2rgLinGainImpl,
+            'GEO': MetisGeoLinGainImpl,
+            'IFU': MetisIfuLinGainImpl,
+        }[input.detector]

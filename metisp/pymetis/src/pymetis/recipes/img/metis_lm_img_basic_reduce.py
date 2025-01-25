@@ -159,16 +159,16 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
-        Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector_name}")
+        Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
 
         flat = self.prepare_flat(flat, bias)
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
-        combined_image = self.combine_images(images, self.parameters["basic_reduction.stacking.method"].value)
+        combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
         self.target = "SCI" # hardcoded for now
         self.products = {
-            fr'OBJECT_REDUCED_{self.detector_name}':
+            fr'OBJECT_REDUCED_{self.detector}':
                 self.Product(self, header, combined_image, target=self.target),
         }
 
@@ -200,8 +200,8 @@ class MetisLmImgBasicReduce(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="basic_reduction.stacking.method",
-            context="basic_reduction",
+            name="metis_lm_img_basic_reduce.stacking.method",
+            context="metis_lm_img_basic_reduce",
             description="Name of the method used to combine the input images",
             default="add",
             alternatives=("add", "average", "median"),
