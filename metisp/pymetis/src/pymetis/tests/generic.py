@@ -103,7 +103,7 @@ class BaseRecipeTest(ABC):
         instance = self._recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
-        # pprint.pprint(instance.implementation.as_dict(), width=200)
+        pprint.pprint(instance.implementation.as_dict(), width=200)
 
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
         pyesorex = create_pyesorex(self._recipe)

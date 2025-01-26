@@ -17,9 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import functools
-import operator
-from typing import Pattern
+from typing import Pattern, Any
 
 import cpl
 
@@ -101,3 +99,11 @@ class MultiplePipelineInput(PipelineInput):
         None:
             None on success
         """
+
+    def as_dict(self) -> dict[str, Any]:
+        return super().as_dict() | {
+            'frame': str(self.frameset),
+        }
+
+    def valid_frames(self) -> cpl.ui.FrameSet:
+        return self.frameset

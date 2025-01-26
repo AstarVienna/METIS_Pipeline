@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Pattern
+from typing import Pattern, Any
 
 import cpl
 
@@ -40,6 +40,7 @@ class SinglePipelineInput(PipelineInput):
         super().__init__(tags=tags, required=required, **kwargs)
 
         self.tag_matches: dict[str, str] = {}
+
         for frame in frameset:
             if match := self.tags.fullmatch(frame.tag):
                 if self.frame is None:
@@ -94,3 +95,15 @@ class SinglePipelineInput(PipelineInput):
         else:
             Msg.debug(self.__class__.__qualname__,
                       f"Found a {self.title} frame {frame.file}")
+
+    def as_dict(self) -> dict[str, Any]:
+        return super().as_dict() | {
+            'frame': str(self.frame),
+        }
+
+    def valid_frames(self) -> cpl.ui.FrameSet:
+        if self.frame is None:
+            # This may happen for non-required inputs
+            return cpl.ui.FrameSet()
+        else:
+            return cpl.ui.FrameSet([self.frame])

@@ -100,14 +100,15 @@ class PipelineProduct(ABC):
 
     def save(self):
         """ Save this Product to a file """
-        Msg.info(self.__class__.__qualname__, f"Saving product file as {self.output_file_name!r}.")
+        Msg.info(self.__class__.__qualname__, f"Saving product file as {self.output_file_name!r}:")
         Msg.info(self.__class__.__qualname__, str(self.recipe.frameset))
-        # At least one frame must be tagged as RAW, otherwise it *will not* save (rite of passage!)
+        Msg.info(self.__class__.__qualname__, str(self.recipe.used_frames))
+        # At least one frame in the recipe frameset must be tagged as RAW!
+        # Otherwise, it *will not* save (rite of passage)
         cpl.dfs.save_image(
             self.recipe.frameset,       # All frames for the recipe
             self.recipe.parameters,     # The list of input parameters
-            self.recipe.frameset,       # The list of raw and calibration frames actually used
-                                        # (same as all frames, as we always use all the frames)
+            self.recipe.used_frames,    # The list of raw and calibration frames actually used
             self.image,                 # Image to be saved
             self.recipe.name,           # Name of the recipe
             self.properties,            # Properties to be appended
@@ -118,15 +119,16 @@ class PipelineProduct(ABC):
 
     @property
     def category(self) -> str:
-        """ Return the category of this product
+        """
+        Return the category of this product
 
-        By default, the tag is the same as the category. Feel free to override.
+        By default, the tag is the same as the category. Feel free to override if needed.
         """
         return self.tag
 
     @property
     def output_file_name(self) -> str:
-        """ Form the output file name (the detector part is variable) """
+        """ Form the output file name """
         return f"{self.category}.fits"
 
 
@@ -166,7 +168,7 @@ class TargetSpecificProduct(PipelineProduct, ABC):
             self.target = target
 
         """
-            At the moment of instantiation, the `target` attribute must be set *somehow*. Either
+            At the moment of instantiation, the `target` attribute must already be set *somehow*. Either
             -   as a class attribute (if it is constant)
             -   from the constructor (if it is determined from the data)
             -   or as a provided property (if it has to be computed dynamically)
