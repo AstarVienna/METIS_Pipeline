@@ -19,8 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.img.metis_lm_img_flat import MetisLmImgFlat as Recipe, MetisLmImgFlatImpl as Impl
-from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.img.metis_lm_img_flat import (MetisLmImgFlat as Recipe,
+                                                   MetisLmImgFlatImpl as Impl)
 
 
 @pytest.fixture
@@ -30,12 +31,15 @@ def name():
 
 @pytest.fixture
 def sof(name):
-    return f"{name}.lamp.sof"
+    return f'{name}.lamp.sof'
 
 
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple test cases... just to see if it does something """
     _recipe = Recipe
+
+    @pytest.mark.parametrize("sof", [f"metis_lm_img_flat.{target}.sof" for target in ['lamp', 'twilight']])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
 
 class TestInputSet(BaseInputSetTest):

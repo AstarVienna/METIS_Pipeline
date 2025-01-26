@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.tests.generic import BaseRecipeTest
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 from pymetis.recipes.img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
                                                            MetisLmImgBasicReduceImpl as Impl)
 
@@ -30,10 +30,18 @@ def name():
 
 
 @pytest.fixture
-def sof():
-    return 'metis_lm_img_basic_reduce.sof'
+def sof(name):
+    return f'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
+
+
+class TestInputSet(BaseInputSetTest):
+    impl = Impl
+    count = 1
+
+
+class TestProduct(BaseProductTest):
+    product = Impl.Product
