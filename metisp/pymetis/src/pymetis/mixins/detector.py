@@ -17,27 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
 
-from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
-
-
-@pytest.fixture
-def name():
-    return 'metis_ifu_reduce'
+class Detector2rgMixin:
+    _detector: str = '2RG'
 
 
-@pytest.fixture
-def sof(name):
-    return f'{name}.std.sof'
+class DetectorGeoMixin:
+    _detector: str = 'GEO'
 
 
-class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    _recipe = Recipe
-
-
-class TestInputSet(BaseInputSetTest):
-    impl = Impl
-    count = 1
+class DetectorIfuMixin:
+    _detector: str = 'IFU'

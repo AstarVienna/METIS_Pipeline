@@ -36,9 +36,9 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             _group = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):
+            super().__init__(frameset)
             self.sci_cube_calibrated = self.SciCubeCalibratedInput(frameset)
             self.inputs += [self.sci_cube_calibrated]
-            super().__init__(frameset)
 
     class ProductSciCoadd(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -63,11 +63,10 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         self.coadd_cubes()
 
         header = cpl.core.PropertyList()
-        coadded_image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file) # ToDo actual processing
-        print(self.inputset.sci_cube_calibrated.frame.file)
+        image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file) # ToDo actual processing
 
         self.products = {
-            r'IFU_SCI_COADD': self.ProductSciCoadd(self, header, coadded_image),
+            r'IFU_SCI_COADD': self.ProductSciCoadd(self, header, image), # ToDo is just a dummy for now
         }
         return self.products
 
@@ -83,13 +82,14 @@ class MetisIfuPostprocess(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
+    implementation_class = MetisIfuPostprocessImpl
+
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_ifu_reduce.telluric",
-            context="metis_ifu_reduce",
+            name=f"{_name}.telluric",
+            context=_name,
             description="Use telluric correction",
             default=False,
             alternatives=(True, False),
         ),
     ])
-    implementation_class = MetisIfuPostprocessImpl

@@ -19,20 +19,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe, MetisIfuDistortionImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest
+from pymetis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluric as Recipe, MetisIfuTelluricImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
 
 
 @pytest.fixture
 def name():
-    return 'metis_ifu_distortion'
+    return 'metis_ifu_telluric'
 
 
 @pytest.fixture
-def sof():
-    return 'metis_ifu_distortion.sof'
+def sof(name):
+    return f'{name}.std.sof'
 
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
+
+
+class TestInputSet(BaseInputSetTest):
+    impl = Impl
+    count = 1

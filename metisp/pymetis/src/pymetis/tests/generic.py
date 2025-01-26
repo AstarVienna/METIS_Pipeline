@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import inspect
 import os.path
+import pprint
 import subprocess
 from abc import ABC
 from pathlib import Path
@@ -63,17 +64,29 @@ class BaseInputSetTest(ABC):
 
     def test_can_load_and_verify(self, load_frameset, sof):
         instance = self.impl.InputSet(load_frameset(sof))
-        assert instance.verify() is None
-        assert len(instance.raw.frameset) == self.count
+        assert instance.validate() is None
 
-    def test_all_inputs(self):
-        for inp in self.impl.InputSet.inputs:
+    def test_all_inputs(self, load_frameset, sof):
+        # We should really be testing a class here, not an instance
+        instance = self.impl.InputSet(load_frameset(sof))
+        for inp in instance.inputs:
             assert inp._group is not None
             assert isinstance(inp._title, str)
 
 
+class RawInputSetTest(BaseInputSetTest):
+    def test_raw_input_count(self, load_frameset, sof):
+        instance = self.impl.InputSet(load_frameset(sof))
+        assert len(instance.raw.frameset) == self.count
+
+
 class BaseRecipeTest(ABC):
     _recipe = None
+
+    @classmethod
+    def _run_pyesorex(cls, name, sof):
+        return subprocess.run(['pyesorex', name, root / sof, '--log-level', 'DEBUG'],
+                              capture_output=True)
 
     def test_recipe_can_be_instantiated(self):
         recipe = self._recipe()
@@ -83,15 +96,23 @@ class BaseRecipeTest(ABC):
         instance = self._recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
+        #pprint.pprint(instance.implementation.as_dict())
 
-    def test_can_be_run_with_pyesorex(self, name, create_pyesorex):
+    def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
         pyesorex = create_pyesorex(self._recipe)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
         assert pyesorex.recipe.name == name
 
     @staticmethod
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
-        output = subprocess.run(['pyesorex', name, root / sof, '--log-level', 'DEBUG'],
-                                capture_output=True)
+        output = __class__._run_pyesorex(name, sof)
         assert output.returncode == 0
         assert output.stderr == b""
+
+    def test_all_parameters_have_correct_context(self):
+        for param in self._recipe.parameters:
+            assert param.context == self._recipe._name
+
+    def test_all_parameters_name_starts_with_context(self):
+        for param in self._recipe.parameters:
+            assert param.name.startswith(self._recipe._name)

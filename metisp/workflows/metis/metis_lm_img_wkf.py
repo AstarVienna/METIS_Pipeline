@@ -1,65 +1,9 @@
 from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
-from edps import task, data_source, classification_rule
-
-detlin_class = classification_rule("DETLIN_2RG_RAW",
-                                    {"instrume":"METIS", 
-                                     "dpr.catg": "CALIB", 
-                                     "dpr.type":"DETLIN",
-                                     "dpr.tech":"IMAGE,LM",
-                                     })
-
-rawdark_class = classification_rule("DARK_2RG_RAW",
-                                    {"instrume":"METIS", 
-                                     "dpr.catg": "CALIB", 
-                                     "dpr.type":"DARK",
-                                     "dpr.tech":"IMAGE,LM",
-                                     })
-
-lm_lampflat_class = classification_rule("LM_FLAT_LAMP_RAW",
-                                {"instrume":"METIS", 
-                                 "dpr.catg":"CALIB", 
-                                 "dpr.type":"FLAT,LAMP",
-                                 "dpr.tech":"IMAGE,LM",
-                                 })
-
-twlightflat_class = classification_rule("TWLIGHT_FLAT",
-                                {"instrume":"METIS", 
-                                 "dpr.catg": "CALIB", 
-                                 "dpr.type":"FLAT,TWILIGHT",
-                                 "dpr.tech":"IMAGE,LM",
-                                 })
+from edps import task, subworkflow, qc1calib, match_rules, FilterMode, calchecker
+from .metis_datasources import *
+from . import metis_keywords as metis_kwd
 
 
-raw_science_class = classification_rule("LM_IMAGE_SCI_RAW",
-                                {"instrume":"METIS", 
-                                 "dpr.catg":"SCIENCE", 
-                                 "dpr.type":"OBJECT",
-                                 "dpr.tech":"IMAGE,LM",
-                                 })
-
-
-# --- Data sources ---
-detlin_raw = (data_source()
-            .with_classification_rule(detlin_class)
-            .with_match_keywords(["instrume"])
-            .build())
-
-raw_dark = (data_source()
-            .with_classification_rule(rawdark_class)
-            .with_match_keywords(["instrume"])
-            .build())
-
-lm_lamp_flat = (data_source()
-            .with_classification_rule(lm_lampflat_class)
-            .with_match_keywords(["instrume"])
-            .build())
-
-lm_raw_science = (data_source()
-            .with_classification_rule(raw_science_class)        
-            .with_match_keywords(["instrume"])
-            .build())
-
-# --- Processing tasks ---
 dark_task = (task('metis_det_dark')
             .with_main_input(raw_dark)
             .with_recipe("metis_det_dark")
@@ -85,3 +29,4 @@ basic_reduction = (task('metis_lm_img_basic_reduce')
                     .with_associated_input(flat_task)
                     .with_meta_targets([SCIENCE])
                     .build())
+

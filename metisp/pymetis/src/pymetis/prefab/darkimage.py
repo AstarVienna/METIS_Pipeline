@@ -30,9 +30,9 @@ class DarkImageProcessor(RawImageProcessor, ABC):
 
      1. takes a set of raw images to combine
      2. requires a single `master_dark` frame, that will be subtracted from every raw image
-     3. combines the raws into a single product
+     3. combines the raws after subtraction into a single product
 
-    Provides methods for loading and verification of the dark frame,
+    Also provides methods for loading and verification of the dark frame,
     warns if multiple master darks are provided, etc.
     """
     class InputSet(RawImageProcessor.InputSet):

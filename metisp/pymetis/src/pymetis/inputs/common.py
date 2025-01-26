@@ -30,7 +30,7 @@ You should never derive directly from `PipelineInput`, but rather from
 
  -  `SinglePipelineInput` (for `Input` classes with a single Frame)
  -  `MultiplePipelineInput` (for `Input` classes with a FrameSet)
- 
+
 You should override class attributes:
 
  -  `_title`
@@ -80,7 +80,7 @@ class PersistenceMapInput(SinglePipelineInput):
     _title: str = "persistence map"
     _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _required: bool = False     # Persistence maps are usually optional (can be overridden)
+    _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
 
 
 class GainMapInput(SinglePipelineInput):
@@ -101,3 +101,7 @@ class WavecalInput(SinglePipelineInput):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
 
+class PinholeTableInput(SinglePipelineInput):
+    _title: str = "pinhole table"
+    _tags: Pattern = re.compile(r"WCU_PINHOLE_TABLE")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB

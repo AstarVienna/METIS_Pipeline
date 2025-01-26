@@ -1,4 +1,11 @@
 """
+METIS pupil imaging recipe
+
+This file contains the recipe for reducing pupil imaging raw data for the 
+METIS instrument. It will apply dark and flat corrections, and optionally
+gain and persistance corrections. It can be directly via pyesorex,
+or as part of an edps workflow. 
+
 This file is part of the METIS Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
@@ -17,20 +24,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
 from typing import Dict
 
 import cpl
 from cpl.core import Msg
 
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct, TargetSpecificProduct
+from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
-class MetisLmImgBasicReduceImpl(DarkImageProcessor):
+class MetisPupilImagingImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the singleton class
@@ -56,61 +62,59 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         # This InputSet class derives from DarkImageProcessor.InputSet, which in turn inherits from
         # RawImageProcessor.InputSet. It already knows that it wants a RawInput and MasterDarkInput class,
-        # but does not know about the tags yet. So here we define tags for the raw input:
-        class RawInput(RawInput):
-            _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|STD)_RAW")
+        # but does not know about the tags yet. So here we define tags for the raw input
+        class Raw(RawInput):
+            _tags = ["LM_PUPIL_RAW"]
 
-        # Now we need a master dark. Since nothing is changed and the tag is always the same,
-        # we just point to the provided MasterDarkInput.
-        MasterDarkInput = MasterDarkInput
-
-        # Also one master flat is required. Again, we use a prefabricated class, but reset the tags
+        # Also one master flat is required. We use a prefabricated class
         class MasterFlat(MasterFlatInput):
-            _tags = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
+            _tags = ["MASTER_IMG_FLAT_LAMP_LM"]
 
+        # We could define the master dark explicitly too, but we can use a prefabricated class instead.
+        # That already has its tags defined (for master darks it's always "MASTER_DARK_{det}"), so we just define
+        # the detector and band. Those are now available for all Input classes here.
+        # Of course, we could be more explicit and define them directly.
 
-        # Alternatively, we could directly use MasterFlatInput(tags=re.compile(r"...")) in __init__,
-        # or go fully manual and specify it as
-        # SinglePipelineInput(tags=re.compile(r"..."), title="master flat", group=cpl.ui.Frame.FrameGroup.CALIB)
+        detector: str = '2RG'
+        band: str = 'LM'
+        RawInput = Raw
+        MasterDarkInput = MasterDarkInput
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.master_flat = self.MasterFlat(frameset)
-            self.linearity = LinearityInput(frameset)
+            self.master_flat = self.MasterFlat(frameset,
+                                               tags=["MASTER_IMG_FLAT_LAMP_{band}", "MASTER_IMG_FLAT_TWILIGHT_{band}"],
+                                               band="LM", det=self.detector)
+            self.linearity = LinearityInput(frameset, det=self.detector)
             self.persistence = PersistenceMapInput(frameset, required=False)
-            self.gain_map = GainMapInput(frameset)
+            self.gain_map = GainMapInput(frameset, det=self.detector)
 
-            # We need to register the inputs (just to be able to say `for x in self.inputs:`)
+            # We need to register the inputs (just to be able to do `for x in self.inputs:`)
             self.inputs += [self.master_flat, self.linearity, self.persistence, self.gain_map]
 
-    class Product(TargetSpecificProduct):
+    class Product(PipelineProduct):
         """
         The second big part is defining the products. For every product we create a separate class
-        which defines the tag, group, level and frame type. Here we only have one kind of product,
-        so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
-        But feel free to be more creative with names.
+        which defines the tag, group, level and frame type.
         """
+        tag: str = "LM_PUPIL_IMAGING_REDUCED"
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def category(self) -> str:
-            return rf"LM_{self.target:s}_REDUCED"
+            return self.tag
 
         @property
         def output_file_name(self):
             return f"{self.category}.fits"
 
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
-
-
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
         Msg.info(self.__class__.__qualname__, "Preparing flat field")
         
+        #import pdb ; pdb.set_trace()
         if flat is None:
             raise RuntimeError("No flat frames found in the frameset.")
         else:
@@ -128,9 +132,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         prepared_images = cpl.core.ImageList()
 
         for index, frame in enumerate(raw_frames):
-            Msg.info(self.__class__.__qualname__, f"Processing {frame.file}...")
+            Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
 
-            Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file}")
+            Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file!r}")
             raw_image = cpl.core.Image.load(frame.file, extension=1)
 
             if bias:
@@ -163,48 +167,55 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         flat = self.prepare_flat(flat, bias)
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
-        combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
+        combined_image = self.combine_images(images, self.parameters["pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        self.target = "SCI" # hardcoded for now
         self.products = {
-            fr'OBJECT_REDUCED_{self.detector}':
-                self.Product(self, header, combined_image, target=self.target),
+            fr'{self.detector}_PUPIL_REDUCED':
+                self.Product(self, header, combined_image, detector=self.detector),
         }
 
         return self.products
 
 
-class MetisLmImgBasicReduce(MetisRecipe):
+class MetisPupilImaging(MetisRecipe):
     """
     Apart from our own recipe implementation we have to provide the actual recipe for PyEsoRex.
     This is very simple: just the
 
-    - seven required attributes as below
-        - copyright may be omitted as it is provided in the base class and probably will remain the same everywhere,
+    - seven required attributes as below (copyright may be omitted as it is provided in the base class),
     - list of parameters as required (consult DRL-D for the particular recipe)
-    - and finally point to the implementation class, which we have just written
+    - and finally define the implementation class, which we have just written
     """
     # Fill in recipe information
-    _name = "metis_lm_img_basic_reduce"
+    _name = "metis_pupil_imaging"
     _version = "0.1"
-    _author = "A*"
-    _email = "chyan@asiaa.sinica.edu.tw"
+    _author = "Jennifer Karr"
+    _email = "jkarr@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Basic science image data processing"
+    _synopsis = "Basic processing of pupil images"
     _description = (
-            "The recipe combines all science input files in the input set-of-frames using\n"
-            + "the given method. For each input science image the master bias is subtracted,\n"
-            + "and it is divided by the master flat."
+            "This recipe performs basic reduction (dark current subtraction, flat fielding,\n"
+            "optional bias subtraction, persistance and linearity corrections) on engineering\n"
+            "images of the pupil masks. This recipe is not expected to be used by observers\n"
+            "during regular use."
     )
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_lm_img_basic_reduce.stacking.method",
-            context="metis_lm_img_basic_reduce",
+            name="pupil_imaging.stacking.method",
+            context="pupil_imaging",
             description="Name of the method used to combine the input images",
             default="add",
             alternatives=("add", "average", "median"),
+        ),
+        cpl.ui.ParameterEnum(
+            name="pupil_imaging.band",
+            context="pupil_imaging",
+            description="band to run",
+            default="lm",
+            alternatives=("lm", "n",),
         )
     ])
-    implementation_class = MetisLmImgBasicReduceImpl
+
+    implementation_class = MetisPupilImagingImpl

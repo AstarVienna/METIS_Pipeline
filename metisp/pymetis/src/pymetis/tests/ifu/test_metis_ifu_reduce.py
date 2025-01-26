@@ -19,38 +19,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
-
-from generic import RawInputSetTest, BaseRecipeTest, BaseProductTest
+from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
 
 
 @pytest.fixture
 def name():
-    return 'metis_det_lingain'
+    return 'metis_ifu_reduce'
 
 
 @pytest.fixture
-def sof():
-    return 'metis_det_lingain.lm.sof'
+def sof(name):
+    return f'{name}.std.sof'
 
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
+    @pytest.mark.parametrize("sof", ["metis_ifu_reduce.std.sof", "metis_ifu_reduce.sci.sof"])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
-class TestInputSet(RawInputSetTest):
+
+class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
-
-
-class TestProductGain(BaseProductTest):
-    product = Impl.ProductGain
-
-
-class TestProductLinearity(BaseProductTest):
-    product = Impl.ProductLinearity
-
-
-class TestProductBadpixMap(BaseProductTest):
-    product = Impl.ProductBadpixMap

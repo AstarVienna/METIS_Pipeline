@@ -35,22 +35,25 @@ class SinglePipelineInput(PipelineInput):
                  *,
                  tags: Pattern = None,
                  required: bool = None,
-                 **kwargs):
+                 **kwargs):                       # Any other args
         self.frame: cpl.ui.Frame | None = None
         super().__init__(tags=tags, required=required, **kwargs)
 
-        self.tag_match = {}
+        self.tag_matches: dict[str, str] = {}
         for frame in frameset:
             if match := self.tags.fullmatch(frame.tag):
                 if self.frame is None:
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a {self.title} frame: {frame.file}.")
                 else:
+                    # If a matching frame was already found, this probably is not what we want.
+                    # Warn, and only keep the latest one found.
                     Msg.warning(self.__class__.__qualname__,
                                 f"Found another {self.title} frame: {frame.file}! "
                                 f"Discarding previously loaded {self.frame.file}.")
+                frame.group = self.group
                 self.frame = frame
-                self.tag_match = match.groupdict()
+                self.tag_matches = match.groupdict()
             else:
                 Msg.debug(self.__class__.__qualname__,
                           f"Ignoring {frame.file}: tag {frame.tag} does not match.")
@@ -58,17 +61,21 @@ class SinglePipelineInput(PipelineInput):
         self.extract_tag_parameters()
 
     def extract_tag_parameters(self):
-        if self.tag_match is not None:
-            for key in self.tag_match.keys():
+        if self.tag_matches is not None:
+            for key, value in self.tag_matches.items():
                 Msg.debug(self.__class__.__qualname__,
-                          f"Matched a tag parameter: '{key}' = '{self.tag_match[key]}'.")
+                          f"Matched a tag parameter: '{key}' = '{value}'.")
 
-        self._detector = self.tag_match.get('detector', None)
+        self.tag_parameters = self.tag_matches
 
-    def verify(self):
+        self._detector = self.tag_matches.get('detector', None)
+
+    def validate(self):
         """
         Run all the required instantiation time checks
         """
+        Msg.debug(self.__class__.__qualname__,
+                  f"Input tag parameters: {self.tag_parameters}")
         self._verify_frame_present(self.frame)
 
     def _verify_frame_present(self,

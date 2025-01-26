@@ -25,7 +25,7 @@ from typing import Type
 
 import cpl
 from pyesorex.pyesorex import Pyesorex
-from pymetis.base import MetisRecipe
+from pymetis.base.recipe import MetisRecipe
 
 
 root = Path(os.path.expandvars("$SOF_DIR"))
@@ -47,7 +47,7 @@ def load_frameset():
         frameset = cpl.ui.FrameSet()
         with open(root / filename) as f:
             for line in f.readlines():
-                tokens = line.rstrip('\n').split(' ')
+                tokens = line.rstrip('\n').split()
                 path = os.path.expandvars(tokens[0])
                 frameset.append(cpl.ui.Frame(path, tag=tokens[1]))
 

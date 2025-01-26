@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import os
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
@@ -55,18 +55,19 @@ class MetisRecipeImpl(ABC):
         """
             The main function of the recipe implementation. It mirrors the signature of `Recipe.run`
             and is meant to be called directly by the owner recipe.
-            All recipe implementations should follow this schema (and hence it does not have to be repeated
-            or overridden anywhere). ToDo: at least Martin thinks so now.
+            All recipe implementations should follow this schema
+            (and hence it does not have to be repeated or overridden anywhere).
 
-            If this structure does not cover the needs of your particular recipe, we should discuss and adapt.
+            ToDo: At least Martin thinks so now. It might change, but needs compelling arguments.
+            ToDo: If this structure does not cover the needs of your particular recipe, we should discuss and adapt.
         """
 
         try:
             self.frameset = frameset
             self.import_settings(settings)                # Import and process the provided settings dict
-            self.inputset = self.InputSet(frameset)       # Create an appropriate Input object
+            self.inputset = self.InputSet(frameset)       # Create an appropriate InputSet object
             self.inputset.print_debug()
-            self.inputset.verify()                        # Verify that they are valid (maybe with `schema` too?)
+            self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
             products = self.process_images()              # Do all the actual processing
             self.save_products(products)                  # Save the output products
 
@@ -91,17 +92,20 @@ class MetisRecipeImpl(ABC):
     def process_images(self) -> Dict[str, PipelineProduct]:
         """
         The core method of the recipe implementation. It should contain all the processing logic.
-        At its entry point the Input class must be already loaded and verified.
+        At its entry point the Input class must be already loaded and validated.
 
         All pixel manipulation should happen inside this function (or something it calls from within).
-        That means, no pixel manipulation before entering `process_images`
-        and no pixel manipulation after exiting `process_images`.
+        Put explicitly,
+            - no pixel manipulation before entering `process_images`,
+            - and no pixel manipulation after exiting `process_images`.
 
-        The basic workflow inside should be as follows:
+        The basic workflow inside this function should be as follows:
 
         1.  Load the actual CPL Images associated with Input frames.
-        2.  Do the preprocessing (dark, bias, flat, ...) as needed.
-                - Use provided functions if possible. Much of the functionality is common to many recipes.
+        2.  Do the preprocessing (dark, bias, flat, persistence...) as needed.
+            When implementing this function, please use the topmost applicable method:
+                - Use the functions provided in the pipeline if possible (derive or override).
+                  Much of the functionality is common to many recipes, and we should not repeat ourselves.
                 - Use HDRL functions, if available.
                 - Use CPL functions, if available.
                 - Implement what you need yourself.
@@ -110,7 +114,7 @@ class MetisRecipeImpl(ABC):
             There should be exactly one `Product` for every file produced (at least for now).
         4.  Return a dictionary in the form {tag: ProductTag(...)}
 
-        The resulting products dict is then be passed to `save_products()`.
+        The resulting products dict is then passed to `save_products()` (see `run`).
         """
         return {}
 
@@ -125,7 +129,39 @@ class MetisRecipeImpl(ABC):
 
     def build_product_frameset(self, products: Dict[str, PipelineProduct]) -> cpl.ui.FrameSet:
         """
-        Gather all the products and build a FrameSet from their frames so that is can be returned.
+        Gather all the products and build a FrameSet from their frames so that it can be returned from `run`.
         """
         Msg.debug(self.__class__.__qualname__, f"Building the product frameset")
         return cpl.ui.FrameSet([product.as_frame() for product in products.values()])
+
+    def as_dict(self) -> dict[str, Any]:
+        """
+        Converts the object and its related data into a dictionary representation.
+
+        Return:
+            dict[str, Any]: A dictionary that contains the serialized representation
+            of the object's data, including both input set data and product data.
+        """
+        return {
+            'title': self.name,
+            'inputset': self.inputset.as_dict(),
+            'products': {
+                product.tag: product.as_dict() for product in self.products.values()
+            }
+        }
+
+    @staticmethod
+    def _create_dummy_header():
+        """
+        Create a dummy header (absolutely no assumptions, just to have something to work with).
+        This function should not survive in the future.
+        """
+        return cpl.core.PropertyList()
+
+    @staticmethod
+    def _create_dummy_image():
+        """
+        Create a dummy image (absolutely no assumptions, just to have something to work with).
+        This function should not survive in the future.
+        """
+        return cpl.core.Image.load(os.path.expandvars("$SOF_DATA/LINEARITY_2RG.fits"))

@@ -73,14 +73,14 @@ class MetisIfuWavecal(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    # This should not be here but without it pyesorex crashes
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="metis_ifu_reduce.telluric",
-            context="metis_ifu_reduce",
-            description="Use telluric correction",
-            default=False,
-            alternatives=(True, False),
-        ),
-    ])
     implementation_class = MetisIfuWavecalImpl
+
+    # Dummy parameter to circumvent a potential bug in `pyesorex`
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterValue(
+            name=f"{_name}.dummy",
+            context=_name,
+            description="Dummy parameter",
+            default="dummy",
+        )
+    ])
