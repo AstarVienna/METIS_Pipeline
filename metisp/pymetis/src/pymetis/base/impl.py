@@ -46,8 +46,8 @@ class MetisRecipeImpl(ABC):
         self.parameters = recipe.parameters
 
         self.inputset: PipelineInputSet | None = None
-        self.frameset = None
-        self.header = None
+        self.frameset: cpl.ui.FrameSet | None = None
+        self.header: cpl.core.PropertyList | None = None
         self.products: Dict[str, PipelineProduct] = {}
         self.product_frames = cpl.ui.FrameSet()
 
@@ -166,3 +166,7 @@ class MetisRecipeImpl(ABC):
         This function should not survive in the future.
         """
         return cpl.core.Image.load(os.path.expandvars("$SOF_DATA/LINEARITY_2RG.fits"))
+
+    @property
+    def used_frames(self) -> cpl.ui.FrameSet:
+        return self.inputset.used_frames

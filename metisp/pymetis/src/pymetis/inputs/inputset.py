@@ -21,9 +21,14 @@ import functools
 import operator
 
 from abc import ABCMeta
+from typing import Any
 
 import cpl
 from cpl.core import Msg
+
+from pymetis.inputs.base import PipelineInput
+from pymetis.inputs.single import SinglePipelineInput
+from pymetis.inputs.multiple import MultiplePipelineInput
 
 
 class PipelineInputSet(metaclass=ABCMeta):
@@ -47,8 +52,9 @@ class PipelineInputSet(metaclass=ABCMeta):
             Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
             By default, there is nothing: no inputs, no tag_parameters.
         """
-        self.inputs = []            # A list of all inputs for this InputSet.
-        self.tag_parameters = {}    # A set of all tunable parameters determined from tags
+        self.inputs: list[PipelineInput] = []           # A list of all inputs for this InputSet.
+        self.tag_parameters: dict[str, str] = {}        # A set of all tunable parameters determined from tags
+        self.frameset = frameset
 
     def validate(self) -> None:
         Msg.debug(self.__class__.__qualname__, f"Validating the inputset {self.inputs}")
@@ -86,8 +92,19 @@ class PipelineInputSet(metaclass=ABCMeta):
         for inp in self.inputs:
             inp.print_debug(offset=offset + 4)
 
-    def as_dict(self) -> dict[str, type]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             inp.tags: inp.as_dict()
             for inp in self.inputs
         }
+
+    @property
+    def used_frames(self) -> cpl.ui.FrameSet:
+        frameset = cpl.ui.FrameSet()
+
+        for inp in self.inputs:
+            frames = inp.valid_frames()
+            for frame in frames:
+                frameset.append(frame)
+
+        return frameset

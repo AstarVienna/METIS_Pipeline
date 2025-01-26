@@ -30,7 +30,7 @@ class PipelineInput:
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided
-    _group: str = None                      # No sensible default, must be provided explicitly
+    _group: cpl.ui.Frame.FrameGroup = None  # No sensible default, must be provided explicitly
     _detector: str | None = None            # Not specific to a detector until determined otherwise
 
     @property
@@ -122,7 +122,6 @@ class PipelineInput:
             'group': self._group.name,
         }
 
-
     def _verify_same_detector_from_header(self) -> None:
         """
         Verification for headers, currently disabled
@@ -155,3 +154,8 @@ class PipelineInput:
             # raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
             Msg.warning(self.__class__.__qualname__,
                         f"Darks from more than one detector found: {unique}!")
+
+    @abstractmethod
+    def valid_frames(self) -> cpl.ui.FrameSet:
+        """ Return a FrameSet containing all valid, used frames """
+        pass
