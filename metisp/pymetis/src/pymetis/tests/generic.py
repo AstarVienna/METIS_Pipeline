@@ -85,6 +85,9 @@ class RawInputSetTest(BaseInputSetTest):
 
 
 class BaseRecipeTest(ABC):
+    """
+    Integration / regression tests for verifying that the recipe can be run
+    """
     _recipe = None
 
     @classmethod

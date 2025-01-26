@@ -18,11 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import pytest
-import cpl
 
-from pymetis.recipes.img.metis_n_img_flat import MetisNImgFlat as Recipe, MetisNImgFlatImpl as Impl
-
-from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.img.metis_n_img_flat import (MetisNImgFlat as Recipe,
+                                                  MetisNImgFlatImpl as Impl)
 
 
 @pytest.fixture
@@ -31,18 +30,19 @@ def name():
 
 
 @pytest.fixture
-def sof():
-    return 'metis_n_img_flat.lamp.sof'
+def sof(name):
+    return f'{name}.lamp.sof'
 
 
-# ToDo: GEO raws not yet ready
-class DisabledTestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple test cases... just to see if it does something """
+class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
 
+    @pytest.mark.parametrize("sof", [f"metis_n_img_flat.{target}.sof" for target in ['lamp', 'twilight']])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
-# ToDo: GEO master dark not yet ready
-class DisabledTestInputSet(BaseInputSetTest):
+
+class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
 
