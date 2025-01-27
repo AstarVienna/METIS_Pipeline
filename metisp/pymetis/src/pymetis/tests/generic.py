@@ -21,6 +21,8 @@ import inspect
 import os.path
 import pprint
 import subprocess
+import pytest
+
 from abc import ABC
 from pathlib import Path
 
@@ -28,7 +30,6 @@ import cpl
 
 from pymetis.inputs import PipelineInputSet, MultiplePipelineInput
 from pymetis.base.product import PipelineProduct
-
 
 root = Path(os.path.expandvars("$SOF_DIR"))
 
@@ -123,3 +124,10 @@ class BaseRecipeTest(ABC):
     def test_all_parameters_name_starts_with_context(self):
         for param in self._recipe.parameters:
             assert param.name.startswith(self._recipe._name)
+
+
+class BandRecipeTest(BaseRecipeTest):
+    @pytest.mark.parametrize("sof", [f"{band}.sof" for band in ['lm', 'n', 'ifu']])
+    def test_recipe_can_be_run_directly(self, load_frameset, sof):
+        soffile = f"{self._recipe._name}.{sof}"
+        super().test_recipe_can_be_run_directly(load_frameset, soffile)

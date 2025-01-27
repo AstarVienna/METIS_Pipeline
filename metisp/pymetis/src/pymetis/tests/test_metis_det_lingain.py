@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
-from generic import RawInputSetTest, BaseRecipeTest, BaseProductTest
+from generic import RawInputSetTest, BandRecipeTest, BaseProductTest
 
 
 @pytest.fixture
@@ -34,13 +34,9 @@ def sof():
     return 'metis_det_lingain.lm.sof'
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(BandRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
-
-    @pytest.mark.parametrize("sof", ["metis_det_lingain.lm.sof", "metis_det_lingain.n.sof", "metis_det_lingain.ifu.sof"])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
 
 class TestInputSet(RawInputSetTest):

@@ -23,7 +23,7 @@ import cpl
 
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
-from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest, RawInputSetTest
+from generic import BaseInputSetTest, BandRecipeTest, BaseProductTest, RawInputSetTest
 
 
 @pytest.fixture
@@ -36,13 +36,9 @@ def sof():
     return f"metis_det_dark.lm.sof"
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(BandRecipeTest):
     """ A bunch of simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
-
-    @pytest.mark.parametrize("sof", ["metis_det_dark.lm.sof", "metis_det_dark.n.sof", "metis_det_dark.ifu.sof"])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
     def test_fails_with_files_from_multiple_detectors(self, load_frameset):
         with pytest.raises(ValueError):
