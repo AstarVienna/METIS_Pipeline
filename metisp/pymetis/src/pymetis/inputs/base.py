@@ -157,5 +157,8 @@ class PipelineInput:
 
     @abstractmethod
     def valid_frames(self) -> cpl.ui.FrameSet:
-        """ Return a FrameSet containing all valid, used frames """
+        """
+        Return a FrameSet containing all valid, used frames.
+        This is abstract as it differes significantly for Single and Multiple Inputs.
+        """
         pass
