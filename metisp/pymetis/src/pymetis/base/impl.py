@@ -45,7 +45,7 @@ class MetisRecipeImpl(ABC):
         self.version = recipe.version
         self.parameters = recipe.parameters
 
-        self.inputset: PipelineInputSet | None = None
+        self.inputset: PipelineInputSet = None
         self.frameset: cpl.ui.FrameSet | None = None
         self.header: cpl.core.PropertyList | None = None
         self.products: Dict[str, PipelineProduct] = {}
