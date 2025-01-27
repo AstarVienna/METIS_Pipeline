@@ -65,7 +65,7 @@ class BaseInputSetTest(ABC):
 
     def test_can_load_and_verify(self, load_frameset, sof):
         instance = self.impl.InputSet(load_frameset(sof))
-        assert instance.validate() is None
+        assert instance.validate() is None, f"InputSet {instance} did not validate"
 
     def test_all_inputs(self, load_frameset, sof):
         # We should really be testing a class here, not an instance
@@ -108,21 +108,23 @@ class BaseRecipeTest(ABC):
 
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
         pyesorex = create_pyesorex(self._recipe)
-        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
-        assert pyesorex.recipe.name == name
+        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe), "Recipe is not a cpl.ui.PyRecipe"
+        assert pyesorex.recipe.name == name, f"Recipe name {name} does not match the pyesorex name {pyesorex.recipe.name}"
 
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         output = self._run_pyesorex(name, sof)
-        assert output.returncode == 0
-        assert output.stderr == b""
+        assert output.returncode == 0, "Pyesorex exited with non-zero return code"
+        assert output.stderr == b"", "Pyesorex exited with non-empty stderr"
 
     def test_all_parameters_have_correct_context(self):
         for param in self._recipe.parameters:
-            assert param.context == self._recipe._name
+            assert param.context == self._recipe._name,\
+                   f"Parameter context of {param.name} differs from recipe name {self._recipe.name}"
 
     def test_all_parameters_name_starts_with_context(self):
         for param in self._recipe.parameters:
-            assert param.name.startswith(self._recipe._name)
+            assert param.name.startswith(self._recipe._name),\
+                   f"Parameter name {param.name} does not start with {self._recipe._name}"
 
 
 class BandParamRecipeTest(BaseRecipeTest):

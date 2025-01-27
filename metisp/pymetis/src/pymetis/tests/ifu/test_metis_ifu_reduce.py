@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, TargetParamRecipeTest
 
 
 @pytest.fixture
@@ -33,13 +33,9 @@ def sof(name):
     return f'{name}.std.sof'
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(TargetParamRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
-
-    @pytest.mark.parametrize("sof", ["metis_ifu_reduce.std.sof", "metis_ifu_reduce.sci.sof"])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
 
 class TestInputSet(BaseInputSetTest):
