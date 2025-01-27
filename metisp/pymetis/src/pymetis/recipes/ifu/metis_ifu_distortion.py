@@ -34,18 +34,18 @@ class MetisIfuDistortionImpl(RawImageProcessor):
         class RawInput(RawInput):
             _tags = re.compile(r"IFU_DISTORTION_RAW")
 
-        class PinholeTableInput(SinglePipelineInput):
-            _tags = re.compile(r"PINHOLE_TABLE")
-            _title = "pinhole table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+       # class PinholeTableInput(SinglePipelineInput):
+       #     _tags = re.compile(r"PINHOLE_TABLE")
+       #     _title = "pinhole table"
+       #     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.pinhole_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"PINHOLE_TABLE"),
-                                                     title="pinhole table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
-            self.inputs += [self.pinhole_table]
+            #self.pinhole_table = SinglePipelineInput(frameset,
+            #                                         tags=re.compile(r"PINHOLE_TABLE"),
+            #                                         title="pinhole table",
+            #                                         group=cpl.ui.Frame.FrameGroup.CALIB)
+            #self.inputs += [self.pinhole_table]
 
 
     class ProductIfuDistortionTable(PipelineProduct):
