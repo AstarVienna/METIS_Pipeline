@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
-from generic import RawInputSetTest, BandRecipeTest, BaseProductTest
+from generic import RawInputSetTest, BandParamRecipeTest, BaseProductTest
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def sof():
     return 'metis_det_lingain.lm.sof'
 
 
-class TestRecipe(BandRecipeTest):
+class TestRecipe(BandParamRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
