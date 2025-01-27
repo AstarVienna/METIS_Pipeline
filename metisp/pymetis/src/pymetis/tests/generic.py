@@ -111,9 +111,8 @@ class BaseRecipeTest(ABC):
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
         assert pyesorex.recipe.name == name
 
-    @staticmethod
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
-        output = __class__._run_pyesorex(name, sof)
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+        output = self._run_pyesorex(name, sof)
         assert output.returncode == 0
         assert output.stderr == b""
 
@@ -126,8 +125,32 @@ class BaseRecipeTest(ABC):
             assert param.name.startswith(self._recipe._name)
 
 
-class BandRecipeTest(BaseRecipeTest):
-    @pytest.mark.parametrize("sof", [f"{band}.sof" for band in ['lm', 'n', 'ifu']])
-    def test_recipe_can_be_run_directly(self, load_frameset, sof):
-        soffile = f"{self._recipe._name}.{sof}"
-        super().test_recipe_can_be_run_directly(load_frameset, soffile)
+class BandParamRecipeTest(BaseRecipeTest):
+    """
+    Tests for recipes whose SOFs also specify band parameters ("LM" | "N" | "IFU")
+    """
+    @pytest.mark.parametrize("band", ['lm', 'n', 'ifu'])
+    def test_recipe_can_be_run_directly(self, load_frameset, band):
+        sof = f"{self._recipe._name}.{band}.sof"
+        super().test_recipe_can_be_run_directly(load_frameset, sof)
+
+    @pytest.mark.parametrize("band", ['lm', 'n', 'ifu'])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, band, create_pyesorex):
+        sof = f"{self._recipe._name}.{band}.sof"
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+
+
+class TargetParamRecipeTest(BaseRecipeTest):
+    """
+    Tests for recipes whose SOFs also specify target parameters ("SCI" | "STD")
+    """
+    @pytest.mark.parametrize("target", ['std', 'sci'])
+    def test_recipe_can_be_run_directly(self, load_frameset, target):
+        sof = f"{self._recipe._name}.{target}.sof"
+        super().test_recipe_can_be_run_directly(load_frameset, sof)
+
+    @pytest.mark.parametrize("target", ['std', 'sci'])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, target, create_pyesorex):
+        sof = f"{self._recipe._name}.{target}.sof"
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+

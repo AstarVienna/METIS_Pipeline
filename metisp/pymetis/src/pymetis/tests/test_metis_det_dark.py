@@ -23,7 +23,7 @@ import cpl
 
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
-from generic import BaseInputSetTest, BandRecipeTest, BaseProductTest, RawInputSetTest
+from generic import BaseInputSetTest, BandParamRecipeTest, BaseProductTest, RawInputSetTest
 
 
 @pytest.fixture
@@ -36,7 +36,7 @@ def sof():
     return f"metis_det_dark.lm.sof"
 
 
-class TestRecipe(BandRecipeTest):
+class TestRecipe(BandParamRecipeTest):
     """ A bunch of simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
