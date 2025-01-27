@@ -19,29 +19,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluric as Recipe, MetisIfuTelluricImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
+from pymetis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as Recipe,
+                                                            MetisPupilImagingImpl as Impl)
 
 
 @pytest.fixture
 def name():
-    return 'metis_ifu_telluric'
+    return 'metis_pupil_imaging'
 
 
 @pytest.fixture
-def sof(name):
-    return f'{name}.std.sof'
+def sof():
+    return 'metis_pupil_imaging.lm.sof'
 
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
-    @pytest.mark.parametrize("sof", ["metis_ifu_telluric.std.sof", "metis_ifu_telluric.sci.sof"])
+    @pytest.mark.xfail(reason="SOF file has no master dark")
+    @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+
+    @pytest.mark.xfail(reason="SOF file has no master dark")
+    @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
+    def test_recipe_can_be_run_directly(self, load_frameset, sof):
+        super().test_recipe_can_be_run_directly(load_frameset, sof)
 
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
+
+    @pytest.mark.xfail(reason="SOF file has no master dark")
+    def test_can_load_and_verify(self, load_frameset, sof):
+        super().test_can_load_and_verify(load_frameset, sof)

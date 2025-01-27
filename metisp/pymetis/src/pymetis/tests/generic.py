@@ -26,7 +26,7 @@ from pathlib import Path
 
 import cpl
 
-from pymetis.inputs import PipelineInputSet
+from pymetis.inputs import PipelineInputSet, MultiplePipelineInput
 from pymetis.base.product import PipelineProduct
 
 
@@ -75,12 +75,19 @@ class BaseInputSetTest(ABC):
 
 
 class RawInputSetTest(BaseInputSetTest):
-    def test_raw_input_count(self, load_frameset, sof):
+    def test_is_raw_input_count_correct(self, load_frameset, sof):
         instance = self.impl.InputSet(load_frameset(sof))
         assert len(instance.raw.frameset) == self.count
 
+    def test_inputset_has_raw(self, load_frameset, sof):
+        instance = self.impl.InputSet(load_frameset(sof))
+        assert isinstance(instance.raw, MultiplePipelineInput)
+
 
 class BaseRecipeTest(ABC):
+    """
+    Integration / regression tests for verifying that the recipe can be run
+    """
     _recipe = None
 
     @classmethod
@@ -96,7 +103,7 @@ class BaseRecipeTest(ABC):
         instance = self._recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
-        #pprint.pprint(instance.implementation.as_dict())
+        # pprint.pprint(instance.implementation.as_dict(), width=200)
 
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
         pyesorex = create_pyesorex(self._recipe)

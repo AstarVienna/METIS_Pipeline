@@ -38,6 +38,10 @@ class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
+    @pytest.mark.parametrize("sof", ["metis_det_lingain.lm.sof", "metis_det_lingain.n.sof", "metis_det_lingain.ifu.sof"])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+
 
 class TestInputSet(RawInputSetTest):
     impl = Impl

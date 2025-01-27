@@ -32,28 +32,17 @@ from ..base.product import PipelineProduct
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
-    class InputSet(PipelineInputSet):
+    class InputSet(DarkImageProcessor.InputSet):
         """
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
-        class RawFlatInput(RawInput):
+        MasterDarkInput = MasterDarkInput
+
+        class RawInput(RawInput):
             """
             A subclass of RawInput that is handling the flat image raws.
             """
             _tags = re.compile(r"(?P<band>(LM|N))_FLAT_(?P<target>LAMP|TWILIGHT)_RAW")
-
-        class DarkFlatInput(MasterDarkInput):
-            """
-            Just a plain MasterDarkInput.
-            """
-            pass
-
-        def __init__(self, frameset):
-            super().__init__(frameset)
-            self.raw = self.RawFlatInput(frameset)
-            self.master_dark = MasterDarkInput(frameset)
-            self.inputs = [self.raw, self.master_dark]
-
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -83,7 +72,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         # TODO: Detect detector
         # TODO: Twilight
 
-        raw_images = self.load_raw_images()
+        raw_images = self.inputset.load_raw_images()
         master_dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
 
         for raw_image in raw_images:
@@ -96,7 +85,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
-        combined_image = self.combine_images(self.load_raw_images(), method)
+        combined_image = self.combine_images(self.inputset.load_raw_images(), method)
 
         self.products = {
             self.name.upper(): self.Product(self, header, combined_image),
