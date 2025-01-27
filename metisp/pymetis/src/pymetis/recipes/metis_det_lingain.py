@@ -26,10 +26,9 @@ import cpl
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
-from pymetis.inputs.common import RawInput
+from pymetis.inputs.common import RawInput, BadpixMapInput
 from pymetis.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.prefab.rawimage import RawImageProcessor
-from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class LinGainProduct(DetectorSpecificProduct, ABC):
@@ -39,10 +38,20 @@ class LinGainProduct(DetectorSpecificProduct, ABC):
     frame_type = cpl.ui.Frame.FrameType.IMAGE
 
 
-class MetisDetLinGainImpl(DarkImageProcessor):
+class MetisDetLinGainImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
+
+        class WcuOffInput(RawInput):
+            _title = "WCU off raw"
+            _tags = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
+
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            super().__init__(frameset)
+            self.wcu_off = self.WcuOffInput(frameset)
+            self.badpix_map = BadpixMapInput(frameset, required=False)
+            self.inputs += [self.badpix_map, self.wcu_off]
 
     class ProductGain(LinGainProduct):
         @property

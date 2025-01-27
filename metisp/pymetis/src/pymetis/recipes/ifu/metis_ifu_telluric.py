@@ -29,7 +29,6 @@ from pymetis.inputs.mixins import PersistenceInputSetMixin
 
 
 class ProductTelluric(PipelineProduct):
-    category = rf"IFU_TELLURIC"
     level = cpl.ui.Frame.FrameLevel.FINAL
     frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -66,7 +65,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         image = cpl.core.Image.load(self.inputset.combined.frame.file)
 
         self.products = {
-            product.category: product(self, header, image)
+            str(product.category): product(self, header, image)
             for product in [self.ProductSciReduced1D, self.ProductIfuTelluric, self.ProductFluxcalTab]
         }
         return self.products
