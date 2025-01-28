@@ -103,8 +103,8 @@ class BaseRecipeTest(ABC):
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
         instance = self._recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
-        instance.run(frameset, {})
-        pprint.pprint(instance.implementation.as_dict(), width=200)
+        assert isinstance(instance.run(frameset, {}), cpl.ui.FrameSet)
+        # pprint.pprint(instance.implementation.as_dict(), width=200)
 
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
         pyesorex = create_pyesorex(self._recipe)
@@ -115,6 +115,15 @@ class BaseRecipeTest(ABC):
         output = self._run_pyesorex(name, sof)
         assert output.returncode == 0, "Pyesorex exited with non-zero return code"
         assert output.stderr == b"", "Pyesorex exited with non-empty stderr"
+
+    def test_recipe_uses_all_input_frames(self, load_frameset, sof):
+        instance = self._recipe()
+        frameset = cpl.ui.FrameSet(load_frameset(sof))
+        instance.run(frameset, {})
+        all_frames = sorted([frame.file for frame in instance.implementation.inputset.frameset])
+        used_frames = sorted([frame.file for frame in instance.implementation.inputset.used_frames])
+        assert all_frames == used_frames,\
+               f"Not all frames were used: {instance.implementation.inputset.used_frames!s}"
 
     def test_all_parameters_have_correct_context(self):
         for param in self._recipe.parameters:

@@ -24,8 +24,8 @@ from typing import Dict
 import cpl
 from cpl.core import Msg
 
-from pymetis.inputs import PipelineInputSet
-from pymetis.inputs.common import RawInput, MasterDarkInput
+from pymetis.inputs import PipelineInputSet, PersistenceMapInput, LinearityInput
+from pymetis.inputs.common import RawInput, MasterDarkInput, BadpixMapInput, GainMapInput
 
 from .darkimage import DarkImageProcessor
 from ..base.product import PipelineProduct
@@ -43,6 +43,13 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             A subclass of RawInput that is handling the flat image raws.
             """
             _tags = re.compile(r"(?P<band>(LM|N))_FLAT_(?P<target>LAMP|TWILIGHT)_RAW")
+
+        def __init__(self, frameset: cpl.ui.FrameSet):
+            super().__init__(frameset)
+            self.persistence = PersistenceMapInput(frameset)
+            self.linearity = LinearityInput(frameset)
+            self.gain_map = GainMapInput(frameset)
+            self.inputs += [self.persistence, self.linearity, self.gain_map]
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
