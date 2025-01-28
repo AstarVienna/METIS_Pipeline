@@ -38,21 +38,26 @@ class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
-    @pytest.mark.xfail(reason="SOF file has no master dark")
+    @pytest.mark.xfail(reason="SOF file has no master dark yet")
     @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
-    @pytest.mark.xfail(reason="SOF file has no master dark")
+    @pytest.mark.xfail(reason="SOF file has no master dark yet")
     @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
         super().test_recipe_can_be_run_directly(load_frameset, sof)
+
+    @pytest.mark.xfail(reason="SOF file has no master dark yet")
+    @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
+    def test_recipe_uses_all_input_frames(self, load_frameset, sof):
+        super().test_recipe_uses_all_input_frames(load_frameset, sof)
 
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
 
-    @pytest.mark.xfail(reason="SOF file has no master dark")
+    @pytest.mark.xfail(reason="SOF file has no master dark yet")
     def test_can_load_and_verify(self, load_frameset, sof):
         super().test_can_load_and_verify(load_frameset, sof)
