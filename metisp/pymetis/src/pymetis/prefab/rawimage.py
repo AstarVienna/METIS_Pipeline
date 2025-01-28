@@ -40,7 +40,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.raw = self.RawInput(frameset)
-            self.inputs += [self.raw]
+            self.inputs |= {self.raw}
 
         def load_raw_images(self) -> cpl.core.ImageList:
             """

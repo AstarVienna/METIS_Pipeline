@@ -31,6 +31,7 @@ from pymetis.inputs.common import (LinearityInput, GainMapInput,
 from pymetis.base.product import PipelineProduct
 from pymetis.prefab.rawimage import RawImageProcessor
 
+
 class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
     target = "LM_CHOPHOME"
@@ -50,11 +51,11 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             self.linearity = LinearityInput(frameset)
             self.gain_map = GainMapInput(frameset)
             self.persistence = PersistenceMapInput(frameset, required=False)
-            self.badpixmap = BadpixMapInput(frameset, required=False)
+            self.badpix_map = BadpixMapInput(frameset, required=False)
             self.pinhole_table = PinholeTableInput(frameset, required=True)
 
-            self.inputs += [self.background, self.linearity, self.gain_map,
-                            self.badpixmap, self.persistence]
+            self.inputs |= {self.background, self.linearity, self.gain_map,
+                            self.badpix_map, self.persistence, self.pinhole_table}
 
 
     class ProductCombined(PipelineProduct):

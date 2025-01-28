@@ -81,7 +81,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             self.gain_map = GainMapInput(frameset)
 
             # We need to register the inputs (just to be able to say `for x in self.inputs:`)
-            self.inputs += [self.master_flat, self.linearity, self.persistence, self.gain_map]
+            self.inputs |= {self.master_flat, self.linearity, self.persistence, self.gain_map}
 
     class Product(TargetSpecificProduct):
         """

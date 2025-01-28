@@ -51,7 +51,7 @@ class MetisDetLinGainImpl(RawImageProcessor):
             super().__init__(frameset)
             self.wcu_off = self.WcuOffInput(frameset)
             self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.inputs += [self.badpix_map, self.wcu_off]
+            self.inputs |= {self.badpix_map, self.wcu_off}
 
     class ProductGain(LinGainProduct):
         @property

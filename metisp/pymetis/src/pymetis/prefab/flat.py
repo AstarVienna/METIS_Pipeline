@@ -49,7 +49,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             self.persistence = PersistenceMapInput(frameset)
             self.linearity = LinearityInput(frameset)
             self.gain_map = GainMapInput(frameset)
-            self.inputs += [self.persistence, self.linearity, self.gain_map]
+            self.inputs |= {self.persistence, self.linearity, self.gain_map}
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
