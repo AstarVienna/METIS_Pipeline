@@ -47,7 +47,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             WCU_OFF input illuminated by the WCU up-to and including the
             integrating sphere, but no source.
             """
-            _tags = re.compile(r"IFU_WCUOFF_RAW")
+            _tags = re.compile(r"IFU_WCU_OFF_RAW")
             _title = "IFU WCU off"
 
         def __init__(self, frameset: cpl.ui.FrameSet):

@@ -66,7 +66,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         Probably not a universal panacea, but it recurs often enough to warrant being here.
         """
         Msg.info(cls.__qualname__,
-                 f"Combining images using method {method!r}")
+                 f"Combining {len(images)} images using method {method!r}")
         combined_image = None
         match method:
             case "add":
