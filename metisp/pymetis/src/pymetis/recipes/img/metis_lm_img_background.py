@@ -39,7 +39,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             self.basic_reduced = self.LmBasicReducedInput(frameset)
 
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
-            self.inputs += [self.basic_reduced]
+            self.inputs |= {self.basic_reduced}
 
     class ProductBkg(PipelineProduct):
         tag: str = "LM_{target}_BKG"

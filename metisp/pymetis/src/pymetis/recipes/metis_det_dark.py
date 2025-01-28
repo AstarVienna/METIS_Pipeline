@@ -43,7 +43,7 @@ class MetisDetDarkImpl(RawImageProcessor):
             self.persistence_map = PersistenceMapInput(frameset, required=False) # But should be
             self.gain_map = GainMapInput(frameset, required=False) # But should be
 
-            self.inputs += [self.linearity, self.badpix_map, self.persistence_map, self.gain_map]
+            self.inputs |= {self.linearity, self.badpix_map, self.persistence_map, self.gain_map}
 
     class Product(DetectorSpecificProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT

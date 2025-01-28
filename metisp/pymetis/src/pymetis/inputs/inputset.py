@@ -52,8 +52,8 @@ class PipelineInputSet(metaclass=ABCMeta):
             Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
             By default, there is nothing: no inputs, no tag_parameters.
         """
-        self.inputs: list[PipelineInput] = []           # A list of all inputs for this InputSet.
-        self.tag_parameters: dict[str, str] = {}        # A set of all tunable parameters determined from tags
+        self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
+        self.tag_parameters: dict[str, str] = {}        # A dict of all tunable parameters determined from tags
         self.frameset = frameset
 
     def validate(self) -> None:
@@ -85,7 +85,7 @@ class PipelineInputSet(metaclass=ABCMeta):
             raise ValueError(f"More than one detector found in inputset: {detectors}")
 
     def print_debug(self, *, offset: int = 0) -> None:
-        Msg.debug(self.__class__.__qualname__, f"{' ' * offset} -- Detailed class info ---")
+        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}{len(self.inputs)} inputs:")
         Msg.debug(self.__class__.__qualname__, str(self.inputs))
 

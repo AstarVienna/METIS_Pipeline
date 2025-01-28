@@ -23,7 +23,7 @@ from typing import Dict
 
 from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs.common import MasterDarkInput, GainMapInput, RawInput, DistortionTableInput
+from pymetis.inputs.common import MasterDarkInput, GainMapInput, RawInput, DistortionTableInput, LinearityInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
@@ -39,8 +39,9 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
             super().__init__(frameset)
             self.gain_map = GainMapInput(frameset)
             self.distortion_table = DistortionTableInput(frameset)
+            self.linearity = LinearityInput(frameset)
 
-            self.inputs += [self.gain_map, self.distortion_table]
+            self.inputs |= {self.gain_map, self.distortion_table, self.linearity}
 
     class ProductIfuWavecal(PipelineProduct):
         category = rf"IFU_WAVECAL"

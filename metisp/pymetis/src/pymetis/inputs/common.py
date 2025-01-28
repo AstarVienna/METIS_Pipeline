@@ -103,5 +103,5 @@ class WavecalInput(SinglePipelineInput):
 
 class PinholeTableInput(SinglePipelineInput):
     _title: str = "pinhole table"
-    _tags: Pattern = re.compile(r"WCU_PINHOLE_TABLE")
+    _tags: Pattern = re.compile(r"PINHOLE_TABLE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB

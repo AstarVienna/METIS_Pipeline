@@ -116,7 +116,7 @@ class BaseRecipeTest(ABC):
         assert output.returncode == 0, "Pyesorex exited with non-zero return code"
         assert output.stderr == b"", "Pyesorex exited with non-empty stderr"
 
-    @pytest.mark.skip(reason="not all recipes have all specified inputs yet")
+    #@pytest.mark.skip(reason="not all recipes have all specified inputs yet")
     def test_recipe_uses_all_input_frames(self, load_frameset, sof):
         instance = self._recipe()
         frameset = cpl.ui.FrameSet(load_frameset(sof))
