@@ -42,6 +42,10 @@ wave_class = classification_rule("IFU_WAVE_RAW",
                                   "dpr.type": "WAVE",
                                   })
 
+wave_cal_class = classification_rule("IFU_WAVECAL",
+                                     {"pro.catg": "IFU_WAVECAL",
+                                     })
+
 rsrf_class = classification_rule("IFU_RSRF_RAW",
                                  {"instrume": "METIS",
                                   "dpr.catg": "CALIB",
@@ -49,8 +53,12 @@ rsrf_class = classification_rule("IFU_RSRF_RAW",
                                   "dpr.type": "RSRF",
                                  })
 
+rsrf_prod_class = classification_rule("RSRF_IFU",
+                                      {"pro.catg": "RSRF_IFU",
+                                       })
+
 std_class = classification_rule("IFU_STD_RAW",
-                                {"insturme": "METIS",
+                                {"instrume": "METIS",
                                  "dpr.catg": "CALIB",
                                  "dpr.tech": "IFU",
                                  "dpr.type": "STD",
@@ -58,7 +66,7 @@ std_class = classification_rule("IFU_STD_RAW",
 
 sci_class = classification_rule("IFU_SCI_RAW",
                                 {"instrume": "METIS",
-                                 "dpr.catg": "CALIB",
+                                 "dpr.catg": "SCIENCE",
                                  "dpr.tech": "IFU",
                                  "dpr.type": "OBJECT",
                                  })
@@ -131,27 +139,27 @@ dark_raw = (data_source()
 
 raw_distortion = (data_source()
                   .with_classification_rule(distortion_class)
-                  .with_match_keywords(["drs.ifu"])
+                  .with_match_keywords(["instrume"])
                   .build())
 
 raw_wave = (data_source()
             .with_classification_rule(wave_class)
-            .with_match_keywords(["det.dit", "det.ndit", "drs.ifu"])
+            .with_match_keywords(["instrume"])
             .build())
 
 raw_rsrf = (data_source()
             .with_classification_rule(rsrf_class)
-            .with_match_keywords(["det.dit", "det.ndit", "drs.ifu"])
+            .with_match_keywords(["instrume"])
             .build())
 
 raw_std = (data_source()
            .with_classification_rule(std_class)
-           .with_match_keywords(["det.dit", "det.ndit", "drs.ifu"])
+           .with_match_keywords(["instrume"])
            .build())
 
 raw_sci = (data_source()
            .with_classification_rule(sci_class)
-           .with_match_keywords(["det.dit", "det.ndit", "drs.ifu"])
+           .with_match_keywords(["instrume"])
            .build())
 
 calib_persistence = (data_source()
@@ -189,7 +197,7 @@ dark_task = (task("metis_ifu_dark")
              .with_associated_input(bad_pix_calib, min_ret=0)
              .with_associated_input(lingain_task)
              .with_associated_input(calib_persistence, min_ret=0)
-             .with_input_filter(lin_det_class, gain_map_class)
+             .with_input_filter(lin_det_class, gain_map_class, persistence_class)
              .build())
 
 distortion_task = (task("metis_ifu_distortion")
@@ -200,7 +208,7 @@ distortion_task = (task("metis_ifu_distortion")
                    .with_associated_input(calib_persistence, min_ret=0)
                    .with_associated_input(calib_pinhole, min_ret=0) #TODO: Change to obligatory
                    .with_associated_input(dark_task)
-                   .with_input_filter(lin_det_class, gain_map_class, master_dark_class, pinhole_class)
+                   .with_input_filter(lin_det_class, gain_map_class, master_dark_class, persistence_class, pinhole_class)
                    .build())
 
 wave_task = (task("metis_ifu_wavecal")
@@ -211,7 +219,7 @@ wave_task = (task("metis_ifu_wavecal")
              .with_associated_input(calib_persistence, min_ret=0)
              .with_associated_input(dark_task)
              .with_associated_input(distortion_task)
-             #.with_input_filter(lin_det_class, gain_map_class, master_dark_class, distortion_table_class)
+             .with_input_filter(lin_det_class, gain_map_class, master_dark_class, distortion_table_class, persistence_class, pinhole_class)
              .build())
 
 rsrf_task = (task("metis_ifu_rsrf")
@@ -223,31 +231,33 @@ rsrf_task = (task("metis_ifu_rsrf")
              .with_associated_input(dark_task)
              .with_associated_input(distortion_task)
              .with_associated_input(wave_task)
-             #.with_input_filter(lin_det_class, gain_map_class, master_dark_class, distortion_table_class)
+             .with_input_filter(lin_det_class, gain_map_class, master_dark_class, distortion_table_class, wave_cal_class, persistence_class)
              .build())
 
 std_task = (task("metis_std_reduce")
             .with_recipe("metis_ifu_reduce")
             .with_main_input(raw_std)
             .with_associated_input(bad_pix_calib, min_ret=0)
-            .with_associated_input(lingain_task, [lin_det_class, gain_map_class])
-            .with_associated_input(calib_persistence)
-            .with_associated_input(dark_task, [master_dark_class])
-            .with_associated_input(distortion_task, [distortion_table_class])
+            .with_associated_input(lingain_task)
+            .with_associated_input(calib_persistence, min_ret=0)
+            .with_associated_input(dark_task)
+            .with_associated_input(distortion_task)
             .with_associated_input(wave_task)
-            .with_associated_input(rsrf_task, [calib_rsrf_class])
+            .with_associated_input(rsrf_task)
+            .with_input_filter(lin_det_class, gain_map_class, master_dark_class, persistence_class, distortion_table_class, wave_cal_class, rsrf_prod_class)
             .build())
 
 sci_task = (task("metis_sci_reduce")
             .with_recipe("metis_ifu_reduce")
             .with_main_input(raw_sci)
             .with_associated_input(bad_pix_calib, min_ret=0)
-            .with_associated_input(lingain_task, [lin_det_class, gain_map_class])
-            .with_associated_input(calib_persistence)
-            .with_associated_input(dark_task, [master_dark_class])
-            .with_associated_input(distortion_task, [distortion_table_class])
+            .with_associated_input(lingain_task)
+            .with_associated_input(calib_persistence, min_ret=0)
+            .with_associated_input(dark_task)
+            .with_associated_input(distortion_task)
             .with_associated_input(wave_task)
-            .with_associated_input(rsrf_task, [calib_rsrf_class])
+            .with_associated_input(rsrf_task)
+            .with_input_filter(lin_det_class, gain_map_class, master_dark_class, persistence_class, distortion_table_class, wave_cal_class, rsrf_prod_class)
             .build())
 
 telluric_sci_task = (task("metis_sci_telluric")
@@ -256,13 +266,11 @@ telluric_sci_task = (task("metis_sci_telluric")
                 .with_associated_input(calib_flux_std)
                 .with_associated_input(calib_lsf_kernel)
                 .with_associated_input(calib_atm_profile)
-                .with_input_filter(sci_comb_class)
                 .build())
 
 telluric_std_task = (task("metis_std_telluric")
                  .with_recipe("metis_ifu_telluric")
                  .with_main_input(std_task)
-                 .with_input_filter(std_comb_class)
                  .with_associated_input(calib_flux_std)
                  .with_associated_input(calib_lsf_kernel)
                  .with_associated_input(calib_atm_profile)
@@ -273,7 +281,6 @@ calibrate_task = (task("metis_ifu_calibrate")
                   .with_main_input(sci_task)
                   .with_associated_input(telluric_std_task, [telluric_class])
                   .with_associated_input(telluric_sci_task, [flux_tab_class])
-                  .with_input_filter(sci_reduce_class)
                   .build())
 
 post_process_task = (task("metis_ifu_postprocess")
