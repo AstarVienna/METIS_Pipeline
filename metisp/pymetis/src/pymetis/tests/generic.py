@@ -28,7 +28,7 @@ from pathlib import Path
 
 import cpl
 
-from pymetis.inputs import PipelineInputSet, MultiplePipelineInput
+from pymetis.inputs import PipelineInputSet, MultiplePipelineInput, PipelineInput
 from pymetis.base.product import PipelineProduct
 
 root = Path(os.path.expandvars("$SOF_DIR"))
@@ -57,31 +57,41 @@ class BaseInputSetTest(ABC):
     impl = None
     count = None
 
+    @pytest.fixture(autouse=True)
+    def instance(self, load_frameset, sof):
+        return self.impl.InputSet(load_frameset(sof))
+
     def test_is_an_inputset(self):
         assert issubclass(self.impl.InputSet, PipelineInputSet)
 
     def test_is_not_abstract(self):
         assert not inspect.isabstract(self.impl.InputSet)
 
-    def test_can_load_and_verify(self, load_frameset, sof):
-        instance = self.impl.InputSet(load_frameset(sof))
+    @staticmethod
+    def test_has_inputs_and_it_is_a_set(instance):
+        assert isinstance(instance.inputs, set)
+
+    @staticmethod
+    def test_all_attrs_are_inputs(instance):
+        for input in instance.inputs:
+            assert isinstance(input, PipelineInput)
+
+    def test_can_load_and_verify(self, instance):
         assert instance.validate() is None, f"InputSet {instance} did not validate"
 
-    def test_all_inputs(self, load_frameset, sof):
+    def test_all_inputs(self, instance):
         # We should really be testing a class here, not an instance
-        instance = self.impl.InputSet(load_frameset(sof))
         for inp in instance.inputs:
             assert inp._group is not None
             assert isinstance(inp._title, str)
 
 
 class RawInputSetTest(BaseInputSetTest):
-    def test_is_raw_input_count_correct(self, load_frameset, sof):
-        instance = self.impl.InputSet(load_frameset(sof))
+    def test_is_raw_input_count_correct(self, instance):
         assert len(instance.raw.frameset) == self.count
 
-    def test_inputset_has_raw(self, load_frameset, sof):
-        instance = self.impl.InputSet(load_frameset(sof))
+    @staticmethod
+    def test_inputset_has_raw(instance):
         assert isinstance(instance.raw, MultiplePipelineInput)
 
 
