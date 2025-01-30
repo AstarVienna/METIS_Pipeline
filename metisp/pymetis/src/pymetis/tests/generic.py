@@ -101,6 +101,10 @@ class BaseRecipeTest(ABC):
     """
     _recipe = None
 
+    @pytest.fixture(autouse=True)
+    def frameset(self, load_frameset, sof):
+        return cpl.ui.FrameSet(load_frameset(sof))
+
     @classmethod
     def _run_pyesorex(cls, name, sof):
         return subprocess.run(['pyesorex', name, root / sof, '--log-level', 'DEBUG'],
@@ -110,9 +114,8 @@ class BaseRecipeTest(ABC):
         recipe = self._recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_recipe_can_be_run_directly(self, load_frameset, sof):
+    def test_recipe_can_be_run_directly(self, frameset):
         instance = self._recipe()
-        frameset = cpl.ui.FrameSet(load_frameset(sof))
         assert isinstance(instance.run(frameset, {}), cpl.ui.FrameSet)
         # pprint.pprint(instance.implementation.as_dict(), width=200)
 
@@ -127,9 +130,8 @@ class BaseRecipeTest(ABC):
         assert output.stderr == b"", "Pyesorex exited with non-empty stderr"
 
     #@pytest.mark.skip(reason="not all recipes have all specified inputs yet")
-    def test_recipe_uses_all_input_frames(self, load_frameset, sof):
+    def test_recipe_uses_all_input_frames(self, frameset):
         instance = self._recipe()
-        frameset = cpl.ui.FrameSet(load_frameset(sof))
         instance.run(frameset, {})
         all_frames = sorted([frame.file for frame in instance.implementation.inputset.frameset])
         used_frames = sorted([frame.file for frame in instance.implementation.inputset.used_frames])
@@ -154,7 +156,8 @@ class BandParamRecipeTest(BaseRecipeTest):
     @pytest.mark.parametrize("band", ['lm', 'n', 'ifu'])
     def test_recipe_can_be_run_directly(self, load_frameset, band):
         sof = f"{self._recipe._name}.{band}.sof"
-        super().test_recipe_can_be_run_directly(load_frameset, sof)
+        frameset = load_frameset(sof)
+        super().test_recipe_can_be_run_directly(frameset)
 
     @pytest.mark.parametrize("band", ['lm', 'n', 'ifu'])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, band, create_pyesorex):
@@ -169,7 +172,8 @@ class TargetParamRecipeTest(BaseRecipeTest):
     @pytest.mark.parametrize("target", ['std', 'sci'])
     def test_recipe_can_be_run_directly(self, load_frameset, target):
         sof = f"{self._recipe._name}.{target}.sof"
-        super().test_recipe_can_be_run_directly(load_frameset, sof)
+        frameset = load_frameset(sof)
+        super().test_recipe_can_be_run_directly(frameset)
 
     @pytest.mark.parametrize("target", ['std', 'sci'])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, target, create_pyesorex):

@@ -38,6 +38,10 @@ class TestRecipe(BandParamRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
+    @pytest.mark.xfail(reason="files missing from the workflow")
+    def test_recipe_uses_all_input_frames(self, frameset):
+        super().test_recipe_uses_all_input_frames(frameset)
+
 
 class TestInputSet(RawInputSetTest):
     impl = Impl

@@ -43,15 +43,16 @@ class MetisDetLinGainImpl(RawImageProcessor):
         class RawInput(RawInput):
             _tags = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
 
-        class WcuOffInput(RawInput):
-            _title = "WCU off raw"
-            _tags = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
+        #class WcuOffInput(RawInput):
+        #    _title = "WCU off raw"
+        #    _tags = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.wcu_off = self.WcuOffInput(frameset)
+        #    self.wcu_off = self.WcuOffInput(frameset)
             self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.inputs |= {self.badpix_map, self.wcu_off}
+        #    self.inputs |= {self.badpix_map, self.wcu_off}
+            self.inputs |= {self.badpix_map}
 
     class ProductGain(LinGainProduct):
         @property
