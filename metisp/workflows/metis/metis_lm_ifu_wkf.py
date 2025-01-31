@@ -116,10 +116,12 @@ atm_profile_class = classification_rule("ATM_PROFILE",
                                          })
 
 telluric_class =classification_rule("IFU_TELLURIC",
-                                        {"pro.catg": "IFU_TELLURIC"})
+                                        {"pro.catg": "IFU_TELLURIC",
+                                         })
 
 flux_tab_class = classification_rule("FLUXCAL_TAB",
-                                     {"pro.catg": "FLUXCAL_TAB"})
+                                     {"pro.catg": "FLUXCAL_TAB",
+                                      })
 
 # --- Data sources ---
 
@@ -164,22 +166,27 @@ raw_sci = (data_source()
 
 calib_persistence = (data_source()
                      .with_classification_rule(persistence_class)
+                     .with_match_keywords(["simple"])
                      .build())
 
 calib_pinhole = (data_source()
                  .with_classification_rule(pinhole_class)
+                 .with_match_keywords(["simple"])
                  .build())
 
 calib_lsf_kernel = (data_source()
                     .with_classification_rule(lsf_kernel_class)
+                    .with_match_keywords(["simple"])
                     .build())
 
 calib_flux_std = (data_source()
                   .with_classification_rule(fluxstd_class)
+                  .with_match_keywords(["simple"])
                   .build())
 
 calib_atm_profile = (data_source()
                      .with_classification_rule(atm_profile_class)
+                     .with_match_keywords(["simple"])
                      .build())
 
 # --- Processing tasks ---
@@ -206,7 +213,7 @@ distortion_task = (task("metis_ifu_distortion")
                    .with_associated_input(bad_pix_calib, min_ret=0)
                    .with_associated_input(lingain_task)
                    .with_associated_input(calib_persistence, min_ret=0)
-                   .with_associated_input(calib_pinhole, min_ret=0) #TODO: Change to obligatory
+                   .with_associated_input(calib_pinhole)
                    .with_associated_input(dark_task)
                    .with_input_filter(lin_det_class, gain_map_class, master_dark_class, persistence_class, pinhole_class)
                    .build())
@@ -266,6 +273,8 @@ telluric_sci_task = (task("metis_sci_telluric")
                 .with_associated_input(calib_flux_std)
                 .with_associated_input(calib_lsf_kernel)
                 .with_associated_input(calib_atm_profile)
+                .with_input_filter(sci_reduce_class, sci_comb_class, fluxstd_class, lsf_kernel_class, atm_profile_class)
+                .with_output_filter(telluric_class)
                 .build())
 
 telluric_std_task = (task("metis_std_telluric")
@@ -274,13 +283,16 @@ telluric_std_task = (task("metis_std_telluric")
                  .with_associated_input(calib_flux_std)
                  .with_associated_input(calib_lsf_kernel)
                  .with_associated_input(calib_atm_profile)
+                 .with_input_filter(std_comb_class, fluxstd_class, lsf_kernel_class, atm_profile_class)
+                 .with_output_filter(flux_tab_class)
                  .build())
 
 calibrate_task = (task("metis_ifu_calibrate")
                   .with_recipe("metis_ifu_calibrate")
                   .with_main_input(sci_task)
-                  .with_associated_input(telluric_std_task, [telluric_class])
-                  .with_associated_input(telluric_sci_task, [flux_tab_class])
+                  .with_associated_input(telluric_sci_task)
+                  .with_associated_input(telluric_std_task)
+                  .with_input_filter(sci_reduce_class, flux_tab_class, telluric_class)
                   .build())
 
 post_process_task = (task("metis_ifu_postprocess")
