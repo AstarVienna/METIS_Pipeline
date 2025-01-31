@@ -26,6 +26,7 @@ from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import SinglePipelineInput
 from pymetis.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
+from pymetis.inputs.mixins import PersistenceInputSetMixin, GainMapInputSetMixin
 
 from pymetis.prefab.darkimage import DarkImageProcessor
 
@@ -33,11 +34,15 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 class MetisIfuReduceImpl(DarkImageProcessor):
     target: Literal["SCI"] | Literal["STD"] = None
 
-    class InputSet(DarkImageProcessor.InputSet):
+    class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, DarkImageProcessor.InputSet):
         detector = "IFU"
 
         class RawInput(RawInput):
             _tags = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
+
+        class RawSkyInput(RawInput):
+            _tags = re.compile(r"IFU_SKY_RAW")
+            _title = "blank sky image"
 
         class MasterDarkInput(MasterDarkInput):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
@@ -52,18 +57,24 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title = "Distortion table"
 
+        class RsrfInput(SinglePipelineInput):
+            _tags = re.compile(r"RSRF_IFU")
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _title = "RSRF"
+
         def __init__(self, frameset: cpl.ui.FrameSet):
             """
                 Here we also define all input frames specific for this recipe, except those handled by mixins.
             """
             super().__init__(frameset)
             self.raw = self.RawInput(frameset)
+            self.sky = self.RawSkyInput(frameset)
             self.linearity_map = LinearityInput(frameset)
-            self.persistence_map = PersistenceMapInput(frameset)
             self.master_dark = self.MasterDarkInput(frameset)
             self.ifu_wavecal = self.WavecalInput(frameset)
+            self.rsrf = self.RsrfInput(frameset)
             self.ifu_distortion_table = self.DistortionTableInput(frameset)
-            self.inputs += [self.linearity_map, self.persistence_map, self.master_dark, self.ifu_wavecal, self.ifu_distortion_table]
+            self.inputs |= {self.sky, self.linearity_map, self.rsrf, self.ifu_wavecal, self.ifu_distortion_table}
 
     class ProductReduced(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL

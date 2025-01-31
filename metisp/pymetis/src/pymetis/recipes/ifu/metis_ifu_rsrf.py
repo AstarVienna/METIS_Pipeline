@@ -35,7 +35,7 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
-    class InputSet(DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags = re.compile(r"IFU_RSRF_RAW")
             _title = "IFU rsrf raw"
@@ -57,12 +57,11 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.gain_map = GainMapInput(frameset)
             self.distortion_table = DistortionTableInput(frameset)
             self.wavecal = WavecalInput(frameset)
-            self.persistence = PersistenceMapInput(frameset, required=False)
             self.badpixmap = BadpixMapInput(frameset, required=False)
 
-            self.inputs += [self.background, self.linearity,
+            self.inputs |= {self.background, self.linearity,
                             self.gain_map, self.distortion_table,
-                            self.wavecal, self.persistence, self.badpixmap]
+                            self.wavecal, self.badpixmap}
 
     class ProductBackground(PipelineProduct):
         """

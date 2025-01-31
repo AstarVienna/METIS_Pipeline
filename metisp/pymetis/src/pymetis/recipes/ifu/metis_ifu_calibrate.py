@@ -50,7 +50,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
             self.telluric = self.TelluricInput(frameset)
             self.fluxcal = self.FluxcalTabInput(frameset)
 
-            self.inputs += [self.sci_reduced, self.telluric, self.fluxcal]
+            self.inputs |= {self.sci_reduced, self.telluric, self.fluxcal}
 
     class ProductSciCubeCalibrated(PipelineProduct):
         tag = rf"IFU_SCI_CUBE_CALIBRATED"

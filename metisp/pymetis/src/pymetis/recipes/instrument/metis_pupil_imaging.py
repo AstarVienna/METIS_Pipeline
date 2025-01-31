@@ -90,7 +90,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
             self.gain_map = GainMapInput(frameset, det=self.detector)
 
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
-            self.inputs += [self.master_flat, self.linearity, self.persistence, self.gain_map]
+            self.inputs |= {self.master_flat, self.linearity, self.persistence, self.gain_map}
 
     class Product(PipelineProduct):
         """
