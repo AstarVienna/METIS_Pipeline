@@ -31,9 +31,11 @@ def reset_edps():
 
     return inner
 
+workflows = ['metis_lm_img_wkf', 'metis_lm_ifu_wkf', 'metis_pupil_imaging_wkf', 'metis_wkf']
+
 
 class TestEDPS:
-    @pytest.mark.parametrize('workflow_name', ['metis_lm_img_wkf', 'metis_lm_ifu_wkf'])
+    @pytest.mark.parametrize('workflow_name', workflows)
     def test_does_edps_classify(self, workflow_name, reset_edps):
         reset_edps()
         output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', os.path.expandvars('$SOF_DATA'), '-c'],
@@ -43,7 +45,7 @@ class TestEDPS:
         assert output.stderr == b''
         assert re.findall('[eE]rror', message) == []
 
-    @pytest.mark.parametrize('workflow_name', ['metis_lm_img_wkf', 'metis_lm_ifu_wkf'])
+    @pytest.mark.parametrize('workflow_name', workflows)
     def test_does_edps_run(self, workflow_name, reset_edps):
         reset_edps()
         output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', os.path.expandvars('$SOF_DATA')],
