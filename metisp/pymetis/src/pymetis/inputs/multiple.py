@@ -54,7 +54,7 @@ class MultiplePipelineInput(PipelineInput):
         self.extract_tag_parameters(tag_matches)
 
     @classmethod
-    def getTargetName(cls, frameset: cpl.ui.FrameSet):  
+    def get_target_name(cls, frameset: cpl.ui.FrameSet):  
         """
         Extracts the 'target' name from the input string based on the '_tags' regex.
         
