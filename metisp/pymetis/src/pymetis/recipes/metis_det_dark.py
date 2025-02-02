@@ -43,7 +43,7 @@ class MetisDetDarkImpl(RawImageProcessor):
             self.persistence_map = PersistenceMapInput(frameset, required=False) # But should be
             self.gain_map = GainMapInput(frameset, required=False) # But should be
 
-            self.inputs += [self.linearity, self.badpix_map, self.persistence_map, self.gain_map]
+            self.inputs |= {self.linearity, self.badpix_map, self.persistence_map, self.gain_map}
 
     class Product(DetectorSpecificProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -80,7 +80,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        raw_images = self.load_raw_images()
+        raw_images = self.inputset.load_raw_images()
         combined_image = self.combine_images(raw_images, method)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 

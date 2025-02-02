@@ -33,8 +33,8 @@ class MetisRecipeImpl(ABC):
     Contains central data flow control and also provides abstract methods to be overridden
     by particular pipeline recipe implementations.
     """
-    InputSet: PipelineInputSet = None
-    Product: PipelineProduct = None
+    InputSet: type[PipelineInputSet] = None
+    Product: type[PipelineProduct] = None
 
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = cpl.ui.ParameterList([])
@@ -45,9 +45,9 @@ class MetisRecipeImpl(ABC):
         self.version = recipe.version
         self.parameters = recipe.parameters
 
-        self.inputset = None
-        self.frameset = None
-        self.header = None
+        self.inputset: PipelineInputSet = None
+        self.frameset: cpl.ui.FrameSet | None = None
+        self.header: cpl.core.PropertyList | None = None
         self.products: Dict[str, PipelineProduct] = {}
         self.product_frames = cpl.ui.FrameSet()
 
@@ -67,7 +67,7 @@ class MetisRecipeImpl(ABC):
             self.import_settings(settings)                # Import and process the provided settings dict
             self.inputset = self.InputSet(frameset)       # Create an appropriate InputSet object
             self.inputset.print_debug()
-            self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
+            self.inputset.validate()                      # Verify that they are valid (maybe with `schema` too?)
             products = self.process_images()              # Do all the actual processing
             self.save_products(products)                  # Save the output products
 
@@ -124,14 +124,15 @@ class MetisRecipeImpl(ABC):
         """
         for name, product in products.items():
             Msg.debug(self.__class__.__qualname__,
-                      f"Saving {name}")
+                      f"Saving product {name}")
             product.save()
 
     def build_product_frameset(self, products: Dict[str, PipelineProduct]) -> cpl.ui.FrameSet:
         """
         Gather all the products and build a FrameSet from their frames so that it can be returned from `run`.
         """
-        Msg.debug(self.__class__.__qualname__, f"Building the product frameset")
+        Msg.debug(self.__class__.__qualname__,
+                  f"Building the product frameset")
         return cpl.ui.FrameSet([product.as_frame() for product in products.values()])
 
     def as_dict(self) -> dict[str, Any]:
@@ -165,3 +166,7 @@ class MetisRecipeImpl(ABC):
         This function should not survive in the future.
         """
         return cpl.core.Image.load(os.path.expandvars("$SOF_DATA/LINEARITY_2RG.fits"))
+
+    @property
+    def used_frames(self) -> cpl.ui.FrameSet:
+        return self.inputset.used_frames

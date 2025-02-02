@@ -29,7 +29,6 @@ from pymetis.inputs.mixins import PersistenceInputSetMixin
 
 
 class ProductTelluric(PipelineProduct):
-    category = rf"IFU_TELLURIC"
     level = cpl.ui.Frame.FrameLevel.FINAL
     frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -43,10 +42,29 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags = re.compile(r"IFU_(?P<target>SCI|STD)_COMBINED")
 
+        class LsfKernelInput(SinglePipelineInput):
+            _title = "LSF kernel"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _tags = re.compile(r"LSF_KERNEL")
+
+        class AtmProfileInput(SinglePipelineInput):
+            _title = "atmospheric profile"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _tags = re.compile(r"ATM_PROFILE")
+
+        class FluxStdCatalogInput(SinglePipelineInput):
+            _title = "flux std catalog"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _tags = re.compile(r"FLUXSTD_CATALOG")
+
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.combined = self.CombinedInput(frameset)
-            self.inputs += [self.combined]
+            self.lsf_kernel = self.LsfKernelInput(frameset)
+            self.atmospheric_profile = self.AtmProfileInput(frameset)
+            self.fluxstd_catalog = self.FluxStdCatalogInput(frameset)
+
+            self.inputs |= {self.combined, self.lsf_kernel, self.atmospheric_profile, self.fluxstd_catalog}
 
 
     class ProductSciReduced1D(ProductTelluric):
@@ -66,7 +84,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         image = cpl.core.Image.load(self.inputset.combined.frame.file)
 
         self.products = {
-            product.category: product(self, header, image)
+            str(product.category): product(self, header, image)
             for product in [self.ProductSciReduced1D, self.ProductIfuTelluric, self.ProductFluxcalTab]
         }
         return self.products

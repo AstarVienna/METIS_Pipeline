@@ -19,37 +19,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
-from pymetis.recipes.img.metis_n_img_flat import (MetisNImgFlat as Recipe,
-                                                  MetisNImgFlatImpl as Impl)
+from pymetis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe, MetisIfuRsrfImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
 
 
 @pytest.fixture
 def name():
-    return 'metis_n_img_flat'
+    return 'metis_ifu_rsrf'
 
 
 @pytest.fixture
 def sof(name):
-    return f'{name}.lamp.sof'
+    return f'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
+    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
-
-    @pytest.mark.parametrize("sof", [f"metis_n_img_flat.{target}.sof" for target in ['lamp', 'twilight']])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
-
-    @pytest.mark.xfail(reason="files missing from the workflow")
-    def test_recipe_uses_all_input_frames(self, frameset):
-        super().test_recipe_uses_all_input_frames(frameset)
 
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
-
-
-class TestProduct(BaseProductTest):
-    product = Impl.Product

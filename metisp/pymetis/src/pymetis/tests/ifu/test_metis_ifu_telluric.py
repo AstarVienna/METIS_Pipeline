@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluric as Recipe, MetisIfuTelluricImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
+from pymetis.tests.generic import BaseInputSetTest, TargetParamRecipeTest
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ def sof(name):
     return f'{name}.std.sof'
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(TargetParamRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 

@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain as Recipe, MetisDetLinGainImpl as Impl
 
-from generic import RawInputSetTest, BaseRecipeTest, BaseProductTest
+from generic import RawInputSetTest, BandParamRecipeTest, BaseProductTest
 
 
 @pytest.fixture
@@ -34,9 +34,13 @@ def sof():
     return 'metis_det_lingain.lm.sof'
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(BandParamRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
+
+    @pytest.mark.xfail(reason="files missing from the workflow")
+    def test_recipe_uses_all_input_frames(self, frameset):
+        super().test_recipe_uses_all_input_frames(frameset)
 
 
 class TestInputSet(RawInputSetTest):

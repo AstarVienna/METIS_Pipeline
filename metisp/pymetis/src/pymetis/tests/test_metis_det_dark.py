@@ -23,7 +23,7 @@ import cpl
 
 from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
 
-from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest, RawInputSetTest
+from generic import BandParamRecipeTest, BaseProductTest, RawInputSetTest
 
 
 @pytest.fixture
@@ -36,21 +36,20 @@ def sof():
     return f"metis_det_dark.lm.sof"
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(BandParamRecipeTest):
     """ A bunch of simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
-    count = 1
 
     def test_fails_with_files_from_multiple_detectors(self, load_frameset):
         with pytest.raises(ValueError):
             instance = self._recipe()
-            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_detectors.sof"))
+            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_raw_detectors.sof"))
             instance.run(frameset, {})
 
     def test_fails_with_files_from_multiple_detectors_gainmap(self, load_frameset):
         with pytest.raises(ValueError):
             instance = self._recipe()
-            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_detectors.again.sof"))
+            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mismatched_detectors.sof"))
             instance.run(frameset, {})
 
 

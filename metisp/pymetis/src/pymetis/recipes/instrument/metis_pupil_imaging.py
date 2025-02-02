@@ -24,6 +24,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
+
 from typing import Dict
 
 import cpl
@@ -64,33 +66,31 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         # RawImageProcessor.InputSet. It already knows that it wants a RawInput and MasterDarkInput class,
         # but does not know about the tags yet. So here we define tags for the raw input
         class Raw(RawInput):
-            _tags = ["LM_PUPIL_RAW"]
+            _tags = re.compile("LM_PUPIL_RAW")
 
         # Also one master flat is required. We use a prefabricated class
         class MasterFlat(MasterFlatInput):
-            _tags = ["MASTER_IMG_FLAT_LAMP_LM"]
+            _tags = re.compile("MASTER_IMG_FLAT_LAMP_LM")
 
         # We could define the master dark explicitly too, but we can use a prefabricated class instead.
         # That already has its tags defined (for master darks it's always "MASTER_DARK_{det}"), so we just define
         # the detector and band. Those are now available for all Input classes here.
         # Of course, we could be more explicit and define them directly.
 
-        detector: str = '2RG'
-        band: str = 'LM'
         RawInput = Raw
         MasterDarkInput = MasterDarkInput
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.master_flat = self.MasterFlat(frameset,
-                                               tags=["MASTER_IMG_FLAT_LAMP_{band}", "MASTER_IMG_FLAT_TWILIGHT_{band}"],
+                                               tags=re.compile("MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)"),
                                                band="LM", det=self.detector)
             self.linearity = LinearityInput(frameset, det=self.detector)
             self.persistence = PersistenceMapInput(frameset, required=False)
             self.gain_map = GainMapInput(frameset, det=self.detector)
 
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
-            self.inputs += [self.master_flat, self.linearity, self.persistence, self.gain_map]
+            self.inputs |= {self.master_flat, self.linearity, self.persistence, self.gain_map}
 
     class Product(PipelineProduct):
         """
@@ -203,19 +203,12 @@ class MetisPupilImaging(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="pupil_imaging.stacking.method",
-            context="pupil_imaging",
+            name="metis_pupil_imaging.stacking.method",
+            context="metis_pupil_imaging",
             description="Name of the method used to combine the input images",
             default="add",
             alternatives=("add", "average", "median"),
         ),
-        cpl.ui.ParameterEnum(
-            name="pupil_imaging.band",
-            context="pupil_imaging",
-            description="band to run",
-            default="lm",
-            alternatives=("lm", "n",),
-        )
     ])
 
     implementation_class = MetisPupilImagingImpl

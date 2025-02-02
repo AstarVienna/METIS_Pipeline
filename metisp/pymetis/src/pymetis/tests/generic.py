@@ -21,14 +21,15 @@ import inspect
 import os.path
 import pprint
 import subprocess
+import pytest
+
 from abc import ABC
 from pathlib import Path
 
 import cpl
 
-from pymetis.inputs import PipelineInputSet
+from pymetis.inputs import PipelineInputSet, MultiplePipelineInput, PipelineInput
 from pymetis.base.product import PipelineProduct
-
 
 root = Path(os.path.expandvars("$SOF_DIR"))
 
@@ -56,32 +57,53 @@ class BaseInputSetTest(ABC):
     impl = None
     count = None
 
+    @pytest.fixture(autouse=True)
+    def instance(self, load_frameset, sof):
+        return self.impl.InputSet(load_frameset(sof))
+
     def test_is_an_inputset(self):
         assert issubclass(self.impl.InputSet, PipelineInputSet)
 
     def test_is_not_abstract(self):
         assert not inspect.isabstract(self.impl.InputSet)
 
-    def test_can_load_and_verify(self, load_frameset, sof):
-        instance = self.impl.InputSet(load_frameset(sof))
-        assert instance.validate() is None
+    @staticmethod
+    def test_has_inputs_and_it_is_a_set(instance):
+        assert isinstance(instance.inputs, set)
 
-    def test_all_inputs(self, load_frameset, sof):
+    @staticmethod
+    def test_all_attrs_are_inputs(instance):
+        for input in instance.inputs:
+            assert isinstance(input, PipelineInput)
+
+    def test_can_load_and_verify(self, instance):
+        assert instance.validate() is None, f"InputSet {instance} did not validate"
+
+    def test_all_inputs(self, instance):
         # We should really be testing a class here, not an instance
-        instance = self.impl.InputSet(load_frameset(sof))
         for inp in instance.inputs:
             assert inp._group is not None
             assert isinstance(inp._title, str)
 
 
 class RawInputSetTest(BaseInputSetTest):
-    def test_raw_input_count(self, load_frameset, sof):
-        instance = self.impl.InputSet(load_frameset(sof))
+    def test_is_raw_input_count_correct(self, instance):
         assert len(instance.raw.frameset) == self.count
+
+    @staticmethod
+    def test_inputset_has_raw(instance):
+        assert isinstance(instance.raw, MultiplePipelineInput)
 
 
 class BaseRecipeTest(ABC):
+    """
+    Integration / regression tests for verifying that the recipe can be run
+    """
     _recipe = None
+
+    @pytest.fixture(autouse=True)
+    def frameset(self, load_frameset, sof):
+        return cpl.ui.FrameSet(load_frameset(sof))
 
     @classmethod
     def _run_pyesorex(cls, name, sof):
@@ -92,27 +114,69 @@ class BaseRecipeTest(ABC):
         recipe = self._recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_recipe_can_be_run_directly(self, load_frameset, sof):
+    def test_recipe_can_be_run_directly(self, frameset):
         instance = self._recipe()
-        frameset = cpl.ui.FrameSet(load_frameset(sof))
-        instance.run(frameset, {})
-        #pprint.pprint(instance.implementation.as_dict())
+        assert isinstance(instance.run(frameset, {}), cpl.ui.FrameSet)
+        # pprint.pprint(instance.implementation.as_dict(), width=200)
 
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
         pyesorex = create_pyesorex(self._recipe)
-        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe)
-        assert pyesorex.recipe.name == name
+        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe), "Recipe is not a cpl.ui.PyRecipe"
+        assert pyesorex.recipe.name == name, f"Recipe name {name} does not match the pyesorex name {pyesorex.recipe.name}"
 
-    @staticmethod
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex):
-        output = __class__._run_pyesorex(name, sof)
-        assert output.returncode == 0
-        assert output.stderr == b""
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+        output = self._run_pyesorex(name, sof)
+        assert output.returncode == 0, "Pyesorex exited with non-zero return code"
+        assert output.stderr == b"", "Pyesorex exited with non-empty stderr"
+
+    #@pytest.mark.skip(reason="not all recipes have all specified inputs yet")
+    def test_recipe_uses_all_input_frames(self, frameset):
+        instance = self._recipe()
+        instance.run(frameset, {})
+        all_frames = sorted([frame.file for frame in instance.implementation.inputset.frameset])
+        used_frames = sorted([frame.file for frame in instance.implementation.inputset.used_frames])
+        assert all_frames == used_frames,\
+               f"Not all frames were used: {instance.implementation.inputset.used_frames!s}"
 
     def test_all_parameters_have_correct_context(self):
         for param in self._recipe.parameters:
-            assert param.context == self._recipe._name
+            assert param.context == self._recipe._name,\
+                   f"Parameter context of {param.name} differs from recipe name {self._recipe.name}"
 
     def test_all_parameters_name_starts_with_context(self):
         for param in self._recipe.parameters:
-            assert param.name.startswith(self._recipe._name)
+            assert param.name.startswith(self._recipe._name),\
+                   f"Parameter name {param.name} does not start with {self._recipe._name}"
+
+
+class BandParamRecipeTest(BaseRecipeTest):
+    """
+    Tests for recipes whose SOFs also specify band parameters ("LM" | "N" | "IFU")
+    """
+    @pytest.mark.parametrize("band", ['lm', 'n', 'ifu'])
+    def test_recipe_can_be_run_directly(self, load_frameset, band):
+        sof = f"{self._recipe._name}.{band}.sof"
+        frameset = load_frameset(sof)
+        super().test_recipe_can_be_run_directly(frameset)
+
+    @pytest.mark.parametrize("band", ['lm', 'n', 'ifu'])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, band, create_pyesorex):
+        sof = f"{self._recipe._name}.{band}.sof"
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+
+
+class TargetParamRecipeTest(BaseRecipeTest):
+    """
+    Tests for recipes whose SOFs also specify target parameters ("SCI" | "STD")
+    """
+    @pytest.mark.parametrize("target", ['std', 'sci'])
+    def test_recipe_can_be_run_directly(self, load_frameset, target):
+        sof = f"{self._recipe._name}.{target}.sof"
+        frameset = load_frameset(sof)
+        super().test_recipe_can_be_run_directly(frameset)
+
+    @pytest.mark.parametrize("target", ['std', 'sci'])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, target, create_pyesorex):
+        sof = f"{self._recipe._name}.{target}.sof"
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+

@@ -25,27 +25,25 @@ from typing import Dict
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.inputs import RawInput, SinglePipelineInput, MasterDarkInput
+from pymetis.inputs.common import PinholeTableInput
+from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.prefab.darkimage import DarkImageProcessor
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class MetisIfuDistortionImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):
+class MetisIfuDistortionImpl(DarkImageProcessor):
+    class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+        MasterDarkInput = MasterDarkInput
+
         class RawInput(RawInput):
             _tags = re.compile(r"IFU_DISTORTION_RAW")
 
-        class PinholeTableInput(SinglePipelineInput):
-            _tags = re.compile(r"PINHOLE_TABLE")
-            _title = "pinhole table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.pinhole_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"PINHOLE_TABLE"),
-                                                     title="pinhole table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
-            self.inputs += [self.pinhole_table]
+            self.pinhole_table = PinholeTableInput(frameset)
+
+            self.inputs |= {self.pinhole_table}
 
 
     class ProductIfuDistortionTable(PipelineProduct):
