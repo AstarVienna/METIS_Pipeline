@@ -53,6 +53,13 @@ rsrf_ifu_class = classification_rule("IFU_RSRF_RAW",
                                   "dpr.type": "RSRF",
                                  })
 
+wcu_off_ifu_class = classification_rule("IFU_WCU_OFF_RAW",
+                                        {"instrume": "METIS",
+                                         "dpr.catg": "CALIB",
+                                         "dpr.tech": "IFU",
+                                         "dpr.type": "DARK,WCUOFF",
+                                         })
+
 rsrf_prod_ifu_class = classification_rule("RSRF_IFU",
                                       {"pro.catg": "RSRF_IFU",
                                        })
@@ -63,6 +70,13 @@ std_ifu_class = classification_rule("IFU_STD_RAW",
                                  "dpr.tech": "IFU",
                                  "dpr.type": "STD",
                                  })
+
+sky_ifu_class = classification_rule("IFU_SKY_RAW",
+                                    {"instrume": "METIS",
+                                     "dpr.catg": "CALIB",
+                                     "dpr.tech": "IFU",
+                                     "dpr.type": "SKY",
+                                     })
 
 sci_ifu_class = classification_rule("IFU_SCI_RAW",
                                 {"instrume": "METIS",
@@ -115,13 +129,9 @@ atm_profile_class = classification_rule("ATM_PROFILE",
                                         {"pro.catg": "ATM_PROFILE",
                                          })
 
-telluric_ifu_class =classification_rule("IFU_TELLURIC",
-                                        {"pro.catg": "IFU_TELLURIC",
-                                         })
+telluric_ifu_class =classification_rule("IFU_TELLURIC")
 
-flux_tab_class = classification_rule("FLUXCAL_TAB",
-                                     {"pro.catg": "FLUXCAL_TAB",
-                                      })
+flux_tab_class = classification_rule("FLUXCAL_TAB")
 
 # --- Data sources ---
 
@@ -154,10 +164,20 @@ rsrf_ifu_raw = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
+wcu_off_ifu_raw = (data_source()
+                   .with_classification_rule(wcu_off_ifu_class)
+                   .with_match_keywords(["instrume"])
+                   .build())
+
 std_ifu_raw = (data_source()
            .with_classification_rule(std_ifu_class)
            .with_match_keywords(["instrume"])
            .build())
+
+sky_ifu_raw = (data_source()
+               .with_classification_rule(sky_ifu_class)
+               .with_match_keywords(["instrume"])
+               .build())
 
 sci_ifu_raw = (data_source()
            .with_classification_rule(sci_ifu_class)
@@ -237,6 +257,7 @@ rsrf_ifu_task = (task("metis_ifu_rsrf")
              .with_associated_input(calib_persistence, min_ret=0)
              .with_associated_input(dark_ifu_task)
              .with_associated_input(distortion_ifu_task)
+             .with_associated_input(wcu_off_ifu_raw)
              .with_associated_input(wave_ifu_task)
              .with_input_filter(lin_det_ifu_class, gain_map_ifu_class, master_dark_ifu_class, distortion_table_ifu_class, wave_cal_ifu_class, persistence_class)
              .build())
@@ -251,6 +272,7 @@ std_ifu_task = (task("metis_std_reduce")
             .with_associated_input(distortion_ifu_task)
             .with_associated_input(wave_ifu_task)
             .with_associated_input(rsrf_ifu_task)
+            .with_associated_input(sky_ifu_raw)
             .with_input_filter(lin_det_ifu_class, gain_map_ifu_class, master_dark_ifu_class, persistence_class, distortion_table_ifu_class, wave_cal_ifu_class, rsrf_prod_ifu_class)
             .build())
 
@@ -264,6 +286,7 @@ sci_ifu_task = (task("metis_ifu_sci_reduce")
             .with_associated_input(distortion_ifu_task)
             .with_associated_input(wave_ifu_task)
             .with_associated_input(rsrf_ifu_task)
+            .with_associated_input(sky_ifu_raw)
             .with_input_filter(lin_det_ifu_class, gain_map_ifu_class, master_dark_ifu_class, persistence_class, distortion_table_ifu_class, wave_cal_ifu_class, rsrf_prod_ifu_class)
             .build())
 
