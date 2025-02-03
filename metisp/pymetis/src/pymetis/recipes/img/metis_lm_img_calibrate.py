@@ -58,7 +58,7 @@ class MetisLmImgCalibrateImpl(RawImageProcessor):
                                                      group=cpl.ui.Frame.FrameGroup.CALIB)
           
             
-            self.inputs += [self.flux_table, self.distortion_table]
+            self.inputs |= {self.flux_table, self.distortion_table}
 
     class ProductLmSciCalibrated(PipelineProduct):
         category = rf"LM_SCI_CALIBRATED"

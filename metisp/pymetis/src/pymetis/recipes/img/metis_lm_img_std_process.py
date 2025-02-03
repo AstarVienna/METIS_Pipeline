@@ -45,9 +45,9 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
                                                      tags=re.compile(r"FLUXSTD_CATALOG"),
                                                      title="flux standard star catalogue table",
                                                      group=cpl.ui.Frame.FrameGroup.CALIB)
-            self.inputs += [self.fluxstd_table]
+            self.inputs |= {self.fluxstd_table}
 
-
+    #import pdb ; pdb.set_trace()
     class ProductLmImgFluxCalTable(PipelineProduct):
         category = rf"FLUXCAL_TAB"
         tag = category
