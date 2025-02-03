@@ -31,7 +31,7 @@ from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class MetisLmImgCalDistortionImpl(RawImageProcessor):
+class MetisLmImgDistortionImpl(RawImageProcessor):
     class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags = re.compile(r"LM_WCU_OFF_RAW")
@@ -48,22 +48,18 @@ class MetisLmImgCalDistortionImpl(RawImageProcessor):
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.pinhole_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"PINHOLE_TABLE"),
-                                                     title="pinhole table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
-            
+            self.pinhole_table = self.PinholeTableInput(frameset)
             self.distortion = self.DistortionInput(frameset, required=False) 
             self.linearity = LinearityInput(frameset, required=False) # But should be
             self.badpix_map = BadpixMapInput(frameset, required=False)
             self.gain_map = GainMapInput(frameset, required=False) # But should be
             
             self.inputs |= {self.pinhole_table, self.linearity, self.distortion,
-                            self.badpix_map, self.persistence_map, self.gain_map}
+                            self.badpix_map, self.gain_map}
 
 
     class ProductLmDistortionTable(PipelineProduct):
-        category = rf"ILM_DISTORTION_TABLE"
+        category = rf"LM_DISTORTION_TABLE"
         tag = category
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
@@ -102,8 +98,8 @@ class MetisLmImgCalDistortionImpl(RawImageProcessor):
         return self.products
 
 
-class MetisLmImgCalDistortion(MetisRecipe):
-    _name = "metis_lm_img_cal_distortion"
+class MetisLmImgDistortion(MetisRecipe):
+    _name = "metis_lm_img_distortion"
     _version = "0.1"
     _author = "Chi-Hung Yan"
     _email = "chyan@asiaa.sinica.edu.tw"
@@ -114,12 +110,12 @@ class MetisLmImgCalDistortion(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_lm_img_cal_distortion.stacking.method",
-            context="metis_lm_img_cal_distortion",
+            name="metis_lm_img_distortion.stacking.method",
+            context="metis_lm_img_distortion",
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
     ])
 
-    implementation_class = MetisLmImgCalDistortionImpl
+    implementation_class = MetisLmImgDistortionImpl
