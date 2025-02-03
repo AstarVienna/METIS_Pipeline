@@ -87,7 +87,7 @@ class MetisLmImgBackgroundImpl(RawImageProcessor):
 
         #dir(self.InputSet)
         #print(self.inputset.RawInput.get_target_name())
-        self.target = self.inputset.RawInput.getTargetName(self.inputset.raw.frameset)
+        self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
         
         self.products = {
             product.category: product(self, self.header, combined_image, target=self.target)
