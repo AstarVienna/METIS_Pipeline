@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
+from pymetis.tests.conftest import load_frameset
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
 from pymetis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as Recipe,
                                                             MetisPupilImagingImpl as Impl)
@@ -46,7 +47,8 @@ class TestRecipe(BaseRecipeTest):
     @pytest.mark.xfail(reason="SOF file has no master dark yet")
     @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
-        super().test_recipe_can_be_run_directly(load_frameset, sof)
+        frameset = load_frameset(sof)
+        super().test_recipe_can_be_run_directly(frameset)
 
     @pytest.mark.xfail(reason="SOF file has no master dark yet")
     @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])

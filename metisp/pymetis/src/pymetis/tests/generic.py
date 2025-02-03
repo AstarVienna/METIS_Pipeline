@@ -115,8 +115,8 @@ class BaseRecipeTest(ABC):
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
     def test_recipe_can_be_run_directly(self, frameset):
-        instance = self._recipe()
-        assert isinstance(instance.run(frameset, {}), cpl.ui.FrameSet)
+        recipe = self._recipe()
+        assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet)
         # pprint.pprint(instance.implementation.as_dict(), width=200)
 
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
