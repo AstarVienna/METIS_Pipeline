@@ -59,5 +59,5 @@ class TestInputSet(BaseInputSetTest):
     count = 1
 
     @pytest.mark.xfail(reason="SOF file has no master dark yet")
-    def test_can_load_and_verify(self, load_frameset, sof):
-        super().test_can_load_and_verify(load_frameset, sof)
+    def test_can_load_and_verify(self, instance):
+        super().test_can_load_and_verify(instance)

@@ -23,15 +23,16 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
-from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
+from pymetis.inputs.common import LinearityInput, BadpixMapInput, GainMapInput
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
 class MetisLmImgCalDistortionImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags = re.compile(r"LM_WCU_OFF_RAW")
 
@@ -55,7 +56,6 @@ class MetisLmImgCalDistortionImpl(RawImageProcessor):
             self.distortion = self.DistortionInput(frameset, required=False) 
             self.linearity = LinearityInput(frameset, required=False) # But should be
             self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.persistence_map = PersistenceMapInput(frameset, required=False) # But should be
             self.gain_map = GainMapInput(frameset, required=False) # But should be
             
             self.inputs |= {self.pinhole_table, self.linearity, self.distortion,
