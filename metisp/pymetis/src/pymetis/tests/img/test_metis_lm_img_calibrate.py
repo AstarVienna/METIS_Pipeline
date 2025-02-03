@@ -19,23 +19,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
-                                                           MetisLmImgBasicReduceImpl as Impl)
+from pymetis.recipes.img.metis_lm_img_calibrate import (MetisLmImgCalibrate as Recipe,
+                                                        MetisLmImgCalibrateImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
 @pytest.fixture
 def name():
-    return 'metis_lm_img_basic_reduce'
+    return 'metis_lm_img_calibrate'
 
 
 @pytest.fixture
-def sof():
-    return 'metis_lm_img_basic_reduce.sof'
+def sof(name):
+    return f'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
 
@@ -45,4 +44,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProduct(BaseProductTest):
-    product = Impl.Product
+    product = Impl.ProductLmSciCalibrated

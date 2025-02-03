@@ -26,13 +26,13 @@ from cpl.core import Msg
 from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct, TargetSpecificProduct
-from pymetis.inputs import RawInput, SinglePipelineInput
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.inputs import RawInput, PipelineInputSet
 
 
-class MetisLmImgBackgroundImpl(RawImageProcessor):
-    
-    class InputSet(RawImageProcessor.InputSet):
+class MetisLmImgBackgroundImpl(MetisRecipeImpl):
+    detector = '2RG'
+
+    class InputSet(PipelineInputSet):
         class RawInput(RawInput):
             _tags = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
 
@@ -48,51 +48,37 @@ class MetisLmImgBackgroundImpl(RawImageProcessor):
             self.inputs |= {self.basic_reduced, self.sky_reduced}
 
     class ProductBkg(TargetSpecificProduct):
-        @property
-        def category(self):
-            return f"LM_{self.target:s}_BKG"
-        #category = rf"LM_{self.target}_BKG"
-        tag = category
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    class ProductBkgSubtracted(TargetSpecificProduct):
         @property
-        def category(self):
-            return f"LM_{self.target:s}_BKG_SUBTRACTED"
-        tag = category
+        def tag(self):
+            return f"LM_{self.target:s}_BKG"
+
+    class ProductBkgSubtracted(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-    
-    class ProductObjectCat(TargetSpecificProduct):
+
         @property
-        def category(self):
-            return rf"LM_{self.target:s}_OBJECT_CAT"
-        tag = category
+        def tag(self):
+            return f"LM_{self.target:s}_BKG_SUBTRACTED"
+
+    class ProductObjectCat(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
+
+        @property
+        def tag(self):
+            return rf"LM_{self.target:s}_OBJECT_CAT"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
-        for idx, frame in enumerate(self.inputset.raw.frameset):
-            Msg.info(self.name, f"Loading raw image {frame.file}")
-
-            if idx == 0:
-                self.header = cpl.core.PropertyList.load(frame.file, 0)
-
-            raw_image = cpl.core.Image.load(frame.file, extension=0)
-            raw_images.append(raw_image)
-
-        combined_image = self.combine_images(raw_images, "average")
-        #import pdb ; pdb.set_trace()
-
-        #dir(self.InputSet)
-        #print(self.inputset.RawInput.get_target_name())
-        self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
+        target = self.inputset.basic_reduced.get_target_name(self.inputset.basic_reduced.frameset)
+        combined_image = self._create_dummy_image()
         
         self.products = {
-            product.category: product(self, self.header, combined_image, target=self.target)
+            product.category: product(self, self.header, combined_image, target=target)
             for product in [self.ProductBkg, self.ProductBkgSubtracted, self.ProductObjectCat]
         }
         return self.products

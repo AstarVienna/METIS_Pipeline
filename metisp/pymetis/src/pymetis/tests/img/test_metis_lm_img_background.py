@@ -19,19 +19,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
-                                                           MetisLmImgBasicReduceImpl as Impl)
+from pymetis.recipes.img.metis_lm_img_background import (MetisLmImgBackground as Recipe,
+                                                         MetisLmImgBackgroundImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
 @pytest.fixture
 def name():
-    return 'metis_lm_img_basic_reduce'
+    return 'metis_lm_img_background'
 
 
 @pytest.fixture
 def sof():
-    return 'metis_lm_img_basic_reduce.sof'
+    return 'metis_lm_img_background.sof'
 
 
 class TestRecipe(BaseRecipeTest):
@@ -44,5 +44,5 @@ class TestInputSet(BaseInputSetTest):
     count = 1
 
 
-class TestProduct(BaseProductTest):
-    product = Impl.Product
+class TestProductBkg(BaseProductTest):
+    product = Impl.ProductBkg

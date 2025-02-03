@@ -70,90 +70,47 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = "IFU_RSRF_BACKGROUND"
 
         # SKEL: copy product keywords from header
-        def add_properties(self):
+        def add_properties(self) -> None:
             super().add_properties()
             self.properties.append(self.header)
 
-        @property
-        def category(self) -> str:
-            return "IFU_RSRF_BACKGROUND"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
     class ProductMasterFlatIfu(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"MASTER_FLAT_IFU"
 
         # SKEL: copy product keywords from header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
-
-        @property
-        def category(self) -> str:
-            return rf"MASTER_FLAT_IFU"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
 
     class ProductRsrfIfu(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
+        tag = r"RSRF_IFU"
 
         # SKEL: copy product keywords from header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
-
-        @property
-        def category(self) -> str:
-            return rf"RSRF_IFU"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
     class ProductBadpixMapIfu(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"BADPIX_MAP_IFU"
 
         # SKEL: copy product keywords from header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
-
-        @property
-        def category(self) -> str:
-            return rf"BADPIX_MAP_IFU"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # TODO: FUNC: basic raw processing of RSRF and WCU_OFF input frames:
