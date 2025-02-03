@@ -1,3 +1,6 @@
+# Skip __init__.py setting
+__init__.py
+
 # Skip vscode setting
 .vscode
 
