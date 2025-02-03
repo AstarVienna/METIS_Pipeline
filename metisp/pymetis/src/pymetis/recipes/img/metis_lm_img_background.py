@@ -34,16 +34,18 @@ class MetisLmImgBackgroundImpl(RawImageProcessor):
     
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_(?P<target>SCI|SKY|STD)_BASIC_REDUCED")
+            _tags = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
 
-        
+        class SkyInput(RawInput):
+            _tags = re.compile(r"LM_(?P<target>SKY)_BASIC_REDUCED")
+
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.basic_reduced = self.RawInput(frameset)
-
+            self.sky_reduced = self.SkyInput(frameset)
+            
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
-            self.inputs |= {self.basic_reduced}
-
+            self.inputs |= {self.basic_reduced, self.sky_reduced}
 
     class ProductBkg(TargetSpecificProduct):
         @property
@@ -108,8 +110,8 @@ class MetisLmImgBackground(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="background.stacking.method",
-            context="background",
+            name="metis_lm_img_background.stacking.method",
+            context="metis_lm_img_background",
             description="Name of the method used to combine the input images",
             default="add",
             alternatives=("add", "average", "median"),

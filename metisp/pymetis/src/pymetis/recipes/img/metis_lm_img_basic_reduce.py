@@ -168,7 +168,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         
         
-        self.target = self.inputset.RawInput.getTargetName(self.inputset.raw.frameset)
+        self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
         #self.target = 'SCI'
         self.products = {
             fr'OBJECT_REDUCED_{self.detector}':
