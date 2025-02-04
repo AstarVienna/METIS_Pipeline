@@ -36,6 +36,8 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+        detector = "IFU"
+
         class RawInput(RawInput):
             _tags = re.compile(r"IFU_RSRF_RAW")
             _title = "IFU rsrf raw"
