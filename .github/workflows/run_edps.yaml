@@ -52,15 +52,25 @@ jobs:
           export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/metis_sim_small_1/sof"
           export PYESOREX_OUTPUT_DIR="$SOF_DATA"
           pyesorex --recipes
+
+          # DET RECIPES
           cat "${SOF_DIR}/metis_det_lingain.lm.sof"
           pyesorex metis_det_lingain "${SOF_DIR}/metis_det_lingain.lm.sof"
           cat "${SOF_DIR}/metis_det_dark.lm.sof"
           pyesorex metis_det_dark "${SOF_DIR}/metis_det_dark.lm.sof"
+          
+          # IMG LM RECIPES
           cat "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
           pyesorex metis_lm_img_flat  "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
           cat "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
           # TODO: This recipe name is incorrect and should be renamed
           pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
+
+          # IFU RECIPES
+          cat "${SOF_DIR}/metis_ifu_rsrf.sof"
+          pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
+          
+          # CAL RECIPES
           cat "${SOF_DIR}/metis_cal_chophome.sof"
           pyesorex metis_cal_chophome "${SOF_DIR}/metis_cal_chophome.sof"
       - name: Run EDPS
