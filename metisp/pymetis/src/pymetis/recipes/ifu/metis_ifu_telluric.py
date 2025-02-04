@@ -34,10 +34,11 @@ from pymetis.inputs import SinglePipelineInput
 # implemented already in other ESO pipelines
 
 class MetisIfuTelluricImpl(MetisRecipeImpl):
-    @property
+
     """Implementation class for metis_ifu_telluric"""
 
     # Defining detector name
+    @property
     def detector_name(self) -> str | None:
         return "IFU"
 
