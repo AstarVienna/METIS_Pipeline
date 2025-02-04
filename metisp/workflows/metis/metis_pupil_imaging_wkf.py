@@ -21,26 +21,19 @@ lm_lampflat_class = classification_rule("LM_FLAT_LAMP_RAW",
                                  "dpr.type":"FLAT,LAMP",
                                  "dpr.tech":"IMAGE,LM",
                                  })
- 
-twlightflat_class = classification_rule("TWLIGHT_FLAT",
-                                {"instrume":"METIS", 
-                                 "dpr.catg": "CALIB", 
-                                 "dpr.type":"FLAT,TWILIGHT",
-                                 "dpr.tech":"IMAGE,LM",
-                                 })
 
 lm_pupil_class = classification_rule("LM_PUPIL_RAW",
                                 {"instrume":"METIS", 
                                  "dpr.catg":"TECHNICAL", 
                                  "dpr.type":"PUPIL",
-                                 "dpr.tech":"PUP,M",
+                                 "dpr.tech":"PUP,LM",
                                  })
 
 
 # --- Data sources ---
 detlin_raw = (data_source()
             .with_classification_rule(detlin_class)
-            .with_match_keywords(["instrume","det.dit","det.ndit"])
+            .with_match_keywords(["instrume"])
             .build())
 
 raw_dark = (data_source()

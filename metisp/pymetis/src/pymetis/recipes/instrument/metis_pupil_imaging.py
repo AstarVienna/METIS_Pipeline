@@ -30,13 +30,13 @@ from typing import Dict
 
 import cpl
 from cpl.core import Msg
+import re
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
 from pymetis.prefab.darkimage import DarkImageProcessor
-
 
 class MetisPupilImagingImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
