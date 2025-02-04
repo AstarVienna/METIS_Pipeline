@@ -25,6 +25,7 @@ from pymetis.base import MetisRecipe, MetisRecipeImpl
 #from pymetis.base.input import RecipeInput
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput
+from pymetis.inputset import PipelineInputSet
 
 # The aim of this recipe is twofold,
 #   (a) to determine the transmission funciotn for telluric absorption correction
@@ -45,7 +46,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Define molecfit main input class as one 1d spectrum, either Science or Standard spectrum
     #
-    class InputSet(PersistenceInputSetMixin):
+    class InputSet(SinglePipelineInput):
         """Inputs for metis_ifu_telluric"""
         class Reduced1DInput(SinglePipelineInput):
             category = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
