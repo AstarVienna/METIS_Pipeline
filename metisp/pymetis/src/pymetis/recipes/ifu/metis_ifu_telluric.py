@@ -25,7 +25,6 @@ from pymetis.base import MetisRecipe, MetisRecipeImpl
 #from pymetis.base.input import RecipeInput
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput
-from pymetis.inputset import PipelineInputSet
 
 # The aim of this recipe is twofold,
 #   (a) to determine the transmission funciotn for telluric absorption correction
