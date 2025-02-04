@@ -25,6 +25,8 @@ import cpl
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.inputs.common import FluxTableInput, LsfKernelInput, AtmProfileInput
+
 
 # The aim of this recipe is twofold,
 #   (a) to determine the transmission function for telluric absorption correction
@@ -58,7 +60,10 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.combined = self.CombinedInput(frameset)
-            self.inputs |= {self.combined}
+            self.fluxstd_catalog = FluxTableInput(frameset)
+            self.atm_profile = AtmProfileInput(frameset)
+            self.lsf_kernel = LsfKernelInput(frameset)
+            self.inputs |= {self.combined, self.fluxstd_catalog, self.atm_profile, self.lsf_kernel}
 
     # ++++++++++++++ Defining ouput +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Recipe is foreseen to do both, create transmission and response functions
