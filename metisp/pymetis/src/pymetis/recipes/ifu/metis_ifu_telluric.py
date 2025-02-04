@@ -17,24 +17,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
-from cpl.core import Msg
+import re
 from typing import Dict
 
+import cpl
+
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-#from pymetis.base.input import RecipeInput
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import SinglePipelineInput
+from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 
 # The aim of this recipe is twofold,
-#   (a) to determine the transmission funciotn for telluric absorption correction
+#   (a) to determine the transmission function for telluric absorption correction
 #   (b) determination of the response function for the flux calibration
 #
 # Note that there will be most probably a redesign / split into more recipes to follow the approach
 # implemented already in other ESO pipelines
 
 class MetisIfuTelluricImpl(MetisRecipeImpl):
-
     """Implementation class for metis_ifu_telluric"""
 
     # Defining detector name
@@ -44,19 +43,22 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Define molecfit main input class as one 1d spectrum, either Science or Standard spectrum
-    #
-    class InputSet(SinglePipelineInput):
+    class InputSet(PipelineInputSet):
         """Inputs for metis_ifu_telluric"""
         class Reduced1DInput(SinglePipelineInput):
-            category = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
+            _tags = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            tag = category
             _title = "uncorrected mf input spectrum"
+
+        class CombinedInput(SinglePipelineInput):
+            _tags = re.compile(rf"IFU_(?P<target>SCI|STD)_COMBINED")
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _title = "spectral cube of science object"
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.combined = self.CombinedInput(frameset)
-            self.inputs += [self.combined]
+            self.inputs |= {self.combined}
 
     # ++++++++++++++ Defining ouput +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Recipe is foreseen to do both, create transmission and response functions
@@ -67,18 +69,18 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         Final product: Transmission function for the telluric correction
         """
-        _title = "telluric correction"
-        _group = cpl.ui.Frame.FrameGroup.CALIB
-        _tags = re.compile(r"IFU_TELLURIC")
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        tag = r"IFU_TELLURIC"
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     # Response curve
     class ProductResponseFunction(PipelineProduct):
         """
         Final product: response curve for the flux calibration
         """
-        _title = "flux calibration table"
-        _group = cpl.ui.Frame.FrameGroup.CALIB
-        _tags = re.compile(r"FLUXCAL_TAB")
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        tag = r"IFU_TELLURIC"
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     # TODO: Define input type for the paramfile in common.py
 
@@ -114,8 +116,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         self.mf_calctrans()
         self.determine_response()
 
+        header = self._create_dummy_header()
+        image = self._create_dummy_image()
+
         self.products = {
-            product.category: product()
+            product.category: product(self, header, image)
             for product in [self.ProductTelluricTransmission, self.ProductResponseFunction]
         }
         return self.products
