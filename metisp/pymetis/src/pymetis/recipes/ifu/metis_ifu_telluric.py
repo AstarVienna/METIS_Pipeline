@@ -85,14 +85,14 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     # ++++++++++++++ Defining functions +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     # Invoke molecfit
-    def mf_model(self)
+    def mf_model(self):
         """
         Purpose: invoke molecfit to achieve a best-fit in the fitting regions
         """
         pass    # do nothing in the meanwhile
 
     # Invoke Calctrans
-    def mf_calctrans(self)
+    def mf_calctrans(self):
         """
         Purpose: invoke calctrans to calculate transmission over the whole wavelength range
         """
@@ -100,7 +100,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
     # Recipe is in the moment also foreseen to create the response curve for the flux calibration
     # Response determination
-    def determine_response(self)
+    def determine_response(self):
         """
         Purpose: determine response function, i.e. compare observed standard star spectrum with the model in REF_STD_CAT
         """
