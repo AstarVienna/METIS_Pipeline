@@ -26,6 +26,7 @@ from typing import Dict
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.inputs.common import FluxTableInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
@@ -34,17 +35,9 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
         class RawInput(RawInput):
             _tags = re.compile(r"LM_STD_BKG_SUBTRACTED")
 
-        class FluxTableInput(SinglePipelineInput):
-            _tags = re.compile(r"FLUXSTD_CATALOG")
-            _title = "flux standard star catalogue table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.fluxstd_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"FLUXSTD_CATALOG"),
-                                                     title="flux standard star catalogue table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
+            self.fluxstd_table = FluxTableInput(frameset)
             self.inputs |= {self.fluxstd_table}
 
     #import pdb ; pdb.set_trace()
