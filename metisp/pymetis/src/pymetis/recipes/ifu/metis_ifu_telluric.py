@@ -152,6 +152,13 @@ class MetisIfuTelluric(MetisRecipe):
             *TBwritten*
     """
 
-    parameters = cpl.ui.ParameterList([]) # add molecfit params here?
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterValue(
+            name=f"{_name}.dummy",
+            context=_name,
+            description="Dummy parameter",
+            default="dummy",
+        )
+    ])
     implementation_class = MetisIfuTelluricImpl
 
