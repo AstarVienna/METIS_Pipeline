@@ -165,6 +165,17 @@ jobs:
           pyesorex metis_n_lss_mf_correct "${SOF_DIR}/metis_n_lss_mf_correct.sof"
 
           # CAL RECIPES
+          cat "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
+          # TODO: This recipe name is incorrect and should be renamed
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
+          cat "${SOF_DIR}/metis_lm_img_background.sof"
+          pyesorex metis_lm_img_background  "${SOF_DIR}/metis_lm_img_background.sof"
+          cat "${SOF_DIR}/metis_lm_img_std_process.sof"
+          pyesorex metis_lm_img_std_process "${SOF_DIR}/metis_lm_img_std_process.sof"
+          cat "${SOF_DIR}/metis_lm_img_cal_distortion.sof"  
+          pyesorex metis_lm_img_cal_distortion  "${SOF_DIR}/metis_lm_img_distortion.sof"
+
+          cat "${SOF_DIR}/metis_cal_chophome.sof"
           pyesorex metis_cal_chophome "${SOF_DIR}/metis_cal_chophome.sof"
           
           # PUPIL IMAGING 
