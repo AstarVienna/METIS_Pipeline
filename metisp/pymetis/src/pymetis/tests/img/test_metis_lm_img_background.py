@@ -34,11 +34,13 @@ def sof():
     return 'metis_lm_img_background.sof'
 
 
+@pytest.mark.skip(reason="SOF files still missing")
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
 
+@pytest.mark.skip(reason="SOF files still missing")
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1

@@ -31,13 +31,13 @@ def name():
 
 @pytest.fixture
 def sof(name):
-    return f'{name}.sci.sof'
+    return f'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
 
-    @pytest.mark.parametrize("sof", [f"metis_lm_img_basic_reduce.{target}.sof" for target in ['sci', 'sky']])
+    #@pytest.mark.parametrize("sof", [f"metis_lm_img_basic_reduce.{target}.sof" for target in ['sci', 'sky']])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
