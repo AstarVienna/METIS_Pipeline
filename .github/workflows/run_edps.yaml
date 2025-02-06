@@ -83,5 +83,6 @@ jobs:
           export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/metis_sim_small_1/sof"
           edps -lw
           edps -w metis.metis_wkf -i $SOF_DATA -c
-          edps -w metis.metis_wkf -i $SOF_DATA | tee edps.stdout.txt
+          edps -w metis.metis_wkf -i $SOF_DATA -lt
+          edps -w metis.metis_wkf -i $SOF_DATA -m all| tee edps.stdout.txt
           ! grep "'FAILED'" edps.stdout.txt
