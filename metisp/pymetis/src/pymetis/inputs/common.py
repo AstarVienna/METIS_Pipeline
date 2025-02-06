@@ -105,3 +105,22 @@ class PinholeTableInput(SinglePipelineInput):
     _title: str = "pinhole table"
     _tags: Pattern = re.compile(r"PINHOLE_TABLE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+
+
+class FluxTableInput(SinglePipelineInput):
+    _title = "flux standard star catalogue table"
+    _tags: Pattern = re.compile(r"FLUXSTD_CATALOG")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+
+
+class LsfKernelInput(SinglePipelineInput):
+    _title: str = "line spread function kernel"
+    _tags: Pattern = re.compile(r"LSF_KERNEL")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+
+
+class AtmProfileInput(SinglePipelineInput):
+    _title: str = "atmosphere profile"
+    _tags: Pattern = re.compile(rf"ATM_PROFILE")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+
