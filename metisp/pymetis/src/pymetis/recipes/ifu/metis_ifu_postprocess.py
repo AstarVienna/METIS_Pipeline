@@ -41,8 +41,8 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             self.inputs |= {self.sci_cube_calibrated}
 
     class ProductSciCoadd(PipelineProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:

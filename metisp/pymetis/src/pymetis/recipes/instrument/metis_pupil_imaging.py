@@ -1,10 +1,10 @@
 """
 METIS pupil imaging recipe
 
-This file contains the recipe for reducing pupil imaging raw data for the 
+This file contains the recipe for reducing pupil imaging raw data for the
 METIS instrument. It will apply dark and flat corrections, and optionally
 gain and persistance corrections. It can be directly via pyesorex,
-or as part of an edps workflow. 
+or as part of an edps workflow.
 
 This file is part of the METIS Pipeline.
 Copyright (C) 2024 European Southern Observatory
@@ -97,10 +97,10 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         The second big part is defining the products. For every product we create a separate class
         which defines the tag, group, level and frame type.
         """
-        tag: str = "LM_PUPIL_IMAGING_REDUCED"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"LM_PUPIL_IMAGING_REDUCED"
+        _group = cpl.ui.Frame.FrameGroup.PRODUCT
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def category(self) -> str:
@@ -113,8 +113,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
         Msg.info(self.__class__.__qualname__, "Preparing flat field")
-        
-        #import pdb ; pdb.set_trace()
+
         if flat is None:
             raise RuntimeError("No flat frames found in the frameset.")
         else:

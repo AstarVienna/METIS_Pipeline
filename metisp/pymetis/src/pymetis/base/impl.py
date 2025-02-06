@@ -50,7 +50,7 @@ class MetisRecipeImpl(ABC):
         self.header: cpl.core.PropertyList | None = None
         self.products: Dict[str, PipelineProduct] = {}
         self.product_frames = cpl.ui.FrameSet()
-        
+
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """
             The main function of the recipe implementation. It mirrors the signature of `Recipe.run`
@@ -147,7 +147,7 @@ class MetisRecipeImpl(ABC):
             'title': self.name,
             'inputset': self.inputset.as_dict(),
             'products': {
-                product.tag: product.as_dict() for product in self.products.values()
+                str(product.tag): product.as_dict() for product in self.products.values()
             }
         }
 

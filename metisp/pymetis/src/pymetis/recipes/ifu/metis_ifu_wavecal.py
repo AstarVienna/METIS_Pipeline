@@ -44,10 +44,9 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
             self.inputs |= {self.gain_map, self.distortion_table, self.linearity}
 
     class ProductIfuWavecal(PipelineProduct):
-        category = rf"IFU_WAVECAL"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"IFU_WAVECAL"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         # self.correct_telluric()

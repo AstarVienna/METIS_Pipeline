@@ -53,28 +53,25 @@ class MetisLmImgDistortionImpl(RawImageProcessor):
             self.linearity = LinearityInput(frameset, required=False) # But should be
             self.badpix_map = BadpixMapInput(frameset, required=False)
             self.gain_map = GainMapInput(frameset, required=False) # But should be
-            
+
             self.inputs |= {self.pinhole_table, self.linearity, self.distortion,
                             self.badpix_map, self.gain_map}
 
 
     class ProductLmDistortionTable(PipelineProduct):
-        category = rf"LM_DISTORTION_TABLE"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
-    
+        _tag = r"LM_DISTORTION_TABLE"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.TABLE
+
     class ProductLmDistortionMap(PipelineProduct):
-        category = rf"LM_DIST_MAP"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"LM_DIST_MAP"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     class ProductLmDistortionReduced(PipelineProduct):
-        category = rf"LM_DIST_REDUCED"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"LM_DIST_REDUCED"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         raw_images = cpl.core.ImageList()

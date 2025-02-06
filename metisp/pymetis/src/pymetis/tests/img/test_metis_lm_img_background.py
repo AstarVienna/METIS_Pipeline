@@ -30,13 +30,12 @@ def name():
 
 
 @pytest.fixture
-def sof():
-    return 'metis_lm_img_background.sof'
+def sof(name):
+    return rf'{name}.sof'
 
 
 @pytest.mark.skip(reason="SOF files still missing")
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
 

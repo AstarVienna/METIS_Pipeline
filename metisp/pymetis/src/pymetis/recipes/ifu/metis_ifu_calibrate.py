@@ -53,9 +53,9 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
             self.inputs |= {self.sci_reduced, self.telluric, self.fluxcal}
 
     class ProductSciCubeCalibrated(PipelineProduct):
-        tag = rf"IFU_SCI_CUBE_CALIBRATED"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = rf"IFU_SCI_CUBE_CALIBRATED"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
 
 

@@ -33,9 +33,9 @@ from pymetis.prefab.rawimage import RawImageProcessor
 
 class LinGainProduct(DetectorSpecificProduct, ABC):
     """ Common base class for all linearity and gain products. Just sets `group`, `level` and `frame_type`. """
-    group = cpl.ui.Frame.FrameGroup.PRODUCT
-    level = cpl.ui.Frame.FrameLevel.FINAL
-    frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
 
 class MetisDetLinGainImpl(RawImageProcessor):

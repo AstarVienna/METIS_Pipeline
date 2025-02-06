@@ -77,32 +77,32 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             self.inputs |= {self.sky, self.linearity_map, self.rsrf, self.ifu_wavecal, self.ifu_distortion_table}
 
     class ProductReduced(TargetSpecificProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
             return rf"IFU_{self.target}_REDUCED"
 
     class ProductBackground(TargetSpecificProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
             return rf"IFU_{self.target}_BACKGROUND"
 
     class ProductReducedCube(TargetSpecificProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
             return rf"IFU_{self.target}_REDUCED_CUBE"
 
     class ProductCombined(TargetSpecificProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:

@@ -43,9 +43,9 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 
     class ProductLmImgSciCoadd(PipelineProduct):
         category = rf"LM_SCI_COADD"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = category
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         raw_images = cpl.core.ImageList()

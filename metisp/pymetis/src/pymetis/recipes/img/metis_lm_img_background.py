@@ -48,24 +48,24 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             self.inputs |= {self.basic_reduced, self.sky_reduced}
 
     class ProductBkg(TargetSpecificProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self):
             return f"LM_{self.target:s}_BKG"
 
     class ProductBkgSubtracted(TargetSpecificProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self):
             return f"LM_{self.target:s}_BKG_SUBTRACTED"
 
     class ProductObjectCat(TargetSpecificProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.TABLE
 
         @property
         def tag(self):

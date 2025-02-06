@@ -46,9 +46,9 @@ class MetisDetDarkImpl(RawImageProcessor):
             self.inputs |= {self.linearity, self.badpix_map, self.persistence_map, self.gain_map}
 
     class Product(DetectorSpecificProduct):
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _group = cpl.ui.Frame.FrameGroup.PRODUCT
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:

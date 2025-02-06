@@ -47,16 +47,14 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
 
     class ProductIfuDistortionTable(PipelineProduct):
-        category = rf"IFU_DISTORTION_TABLE"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
+        _tag = r"IFU_DISTORTION_TABLE"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.TABLE
 
     class ProductIfuDistortionReduced(PipelineProduct):
-        category = rf"IFU_DIST_REDUCED"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"IFU_DIST_REDUCED"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
         raw_images = cpl.core.ImageList()

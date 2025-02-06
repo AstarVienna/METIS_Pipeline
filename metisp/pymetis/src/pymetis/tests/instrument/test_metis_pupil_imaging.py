@@ -53,7 +53,8 @@ class TestRecipe(BaseRecipeTest):
     @pytest.mark.xfail(reason="SOF file has no master dark yet")
     @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
     def test_recipe_uses_all_input_frames(self, load_frameset, sof):
-        super().test_recipe_uses_all_input_frames(load_frameset, sof)
+        frameset = load_frameset(sof)
+        super().test_recipe_uses_all_input_frames(frameset)
 
 
 class TestInputSet(BaseInputSetTest):

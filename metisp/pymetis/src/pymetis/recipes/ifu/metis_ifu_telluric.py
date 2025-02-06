@@ -74,18 +74,18 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         Final product: Transmission function for the telluric correction
         """
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        tag = r"IFU_TELLURIC"
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _tag = r"IFU_TELLURIC"
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     # Response curve
     class ProductResponseFunction(PipelineProduct):
         """
         Final product: response curve for the flux calibration
         """
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        tag = r"IFU_TELLURIC"
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _tag = r"IFU_TELLURIC"
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     # TODO: Define input type for the paramfile in common.py
 
@@ -142,7 +142,7 @@ class MetisIfuTelluric(MetisRecipe):
         Recipe to derive the atmospheric transmission and the response function.
 
         Inputs
-            IFU_SCI|STD_1D: 1d spectrum either from science target or standard star
+            IFU_(SCI|STD)_1D: 1d spectrum either from science target or standard star
 
         Outputs
             IFU_TELLURIC:   Tranmission of the Earth#s atmosphere
@@ -156,7 +156,7 @@ class MetisIfuTelluric(MetisRecipe):
         cpl.ui.ParameterValue(
             name=f"{_name}.dummy",
             context=_name,
-            description="Dummy parameter",
+            description="Dummy parameter to avoid problems with `pyesorex` bug",
             default="dummy",
         )
     ])
