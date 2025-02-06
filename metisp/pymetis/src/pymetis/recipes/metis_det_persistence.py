@@ -20,16 +20,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 from typing import Dict
 
+from astropy.io import fits
 import cpl
 from cpl.core import Msg
 
 from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.inputs import SinglePipelineInput, PipelineInputSet, RawInput
 
 
-class PersistenceInput(SinglePipelineInput):
+class PersistenceMainInput(SinglePipelineInput):
     _title: str = "primary raw input"
     _tags: re.Pattern = re.compile(r"RAW")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
@@ -45,8 +46,9 @@ class MetisDetPersistenceImpl(MetisRecipeImpl):
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.raw = PersistenceInput(frameset)
-            self.inputs |= {self.raw}
+            self.raw = PersistenceMainInput(frameset)
+            self.others = PersistenceOtherInput(frameset)
+            self.inputs |= {self.raw, self.others}
 
     class Product(PipelineProduct):
         """A Persistence Map."""
@@ -78,12 +80,32 @@ class MetisDetPersistenceImpl(MetisRecipeImpl):
 
         Msg.info(self.__class__.__qualname__, f"Starting processing image attribute.")
 
+        hdus_raw = fits.open(self.inputset.raw.frame.file)
+        hduss_others = [
+            fits.open(frame.file)
+            for frame in self.inputset.others.frameset
+        ]
+        assert set(len(hdus) for hdus in hduss_others) == {len(hdus_raw)}
+        header_primary_raw = hdus_raw[0].header
+        headers_primary_others = [
+            hdus[0].header for hdus in hduss_others
+        ]
+        assert header_primary_raw["INSTRUME"] == "METIS"
+        assert all(
+            header["INSTRUME"] == "METIS"
+            for header in headers_primary_others
+        )
+        # TODO: Assert all input is from the same subinstrument.
+        # There currently does not seem to be an easy way to determine the
+        # subinstrument from the headers.
+
         raw = cpl.core.Image.load(self.inputset.raw.frame.file, extension=1)
 
-        header = cpl.core.PropertyList.load(self.inputset.raw.frame.file, 0)
+        persistence = cpl.core.Image.zeros_like(raw)
+        header_primary = cpl.core.PropertyList.load(self.inputset.raw.frame.file, 0)
 
         self.products = {
-            "PERSISTENCE_MAP": self.Product(self, header, raw),
+            "PERSISTENCE_MAP": self.Product(self, header_primary, persistence),
         }
 
         return self.products
@@ -115,3 +137,9 @@ class MetisDetPersistence(MetisRecipe):
         )
     ])
     implementation_class = MetisDetPersistenceImpl
+
+
+class PersistenceOtherInput(RawInput):
+    _title: str = "other raw input"
+    _tags: re.Pattern = re.compile(r"OTHER")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
