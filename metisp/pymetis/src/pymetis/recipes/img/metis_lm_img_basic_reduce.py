@@ -31,6 +31,7 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
+
     class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the singleton class
@@ -58,7 +59,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # RawImageProcessor.InputSet. It already knows that it wants a RawInput and MasterDarkInput class,
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|STD)_RAW")
+            _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
 
         # Now we need a master dark. Since nothing is changed and the tag is always the same,
         # we just point to the provided MasterDarkInput.
@@ -96,7 +97,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         @property
         def category(self) -> str:
-            return rf"LM_{self.target:s}_REDUCED"
+            return rf"LM_{self.target:s}_BASIC_REDUCED"
 
         @property
         def output_file_name(self):
@@ -165,8 +166,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
         combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
-
-        self.target = "SCI" # hardcoded for now
+        
+        
+        self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
+        #self.target = 'SCI'
         self.products = {
             fr'OBJECT_REDUCED_{self.detector}':
                 self.Product(self, header, combined_image, target=self.target),

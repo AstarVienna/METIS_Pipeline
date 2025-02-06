@@ -25,58 +25,78 @@ from cpl.core import Msg
 
 from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct
-from pymetis.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.base.product import PipelineProduct, TargetSpecificProduct
+from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class MetisLmImgBackgroundImpl(MetisRecipeImpl):
-    class InputSet(PipelineInputSet):
-        class LmBasicReducedInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
+class MetisLmImgBackgroundImpl(RawImageProcessor):
+    
+    class InputSet(RawImageProcessor.InputSet):
+        class RawInput(RawInput):
+            _tags = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
+
+        class SkyInput(RawInput):
+            _tags = re.compile(r"LM_(?P<target>SKY)_BASIC_REDUCED")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.basic_reduced = self.LmBasicReducedInput(frameset)
-
+            self.basic_reduced = self.RawInput(frameset)
+            self.sky_reduced = self.SkyInput(frameset)
+            
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
-            self.inputs |= {self.basic_reduced}
+            self.inputs |= {self.basic_reduced, self.sky_reduced}
 
-    class ProductBkg(PipelineProduct):
-        tag: str = "LM_{target}_BKG"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
+    class ProductBkg(TargetSpecificProduct):
+        @property
+        def category(self):
+            return f"LM_{self.target:s}_BKG"
+        #category = rf"LM_{self.target}_BKG"
+        tag = category
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    class ProductBkgSubtracted(PipelineProduct):
-        tag: str = "LM_{target}_BKG_SUBTRACTED"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
+    class ProductBkgSubtracted(TargetSpecificProduct):
+        @property
+        def category(self):
+            return f"LM_{self.target:s}_BKG_SUBTRACTED"
+        tag = category
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-    class ProductObjectCat(PipelineProduct):
-        tag: str = "LM_{target}_OBJECT_CAT"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
+    
+    class ProductObjectCat(TargetSpecificProduct):
+        @property
+        def category(self):
+            return rf"LM_{self.target:s}_OBJECT_CAT"
+        tag = category
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
 
     def process_images(self) -> Dict[str, PipelineProduct]:
-        Msg.info(self.__class__.__qualname__, f"Starting processing image attribute.")
+        raw_images = cpl.core.ImageList()
 
-        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
-        image_bkg = cpl.core.Image() # ToDo implementation missing
-        image_bkg_subtracted = cpl.core.Image() # ToDo implementation missing
-        table_object_cat = cpl.core.Table()
+        for idx, frame in enumerate(self.inputset.raw.frameset):
+            Msg.info(self.name, f"Loading raw image {frame.file}")
 
+            if idx == 0:
+                self.header = cpl.core.PropertyList.load(frame.file, 0)
+
+            raw_image = cpl.core.Image.load(frame.file, extension=0)
+            raw_images.append(raw_image)
+
+        combined_image = self.combine_images(raw_images, "average")
+        #import pdb ; pdb.set_trace()
+
+        #dir(self.InputSet)
+        #print(self.inputset.RawInput.get_target_name())
+        self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
+        
         self.products = {
-            self.ProductBkg.tag:
-                self.ProductBkg(self, header, image_bkg),
-            self.ProductBkgSubtracted.tag:
-                self.ProductBkgSubtracted(self, header, image_bkg_subtracted),
-            self.ProductObjectCat.tag:
-                self.ProductObjectCat(self, header, table_object_cat),
+            product.category: product(self, self.header, combined_image, target=self.target)
+            for product in [self.ProductBkg, self.ProductBkgSubtracted, self.ProductObjectCat]
         }
-
         return self.products
+
 
 
 class MetisLmImgBackground(MetisRecipe):
@@ -88,5 +108,14 @@ class MetisLmImgBackground(MetisRecipe):
     _synopsis = "Basic reduction of raw exposures from the LM-band imager"
     _description = ""
 
-    parameters = cpl.ui.ParameterList([])
+    parameters = cpl.ui.ParameterList([
+        cpl.ui.ParameterEnum(
+            name="metis_lm_img_background.stacking.method",
+            context="metis_lm_img_background",
+            description="Name of the method used to combine the input images",
+            default="add",
+            alternatives=("add", "average", "median"),
+        )
+    ])
+
     implementation_class = MetisLmImgBackgroundImpl
