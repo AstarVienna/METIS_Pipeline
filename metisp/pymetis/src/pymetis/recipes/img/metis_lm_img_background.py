@@ -78,7 +78,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         combined_image = self._create_dummy_image()
         
         self.products = {
-            product.category: product(self, self.header, combined_image, target=target)
+            str(product.category): product(self, self.header, combined_image, target=target)
             for product in [self.ProductBkg, self.ProductBkgSubtracted, self.ProductObjectCat]
         }
         return self.products
