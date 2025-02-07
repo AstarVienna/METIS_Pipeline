@@ -84,7 +84,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         Final product: response curve for the flux calibration
         """
         level = cpl.ui.Frame.FrameLevel.FINAL
-        tag = r"IFU_TELLURIC"
+        tag = r"FLUXCAL_TAB"
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     # TODO: Define input type for the paramfile in common.py
@@ -125,7 +125,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         image = self._create_dummy_image()
 
         self.products = {
-            product.category: product(self, header, image)
+            product.tag: product(self, header, image)
             for product in [self.ProductTelluricTransmission, self.ProductResponseFunction]
         }
         return self.products
