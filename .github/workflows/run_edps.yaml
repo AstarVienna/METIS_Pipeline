@@ -73,10 +73,10 @@ jobs:
           # CAL RECIPES
           cat "${SOF_DIR}/metis_cal_chophome.sof"
           pyesorex metis_cal_chophome "${SOF_DIR}/metis_cal_chophome.sof"
-
-	  # PUPIL IMAGING
-	  cat "${SOF_DIR}/metis_pupil_imaging.lm.sof"
-	  pyesorex metis_pupil_imaging "${SOF_DIR}/metis_pupil_imaging.lm.sof"
+	  
+          # PUPIL IMAGING 
+          cat "${SOF_DIR}/metis_pupil_imaging.lm.sof"
+          pyesorex metis_pupil_imaging "${SOF_DIR}/metis_pupil_imaging.sof"
       - name: Run EDPS
         run:  |
           # . metispipe/bin/activate
