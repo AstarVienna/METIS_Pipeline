@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.recipes.metis_det_lingain import MetisDetLinGain
 from pymetis.recipes.metis_det_dark import MetisDetDark
+from pymetis.recipes.metis_det_persistence import MetisDetPersistence
 from pymetis.recipes.img.metis_lm_img_basic_reduce import MetisLmImgBasicReduce
 from pymetis.recipes.img.metis_lm_img_flat import MetisLmImgFlat
 from pymetis.recipes.img.metis_lm_img_background import MetisLmImgBackground
@@ -41,6 +42,7 @@ from pymetis.recipes.instrument.metis_pupil_imaging import MetisPupilImaging
 __all__ = [
     MetisDetLinGain,
     MetisDetDark,
+    MetisDetPersistence,
     MetisLmImgBasicReduce,
     MetisLmImgBackground,
     MetisLmImgStdProcess,
