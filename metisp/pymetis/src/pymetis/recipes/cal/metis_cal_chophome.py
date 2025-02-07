@@ -41,13 +41,13 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         class RawInput(RawInput):
             _tags = re.compile(r"LM_CHOPHOME_RAW")
 
-        class DarkInput(RawInput):
+        class BackgroundInput(RawInput):
             _tags = re.compile(r"LM_WCU_OFF_RAW")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.raw = self.RawInput(frameset)
-            self.background = self.DarkInput(frameset)
+            self.background = self.BackgroundInput(frameset)
             self.linearity = LinearityInput(frameset)
             self.gain_map = GainMapInput(frameset)
             self.persistence = PersistenceMapInput(frameset, required=False)
