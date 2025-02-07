@@ -19,8 +19,8 @@ instrument_setup = [metis_kwd.instrume] + setup
 
 
 # --- Data sources ---
-detlin_raw = (data_source()
-            .with_classification_rule(detlin_class)
+detlin_2rg_raw = (data_source()
+            .with_classification_rule(detlin_2rg_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
@@ -34,7 +34,37 @@ lm_lamp_flat = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
+lm_distortion_raw = (data_source()
+            .with_classification_rule(lm_distortion_raw_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
+lm_wcu_off_raw = (data_source()
+            .with_classification_rule(lm_wcu_off_raw_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
 lm_raw_science = (data_source()
             .with_classification_rule(raw_science_class)        
             .with_match_keywords(["instrume"])
             .build())
+
+lm_raw_sky = (data_source()
+            .with_classification_rule(raw_sky_class)        
+            .with_match_keywords(["instrume"])
+            .build())
+
+lm_raw_std = (data_source()
+            .with_classification_rule(raw_std_class)        
+            .with_match_keywords(["instrume"])
+            .build())
+
+fluxstd_catalog = (data_source()
+                .with_classification_rule(fluxstd_catalog_class)
+                .with_match_keywords(["instrume"])
+                .build())
+
+pinehole_tab = (data_source()
+                .with_classification_rule(pinhole_table_class)
+                .with_match_keywords(["instrume"])
+                .build())
