@@ -57,7 +57,7 @@ class MetisDetLinGainImpl(RawImageProcessor):
     class ProductGain(LinGainProduct):
         @property
         def tag(self) -> str:
-            return f"GAIN_MAP_{self.detector:s}"
+            return f"MASTER_GAIN_{self.detector:s}"
 
     class ProductLinearity(LinGainProduct):
         @property
@@ -69,7 +69,7 @@ class MetisDetLinGainImpl(RawImageProcessor):
         def tag(self) -> str:
             return f"BADPIX_MAP_{self.detector:s}"
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         raw_images = self.inputset.load_raw_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)
@@ -87,19 +87,11 @@ class MetisDetLinGainImpl(RawImageProcessor):
         linearity_image = combined_image    # TODO Actual implementation missing
         badpix_map = combined_image         # TODO Actual implementation missing
 
-        self.products = {
-            f'MASTER_GAIN_{self.detector}':
-                self.ProductGain(self, header, gain_image,
-                                 detector=self.detector),
-            f'LINEARITY_{self.detector}':
-                self.ProductLinearity(self, header, linearity_image,
-                                      detector=self.detector),
-            f'BADPIX_MAP_{self.detector}':
-                self.ProductBadpixMap(self, header, badpix_map,
-                                      detector=self.detector),
-        }
+        product_gain_map = self.ProductGain(self, header, gain_image, detector=self.detector)
+        product_linearity = self.ProductLinearity(self, header, linearity_image, detector=self.detector)
+        product_badpix_map = self.ProductBadpixMap(self, header, badpix_map, detector=self.detector)
 
-        return self.products
+        return [product_gain_map, product_linearity, product_badpix_map]
 
 
 class Metis2rgLinGainImpl(Detector2rgMixin, MetisDetLinGainImpl):

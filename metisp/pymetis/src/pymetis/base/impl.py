@@ -48,7 +48,7 @@ class MetisRecipeImpl(ABC):
         self.inputset: PipelineInputSet = None
         self.frameset: cpl.ui.FrameSet | None = None
         self.header: cpl.core.PropertyList | None = None
-        self.products: Dict[str, PipelineProduct] = {}
+        self.products: [PipelineProduct] = {}
         self.product_frames = cpl.ui.FrameSet()
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
@@ -64,14 +64,14 @@ class MetisRecipeImpl(ABC):
 
         try:
             self.frameset = frameset
-            self.import_settings(settings)                # Import and process the provided settings dict
-            self.inputset = self.InputSet(frameset)       # Create an appropriate InputSet object
+            self.import_settings(settings)                  # Import and process the provided settings dict
+            self.inputset = self.InputSet(frameset)         # Create an appropriate InputSet object
             self.inputset.print_debug()
-            self.inputset.validate()                      # Verify that they are valid (maybe with `schema` too?)
-            self.products = self.process_images()         # Do all the actual processing
-            self.save_products()                          # Save the output products
+            self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
+            self.products = self.process_images()           # Do all the actual processing
+            self._save_products()                           # Save the output products
 
-            return self.build_product_frameset()          # Return the output as a pycpl FrameSet
+            return self.build_product_frameset()            # Return the output as a pycpl FrameSet
         except cpl.core.DataNotFoundError as e:
             Msg.error(self.__class__.__qualname__, f"Data not found error: {e.message}")
             raise e
@@ -89,7 +89,7 @@ class MetisRecipeImpl(ABC):
                             f"has no parameter named {key}.")
 
     @abstractmethod
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         """
         The core method of the recipe implementation. It should contain all the processing logic.
         At its entry point the Input class must be already loaded and validated.
@@ -118,17 +118,15 @@ class MetisRecipeImpl(ABC):
         """
         return {}
 
-    def save_products(self) -> None:
+    def _save_products(self) -> None:
         """
         Save and register the created products.
         """
         assert self.products is not None, "Products have not been created yet!"
 
         Msg.debug(self.__class__.__qualname__,
-                  f"{self.products}")
-        for name, product in self.products.items():
-            Msg.debug(self.__class__.__qualname__,
-                      f"Saving product {name}")
+                  f"Saving {len(self.products)} products: {self.products}")
+        for product in self.products:
             product.save()
 
     def build_product_frameset(self) -> cpl.ui.FrameSet:
@@ -137,7 +135,7 @@ class MetisRecipeImpl(ABC):
         """
         Msg.debug(self.__class__.__qualname__,
                   f"Building the product frameset")
-        return cpl.ui.FrameSet([product.as_frame() for product in self.products.values()])
+        return cpl.ui.FrameSet([product.as_frame() for product in self.products])
 
     def as_dict(self) -> dict[str, Any]:
         """
@@ -151,7 +149,7 @@ class MetisRecipeImpl(ABC):
             'title': self.name,
             'inputset': self.inputset.as_dict(),
             'products': {
-                str(product.tag): product.as_dict() for product in self.products.values()
+                str(product.category): product.as_dict() for product in self.products
             }
         }
 

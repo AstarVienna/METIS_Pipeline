@@ -73,7 +73,7 @@ class MetisLmImgDistortionImpl(RawImageProcessor):
         _level = cpl.ui.Frame.FrameLevel.FINAL
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -87,12 +87,11 @@ class MetisLmImgDistortionImpl(RawImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        self.products = {
-            product.category: product(self, self.header, combined_image)
-            for product in [self.ProductLmDistortionTable, self.ProductLmDistortionMap,
-                            self.ProductLmDistortionReduced]
-        }
-        return self.products
+        return [
+            self.ProductLmDistortionTable(self, self.header, combined_image),
+            self.ProductLmDistortionMap(self, self.header, combined_image),
+            self.ProductLmDistortionReduced(self, self.header, combined_image),
+        ]
 
 
 class MetisLmImgDistortion(MetisRecipe):

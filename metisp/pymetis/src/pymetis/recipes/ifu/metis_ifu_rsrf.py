@@ -114,7 +114,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         # TODO: FUNC: basic raw processing of RSRF and WCU_OFF input frames:
         # - dark subtraction? (subtracting WCU_OFF frame might suffice?)
         # - gain / linearity correction? (as for dark subtraction)
@@ -187,9 +187,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         product_rsrf_ifu = self.ProductRsrfIfu(self, rsrf_hdr, rsrf_img)
         product_badpix_map_ifu = self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img)
 
-        # instantiate products
-        return {product.tag: product for product in
-                [product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu]}
+        return [product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu]
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet

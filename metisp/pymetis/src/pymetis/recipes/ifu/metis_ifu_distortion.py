@@ -56,7 +56,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         _level = cpl.ui.Frame.FrameLevel.FINAL
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -73,9 +73,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         product_distortion = self.ProductIfuDistortionTable(self, self.header, combined_image)
         product_distortion_reduced = self.ProductIfuDistortionReduced(self, self.header, combined_image)
 
-        return {
-            product.category: product for product in [product_distortion, product_distortion_reduced]
-        }
+        return [product_distortion, product_distortion_reduced]
 
 
 class MetisIfuDistortion(MetisRecipe):

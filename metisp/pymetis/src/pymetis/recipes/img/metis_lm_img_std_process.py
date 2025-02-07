@@ -51,7 +51,7 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
         _level = cpl.ui.Frame.FrameLevel.FINAL
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -65,11 +65,10 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        self.products = {
-            product.category: product(self, self.header, combined_image)
-            for product in [self.ProductLmImgFluxCalTable, self.ProductLmImgStdCombined]
-        }
-        return self.products
+        product_fluxcal = self.ProductLmImgFluxCalTable(self, self.header, combined_image)
+        product_combined = self.ProductLmImgStdCombined(self, self.header, combined_image)
+
+        return [product_fluxcal, product_combined]
 
 
 class MetisLmImgStdProcess(MetisRecipe):

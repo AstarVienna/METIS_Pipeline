@@ -48,7 +48,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         _level = cpl.ui.Frame.FrameLevel.FINAL
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
@@ -58,9 +58,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
 
         product_wavecal = self.ProductIfuWavecal(self, header, image)
 
-        return {
-            product.category: product for product in [product_wavecal]
-        }
+        return [product_wavecal]
 
 
 class MetisIfuWavecal(MetisRecipe):

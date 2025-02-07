@@ -108,7 +108,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(self) -> str:
             return rf"IFU_{self.target}_COMBINED"
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         # do something... a lot of something
 
         print(self.inputset.tag_parameters)
@@ -118,13 +118,12 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         images = self.inputset.load_raw_images()
         image = self.combine_images(images, "add")
 
-        self.products = {
-            rf'IFU_{self.target}_REDUCED': self.ProductReduced(self, header, image, target=self.target),
-            rf'IFU_{self.target}_BACKGROUND': self.ProductBackground(self, header, image, target=self.target),
-            rf'IFU_{self.target}_REDUCED_CUBE': self.ProductReducedCube(self, header, image, target=self.target),
-            rf'IFU_{self.target}_COMBINED': self.ProductCombined(self, header, image, target=self.target),
-        }
-        return self.products
+        return [
+            self.ProductReduced(self, header, image, target=self.target),
+            self.ProductBackground(self, header, image, target=self.target),
+            self.ProductReducedCube(self, header, image, target=self.target),
+            self.ProductCombined(self, header, image, target=self.target),
+        ]
 
 
 class MetisIfuReduce(MetisRecipe):

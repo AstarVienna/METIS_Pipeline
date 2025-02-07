@@ -69,7 +69,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         def tag(self) -> str:
             return self.category
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         """
         Do the actual processing of the images.
         Here, it means loading the input images and a master dark,
@@ -94,7 +94,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         combined_image = self.combine_images(self.inputset.load_raw_images(), method)
 
-        self.products = {
-            self.name.upper(): self.Product(self, header, combined_image),
-        }
-        return self.products
+        product = self.Product(self, header, combined_image)
+
+        return [product]

@@ -141,7 +141,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions, or use functions from the parent classes:
@@ -164,9 +164,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         
         self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
 
-        return {
-            product.tag: product for product in [self.Product(self, header, combined_image, target=self.target)]
-        }
+        return [self.Product(self, header, combined_image, target=self.target)]
 
 
 class MetisLmImgBasicReduce(MetisRecipe):

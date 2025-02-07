@@ -57,18 +57,15 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
     def coadd_cubes(self):
         pass
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         self.determine_output_grid()
         self.resample_cubes()
         self.coadd_cubes()
 
-        header = cpl.core.PropertyList()
+        header = self._create_dummy_header()
         image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file) # ToDo actual processing
 
-        self.products = {
-            r'IFU_SCI_COADD': self.ProductSciCoadd(self, header, image), # ToDo is just a dummy for now
-        }
-        return self.products
+        return [self.ProductSciCoadd(self, header, image)] # ToDo is just a dummy for now
 
 
 class MetisIfuPostprocess(MetisRecipe):
