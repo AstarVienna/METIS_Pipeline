@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.img.metis_lm_img_background import (MetisLmImgBackground as Recipe,
                                                          MetisLmImgBackgroundImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest, TargetParamRecipeTest
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def sof(name):
     return rf'{name}.std.sof'
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(TargetParamRecipeTest):
     _recipe = Recipe
 
 

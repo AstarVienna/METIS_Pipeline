@@ -19,8 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_calibrate import (MetisIfuCalibrate as Recipe, MetisIfuCalibrateImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
+from pymetis.recipes.ifu.metis_ifu_calibrate import (MetisIfuCalibrate as Recipe,
+                                                     MetisIfuCalibrateImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
 @pytest.fixture
@@ -29,8 +30,8 @@ def name():
 
 
 @pytest.fixture
-def sof():
-    return 'metis_ifu_calibrate.sof'
+def sof(name):
+    return f'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
@@ -41,3 +42,7 @@ class TestRecipe(BaseRecipeTest):
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
+
+
+class TestProduct(BaseProductTest):
+    product = Impl.ProductSciCubeCalibrated

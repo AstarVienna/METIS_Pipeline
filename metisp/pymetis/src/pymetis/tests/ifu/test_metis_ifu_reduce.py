@@ -22,10 +22,11 @@ import pytest
 from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, TargetParamRecipeTest
 
+recipe_name = 'metis_ifu_reduce'
 
 @pytest.fixture
 def name():
-    return 'metis_ifu_reduce'
+    return recipe_name
 
 
 @pytest.fixture
@@ -34,7 +35,6 @@ def sof(name):
 
 
 class TestRecipe(TargetParamRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
 

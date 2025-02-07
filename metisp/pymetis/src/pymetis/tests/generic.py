@@ -126,7 +126,7 @@ class BaseRecipeTest(ABC):
 
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         output = self._run_pyesorex(name, sof)
-        assert output.returncode == 0, "Pyesorex exited with non-zero return code"
+        assert output.returncode == 0, f"Pyesorex exited with non-zero return code {output.returncode}"
         assert output.stderr == b"", "Pyesorex exited with non-empty stderr"
 
     #@pytest.mark.skip(reason="not all recipes have all specified inputs yet")

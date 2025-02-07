@@ -61,15 +61,13 @@ class MetisLmImgCalibrateImpl(MetisRecipeImpl):
         _level = cpl.ui.Frame.FrameLevel.FINAL
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-
     def process_images(self) -> Dict[str, PipelineProduct]:
         combined_image = self._create_dummy_image()
+        product_calibrated = self.ProductLmSciCalibrated(self, self.header, combined_image)
 
-        self.products = {
-            product.category: product(self, self.header, combined_image)
-            for product in [self.ProductLmSciCalibrated]
+        return {
+            product.category: product for product in [product_calibrated]
         }
-        return self.products
 
 
 class MetisLmImgCalibrate(MetisRecipe):

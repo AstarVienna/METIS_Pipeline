@@ -70,11 +70,12 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        self.products = {
-            product.category: product(self, self.header, combined_image)
-            for product in [self.ProductIfuDistortionTable, self.ProductIfuDistortionReduced]
+        product_distortion = self.ProductIfuDistortionTable(self, self.header, combined_image)
+        product_distortion_reduced = self.ProductIfuDistortionReduced(self, self.header, combined_image)
+
+        return {
+            product.category: product for product in [product_distortion, product_distortion_reduced]
         }
-        return self.products
 
 
 class MetisIfuDistortion(MetisRecipe):

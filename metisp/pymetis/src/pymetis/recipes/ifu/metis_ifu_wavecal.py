@@ -56,11 +56,11 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         images = self.inputset.load_raw_images()
         image = self.combine_images(images, "add")
 
-        self.products = {
-            product.category: product(self, header, image)
-            for product in [self.ProductIfuWavecal]
+        product_wavecal = self.ProductIfuWavecal(self, header, image)
+
+        return {
+            product.category: product for product in [product_wavecal]
         }
-        return self.products
 
 
 class MetisIfuWavecal(MetisRecipe):
