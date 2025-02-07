@@ -173,8 +173,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         # create 1D RSRF
         # TODO: FUNC: average 2D flat in spatial direction for each trace
-        rsrf_hdr = \
-            cpl.core.PropertyList()
+        rsrf_hdr = cpl.core.PropertyList()
         # TODO: SKEL: Add product keywords - currently none defined in DRLD
         # SKEL: placeholder data for now
         # NOTE: rebin() cpl documentation is incorrect -
@@ -183,19 +182,14 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         rsrf_img = spec_flat_img.rebin(1, 1, img_height, 1)
         rsrf_img.divide_scalar(img_height)
 
-        # instantiate products
-        self.products = {
-            self.ProductBackground.tag:
-                self.ProductBackground(self, background_hdr, background_img),
-            self.ProductMasterFlatIfu.tag:
-                self.ProductMasterFlatIfu(self, spec_flat_hdr, spec_flat_img),
-            self.ProductRsrfIfu.tag:
-                self.ProductRsrfIfu(self, rsrf_hdr, rsrf_img),
-            self.ProductBadpixMapIfu.tag:
-                self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img),
-        }
+        product_background = self.ProductBackground(self, background_hdr, background_img)
+        product_master_flat_ifu = self.ProductMasterFlatIfu(self, spec_flat_hdr, spec_flat_img)
+        product_rsrf_ifu = self.ProductRsrfIfu(self, rsrf_hdr, rsrf_img)
+        product_badpix_map_ifu = self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img)
 
-        return self.products
+        # instantiate products
+        return {product.tag: product for product in
+                [product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu]}
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet

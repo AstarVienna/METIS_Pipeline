@@ -34,12 +34,10 @@ def sof(name):
     return f'{name}.sof'
 
 
-@pytest.mark.skip(reason="SOF files still missing")
 class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
 
 
-@pytest.mark.skip(reason="SOF files still missing")
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1

@@ -68,10 +68,10 @@ class MetisRecipeImpl(ABC):
             self.inputset = self.InputSet(frameset)       # Create an appropriate InputSet object
             self.inputset.print_debug()
             self.inputset.validate()                      # Verify that they are valid (maybe with `schema` too?)
-            products = self.process_images()              # Do all the actual processing
-            self.save_products(products)                  # Save the output products
+            self.products = self.process_images()         # Do all the actual processing
+            self.save_products()                          # Save the output products
 
-            return self.build_product_frameset(products)  # Return the output as a pycpl FrameSet
+            return self.build_product_frameset()          # Return the output as a pycpl FrameSet
         except cpl.core.DataNotFoundError as e:
             Msg.error(self.__class__.__qualname__, f"Data not found error: {e.message}")
             raise e
@@ -84,7 +84,7 @@ class MetisRecipeImpl(ABC):
                 self.parameters[key].value = value
             except KeyError:
                 Msg.warning(self.__class__.__qualname__,
-                            f"Settings includes '{key}':{value} "
+                            f"Settings include '{key}' = {value} "
                             f"but class {self.__class__.__qualname__} "
                             f"has no parameter named {key}.")
 
@@ -96,8 +96,8 @@ class MetisRecipeImpl(ABC):
 
         All pixel manipulation should happen inside this function (or something it calls from within).
         Put explicitly,
-            - no pixel manipulation before entering `process_images`,
-            - and no pixel manipulation after exiting `process_images`.
+            - no pixel manipulation *before* entering `process_images`,
+            - and no pixel manipulation *after* exiting `process_images`.
 
         The basic workflow inside this function should be as follows:
 
@@ -118,22 +118,26 @@ class MetisRecipeImpl(ABC):
         """
         return {}
 
-    def save_products(self, products: Dict[str, PipelineProduct]) -> None:
+    def save_products(self) -> None:
         """
         Save and register the created products.
         """
-        for name, product in products.items():
+        assert self.products is not None, "Products have not been created yet!"
+
+        Msg.debug(self.__class__.__qualname__,
+                  f"{self.products}")
+        for name, product in self.products.items():
             Msg.debug(self.__class__.__qualname__,
                       f"Saving product {name}")
             product.save()
 
-    def build_product_frameset(self, products: Dict[str, PipelineProduct]) -> cpl.ui.FrameSet:
+    def build_product_frameset(self) -> cpl.ui.FrameSet:
         """
         Gather all the products and build a FrameSet from their frames so that it can be returned from `run`.
         """
         Msg.debug(self.__class__.__qualname__,
                   f"Building the product frameset")
-        return cpl.ui.FrameSet([product.as_frame() for product in products.values()])
+        return cpl.ui.FrameSet([product.as_frame() for product in self.products.values()])
 
     def as_dict(self) -> dict[str, Any]:
         """

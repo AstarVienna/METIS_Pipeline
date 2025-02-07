@@ -25,15 +25,16 @@ from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkI
 
 from generic import BandParamRecipeTest, BaseProductTest, RawInputSetTest
 
+recipe_name = 'metis_det_dark'
 
 @pytest.fixture
 def name():
-    return 'metis_det_dark'
+    return recipe_name
 
 
 @pytest.fixture
-def sof():
-    return f"metis_det_dark.lm.sof"
+def sof(name):
+    return f"{name}.lm.sof"
 
 
 class TestRecipe(BandParamRecipeTest):
@@ -46,7 +47,7 @@ class TestRecipe(BandParamRecipeTest):
             frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_raw_detectors.sof"))
             instance.run(frameset, {})
 
-    def test_fails_with_files_from_multiple_detectors_gainmap(self, load_frameset):
+    def test_fails_with_files_from_mismatched_detectors(self, load_frameset):
         with pytest.raises(ValueError):
             instance = self._recipe()
             frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mismatched_detectors.sof"))

@@ -24,9 +24,12 @@ from pymetis.recipes.img.metis_lm_img_flat import (MetisLmImgFlat as Recipe,
                                                    MetisLmImgFlatImpl as Impl)
 
 
+recipe_name = 'metis_lm_img_flat'
+
+
 @pytest.fixture
 def name():
-    return 'metis_lm_img_flat'
+    return recipe_name
 
 
 @pytest.fixture
@@ -37,7 +40,7 @@ def sof(name):
 class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
 
-    @pytest.mark.parametrize("sof", [f"metis_lm_img_flat.{target}.sof" for target in ['lamp', 'twilight']])
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in ['lamp', 'twilight']])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 

@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.tests.conftest import load_frameset
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 from pymetis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as Recipe,
                                                             MetisPupilImagingImpl as Impl)
 
@@ -61,6 +61,7 @@ class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
 
-    @pytest.mark.xfail(reason="SOF file has no master dark yet")
-    def test_can_load_and_verify(self, instance):
-        super().test_can_load_and_verify(instance)
+
+class TestProduct(BaseProductTest):
+    product = Impl.Product
+

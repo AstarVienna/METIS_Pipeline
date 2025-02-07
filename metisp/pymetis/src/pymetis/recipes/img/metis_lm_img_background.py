@@ -21,7 +21,6 @@ import re
 from typing import Dict
 
 import cpl
-from cpl.core import Msg
 
 from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
@@ -75,14 +74,15 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         raw_images = cpl.core.ImageList()
 
         target = self.inputset.basic_reduced.get_target_name(self.inputset.basic_reduced.frameset)
-        combined_image = self._create_dummy_image()
-        
-        self.products = {
-            str(product.category): product(self, self.header, combined_image, target=target)
-            for product in [self.ProductBkg, self.ProductBkgSubtracted, self.ProductObjectCat]
-        }
-        return self.products
+        image = self._create_dummy_image()
 
+        product_bkg = self.ProductBkg(self, self.header, image, target=target)
+        product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image, target=target)
+        product_object_cat = self.ProductObjectCat(self, self.header, image, target=target)
+        
+        return {
+            product.tag: product for product in [product_bkg, product_bkg_subtracted, product_object_cat]
+        }
 
 
 class MetisLmImgBackground(MetisRecipe):

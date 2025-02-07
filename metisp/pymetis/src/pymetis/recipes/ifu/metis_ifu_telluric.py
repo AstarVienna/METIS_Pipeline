@@ -23,7 +23,7 @@ from typing import Dict
 import cpl
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.base.product import PipelineProduct
+from pymetis.base.product import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.inputs.common import FluxTableInput, LsfKernelInput, AtmProfileInput
 
@@ -79,15 +79,23 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     # Response curve
-    class ProductResponseFunction(PipelineProduct):
+    class ProductResponseFunction(TargetSpecificProduct):
         """
         Final product: response curve for the flux calibration
         """
         _level = cpl.ui.Frame.FrameLevel.FINAL
-        _tag = r"IFU_TELLURIC"
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    # TODO: Define input type for the paramfile in common.py
+        @property
+        def tag(self) -> str:
+            return rf"IFU_{self.target:s}_REDUCED_1D"
+
+    class ProductFluxcalTab(PipelineProduct):
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _tag = r"FLUXCAL_TAB"
+        _frame_type = cpl.ui.Frame.FrameType.TABLE
+
+# TODO: Define input type for the paramfile in common.py
 
     # ++++++++++++++ Defining functions +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -105,7 +113,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         pass    # do nothing in the meanwhile
 
-    # Recipe is in the moment also foreseen to create the response curve for the flux calibration
+    # Recipe is at the moment also foreseen to create the response curve for the flux calibration
     # Response determination
     def determine_response(self):
         """
@@ -124,11 +132,12 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         header = self._create_dummy_header()
         image = self._create_dummy_image()
 
-        self.products = {
-            product.category: product(self, header, image)
-            for product in [self.ProductTelluricTransmission, self.ProductResponseFunction]
-        }
-        return self.products
+        product_telluric_transmission = self.ProductTelluricTransmission(self, header, image)
+        product_reduced_1d = self.ProductResponseFunction(self, header, image, target='SCI') # ToDo: should not be hardcoded
+        product_fluxcal_tab = self.ProductFluxcalTab(self, header, image)
+
+        return {product.tag: product for product in
+                [product_telluric_transmission, product_reduced_1d, product_fluxcal_tab]}
 
 
 class MetisIfuTelluric(MetisRecipe):

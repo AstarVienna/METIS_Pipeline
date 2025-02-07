@@ -31,15 +31,13 @@ def name():
 
 @pytest.fixture
 def sof(name):
-    return rf'{name}.sof'
+    return rf'{name}.std.sof'
 
 
-@pytest.mark.skip(reason="SOF files still missing")
 class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
 
 
-@pytest.mark.skip(reason="SOF files still missing")
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
