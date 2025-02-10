@@ -39,18 +39,18 @@ class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
-    @pytest.mark.xfail(reason="SOF file has no master dark yet")
+    #@pytest.mark.xfail(reason="SOF file has no master dark yet")
     @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
-    @pytest.mark.xfail(reason="SOF file has no master dark yet")
+    #@pytest.mark.xfail(reason="SOF file has no master dark yet")
     @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
         frameset = load_frameset(sof)
         super().test_recipe_can_be_run_directly(frameset)
 
-    @pytest.mark.xfail(reason="SOF file has no master dark yet")
+    #@pytest.mark.xfail(reason="SOF file has no master dark yet")
     @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
     def test_recipe_uses_all_input_frames(self, load_frameset, sof):
         frameset = load_frameset(sof)

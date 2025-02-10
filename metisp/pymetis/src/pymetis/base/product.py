@@ -197,3 +197,33 @@ class TargetSpecificProduct(PipelineProduct, ABC):
                                       f"{self.__class__.__qualname__} does not")
 
         super().__init__(recipe, header, image, **kwargs)
+
+
+class BandSpecificProduct(PipelineProduct, ABC):
+    """
+    Product specific to one band. Probably should be merged with all other similar classes.
+    """
+    band = None
+
+    def __init__(self,
+                 recipe: 'MetisRecipe',
+                 header: cpl.core.PropertyList,
+                 image: cpl.core.Image,
+                 *,
+                 band: str = None,
+                 **kwargs):
+
+        if band is not None:
+            self.band = band
+
+        """
+            At the moment of instantiation, the `band` attribute must already be set *somehow*. Either
+            -   as a class attribute (if it is constant)
+            -   from the constructor (if it is determined from the data)
+            -   or as a provided property (if it has to be computed dynamically)
+        """
+        if self.band is None:
+            raise NotImplementedError(f"Products specific to a target must define 'band', but "
+                                      f"{self.__class__.__qualname__} does not")
+
+        super().__init__(recipe, header, image, **kwargs)
