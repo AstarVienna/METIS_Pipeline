@@ -63,10 +63,16 @@ jobs:
           pyesorex metis_det_dark "${SOF_DIR}/metis_det_dark.lm.sof"
           
           # IMG LM RECIPES
+          pyesorex metis_lm_img_cal_distortion  "${SOF_DIR}/metis_lm_img_distortion.sof"
           pyesorex metis_lm_img_flat  "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
           pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
           pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sci.sof"
           pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sky.sof"
+          pyesorex metis_lm_img_background "${SOF_DIR}/metis_lm_img_background.std.sof"
+          pyesorex metis_lm_img_background "${SOF_DIR}/metis_lm_img_background.sci.sof"
+          pyesorex metis_lm_img_std_process "${SOF_DIR}/metis_lm_img_std_process.sof"
+          # pyesorex metis_lm_img_calibrate "${SOF_DIR}/metis_lm_img_calibrate.sof"
+          # pyesorex metis_lm_img_sci_postproces "${SOF_DIR}/metis_lm_img_sci_postprocess.sof"
 
           # IFU RECIPES
           pyesorex metis_ifu_distortion "${SOF_DIR}/metis_ifu_distortion.sof"
