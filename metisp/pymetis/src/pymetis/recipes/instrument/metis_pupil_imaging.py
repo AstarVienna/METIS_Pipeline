@@ -167,7 +167,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         flat = self.prepare_flat(flat, bias)
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
-        combined_image = self.combine_images(images, self.parameters["pupil_imaging.stacking.method"].value)
+        combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
         self.products = {
