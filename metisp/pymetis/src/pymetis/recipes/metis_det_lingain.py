@@ -57,7 +57,7 @@ class MetisDetLinGainImpl(RawImageProcessor):
     class ProductGain(LinGainProduct):
         @property
         def tag(self) -> str:
-            return f"MASTER_GAIN_{self.detector:s}"
+            return f"GAIN_MAP_{self.detector:s}"
 
     class ProductLinearity(LinGainProduct):
         @property
