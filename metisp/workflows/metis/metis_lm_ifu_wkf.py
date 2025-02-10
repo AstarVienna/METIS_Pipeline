@@ -262,7 +262,7 @@ rsrf_ifu_task = (task("metis_ifu_rsrf")
              .with_input_filter(lin_det_ifu_class, gain_map_ifu_class, master_dark_ifu_class, distortion_table_ifu_class, wave_cal_ifu_class, persistence_class)
              .build())
 
-std_ifu_task = (task("metis_std_reduce")
+std_ifu_task = (task("metis_ifu_std_reduce")
             .with_recipe("metis_ifu_reduce")
             .with_main_input(std_ifu_raw)
             .with_associated_input(bad_pix_ifu_calib, min_ret=0)

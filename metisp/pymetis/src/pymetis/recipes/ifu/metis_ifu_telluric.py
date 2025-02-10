@@ -47,6 +47,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     # Define molecfit main input class as one 1d spectrum, either Science or Standard spectrum
     class InputSet(PipelineInputSet):
         """Inputs for metis_ifu_telluric"""
+        # TODO: still needs to be added to the input set
         class Reduced1DInput(SinglePipelineInput):
             _tags = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
             _group = cpl.ui.Frame.FrameGroup.CALIB
