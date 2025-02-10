@@ -62,7 +62,7 @@ jobs:
           # IMG LM RECIPES
           cat "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
           pyesorex metis_lm_img_flat  "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
-          cat "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
+          cat "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
           # TODO: This recipe name is incorrect and should be renamed
           pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
 
