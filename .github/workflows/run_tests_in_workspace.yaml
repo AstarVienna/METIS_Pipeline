@@ -5,13 +5,38 @@ on:
   workflow_dispatch:
 
 jobs:
+  init:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: |
+          sudo ./toolbox/install_dependencies_ubuntu.sh
+          # python3 -m venv metispipe
+          # . metispipe/bin/activate
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          ./toolbox/install_edps.sh
+          ./toolbox/create_config.sh
+
+      - name: Fetch test data
+        run: |
+          git clone https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
+
+      - uses: bissolli/gh-action-persist-workspace@v2
+        with:
+          action: persist
+          
   run:
+    needs: [init]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/setup-node@v4
       - uses: bissolli/gh-action-persist-workspace@v2
         with:
           action: retrieve
+          
       - name: Run pytest tests
         run: |
           set +x
