@@ -54,6 +54,8 @@ jobs:
           export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
           export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
           export PYESOREX_OUTPUT_DIR="$SOF_DATA"
+          
+          # LIST RECIPES
           pyesorex --recipes
 
           # DET RECIPES
@@ -65,6 +67,8 @@ jobs:
           pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
 
           # IFU RECIPES
+          ifu_distortion
+          pyesorex metis_ifu_distortion "${SOF_DIR}/metis_ifu_distortion.sof"
           pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
           
           # CAL RECIPES
