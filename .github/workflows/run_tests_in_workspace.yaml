@@ -1,0 +1,68 @@
+name: Run tests in workspace
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/setup-node@v4
+      - uses: bissolli/gh-action-persist-workspace@v2
+        with:
+          action: retrieve
+      - name: Run pytest tests
+        run: |
+          set +x
+          # . metispipe/bin/activate
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+          export PYESOREX_OUTPUT_DIR="$SOF_DATA"
+          python -m pytest -s
+
+      - name: Run pyESOREX test
+        run: |
+          set +x
+          # . metispipe/bin/activate
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+          export PYESOREX_OUTPUT_DIR="$SOF_DATA"
+          pyesorex --recipes
+
+          # DET RECIPES
+          pyesorex metis_det_lingain "${SOF_DIR}/metis_det_lingain.lm.sof"
+          pyesorex metis_det_dark "${SOF_DIR}/metis_det_dark.lm.sof"
+          
+          # IMG LM RECIPES
+          pyesorex metis_lm_img_flat  "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
+
+          # IFU RECIPES
+          pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
+          
+          # CAL RECIPES
+          pyesorex metis_cal_chophome "${SOF_DIR}/metis_cal_chophome.sof"
+          
+          # PUPIL IMAGING 
+          pyesorex metis_pupil_imaging "${SOF_DIR}/metis_pupil_imaging.lm.sof"
+
+      - name: Run EDPS
+        run:  |
+          # . metispipe/bin/activate
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+          edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          edps -w metis.metis_wkf -i $SOF_DATA -lt
+          edps -w metis.metis_wkf -i $SOF_DATA -m all| tee edps.stdout.txt
+          ! grep "'FAILED'" edps.stdout.txt
