@@ -12,7 +12,7 @@ jobs:
       - uses: bissolli/gh-action-persist-workspace@v2
         with:
           action: retrieve
-          artifactName: testEnv
+          artifactName: 2564588814
           
       - name: Run pytest tests
         run: |
