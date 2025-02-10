@@ -169,12 +169,9 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        self.products = {
-            fr'{self.detector}_PUPIL_REDUCED':
-                self.Product(self, header, combined_image, detector=self.detector),
-        }
+        product = self.Product(self, header, combined_image, detector=self.detector)
 
-        return self.products
+        return [product]
 
 
 class MetisPupilImaging(MetisRecipe):
