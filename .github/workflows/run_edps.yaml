@@ -69,6 +69,7 @@ jobs:
           # IFU RECIPES
           ifu_distortion
           pyesorex metis_ifu_distortion "${SOF_DIR}/metis_ifu_distortion.sof"
+          pyesorex metis_ifu_wavecal "${SOF_DIR}/metis_ifu_wavecal.sof"
           pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
           
           # CAL RECIPES
