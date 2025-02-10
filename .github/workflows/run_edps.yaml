@@ -65,6 +65,8 @@ jobs:
           # IMG LM RECIPES
           pyesorex metis_lm_img_flat  "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
           pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sci.sof"
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sky.sof"
 
           # IFU RECIPES
           pyesorex metis_ifu_distortion "${SOF_DIR}/metis_ifu_distortion.sof"
@@ -72,6 +74,11 @@ jobs:
           pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
           pyesorex metis_ifu_reduce "${SOF_DIR}/metis_ifu_reduce.std.sof"
           pyesorex metis_ifu_reduce "${SOF_DIR}/metis_ifu_reduce.sci.sof"
+          pyesorex metis_ifu_telluric "${SOF_DIR}/metis_ifu_telluric.std.sof"
+          pyesorex metis_ifu_telluric "${SOF_DIR}/metis_ifu_telluric.sci.sof"
+          pyesorex metis_ifu_telluric "${SOF_DIR}/metis_ifu_telluric.sci.sof"
+          pyesorex metis_ifu_calibrate "${SOF_DIR}/metis_ifu_calibrate.sof"
+          pyesorex metis_ifu_postprocess "${SOF_DIR}/metis_ifu_postprocess.sof"
           
           # CAL RECIPES
           pyesorex metis_cal_chophome "${SOF_DIR}/metis_cal_chophome.sof"
