@@ -30,8 +30,8 @@ def name():
 
 
 @pytest.fixture
-def sof():
-    return 'metis_lm_img_basic_reduce.sof'
+def sof(name):
+    return f'{name}.sci.sof'
 
 
 class TestRecipe(BaseRecipeTest):
