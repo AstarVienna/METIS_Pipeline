@@ -47,18 +47,16 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
 
     class ProductIfuDistortionTable(PipelineProduct):
-        category = rf"IFU_DISTORTION_TABLE"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
+        _tag = r"IFU_DISTORTION_TABLE"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.TABLE
 
     class ProductIfuDistortionReduced(PipelineProduct):
-        category = rf"IFU_DIST_REDUCED"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"IFU_DIST_REDUCED"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -72,11 +70,10 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        self.products = {
-            product.category: product(self, self.header, combined_image)
-            for product in [self.ProductIfuDistortionTable, self.ProductIfuDistortionReduced]
-        }
-        return self.products
+        product_distortion = self.ProductIfuDistortionTable(self, self.header, combined_image)
+        product_distortion_reduced = self.ProductIfuDistortionReduced(self, self.header, combined_image)
+
+        return [product_distortion, product_distortion_reduced]
 
 
 class MetisIfuDistortion(MetisRecipe):

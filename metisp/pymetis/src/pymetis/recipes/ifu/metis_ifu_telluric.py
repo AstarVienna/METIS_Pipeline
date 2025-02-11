@@ -23,7 +23,7 @@ from typing import Dict
 import cpl
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.base.product import PipelineProduct
+from pymetis.base.product import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.inputs.common import FluxTableInput, LsfKernelInput, AtmProfileInput
 
@@ -75,20 +75,28 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         Final product: Transmission function for the telluric correction
         """
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        tag = r"IFU_TELLURIC"
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _tag = r"IFU_TELLURIC"
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     # Response curve
-    class ProductResponseFunction(PipelineProduct):
+    class ProductResponseFunction(TargetSpecificProduct):
         """
         Final product: response curve for the flux calibration
         """
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        tag = r"FLUXCAL_TAB"
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    # TODO: Define input type for the paramfile in common.py
+        @property
+        def tag(self) -> str:
+            return rf"IFU_{self.target:s}_REDUCED_1D"
+
+    class ProductFluxcalTab(PipelineProduct):
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _tag = r"FLUXCAL_TAB"
+        _frame_type = cpl.ui.Frame.FrameType.TABLE
+
+# TODO: Define input type for the paramfile in common.py
 
     # ++++++++++++++ Defining functions +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -106,7 +114,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         pass    # do nothing in the meanwhile
 
-    # Recipe is in the moment also foreseen to create the response curve for the flux calibration
+    # Recipe is at the moment also foreseen to create the response curve for the flux calibration
     # Response determination
     def determine_response(self):
         """
@@ -115,7 +123,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         pass    # do nothing in the meanwhile
 
     # Function to process everything?
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
         self.mf_model()
@@ -125,11 +133,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         header = self._create_dummy_header()
         image = self._create_dummy_image()
 
-        self.products = {
-            product.tag: product(self, header, image)
-            for product in [self.ProductTelluricTransmission, self.ProductResponseFunction]
-        }
-        return self.products
+        product_telluric_transmission = self.ProductTelluricTransmission(self, header, image)
+        product_reduced_1d = self.ProductResponseFunction(self, header, image, target='SCI') # ToDo: should not be hardcoded
+        product_fluxcal_tab = self.ProductFluxcalTab(self, header, image)
+
+        return [product_telluric_transmission, product_reduced_1d, product_fluxcal_tab]
 
 
 class MetisIfuTelluric(MetisRecipe):
@@ -143,7 +151,7 @@ class MetisIfuTelluric(MetisRecipe):
         Recipe to derive the atmospheric transmission and the response function.
 
         Inputs
-            IFU_SCI|STD_1D: 1d spectrum either from science target or standard star
+            IFU_(SCI|STD)_1D: 1d spectrum either from science target or standard star
 
         Outputs
             IFU_TELLURIC:   Tranmission of the Earth#s atmosphere
@@ -157,7 +165,7 @@ class MetisIfuTelluric(MetisRecipe):
         cpl.ui.ParameterValue(
             name=f"{_name}.dummy",
             context=_name,
-            description="Dummy parameter",
+            description="Dummy parameter to avoid problems with `pyesorex` bug",
             default="dummy",
         )
     ])

@@ -69,95 +69,52 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
-        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"IFU_RSRF_BACKGROUND"
+        _group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
+        _level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         # SKEL: copy product keywords from header
-        def add_properties(self):
+        def add_properties(self) -> None:
             super().add_properties()
             self.properties.append(self.header)
 
-        @property
-        def category(self) -> str:
-            return "IFU_RSRF_BACKGROUND"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
     class ProductMasterFlatIfu(PipelineProduct):
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"MASTER_FLAT_IFU"
+        _group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         # SKEL: copy product keywords from header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
-
-        @property
-        def category(self) -> str:
-            return rf"MASTER_FLAT_IFU"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
 
     class ProductRsrfIfu(PipelineProduct):
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
+        _tag = r"RSRF_IFU"
+        _group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
 
         # SKEL: copy product keywords from header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
-
-        @property
-        def category(self) -> str:
-            return rf"RSRF_IFU"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
     class ProductBadpixMapIfu(PipelineProduct):
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"BADPIX_MAP_IFU"
+        _group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         # SKEL: copy product keywords from header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
 
-        @property
-        def category(self) -> str:
-            return rf"BADPIX_MAP_IFU"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
-
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         # TODO: FUNC: basic raw processing of RSRF and WCU_OFF input frames:
         # - dark subtraction? (subtracting WCU_OFF frame might suffice?)
         # - gain / linearity correction? (as for dark subtraction)
@@ -216,8 +173,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         # create 1D RSRF
         # TODO: FUNC: average 2D flat in spatial direction for each trace
-        rsrf_hdr = \
-            cpl.core.PropertyList()
+        rsrf_hdr = cpl.core.PropertyList()
         # TODO: SKEL: Add product keywords - currently none defined in DRLD
         # SKEL: placeholder data for now
         # NOTE: rebin() cpl documentation is incorrect -
@@ -226,19 +182,12 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         rsrf_img = spec_flat_img.rebin(1, 1, img_height, 1)
         rsrf_img.divide_scalar(img_height)
 
-        # instantiate products
-        self.products = {
-            self.ProductBackground.tag:
-                self.ProductBackground(self, background_hdr, background_img),
-            self.ProductMasterFlatIfu.tag:
-                self.ProductMasterFlatIfu(self, spec_flat_hdr, spec_flat_img),
-            self.ProductRsrfIfu.tag:
-                self.ProductRsrfIfu(self, rsrf_hdr, rsrf_img),
-            self.ProductBadpixMapIfu.tag:
-                self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img),
-        }
+        product_background = self.ProductBackground(self, background_hdr, background_img)
+        product_master_flat_ifu = self.ProductMasterFlatIfu(self, spec_flat_hdr, spec_flat_img)
+        product_rsrf_ifu = self.ProductRsrfIfu(self, rsrf_hdr, rsrf_img)
+        product_badpix_map_ifu = self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img)
 
-        return self.products
+        return [product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu]
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet

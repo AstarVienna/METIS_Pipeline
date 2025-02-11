@@ -23,69 +23,49 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
-from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
+from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, SinglePipelineInput
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 
 
-class MetisLmImgCalibrateImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):
-        class RawInput(RawInput):
-            _tags = re.compile(r"LM_SCI_BKG_SUBTRACTED")
+class MetisLmImgCalibrateImpl(MetisRecipeImpl):
+    class InputSet(PipelineInputSet):
+        class BackgroundInput(SinglePipelineInput):
+            _tags: re.Pattern = re.compile(r"LM_SCI_BKG_SUBTRACTED")
+            _title: str = "science background-subtracted"
+            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         class PinholeTableInput(SinglePipelineInput):
             _tags = re.compile(r"FLUXCAL_TAB")
             _title = "flux table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
-        class PinholeTableInput(SinglePipelineInput):
-            _tags = re.compile(r"ILM_DISTORTION_TABLE")
+        # ToDo let's make TAB / TABLE consistent one day
+        class DistortionTableInput(SinglePipelineInput):
+            _tags = re.compile(r"LM_DISTORTION_TABLE")
             _title = "distortion table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.flux_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"FLUXCAL_TAB"),
-                                                     title="pinhole table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
-            
-            self.distortion_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"ILM_DISTORTION_TABLE"),
-                                                     title="distortion table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
-          
-            
-            self.inputs |= {self.flux_table, self.distortion_table}
+            self.background = self.BackgroundInput(frameset)
+            self.flux_table = self.PinholeTableInput(frameset)
+            # ToDo This is still missing from the simulations
+            # self.distortion_table = self.DistortionTableInput(frameset)
+            # self.inputs |= {self.background, self.flux_table, self.distortion_table}
+            self.inputs |= {self.background, self.flux_table}
 
     class ProductLmSciCalibrated(PipelineProduct):
-        category = rf"LM_SCI_CALIBRATED"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"LM_SCI_CALIBRATED"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
+    def process_images(self) -> [PipelineProduct]:
+        combined_image = self._create_dummy_image()
+        product_calibrated = self.ProductLmSciCalibrated(self, self.header, combined_image)
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
-        raw_images = cpl.core.ImageList()
-
-        for idx, frame in enumerate(self.inputset.raw.frameset):
-            Msg.info(self.name, f"Loading raw image {frame.file}")
-
-            if idx == 0:
-                self.header = cpl.core.PropertyList.load(frame.file, 0)
-
-            raw_image = cpl.core.Image.load(frame.file, extension=0)
-            raw_images.append(raw_image)
-
-        combined_image = self.combine_images(raw_images, "average")
-
-        self.products = {
-            product.category: product(self, self.header, combined_image)
-            for product in [self.ProductLmSciCalibrated]
-        }
-        return self.products
+        return [product_calibrated]
 
 
 class MetisLmImgCalibrate(MetisRecipe):

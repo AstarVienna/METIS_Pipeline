@@ -26,6 +26,7 @@ from typing import Dict
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.inputs.common import FluxTableInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
@@ -34,33 +35,23 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
         class RawInput(RawInput):
             _tags = re.compile(r"LM_STD_BKG_SUBTRACTED")
 
-        class FluxTableInput(SinglePipelineInput):
-            _tags = re.compile(r"FLUXSTD_CATALOG")
-            _title = "flux standard star catalogue table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.fluxstd_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"FLUXSTD_CATALOG"),
-                                                     title="flux standard star catalogue table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
+            self.fluxstd_table = FluxTableInput(frameset)
             self.inputs |= {self.fluxstd_table}
 
     #import pdb ; pdb.set_trace()
     class ProductLmImgFluxCalTable(PipelineProduct):
-        category = rf"FLUXCAL_TAB"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
+        _tag = r"FLUXCAL_TAB"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.TABLE
 
     class ProductLmImgStdCombined(PipelineProduct):
-        category = rf"LM_STD_COMBINED"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"LM_STD_COMBINED"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -74,11 +65,10 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        self.products = {
-            product.category: product(self, self.header, combined_image)
-            for product in [self.ProductLmImgFluxCalTable, self.ProductLmImgStdCombined]
-        }
-        return self.products
+        product_fluxcal = self.ProductLmImgFluxCalTable(self, self.header, combined_image)
+        product_combined = self.ProductLmImgStdCombined(self, self.header, combined_image)
+
+        return [product_fluxcal, product_combined]
 
 
 class MetisLmImgStdProcess(MetisRecipe):

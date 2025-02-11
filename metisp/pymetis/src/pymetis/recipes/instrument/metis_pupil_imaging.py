@@ -1,10 +1,10 @@
 """
 METIS pupil imaging recipe
 
-This file contains the recipe for reducing pupil imaging raw data for the 
+This file contains the recipe for reducing pupil imaging raw data for the
 METIS instrument. It will apply dark and flat corrections, and optionally
 gain and persistance corrections. It can be directly via pyesorex,
-or as part of an edps workflow. 
+or as part of an edps workflow.
 
 This file is part of the METIS Pipeline.
 Copyright (C) 2024 European Southern Observatory
@@ -33,7 +33,7 @@ from cpl.core import Msg
 import re
 
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.base.product import PipelineProduct, BandSpecificProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
 from pymetis.prefab.darkimage import DarkImageProcessor
@@ -66,11 +66,11 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         # RawImageProcessor.InputSet. It already knows that it wants a RawInput and MasterDarkInput class,
         # but does not know about the tags yet. So here we define tags for the raw input
         class Raw(RawInput):
-            _tags = re.compile("LM_PUPIL_RAW")
+            _tags = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
 
         # Also one master flat is required. We use a prefabricated class
         class MasterFlat(MasterFlatInput):
-            _tags = re.compile("MASTER_IMG_FLAT_LAMP_LM")
+            _tags = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
 
         # We could define the master dark explicitly too, but we can use a prefabricated class instead.
         # That already has its tags defined (for master darks it's always "MASTER_DARK_{det}"), so we just define
@@ -84,27 +84,29 @@ class MetisPupilImagingImpl(DarkImageProcessor):
             super().__init__(frameset)
             self.master_flat = self.MasterFlat(frameset,
                                                tags=re.compile("MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)"),
-                                               band="LM", det=self.detector)
+                                               det=self.detector)
             self.linearity = LinearityInput(frameset, det=self.detector)
             self.persistence = PersistenceMapInput(frameset, required=False)
             self.gain_map = GainMapInput(frameset, det=self.detector)
 
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
             self.inputs |= {self.master_flat, self.linearity, self.persistence, self.gain_map}
+            # ToDo This is not correct
+            self.band = 'LM'
 
-    class Product(PipelineProduct):
+    class Product(BandSpecificProduct):
         """
         The second big part is defining the products. For every product we create a separate class
         which defines the tag, group, level and frame type.
         """
-        tag: str = "LM_PUPIL_IMAGING_REDUCED"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"LM_PUPIL_IMAGING_REDUCED"
+        _group = cpl.ui.Frame.FrameGroup.PRODUCT
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
-        def category(self) -> str:
-            return self.tag
+        def tag(self):
+            return rf"{self.band}_PUPIL_IMAGING_REDUCED"
 
         @property
         def output_file_name(self):
@@ -113,8 +115,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
         Msg.info(self.__class__.__qualname__, "Preparing flat field")
-        
-        #import pdb ; pdb.set_trace()
+
         if flat is None:
             raise RuntimeError("No flat frames found in the frameset.")
         else:
@@ -149,7 +150,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions, or use functions from the parent classes:
@@ -170,12 +171,9 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        self.products = {
-            fr'{self.detector}_PUPIL_REDUCED':
-                self.Product(self, header, combined_image, detector=self.detector),
-        }
+        product = self.Product(self, header, combined_image, band='LM') # ToDo Hardcoded for now
 
-        return self.products
+        return [product]
 
 
 class MetisPupilImaging(MetisRecipe):

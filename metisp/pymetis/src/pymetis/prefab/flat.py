@@ -46,15 +46,15 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            #self.persistence = PersistenceMapInput(frameset)
-            #self.linearity = LinearityInput(frameset)
-            #self.gain_map = GainMapInput(frameset)
-            #self.inputs |= {self.persistence, self.linearity, self.gain_map}
+            self.persistence = PersistenceMapInput(frameset)
+            self.linearity = LinearityInput(frameset)
+            self.gain_map = GainMapInput(frameset)
+            self.inputs |= {self.persistence, self.linearity, self.gain_map}
 
     class Product(PipelineProduct):
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _group = cpl.ui.Frame.FrameGroup.PRODUCT
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
         band: str = None
 
         @property
@@ -69,7 +69,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         def tag(self) -> str:
             return self.category
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         """
         Do the actual processing of the images.
         Here, it means loading the input images and a master dark,
@@ -94,7 +94,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         combined_image = self.combine_images(self.inputset.load_raw_images(), method)
 
-        self.products = {
-            self.name.upper(): self.Product(self, header, combined_image),
-        }
-        return self.products
+        product = self.Product(self, header, combined_image)
+
+        return [product]

@@ -23,14 +23,13 @@ from pymetis.recipes.img.metis_lm_img_basic_reduce import MetisLmImgBasicReduce
 from pymetis.recipes.img.metis_lm_img_flat import MetisLmImgFlat
 from pymetis.recipes.img.metis_lm_img_background import MetisLmImgBackground
 from pymetis.recipes.img.metis_lm_img_std_process import MetisLmImgStdProcess
-from pymetis.recipes.img.metis_lm_img_cal_distortion import MetisLmImgCalDistortion
+from pymetis.recipes.img.metis_lm_img_distortion import MetisLmImgDistortion
 from pymetis.recipes.img.metis_lm_img_calibrate import MetisLmImgCalibrate
 from pymetis.recipes.img.metis_lm_img_sci_postprocess import MetisLmImgSciPostProcess
 from pymetis.recipes.img.metis_n_img_flat import MetisNImgFlat
 from pymetis.recipes.ifu.metis_ifu_distortion import MetisIfuDistortion
 from pymetis.recipes.ifu.metis_ifu_calibrate import MetisIfuCalibrate
 from pymetis.recipes.ifu.metis_ifu_postprocess import MetisIfuPostprocess
-from pymetis.recipes.ifu.metis_ifu_rsrf import MetisIfuRsrf
 from pymetis.recipes.ifu.metis_ifu_reduce import MetisIfuReduce
 from pymetis.recipes.ifu.metis_ifu_rsrf import MetisIfuRsrf
 from pymetis.recipes.ifu.metis_ifu_telluric import MetisIfuTelluric
@@ -46,7 +45,7 @@ __all__ = [
     MetisLmImgStdProcess,
     MetisLmImgFlat,
     MetisNImgFlat,
-    MetisLmImgCalDistortion,
+    MetisLmImgDistortion,
     MetisLmImgCalibrate,
     MetisLmImgSciPostProcess,
     MetisIfuDistortion,

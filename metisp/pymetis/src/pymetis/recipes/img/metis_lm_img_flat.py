@@ -25,8 +25,8 @@ from pymetis.prefab.flat import MetisBaseImgFlatImpl
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
     class InputSet(MetisBaseImgFlatImpl.InputSet):
-        band = "LM"
-        detector = "2RG"
+        band: str = "LM"
+        detector: str = "2RG"
 
     class Product(MetisBaseImgFlatImpl.Product):
         band: str = "LM"

@@ -19,12 +19,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe,
-                                                      MetisIfuDistortionImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.img.metis_lm_img_background import (MetisLmImgBackground as Recipe,
+                                                         MetisLmImgBackgroundImpl as Impl)
+from pymetis.tests.generic import BaseInputSetTest, BaseProductTest, TargetParamRecipeTest
 
 
-recipe_name = r'metis_ifu_distortion'
+recipe_name = r'metis_lm_img_background'
 
 
 @pytest.fixture
@@ -34,11 +34,10 @@ def name():
 
 @pytest.fixture
 def sof(name):
-    return rf'{name}.sof'
+    return rf'{name}.std.sof'
 
 
-class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+class TestRecipe(TargetParamRecipeTest):
     _recipe = Recipe
 
 
@@ -47,8 +46,11 @@ class TestInputSet(BaseInputSetTest):
     count = 1
 
 
-class TestProductDistortionTable(BaseProductTest):
-    product = Impl.ProductIfuDistortionTable
+class TestProductBkg(BaseProductTest):
+    product = Impl.ProductBkg
 
-class TestProductDistortionReduced(BaseProductTest):
-    product = Impl.ProductIfuDistortionReduced
+class TestProductBkgSubtracted(BaseProductTest):
+    product = Impl.ProductBkgSubtracted
+
+class TestProductObjectCat(BaseProductTest):
+    product = Impl.ProductObjectCat

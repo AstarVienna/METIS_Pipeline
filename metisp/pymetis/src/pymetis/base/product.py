@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import cpl
 from cpl.core import Msg
@@ -31,10 +31,10 @@ class PipelineProduct(ABC):
         one FITS file with associated headers and a frame
     """
 
-    tag: str = None
-    group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
-    level: cpl.ui.Frame.FrameLevel = None
-    frame_type: cpl.ui.Frame.FrameType = None
+    _tag: str = None
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
+    _level: cpl.ui.Frame.FrameLevel = None
+    _frame_type: cpl.ui.Frame.FrameType = None
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -121,6 +121,22 @@ class PipelineProduct(ABC):
         )
 
     @property
+    def tag(self):
+        return self._tag
+
+    @property
+    def group(self):
+        return self._group
+
+    @property
+    def level(self):
+        return self._level
+
+    @property
+    def frame_type(self):
+        return self._frame_type
+
+    @property
     def category(self) -> str:
         """
         Return the category of this product
@@ -178,6 +194,36 @@ class TargetSpecificProduct(PipelineProduct, ABC):
         """
         if self.target is None:
             raise NotImplementedError(f"Products specific to a target must define 'target', but "
+                                      f"{self.__class__.__qualname__} does not")
+
+        super().__init__(recipe, header, image, **kwargs)
+
+
+class BandSpecificProduct(PipelineProduct, ABC):
+    """
+    Product specific to one band. Probably should be merged with all other similar classes.
+    """
+    band = None
+
+    def __init__(self,
+                 recipe: 'MetisRecipe',
+                 header: cpl.core.PropertyList,
+                 image: cpl.core.Image,
+                 *,
+                 band: str = None,
+                 **kwargs):
+
+        if band is not None:
+            self.band = band
+
+        """
+            At the moment of instantiation, the `band` attribute must already be set *somehow*. Either
+            -   as a class attribute (if it is constant)
+            -   from the constructor (if it is determined from the data)
+            -   or as a provided property (if it has to be computed dynamically)
+        """
+        if self.band is None:
+            raise NotImplementedError(f"Products specific to a target must define 'band', but "
                                       f"{self.__class__.__qualname__} does not")
 
         super().__init__(recipe, header, image, **kwargs)

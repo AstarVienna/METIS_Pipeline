@@ -115,8 +115,8 @@ class BaseRecipeTest(ABC):
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
     def test_recipe_can_be_run_directly(self, frameset):
-        instance = self._recipe()
-        assert isinstance(instance.run(frameset, {}), cpl.ui.FrameSet)
+        recipe = self._recipe()
+        assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet)
         # pprint.pprint(instance.implementation.as_dict(), width=200)
 
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
@@ -126,7 +126,7 @@ class BaseRecipeTest(ABC):
 
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         output = self._run_pyesorex(name, sof)
-        assert output.returncode == 0, "Pyesorex exited with non-zero return code"
+        assert output.returncode == 0, f"Pyesorex exited with non-zero return code {output.returncode}"
         assert output.stderr == b"", "Pyesorex exited with non-empty stderr"
 
     #@pytest.mark.skip(reason="not all recipes have all specified inputs yet")

@@ -21,22 +21,28 @@ import pytest
 
 from pymetis.recipes.img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
                                                            MetisLmImgBasicReduceImpl as Impl)
-from generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+
+
+recipe_name = r'metis_lm_img_basic_reduce'
 
 
 @pytest.fixture
 def name():
-    return 'metis_lm_img_basic_reduce'
+    return recipe_name
 
 
 @pytest.fixture
-def sof():
-    return 'metis_lm_img_basic_reduce.sof'
+def sof(name):
+    return f'{name}.sci.sof'
 
 
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
+
+    @pytest.mark.parametrize("sof", [f"metis_lm_img_basic_reduce.{target}.sof" for target in ['sci', 'sky', 'std']])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
 
 class TestInputSet(BaseInputSetTest):

@@ -23,15 +23,16 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
-from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
+from pymetis.inputs.common import LinearityInput, BadpixMapInput, GainMapInput
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class MetisLmImgCalDistortionImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):
+class MetisLmImgDistortionImpl(RawImageProcessor):
+    class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags = re.compile(r"LM_WCU_OFF_RAW")
 
@@ -47,40 +48,32 @@ class MetisLmImgCalDistortionImpl(RawImageProcessor):
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.pinhole_table = SinglePipelineInput(frameset,
-                                                     tags=re.compile(r"PINHOLE_TABLE"),
-                                                     title="pinhole table",
-                                                     group=cpl.ui.Frame.FrameGroup.CALIB)
-            
+            self.pinhole_table = self.PinholeTableInput(frameset)
             self.distortion = self.DistortionInput(frameset, required=False) 
             self.linearity = LinearityInput(frameset, required=False) # But should be
             self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.persistence_map = PersistenceMapInput(frameset, required=False) # But should be
             self.gain_map = GainMapInput(frameset, required=False) # But should be
-            
+
             self.inputs |= {self.pinhole_table, self.linearity, self.distortion,
-                            self.badpix_map, self.persistence_map, self.gain_map}
+                            self.badpix_map, self.gain_map}
 
 
     class ProductLmDistortionTable(PipelineProduct):
-        category = rf"ILM_DISTORTION_TABLE"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
-    
+        _tag = r"LM_DISTORTION_TABLE"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.TABLE
+
     class ProductLmDistortionMap(PipelineProduct):
-        category = rf"LM_DIST_MAP"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"LM_DIST_MAP"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     class ProductLmDistortionReduced(PipelineProduct):
-        category = rf"LM_DIST_REDUCED"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"LM_DIST_REDUCED"
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -94,16 +87,15 @@ class MetisLmImgCalDistortionImpl(RawImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        self.products = {
-            product.category: product(self, self.header, combined_image)
-            for product in [self.ProductLmDistortionTable, self.ProductLmDistortionMap,
-                            self.ProductLmDistortionReduced]
-        }
-        return self.products
+        return [
+            self.ProductLmDistortionTable(self, self.header, combined_image),
+            self.ProductLmDistortionMap(self, self.header, combined_image),
+            self.ProductLmDistortionReduced(self, self.header, combined_image),
+        ]
 
 
-class MetisLmImgCalDistortion(MetisRecipe):
-    _name = "metis_lm_img_cal_distortion"
+class MetisLmImgDistortion(MetisRecipe):
+    _name = "metis_lm_img_distortion"
     _version = "0.1"
     _author = "Chi-Hung Yan"
     _email = "chyan@asiaa.sinica.edu.tw"
@@ -114,12 +106,12 @@ class MetisLmImgCalDistortion(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_lm_img_cal_distortion.stacking.method",
-            context="metis_lm_img_cal_distortion",
+            name="metis_lm_img_distortion.stacking.method",
+            context="metis_lm_img_distortion",
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
     ])
 
-    implementation_class = MetisLmImgCalDistortionImpl
+    implementation_class = MetisLmImgDistortionImpl

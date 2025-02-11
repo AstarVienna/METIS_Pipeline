@@ -19,13 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, TargetParamRecipeTest
+from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe,
+                                                  MetisIfuReduceImpl as Impl)
+from pymetis.tests.generic import BaseInputSetTest, TargetParamRecipeTest, BaseProductTest
+
+
+recipe_name = r'metis_ifu_reduce'
 
 
 @pytest.fixture
 def name():
-    return 'metis_ifu_reduce'
+    return recipe_name
 
 
 @pytest.fixture
@@ -34,10 +38,22 @@ def sof(name):
 
 
 class TestRecipe(TargetParamRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
+
+
+class TestProductReduced(BaseProductTest):
+    product = Impl.ProductReduced
+
+class TestProductBackground(BaseProductTest):
+    product = Impl.ProductBackground
+
+class TestProductReducedCube(BaseProductTest):
+    product = Impl.ProductReducedCube
+
+class TestProductCombined(BaseProductTest):
+    product = Impl.ProductCombined

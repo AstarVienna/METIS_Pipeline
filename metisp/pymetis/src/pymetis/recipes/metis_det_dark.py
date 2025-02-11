@@ -46,9 +46,9 @@ class MetisDetDarkImpl(RawImageProcessor):
             self.inputs |= {self.linearity, self.badpix_map, self.persistence_map, self.gain_map}
 
     class Product(DetectorSpecificProduct):
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _group = cpl.ui.Frame.FrameGroup.PRODUCT
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
@@ -59,7 +59,7 @@ class MetisDetDarkImpl(RawImageProcessor):
             """ Form the output file name (the detector part is variable here) """
             return rf"{self.category}.fits"
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         # By default, images are loaded as Python float data. Raw image
         # data which is usually represented as 2-byte integer data in a
         # FITS file is converted on the fly when an image is loaded from
@@ -84,10 +84,9 @@ class MetisDetDarkImpl(RawImageProcessor):
         combined_image = self.combine_images(raw_images, method)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        return {
-            fr'METIS_{self.detector}_DARK':
-                self.Product(self, header, combined_image, detector=self.detector),
-        }
+        product = self.Product(self, header, combined_image, detector=self.detector)
+
+        return [product]
 
 
 class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):

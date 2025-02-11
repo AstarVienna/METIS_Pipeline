@@ -26,15 +26,15 @@ from cpl.core import Msg
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import RawInput
-from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
+from pymetis.inputs.common import MasterDarkInput, LinearityInput, GainMapInput, MasterFlatInput
+from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
-
-    class InputSet(DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         """
-        The first step of writing a recipe is to define an InputSet: the singleton class
+        The first step of writing a recipe is to define an InputSet: the one-to-one class
         that wraps all the recipe inputs. It encapsulates the entire input and
 
         - defines which tags to look for, optionally with placeholders like `{det}`, that can be set globally
@@ -55,18 +55,19 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         and an exception is raised whenever something is amiss.
         """
 
-        # This InputSet class derives from DarkImageProcessor.InputSet, which in turn inherits from
-        # RawImageProcessor.InputSet. It already knows that it wants a RawInput and MasterDarkInput class,
+        # This InputSet class derives from `DarkImageProcessor.InputSet`, which in turn inherits from
+        # `RawImageProcessor.InputSet`. It already knows that it wants a RawInput and MasterDarkInput class,
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
             _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
 
         # Now we need a master dark. Since nothing is changed and the tag is always the same,
-        # we just point to the provided MasterDarkInput.
+        # we just point to the provided MasterDarkInput. Note that we do not have to instantiate
+        # it explicitly anywhere, `MasterDarkInput` takes care of that for us.
         MasterDarkInput = MasterDarkInput
 
         # Also one master flat is required. Again, we use a prefabricated class, but reset the tags
-        class MasterFlat(MasterFlatInput):
+        class MasterFlatInput(MasterFlatInput):
             _tags = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
 
 
@@ -76,13 +77,11 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.master_flat = self.MasterFlat(frameset)
-            self.linearity = LinearityInput(frameset)
-            self.persistence = PersistenceMapInput(frameset, required=False)
+            self.master_flat = self.MasterFlatInput(frameset)
             self.gain_map = GainMapInput(frameset)
 
             # We need to register the inputs (just to be able to say `for x in self.inputs:`)
-            self.inputs |= {self.master_flat, self.linearity, self.persistence, self.gain_map}
+            self.inputs |= {self.master_flat, self.gain_map}
 
     class Product(TargetSpecificProduct):
         """
@@ -91,21 +90,17 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
         But feel free to be more creative with names.
         """
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _group = cpl.ui.Frame.FrameGroup.PRODUCT
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
-        def category(self) -> str:
+        def tag(self) -> str:
             return rf"LM_{self.target:s}_BASIC_REDUCED"
 
         @property
         def output_file_name(self):
             return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
 
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
@@ -146,7 +141,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions, or use functions from the parent classes:
@@ -166,16 +161,12 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
         combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
-        
-        
-        self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
-        #self.target = 'SCI'
-        self.products = {
-            fr'OBJECT_REDUCED_{self.detector}':
-                self.Product(self, header, combined_image, target=self.target),
-        }
 
-        return self.products
+        self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
+
+        product = self.Product(self, header, combined_image, target=self.target)
+
+        return [product]
 
 
 class MetisLmImgBasicReduce(MetisRecipe):
@@ -203,8 +194,8 @@ class MetisLmImgBasicReduce(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_lm_img_basic_reduce.stacking.method",
-            context="metis_lm_img_basic_reduce",
+            name=rf"{_name}.stacking.method",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="add",
             alternatives=("add", "average", "median"),

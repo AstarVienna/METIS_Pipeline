@@ -19,45 +19,51 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
+from pymetis.tests.conftest import load_frameset
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 from pymetis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as Recipe,
                                                             MetisPupilImagingImpl as Impl)
 
 
+recipe_name = r'metis_pupil_imaging'
+
 @pytest.fixture
 def name():
-    return 'metis_pupil_imaging'
+    return recipe_name
 
 
 @pytest.fixture
-def sof():
-    return 'metis_pupil_imaging.lm.sof'
+def sof(name):
+    return rf'{name}.lm.sof'
 
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe = Recipe
 
-    @pytest.mark.xfail(reason="SOF file has no master dark yet")
-    @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
+    #@pytest.mark.xfail(reason="SOF file has no master dark yet")
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in ['lm', 'n']])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
-    @pytest.mark.xfail(reason="SOF file has no master dark yet")
-    @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
+    #@pytest.mark.xfail(reason="SOF file has no master dark yet")
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in ['lm', 'n']])
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
-        super().test_recipe_can_be_run_directly(load_frameset, sof)
+        frameset = load_frameset(sof)
+        super().test_recipe_can_be_run_directly(frameset)
 
-    @pytest.mark.xfail(reason="SOF file has no master dark yet")
-    @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
+    #@pytest.mark.xfail(reason="SOF file has no master dark yet")
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in ['lm', 'n']])
     def test_recipe_uses_all_input_frames(self, load_frameset, sof):
-        super().test_recipe_uses_all_input_frames(load_frameset, sof)
+        frameset = load_frameset(sof)
+        super().test_recipe_uses_all_input_frames(frameset)
 
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
 
-    @pytest.mark.xfail(reason="SOF file has no master dark yet")
-    def test_can_load_and_verify(self, load_frameset, sof):
-        super().test_can_load_and_verify(load_frameset, sof)
+
+class TestProduct(BaseProductTest):
+    product = Impl.Product
+

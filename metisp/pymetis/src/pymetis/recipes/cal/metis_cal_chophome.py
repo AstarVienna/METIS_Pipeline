@@ -62,9 +62,9 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """
         Final product: combined, background-subtracted images of the WCU source
         """
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _group = cpl.ui.Frame.FrameGroup.PRODUCT
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def category(self) -> str:
@@ -83,9 +83,9 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _group = cpl.ui.Frame.FrameGroup.PRODUCT
+        _level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def category(self) -> str:
@@ -100,7 +100,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             return rf"{self.category}"
 
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         """do something"""
 
         background_hdr = cpl.core.PropertyList()
@@ -113,13 +113,10 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         raw_images.subtract_image(background_img)
         combined_img = self.combine_images(raw_images, "median")
 
-        self.products = {
-            rf"{self.target}_COMBINED":
+        return [
             self.ProductCombined(self, combined_hdr, combined_img),
-            rf"{self.target}_BACKGROUND":
             self.ProductBackground(self, background_hdr, background_img),
-        }
-        return self.products
+        ]
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet

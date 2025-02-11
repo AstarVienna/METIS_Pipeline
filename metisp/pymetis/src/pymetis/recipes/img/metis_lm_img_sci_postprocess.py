@@ -43,11 +43,11 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 
     class ProductLmImgSciCoadd(PipelineProduct):
         category = rf"LM_SCI_COADD"
-        tag = category
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = category
+        _level = cpl.ui.Frame.FrameLevel.FINAL
+        _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    def process_images(self) -> Dict[str, PipelineProduct]:
+    def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -61,11 +61,9 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        self.products = {
-            product.category: product(self, self.header, combined_image)
-            for product in [self.ProductLmImgSciCoadd]
-        }
-        return self.products
+        product_coadd = self.ProductLmImgSciCoadd(self, self.header, combined_image)
+
+        return [product_coadd]
 
 
 class MetisLmImgSciPostProcess(MetisRecipe):

@@ -42,6 +42,8 @@ class MetisRecipe(cpl.ui.PyRecipe):
                     "Bonus points if it is not visible from pyesorex.")
 
     parameters = cpl.ui.ParameterList([])           # By default, a recipe does not have any parameters.
+                                                    # ToDo: There is a pyesorex bug that prevents
+                                                    # this from being actually used.
     implementation_class: type["MetisRecipeImpl"]   # Dummy class, this must be overridden in the derived classes anyway
 
     def __init__(self):
