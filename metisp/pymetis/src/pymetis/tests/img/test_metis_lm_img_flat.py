@@ -1,6 +1,6 @@
 """
 This file is part of the METIS Pipeline.
-Copyright (C) 2024 European Southern Observatory
+Copyright (C) 2025 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,7 +44,6 @@ class TestRecipe(BaseRecipeTest):
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
-    @pytest.mark.xfail(reason="files missing from the workflow")
     def test_recipe_uses_all_input_frames(self, frameset):
         super().test_recipe_uses_all_input_frames(frameset)
 
