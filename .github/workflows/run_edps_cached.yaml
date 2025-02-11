@@ -27,7 +27,7 @@ jobs:
           cache-name: cache-dependencies
         with:
           path: ~./
-          key: ${{ runner-os}}-edps-tests-${{ env.cache-name }}
+          key: ${{ runner.os}}-edps-tests-${{ env.cache-name }}
 
       - if: ${{ steps.cache-dep.outputs.cache-hit != 'true' }}
 
