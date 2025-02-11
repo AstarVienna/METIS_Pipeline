@@ -24,9 +24,12 @@ from pymetis.recipes.img.metis_lm_img_sci_postprocess import (MetisLmImgSciPostP
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
+recipe_name = r'metis_lm_img_sci_postprocess'
+
+
 @pytest.fixture
 def name():
-    return 'metis_lm_img_sci_postprocess'
+    return recipe_name
 
 
 @pytest.fixture
@@ -43,5 +46,5 @@ class TestInputSet(BaseInputSetTest):
     count = 1
 
 
-class TestProduct(BaseProductTest):
+class TestProductCoadd(BaseProductTest):
     product = Impl.ProductLmImgSciCoadd

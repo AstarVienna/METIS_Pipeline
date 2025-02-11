@@ -79,7 +79,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         product_bkg = self.ProductBkg(self, self.header, image, target=target)
         product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image, target=target)
         product_object_cat = self.ProductObjectCat(self, self.header, image, target=target)
-        
+
         return [product_bkg, product_bkg_subtracted, product_object_cat]
 
 

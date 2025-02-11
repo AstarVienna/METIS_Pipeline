@@ -24,9 +24,12 @@ from pymetis.recipes.img.metis_lm_img_distortion import (MetisLmImgDistortion as
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
+recipe_name = r'metis_lm_img_distortion'
+
+
 @pytest.fixture
 def name():
-    return 'metis_lm_img_distortion'
+    return recipe_name
 
 
 @pytest.fixture
@@ -46,10 +49,8 @@ class TestInputSet(BaseInputSetTest):
 class TestProductLmDistortionTable(BaseProductTest):
     product = Impl.ProductLmDistortionTable
 
-
 class TestProductLmDistortionMap(BaseProductTest):
     product = Impl.ProductLmDistortionMap
-
 
 class TestProductLmDistortionReduced(BaseProductTest):
     product = Impl.ProductLmDistortionReduced

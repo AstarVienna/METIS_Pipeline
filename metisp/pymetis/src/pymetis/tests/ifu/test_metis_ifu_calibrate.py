@@ -19,12 +19,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 from pymetis.recipes.ifu.metis_ifu_calibrate import (MetisIfuCalibrate as Recipe,
                                                      MetisIfuCalibrateImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = 'metis_ifu_calibrate'
+recipe_name = r'metis_ifu_calibrate'
 
 
 @pytest.fixture

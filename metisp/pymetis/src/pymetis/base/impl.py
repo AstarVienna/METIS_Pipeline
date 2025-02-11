@@ -34,18 +34,21 @@ class MetisRecipeImpl(ABC):
     by particular pipeline recipe implementations.
     """
     InputSet: type[PipelineInputSet] = None
-    Product: type[PipelineProduct] = None
 
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = cpl.ui.ParameterList([])
 
     def __init__(self, recipe: 'MetisRecipe') -> None:
+        """
+        Initializes the recipe implementation object with parameters from the recipe
+        and sets internal attributes to None / empty as needed.
+        """
         super().__init__()
         self.name = recipe.name
         self.version = recipe.version
         self.parameters = recipe.parameters
 
-        self.inputset: PipelineInputSet = None
+        self.inputset: PipelineInputSet | None = None
         self.frameset: cpl.ui.FrameSet | None = None
         self.header: cpl.core.PropertyList | None = None
         self.products: [PipelineProduct] = {}

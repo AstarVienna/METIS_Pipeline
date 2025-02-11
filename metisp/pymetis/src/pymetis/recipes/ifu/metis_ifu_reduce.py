@@ -67,13 +67,13 @@ class MetisIfuReduceImpl(DarkImageProcessor):
                 Here we also define all input frames specific for this recipe, except those handled by mixins.
             """
             super().__init__(frameset)
-            self.raw = self.RawInput(frameset)
             self.sky = self.RawSkyInput(frameset)
             self.linearity_map = LinearityInput(frameset)
             self.master_dark = self.MasterDarkInput(frameset)
             self.ifu_wavecal = self.WavecalInput(frameset)
             self.rsrf = self.RsrfInput(frameset)
             self.ifu_distortion_table = self.DistortionTableInput(frameset)
+
             self.inputs |= {self.sky, self.linearity_map, self.rsrf, self.ifu_wavecal, self.ifu_distortion_table}
 
     class ProductReduced(TargetSpecificProduct):
@@ -111,7 +111,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     def process_images(self) -> [PipelineProduct]:
         # do something... a lot of something
 
-        print(self.inputset.tag_parameters)
         self.target = self.inputset.tag_parameters["target"]
 
         header = cpl.core.PropertyList()

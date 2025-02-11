@@ -25,7 +25,7 @@ from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkI
 
 from generic import BandParamRecipeTest, BaseProductTest, RawInputSetTest
 
-recipe_name = 'metis_det_dark'
+recipe_name = r'metis_det_dark'
 
 @pytest.fixture
 def name():

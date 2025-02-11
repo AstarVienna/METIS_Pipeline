@@ -19,18 +19,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe, MetisIfuDistortionImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest
+from pymetis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe,
+                                                      MetisIfuDistortionImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+
+
+recipe_name = r'metis_ifu_distortion'
 
 
 @pytest.fixture
 def name():
-    return 'metis_ifu_distortion'
+    return recipe_name
 
 
 @pytest.fixture
-def sof():
-    return 'metis_ifu_distortion.sof'
+def sof(name):
+    return rf'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
@@ -41,3 +45,10 @@ class TestRecipe(BaseRecipeTest):
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
+
+
+class TestProductDistortionTable(BaseProductTest):
+    product = Impl.ProductIfuDistortionTable
+
+class TestProductDistortionReduced(BaseProductTest):
+    product = Impl.ProductIfuDistortionReduced

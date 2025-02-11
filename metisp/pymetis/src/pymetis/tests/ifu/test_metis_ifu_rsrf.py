@@ -19,13 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe, MetisIfuRsrfImpl as Impl)
+from pymetis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe,
+                                                MetisIfuRsrfImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest, BaseProductTest, RawInputSetTest
+
+
+recipe_name = r'metis_ifu_rsrf'
 
 
 @pytest.fixture
 def name():
-    return 'metis_ifu_rsrf'
+    return recipe_name
 
 
 @pytest.fixture
@@ -41,6 +45,7 @@ class TestRecipe(BaseRecipeTest):
 class TestInputSet(RawInputSetTest):
     impl = Impl
     count = 1
+
 
 class TestProductBackground(BaseProductTest):
     product = Impl.ProductBackground

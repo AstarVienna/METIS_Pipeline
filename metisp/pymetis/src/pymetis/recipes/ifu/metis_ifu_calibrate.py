@@ -58,7 +58,6 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
 
-
     def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()

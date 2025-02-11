@@ -19,12 +19,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 from pymetis.recipes.img.metis_lm_img_flat import (MetisLmImgFlat as Recipe,
                                                    MetisLmImgFlatImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = 'metis_lm_img_flat'
+recipe_name = r'metis_lm_img_flat'
 
 
 @pytest.fixture

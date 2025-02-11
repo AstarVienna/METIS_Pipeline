@@ -19,13 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_postprocess import (MetisIfuPostprocess as Recipe, MetisIfuPostprocessImpl as Impl)
+from pymetis.recipes.ifu.metis_ifu_postprocess import (MetisIfuPostprocess as Recipe,
+                                                       MetisIfuPostprocessImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+
+
+recipe_name = r'metis_ifu_postprocess'
 
 
 @pytest.fixture
 def name():
-    return 'metis_ifu_postprocess'
+    return recipe_name
 
 
 @pytest.fixture
@@ -41,3 +45,7 @@ class TestRecipe(BaseRecipeTest):
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
+
+
+class TestProduct(BaseProductTest):
+    product = Impl.ProductSciCoadd

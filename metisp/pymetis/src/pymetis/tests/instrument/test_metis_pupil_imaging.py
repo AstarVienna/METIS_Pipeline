@@ -25,7 +25,7 @@ from pymetis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as
                                                             MetisPupilImagingImpl as Impl)
 
 
-recipe_name = 'metis_pupil_imaging'
+recipe_name = r'metis_pupil_imaging'
 
 @pytest.fixture
 def name():

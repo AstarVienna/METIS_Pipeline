@@ -65,7 +65,9 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         header = self._create_dummy_header()
         image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file) # ToDo actual processing
 
-        return [self.ProductSciCoadd(self, header, image)] # ToDo is just a dummy for now
+        product = self.ProductSciCoadd(self, header, image)
+
+        return [product] # ToDo is just a dummy for now
 
 
 class MetisIfuPostprocess(MetisRecipe):

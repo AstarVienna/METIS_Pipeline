@@ -24,9 +24,12 @@ from pymetis.recipes.img.metis_lm_img_std_process import (MetisLmImgStdProcess a
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
+recipe_name = r'metis_lm_img_std_process'
+
+
 @pytest.fixture
 def name():
-    return 'metis_lm_img_std_process'
+    return recipe_name
 
 
 @pytest.fixture

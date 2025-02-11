@@ -19,10 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe, MetisIfuReduceImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, TargetParamRecipeTest
+from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe,
+                                                  MetisIfuReduceImpl as Impl)
+from pymetis.tests.generic import BaseInputSetTest, TargetParamRecipeTest, BaseProductTest
 
-recipe_name = 'metis_ifu_reduce'
+
+recipe_name = r'metis_ifu_reduce'
+
 
 @pytest.fixture
 def name():
@@ -41,3 +44,16 @@ class TestRecipe(TargetParamRecipeTest):
 class TestInputSet(BaseInputSetTest):
     impl = Impl
     count = 1
+
+
+class TestProductReduced(BaseProductTest):
+    product = Impl.ProductReduced
+
+class TestProductBackground(BaseProductTest):
+    product = Impl.ProductBackground
+
+class TestProductReducedCube(BaseProductTest):
+    product = Impl.ProductReducedCube
+
+class TestProductCombined(BaseProductTest):
+    product = Impl.ProductCombined

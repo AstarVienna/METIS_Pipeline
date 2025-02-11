@@ -24,9 +24,12 @@ from pymetis.recipes.img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
+recipe_name = r'metis_lm_img_basic_reduce'
+
+
 @pytest.fixture
 def name():
-    return 'metis_lm_img_basic_reduce'
+    return recipe_name
 
 
 @pytest.fixture

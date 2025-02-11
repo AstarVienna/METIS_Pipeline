@@ -161,10 +161,12 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
         combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
-        
+
         self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
 
-        return [self.Product(self, header, combined_image, target=self.target)]
+        product = self.Product(self, header, combined_image, target=self.target)
+
+        return [product]
 
 
 class MetisLmImgBasicReduce(MetisRecipe):

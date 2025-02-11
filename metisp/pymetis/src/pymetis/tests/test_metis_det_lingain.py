@@ -50,10 +50,8 @@ class TestInputSet(RawInputSetTest):
 class TestProductGain(BaseProductTest):
     product = Impl.ProductGain
 
-
 class TestProductLinearity(BaseProductTest):
     product = Impl.ProductLinearity
-
 
 class TestProductBadpixMap(BaseProductTest):
     product = Impl.ProductBadpixMap

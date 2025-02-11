@@ -19,12 +19,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 from pymetis.recipes.img.metis_n_img_flat import (MetisNImgFlat as Recipe,
                                                   MetisNImgFlatImpl as Impl)
+from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = 'metis_n_img_flat'
+recipe_name = r'metis_n_img_flat'
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def name():
 
 @pytest.fixture
 def sof(name):
-    return f'{name}.lamp.sof'
+    return rf'{name}.lamp.sof'
 
 
 class TestRecipe(BaseRecipeTest):

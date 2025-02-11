@@ -21,12 +21,15 @@ import pytest
 
 from pymetis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
                                                     MetisCalChophomeImpl as Impl)
-from generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
+from pymetis.tests.generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
+
+
+recipe_name = r'metis_cal_chophome'
 
 
 @pytest.fixture
 def name():
-    return 'metis_cal_chophome'
+    return recipe_name
 
 
 @pytest.fixture
