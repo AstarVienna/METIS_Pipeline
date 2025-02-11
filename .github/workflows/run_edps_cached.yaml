@@ -50,6 +50,7 @@ jobs:
         run: |
           set +x
           # . metispipe/bin/activate
+          ./toolbox/set_environment.sh
           export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
           export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
