@@ -26,7 +26,7 @@ distortion_task = (task('metis_lm_img_cal_distortion')
                    .with_associated_input(lm_wcu_off_raw)
                    .with_associated_input(pinehole_tab)
                    .with_associated_input(lingain_task)
-                   .with_recipe('metis_lm_img_cal_distortion')
+                   .with_recipe('metis_lm_img_distortion')
                    .build())
 
 basic_reduction_sci = (task('metis_lm_img_basic_reduce_sci')
