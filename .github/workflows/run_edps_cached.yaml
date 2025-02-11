@@ -40,6 +40,8 @@ jobs:
           ./toolbox/install_edps.sh
           ./toolbox/create_config.sh
 
+      - if: ${{ steps.cache-dep.outputs.cache-hit != 'true' }}
+
         name: Fetch test data
         run: |
           git clone https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
