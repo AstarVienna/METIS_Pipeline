@@ -49,7 +49,7 @@ class MetisDetLinGainImpl(RawImageProcessor):
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            self.wcu_off = self.WcuOffInput(frameset)
+            self.wcu_off = self.WcuOffInput(frameset, required=False)
             self.badpix_map = BadpixMapInput(frameset, required=False)
             self.inputs |= {self.badpix_map, self.wcu_off}
 
