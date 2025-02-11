@@ -25,14 +25,16 @@ from pymetis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as
                                                             MetisPupilImagingImpl as Impl)
 
 
+recipe_name = 'metis_pupil_imaging'
+
 @pytest.fixture
 def name():
-    return 'metis_pupil_imaging'
+    return recipe_name
 
 
 @pytest.fixture
-def sof():
-    return 'metis_pupil_imaging.lm.sof'
+def sof(name):
+    return rf'{name}.lm.sof'
 
 
 class TestRecipe(BaseRecipeTest):
@@ -40,18 +42,18 @@ class TestRecipe(BaseRecipeTest):
     _recipe = Recipe
 
     #@pytest.mark.xfail(reason="SOF file has no master dark yet")
-    @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in ['lm', 'n']])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
     #@pytest.mark.xfail(reason="SOF file has no master dark yet")
-    @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in ['lm', 'n']])
     def test_recipe_can_be_run_directly(self, load_frameset, sof):
         frameset = load_frameset(sof)
         super().test_recipe_can_be_run_directly(frameset)
 
     #@pytest.mark.xfail(reason="SOF file has no master dark yet")
-    @pytest.mark.parametrize("sof", ["metis_pupil_imaging.lm.sof", "metis_pupil_imaging.n.sof"])
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in ['lm', 'n']])
     def test_recipe_uses_all_input_frames(self, load_frameset, sof):
         frameset = load_frameset(sof)
         super().test_recipe_uses_all_input_frames(frameset)
