@@ -31,7 +31,8 @@ def reset_edps():
 
     return inner
 
-workflows = ['metis_lm_img_wkf', 'metis_lm_ifu_wkf', 'metis_pupil_imaging_wkf', 'metis_wkf']
+
+workflows = ['metis_lm_img_wkf', 'metis_ifu_wkf', 'metis_pupil_imaging_wkf', 'metis_wkf']
 
 
 @pytest.mark.edps
