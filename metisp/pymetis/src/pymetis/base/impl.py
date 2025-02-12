@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import os
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Dict, Any, final
 
 import cpl
 from cpl.core import Msg
@@ -124,6 +124,7 @@ class MetisRecipeImpl(ABC):
         """
         return {}
 
+    @final
     def _save_products(self) -> None:
         """
         Save and register the created products.
@@ -135,6 +136,7 @@ class MetisRecipeImpl(ABC):
         for product in self.products:
             product.save()
 
+    @final
     def build_product_frameset(self) -> cpl.ui.FrameSet:
         """
         Gather all the products and build a FrameSet from their frames so that it can be returned from `run`.
@@ -143,6 +145,7 @@ class MetisRecipeImpl(ABC):
                   f"Building the product frameset")
         return cpl.ui.FrameSet([product.as_frame() for product in self.products])
 
+    @final
     def as_dict(self) -> dict[str, Any]:
         """
         Converts the object and its related data into a dictionary representation.

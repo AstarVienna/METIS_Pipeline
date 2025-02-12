@@ -34,7 +34,8 @@ def reset_edps():
 workflows = ['metis_lm_img_wkf', 'metis_lm_ifu_wkf', 'metis_pupil_imaging_wkf', 'metis_wkf']
 
 
-class DisabledTestEDPS:
+@pytest.mark.slow
+class TestEDPS:
     @pytest.mark.parametrize('workflow_name', workflows)
     def test_does_edps_classify(self, workflow_name, reset_edps):
         reset_edps()

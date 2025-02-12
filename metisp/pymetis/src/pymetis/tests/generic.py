@@ -73,7 +73,13 @@ class BaseInputSetTest(ABC):
         assert isinstance(instance.inputs, set)
 
     @staticmethod
-    def test_all_attrs_are_inputs(instance):
+    def test_all_inputs_are_registered(instance):
+        for name, attr in instance.__dict__.items():
+            if isinstance(attr, PipelineInput):
+                assert attr in instance.inputs, f"Input {name} is not registered in `inputs`"
+
+    @staticmethod
+    def test_all_registered_inputs_are_actually_inputs(instance):
         for inp in instance.inputs:
             assert isinstance(inp, PipelineInput)
 
@@ -85,15 +91,8 @@ class BaseInputSetTest(ABC):
     def test_all_inputs(instance):
         # We should really be testing a class here, not an instance
         for inp in instance.inputs:
-            assert inp._group is not None
-            assert isinstance(inp._title, str)
-
-    @staticmethod
-    def test_all_inputs_are_registered(instance):
-        print(instance.__dict__)
-        for name, attr in instance.__dict__.items():
-            if isinstance(attr, PipelineInput):
-                assert attr in instance.inputs, f"Input {name} is not registered in `inputs`"
+            assert inp._group is not None, f"Input {inp} does not have a group defined"
+            assert isinstance(inp._title, str), f"Input {inp} does not have a title defined"
 
 
 class RawInputSetTest(BaseInputSetTest):
