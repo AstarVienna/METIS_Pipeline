@@ -43,13 +43,13 @@ jobs:
             emacs vim nano
           version: 1.0
 
-      #   name: Install edps
-      #   run: |
-      #     # python3 -m venv metispipe
-      #     # . metispipe/bin/activate
-      #     export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-      #     ./toolbox/install_edps.sh
-      #     ./toolbox/create_config.sh
+      - name: Install edps
+        run: |
+          # python3 -m venv metispipe
+          # . metispipe/bin/activate
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          ./toolbox/install_edps.sh
+          ./toolbox/create_config.sh
 
       - name: Fetch test data
         run: |
