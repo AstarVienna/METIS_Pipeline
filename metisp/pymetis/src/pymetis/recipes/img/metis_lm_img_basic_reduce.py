@@ -62,7 +62,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
             # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
-            #    Martin put this there to generate all the data and thus pass tests. If it is not correct, shout at him.
+            #    See https://github.com/AstarVienna/METIS_DRLD/issues/321
 
         # Now we need a master dark. Since nothing is changed and the tag is always the same,
         # we just point to the provided MasterDarkInput. Note that we do not have to instantiate
