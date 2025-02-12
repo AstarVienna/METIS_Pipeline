@@ -54,5 +54,5 @@ class TestEDPS:
         message = str(output.stdout.decode('utf8'))
         assert output.returncode == 0
         assert output.stderr == b''
-        assert re.findall('[eE]rror', message) == []
+        assert re.findall('[eE]rror', message) == [], f"EDPS run resulted in an error: {message}"
         assert re.findall('FAILED', message) == []
