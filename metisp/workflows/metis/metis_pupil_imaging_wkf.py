@@ -1,3 +1,9 @@
+"""
+workflow definitions specific to the pupil imaging.
+Imports basic image processing from the basic imaging workflow. 
+TODO - need N band version
+"""
+
 from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
 from edps import task, data_source, classification_rule
 from .metis_lm_img_wkf import *

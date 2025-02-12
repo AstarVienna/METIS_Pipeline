@@ -41,30 +41,14 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 class MetisPupilImagingImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
         """
-        The first step of writing a recipe is to define an InputSet: the singleton class
-        that wraps all the recipe inputs. It encapsulates the entire input and
+        Define the input sets and tags. 
+        Here, we define dark, flat, linearity, persistence and gain map
+        and the tags for PUPIL_RAW
 
-        - defines which tags to look for, optionally with placeholders like `{det}`, that can be set globally
-        - which of the inputs are optional (just set `required = False`)
-        - provides mechanism for verification that the required frames are actually present
-
-        Inputs are twofold:
-
-        - children of SinglePipelineInput, which expect exactly one frame to be present (or at most one if optional).
-            They will warn is multiple frames are found and keep the last one.
-        - children of MultiplePipelineInput, which expect multiple frames with the same tag (usually RAWs).
-            Again, the frame set may be empty if `required` is set to False.
-
-        You may instantiate your inputs directly as SinglePipelineInput or MultiplePipelineInput with appropriate tags,
-        or use or extend one of the predefined classes (see `pymetis.inputs.common`).
-
-        The input is automatically verified (see the base InputSet class and its Single and Multiple children)
-        and an exception is raised whenever something is amiss.
+        TODO; currently works for LM band, need to set up to work for both LM and N with proper filtering.
+        
         """
 
-        # This InputSet class derives from DarkImageProcessor.InputSet, which in turn inherits from
-        # RawImageProcessor.InputSet. It already knows that it wants a RawInput and MasterDarkInput class,
-        # but does not know about the tags yet. So here we define tags for the raw input
         class Raw(RawInput):
             _tags = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
 
@@ -72,10 +56,6 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         class MasterFlat(MasterFlatInput):
             _tags = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
 
-        # We could define the master dark explicitly too, but we can use a prefabricated class instead.
-        # That already has its tags defined (for master darks it's always "MASTER_DARK_{det}"), so we just define
-        # the detector and band. Those are now available for all Input classes here.
-        # Of course, we could be more explicit and define them directly.
 
         RawInput = Raw
         MasterDarkInput = MasterDarkInput
@@ -91,13 +71,12 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
             self.inputs |= {self.master_flat, self.linearity, self.persistence, self.gain_map}
-            # ToDo This is not correct
+            # ToDo This is not correct; need to handle both LM and N.
             self.band = 'LM'
 
     class Product(BandSpecificProduct):
         """
-        The second big part is defining the products. For every product we create a separate class
-        which defines the tag, group, level and frame type.
+        Define the output product, here a reduced pupil image.
         """
         _tag = r"LM_PUPIL_IMAGING_REDUCED"
         _group = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -132,6 +111,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
                        flat: cpl.core.Image | None = None) -> cpl.core.ImageList:
         prepared_images = cpl.core.ImageList()
 
+        """Prepare the images; bias subtracting and flat fielding"""
+        
         for index, frame in enumerate(raw_frames):
             Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
 
@@ -152,10 +133,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
     def process_images(self) -> [PipelineProduct]:
         """
-        This is where the magic happens: all business logic of the recipe should be contained within this function.
-        You can define extra private functions, or use functions from the parent classes:
-        for instance combine_images is a helper function that takes a frameset and a method and returns
-        a single combined frame that is used throughout the pipeline.
+        Runner for processing images. Currently setup to do dark/bias/flat/gain plus combining images. 
+        TODO No actually processing is performed. 
         """
 
         Msg.info(self.__class__.__qualname__, f"Starting processing image attribute.")
@@ -178,12 +157,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
 class MetisPupilImaging(MetisRecipe):
     """
-    Apart from our own recipe implementation we have to provide the actual recipe for PyEsoRex.
-    This is very simple: just the
-
-    - seven required attributes as below (copyright may be omitted as it is provided in the base class),
-    - list of parameters as required (consult DRL-D for the particular recipe)
-    - and finally define the implementation class, which we have just written
+    Wrapper for the recipe for pyesorex, defining neessary attributes and parameters, plus the implementation class. 
     """
     # Fill in recipe information
     _name = "metis_pupil_imaging"
