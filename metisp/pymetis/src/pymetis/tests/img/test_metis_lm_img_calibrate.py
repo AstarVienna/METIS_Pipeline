@@ -34,7 +34,7 @@ def name():
 
 @pytest.fixture
 def sof(name):
-    return f'{name}.sof'
+    return rf'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
@@ -43,7 +43,6 @@ class TestRecipe(BaseRecipeTest):
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
-    count = 1
 
 
 class TestProduct(BaseProductTest):

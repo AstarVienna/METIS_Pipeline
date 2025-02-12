@@ -44,7 +44,6 @@ class TestRecipe(TargetParamRecipeTest):
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
-    count = 1
 
 
 class TestProductFluxcalTab(BaseProductTest):

@@ -43,7 +43,6 @@ class TestRecipe(TargetParamRecipeTest):
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
-    count = 1
 
 
 class TestProductBkg(BaseProductTest):

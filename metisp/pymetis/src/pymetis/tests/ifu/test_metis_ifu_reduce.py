@@ -43,8 +43,7 @@ class TestRecipe(TargetParamRecipeTest):
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
-    count = 1
-
+    
 
 class TestProductReduced(BaseProductTest):
     product = Impl.ProductReduced

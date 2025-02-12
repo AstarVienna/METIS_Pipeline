@@ -44,8 +44,7 @@ class TestRecipe(BandParamRecipeTest):
 
 class TestInputSet(RawInputSetTest):
     impl = Impl
-    count = 1
-
+    
 
 class TestProductGain(BaseProductTest):
     product = Impl.ProductGain

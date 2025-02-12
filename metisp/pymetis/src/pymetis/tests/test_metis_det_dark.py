@@ -21,11 +21,12 @@ import pytest
 
 import cpl
 
-from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
-
+from pymetis.recipes.metis_det_dark import (MetisDetDark as Recipe,
+                                            MetisDetDarkImpl as Impl)
 from generic import BandParamRecipeTest, BaseProductTest, RawInputSetTest
 
 recipe_name = r'metis_det_dark'
+
 
 @pytest.fixture
 def name():
@@ -56,7 +57,6 @@ class TestRecipe(BandParamRecipeTest):
 
 class TestInputSet(RawInputSetTest):
     impl = Impl
-    count = 1
 
 
 class TestProduct(BaseProductTest):

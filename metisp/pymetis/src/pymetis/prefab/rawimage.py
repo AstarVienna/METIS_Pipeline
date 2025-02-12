@@ -24,7 +24,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.base import MetisRecipeImpl
-from pymetis.inputs import PipelineInputSet
+from pymetis.inputs import PipelineInputSet, RawInput
 
 
 class RawImageProcessor(MetisRecipeImpl, ABC):
@@ -34,7 +34,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     """
 
     class InputSet(PipelineInputSet):
-        RawInput: type = None
+        RawInput: type[RawInput] = None
         detector: str = None
 
         def __init__(self, frameset: cpl.ui.FrameSet):

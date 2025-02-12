@@ -43,7 +43,6 @@ class TestRecipe(BaseRecipeTest):
 
 class TestInputSet(BaseInputSetTest):
     impl = Impl
-    count = 1
 
 
 class TestProductLmDistortionTable(BaseProductTest):

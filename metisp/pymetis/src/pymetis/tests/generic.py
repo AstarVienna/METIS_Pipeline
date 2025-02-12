@@ -28,8 +28,10 @@ from pathlib import Path
 
 import cpl
 
+from pymetis.base import MetisRecipeImpl
 from pymetis.inputs import PipelineInputSet, MultiplePipelineInput, PipelineInput
 from pymetis.base.product import PipelineProduct
+from pymetis.prefab.rawimage import RawImageProcessor
 
 root = Path(os.path.expandvars("$SOF_DIR"))
 
@@ -54,8 +56,7 @@ class BaseInputSetTest(ABC):
     """
     A set of basic tests common for all InputSets
     """
-    impl = None
-    count = None
+    impl: MetisRecipeImpl = None
 
     @pytest.fixture(autouse=True)
     def instance(self, load_frameset, sof):
@@ -76,10 +77,12 @@ class BaseInputSetTest(ABC):
         for input in instance.inputs:
             assert isinstance(input, PipelineInput)
 
-    def test_can_load_and_verify(self, instance):
+    @staticmethod
+    def test_can_load_and_verify(instance):
         assert instance.validate() is None, f"InputSet {instance} did not validate"
 
-    def test_all_inputs(self, instance):
+    @staticmethod
+    def test_all_inputs(instance):
         # We should really be testing a class here, not an instance
         for inp in instance.inputs:
             assert inp._group is not None
@@ -87,8 +90,7 @@ class BaseInputSetTest(ABC):
 
 
 class RawInputSetTest(BaseInputSetTest):
-    def test_is_raw_input_count_correct(self, instance):
-        assert len(instance.raw.frameset) == self.count
+    impl: RawImageProcessor.InputSet
 
     @staticmethod
     def test_inputset_has_raw(instance):

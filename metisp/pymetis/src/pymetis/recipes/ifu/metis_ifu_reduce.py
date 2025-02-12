@@ -137,12 +137,3 @@ class MetisIfuReduce(MetisRecipe):
 
     implementation_class = MetisIfuReduceImpl
 
-    # This should not be here but without it pyesorex crashes
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterValue(
-            name=f"{_name}.dummy",
-            context=_name,
-            description="Dummy parameter",
-            default="dummy",
-        )
-    ])
