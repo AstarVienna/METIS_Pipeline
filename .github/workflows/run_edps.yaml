@@ -31,6 +31,9 @@ jobs:
       - name: Fetch test data
         run: |
           git clone https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
+          # Try to checkout a branch in METIS_Pipeline_Test_Data that has
+          # the same name as the branch in METIS_Pipeline that we are testing.
+          git -C METIS_Pipeline_Test_Data checkout "${GITHUB_HEAD_REF}" || true
 
       - name: Run pytest tests
         run: |
