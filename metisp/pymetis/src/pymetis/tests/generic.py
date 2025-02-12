@@ -28,7 +28,7 @@ from pathlib import Path
 
 import cpl
 
-from pymetis.base import MetisRecipeImpl
+from pymetis.base import MetisRecipeImpl, MetisRecipe
 from pymetis.inputs import PipelineInputSet, MultiplePipelineInput, PipelineInput
 from pymetis.base.product import PipelineProduct
 from pymetis.prefab.rawimage import RawImageProcessor
@@ -37,36 +37,36 @@ root = Path(os.path.expandvars("$SOF_DIR"))
 
 
 class BaseProductTest(ABC):
-    product = None
+    _product: type[PipelineProduct] = None
 
     def test_is_it_even_a_product(self):
-        assert issubclass(self.product, PipelineProduct)
+        assert issubclass(self._product, PipelineProduct)
 
     def test_does_it_have_a_group(self):
-        assert self.product.group is not None
+        assert self._product.group is not None
 
     def test_does_it_have_a_level(self):
-        assert self.product.level is not None
+        assert self._product.level is not None
 
     def test_does_it_have_a_frame_type(self):
-        assert self.product.frame_type is not None
+        assert self._product.frame_type is not None
 
 
 class BaseInputSetTest(ABC):
     """
     A set of basic tests common for all InputSets
     """
-    impl: MetisRecipeImpl = None
+    _impl: MetisRecipeImpl = None
 
     @pytest.fixture(autouse=True)
     def instance(self, load_frameset, sof):
-        return self.impl.InputSet(load_frameset(sof))
+        return self._impl.InputSet(load_frameset(sof))
 
     def test_is_an_inputset(self):
-        assert issubclass(self.impl.InputSet, PipelineInputSet)
+        assert issubclass(self._impl.InputSet, PipelineInputSet)
 
     def test_is_not_abstract(self):
-        assert not inspect.isabstract(self.impl.InputSet)
+        assert not inspect.isabstract(self._impl.InputSet)
 
     @staticmethod
     def test_has_inputs_and_it_is_a_set(instance):
@@ -74,8 +74,8 @@ class BaseInputSetTest(ABC):
 
     @staticmethod
     def test_all_attrs_are_inputs(instance):
-        for input in instance.inputs:
-            assert isinstance(input, PipelineInput)
+        for inp in instance.inputs:
+            assert isinstance(inp, PipelineInput)
 
     @staticmethod
     def test_can_load_and_verify(instance):
@@ -90,7 +90,7 @@ class BaseInputSetTest(ABC):
 
 
 class RawInputSetTest(BaseInputSetTest):
-    impl: RawImageProcessor.InputSet
+    _impl: RawImageProcessor.InputSet
 
     @staticmethod
     def test_inputset_has_raw(instance):
@@ -101,32 +101,32 @@ class BaseRecipeTest(ABC):
     """
     Integration / regression tests for verifying that the recipe can be run
     """
-    _recipe = None
+    _recipe: type[MetisRecipe] = None
 
     @pytest.fixture(autouse=True)
-    def frameset(self, load_frameset, sof):
+    def frameset(self, load_frameset, sof) -> cpl.ui.FrameSet:
         return cpl.ui.FrameSet(load_frameset(sof))
 
     @classmethod
-    def _run_pyesorex(cls, name, sof):
+    def _run_pyesorex(cls, name, sof) -> subprocess.CompletedProcess:
         return subprocess.run(['pyesorex', name, root / sof, '--log-level', 'DEBUG'],
                               capture_output=True)
 
-    def test_recipe_can_be_instantiated(self):
+    def test_recipe_can_be_instantiated(self) -> None:
         recipe = self._recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe)
 
-    def test_recipe_can_be_run_directly(self, frameset):
+    def test_recipe_can_be_run_directly(self, frameset) -> None:
         recipe = self._recipe()
         assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet)
         # pprint.pprint(instance.implementation.as_dict(), width=200)
 
-    def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex):
+    def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex) -> None:
         pyesorex = create_pyesorex(self._recipe)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe), "Recipe is not a cpl.ui.PyRecipe"
         assert pyesorex.recipe.name == name, f"Recipe name {name} does not match the pyesorex name {pyesorex.recipe.name}"
 
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex) -> None:
         output = self._run_pyesorex(name, sof)
         assert output.returncode == 0, f"Pyesorex exited with non-zero return code {output.returncode}"
         assert output.stderr == b"", "Pyesorex exited with non-empty stderr"

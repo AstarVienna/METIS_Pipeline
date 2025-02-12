@@ -19,28 +19,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
+from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
 from pymetis.recipes.img.metis_n_img_flat import (MetisNImgFlat as Recipe,
                                                   MetisNImgFlatImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
 recipe_name = r'metis_n_img_flat'
+targets = ['lamp', 'twilight']
 
 
 @pytest.fixture
-def name():
+def name() -> str:
     return recipe_name
 
 
 @pytest.fixture
-def sof(name):
+def sof(name: str) -> str:
     return rf'{name}.lamp.sof'
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
+    _recipe: type[MetisRecipe] = Recipe
 
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in ['lamp', 'twilight']])
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
@@ -49,9 +51,9 @@ class TestRecipe(BaseRecipeTest):
 
 
 class TestInputSet(BaseInputSetTest):
-    impl = Impl
+    _impl: type[MetisRecipeImpl] = Impl
 
 
 class TestProduct(BaseProductTest):
-    product = Impl.Product
+    _product: type[PipelineProduct] = Impl.Product
 

@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
+from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
 from pymetis.recipes.metis_det_lingain import (MetisDetLinGain as Recipe,
                                                MetisDetLinGainImpl as Impl)
 from generic import RawInputSetTest, BandParamRecipeTest, BaseProductTest
@@ -28,29 +29,29 @@ recipe_name = r'metis_det_lingain'
 
 
 @pytest.fixture
-def name():
+def name() -> str:
     return recipe_name
 
 
 @pytest.fixture
-def sof(name):
-    return fr'{name}.lm.sof'
+def sof(name: str) -> str:
+    return rf'{name}.lm.sof'
 
 
 class TestRecipe(BandParamRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    _recipe = Recipe
+    _recipe: type[MetisRecipe] = Recipe
 
 
 class TestInputSet(RawInputSetTest):
-    impl = Impl
+    _impl: type[MetisRecipeImpl] = Impl
     
 
 class TestProductGain(BaseProductTest):
-    product = Impl.ProductGain
+    _product: type[PipelineProduct] = Impl.ProductGain
 
 class TestProductLinearity(BaseProductTest):
-    product = Impl.ProductLinearity
+    _product: type[PipelineProduct] = Impl.ProductLinearity
 
 class TestProductBadpixMap(BaseProductTest):
-    product = Impl.ProductBadpixMap
+    _product: type[PipelineProduct] = Impl.ProductBadpixMap

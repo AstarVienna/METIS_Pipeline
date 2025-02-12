@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
+from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
 from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe,
                                                   MetisIfuReduceImpl as Impl)
 from pymetis.tests.generic import BaseInputSetTest, TargetParamRecipeTest, BaseProductTest
@@ -28,31 +29,31 @@ recipe_name = r'metis_ifu_reduce'
 
 
 @pytest.fixture
-def name():
+def name() -> str:
     return recipe_name
 
 
 @pytest.fixture
-def sof(name):
+def sof(name: str) -> str:
     return f'{name}.std.sof'
 
 
 class TestRecipe(TargetParamRecipeTest):
-    _recipe = Recipe
+    _recipe: type[MetisRecipe] = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    impl = Impl
+    _impl: type[MetisRecipeImpl] = Impl
     
 
 class TestProductReduced(BaseProductTest):
-    product = Impl.ProductReduced
+    _product: type[PipelineProduct] = Impl.ProductReduced
 
 class TestProductBackground(BaseProductTest):
-    product = Impl.ProductBackground
+    _product: type[PipelineProduct] = Impl.ProductBackground
 
 class TestProductReducedCube(BaseProductTest):
-    product = Impl.ProductReducedCube
+    _product: type[PipelineProduct] = Impl.ProductReducedCube
 
 class TestProductCombined(BaseProductTest):
-    product = Impl.ProductCombined
+    _product: type[PipelineProduct] = Impl.ProductCombined
