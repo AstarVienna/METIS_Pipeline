@@ -20,8 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 
 import cpl
-from cpl.core import Msg
-from typing import Dict
 
 from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
@@ -51,10 +49,8 @@ class MetisLmImgCalibrateImpl(MetisRecipeImpl):
             super().__init__(frameset)
             self.background = self.BackgroundInput(frameset)
             self.flux_table = self.PinholeTableInput(frameset)
-            # ToDo This is still missing from the simulations
-            # self.distortion_table = self.DistortionTableInput(frameset)
-            # self.inputs |= {self.background, self.flux_table, self.distortion_table}
-            self.inputs |= {self.background, self.flux_table}
+            self.distortion_table = self.DistortionTableInput(frameset)
+            self.inputs |= {self.background, self.flux_table, self.distortion_table}
 
     class ProductLmSciCalibrated(PipelineProduct):
         _tag = r"LM_SCI_CALIBRATED"
@@ -80,8 +76,8 @@ class MetisLmImgCalibrate(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_lm_img_calibrate.stacking.method",
-            context="metis_lm_img_calibrate",
+            name=f"{_name}.stacking.method",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
