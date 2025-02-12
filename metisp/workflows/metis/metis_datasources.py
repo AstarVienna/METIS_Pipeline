@@ -68,3 +68,79 @@ pinehole_tab = (data_source()
                 .with_classification_rule(pinhole_table_class)
                 .with_match_keywords(["instrume"])
                 .build())
+
+# --- IFU Data Sources ---
+
+bad_pix_ifu_calib = (data_source()
+                 .with_classification_rule(badpix_ifu_class)
+                 .build())
+
+detlin_ifu_raw = (data_source()
+              .with_classification_rule(detlin_ifu_class)
+              .with_match_keywords(["instrume"])
+              .build())
+
+dark_ifu_raw = (data_source()
+            .with_classification_rule(rawdark_ifu_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
+distortion_ifu_raw = (data_source()
+                  .with_classification_rule(distortion_ifu_class)
+                  .with_match_keywords(["instrume"])
+                  .build())
+
+wave_ifu_raw = (data_source()
+            .with_classification_rule(wave_ifu_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
+rsrf_ifu_raw = (data_source()
+            .with_classification_rule(rsrf_ifu_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
+wcu_off_ifu_raw = (data_source()
+                   .with_classification_rule(wcu_off_ifu_class)
+                   .with_match_keywords(["instrume"])
+                   .build())
+
+std_ifu_raw = (data_source()
+           .with_classification_rule(std_ifu_class)
+           .with_match_keywords(["instrume"])
+           .build())
+
+sky_ifu_raw = (data_source()
+               .with_classification_rule(sky_ifu_class)
+               .with_match_keywords(["instrume"])
+               .build())
+
+sci_ifu_raw = (data_source()
+           .with_classification_rule(sci_ifu_class)
+           .with_match_keywords(["instrume"])
+           .build())
+
+calib_persistence = (data_source()
+                     .with_classification_rule(persistence_class)
+                     .with_match_keywords(["simple"])
+                     .build())
+
+calib_pinhole = (data_source()
+                 .with_classification_rule(pinhole_table_class)
+                 .with_match_keywords(["simple"])
+                 .build())
+
+calib_lsf_kernel = (data_source()
+                    .with_classification_rule(lsf_kernel_class)
+                    .with_match_keywords(["simple"])
+                    .build())
+
+calib_flux_std = (data_source()
+                  .with_classification_rule(fluxstd_ifu_class)
+                  .with_match_keywords(["simple"])
+                  .build())
+
+calib_atm_profile = (data_source()
+                     .with_classification_rule(atm_profile_class)
+                     .with_match_keywords(["simple"])
+                     .build())
