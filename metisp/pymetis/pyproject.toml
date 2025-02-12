@@ -9,3 +9,8 @@ version = "0.0.1"
 
 dynamic = ["description","requires-python","license","authors","classifiers","urls","dependencies","optional-dependencies"]
 
+[tool.pytest.ini_options]
+addopts = "--strict-markers"
+markers = [
+    "edps: marks EDPS tests that take a long time (deselect with '-m \"not edps\"')",
+]
