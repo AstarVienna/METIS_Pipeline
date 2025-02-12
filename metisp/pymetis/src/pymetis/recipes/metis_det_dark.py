@@ -34,7 +34,7 @@ from pymetis.prefab.rawimage import RawImageProcessor
 class MetisDetDarkImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
+            _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
@@ -92,19 +92,19 @@ class MetisDetDarkImpl(RawImageProcessor):
 class Metis2rgDarkImpl(Detector2rgMixin, MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
         class RawDarkInput(RawInput):
-            _tags = re.compile(r"DARK_2RG_RAW")
+            _tags: re.Pattern = re.compile(r"DARK_2RG_RAW")
 
 
 class MetisGeoDarkImpl(DetectorGeoMixin, MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
         class RawDarkInput(RawInput):
-            _tags = re.compile(r"DARK_GEO_RAW")
+            _tags: re.Pattern = re.compile(r"DARK_GEO_RAW")
 
 
 class MetisIfuDarkImpl(DetectorIfuMixin, MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
         class RawDarkInput(RawInput):
-            _tags = re.compile(r"DARK_IFU_RAW")
+            _tags: re.Pattern = re.compile(r"DARK_IFU_RAW")
 
 
 class MetisDetDark(MetisRecipe):

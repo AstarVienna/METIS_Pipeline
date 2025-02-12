@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
-from typing import Dict
 
 import cpl
 from cpl.core import Msg
@@ -26,12 +25,14 @@ from cpl.core import Msg
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import RawInput
-from pymetis.inputs.common import MasterDarkInput, LinearityInput, GainMapInput, MasterFlatInput
+from pymetis.inputs.common import MasterDarkInput, GainMapInput, MasterFlatInput, BadpixMapInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
+    detector = '2RG'
+
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class
@@ -59,7 +60,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # `RawImageProcessor.InputSet`. It already knows that it wants a RawInput and MasterDarkInput class,
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
+            _tags: re.Pattern = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
+            # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
+            #    Martin put this there to generate all the data and thus pass tests. If it is not correct, shout at him.
 
         # Now we need a master dark. Since nothing is changed and the tag is always the same,
         # we just point to the provided MasterDarkInput. Note that we do not have to instantiate
@@ -68,27 +71,35 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         # Also one master flat is required. Again, we use a prefabricated class, but reset the tags
         class MasterFlatInput(MasterFlatInput):
-            _tags = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
+            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
 
 
         # Alternatively, we could directly use MasterFlatInput(tags=re.compile(r"...")) in __init__,
         # or go fully manual and specify it as
         # SinglePipelineInput(tags=re.compile(r"..."), title="master flat", group=cpl.ui.Frame.FrameGroup.CALIB)
+        # Note that many of the required inputs are already handled by parent classes / mixins:
+        #   - persistence comes from `PersistenceInputSetMixin`,
+        #   - linearity comes from `LinearityInputSetMixin`
+        #   - master dark comes from `DarkImageProcessor`
+        #   - raw data come from `RawImageProcessor` via `DarkImageProcessor`
+        # This aims to reduce the attack surface™ for bugs.
+        # Still, we need to add and create all other inputs.
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.master_flat = self.MasterFlatInput(frameset)
             self.gain_map = GainMapInput(frameset)
+            self.badpix_map = BadpixMapInput(frameset, required=False)
 
-            # We need to register the inputs (just to be able to say `for x in self.inputs:`)
-            self.inputs |= {self.master_flat, self.gain_map}
+            # We need to register the extra inputs (just to be able to say `for x in self.inputs:`)
+            self.inputs |= {self.master_flat, self.gain_map, self.badpix_map}
 
     class Product(TargetSpecificProduct):
         """
         The second big part is defining the products. For every product we create a separate class
         which defines the tag, group, level and frame type. Here we only have one kind of product,
         so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
-        But feel free to be more creative with names.
+        But feel free to be more creative with names: it could be `MetisLmImgBasicReduceImpl.ProductBasicReduced`.
         """
         _group = cpl.ui.Frame.FrameGroup.PRODUCT
         _level = cpl.ui.Frame.FrameLevel.FINAL

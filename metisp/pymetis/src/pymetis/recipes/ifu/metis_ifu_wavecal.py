@@ -31,7 +31,7 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 class MetisIfuWavecalImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"IFU_WAVE_RAW")
+            _tags: re.Pattern = re.compile(r"IFU_WAVE_RAW")
 
         MasterDarkInput = MasterDarkInput
 

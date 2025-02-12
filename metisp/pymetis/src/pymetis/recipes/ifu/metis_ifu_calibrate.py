@@ -30,19 +30,19 @@ from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciReducedInput(SinglePipelineInput):
-            _title = "science reduced"
+            _title: str = "science reduced"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _tags = re.compile(r"IFU_SCI_REDUCED")
+            _tags: re.Pattern = re.compile(r"IFU_SCI_REDUCED")
 
         class TelluricInput(SinglePipelineInput):
-            _title = "telluric correction"
+            _title: str = "telluric correction"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _tags = re.compile(r"IFU_TELLURIC")
+            _tags: re.Pattern = re.compile(r"IFU_TELLURIC")
 
         class FluxcalTabInput(SinglePipelineInput):
-            _title = "flux calibration table"
+            _title: str = "flux calibration table"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _tags = re.compile(r"FLUXCAL_TAB")
+            _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

@@ -39,8 +39,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         detector = "IFU"
 
         class RawInput(RawInput):
-            _tags = re.compile(r"IFU_RSRF_RAW")
-            _title = "IFU rsrf raw"
+            _tags: re.Pattern = re.compile(r"IFU_RSRF_RAW")
+            _title: str = "IFU rsrf raw"
 
         MasterDarkInput = MasterDarkInput
 
@@ -49,8 +49,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             WCU_OFF input illuminated by the WCU up-to and including the
             integrating sphere, but no source.
             """
-            _tags = re.compile(r"IFU_WCU_OFF_RAW")
-            _title = "IFU WCU off"
+            _tags: re.Pattern = re.compile(r"IFU_WCU_OFF_RAW")
+            _title: str = "IFU WCU off"
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

@@ -88,6 +88,13 @@ class BaseInputSetTest(ABC):
             assert inp._group is not None
             assert isinstance(inp._title, str)
 
+    @staticmethod
+    def test_all_inputs_are_registered(instance):
+        print(instance.__dict__)
+        for name, attr in instance.__dict__.items():
+            if isinstance(attr, PipelineInput):
+                assert attr in instance.inputs, f"Input {name} is not registered in `inputs`"
+
 
 class RawInputSetTest(BaseInputSetTest):
     _impl: RawImageProcessor.InputSet

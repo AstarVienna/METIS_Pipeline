@@ -35,14 +35,14 @@ class MetisLmImgCalibrateImpl(MetisRecipeImpl):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         class PinholeTableInput(SinglePipelineInput):
-            _tags = re.compile(r"FLUXCAL_TAB")
-            _title = "flux table"
+            _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
+            _title: str = "flux table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
-            _tags = re.compile(r"LM_DISTORTION_TABLE")
-            _title = "distortion table"
+            _tags: re.Pattern = re.compile(r"LM_DISTORTION_TABLE")
+            _title: str = "distortion table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):

@@ -33,10 +33,10 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
+            _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
 
         class SkyInput(RawInput):
-            _tags = re.compile(r"LM_(?P<target>SKY)_BASIC_REDUCED")
+            _tags: re.Pattern = re.compile(r"LM_(?P<target>SKY)_BASIC_REDUCED")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

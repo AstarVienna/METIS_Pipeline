@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from abc import ABC
-from typing import Any
+from typing import Any, final
 
 import cpl
 from cpl.core import Msg
@@ -36,6 +36,7 @@ class PipelineProduct(ABC):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
     _level: cpl.ui.Frame.FrameLevel = None
     _frame_type: cpl.ui.Frame.FrameType = None
+    _used_frames: cpl.ui.FrameSet = None
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -96,9 +97,11 @@ class PipelineProduct(ABC):
             'tag': self.tag,
         }
 
+    @final
     def __str__(self):
         return f"{self.__class__.__qualname__} ({self.tag})"
 
+    @final
     def save(self):
         """ Save this Product to a file """
         Msg.info(self.__class__.__qualname__,
@@ -122,18 +125,22 @@ class PipelineProduct(ABC):
         )
 
     @property
+    @final
     def tag(self) -> str:
         return self._tag
 
     @property
+    @final
     def group(self) -> cpl.ui.Frame.FrameGroup:
         return self._group
 
     @property
+    @final
     def level(self) -> cpl.ui.Frame.FrameLevel:
         return self._level
 
     @property
+    @final
     def frame_type(self) -> cpl.ui.Frame.FrameType:
         return self._frame_type
 
@@ -142,21 +149,33 @@ class PipelineProduct(ABC):
         """
         Return the category of this product.
 
-        By default, the tag is the same as the category. Feel free to override if needed for some reason.
+        By default, the tag is the same as the category. Feel free to override if needed.
         """
         return self.tag
 
     @property
     def output_file_name(self) -> str:
-        """ Form the output file name """
+        """
+        Form the output file name.
+        By default, this should be just the category with ".fits" appended. Feel free to override if needed.
+        """
         return f"{self.category}.fits"
+
+    @property
+    def used_frames(self) -> cpl.ui.FrameSet:
+        """
+        Returns
+        -------
+            cpl.ui.FrameSet:    List of all frames actually used by the product.
+        """
+        return self._used_frames
 
 
 class DetectorSpecificProduct(PipelineProduct, ABC):
     """
     Products that are specific to a detector.
     """
-    detector = None
+    detector: str = None
 
     def __init__(self,
                  recipe: 'MetisRecipe',
@@ -177,7 +196,7 @@ class DetectorSpecificProduct(PipelineProduct, ABC):
 
 
 class TargetSpecificProduct(PipelineProduct, ABC):
-    target = None
+    target: str = None
 
     def __init__(self,
                  recipe: 'MetisRecipe',
@@ -207,7 +226,7 @@ class BandSpecificProduct(PipelineProduct, ABC):
     """
     Product specific to one band. Probably should be merged with all other similar classes.
     """
-    band = None
+    band: str = None
 
     def __init__(self,
                  recipe: 'MetisRecipe',

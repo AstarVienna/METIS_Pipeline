@@ -46,11 +46,11 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         """
 
         class Raw(RawInput):
-            _tags = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
+            _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
 
         # Also one master flat is required. We use a prefabricated class
         class MasterFlat(MasterFlatInput):
-            _tags = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
+            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
 
 
         RawInput = Raw

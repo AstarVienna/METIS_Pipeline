@@ -38,29 +38,31 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         detector = "IFU"
 
         class RawInput(RawInput):
-            _tags = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
+            _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
 
         class RawSkyInput(RawInput):
-            _tags = re.compile(r"IFU_SKY_RAW")
-            _title = "blank sky image"
+            _tags: re.Pattern = re.compile(r"IFU_SKY_RAW")
+            _title: str = "blank sky image"
 
         class MasterDarkInput(MasterDarkInput):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
 
         class WavecalInput(SinglePipelineInput):
-            _tags = re.compile(r"IFU_WAVECAL")
+            _tags: re.Pattern = re.compile(r"IFU_WAVECAL")
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title = "Wavelength calibration"
+            _title: str = "Wavelength calibration"
 
         class DistortionTableInput(SinglePipelineInput):
-            _tags = re.compile(r"IFU_DISTORTION_TABLE")
+            _tags: re.Pattern = re.compile(r"IFU_DISTORTION_TABLE")
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title = "Distortion table"
+            _title: str = "Distortion table"
 
         class RsrfInput(SinglePipelineInput):
-            _tags = re.compile(r"RSRF_IFU")
+            _tags: re.Pattern = re.compile(r"RSRF_IFU")
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title = "RSRF"
+            _title: str = "RSRF"
+
+        MasterDarkInput = MasterDarkInput
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             """
@@ -69,7 +71,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             super().__init__(frameset)
             self.sky = self.RawSkyInput(frameset)
             self.linearity_map = LinearityInput(frameset)
-            self.master_dark = self.MasterDarkInput(frameset)
             self.ifu_wavecal = self.WavecalInput(frameset)
             self.rsrf = self.RsrfInput(frameset)
             self.ifu_distortion_table = self.DistortionTableInput(frameset)

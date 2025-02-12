@@ -37,7 +37,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         MasterDarkInput = MasterDarkInput
 
         class RawInput(RawInput):
-            _tags = re.compile(r"IFU_DISTORTION_RAW")
+            _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

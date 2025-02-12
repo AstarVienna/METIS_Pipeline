@@ -33,7 +33,7 @@ from pymetis.prefab.rawimage import RawImageProcessor
 class MetisLmImgsStdProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_STD_BKG_SUBTRACTED")
+            _tags: re.Pattern = re.compile(r"LM_STD_BKG_SUBTRACTED")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
