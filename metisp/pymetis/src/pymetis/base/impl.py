@@ -62,7 +62,7 @@ class MetisRecipeImpl(ABC):
             (and hence it does not have to be repeated or overridden anywhere).
 
             ToDo: At least Martin thinks so now. It might change, but needs compelling arguments.
-            ToDo: If this structure does not cover the needs of your particular recipe, we should discuss and adapt.
+            FixMe: If this structure does not cover the needs of your particular recipe, we should discuss and adapt.
         """
 
         try:
@@ -81,7 +81,10 @@ class MetisRecipeImpl(ABC):
 
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
-        """ Update the recipe parameters with the values requested by the user """
+        """
+        Update the recipe parameters with the values requested by the user.
+        Warn if any of the parameters is not recognized.
+        """
         for key, value in settings.items():
             try:
                 self.parameters[key].value = value
@@ -144,7 +147,7 @@ class MetisRecipeImpl(ABC):
         """
         Converts the object and its related data into a dictionary representation.
 
-        Return:
+        Returns:
             dict[str, Any]: A dictionary that contains the serialized representation
             of the object's data, including both input set data and product data.
         """
@@ -157,7 +160,7 @@ class MetisRecipeImpl(ABC):
         }
 
     @staticmethod
-    def _create_dummy_header():
+    def _create_dummy_header() -> cpl.core.PropertyList:
         """
         Create a dummy header (absolutely no assumptions, just to have something to work with).
         This function should not survive in the future.
@@ -165,7 +168,7 @@ class MetisRecipeImpl(ABC):
         return cpl.core.PropertyList()
 
     @staticmethod
-    def _create_dummy_image():
+    def _create_dummy_image() -> cpl.core.Image:
         """
         Create a dummy image (absolutely no assumptions, just to have something to work with).
         This function should not survive in the future.

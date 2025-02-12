@@ -26,11 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 
-from typing import Dict
-
 import cpl
 from cpl.core import Msg
-import re
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct, BandSpecificProduct
@@ -46,7 +43,6 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         and the tags for PUPIL_RAW
 
         TODO; currently works for LM band, need to set up to work for both LM and N with proper filtering.
-        
         """
 
         class Raw(RawInput):

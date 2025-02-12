@@ -18,11 +18,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from abc import ABC
+from typing import Any
 
 import cpl
 from cpl.core import Msg
 
-PIPELINE = r"METIS"
+PIPELINE = r'METIS'
 
 
 class PipelineProduct(ABC):
@@ -64,9 +65,9 @@ class PipelineProduct(ABC):
 
         self.add_properties()
 
-    def add_properties(self):
+    def add_properties(self) -> None:
         """
-        Hook for adding properties.
+        Hook for adding custom properties.
         Currently only adds ESO PRO CATG to every product,
         but derived classes are more than welcome to add their own stuff.
         Do not forget to call super().add_properties() then.
@@ -79,7 +80,7 @@ class PipelineProduct(ABC):
             )
         )
 
-    def as_frame(self):
+    def as_frame(self) -> cpl.ui.Frame:
         """ Create a CPL Frame from this Product """
         return cpl.ui.Frame(
             file=self.output_file_name,
@@ -89,7 +90,7 @@ class PipelineProduct(ABC):
             frameType=self.frame_type,
         )
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """ Return a dictionary representation of this Product """
         return {
             'tag': self.tag,
@@ -121,27 +122,27 @@ class PipelineProduct(ABC):
         )
 
     @property
-    def tag(self):
+    def tag(self) -> str:
         return self._tag
 
     @property
-    def group(self):
+    def group(self) -> cpl.ui.Frame.FrameGroup:
         return self._group
 
     @property
-    def level(self):
+    def level(self) -> cpl.ui.Frame.FrameLevel:
         return self._level
 
     @property
-    def frame_type(self):
+    def frame_type(self) -> cpl.ui.Frame.FrameType:
         return self._frame_type
 
     @property
     def category(self) -> str:
         """
-        Return the category of this product
+        Return the category of this product.
 
-        By default, the tag is the same as the category. Feel free to override if needed.
+        By default, the tag is the same as the category. Feel free to override if needed for some reason.
         """
         return self.tag
 
@@ -152,6 +153,9 @@ class PipelineProduct(ABC):
 
 
 class DetectorSpecificProduct(PipelineProduct, ABC):
+    """
+    Products that are specific to a detector.
+    """
     detector = None
 
     def __init__(self,
@@ -193,8 +197,8 @@ class TargetSpecificProduct(PipelineProduct, ABC):
             -   or as a provided property (if it has to be computed dynamically)
         """
         if self.target is None:
-            raise NotImplementedError(f"Products specific to a target must define 'target', but "
-                                      f"{self.__class__.__qualname__} does not")
+            raise NotImplementedError(f"Products specific to a target must define 'target', "
+                                      f"but {self.__class__.__qualname__} does not")
 
         super().__init__(recipe, header, image, **kwargs)
 
