@@ -31,10 +31,12 @@ def reset_edps():
 
     return inner
 
-workflows = ['metis_lm_img_wkf', 'metis_lm_ifu_wkf', 'metis_pupil_imaging_wkf', 'metis_wkf']
+
+workflows = ['metis_lm_img_wkf', 'metis_ifu_wkf', 'metis_pupil_imaging_wkf', 'metis_wkf']
 
 
-class DisabledTestEDPS:
+@pytest.mark.edps
+class TestEDPS:
     @pytest.mark.parametrize('workflow_name', workflows)
     def test_does_edps_classify(self, workflow_name, reset_edps):
         reset_edps()
@@ -53,5 +55,5 @@ class DisabledTestEDPS:
         message = str(output.stdout.decode('utf8'))
         assert output.returncode == 0
         assert output.stderr == b''
-        assert re.findall('[eE]rror', message) == []
+        assert re.findall('[eE]rror', message) == [], f"EDPS run resulted in an error: {message}"
         assert re.findall('FAILED', message) == []

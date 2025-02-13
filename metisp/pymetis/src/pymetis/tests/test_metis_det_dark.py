@@ -21,25 +21,27 @@ import pytest
 
 import cpl
 
-from pymetis.recipes.metis_det_dark import MetisDetDark as Recipe, MetisDetDarkImpl as Impl
-
+from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
+from pymetis.recipes.metis_det_dark import (MetisDetDark as Recipe,
+                                            MetisDetDarkImpl as Impl)
 from generic import BandParamRecipeTest, BaseProductTest, RawInputSetTest
 
 recipe_name = r'metis_det_dark'
 
+
 @pytest.fixture
-def name():
+def name() -> str:
     return recipe_name
 
 
 @pytest.fixture
-def sof(name):
-    return f"{name}.lm.sof"
+def sof(name: str) -> str:
+    return rf'{name}.lm.sof'
 
 
 class TestRecipe(BandParamRecipeTest):
     """ A bunch of simple and stupid test cases... just to see if it does something """
-    _recipe = Recipe
+    _recipe: type[MetisRecipe] = Recipe
 
     def test_fails_with_files_from_multiple_detectors(self, load_frameset):
         with pytest.raises(ValueError):
@@ -55,9 +57,8 @@ class TestRecipe(BandParamRecipeTest):
 
 
 class TestInputSet(RawInputSetTest):
-    impl = Impl
-    count = 1
+    _impl: type[MetisRecipeImpl] = Impl
 
 
 class TestProduct(BaseProductTest):
-    product = Impl.Product
+    _product: type[PipelineProduct] = Impl.Product

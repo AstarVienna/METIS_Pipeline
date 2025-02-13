@@ -32,7 +32,7 @@ from pymetis.prefab.rawimage import RawImageProcessor
 class MetisLmImgSciPostProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_SCI_CALIBRATED")
+            _tags: re.Pattern = re.compile(r"LM_SCI_CALIBRATED")
 
 
         def __init__(self, frameset: cpl.ui.FrameSet):

@@ -26,11 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 
-from typing import Dict
-
 import cpl
 from cpl.core import Msg
-import re
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct, BandSpecificProduct
@@ -46,15 +43,14 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         and the tags for PUPIL_RAW
 
         TODO; currently works for LM band, need to set up to work for both LM and N with proper filtering.
-        
         """
 
         class Raw(RawInput):
-            _tags = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
+            _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
 
         # Also one master flat is required. We use a prefabricated class
         class MasterFlat(MasterFlatInput):
-            _tags = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
+            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
 
 
         RawInput = Raw

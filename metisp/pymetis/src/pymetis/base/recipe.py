@@ -26,11 +26,10 @@ class MetisRecipe(cpl.ui.PyRecipe):
     """
         The abstract base class for all METIS recipes.
         In an ideal world it would also be abstract (derived from ABC, or metaclass=abc.ABCMeta),
-        but `pyesorex` wants to instantiate all recipes it finds
-        and would crash if it were an abstract class.
+        but `pyesorex` tries to instantiate all recipes it finds and would crash if it were an abstract class.
 
         The underscored _fields must be present but should be overwritten
-        by every child class (and `pyesorex` actually checks for their presence).
+        by every child class (`pyesorex` actually checks for their presence).
     """
     _name = "metis_abstract_base"
     _version = "0.0.1"
@@ -41,14 +40,25 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _description = ("This class serves as the base class for all METIS recipes."
                     "Bonus points if it is not visible from pyesorex.")
 
-    parameters = cpl.ui.ParameterList([])           # By default, a recipe does not have any parameters.
-                                                    # ToDo: There is a pyesorex bug that prevents
-                                                    # this from being actually used.
+    parameters: cpl.ui.ParameterList = cpl.ui.ParameterList([])     # By default, a recipe does not have any parameters.
     implementation_class: type["MetisRecipeImpl"]   # Dummy class, this must be overridden in the derived classes anyway
 
     def __init__(self):
         super().__init__()
         self.implementation: "MetisRecipeImpl" = None
+
+        # ToDo: This handles the bug in `pyesorex` where zero-length parameter list crashes the whole thing
+        #       A fix is already provided (just test with `if parameters is None` and not `if not parameters`)
+        #       but not yet merged upstream.
+        if len(self.parameters) == 0:
+            self.parameters = cpl.ui.ParameterList([
+                cpl.ui.ParameterValue(
+                    name=f"{self._name}.dummy",
+                    context=self._name,
+                    description="Dummy parameter to avoid problems with `pyesorex` bug",
+                    default="dummy",
+                )
+            ])
 
     def dispatch_implementation_class(self, frameset) -> type["MetisRecipeImpl"]:
         """

@@ -108,7 +108,7 @@ class PinholeTableInput(SinglePipelineInput):
 
 
 class FluxTableInput(SinglePipelineInput):
-    _title = "flux standard star catalogue table"
+    _title: str = "flux standard star catalogue table"
     _tags: Pattern = re.compile(r"FLUXSTD_CATALOG")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 

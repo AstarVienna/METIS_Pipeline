@@ -31,7 +31,7 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 class MetisIfuWavecalImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"IFU_WAVE_RAW")
+            _tags: re.Pattern = re.compile(r"IFU_WAVE_RAW")
 
         MasterDarkInput = MasterDarkInput
 
@@ -72,13 +72,3 @@ class MetisIfuWavecal(MetisRecipe):
     )
 
     implementation_class = MetisIfuWavecalImpl
-
-    # Dummy parameter to circumvent a potential bug in `pyesorex`
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterValue(
-            name=f"{_name}.dummy",
-            context=_name,
-            description="Dummy parameter",
-            default="dummy",
-        )
-    ])

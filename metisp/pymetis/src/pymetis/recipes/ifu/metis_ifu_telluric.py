@@ -49,14 +49,14 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """Inputs for metis_ifu_telluric"""
         # TODO: still needs to be added to the input set
         class Reduced1DInput(SinglePipelineInput):
-            _tags = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
+            _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title = "uncorrected mf input spectrum"
+            _title: str = "uncorrected mf input spectrum"
 
         class CombinedInput(SinglePipelineInput):
-            _tags = re.compile(rf"IFU_(?P<target>SCI|STD)_COMBINED")
+            _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_COMBINED")
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title = "spectral cube of science object"
+            _title: str = "spectral cube of science object"
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
@@ -161,13 +161,5 @@ class MetisIfuTelluric(MetisRecipe):
             *TBwritten*
     """
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterValue(
-            name=f"{_name}.dummy",
-            context=_name,
-            description="Dummy parameter to avoid problems with `pyesorex` bug",
-            default="dummy",
-        )
-    ])
     implementation_class = MetisIfuTelluricImpl
 

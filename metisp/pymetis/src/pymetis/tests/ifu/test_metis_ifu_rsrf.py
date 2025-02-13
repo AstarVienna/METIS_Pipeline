@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
+from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
 from pymetis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe,
                                                 MetisIfuRsrfImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest, BaseProductTest, RawInputSetTest
@@ -28,33 +29,32 @@ recipe_name = r'metis_ifu_rsrf'
 
 
 @pytest.fixture
-def name():
+def name() -> str:
     return recipe_name
 
 
 @pytest.fixture
-def sof(name):
+def sof(name: str) -> str:
     return f'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    _recipe = Recipe
+    _recipe: type[MetisRecipe] = Recipe
 
 
 class TestInputSet(RawInputSetTest):
-    impl = Impl
-    count = 1
+    _impl: type[MetisRecipeImpl] = Impl
 
 
 class TestProductBackground(BaseProductTest):
-    product = Impl.ProductBackground
+    _product: type[PipelineProduct] = Impl.ProductBackground
 
 class TestProductMasterFlatIfu(BaseProductTest):
-    product = Impl.ProductMasterFlatIfu
+    _product: type[PipelineProduct] = Impl.ProductMasterFlatIfu
 
 class TestProductRsrfIfu(BaseProductTest):
-    product = Impl.ProductRsrfIfu
+    _product: type[PipelineProduct] = Impl.ProductRsrfIfu
 
 class TestProductBadpixMap(BaseProductTest):
-    product = Impl.ProductBadpixMapIfu
+    _product: type[PipelineProduct] = Impl.ProductBadpixMapIfu

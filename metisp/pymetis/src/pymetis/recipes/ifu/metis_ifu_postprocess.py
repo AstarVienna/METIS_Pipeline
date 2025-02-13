@@ -31,8 +31,8 @@ from pymetis.base.product import PipelineProduct
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(SinglePipelineInput):
-            _tags = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
-            _title = "rectified spectral cube"
+            _tags: re.Pattern = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
+            _title: str = "rectified spectral cube"
             _group = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):

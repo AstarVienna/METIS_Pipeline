@@ -33,7 +33,7 @@ from pymetis.prefab.rawimage import RawImageProcessor
 class MetisLmImgsStdProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_STD_BKG_SUBTRACTED")
+            _tags: re.Pattern = re.compile(r"LM_STD_BKG_SUBTRACTED")
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
@@ -76,15 +76,15 @@ class MetisLmImgStdProcess(MetisRecipe):
     _version = "0.1"
     _author = "Chi-Hung Yan"
     _email = "chyan@asiaa.sinica.edu.tw"
-    _synopsis = "Determine conversion factor between detector counts and physical source flux"
+    _synopsis = "Determine the conversion factor between detector counts and physical source flux"
     _description = (
         "Currently just a skeleton prototype."
     )
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_lm_img_std_process.stacking.method",
-            context="metis_lm_img_std_process",
+            name=f"{_name}.stacking.method",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),

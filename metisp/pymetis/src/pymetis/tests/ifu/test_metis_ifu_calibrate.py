@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
+from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
 from pymetis.recipes.ifu.metis_ifu_calibrate import (MetisIfuCalibrate as Recipe,
                                                      MetisIfuCalibrateImpl as Impl)
 from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
@@ -28,24 +29,22 @@ recipe_name = r'metis_ifu_calibrate'
 
 
 @pytest.fixture
-def name():
+def name() -> str:
     return recipe_name
 
 
 @pytest.fixture
-def sof(name):
-    return f'{name}.sof'
+def sof(name: str) -> str:
+    return rf'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    _recipe = Recipe
+    _recipe: type[MetisRecipe] = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    impl = Impl
-    count = 1
-
+    _impl: type[MetisRecipeImpl] = Impl
+    
 
 class TestProduct(BaseProductTest):
-    product = Impl.ProductSciCubeCalibrated
+    _product: type[PipelineProduct] = Impl.ProductSciCubeCalibrated

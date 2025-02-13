@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
+from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
 from pymetis.recipes.img.metis_lm_img_background import (MetisLmImgBackground as Recipe,
                                                          MetisLmImgBackgroundImpl as Impl)
 from pymetis.tests.generic import BaseInputSetTest, BaseProductTest, TargetParamRecipeTest
@@ -28,29 +29,28 @@ recipe_name = r'metis_lm_img_background'
 
 
 @pytest.fixture
-def name():
+def name() -> str:
     return recipe_name
 
 
 @pytest.fixture
-def sof(name):
+def sof(name: str) -> str:
     return rf'{name}.std.sof'
 
 
 class TestRecipe(TargetParamRecipeTest):
-    _recipe = Recipe
+    _recipe: type[MetisRecipe] = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    impl = Impl
-    count = 1
+    _impl: type[MetisRecipeImpl] = Impl
 
 
 class TestProductBkg(BaseProductTest):
-    product = Impl.ProductBkg
+    _product: type[PipelineProduct] = Impl.ProductBkg
 
 class TestProductBkgSubtracted(BaseProductTest):
-    product = Impl.ProductBkgSubtracted
+    _product: type[PipelineProduct] = Impl.ProductBkgSubtracted
 
 class TestProductObjectCat(BaseProductTest):
-    product = Impl.ProductObjectCat
+    _product: type[PipelineProduct] = Impl.ProductObjectCat

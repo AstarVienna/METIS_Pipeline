@@ -34,16 +34,16 @@ from pymetis.prefab.rawimage import RawImageProcessor
 class MetisLmImgDistortionImpl(RawImageProcessor):
     class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags = re.compile(r"LM_WCU_OFF_RAW")
+            _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
 
         class DistortionInput(SinglePipelineInput):
-            _tags = re.compile(r"LM_DISTORTION_RAW")
-            _title = "Distortion map"
+            _tags: re.Pattern = re.compile(r"LM_DISTORTION_RAW")
+            _title: str = "Distortion map"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         class PinholeTableInput(SinglePipelineInput):
-            _tags = re.compile(r"PINHOLE_TABLE")
-            _title = "pinhole table"
+            _tags: re.Pattern = re.compile(r"PINHOLE_TABLE")
+            _title: str = "pinhole table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):

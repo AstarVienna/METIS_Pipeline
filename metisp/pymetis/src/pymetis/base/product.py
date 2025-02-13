@@ -18,11 +18,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from abc import ABC
+from typing import Any, final
 
 import cpl
 from cpl.core import Msg
 
-PIPELINE = r"METIS"
+PIPELINE = r'METIS'
 
 
 class PipelineProduct(ABC):
@@ -35,6 +36,7 @@ class PipelineProduct(ABC):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
     _level: cpl.ui.Frame.FrameLevel = None
     _frame_type: cpl.ui.Frame.FrameType = None
+    _used_frames: cpl.ui.FrameSet = None
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -64,9 +66,9 @@ class PipelineProduct(ABC):
 
         self.add_properties()
 
-    def add_properties(self):
+    def add_properties(self) -> None:
         """
-        Hook for adding properties.
+        Hook for adding custom properties.
         Currently only adds ESO PRO CATG to every product,
         but derived classes are more than welcome to add their own stuff.
         Do not forget to call super().add_properties() then.
@@ -79,7 +81,7 @@ class PipelineProduct(ABC):
             )
         )
 
-    def as_frame(self):
+    def as_frame(self) -> cpl.ui.Frame:
         """ Create a CPL Frame from this Product """
         return cpl.ui.Frame(
             file=self.output_file_name,
@@ -89,15 +91,17 @@ class PipelineProduct(ABC):
             frameType=self.frame_type,
         )
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """ Return a dictionary representation of this Product """
         return {
             'tag': self.tag,
         }
 
+    @final
     def __str__(self):
         return f"{self.__class__.__qualname__} ({self.tag})"
 
+    @final
     def save(self):
         """ Save this Product to a file """
         Msg.info(self.__class__.__qualname__,
@@ -121,25 +125,29 @@ class PipelineProduct(ABC):
         )
 
     @property
-    def tag(self):
+    @final
+    def tag(self) -> str:
         return self._tag
 
     @property
-    def group(self):
+    @final
+    def group(self) -> cpl.ui.Frame.FrameGroup:
         return self._group
 
     @property
-    def level(self):
+    @final
+    def level(self) -> cpl.ui.Frame.FrameLevel:
         return self._level
 
     @property
-    def frame_type(self):
+    @final
+    def frame_type(self) -> cpl.ui.Frame.FrameType:
         return self._frame_type
 
     @property
     def category(self) -> str:
         """
-        Return the category of this product
+        Return the category of this product.
 
         By default, the tag is the same as the category. Feel free to override if needed.
         """
@@ -147,12 +155,27 @@ class PipelineProduct(ABC):
 
     @property
     def output_file_name(self) -> str:
-        """ Form the output file name """
+        """
+        Form the output file name.
+        By default, this should be just the category with ".fits" appended. Feel free to override if needed.
+        """
         return f"{self.category}.fits"
+
+    @property
+    def used_frames(self) -> cpl.ui.FrameSet:
+        """
+        Returns
+        -------
+            cpl.ui.FrameSet:    List of all frames actually used by the product.
+        """
+        return self._used_frames
 
 
 class DetectorSpecificProduct(PipelineProduct, ABC):
-    detector = None
+    """
+    Products that are specific to a detector.
+    """
+    detector: str = None
 
     def __init__(self,
                  recipe: 'MetisRecipe',
@@ -173,7 +196,7 @@ class DetectorSpecificProduct(PipelineProduct, ABC):
 
 
 class TargetSpecificProduct(PipelineProduct, ABC):
-    target = None
+    target: str = None
 
     def __init__(self,
                  recipe: 'MetisRecipe',
@@ -193,8 +216,8 @@ class TargetSpecificProduct(PipelineProduct, ABC):
             -   or as a provided property (if it has to be computed dynamically)
         """
         if self.target is None:
-            raise NotImplementedError(f"Products specific to a target must define 'target', but "
-                                      f"{self.__class__.__qualname__} does not")
+            raise NotImplementedError(f"Products specific to a target must define 'target', "
+                                      f"but {self.__class__.__qualname__} does not")
 
         super().__init__(recipe, header, image, **kwargs)
 
@@ -203,7 +226,7 @@ class BandSpecificProduct(PipelineProduct, ABC):
     """
     Product specific to one band. Probably should be merged with all other similar classes.
     """
-    band = None
+    band: str = None
 
     def __init__(self,
                  recipe: 'MetisRecipe',
