@@ -189,7 +189,7 @@ class MetisPupilImaging(MetisRecipe):
            Apply dark current and flat field corrections and optionally bias subtraction,
            persistence and linearity corrections. 
         """
-    )
+    
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
