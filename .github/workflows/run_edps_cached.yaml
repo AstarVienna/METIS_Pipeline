@@ -1,15 +1,15 @@
 name: Run tests cached
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  # pull_request:
-  #   branches:
-  #     - main
-  # schedule:
-  #   # Run every day at 2:00 UTC
-  #   - cron: "0 2 * * *"
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Run every day at 2:00 UTC
+    - cron: "0 2 * * *"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
