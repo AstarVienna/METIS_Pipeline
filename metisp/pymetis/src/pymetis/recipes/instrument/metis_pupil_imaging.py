@@ -166,11 +166,29 @@ class MetisPupilImaging(MetisRecipe):
     _email = "jkarr@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Basic processing of pupil images"
-    _description = (
-            "This recipe performs basic reduction (dark current subtraction, flat fielding,\n"
-            "optional bias subtraction, persistance and linearity corrections) on engineering\n"
-            "images of the pupil masks. This recipe is not expected to be used by observers\n"
-            "during regular use."
+    _description = """
+       This recipe performs basic reduction (dark current subtraction, flat fielding,\n
+       optional bias subtraction, persistance and linearity corrections) on engineering\n
+       images of the pupil masks. This recipe is not expected to be used by observers\n
+       during regular use.
+
+       INPUTS
+           {band}_PUPIL_RAW
+           LINEARITY_{det}
+           GAIN_MAP_{det}
+           PERSISTENCE_MAP
+           MASTER_DARK_{det}
+           MASTER_IMG_FLAT_LAMP_{band}
+ 
+           where band/det is LM or N and 2RG or GEO
+
+        OUTPUT
+           {band}_PUPIL_REDUCED
+
+        Algorithm
+           Apply dark current and flat field corrections and optionally bias subtraction,
+           persistence and linearity corrections. 
+        """
     )
 
     parameters = cpl.ui.ParameterList([
