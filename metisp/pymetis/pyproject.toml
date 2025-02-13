@@ -13,4 +13,8 @@ dynamic = ["description","requires-python","license","authors","classifiers","ur
 addopts = "--strict-markers"
 markers = [
     "edps: marks EDPS tests that take a long time (deselect with '-m \"not edps\"')",
+    "inputset: marks tests related to `InputSet`",
+    "product: marks tests related to `PipelineProduct`",
+    "recipe: marks tests related to `MetisRecipe` and `MetisRecipeImpl`",
+    "config: marks global configuration tests",
 ]

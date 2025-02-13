@@ -36,6 +36,7 @@ from pymetis.prefab.rawimage import RawImageProcessor
 root = Path(os.path.expandvars("$SOF_DIR"))
 
 
+@pytest.mark.product
 class BaseProductTest(ABC):
     _product: type[PipelineProduct] = None
 
@@ -52,6 +53,7 @@ class BaseProductTest(ABC):
         assert self._product.frame_type is not None
 
 
+@pytest.mark.inputset
 class BaseInputSetTest(ABC):
     """
     A set of basic tests common for all InputSets
@@ -95,6 +97,7 @@ class BaseInputSetTest(ABC):
             assert isinstance(inp._title, str), f"Input {inp} does not have a title defined"
 
 
+@pytest.mark.inputset
 class RawInputSetTest(BaseInputSetTest):
     _impl: RawImageProcessor.InputSet
 
@@ -103,6 +106,7 @@ class RawInputSetTest(BaseInputSetTest):
         assert isinstance(instance.raw, MultiplePipelineInput)
 
 
+@pytest.mark.recipe
 class BaseRecipeTest(ABC):
     """
     Integration / regression tests for verifying that the recipe can be run

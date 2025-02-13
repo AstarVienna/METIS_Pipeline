@@ -18,18 +18,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import os
+import subprocess
+import pytest
 
 
+@pytest.mark.config
 class TestConfigured:
     """
     These are actually meta-tests: if they fail, probably your environment is not set up correctly.
     Everything here is designed ad hoc currently.
     """
+
+    def test_is_pyesorex_reachable(self):
+        output = subprocess.run(['pyesorex', '--help'])
+        assert output.returncode == 0
+
     def test_can_we_find_the_whole_package(self):
         """
             If this fails, your Python is unable to find the package.
-            Set PYTHONPATH to "." in the root directory.
-            This is a temporary workaround and should be solved properly instead.
+            Set PYTHONPATH to the root directory.
+            # FIXME This is just a temporary workaround and should be solved properly instead.
         """
         from pymetis.recipes.metis_det_dark import MetisDetDarkImpl
         assert MetisDetDarkImpl.__name__ == 'MetisDetDarkImpl', "Could not import, review your PYTHONPATH"
