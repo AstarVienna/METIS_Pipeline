@@ -27,8 +27,6 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.inputs.base import PipelineInput
-from pymetis.inputs.single import SinglePipelineInput
-from pymetis.inputs.multiple import MultiplePipelineInput
 
 
 class PipelineInputSet(metaclass=ABCMeta):

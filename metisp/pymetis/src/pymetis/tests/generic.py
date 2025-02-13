@@ -22,7 +22,6 @@ import os.path
 import pprint
 import subprocess
 import pytest
-
 from abc import ABC
 from pathlib import Path
 
@@ -47,13 +46,16 @@ class BaseProductTest(ABC):
         assert issubclass(self._product, PipelineProduct)
 
     def test_does_it_have_a_group(self):
-        assert self._product.group is not None
+        assert self._product.group is not None,\
+            f"Product group is not defined for {self._product.__qualname__}"
 
     def test_does_it_have_a_level(self):
-        assert self._product.level is not None
+        assert self._product.level is not None,\
+            f"Product level is not defined for {self._product.__qualname__}"
 
     def test_does_it_have_a_frame_type(self):
-        assert self._product.frame_type is not None
+        assert self._product.frame_type is not None,\
+            f"Product frame type is not defined for {self._product.__qualname__}"
 
 
 @pytest.mark.inputset
@@ -68,36 +70,44 @@ class BaseInputSetTest(ABC):
         return self._impl.InputSet(load_frameset(sof))
 
     def test_is_an_inputset(self):
-        assert issubclass(self._impl.InputSet, PipelineInputSet), f"Class is not an InputSet: {self._impl.InputSet}"
+        assert issubclass(self._impl.InputSet, PipelineInputSet),\
+            f"Class is not an InputSet: {self._impl.InputSet}"
 
     def test_is_not_abstract(self):
-        assert not inspect.isabstract(self._impl.InputSet), f"InputSet is abstract: {self._impl.InputSet}"
+        assert not inspect.isabstract(self._impl.InputSet),\
+            f"InputSet is abstract: {self._impl.InputSet}"
 
     @staticmethod
     def test_has_inputs_and_it_is_a_set(instance):
-        assert isinstance(instance.inputs, set), f"Inputs are not a set: {instance.inputs}"
+        assert isinstance(instance.inputs, set),\
+            f"Inputs are not a set: {instance.inputs}"
 
     @staticmethod
     def test_all_inputs_are_registered(instance):
         for name, attr in instance.__dict__.items():
             if isinstance(attr, PipelineInput):
-                assert attr in instance.inputs, f"Input {name} is not registered in inputs"
+                assert attr in instance.inputs,\
+                    f"Input {name} is not registered in inputs"
 
     @staticmethod
     def test_all_registered_inputs_are_actually_inputs(instance):
         for inp in instance.inputs:
-            assert isinstance(inp, PipelineInput), f"Registered input is not an Input: {inp}"
+            assert isinstance(inp, PipelineInput),\
+                f"Registered input is not an Input: {inp}"
 
     @staticmethod
     def test_can_load_and_verify(instance):
-        assert instance.validate() is None, f"InputSet {instance} did not validate"
+        assert instance.validate() is None,\
+            f"InputSet {instance} did not validate"
 
     @staticmethod
     def test_all_inputs(instance):
         # We should really be testing a class here, not an instance
         for inp in instance.inputs:
-            assert inp._group is not None, f"Input {inp} does not have a group defined"
-            assert isinstance(inp._title, str), f"Input {inp} does not have a title defined"
+            assert inp._group is not None
+            f"Input {inp} does not have a group defined"
+            assert isinstance(inp._title, str),\
+                f"Input {inp} does not have a title defined"
 
 
 @pytest.mark.inputset
@@ -127,24 +137,30 @@ class BaseRecipeTest(ABC):
 
     def test_recipe_can_be_instantiated(self) -> None:
         recipe = self._recipe()
-        assert isinstance(recipe, cpl.ui.PyRecipe), "Recipe is not a PyRecipe"
+        assert isinstance(recipe, cpl.ui.PyRecipe),\
+            "Recipe is not a PyRecipe"
 
     def test_recipe_can_be_run_directly(self, frameset) -> None:
         recipe = self._recipe()
-        assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet), f"Recipe {recipe} did not return a FrameSet"
+        assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet),\
+            f"Recipe {recipe} did not return a FrameSet"
         # pprint.pprint(instance.implementation.as_dict(), width=200)
 
     @pytest.mark.pyesorex
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex) -> None:
         pyesorex = create_pyesorex(self._recipe)
-        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe), "Recipe is not a cpl.ui.PyRecipe"
-        assert pyesorex.recipe.name == name, f"Recipe name {name} does not match the pyesorex name {pyesorex.recipe.name}"
+        assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe),\
+            "Recipe is not a cpl.ui.PyRecipe"
+        assert pyesorex.recipe.name == name,\
+            f"Recipe name {name} does not match the pyesorex name {pyesorex.recipe.name}"
 
     @pytest.mark.pyesorex
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex) -> None:
         output = self._run_pyesorex(name, sof)
-        assert output.returncode == 0, f"Pyesorex exited with non-zero return code {output.returncode}"
-        assert output.stderr == b"", "Pyesorex exited with non-empty stderr"
+        assert output.returncode == 0,\
+            f"Pyesorex exited with non-zero return code {output.returncode}"
+        assert output.stderr == b"",\
+            "Pyesorex exited with non-empty stderr"
 
     def test_recipe_uses_all_input_frames(self, frameset):
         instance = self._recipe()

@@ -125,7 +125,6 @@ class PipelineProduct(ABC):
         )
 
     @property
-    @final
     def tag(self) -> str:
         return self._tag
 

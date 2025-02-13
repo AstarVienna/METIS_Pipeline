@@ -56,18 +56,15 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         _level = cpl.ui.Frame.FrameLevel.FINAL
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
         band: str = None
+        target: str = None
 
         @property
-        def category(self) -> str:
-            return fr"MASTER_IMG_FLAT_LAMP_{self.band}"
+        def tag(self) -> str:
+            return fr"MASTER_IMG_FLAT_{self.target}_{self.band}"
 
         @property
         def output_file_name(self) -> str:
             return fr"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return self.category
 
     def process_images(self) -> [PipelineProduct]:
         """
@@ -78,6 +75,8 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         """
         # TODO: Detect detector
         # TODO: Twilight
+
+        target = self.inputset.tag_parameters['target']
 
         raw_images = self.inputset.load_raw_images()
         master_dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
@@ -94,6 +93,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         combined_image = self.combine_images(self.inputset.load_raw_images(), method)
 
-        product = self.Product(self, header, combined_image)
+        product = self.Product(self, header, combined_image, target=target)
 
         return [product]
