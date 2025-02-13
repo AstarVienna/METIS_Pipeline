@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import contextlib
 import re
 import pytest
 import os
@@ -28,10 +28,8 @@ def reset_edps():
     def inner():
         os.system("edps -shutdown")
 
-        try:
+        with contextlib.suppress(OSError):
             os.remove("/tmp/EDPS_Data/")
-        except OSError:
-            pass
 
         os.makedirs("/tmp/EDPS_Data/", exist_ok=True)
 
@@ -49,9 +47,9 @@ class TestEDPS:
         output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', os.path.expandvars('$SOF_DATA'), '-c'],
                        capture_output=True)
         message = str(output.stdout.decode('utf8'))
-        assert output.returncode == 0
-        assert output.stderr == b''
-        assert re.findall('[eE]rror', message) == []
+        assert output.returncode == 0, f"EDPS exited with a non-zero return code {output.returncode}"
+        assert output.stderr == b'', f"EDPS exited with a non-empty stderr: {output.stderr}"
+        assert re.findall('[eE]rror', message) == [], f"EDPS run resulted in errors: {message}"
 
     @pytest.mark.parametrize('workflow_name', workflows)
     def test_does_edps_run(self, workflow_name, reset_edps):
@@ -61,5 +59,5 @@ class TestEDPS:
         message = str(output.stdout.decode('utf8'))
         assert output.returncode == 0
         assert output.stderr == b''
-        assert re.findall('[eE]rror', message) == [], f"EDPS run resulted in an error: {message}"
+        assert re.findall('[eE]rror', message) == [], f"EDPS run resulted in errors: {message}"
         assert re.findall('FAILED', message) == [], f"EDPS workflow failed: {message}"

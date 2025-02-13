@@ -17,4 +17,5 @@ markers = [
     "product: marks tests related to `PipelineProduct`",
     "recipe: marks tests related to `MetisRecipe` and `MetisRecipeImpl`",
     "config: marks global configuration tests",
+    "pyesorex: marks tests that depend on `pyesorex`",
 ]
