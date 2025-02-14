@@ -75,7 +75,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         """
         detectors = list(set([inp.detector for inp in self.inputs]) - {None})
         if (detector_count := len(detectors)) == 0:
-            Msg.warning(self.__class__.__qualname__, f"No detector could be identified from the SOF")
+            Msg.debug(self.__class__.__qualname__, f"No detector could be identified from the SOF")
         elif detector_count == 1:
             self.detector = detectors[0]
             Msg.debug(self.__class__.__qualname__, f"Detector identified from the SOF: {self.detector}")
