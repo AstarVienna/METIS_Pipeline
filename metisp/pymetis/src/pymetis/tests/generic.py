@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import inspect
 import os.path
 import pprint
+import re
 import subprocess
 import pytest
 from abc import ABC
@@ -102,12 +103,21 @@ class BaseInputSetTest(ABC):
 
     @staticmethod
     def test_all_inputs(instance):
-        # We should really be testing a class here, not an instance
         for inp in instance.inputs:
-            assert inp._group is not None
-            f"Input {inp} does not have a group defined"
+            assert isinstance(inp._group, cpl.ui.Frame.FrameGroup),\
+                f"Input {inp} does not have a group defined"
+
+    @staticmethod
+    def test_inputs_have_title(instance):
+        for inp in instance.inputs:
             assert isinstance(inp._title, str),\
                 f"Input {inp} does not have a title defined"
+
+    @staticmethod
+    def test_inputs_have_tags(instance):
+        for inp in instance.inputs:
+            assert isinstance(inp._tags, re.Pattern),\
+                f"Input {inp} does not have a tag pattern defined"
 
 
 @pytest.mark.inputset
@@ -116,7 +126,8 @@ class RawInputSetTest(BaseInputSetTest):
 
     @staticmethod
     def test_inputset_has_raw(instance):
-        assert isinstance(instance.raw, MultiplePipelineInput)
+        assert isinstance(instance.raw, MultiplePipelineInput),\
+            f"Raw input set is not a `MultiplePipelineInput`"
 
 
 @pytest.mark.recipe

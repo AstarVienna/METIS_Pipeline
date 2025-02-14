@@ -19,16 +19,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 from abc import ABC
-from typing import Dict
 
 import cpl
 from cpl.core import Msg
 
-from pymetis.inputs import PipelineInputSet, PersistenceMapInput, LinearityInput
-from pymetis.inputs.common import RawInput, MasterDarkInput, BadpixMapInput, GainMapInput
-
+from pymetis.inputs import PersistenceMapInput, LinearityInput
+from pymetis.inputs.common import RawInput, MasterDarkInput, GainMapInput
+from pymetis.base.product import PipelineProduct, BandSpecificProduct, TargetSpecificProduct
 from .darkimage import DarkImageProcessor
-from ..base.product import PipelineProduct, BandSpecificProduct, TargetSpecificProduct
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
@@ -82,7 +80,8 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         master_dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
 
         for raw_image in raw_images:
-            Msg.debug(self.__class__.__qualname__, f"Subtracting image {raw_image}")
+            Msg.debug(self.__class__.__qualname__,
+                      f"Subtracting image {raw_image}")
             raw_image.subtract(master_dark)
 
         # Combine the images in the image list using the image stacking option requested by the user.

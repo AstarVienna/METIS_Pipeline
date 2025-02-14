@@ -34,7 +34,7 @@ class MultiplePipelineInput(PipelineInput):
                  frameset: cpl.ui.FrameSet,
                  *,
                  tags: Pattern = None,
-                 required: bool = None,
+                 required: bool = True,
                  **kwargs):                     # Any other args
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
         super().__init__(tags=tags, required=required, **kwargs)
@@ -88,14 +88,25 @@ class MultiplePipelineInput(PipelineInput):
         """
         Verification shorthand: if a required frameset is not present or empty,
         raise a `cpl.core.DataNotFoundError` with the appropriate message.
+
+        Raises
+        ------
+        cpl.ui.DataNotFoundError: if the frameset is not present or empty.
+
+        Returns
+        -------
+        None:
+            None on success
         """
         if (count := len(self.frameset)) == 0:
             if self.required:
                 raise cpl.core.DataNotFoundError(f"No {self.title} frames ({self.tags}) found in the frameset.")
             else:
-                Msg.debug(self.__class__.__qualname__, f"No {self.title} frames found but not required.")
+                Msg.debug(self.__class__.__qualname__,
+                          f"No {self.title} frames found but not required.")
         else:
-            Msg.debug(self.__class__.__qualname__, f"Frameset OK: {count} frame{'s' if count > 1 else ''} found")
+            Msg.debug(self.__class__.__qualname__,
+                      f"Frameset verified: {count} frame{'s' if count > 1 else ''} found")
 
     def _verify_same_detector(self) -> None:
         """
@@ -120,4 +131,11 @@ class MultiplePipelineInput(PipelineInput):
         }
 
     def valid_frames(self) -> cpl.ui.FrameSet:
+        """
+        Returns
+        -------
+            cpl.ui.FrameSet: A set of all frames loaded by the input.
+
+        # FixMe: for now returns all frames
+        """
         return self.frameset
