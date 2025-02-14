@@ -109,12 +109,12 @@ class MetisIfuDarkImpl(DetectorIfuMixin, MetisDetDarkImpl):
 
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information
-    _name = "metis_det_dark"
-    _version = "0.1"
-    _author = "Kieran Chi-Hung Hugo Martin"
-    _email = "hugo@buddelmeijer.nl"
-    _synopsis = "Create master dark"
-    _description = (
+    _name: str = "metis_det_dark"
+    _version: str = "0.1"
+    _author: str = "Kieran Chi-Hung Hugo Martin"
+    _email: str = "hugo@buddelmeijer.nl"
+    _synopsis: str = "Create master dark"
+    _description: str = (
         "Prototype to create a METIS masterdark."
     )
 

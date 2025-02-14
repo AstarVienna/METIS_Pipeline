@@ -72,12 +72,12 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
 
 
 class MetisLmImgStdProcess(MetisRecipe):
-    _name = "metis_lm_img_std_process"
-    _version = "0.1"
-    _author = "Chi-Hung Yan"
-    _email = "chyan@asiaa.sinica.edu.tw"
-    _synopsis = "Determine the conversion factor between detector counts and physical source flux"
-    _description = (
+    _name: str = "metis_lm_img_std_process"
+    _version: str = "0.1"
+    _author: str = "Chi-Hung Yan"
+    _email: str = "chyan@asiaa.sinica.edu.tw"
+    _synopsis: str = "Determine the conversion factor between detector counts and physical source flux"
+    _description: str = (
         "Currently just a skeleton prototype."
     )
 

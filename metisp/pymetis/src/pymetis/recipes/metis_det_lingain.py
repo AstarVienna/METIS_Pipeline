@@ -107,12 +107,12 @@ class MetisIfuLinGainImpl(DetectorIfuMixin, MetisDetLinGainImpl):
 
 class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information
-    _name = "metis_det_lingain"
-    _version = "0.1"
-    _author = "A*Vienna"
-    _email = "hugo@buddelmeijer.nl"
-    _synopsis = "Measure detector non-linearity and gain"
-    _description = (
+    _name: str = "metis_det_lingain"
+    _version: str = "0.1"
+    _author: str = "A*Vienna"
+    _email: str = "hugo@buddelmeijer.nl"
+    _synopsis: str = "Measure detector non-linearity and gain"
+    _description: str = (
         "Prototype to create a METIS linear gain map."
     )
 

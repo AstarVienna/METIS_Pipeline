@@ -208,12 +208,12 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
 
 class MetisIfuRsrf(MetisRecipe):
-    _name = "metis_ifu_rsrf"
-    _version = "0.1"
-    _author = "Janus Brink"
-    _email = "janus.brink27@gmail.com"
-    _synopsis = "Determine the relative spectral response function."
-    _description = """\
+    _name: str = "metis_ifu_rsrf"
+    _version: str = "0.1"
+    _author: str = "Janus Brink"
+    _email: str = "janus.brink27@gmail.com"
+    _synopsis: str = "Determine the relative spectral response function."
+    _description: str = """\
     Create relative spectral response function for the IFU detector
 
     Inputs

@@ -166,7 +166,7 @@ class MetisRecipeImpl(ABC):
     def _create_dummy_header() -> cpl.core.PropertyList:
         """
         Create a dummy header (absolutely no assumptions, just to have something to work with).
-        This function should not survive in the future.
+        # ToDo This function should not survive in the future.
         """
         return cpl.core.PropertyList()
 
@@ -174,10 +174,10 @@ class MetisRecipeImpl(ABC):
     def _create_dummy_image() -> cpl.core.Image:
         """
         Create a dummy image (absolutely no assumptions, just to have something to work with).
-        This function should not survive in the future.
+        # ToDo This function should not survive in the future.
         """
         return cpl.core.Image.load(os.path.expandvars("$SOF_DATA/LINEARITY_2RG.fits"))
 
     @property
-    def used_frames(self) -> cpl.ui.FrameSet:
-        return self.inputset.used_frames
+    def valid_frames(self) -> cpl.ui.FrameSet:
+        return self.inputset.valid_frames

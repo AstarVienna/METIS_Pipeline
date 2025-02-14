@@ -67,12 +67,12 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 
 
 class MetisLmImgSciPostProcess(MetisRecipe):
-    _name = "metis_lm_img_sci_postprocess"
-    _version = "0.1"
-    _author = "Chi-Hung Yan"
-    _email = "chyan@asiaa.sinica.edu.tw"
-    _synopsis = "Coadd reduced images"
-    _description = (
+    _name: str = "metis_lm_img_sci_postprocess"
+    _version: str = "0.1"
+    _author: str = "Chi-Hung Yan"
+    _email: str = "chyan@asiaa.sinica.edu.tw"
+    _synopsis: str = "Coadd reduced images"
+    _description: str = (
         "Currently just a skeleton prototype."
     )
 

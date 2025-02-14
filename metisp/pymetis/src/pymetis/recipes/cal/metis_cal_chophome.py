@@ -139,13 +139,13 @@ class MetisCalChophome(MetisRecipe):
     """Determine chopper home position
     """
     # Recipe information
-    _name = "metis_cal_chophome"
-    _version = "0.1"
-    _author = "Oliver Czoske, A*"
-    _email = "oliver.czoske@univie.ac.at"
+    _name: str = "metis_cal_chophome"
+    _version: str = "0.1"
+    _author: str = "Oliver Czoske, A*"
+    _email: str = "oliver.czoske@univie.ac.at"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Determination of chopper home position"
-    _description = """\
+    _synopsis: str = "Determination of chopper home position"
+    _description: str = """\
     Determine the chopper home position from LM-imaging of the WCU pinhole mask.
 
         Inputs

@@ -27,8 +27,6 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.inputs.base import PipelineInput
-from pymetis.inputs.single import SinglePipelineInput
-from pymetis.inputs.multiple import MultiplePipelineInput
 
 
 class PipelineInputSet(metaclass=ABCMeta):
@@ -77,7 +75,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         """
         detectors = list(set([inp.detector for inp in self.inputs]) - {None})
         if (detector_count := len(detectors)) == 0:
-            Msg.warning(self.__class__.__qualname__, f"No detector could be identified from the SOF")
+            Msg.debug(self.__class__.__qualname__, f"No detector could be identified from the SOF")
         elif detector_count == 1:
             self.detector = detectors[0]
             Msg.debug(self.__class__.__qualname__, f"Detector identified from the SOF: {self.detector}")
@@ -99,7 +97,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         }
 
     @property
-    def used_frames(self) -> cpl.ui.FrameSet:
+    def valid_frames(self) -> cpl.ui.FrameSet:
         """
         Return the frames that actually affect the output anyhow (if a frame is not listed here, the output without
         that frame should be identical

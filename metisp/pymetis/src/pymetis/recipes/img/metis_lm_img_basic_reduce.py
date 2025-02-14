@@ -191,13 +191,13 @@ class MetisLmImgBasicReduce(MetisRecipe):
     - and finally point to the implementation class, which we have just written
     """
     # Fill in recipe information
-    _name = "metis_lm_img_basic_reduce"
-    _version = "0.1"
-    _author = "A*"
-    _email = "chyan@asiaa.sinica.edu.tw"
+    _name: str = "metis_lm_img_basic_reduce"
+    _version: str = "0.1"
+    _author: str = "A*"
+    _email: str = "chyan@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Basic science image data processing"
-    _description = (
+    _synopsis: str = "Basic science image data processing"
+    _description: str = (
             "The recipe combines all science input files in the input set-of-frames using\n"
             + "the given method. For each input science image the master bias is subtracted,\n"
             + "and it is divided by the master flat."

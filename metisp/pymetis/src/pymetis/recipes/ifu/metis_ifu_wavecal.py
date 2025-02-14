@@ -62,12 +62,12 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
 
 
 class MetisIfuWavecal(MetisRecipe):
-    _name = "metis_ifu_wavecal"
-    _version = "0.1"
-    _author = "Martin Baláž"
-    _email = "martin.balaz@univie.ac.at"
-    _synopsis = "Determine the relative spectral response function"
-    _description = (
+    _name: str = "metis_ifu_wavecal"
+    _version: str = "0.1"
+    _author: str = "Martin Baláž"
+    _email: str = "martin.balaz@univie.ac.at"
+    _synopsis: str = "Determine the relative spectral response function"
+    _description: str = (
         "Currently just a skeleton prototype."
     )
 
