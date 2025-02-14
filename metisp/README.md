@@ -1,29 +1,100 @@
 # METIS Pipeline
-METIS pipe line is the data reduction software for ELT early science instrument of Mid-IR imager and spectrograph.  
+The METIS pipeline is the data reduction software for the Mid-infrared E-ELT Imager and Spectrograph (METIS). 
 
-## Installation
+## Install dependencies
 
+The instructions below assume Ubuntu 24.04, but can easily be adapted for other systems.
 ```
-cd metisp
-./bootstrap
-./configure --prefix=/tmp/wherever
-make
-make python
-make install
-make install-python
+apt-get install -y \
+	wget gcc  automake autogen libtool gsl-bin libgsl-dev \
+	libfftw3-bin libfftw3-dev fftw-dev \
+	curl bzip2 less subversion git cppcheck lcov valgrind \
+	zlib1g zlib1g-dev \
+	liberfa1 liberfa-dev \
+	libcurl4-openssl-dev libcurl4 \
+	tmux ripgrep file \
+	libcfitsio-bin libcfitsio-dev \
+	wcslib-dev wcslib-tools \
+	libcpl-dev \
+	python3-astropy python3-matplotlib python3-numpy \
+	perl cmake \
+	graphviz meld \
+	python3-pip python3-full \
+	python3-jupyter-core python3-jupyter-client python3-notebook
 ```
 
+## Create a Python environment
+Use your favourite tool to create a Python environment, e.g. venv, conda, etc 
+Python 3.12 is recommended. Then start the environment.
 
-## Path Setting
-
-Including the following two line in your .bashrc
-
+An example using virtualenv:
 ```
-export METIS_SOFTPATH='<path_of_METIS_pipeline>' 
-export PYTHONPATH=$METIS_SOFTPATH
-export SOF_DATA='<path_to_data>'
-export PYCPL_RECIPE_DIR='<path_of_METIS_pipeline>/metisp/pymetis/src/pymetis/recipes/'
+python -m venv metis_pip
+source metis_pip/bin/activate
 ```
+
+An alternative example using conda:
+```
+conda create -n metis python==3.12 poetry
+conda activate metis
+```
+
+## Clone the METIS pipeline
+```
+git clone https://github.com/AstarVienna/METIS_Pipeline.git
+```
+and set the following environment variables:
+```
+export PYTHONPATH="$(pwd)/METIS_Pipeline/metisp/pymetis/src/"
+export PYCPL_RECIPE_DIR="$(pwd)/METIS_Pipeline/metisp/pyrecipes/"
+export PYESOREX_PLUGIN_DIR="$PYCPL_RECIPE_DIR"
+```
+
+## Install PyEsoRex, PyCPL and EDPS
+
+Set the PYESOREX_PLUGIN_DIR environment variable: 
+The PYESOREX_PLUGIN_DIR environment variable needs to be pointing to the recipes already before you install pyesorex and edps. See above for the export statement.
+
+Install pyesorex and the EDPS in the Python environment.
+```
+pip install --extra-index-url \
+    https://ftp.eso.org/pub/dfs/pipelines/libraries \
+    pycpl pyesorex edps adari_core
+```
+
+Pyesorex and the EDPS need to be configured to use the METIS Pipeline. The easiest way to do this is by copying the provided configuration files. 
+
+–WARNING–: 
+Backup any existing EDPS configuration before proceeding.
+
+Option 1 (beginner)
+The simple way to configure the system environment to run EDPS is to run the following bash script from the toolbox:
+```
+./METIS_Pipeline/toolbox/create_config.sh
+```
+Option 2 (expert)
+The hard way gives you more control about where the EDPS configuration is kept:
+```
+mkdir -p "/tmp/EDPS_data"
+mkdir -p "${HOME}/.edps"
+cp -avi METIS_Pipeline/toolbox/config/DOTedps/* "${HOME}/.edps"
+```
+Note that the above sets these parameters
+```
+base_dir=/tmp/EDPS_data
+workflow_dir=.
+```
+since the absolute paths are not known.
+
+For manual configuration, change these parameters in ~./edps/application.properties :
+```
+esorex_path=pyesorex
+workflow_dir=/absolute/path/to/METIS_Pipeline/metisp/workflows
+breakpoints_url=
+```
+Where the absolute path to the METIS workflow directory must be given. Setting the breakpoints_url is optional, but required to use the pipeline offline.
+
+
 ## Checking with PyESOREX
 
 Firstly, run pyesorex.  We will see all avaliable receipes if there is not problem.
@@ -52,12 +123,6 @@ List of available recipes:
 Before starting to use this pipeline with EDPS, make sure you have read the document of EDPS.  You may also 
 find some useful information [here](https://it.overleaf.com/project/65c1ef845dddcc9a7247e46c)
 
-Remember to define the workflow path in .edps/application.properties.
-
-```
-workflow_dir='<Parent path>'/METIS_Pipeline/metisp/workflows
-```
-
 To be safe, this command clear our all the cache data, log, product.
 ```
 edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf EDPS_data/*
@@ -65,13 +130,12 @@ edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf EDPS_data/*
 
 Listing all avaliable data files
 ```
- edps -w metis.metis_lm_img_wkf -i $SOF_DATA -c
+ edps -w metis.metis_wkf -i $SOF_DATA -c
 ```
-
 
 Listing all avaliable processing tasks
 ```
- edps -w metis.metis_lm_img_wkf -i $SOF_DATA -lt
+ edps -w metis.metis_wkf -i $SOF_DATA -lt
 ```
 
 Running one specific recipe
@@ -88,14 +152,12 @@ Running Meta-target
  edps -w metis.metis_wkf -i $SOF_DATA -m science 
 ```
 
-
 Getting report in a better way
 ```
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -od
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -og
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -f
 ```
-
 
 Making plots
 ```
