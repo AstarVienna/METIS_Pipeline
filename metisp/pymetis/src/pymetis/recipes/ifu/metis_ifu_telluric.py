@@ -141,13 +141,13 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
 
 class MetisIfuTelluric(MetisRecipe):
-    _name = "metis_ifu_telluric"
-    _version = "0.1"
-    _author = "Martin Baláž"
-    _email = "martin.balaz@univie.ac.at"
+    _name: str = "metis_ifu_telluric"
+    _version: str = "0.1"
+    _author: str = "Martin Baláž"
+    _email: str = "martin.balaz@univie.ac.at"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Derive telluric absorption correction and optionally flux calibration"
-    _description = """
+    _synopsis: str = "Derive telluric absorption correction and optionally flux calibration"
+    _description: str = """
         Recipe to derive the atmospheric transmission and the response function.
 
         Inputs

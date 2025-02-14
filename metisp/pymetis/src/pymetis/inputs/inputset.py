@@ -97,7 +97,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         }
 
     @property
-    def used_frames(self) -> cpl.ui.FrameSet:
+    def valid_frames(self) -> cpl.ui.FrameSet:
         """
         Return the frames that actually affect the output anyhow (if a frame is not listed here, the output without
         that frame should be identical

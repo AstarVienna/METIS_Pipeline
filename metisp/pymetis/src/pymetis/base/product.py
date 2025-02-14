@@ -109,13 +109,13 @@ class PipelineProduct(ABC):
         Msg.info(self.__class__.__qualname__,
                  f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
         Msg.info(self.__class__.__qualname__,
-                 f"Used frames ({len(self.recipe.used_frames)}): {sorted([frame.tag for frame in self.recipe.used_frames])}")
+                 f"Used frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
         # At least one frame in the recipe frameset must be tagged as RAW!
         # Otherwise, it *will not* save (rite of passage)
         cpl.dfs.save_image(
             self.recipe.frameset,       # All frames for the recipe
             self.recipe.parameters,     # The list of input parameters
-            self.recipe.used_frames,    # The list of raw and calibration frames actually used
+            self.recipe.valid_frames,    # The list of raw and calibration frames actually used
             self.image,                 # Image to be saved
             self.recipe.name,           # Name of the recipe
             self.properties,            # Properties to be appended

@@ -84,13 +84,13 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
 
 class MetisLmImgBackground(MetisRecipe):
-    _name = "metis_lm_img_background"
-    _version = "0.1"
-    _author = "Chi-Hung Yan"
-    _email = "chyan@asiaa.sinica.edu.tw"
+    _name: str = "metis_lm_img_background"
+    _version: str = "0.1"
+    _author: str = "Chi-Hung Yan"
+    _email: str = "chyan@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Basic reduction of raw exposures from the LM-band imager"
-    _description = ""
+    _synopsis: str = "Basic reduction of raw exposures from the LM-band imager"
+    _description: str = ""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(

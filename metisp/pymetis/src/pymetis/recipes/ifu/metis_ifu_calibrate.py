@@ -71,13 +71,13 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 
 
 class MetisIfuCalibrate(MetisRecipe):
-    _name = "metis_ifu_calibrate"
-    _version = "0.1"
-    _author = "Martin Baláž"
-    _email = "martin.balaz@univie.ac.at"
+    _name: str = "metis_ifu_calibrate"
+    _version: str = "0.1"
+    _author: str = "Martin Baláž"
+    _email: str = "martin.balaz@univie.ac.at"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Calibrate IFU science data"
-    _description = (
+    _synopsis: str = "Calibrate IFU science data"
+    _description: str = (
         "Currently just a skeleton prototype."
     )
 

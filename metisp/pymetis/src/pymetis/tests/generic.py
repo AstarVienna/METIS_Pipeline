@@ -166,9 +166,9 @@ class BaseRecipeTest(ABC):
         instance = self._recipe()
         instance.run(frameset, {})
         all_frames = sorted([frame.file for frame in instance.implementation.inputset.frameset])
-        used_frames = sorted([frame.file for frame in instance.implementation.inputset.used_frames])
+        used_frames = sorted([frame.file for frame in instance.implementation.inputset.valid_frames])
         assert all_frames == used_frames,\
-               f"Not all frames were used: {instance.implementation.inputset.used_frames!s}"
+               f"Not all frames were used: {instance.implementation.inputset.valid_frames!s}"
 
     def test_all_parameters_have_correct_context(self):
         for param in self._recipe.parameters:
