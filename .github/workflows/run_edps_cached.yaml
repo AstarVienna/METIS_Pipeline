@@ -1,15 +1,15 @@
 name: Run tests cached
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  # pull_request:
-  #   branches:
-  #     - main
-  # schedule:
-  #   # Run every day at 2:00 UTC
-  #   - cron: "0 2 * * *"
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Run every day at 2:00 UTC
+    - cron: "0 2 * * *"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,38 +19,55 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-
-      - name: cache dependencies
+      - name: Install dependencies with cache
         id: cache-dep
-        uses: actions/cache@v4
+        uses: awalsh128/cache-apt-pkgs-action@latest
         env:
           cache-name: cache-dependencies
         with:
-          path: ~/
-          key: ${{ runner.os}}-edps-tests-${{ env.cache-name }}
+          packages: wget gcc  automake autogen libtool gsl-bin libgsl-dev libfftw3-bin libfftw3-dev fftw-dev
+            curl bzip2 less subversion git cppcheck lcov valgrind
+            zlib1g zlib1g-dev
+            liberfa1 liberfa-dev
+            libcurl4-openssl-dev libcurl4
+            tmux ripgrep file
+            libcfitsio-bin libcfitsio-dev
+            wcslib-dev wcslib-tools
+            libcpl-dev
+            libblas3
+            perl cmake
+            graphviz meld
+            emacs vim nano
+          version: 1.0
+          # execute_install_scripts: true
 
-      - if: ${{ steps.cache-dep.outputs.cache-hit != 'true' }}
+      - name: Setup edps cache
+        id: cache-pip
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+          cache: 'pip' # caching pip dependencies
 
-        name: Install dependencies
+      - name: Install edps with cache
         run: |
-          sudo ./toolbox/install_dependencies_ubuntu.sh
-          # python3 -m venv metispipe
-          # . metispipe/bin/activate
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-          ./toolbox/install_edps.sh
-          ./toolbox/create_config.sh
+          pip install -r ./toolbox/requirements.txt
 
-      - if: ${{ steps.cache-dep.outputs.cache-hit != 'true' }}
+      - name: Setup edps config
+        run: ./toolbox/create_config.sh
 
-        name: Fetch test data
+      - name: Fetch test data
         run: |
           git clone https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
+          # Try to checkout a branch in METIS_Pipeline_Test_Data that has
+          # the same name as the branch in METIS_Pipeline that we are testing.
+          git -C METIS_Pipeline_Test_Data checkout "${GITHUB_HEAD_REF}" || true
 
       - name: Run pytest tests
         run: |
           set +x
           # . metispipe/bin/activate
-          ./toolbox/set_environment.sh
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
           export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
           export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
@@ -63,12 +80,15 @@ jobs:
         run: |
           set +x
           # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
           export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
           export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
           export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
           export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
           export PYESOREX_OUTPUT_DIR="$SOF_DATA"
+          
+          # LIST RECIPES
           pyesorex --recipes
 
           # DET RECIPES
@@ -76,11 +96,27 @@ jobs:
           pyesorex metis_det_dark "${SOF_DIR}/metis_det_dark.lm.sof"
           
           # IMG LM RECIPES
+          pyesorex metis_lm_img_distortion  "${SOF_DIR}/metis_lm_img_distortion.sof"
           pyesorex metis_lm_img_flat  "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
           pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sci.sof"
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sky.sof"
+          pyesorex metis_lm_img_background "${SOF_DIR}/metis_lm_img_background.std.sof"
+          pyesorex metis_lm_img_background "${SOF_DIR}/metis_lm_img_background.sci.sof"
+          pyesorex metis_lm_img_std_process "${SOF_DIR}/metis_lm_img_std_process.sof"
+          pyesorex metis_lm_img_calibrate "${SOF_DIR}/metis_lm_img_calibrate.sof"
+          pyesorex metis_lm_img_sci_postprocess "${SOF_DIR}/metis_lm_img_sci_postprocess.sof"
 
           # IFU RECIPES
+          pyesorex metis_ifu_distortion "${SOF_DIR}/metis_ifu_distortion.sof"
+          pyesorex metis_ifu_wavecal "${SOF_DIR}/metis_ifu_wavecal.sof"
           pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
+          pyesorex metis_ifu_reduce "${SOF_DIR}/metis_ifu_reduce.std.sof"
+          pyesorex metis_ifu_reduce "${SOF_DIR}/metis_ifu_reduce.sci.sof"
+          pyesorex metis_ifu_telluric "${SOF_DIR}/metis_ifu_telluric.std.sof"
+          pyesorex metis_ifu_telluric "${SOF_DIR}/metis_ifu_telluric.sci.sof"
+          pyesorex metis_ifu_calibrate "${SOF_DIR}/metis_ifu_calibrate.sof"
+          pyesorex metis_ifu_postprocess "${SOF_DIR}/metis_ifu_postprocess.sof"
           
           # CAL RECIPES
           pyesorex metis_cal_chophome "${SOF_DIR}/metis_cal_chophome.sof"
@@ -91,6 +127,7 @@ jobs:
       - name: Run EDPS
         run:  |
           # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
           export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
           export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
@@ -99,5 +136,5 @@ jobs:
           edps -lw
           edps -w metis.metis_wkf -i $SOF_DATA -c
           edps -w metis.metis_wkf -i $SOF_DATA -lt
-          edps -w metis.metis_wkf -i $SOF_DATA -m all| tee edps.stdout.txt
+          edps -w metis.metis_wkf -i $SOF_DATA -m all | tee edps.stdout.txt
           ! grep "'FAILED'" edps.stdout.txt
