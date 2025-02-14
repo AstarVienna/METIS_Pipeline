@@ -28,7 +28,7 @@ from pymetis.inputs import PipelineInputSet, PersistenceMapInput, LinearityInput
 from pymetis.inputs.common import RawInput, MasterDarkInput, BadpixMapInput, GainMapInput
 
 from .darkimage import DarkImageProcessor
-from ..base.product import PipelineProduct
+from ..base.product import PipelineProduct, BandSpecificProduct, TargetSpecificProduct
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
@@ -51,7 +51,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             self.gain_map = GainMapInput(frameset)
             self.inputs |= {self.persistence, self.linearity, self.gain_map}
 
-    class Product(PipelineProduct):
+    class Product(BandSpecificProduct, TargetSpecificProduct):
         _group = cpl.ui.Frame.FrameGroup.PRODUCT
         _level = cpl.ui.Frame.FrameLevel.FINAL
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
