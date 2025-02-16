@@ -23,23 +23,26 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
+from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, SinglePipelineInput
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.inputs import PipelineInputSet, SinglePipelineInput
 
 
-class MetisLmImgSciPostProcessImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):
-        class RawInput(RawInput):
+class MetisLmImgSciPostProcessImpl(MetisRecipeImpl):
+    class InputSet(PipelineInputSet):
+        class CalibratedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_SCI_CALIBRATED")
-
+            _title = "LM band image after flux calibration"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
-            
-            #self.inputs += [self.fluxstd_table]
 
+            self.calibrated = self.CalibratedInput(frameset)
+
+            self.inputs |= {self.calibrated}
+            
 
     class ProductLmImgSciCoadd(PipelineProduct):
         category = rf"LM_SCI_COADD"
@@ -48,20 +51,10 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> [PipelineProduct]:
-        raw_images = cpl.core.ImageList()
+        header = cpl.core.PropertyList.load(self.inputset.calibrated.frame.file, 0)
+        combined_image = self._create_dummy_image()
 
-        for idx, frame in enumerate(self.inputset.raw.frameset):
-            Msg.info(self.name, f"Loading raw image {frame.file}")
-
-            if idx == 0:
-                self.header = cpl.core.PropertyList.load(frame.file, 0)
-
-            raw_image = cpl.core.Image.load(frame.file, extension=0)
-            raw_images.append(raw_image)
-
-        combined_image = self.combine_images(raw_images, "average")
-
-        product_coadd = self.ProductLmImgSciCoadd(self, self.header, combined_image)
+        product_coadd = self.ProductLmImgSciCoadd(self, header, combined_image)
 
         return [product_coadd]
 
@@ -78,12 +71,11 @@ class MetisLmImgSciPostProcess(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_lm_img_sci_postprocess.stacking.method",
-            context="metis_lm_img_sci_postprocess",
+            name=f"{_name}.stacking.method",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
     ])
-    #import pdb ; pdb.set_trace()
     implementation_class = MetisLmImgSciPostProcessImpl

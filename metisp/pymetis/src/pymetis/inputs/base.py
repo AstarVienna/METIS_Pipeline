@@ -27,6 +27,12 @@ from cpl.core import Msg
 
 
 class PipelineInput:
+    """
+    The PipelineInput class describes an atomic part of an InputSet,
+    either a single file (master dark, persistence map, etc.)
+    or a set of structurally identical files with a common tag (e.g. sets of raw images).
+    Methods for loading the files, validating the contents and hooks for class-specific checks are provided.
+    """
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided

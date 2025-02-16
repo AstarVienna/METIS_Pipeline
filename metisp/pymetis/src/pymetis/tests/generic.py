@@ -155,7 +155,7 @@ class BaseRecipeTest(ABC):
         recipe = self._recipe()
         assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet),\
             f"Recipe {recipe} did not return a FrameSet"
-        # pprint.pprint(instance.implementation.as_dict(), width=200)
+        # pprint.pprint(recipe.implementation.as_dict(), width=200)
 
     @pytest.mark.pyesorex
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex) -> None:

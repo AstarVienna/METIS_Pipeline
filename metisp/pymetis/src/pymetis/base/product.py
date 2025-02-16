@@ -37,6 +37,7 @@ class PipelineProduct(ABC):
     _level: cpl.ui.Frame.FrameLevel = None
     _frame_type: cpl.ui.Frame.FrameType = None
     _used_frames: cpl.ui.FrameSet = None
+    _oca_keywords: set = {}
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -95,6 +96,8 @@ class PipelineProduct(ABC):
         """ Return a dictionary representation of this Product """
         return {
             'tag': self.tag,
+            'filename': self.output_file_name,
+            'oca_keywords': self._oca_keywords,
         }
 
     @final

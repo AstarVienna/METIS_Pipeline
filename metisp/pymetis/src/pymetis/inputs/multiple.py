@@ -126,8 +126,14 @@ class MultiplePipelineInput(PipelineInput):
         """
 
     def as_dict(self) -> dict[str, Any]:
+        if self.frameset is None:
+            extra = None
+        else:
+            extra = {
+                self.frameset[0].tag: [frame.file for frame in self.frameset]
+            }
         return super().as_dict() | {
-            'frame': str(self.frameset),
+            'frameset': extra,
         }
 
     def valid_frames(self) -> cpl.ui.FrameSet:

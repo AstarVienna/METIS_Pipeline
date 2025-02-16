@@ -104,6 +104,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         _group = cpl.ui.Frame.FrameGroup.PRODUCT
         _level = cpl.ui.Frame.FrameLevel.FINAL
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
         @property
         def tag(self) -> str:

@@ -21,24 +21,27 @@ import re
 
 import cpl
 from cpl.core import Msg
-from typing import Dict
 
+from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.inputs.common import FluxTableInput
-from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class MetisLmImgsStdProcessImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):
-        class RawInput(RawInput):
+class MetisLmImgsStdProcessImpl(MetisRecipeImpl):
+    class InputSet(PipelineInputSet):
+        class SubtractedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_STD_BKG_SUBTRACTED")
+            _title = "thermal-background-subtracted LM band image"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
+            self.subtracted = self.SubtractedInput(frameset)
             self.fluxstd_table = FluxTableInput(frameset)
-            self.inputs |= {self.fluxstd_table}
+
+            self.inputs |= {self.subtracted, self.fluxstd_table}
 
     #import pdb ; pdb.set_trace()
     class ProductLmImgFluxCalTable(PipelineProduct):
@@ -52,21 +55,11 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> [PipelineProduct]:
-        raw_images = cpl.core.ImageList()
+        header = cpl.core.PropertyList.load(self.inputset.subtracted.frame.file, 0)
+        combined_image = self._create_dummy_image()
 
-        for idx, frame in enumerate(self.inputset.raw.frameset):
-            Msg.info(self.name, f"Loading raw image {frame.file}")
-
-            if idx == 0:
-                self.header = cpl.core.PropertyList.load(frame.file, 0)
-
-            raw_image = cpl.core.Image.load(frame.file, extension=0)
-            raw_images.append(raw_image)
-
-        combined_image = self.combine_images(raw_images, "average")
-
-        product_fluxcal = self.ProductLmImgFluxCalTable(self, self.header, combined_image)
-        product_combined = self.ProductLmImgStdCombined(self, self.header, combined_image)
+        product_fluxcal = self.ProductLmImgFluxCalTable(self, header, combined_image)
+        product_combined = self.ProductLmImgStdCombined(self, header, combined_image)
 
         return [product_fluxcal, product_combined]
 

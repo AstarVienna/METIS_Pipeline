@@ -108,7 +108,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         prepared_images = cpl.core.ImageList()
 
         """Prepare the images; bias subtracting and flat fielding"""
-        
+
         for index, frame in enumerate(raw_frames):
             Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
 
@@ -146,14 +146,15 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.Product(self, header, combined_image, band='LM') # ToDo Hardcoded for now
+        band = self.inputset.tag_parameters['band']
+        product = self.Product(self, header, combined_image, band=band)
 
         return [product]
 
 
 class MetisPupilImaging(MetisRecipe):
     """
-    Wrapper for the recipe for pyesorex, defining neessary attributes and parameters, plus the implementation class. 
+    Wrapper for the recipe for pyesorex, defining neessary attributes and parameters, plus the implementation class.
     """
     # Fill in recipe information
     _name: str = "metis_pupil_imaging"

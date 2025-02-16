@@ -92,7 +92,7 @@ class PipelineInputSet(metaclass=ABCMeta):
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            inp.tags: inp.as_dict()
+            inp.tags.pattern: inp.as_dict()
             for inp in self.inputs
         }
 

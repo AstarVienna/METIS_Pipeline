@@ -72,6 +72,7 @@ class MetisLmImgDistortionImpl(RawImageProcessor):
         _tag = r"LM_DIST_REDUCED"
         _level = cpl.ui.Frame.FrameLevel.FINAL
         _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
