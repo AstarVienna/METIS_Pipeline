@@ -73,7 +73,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
-        target = self.inputset.basic_reduced.get_target_name(self.inputset.basic_reduced.frameset)
+        target = self.inputset.tag_parameters['target']
         image = self._create_dummy_image()
 
         product_bkg = self.ProductBkg(self, self.header, image, target=target)

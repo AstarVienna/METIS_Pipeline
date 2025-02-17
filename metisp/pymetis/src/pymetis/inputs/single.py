@@ -97,12 +97,13 @@ class SinglePipelineInput(PipelineInput):
                       f"Found a {self.title} frame {frame.file}")
 
     def as_dict(self) -> dict[str, Any]:
-        if self.frame is None:
-            extra = None
-        else:
-            extra = str(self.frame.file)
+        frame = None \
+            if self.frame is None \
+            else {
+            self.frame.tag: str(self.frame.file)
+        }
         return super().as_dict() | {
-            'frame': extra,
+            'frame': frame,
         }
 
     def valid_frames(self) -> cpl.ui.FrameSet:

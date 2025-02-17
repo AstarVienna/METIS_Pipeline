@@ -58,7 +58,7 @@ class MultiplePipelineInput(PipelineInput):
         """
         Extracts the 'target' name from the input string based on the '_tags' regex.
 
-        :param inputString: The string to be matched against the pattern.
+        :param frameset: The string to be matched against the pattern.
         :return: The target name if a match is found, otherwise None.
         """
         for frame in frameset:
@@ -126,14 +126,13 @@ class MultiplePipelineInput(PipelineInput):
         """
 
     def as_dict(self) -> dict[str, Any]:
-        if self.frameset is None:
-            extra = None
-        else:
-            extra = {
+        frameset = None \
+            if self.frameset is None \
+            else {
                 self.frameset[0].tag: [frame.file for frame in self.frameset]
             }
         return super().as_dict() | {
-            'frameset': extra,
+            'frameset': frameset,
         }
 
     def valid_frames(self) -> cpl.ui.FrameSet:
