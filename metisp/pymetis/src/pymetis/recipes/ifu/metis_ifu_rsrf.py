@@ -213,7 +213,6 @@ class MetisIfuRsrf(MetisRecipe):
     _author = "Janus Brink"
     _email = "janus.brink27@gmail.com"
     _synopsis = "Determine the relative spectral response function."
-    _copyright = "GPL-3.0-or-later"
     _description = """\
     Create relative spectral response function for the IFU detector
 
