@@ -213,6 +213,7 @@ class MetisIfuRsrf(MetisRecipe):
     _author = "Janus Brink"
     _email = "janus.brink27@gmail.com"
     _synopsis = "Determine the relative spectral response function."
+    _copyright = "GPL-3.0-or-later"
     _description = """\
     Create relative spectral response function for the IFU detector
 
@@ -251,14 +252,14 @@ class MetisIfuRsrf(MetisRecipe):
             (1D RSRF) - TBC multiple FITS extensions with spectral traces?
     """
 
-    # This should not be here but without it pyesorex crashes
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_ifu_rsrf.telluric",
+            name="metis_ifu_rsrf.stacking.method",
             context="metis_ifu_rsrf",
-            description="Use telluric correction",
-            default=False,
-            alternatives=(True, False),
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
         ),
-    ])
+    ])     # no parameters defined in DRLD
+
     implementation_class = MetisIfuRsrfImpl
