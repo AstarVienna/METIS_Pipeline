@@ -47,14 +47,14 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
 
     class ProductIfuDistortionTable(PipelineProduct):
-        _tag = r"IFU_DISTORTION_TABLE"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.TABLE
+        tag = r"IFU_DISTORTION_TABLE"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.TABLE
 
     class ProductIfuDistortionReduced(PipelineProduct):
-        _tag = r"IFU_DIST_REDUCED"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"IFU_DIST_REDUCED"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -79,7 +79,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 class MetisIfuDistortion(MetisRecipe):
     _name: str = "metis_ifu_distortion"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Reduce raw science exposures of the IFU."
     _description: str = (

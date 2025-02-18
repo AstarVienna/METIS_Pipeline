@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import inspect
 import os.path
 import pprint
+import re
 import subprocess
 import pytest
 from abc import ABC
@@ -161,6 +162,18 @@ class BaseRecipeTest(ABC):
             f"Pyesorex exited with non-zero return code {output.returncode}"
         assert output.stderr == b"",\
             "Pyesorex exited with non-empty stderr"
+
+    @pytest.mark.pyesorex
+    def test_pyesorex_can_display_manpage(self, name) -> None:
+        output = subprocess.run(['pyesorex', '--man-page', name, '--log-level', 'DEBUG'], capture_output=True)
+        assert output.returncode == 0, \
+            f"`pyesorex --man-page {name}` exited with non-zero return code {output.returncode}: {output.stderr}"
+
+    @pytest.mark.xfail(reason="Future-proofing tests")
+    def test_does_author_name_conform_to_standard(self) -> None:
+        """Test whether the recipe author's name is in the standard format. TBD what that means."""
+        recipe = self._recipe()
+        assert re.match(rf"^[\w ]+, A\*$", recipe._author)
 
     def test_recipe_uses_all_input_frames(self, frameset):
         instance = self._recipe()

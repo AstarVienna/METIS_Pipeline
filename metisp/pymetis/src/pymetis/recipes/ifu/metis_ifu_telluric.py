@@ -75,26 +75,26 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         Final product: Transmission function for the telluric correction
         """
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _tag = r"IFU_TELLURIC"
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        tag = r"IFU_TELLURIC"
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     # Response curve
     class ProductResponseFunction(TargetSpecificProduct):
         """
         Final product: response curve for the flux calibration
         """
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
             return rf"IFU_{self.target:s}_REDUCED_1D"
 
     class ProductFluxcalTab(PipelineProduct):
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _tag = r"FLUXCAL_TAB"
-        _frame_type = cpl.ui.Frame.FrameType.TABLE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        tag = r"FLUXCAL_TAB"
+        frame_type = cpl.ui.Frame.FrameType.TABLE
 
 # TODO: Define input type for the paramfile in common.py
 
@@ -133,8 +133,10 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         header = self._create_dummy_header()
         image = self._create_dummy_image()
 
+        target = self.inputset.tag_parameters['target']
+
         product_telluric_transmission = self.ProductTelluricTransmission(self, header, image)
-        product_reduced_1d = self.ProductResponseFunction(self, header, image, target='SCI') # ToDo: should not be hardcoded
+        product_reduced_1d = self.ProductResponseFunction(self, header, image, target=target)
         product_fluxcal_tab = self.ProductFluxcalTab(self, header, image)
 
         return [product_telluric_transmission, product_reduced_1d, product_fluxcal_tab]
@@ -143,9 +145,8 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 class MetisIfuTelluric(MetisRecipe):
     _name: str = "metis_ifu_telluric"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
-    _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Derive telluric absorption correction and optionally flux calibration"
     _description: str = """
         Recipe to derive the atmospheric transmission and the response function.
@@ -154,7 +155,7 @@ class MetisIfuTelluric(MetisRecipe):
             IFU_(SCI|STD)_1D: 1d spectrum either from science target or standard star
 
         Outputs
-            IFU_TELLURIC:   Tranmission of the Earth#s atmosphere
+            IFU_TELLURIC:   Tranmission of the Earth's atmosphere
             FLUXCAL_TAB:    Response function
 
         Algorithm
@@ -162,4 +163,3 @@ class MetisIfuTelluric(MetisRecipe):
     """
 
     implementation_class = MetisIfuTelluricImpl
-

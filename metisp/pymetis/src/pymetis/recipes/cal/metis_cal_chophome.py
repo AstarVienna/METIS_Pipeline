@@ -61,9 +61,9 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """
         Final product: combined, background-subtracted images of the WCU source
         """
-        _group = cpl.ui.Frame.FrameGroup.PRODUCT
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def category(self) -> str:
@@ -82,9 +82,9 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        _group = cpl.ui.Frame.FrameGroup.PRODUCT
-        _level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def category(self) -> str:

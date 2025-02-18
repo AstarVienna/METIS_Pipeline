@@ -32,6 +32,7 @@ class PipelineInput:
     _tags: Pattern = None                   # No universal tags are provided
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default, must be provided explicitly
     _detector: str | None = None            # Not specific to a detector until determined otherwise
+    _description: str = None                # Description for man page
 
     @property
     def title(self):
@@ -162,3 +163,13 @@ class PipelineInput:
         This is abstract as it differes significantly for Single and Multiple Inputs.
         """
         pass
+
+    @classmethod
+    def _pretty_tags(cls) -> str:
+        """ Helper method to print `re.Pattern`s in man-page: remove named capture groups' names. """
+        return re.sub(r"\?P<\w+>", "", cls._tags.pattern)
+
+
+class Optional:
+    """ Mixin class for optional inputs """
+    _required: bool = False

@@ -61,4 +61,4 @@ class TestInputSet(RawInputSetTest):
 
 
 class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.Product
+    _product: type[PipelineProduct] = Impl.ProductMasterDark

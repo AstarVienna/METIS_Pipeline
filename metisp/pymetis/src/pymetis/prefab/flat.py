@@ -52,9 +52,9 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             self.inputs |= {self.persistence, self.linearity, self.gain_map}
 
     class Product(BandSpecificProduct, TargetSpecificProduct):
-        _group = cpl.ui.Frame.FrameGroup.PRODUCT
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
         band: str = None
         target: str = None
 

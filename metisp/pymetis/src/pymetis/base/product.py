@@ -32,11 +32,12 @@ class PipelineProduct(ABC):
         one FITS file with associated headers and a frame
     """
 
-    _tag: str = None
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
-    _level: cpl.ui.Frame.FrameLevel = None
-    _frame_type: cpl.ui.Frame.FrameType = None
-    _used_frames: cpl.ui.FrameSet = None
+    tag: str = None
+    group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
+    level: cpl.ui.Frame.FrameLevel = None
+    frame_type: cpl.ui.Frame.FrameType = None
+
+    description: str = "DEFAULT"
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -47,6 +48,8 @@ class PipelineProduct(ABC):
         self.header: cpl.core.PropertyList = header
         self.image: cpl.core.Image = image
         self.properties = cpl.core.PropertyList()
+
+        self._used_frames: cpl.ui.FrameSet | None = None
 
         # Raise a NotImplementedError in case a derived class forgot to set a class attribute
         if self.tag is None:
@@ -123,25 +126,6 @@ class PipelineProduct(ABC):
             self.output_file_name,
             header=self.header,
         )
-
-    @property
-    def tag(self) -> str:
-        return self._tag
-
-    @property
-    @final
-    def group(self) -> cpl.ui.Frame.FrameGroup:
-        return self._group
-
-    @property
-    @final
-    def level(self) -> cpl.ui.Frame.FrameLevel:
-        return self._level
-
-    @property
-    @final
-    def frame_type(self) -> cpl.ui.Frame.FrameType:
-        return self._frame_type
 
     @property
     def category(self) -> str:

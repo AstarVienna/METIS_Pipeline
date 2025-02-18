@@ -53,9 +53,9 @@ class MetisLmImgCalibrateImpl(MetisRecipeImpl):
             self.inputs |= {self.background, self.flux_table, self.distortion_table}
 
     class ProductLmSciCalibrated(PipelineProduct):
-        _tag = r"LM_SCI_CALIBRATED"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"LM_SCI_CALIBRATED"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> [PipelineProduct]:
         combined_image = self._create_dummy_image()

@@ -44,9 +44,9 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
             self.inputs |= {self.gain_map, self.distortion_table, self.linearity}
 
     class ProductIfuWavecal(PipelineProduct):
-        _tag = r"IFU_WAVECAL"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"IFU_WAVECAL"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()
@@ -64,7 +64,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
 class MetisIfuWavecal(MetisRecipe):
     _name: str = "metis_ifu_wavecal"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Determine the relative spectral response function"
     _description: str = (

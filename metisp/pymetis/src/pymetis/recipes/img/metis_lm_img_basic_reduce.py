@@ -101,9 +101,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
         But feel free to be more creative with names: it could be `MetisLmImgBasicReduceImpl.ProductBasicReduced`.
         """
-        _group = cpl.ui.Frame.FrameGroup.PRODUCT
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:

@@ -69,10 +69,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        _tag = r"IFU_RSRF_BACKGROUND"
-        _group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
-        _level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"IFU_RSRF_BACKGROUND"
+        group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
+        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         # SKEL: copy product keywords from header
         def add_properties(self) -> None:
@@ -81,10 +81,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
 
     class ProductMasterFlatIfu(PipelineProduct):
-        _tag = r"MASTER_FLAT_IFU"
-        _group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"MASTER_FLAT_IFU"
+        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -93,10 +93,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
 
     class ProductRsrfIfu(PipelineProduct):
-        _tag = r"RSRF_IFU"
-        _group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
+        tag = r"RSRF_IFU"
+        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -104,10 +104,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.properties.append(self.header)
 
     class ProductBadpixMapIfu(PipelineProduct):
-        _tag = r"BADPIX_MAP_IFU"
-        _group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"BADPIX_MAP_IFU"
+        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         # SKEL: copy product keywords from header
         def add_properties(self):

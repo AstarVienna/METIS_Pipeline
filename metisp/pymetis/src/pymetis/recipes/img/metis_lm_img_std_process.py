@@ -42,14 +42,14 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
 
     #import pdb ; pdb.set_trace()
     class ProductLmImgFluxCalTable(PipelineProduct):
-        _tag = r"FLUXCAL_TAB"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.TABLE
+        tag = r"FLUXCAL_TAB"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.TABLE
 
     class ProductLmImgStdCombined(PipelineProduct):
-        _tag = r"LM_STD_COMBINED"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"LM_STD_COMBINED"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

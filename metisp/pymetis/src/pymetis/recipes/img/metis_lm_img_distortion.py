@@ -59,19 +59,19 @@ class MetisLmImgDistortionImpl(RawImageProcessor):
 
 
     class ProductLmDistortionTable(PipelineProduct):
-        _tag = r"LM_DISTORTION_TABLE"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.TABLE
+        tag = r"LM_DISTORTION_TABLE"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.TABLE
 
     class ProductLmDistortionMap(PipelineProduct):
-        _tag = r"LM_DIST_MAP"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"LM_DIST_MAP"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     class ProductLmDistortionReduced(PipelineProduct):
-        _tag = r"LM_DIST_REDUCED"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = r"LM_DIST_REDUCED"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

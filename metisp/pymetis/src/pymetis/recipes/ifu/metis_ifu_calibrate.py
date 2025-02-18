@@ -53,9 +53,9 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
             self.inputs |= {self.sci_reduced, self.telluric, self.fluxcal}
 
     class ProductSciCubeCalibrated(PipelineProduct):
-        _tag = rf"IFU_SCI_CUBE_CALIBRATED"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        tag = rf"IFU_SCI_CUBE_CALIBRATED"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
 
     def process_images(self) -> [PipelineProduct]:
@@ -73,9 +73,8 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 class MetisIfuCalibrate(MetisRecipe):
     _name: str = "metis_ifu_calibrate"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
-    _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Calibrate IFU science data"
     _description: str = (
         "Currently just a skeleton prototype."

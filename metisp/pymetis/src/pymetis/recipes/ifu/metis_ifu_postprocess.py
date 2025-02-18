@@ -20,8 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 
 import cpl
-from cpl.core import Msg
-from typing import Dict
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.inputs import PipelineInputSet, SinglePipelineInput
@@ -41,8 +39,8 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             self.inputs |= {self.sci_cube_calibrated}
 
     class ProductSciCoadd(PipelineProduct):
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
@@ -75,20 +73,9 @@ class MetisIfuPostprocess(MetisRecipe):
     _version: str = "0.1"
     _author: str = "Martin Baláž"
     _email: str = "martin.balaz@univie.ac.at"
-    _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Calibrate IFU science data"
     _description: str = (
         "Currently just a skeleton prototype."
     )
 
     implementation_class = MetisIfuPostprocessImpl
-
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name=f"{_name}.telluric",
-            context=_name,
-            description="Use telluric correction",
-            default=False,
-            alternatives=(True, False),
-        ),
-    ])

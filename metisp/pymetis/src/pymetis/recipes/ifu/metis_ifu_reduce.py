@@ -78,32 +78,32 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             self.inputs |= {self.sky, self.linearity_map, self.rsrf, self.ifu_wavecal, self.ifu_distortion_table}
 
     class ProductReduced(TargetSpecificProduct):
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
             return rf"IFU_{self.target}_REDUCED"
 
     class ProductBackground(TargetSpecificProduct):
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
             return rf"IFU_{self.target}_BACKGROUND"
 
     class ProductReducedCube(TargetSpecificProduct):
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
             return rf"IFU_{self.target}_REDUCED_CUBE"
 
     class ProductCombined(TargetSpecificProduct):
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @property
         def tag(self) -> str:
@@ -129,7 +129,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 class MetisIfuReduce(MetisRecipe):
     _name: str = "metis_ifu_reduce"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Reduce raw science exposures of the IFU."
     _description: str = (
@@ -137,4 +137,3 @@ class MetisIfuReduce(MetisRecipe):
     )
 
     implementation_class = MetisIfuReduceImpl
-
