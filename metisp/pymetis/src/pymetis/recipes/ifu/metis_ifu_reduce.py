@@ -127,12 +127,12 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
 
 class MetisIfuReduce(MetisRecipe):
-    _name = "metis_ifu_reduce"
-    _version = "0.1"
-    _author = "Martin Baláž"
-    _email = "martin.balaz@univie.ac.at"
-    _synopsis = "Reduce raw science exposures of the IFU."
-    _description = (
+    _name: str = "metis_ifu_reduce"
+    _version: str = "0.1"
+    _author: str = "Martin Baláž"
+    _email: str = "martin.balaz@univie.ac.at"
+    _synopsis: str = "Reduce raw science exposures of the IFU."
+    _description: str = (
         "Currently just a skeleton prototype."
     )
 

@@ -31,13 +31,13 @@ class MetisRecipe(cpl.ui.PyRecipe):
         The underscored _fields must be present but should be overwritten
         by every child class (`pyesorex` actually checks for their presence).
     """
-    _name = "metis_abstract_base"
-    _version = "0.0.1"
-    _author = "METIS PIP team"
-    _email = "astar.vienna@univie.ac.at"                        # ToDo is this a sensible default?
-    _copyright = "GPL-3.0-or-later"                             # I guess we're using the same copyright everywhere
-    _synopsis = "Abstract-like base class for METIS recipes"
-    _description = ("This class serves as the base class for all METIS recipes."
+    _name: str = "metis_abstract_base"
+    _version: str = "0.0.1"
+    _author: str = "METIS PIP team"
+    _email: str = "astar.vienna@univie.ac.at" # ToDo is this a sensible default?
+    _copyright: str = "GPL-3.0-or-later" # I guess we're using the same copyright everywhere, no need to override this
+    _synopsis: str = "Abstract-like base class for METIS recipes"
+    _description: str = ("This class serves as the base class for all METIS recipes."
                     "Bonus points if it is not visible from pyesorex.")
 
     parameters: cpl.ui.ParameterList = cpl.ui.ParameterList([])     # By default, a recipe does not have any parameters.
@@ -47,9 +47,9 @@ class MetisRecipe(cpl.ui.PyRecipe):
         super().__init__()
         self.implementation: "MetisRecipeImpl" = None
 
-        # ToDo: This handles the bug in `pyesorex` where zero-length parameter list crashes the whole thing
-        #       A fix is already provided (just test with `if parameters is None` and not `if not parameters`)
-        #       but not yet merged upstream.
+        # FixMe: This handles the bug in `pyesorex` where zero-length parameter list crashes the whole thing.
+        #        A fix is already provided (test with `if parameters is None:` and not `if not parameters:`)
+        #        but has not yet been merged upstream.
         if len(self.parameters) == 0:
             self.parameters = cpl.ui.ParameterList([
                 cpl.ui.ParameterValue(

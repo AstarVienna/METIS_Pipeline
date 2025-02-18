@@ -95,12 +95,12 @@ class MetisLmImgDistortionImpl(RawImageProcessor):
 
 
 class MetisLmImgDistortion(MetisRecipe):
-    _name = "metis_lm_img_distortion"
-    _version = "0.1"
-    _author = "Chi-Hung Yan"
-    _email = "chyan@asiaa.sinica.edu.tw"
-    _synopsis = "Determine optical distortion coefficients for the LM imager."
-    _description = (
+    _name: str = "metis_lm_img_distortion"
+    _version: str = "0.1"
+    _author: str = "Chi-Hung Yan"
+    _email: str = "chyan@asiaa.sinica.edu.tw"
+    _synopsis: str = "Determine optical distortion coefficients for the LM imager."
+    _description: str = (
         "Currently just a skeleton prototype."
     )
 
