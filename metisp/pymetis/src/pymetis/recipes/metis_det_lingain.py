@@ -20,22 +20,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 
 from abc import ABC
-from typing import Dict
 
 import cpl
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
 from pymetis.inputs.common import RawInput, BadpixMapInput
-from pymetis.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
 class LinGainProduct(DetectorSpecificProduct, ABC):
     """ Common base class for all linearity and gain products. Just sets `group`, `level` and `frame_type`. """
-    _group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    group = cpl.ui.Frame.FrameGroup.PRODUCT
+    level = cpl.ui.Frame.FrameLevel.FINAL
+    frame_type = cpl.ui.Frame.FrameType.IMAGE
+    detector = "unknown"
 
 
 class MetisDetLinGainImpl(RawImageProcessor):
@@ -47,6 +46,8 @@ class MetisDetLinGainImpl(RawImageProcessor):
             _title: str = "WCU off raw"
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
 
+        BadpixMapInput = BadpixMapInput
+
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.wcu_off = self.WcuOffInput(frameset, required=False)
@@ -54,19 +55,28 @@ class MetisDetLinGainImpl(RawImageProcessor):
             self.inputs |= {self.badpix_map, self.wcu_off}
 
     class ProductGain(LinGainProduct):
-        @property
-        def tag(self) -> str:
-            return f"GAIN_MAP_{self.detector:s}"
+        detector = 'det'
+        description = "Gain map"
+
+        @classmethod
+        def tag(cls) -> str:
+            return rf"GAIN_MAP_{cls.detector}"
 
     class ProductLinearity(LinGainProduct):
-        @property
-        def tag(self) -> str:
-            return f"LINEARITY_{self.detector:s}"
+        detector = 'det'
+        description = "Linearity map"
+
+        @classmethod
+        def tag(cls) -> str:
+            return rf"LINEARITY_{cls.detector}"
 
     class ProductBadpixMap(LinGainProduct):
-        @property
-        def tag(self) -> str:
-            return f"BADPIX_MAP_{self.detector:s}"
+        detector = 'det'
+        description = "Bad pixel map"
+
+        @classmethod
+        def tag(cls) -> str:
+            return rf"BADPIX_MAP_{cls.detector}"
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = self.inputset.load_raw_images()
@@ -93,16 +103,20 @@ class MetisDetLinGainImpl(RawImageProcessor):
         return [product_gain_map, product_linearity, product_badpix_map]
 
 
-class Metis2rgLinGainImpl(Detector2rgMixin, MetisDetLinGainImpl):
-    pass
+class Metis2rgLinGainImpl(MetisDetLinGainImpl):
+    detector = '2RG'
+
+    class ProductGain(MetisDetLinGainImpl.ProductGain):
+        detector = r"2RG"
+
+class MetisGeoLinGainImpl(MetisDetLinGainImpl):
+    detector = 'GEO'
 
 
-class MetisGeoLinGainImpl(DetectorGeoMixin, MetisDetLinGainImpl):
-    pass
 
 
-class MetisIfuLinGainImpl(DetectorIfuMixin, MetisDetLinGainImpl):
-    pass
+class MetisIfuLinGainImpl(MetisDetLinGainImpl):
+    detector = 'IFU'
 
 
 class MetisDetLinGain(MetisRecipe):
