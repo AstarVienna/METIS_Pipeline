@@ -41,12 +41,12 @@ class MetisDetDarkImpl(RawImageProcessor):
         PersistenceMapInput = PersistenceMapInput
         GainMapInput = GainMapInput
 
-        def __new__(cls, *args, **kwargs):
-            cls = super().__new__(cls)
-            cls.raw = cls.RawInput
-            cls.linearity = LinearityInput
-            cls.inputs |= {cls.raw}
-            return cls
+        #def __new__(cls, *args, **kwargs):
+        #    cls = super().__new__(cls)
+        #    cls.raw = cls.RawInput
+        #    cls.linearity = LinearityInput
+        #    cls.inputs |= {cls.raw, cls.linearity}
+        #    return cls
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

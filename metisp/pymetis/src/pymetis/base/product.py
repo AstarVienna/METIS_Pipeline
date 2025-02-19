@@ -80,7 +80,7 @@ class PipelineProduct(ABC):
             cpl.core.Property(
                 "ESO PRO CATG",         # Martin suspects this means ESO product category
                 cpl.core.Type.STRING,
-                self.category,
+                self.category(),
             )
         )
 
