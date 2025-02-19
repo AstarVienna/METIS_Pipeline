@@ -32,7 +32,8 @@ class PipelineProduct(ABC):
         one FITS file with associated headers and a frame
     """
 
-    tag: str = None
+    # There is no universal tag for all products. Make sure it is defined
+    tag: str = NotImplemented
     group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
@@ -68,6 +69,12 @@ class PipelineProduct(ABC):
             raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
 
         self.add_properties()
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        if cls.tag is NotImplemented:
+            raise NotImplementedError(f"{cls.__qualname__} does not define 'tag'")
 
     def add_properties(self) -> None:
         """
@@ -152,84 +159,3 @@ class PipelineProduct(ABC):
             cpl.ui.FrameSet:    List of all frames actually used by the product.
         """
         return self._used_frames
-
-
-class DetectorSpecificProduct(PipelineProduct, ABC):
-    """
-    Products that are specific to a detector.
-    """
-    detector: str = None
-
-    def __init__(self,
-                 recipe: 'MetisRecipe',
-                 header: cpl.core.PropertyList,
-                 image: cpl.core.Image,
-                 *,
-                 detector: str = None,
-                 **kwargs):
-
-        if detector is not None:
-            self.detector = detector
-
-        if self.detector is None:
-            raise NotImplementedError(f"Products specific to a detector must define 'detector', but "
-                                      f"{self.__class__.__qualname__} does not")
-
-        super().__init__(recipe, header, image, **kwargs)
-
-
-class TargetSpecificProduct(PipelineProduct, ABC):
-    target: str = None
-
-    def __init__(self,
-                 recipe: 'MetisRecipe',
-                 header: cpl.core.PropertyList,
-                 image: cpl.core.Image,
-                 *,
-                 target: str = None,
-                 **kwargs):
-
-        if target is not None:
-            self.target = target
-
-        """
-            At the moment of instantiation, the `target` attribute must already be set *somehow*. Either
-            -   as a class attribute (if it is constant)
-            -   from the constructor (if it is determined from the data)
-            -   or as a provided property (if it has to be computed dynamically)
-        """
-        if self.target is None:
-            raise NotImplementedError(f"Products specific to a target must define 'target', "
-                                      f"but {self.__class__.__qualname__} does not")
-
-        super().__init__(recipe, header, image, **kwargs)
-
-
-class BandSpecificProduct(PipelineProduct, ABC):
-    """
-    Product specific to one band. Probably should be merged with all other similar classes.
-    """
-    band: str = None
-
-    def __init__(self,
-                 recipe: 'MetisRecipe',
-                 header: cpl.core.PropertyList,
-                 image: cpl.core.Image,
-                 *,
-                 band: str = None,
-                 **kwargs):
-
-        if band is not None:
-            self.band = band
-
-        """
-            At the moment of instantiation, the `band` attribute must already be set *somehow*. Either
-            -   as a class attribute (if it is constant)
-            -   from the constructor (if it is determined from the data)
-            -   or as a provided property (if it has to be computed dynamically)
-        """
-        if self.band is None:
-            raise NotImplementedError(f"Products specific to a target must define 'band', but "
-                                      f"{self.__class__.__qualname__} does not")
-
-        super().__init__(recipe, header, image, **kwargs)

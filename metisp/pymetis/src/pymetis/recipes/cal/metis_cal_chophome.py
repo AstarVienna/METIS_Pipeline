@@ -34,8 +34,6 @@ from pymetis.prefab.rawimage import RawImageProcessor
 
 class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
-    target = "LM_CHOPHOME"
-
     class InputSet(RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
@@ -43,6 +41,13 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
         class BackgroundInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
+
+        LinearityInput = LinearityInput
+        GainMapInput = GainMapInput
+        PersistenceMapInput = PersistenceMapInput
+        BadpixMapInput = BadpixMapInput
+        PinholeTableInput = PinholeTableInput
+
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
@@ -61,42 +66,20 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """
         Final product: combined, background-subtracted images of the WCU source
         """
+        tag: str = "LM_CHOPHOME_COMBINED"
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        @property
-        def category(self) -> str:
-            return "LM_CHOPHOME_COMBINED"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
 
     class ProductBackground(PipelineProduct):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
+        tag: str = "LM_CHOPHOME_BACKGROUND"
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        @property
-        def category(self) -> str:
-            return "LM_CHOPHOME_BACKGROUND"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
 
 
     def process_images(self) -> [PipelineProduct]:
@@ -170,8 +153,8 @@ class MetisCalChophome(MetisRecipe):
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_cal_chophome.stacking.method",
-            context="metis_cal_chophome",
+            name=f"{_name}.stacking.method",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),

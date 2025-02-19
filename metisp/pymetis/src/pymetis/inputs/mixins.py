@@ -23,6 +23,8 @@ from pymetis.inputs import PersistenceMapInput, PipelineInputSet, GainMapInput, 
 
 
 class PersistenceInputSetMixin(PipelineInputSet):
+    PersistenceMapInput = PersistenceMapInput
+
     def __init__(self, frameset: cpl.ui.FrameSet):
         super().__init__(frameset)
 

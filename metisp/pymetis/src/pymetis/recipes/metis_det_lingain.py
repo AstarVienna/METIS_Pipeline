@@ -24,12 +24,12 @@ from abc import ABC
 import cpl
 
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
+from pymetis.base.product import PipelineProduct
 from pymetis.inputs.common import RawInput, BadpixMapInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class LinGainProduct(DetectorSpecificProduct, ABC):
+class LinGainProduct(ABC):
     """ Common base class for all linearity and gain products. Just sets `group`, `level` and `frame_type`. """
     group = cpl.ui.Frame.FrameGroup.PRODUCT
     level = cpl.ui.Frame.FrameLevel.FINAL

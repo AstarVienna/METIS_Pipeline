@@ -81,7 +81,7 @@ class PersistenceMapInput(SinglePipelineInput):
     _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
-    _description = "persistence map"
+    _description = "Persistence map."
 
 
 class GainMapInput(SinglePipelineInput):

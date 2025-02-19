@@ -30,7 +30,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct, BandSpecificProduct
+from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
 from pymetis.prefab.darkimage import DarkImageProcessor
@@ -70,7 +70,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
             # ToDo This is not correct; need to handle both LM and N.
             self.band = 'LM'
 
-    class Product(BandSpecificProduct):
+    class Product(PipelineProduct):
         """
         Define the output product, here a reduced pupil image.
         """

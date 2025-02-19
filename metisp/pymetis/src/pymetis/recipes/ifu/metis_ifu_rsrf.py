@@ -23,11 +23,12 @@ from typing import Dict
 
 from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
+from pymetis.inputs.base import OptionalMixin
 from pymetis.inputs.common import SinglePipelineInput, MultiplePipelineInput, \
                             BadpixMapInput, MasterDarkInput, LinearityInput, \
                             RawInput, GainMapInput, PersistenceMapInput, \
                             WavecalInput, DistortionTableInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin
+from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
@@ -35,14 +36,13 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         detector = "IFU"
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_RSRF_RAW")
             _title: str = "IFU rsrf raw"
 
-        MasterDarkInput = MasterDarkInput
 
         class RsrfWcuOffInput(RawInput):
             """
@@ -51,6 +51,14 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             """
             _tags: re.Pattern = re.compile(r"IFU_WCU_OFF_RAW")
             _title: str = "IFU WCU off"
+
+        MasterDarkInput = MasterDarkInput
+        GainMapInput = GainMapInput
+        DistortionTableInput = DistortionTableInput
+        WavecalInput = WavecalInput
+
+        class BadpixMapInput(OptionalMixin, BadpixMapInput):
+            pass
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

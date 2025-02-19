@@ -19,16 +19,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 from abc import ABC
-from typing import Dict
 
 import cpl
 from cpl.core import Msg
 
-from pymetis.inputs import PipelineInputSet, PersistenceMapInput, LinearityInput
-from pymetis.inputs.common import RawInput, MasterDarkInput, BadpixMapInput, GainMapInput
+from pymetis.inputs import PersistenceMapInput, LinearityInput
+from pymetis.inputs.common import RawInput, MasterDarkInput, GainMapInput
 
 from .darkimage import DarkImageProcessor
-from ..base.product import PipelineProduct, BandSpecificProduct, TargetSpecificProduct
+from ..base.product import PipelineProduct
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
@@ -51,7 +50,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             self.gain_map = GainMapInput(frameset)
             self.inputs |= {self.persistence, self.linearity, self.gain_map}
 
-    class Product(BandSpecificProduct, TargetSpecificProduct):
+    class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE

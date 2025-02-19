@@ -23,7 +23,7 @@ import cpl
 from typing import Dict, Literal
 
 from pymetis.base import MetisRecipe
-from pymetis.base.product import PipelineProduct, TargetSpecificProduct
+from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput
 from pymetis.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin, GainMapInputSetMixin
@@ -77,7 +77,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
             self.inputs |= {self.sky, self.linearity_map, self.rsrf, self.ifu_wavecal, self.ifu_distortion_table}
 
-    class ProductReduced(TargetSpecificProduct):
+    class ProductReduced(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -85,7 +85,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(self) -> str:
             return rf"IFU_{self.target}_REDUCED"
 
-    class ProductBackground(TargetSpecificProduct):
+    class ProductBackground(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -93,7 +93,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(self) -> str:
             return rf"IFU_{self.target}_BACKGROUND"
 
-    class ProductReducedCube(TargetSpecificProduct):
+    class ProductReducedCube(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -101,7 +101,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(self) -> str:
             return rf"IFU_{self.target}_REDUCED_CUBE"
 
-    class ProductCombined(TargetSpecificProduct):
+    class ProductCombined(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 

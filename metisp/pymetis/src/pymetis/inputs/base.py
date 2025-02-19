@@ -170,6 +170,6 @@ class PipelineInput:
         return re.sub(r"\?P<\w+>", "", cls._tags.pattern)
 
 
-class Optional:
+class OptionalMixin:
     """ Mixin class for optional inputs """
     _required: bool = False

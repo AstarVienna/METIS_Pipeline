@@ -24,7 +24,7 @@ import cpl
 
 from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct, TargetSpecificProduct
+from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput, PipelineInputSet
 
 
@@ -46,7 +46,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
             self.inputs |= {self.basic_reduced, self.sky_reduced}
 
-    class ProductBkg(TargetSpecificProduct):
+    class ProductBkg(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -54,7 +54,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         def tag(self):
             return f"LM_{self.target:s}_BKG"
 
-    class ProductBkgSubtracted(TargetSpecificProduct):
+    class ProductBkgSubtracted(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -62,7 +62,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         def tag(self):
             return f"LM_{self.target:s}_BKG_SUBTRACTED"
 
-    class ProductObjectCat(TargetSpecificProduct):
+    class ProductObjectCat(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
 

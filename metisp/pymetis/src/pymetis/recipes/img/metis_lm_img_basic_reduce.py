@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct, TargetSpecificProduct
+from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import MasterDarkInput, GainMapInput, MasterFlatInput, BadpixMapInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
@@ -94,7 +94,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             # We need to register the extra inputs (just to be able to say `for x in self.inputs:`)
             self.inputs |= {self.master_flat, self.gain_map, self.badpix_map}
 
-    class Product(TargetSpecificProduct):
+    class Product(PipelineProduct):
         """
         The second big part is defining the products. For every product we create a separate class
         which defines the tag, group, level and frame type. Here we only have one kind of product,

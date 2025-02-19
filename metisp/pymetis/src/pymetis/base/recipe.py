@@ -49,6 +49,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
                     "Bonus points if it is not visible from pyesorex.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
+    _matched_keywords = []
     _algorithm = "Foo the bar and quux the baz [DEFAULT]."      # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
@@ -81,18 +82,18 @@ class MetisRecipe(cpl.ui.PyRecipe):
         """
         Automatically build the `description` attribute from available data.
         """
-        inputs = '\n        '.join(
-            [f"{input_type._pretty_tags():<30}"
-             f"[{' 1 ' if issubclass(input_type, SinglePipelineInput) else '1-n'}]"
+        inputs = '\n'.join(
+            [f"        {input_type._pretty_tags():<30}"
+             f"[{'1' if issubclass(input_type, SinglePipelineInput) else 'N'}×]"
              f"{' (optional)' if not input_type._required else '           '} "
              f"{input_type._description}"
             for (name, input_type) in
              inspect.getmembers(self.implementation_class.InputSet,
                                 lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
         ])
-        products = '\n        '.join(
-            [f"{str(typ.tag()):<47}{typ.description}"
-             for (name, typ) in
+        products = '\n'.join(
+            [f"        {str(product_type.tag):<46}{product_type.description}"
+             for (name, product_type) in
              inspect.getmembers(self.implementation_class,
                                 lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
         ])
@@ -101,11 +102,9 @@ f"""
     {self.synopsis}
 
     Matched keywords
-        (none)
-    Inputs
-        {inputs}
-    Outputs
-        {products}
+        {', '.join(self._matched_keywords)}
+    Inputs\n{inputs}
+    Outputs\n{products}
     Algorithm
         {self.algorithm}
 """
