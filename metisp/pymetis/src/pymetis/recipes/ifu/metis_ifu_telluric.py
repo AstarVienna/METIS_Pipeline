@@ -49,13 +49,15 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "uncorrected mf input spectrum"
+            _description: str = "Uncorrected MF input spectrum."
 
         class CombinedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_COMBINED")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "spectral cube of science object"
+            _description: str = "Spectral cube of standard star, combining multiple exposures."
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
+        def __insxit__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.combined = self.CombinedInput(frameset)
             self.fluxstd_catalog = FluxTableInput(frameset)
@@ -171,5 +173,6 @@ class MetisIfuTelluric(MetisRecipe):
     _algorithm = """Extract 1D spectrum of science object or standard star.
         Compute telluric correction.
         Compute conversion to physical units as function of wave-length."""
+    _matched_keywords = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
 
     implementation_class = MetisIfuTelluricImpl

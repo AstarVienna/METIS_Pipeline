@@ -33,12 +33,13 @@ class PipelineProduct(ABC):
     """
 
     # There is no universal tag for all products. Make sure it is defined
-    tag: str = NotImplemented
     group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
 
     description: str = "DEFAULT"
+
+    _tag: str = NotImplemented
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -68,6 +69,11 @@ class PipelineProduct(ABC):
         if self.category is None:
             raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
 
+        for key, value in kwargs.items():
+            print(key, value)
+            if not hasattr(self, key):
+                self.__setattr__(key, value)
+
         self.add_properties()
 
     def __init_subclass__(cls, **kwargs):
@@ -95,7 +101,7 @@ class PipelineProduct(ABC):
         """ Create a CPL Frame from this Product """
         return cpl.ui.Frame(
             file=self.output_file_name,
-            tag=self.tag,
+            tag=self.tag(),
             group=self.group,
             level=self.level,
             frameType=self.frame_type,
@@ -159,3 +165,7 @@ class PipelineProduct(ABC):
             cpl.ui.FrameSet:    List of all frames actually used by the product.
         """
         return self._used_frames
+
+    @classmethod
+    def tag(cls):
+        return cls._tag

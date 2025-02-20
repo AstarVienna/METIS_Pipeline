@@ -68,44 +68,54 @@ class LinearityInput(SinglePipelineInput):
     _title: str = "linearity map"
     _tags: Pattern = re.compile(r"LINEARITY_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Coefficients for the pixel non-linearity correction."
+    _oca_keywords = "PRO.CATG"
 
 
 class BadpixMapInput(SinglePipelineInput):
     _title: str = "bad pixel map"
     _tags: Pattern = re.compile(r"BADPIX_MAP_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Bad pixel map. Also contains detector masks."
 
 
 class PersistenceMapInput(SinglePipelineInput):
     _title: str = "persistence map"
     _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
     _description = "Persistence map."
+
+
+class OptionalPersistenceMapInput(PersistenceMapInput):
+    _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
 
 
 class GainMapInput(SinglePipelineInput):
     _title: str = "gain map"
     _tags: Pattern = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Gain map."
 
 
 class DistortionTableInput(SinglePipelineInput):
     _title: str = "distortion table"
     _tags: Pattern = re.compile(r"IFU_DISTORTION_TABLE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Table of distortion coefficients for an IFU data set."
 
 
 class WavecalInput(SinglePipelineInput):
     _title: str = "wavelength calibration"
     _tags: Pattern = re.compile(r"IFU_WAVECAL")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Image with wavelength at each pixel."
 
 
 class PinholeTableInput(SinglePipelineInput):
     _title: str = "pinhole table"
     _tags: Pattern = re.compile(r"PINHOLE_TABLE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Table of pinhole locations."
 
 
 class FluxTableInput(SinglePipelineInput):

@@ -26,7 +26,7 @@ from cpl.core import Msg
 from pymetis.base.recipe import MetisRecipe
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import (LinearityInput, GainMapInput,
-                                   PersistenceMapInput, BadpixMapInput,
+                                   OptionalPersistenceMapInput, BadpixMapInput,
                                    PinholeTableInput)
 from pymetis.base.product import PipelineProduct
 from pymetis.prefab.rawimage import RawImageProcessor
@@ -38,35 +38,36 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_CHOPHOME_RAW")
+            _description = "Raw exposure of the LM image mode."
 
         class BackgroundInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
+            _description = "Raw data for dark subtraction in other recipes."
 
         LinearityInput = LinearityInput
         GainMapInput = GainMapInput
-        PersistenceMapInput = PersistenceMapInput
+        PersistenceMapInput = OptionalPersistenceMapInput
         BadpixMapInput = BadpixMapInput
         PinholeTableInput = PinholeTableInput
-
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)
             self.background = self.BackgroundInput(frameset)
             self.linearity = LinearityInput(frameset)
             self.gain_map = GainMapInput(frameset)
-            self.persistence = PersistenceMapInput(frameset, required=False)
             self.badpix_map = BadpixMapInput(frameset, required=False)
+            self.persistence_map = self.PersistenceMapInput(frameset)
             self.pinhole_table = PinholeTableInput(frameset, required=True)
 
             self.inputs |= {self.background, self.linearity, self.gain_map,
-                            self.badpix_map, self.persistence, self.pinhole_table}
+                            self.badpix_map, self.persistence_map, self.pinhole_table}
 
 
     class ProductCombined(PipelineProduct):
         """
         Final product: combined, background-subtracted images of the WCU source
         """
-        tag: str = "LM_CHOPHOME_COMBINED"
+        _tag: str = "LM_CHOPHOME_COMBINED"
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
@@ -76,7 +77,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        tag: str = "LM_CHOPHOME_BACKGROUND"
+        _tag: str = "LM_CHOPHOME_BACKGROUND"
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE

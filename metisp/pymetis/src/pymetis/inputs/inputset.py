@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import functools
+import inspect
 import operator
 
 from abc import ABCMeta
@@ -54,6 +55,12 @@ class PipelineInputSet(metaclass=ABCMeta):
         self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
         self.tag_parameters: dict[str, str] = {}        # A dict of all tunable parameters determined from tags
         self.frameset = frameset
+
+        # Now iterate over all refined Inputs, instantiate them and feed them the frameset to filter.
+        for (name, input_type) in inspect.getmembers(frameset, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput)):
+            inp = input_type(frameset)
+            self.__setattr__(name, inp)
+            self.inputs |= {inp}
 
     def validate(self) -> None:
         Msg.debug(self.__class__.__qualname__, f"Validating the inputset {self.inputs}")

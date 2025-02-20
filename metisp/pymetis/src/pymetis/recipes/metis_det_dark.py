@@ -35,18 +35,11 @@ class MetisDetDarkImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
-            _description = "raw data for creating a master dark"
+            _description = "Raw data for creating a master dark."
 
         BadpixMapInput = BadpixMapInput
         PersistenceMapInput = PersistenceMapInput
         GainMapInput = GainMapInput
-
-        #def __new__(cls, *args, **kwargs):
-        #    cls = super().__new__(cls)
-        #    cls.raw = cls.RawInput
-        #    cls.linearity = LinearityInput
-        #    cls.inputs |= {cls.raw, cls.linearity}
-        #    return cls
 
         def __init__(self, frameset: cpl.ui.FrameSet):
             super().__init__(frameset)

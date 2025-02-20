@@ -88,14 +88,14 @@ class MetisRecipe(cpl.ui.PyRecipe):
              f"{' (optional)' if not input_type._required else '           '} "
              f"{input_type._description}"
             for (name, input_type) in
-             inspect.getmembers(self.implementation_class.InputSet,
-                                lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
+            inspect.getmembers(self.implementation_class.InputSet,
+                               lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
         ])
         products = '\n'.join(
-            [f"        {str(product_type.tag):<46}{product_type.description}"
-             for (name, product_type) in
-             inspect.getmembers(self.implementation_class,
-                                lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
+            [f"        {str(product_type.tag()):<46}{product_type.description}"
+            for (name, product_type) in
+            inspect.getmembers(self.implementation_class,
+                               lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
         ])
         return \
 f"""

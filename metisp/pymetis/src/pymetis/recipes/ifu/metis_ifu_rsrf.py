@@ -77,10 +77,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        tag = r"IFU_RSRF_BACKGROUND"
         group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag = r"IFU_RSRF_BACKGROUND"
 
         # SKEL: copy product keywords from header
         def add_properties(self) -> None:
