@@ -17,30 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl.ui
-
 from pymetis.inputs import PersistenceMapInput, PipelineInputSet, GainMapInput, LinearityInput
 
 
 class PersistenceInputSetMixin(PipelineInputSet):
     PersistenceMapInput = PersistenceMapInput
 
-    def __init__(self, frameset: cpl.ui.FrameSet):
-        super().__init__(frameset)
-
-        self.persistence_map = PersistenceMapInput(frameset, required=False)
-        self.inputs |= {self.persistence_map}
-
 
 class GainMapInputSetMixin(PipelineInputSet):
-    def __init__(self, frameset: cpl.ui.FrameSet):
-        super().__init__(frameset)
-        self.gain_map = GainMapInput(frameset)
-        self.inputs |= {self.gain_map}
+    GainMapInput = GainMapInput
 
 
 class LinearityInputSetMixin(PipelineInputSet):
-    def __init__(self, frameset: cpl.ui.FrameSet):
-        super().__init__(frameset)
-        self.linearity = LinearityInput(frameset)
-        self.inputs |= {self.linearity}
+    LinearityInput = LinearityInput

@@ -47,7 +47,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
             self.inputs |= {self.gain_map, self.distortion_table, self.linearity}
 
     class ProductIfuWavecal(PipelineProduct):
-        tag = r"IFU_WAVECAL"
+        _tag = r"IFU_WAVECAL"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         description = "Image with wavelength at each pixel."

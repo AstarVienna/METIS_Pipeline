@@ -57,13 +57,9 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         band: str = None
         target: str = None
 
-        @property
-        def tag(self) -> str:
-            return fr"MASTER_IMG_FLAT_{self.target}_{self.band}"
-
-        @property
-        def output_file_name(self) -> str:
-            return fr"{self.category}.fits"
+        @classmethod
+        def tag(cls) -> str:
+            return fr"MASTER_IMG_FLAT_{cls.target}_{cls.band}"
 
     def process_images(self) -> [PipelineProduct]:
         """

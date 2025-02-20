@@ -32,19 +32,12 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
             _title: str = "rectified spectral cube"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.sci_cube_calibrated = self.SciCubeCalibratedInput(frameset)
-            self.inputs |= {self.sci_cube_calibrated}
+            _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
     class ProductSciCoadd(PipelineProduct):
+        _tag = f"IFU_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        @property
-        def tag(self) -> str:
-            return rf"IFU_SCI_COADD"
 
     def determine_output_grid(self):
         pass
@@ -71,7 +64,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
 class MetisIfuPostprocess(MetisRecipe):
     _name: str = "metis_ifu_postprocess"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Calibrate IFU science data"
     _description: str = (

@@ -22,7 +22,8 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput
+from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput, \
+    OptionalInput
 from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.prefab.rawimage import RawImageProcessor
@@ -37,17 +38,12 @@ class MetisDetDarkImpl(RawImageProcessor):
             _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
             _description = "Raw data for creating a master dark."
 
-        BadpixMapInput = BadpixMapInput
-        PersistenceMapInput = PersistenceMapInput
-        GainMapInput = GainMapInput
+        class BadpixMapInput(OptionalInput, BadpixMapInput):
+            pass
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.linearity = LinearityInput(frameset, required=False) # But should be
-            self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.persistence_map = PersistenceMapInput(frameset, required=False) # But should be
-            self.gain_map = GainMapInput(frameset, required=False) # But should be
-            self.inputs |= {self.linearity, self.badpix_map, self.persistence_map, self.gain_map}
+        PersistenceMapInput = PersistenceMapInput
+        LinearityInput = LinearityInput
+        GainMapInput = GainMapInput
 
     class ProductMasterDark(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT

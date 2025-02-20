@@ -51,7 +51,7 @@ class MetisRecipeImpl(ABC):
         self.inputset: PipelineInputSet | None = None
         self.frameset: cpl.ui.FrameSet | None = None
         self.header: cpl.core.PropertyList | None = None
-        self.products: [PipelineProduct] = {}
+        self.products: [PipelineProduct] = []
         self.product_frames = cpl.ui.FrameSet()
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:

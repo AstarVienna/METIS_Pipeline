@@ -61,6 +61,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
+            _description = "Raw exposure of a standard star in the LM image mode."
             # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
             #    See https://github.com/AstarVienna/METIS_DRLD/issues/321
 
@@ -72,6 +73,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # Also one master flat is required. Again, we use a prefabricated class, but reset the tags
         class MasterFlatInput(MasterFlatInput):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
+            _description = "Master flat frame for LM image data."
 
 
         # Alternatively, we could directly use MasterFlatInput(tags=re.compile(r"...")) in __init__,
@@ -94,7 +96,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             # We need to register the extra inputs (just to be able to say `for x in self.inputs:`)
             self.inputs |= {self.master_flat, self.gain_map, self.badpix_map}
 
-    class Product(PipelineProduct):
+    class ProductBasicReduced(PipelineProduct):
         """
         The second big part is defining the products. For every product we create a separate class
         which defines the tag, group, level and frame type. Here we only have one kind of product,
@@ -105,19 +107,15 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-        @property
-        def tag(self) -> str:
-            return rf"LM_{self.target:s}_BASIC_REDUCED"
-
-        @property
-        def output_file_name(self):
-            return f"{self.category}.fits"
+        @classmethod
+        def tag(cls) -> str:
+            return rf"LM_{cls.target:s}_BASIC_REDUCED"
 
 
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
         Msg.info(self.__class__.__qualname__, "Preparing flat field")
-        
+
         if flat is None:
             raise RuntimeError("No flat frames found in the frameset.")
         else:
@@ -173,9 +171,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        self.target = self.inputset.RawInput.get_target_name(self.inputset.raw.frameset)
+        self.target = self.inputset.tag_parameters['target']
 
-        product = self.Product(self, header, combined_image, target=self.target)
+        product = self.ProductBasicReduced(self, header, combined_image, target=self.target)
 
         return [product]
 

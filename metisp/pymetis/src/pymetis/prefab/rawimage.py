@@ -34,13 +34,8 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     """
 
     class InputSet(PipelineInputSet):
-        RawInput: type[RawInput] = None
+        RawInput: type[RawInput] = RawInput
         detector: str = None
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.raw = self.RawInput(frameset)
-            self.inputs |= {self.raw}
 
         def load_raw_images(self) -> cpl.core.ImageList:
             """
@@ -89,4 +84,3 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
     @property
     def detector(self) -> str:
         return self.inputset.detector
-

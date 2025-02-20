@@ -53,7 +53,6 @@ __all__ = [
     MetisIfuPostprocess,
     MetisIfuRsrf,
     MetisIfuReduce,
-    MetisIfuRsrf,
     MetisIfuTelluric,
     MetisIfuWavecal,
     MetisCalChophome,

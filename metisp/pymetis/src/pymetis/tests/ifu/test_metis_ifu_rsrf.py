@@ -47,8 +47,8 @@ class TestInputSet(RawInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
 
 
-class TestProductBackground(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBackground
+class TestProductRsrfBackground(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductRsrfBackground
 
 class TestProductMasterFlatIfu(BaseProductTest):
     _product: type[PipelineProduct] = Impl.ProductMasterFlatIfu

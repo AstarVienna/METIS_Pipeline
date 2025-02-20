@@ -36,7 +36,7 @@ class PipelineProduct(ABC):
     group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
-
+    oca_keywords: [str] = []
     description: str = "DEFAULT"
 
     _tag: str = NotImplemented
@@ -93,7 +93,7 @@ class PipelineProduct(ABC):
             cpl.core.Property(
                 "ESO PRO CATG",         # Martin suspects this means ESO product category
                 cpl.core.Type.STRING,
-                self.category(),
+                self.category,
             )
         )
 
@@ -110,7 +110,7 @@ class PipelineProduct(ABC):
     def as_dict(self) -> dict[str, Any]:
         """ Return a dictionary representation of this Product """
         return {
-            'tag': self.tag,
+            'tag': self.tag(),
         }
 
     @final
@@ -147,7 +147,7 @@ class PipelineProduct(ABC):
 
         By default, the tag is the same as the category. Feel free to override if needed.
         """
-        return self.tag
+        return self.tag()
 
     @property
     def output_file_name(self) -> str:
@@ -167,5 +167,5 @@ class PipelineProduct(ABC):
         return self._used_frames
 
     @classmethod
-    def tag(cls):
+    def tag(cls) -> str:
         return cls._tag

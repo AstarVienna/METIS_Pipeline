@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import functools
 import inspect
 import operator
+import re
 
 from abc import ABCMeta
 from typing import Any
@@ -56,10 +57,14 @@ class PipelineInputSet(metaclass=ABCMeta):
         self.tag_parameters: dict[str, str] = {}        # A dict of all tunable parameters determined from tags
         self.frameset = frameset
 
+        make_snake = re.compile(r'(?<!^)(?=[A-Z])')
+        cut_input = re.compile(r'Input$')
+
         # Now iterate over all refined Inputs, instantiate them and feed them the frameset to filter.
-        for (name, input_type) in inspect.getmembers(frameset, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput)):
+        for (name, input_type) in inspect.getmembers(self.__class__, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput)):
             inp = input_type(frameset)
-            self.__setattr__(name, inp)
+            # FixMe: very hacky for now: determine the name of the instance from the name of the class
+            self.__setattr__(make_snake.sub('_', cut_input.sub('', name)).lower(), inp)
             self.inputs |= {inp}
 
     def validate(self) -> None:
@@ -117,6 +122,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         """
         frameset = cpl.ui.FrameSet()
 
+        print(self.inputs)
         for inp in self.inputs:
             frames = inp.valid_frames()
             for frame in frames:

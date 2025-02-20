@@ -25,11 +25,11 @@ import cpl
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs.common import RawInput, BadpixMapInput
+from pymetis.inputs.common import RawInput, BadpixMapInput, OptionalInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class LinGainProduct(ABC):
+class LinGainProduct(PipelineProduct, ABC):
     """ Common base class for all linearity and gain products. Just sets `group`, `level` and `frame_type`. """
     group = cpl.ui.Frame.FrameGroup.PRODUCT
     level = cpl.ui.Frame.FrameLevel.FINAL
@@ -41,18 +41,16 @@ class MetisDetLinGainImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
+            _description: str = "Raw data for non-linearity determination."
 
         class WcuOffInput(RawInput):
             _title: str = "WCU off raw"
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
+            _description: str = "Raw data for dark subtraction in other recipes."
 
-        BadpixMapInput = BadpixMapInput
+        class BadpixMapInput(OptionalInput, BadpixMapInput):
+            pass
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.wcu_off = self.WcuOffInput(frameset, required=False)
-            self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.inputs |= {self.badpix_map, self.wcu_off}
 
     class ProductGain(LinGainProduct):
         detector = 'det'

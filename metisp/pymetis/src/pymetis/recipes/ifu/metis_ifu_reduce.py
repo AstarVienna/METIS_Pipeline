@@ -64,18 +64,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
         MasterDarkInput = MasterDarkInput
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            """
-                Here we also define all input frames specific for this recipe, except those handled by mixins.
-            """
-            super().__init__(frameset)
-            self.sky = self.RawSkyInput(frameset)
-            self.linearity_map = LinearityInput(frameset)
-            self.ifu_wavecal = self.WavecalInput(frameset)
-            self.rsrf = self.RsrfInput(frameset)
-            self.ifu_distortion_table = self.DistortionTableInput(frameset)
-
-            self.inputs |= {self.sky, self.linearity_map, self.rsrf, self.ifu_wavecal, self.ifu_distortion_table}
 
     class ProductReduced(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL

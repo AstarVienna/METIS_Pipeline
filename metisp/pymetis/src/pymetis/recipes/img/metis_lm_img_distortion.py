@@ -62,16 +62,22 @@ class MetisLmImgDistortionImpl(RawImageProcessor):
         tag = r"LM_DISTORTION_TABLE"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
+        description = "Table of distortion information"
+        oca_keywords = ['PRO.CATG', 'DRS.FILTER']
 
     class ProductLmDistortionMap(PipelineProduct):
-        tag = r"LM_DIST_MAP"
+        tag = r"LM_DISTORTION_MAP"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        description = "Map of pixel scale across the detector"
+        oca_keywords = ['PRO.CATG', 'DRS.FILTER']
 
     class ProductLmDistortionReduced(PipelineProduct):
         tag = r"LM_DIST_REDUCED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        description = "Table of polynomial coefficients for distortion correction"
+        oca_keywords = ['PRO.CATG', 'DRS.FILTER']
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

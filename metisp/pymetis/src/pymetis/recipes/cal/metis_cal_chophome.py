@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
-from typing import Dict
 
 import cpl
 from cpl.core import Msg
@@ -50,17 +49,6 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         BadpixMapInput = BadpixMapInput
         PinholeTableInput = PinholeTableInput
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.background = self.BackgroundInput(frameset)
-            self.linearity = LinearityInput(frameset)
-            self.gain_map = GainMapInput(frameset)
-            self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.persistence_map = self.PersistenceMapInput(frameset)
-            self.pinhole_table = PinholeTableInput(frameset, required=True)
-
-            self.inputs |= {self.background, self.linearity, self.gain_map,
-                            self.badpix_map, self.persistence_map, self.pinhole_table}
 
 
     class ProductCombined(PipelineProduct):

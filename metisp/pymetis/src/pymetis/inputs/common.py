@@ -21,6 +21,7 @@ import re
 import cpl
 from typing import Pattern
 
+from . import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 
@@ -46,6 +47,9 @@ You should override class attributes:
     `_required = False` for optional inputs.
 """
 
+class OptionalInput(PipelineInput):
+    _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
+
 
 class RawInput(MultiplePipelineInput):
     _title: str = "raw"
@@ -56,13 +60,13 @@ class MasterDarkInput(SinglePipelineInput):
     _title: str = "master dark"
     _tags: Pattern = re.compile(r"MASTER_DARK_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-
+    _description = "Master dark frame for {det} detector data"
 
 class MasterFlatInput(SinglePipelineInput):
     _title: str = "master flat"
     _tags: Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-
+    _description = "Master flat frame for {det} data"
 
 class LinearityInput(SinglePipelineInput):
     _title: str = "linearity map"
@@ -86,9 +90,8 @@ class PersistenceMapInput(SinglePipelineInput):
     _description = "Persistence map."
 
 
-class OptionalPersistenceMapInput(PersistenceMapInput):
-    _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
-
+class OptionalPersistenceMapInput(OptionalInput, PersistenceMapInput):
+    pass
 
 class GainMapInput(SinglePipelineInput):
     _title: str = "gain map"

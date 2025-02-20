@@ -42,7 +42,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             super().__init__(frameset)
             self.basic_reduced = self.RawInput(frameset)
             self.sky_reduced = self.SkyInput(frameset)
-            
+
             # We need to register the inputs (just to be able to do `for x in self.inputs:`)
             self.inputs |= {self.basic_reduced, self.sky_reduced}
 
@@ -50,25 +50,25 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-        @property
-        def tag(self):
-            return f"LM_{self.target:s}_BKG"
+        @classmethod
+        def tag(cls):
+            return f"LM_{cls.target:s}_BKG"
 
     class ProductBkgSubtracted(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-        @property
-        def tag(self):
-            return f"LM_{self.target:s}_BKG_SUBTRACTED"
+        @classmethod
+        def tag(cls):
+            return f"LM_{cls.target:s}_BKG_SUBTRACTED"
 
     class ProductObjectCat(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
 
-        @property
-        def tag(self):
-            return rf"LM_{self.target:s}_OBJECT_CAT"
+        @classmethod
+        def tag(cls):
+            return rf"LM_{cls.target:s}_OBJECT_CAT"
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

@@ -21,38 +21,33 @@ import re
 
 import cpl
 from cpl.core import Msg
-from typing import Dict
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, SinglePipelineInput, MasterDarkInput
+from pymetis.inputs import RawInput, MasterDarkInput
 from pymetis.inputs.common import PinholeTableInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
-from pymetis.prefab.rawimage import RawImageProcessor
 
 
 class MetisIfuDistortionImpl(DarkImageProcessor):
     class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, PersistenceInputSetMixin, DarkImageProcessor.InputSet):
         MasterDarkInput = MasterDarkInput
+        PinholeTableInput = PinholeTableInput
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.pinhole_table = PinholeTableInput(frameset)
-
-            self.inputs |= {self.pinhole_table}
-
+            _description = "Images of multi-pinhole mask."
 
     class ProductIfuDistortionTable(PipelineProduct):
-        tag = r"IFU_DISTORTION_TABLE"
+        _tag = r"IFU_DISTORTION_TABLE"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
+        description = "Table of distortion coefficients for an IFU data set"
+        oca_keywords = ['PRO.CATG', 'DRS.IFU']
 
     class ProductIfuDistortionReduced(PipelineProduct):
-        tag = r"IFU_DIST_REDUCED"
+        _tag = r"IFU_DIST_REDUCED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 

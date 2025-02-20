@@ -186,7 +186,7 @@ class BaseRecipeTest(ABC):
         all_frames = sorted([frame.file for frame in instance.implementation.inputset.frameset])
         used_frames = sorted([frame.file for frame in instance.implementation.inputset.valid_frames])
         assert all_frames == used_frames,\
-               f"Not all frames were used: {instance.implementation.inputset.valid_frames!s}"
+               f"Not all frames were used: {instance.implementation.inputset.valid_frames!s} vs {all_frames}"
 
     def test_all_parameters_have_correct_context(self):
         for param in self._recipe.parameters:
@@ -231,4 +231,3 @@ class TargetParamRecipeTest(BaseRecipeTest):
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, target, create_pyesorex):
         sof = f"{self._recipe._name}.{target}.sof"
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
-

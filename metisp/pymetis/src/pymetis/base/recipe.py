@@ -99,7 +99,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         ])
         return \
 f"""
-    {self.synopsis}
+{self.synopsis}
 
     Matched keywords
         {', '.join(self._matched_keywords)}
