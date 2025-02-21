@@ -156,13 +156,13 @@ class MetisPupilImaging(MetisRecipe):
     Wrapper for the recipe for pyesorex, defining neessary attributes and parameters, plus the implementation class. 
     """
     # Fill in recipe information
-    _name = "metis_pupil_imaging"
-    _version = "0.1"
-    _author = "Jennifer Karr"
-    _email = "jkarr@asiaa.sinica.edu.tw"
+    _name: str = "metis_pupil_imaging"
+    _version: str = "0.1"
+    _author: str = "Jennifer Karr"
+    _email: str = "jkarr@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Basic processing of pupil images"
-    _description = (
+    _synopsis: str = "Basic processing of pupil images"
+    _description: str = (
             "This recipe performs basic reduction (dark current subtraction, flat fielding,\n"
             "optional bias subtraction, persistance and linearity corrections) on engineering\n"
             "images of the pupil masks. This recipe is not expected to be used by observers\n"
