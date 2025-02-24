@@ -29,9 +29,9 @@ def reset_edps():
         os.system("edps -shutdown")
 
         with contextlib.suppress(OSError):
-            os.remove("/tmp/EDPS_Data/")
+            os.remove("/tmp/EDPS_data/")
 
-        os.makedirs("/tmp/EDPS_Data/", exist_ok=True)
+        os.makedirs("/tmp/EDPS_data/", exist_ok=True)
 
     return inner
 

@@ -88,6 +88,7 @@ class PersistenceMapInput(SinglePipelineInput):
     _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description = "Persistence map."
+    _required = False # By default, persistence maps are optional
 
 
 class OptionalPersistenceMapInput(OptionalInput, PersistenceMapInput):

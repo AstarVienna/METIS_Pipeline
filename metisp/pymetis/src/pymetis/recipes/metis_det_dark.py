@@ -23,16 +23,27 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
-from pymetis.inputs.common import RawInput, BadpixMapInput, OptionalInput
+from pymetis.inputs.common import (RawInput, BadpixMapInput, PersistenceMapInput,
+                                   LinearityInput, GainMapInput, OptionalInput)
 from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, RawImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
+        # FixMe: these two should not be optional, but the current EDPS workflow does not supply them
+        class LinearityInput(OptionalInput, LinearityInput):
+            pass
+
+        class GainMapInput(OptionalInput, GainMapInput):
+            pass
+
+        class PersistenceMapInput(OptionalInput, PersistenceMapInput):
+            pass
+
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
             _description = "Raw data for creating a master dark."
