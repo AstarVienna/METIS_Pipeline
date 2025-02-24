@@ -75,13 +75,13 @@ class MultiplePipelineInput(PipelineInput):
         # Check if all matches are created equal
         if matches[:-1] == matches[1:]:
             self.tag_parameters = matches[0]
-            self._detector = matches[0].get('detector', None)
+            #self._detector = matches[0].get('detector', None)
             Msg.debug(self.__class__.__qualname__, f"Tag parameters are equal for all frames: {self.tag_parameters}")
         else:
             raise ValueError(f"Tag parameters are not equal for all frames! Found {matches}")
 
         for key, value in self.tag_parameters.items():
-            Msg.warning(self.__class__.__qualname__, f"Setting {key} to {value}")
+            Msg.info(self.__class__.__qualname__, f"Setting tag parameter '{key}' = '{value}'")
             self.__setattr__(key, value)
 
     def validate(self):

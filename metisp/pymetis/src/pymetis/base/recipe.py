@@ -24,7 +24,7 @@ import cpl
 
 from pymetis.base.product import PipelineProduct
 from pymetis.base.impl import MetisRecipeImpl
-from pymetis.inputs import PipelineInput, SinglePipelineInput
+from pymetis.inputs import PipelineInput, SinglePipelineInput, PipelineInputSet
 
 
 class MetisRecipe(cpl.ui.PyRecipe):
@@ -59,32 +59,33 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
     def __init__(self):
         super().__init__()
+        # Build a fancy description from attributes
         self._description = self._build_description()
         self.implementation: MetisRecipeImpl | None = None
 
-    def dispatch_implementation_class(self, frameset) -> type["MetisRecipeImpl"]:
+    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
         """
         Return the actual implementation class. By default, just returns `implementation_class`,
         but more complex recipes may need to select the appropriate class based on the frameset.
         """
-        print("DEFAULT")
         return self.implementation_class
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """
-            The main method, as required by PyCPL.
-            It just calls the same method in the decoupled implementation.
+        The main method, as required by PyCPL.
+        Instantiates the decoupled implementation and then runs it.
         """
-        self.implementation = self.implementation_class(self)
-        self.implementation.__class__ = self.dispatch_implementation_class(frameset)
-        return self.implementation.run(frameset, settings)
+        self.implementation = self.implementation_class(self, frameset, settings)
+        self.implementation.__class__ = self.dispatch_implementation_class(self.implementation.inputset)
+        return self.implementation.run()
 
     def _build_description(self):
         """
-        Automatically build the `description` attribute from available data.
+        Automatically build the `description` attribute from available attributes.
+        This should only depend on the class, never on an instance.
         """
         inputs = '\n'.join(
-            [f"        {input_type._pretty_tags():<30}"
+            [f"    {input_type._pretty_tags():<40}"
              f"[{'1' if issubclass(input_type, SinglePipelineInput) else 'N'}×]"
              f"{' (optional)' if not input_type._required else '           '} "
              f"{input_type._description}"
@@ -93,21 +94,20 @@ class MetisRecipe(cpl.ui.PyRecipe):
                                lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
         ])
         products = '\n'.join(
-            [f"        {str(product_type.tag()):<46}{product_type.description}"
+            [f"    {str(product_type.tag()):<56}{product_type.description}"
             for (name, product_type) in
             inspect.getmembers(self.implementation_class,
                                lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
         ])
         return \
-f"""
-{self.synopsis}
+f"""{self.synopsis}
 
-    Matched keywords
-        {', '.join(self._matched_keywords)}
-    Inputs\n{inputs}
-    Outputs\n{products}
-    Algorithm
-        {self.algorithm or '<not provided>'}
+  Matched keywords
+    {', '.join(self._matched_keywords) or '<none>'}
+  Inputs\n{inputs}
+  Outputs\n{products}
+  Algorithm
+    {self.algorithm or '<not provided>'}
 """
 
     @property

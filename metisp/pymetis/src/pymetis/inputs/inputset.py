@@ -80,6 +80,11 @@ class PipelineInputSet(metaclass=ABCMeta):
         self.validate_detectors()
 
         self.tag_parameters = functools.reduce(operator.or_, [inp.tag_parameters for inp in self.inputs], {})
+
+        for key, value in self.tag_parameters.items():
+            Msg.info(self.__class__.__qualname__, f"Setting tag parameter '{key}' = '{value}'")
+            self.__setattr__(key, value)
+
         self.print_debug()
 
     def validate_detectors(self) -> None:
@@ -87,18 +92,21 @@ class PipelineInputSet(metaclass=ABCMeta):
         Verify that the provided SOF contains frames from only a single detector.
         Some Inputs may have None if they are not specific to a detector.
         """
+        Msg.debug(self.__class__.__qualname__, "--- Validating the detector parameters ---")
         detectors = list(set([inp.detector for inp in self.inputs]) - {None})
 
         for inp in self.inputs:
-            Msg.warning(self.__class__.__qualname__, f"Detectors are {inp} {inp.detector}")
+            det = "---" if inp.detector is None else inp.detector
+            Msg.debug(self.__class__.__qualname__,
+                      f"Detector in {inp.__class__.__qualname__:<50} {det}")
 
         if (detector_count := len(detectors)) == 0:
             Msg.debug(self.__class__.__qualname__, f"No detector could be identified from the SOF")
         elif detector_count == 1:
             self.detector = detectors[0]
-            Msg.debug(self.__class__.__qualname__, f"Detector identified from the SOF: {self.detector}")
+            Msg.debug(self.__class__.__qualname__, f"Detector correctly identified from the SOF: {self.detector}")
         else:
-            raise ValueError(f"More than one detector found in inputset: {detectors}")
+            raise ValueError(f"More than one detector found in inputset: {detectors}!")
 
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")

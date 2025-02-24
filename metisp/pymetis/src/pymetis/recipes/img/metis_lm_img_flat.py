@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.base.recipe import MetisRecipe
+from pymetis.inputs import PipelineInputSet
 from pymetis.prefab.flat import MetisBaseImgFlatImpl
 
 
@@ -28,8 +29,18 @@ class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
         band: str = "LM"
         detector: str = "2RG"
 
-    class Product(MetisBaseImgFlatImpl.Product):
+    class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
         band: str = "LM"
+
+
+class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):
+    class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
+        target: str = "TWILIGHT"
+
+
+class MetisLmImgFlatLampImpl(MetisLmImgFlatImpl):
+    class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
+        target: str = "LAMP"
 
 
 class MetisLmImgFlat(MetisRecipe):
@@ -51,3 +62,9 @@ class MetisLmImgFlat(MetisRecipe):
         ),
     ])
     implementation_class = MetisLmImgFlatImpl
+
+    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
+        return {
+            'LAMP': MetisLmImgFlatLampImpl,
+            'TWILIGHT': MetisLmImgFlatTwilightImpl,
+        }[inputset.target]

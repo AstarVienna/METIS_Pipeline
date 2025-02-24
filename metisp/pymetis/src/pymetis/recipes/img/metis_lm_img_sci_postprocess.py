@@ -63,12 +63,9 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 class MetisLmImgSciPostProcess(MetisRecipe):
     _name: str = "metis_lm_img_sci_postprocess"
     _version: str = "0.1"
-    _author: str = "Chi-Hung Yan"
+    _author: str = "Chi-Hung Yan, A*"
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Coadd reduced images"
-    _description: str = (
-        "Currently just a skeleton prototype."
-    )
 
     _matched_keywords = ['DRS.FILTER']
 

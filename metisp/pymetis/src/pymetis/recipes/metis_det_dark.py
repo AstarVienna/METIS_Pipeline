@@ -45,7 +45,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         detector = 'det'
-        description = f"Master dark frame for {detector} detector data"
+        description = f"Master dark frame for '{detector}' detector data"
 
         @classmethod
         def tag(cls) -> str:
@@ -93,6 +93,7 @@ class Metis2rgDarkImpl(MetisDetDarkImpl):
             _detector: str = "2RG"
 
         class GainMapInput(MetisDetDarkImpl.InputSet.GainMapInput):
+            pass
             #_tags: re.Pattern = re.compile(r"GAIN_MAP_2RG")
             _detector: str = "2RG"
 
@@ -121,6 +122,7 @@ class MetisIfuDarkImpl(MetisDetDarkImpl):
             _detector: str = "IFU"
 
         class GainMapInput(MetisDetDarkImpl.InputSet.GainMapInput):
+            pass
             #_tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
             _detector: str = "IFU"
 
@@ -141,8 +143,8 @@ class MetisDetDark(MetisRecipe):
     )
 
     _algorithm = """Group files by detector and DIT, based on header keywords
-        Call function metis_determine_dark for each set of files
-        Call metis_update_dark_mask to flag deviant pixels
+    Call function metis_determine_dark for each set of files
+    Call metis_update_dark_mask to flag deviant pixels
     """
 
     parameters = cpl.ui.ParameterList([
@@ -157,7 +159,7 @@ class MetisDetDark(MetisRecipe):
 
     implementation_class = MetisDetDarkImpl
 
-    def dispatch_implementation_class(self, frameset: cpl.ui.FrameSet) -> type[MetisDetDarkImpl]:
+    def dispatch_implementation_class(self, inputset) -> type[MetisDetDarkImpl]:
         """
         Find the implementation class based on the detector specified in the inputset's tags.
         Tries to instantiate the RawInput and use its detector attribute to determine the correct implementation class.
@@ -177,8 +179,6 @@ class MetisDetDark(MetisRecipe):
             If the detector obtained from the `RawInput` object is not found in the
             implementation mapping.
         """
-        inputset = self.implementation_class.InputSet(frameset)
-        inputset.validate()
         return {
             '2RG': Metis2rgDarkImpl,
             'GEO': MetisGeoDarkImpl,

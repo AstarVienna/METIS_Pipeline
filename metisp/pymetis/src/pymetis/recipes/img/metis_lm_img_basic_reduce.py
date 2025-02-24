@@ -220,10 +220,9 @@ class MetisLmImgBasicReduce(MetisRecipe):
 
     implementation_class = MetisLmImgBasicReduceImpl
 
-    def dispatch_implementation_class(self, frameset: cpl.ui.FrameSet) -> type[MetisLmImgBasicReduceImpl]:
-        inp = self.implementation_class.InputSet.RawInput(frameset)
+    def dispatch_implementation_class(self, inputset) -> type[MetisLmImgBasicReduceImpl]:
         return {
             'STD': MetisLmStdBasicReduceImpl,
             'SCI': MetisLmSciBasicReduceImpl,
             'SKY': MetisLmSkyBasicReduceImpl,
-        }[inp.target]
+        }[inputset.target]

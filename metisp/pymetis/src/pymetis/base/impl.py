@@ -38,7 +38,10 @@ class MetisRecipeImpl(ABC):
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = cpl.ui.ParameterList([])
 
-    def __init__(self, recipe: 'MetisRecipe') -> None:
+    def __init__(self,
+                 recipe: 'MetisRecipe',
+                 frameset: cpl.ui.FrameSet,
+                 settings: Dict[str, Any]) -> None:
         """
         Initializes the recipe implementation object with parameters from the recipe
         and sets internal attributes to None / empty as needed.
@@ -48,13 +51,17 @@ class MetisRecipeImpl(ABC):
         self.version = recipe.version
         self.parameters = recipe.parameters
 
-        self.inputset: PipelineInputSet | None = None
-        self.frameset: cpl.ui.FrameSet | None = None
         self.header: cpl.core.PropertyList | None = None
         self.products: [PipelineProduct] = []
         self.product_frames = cpl.ui.FrameSet()
 
-    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
+        self.frameset: cpl.ui.FrameSet = frameset
+        self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
+        self.import_settings(settings)                  # Import and process the provided settings dict
+        self.inputset.print_debug()
+        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?
+
+    def run(self) -> cpl.ui.FrameSet:
         """
             The main function of the recipe implementation. It mirrors the signature of `Recipe.run`
             and is meant to be called directly by the owner recipe.
@@ -66,11 +73,6 @@ class MetisRecipeImpl(ABC):
         """
 
         try:
-            self.frameset = frameset
-            self.import_settings(settings)                  # Import and process the provided settings dict
-            self.inputset = self.InputSet(frameset)         # Create an appropriate InputSet object
-            self.inputset.print_debug()
-            self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
             self.products = self.process_images()           # Do all the actual processing
             self._save_products()                           # Save the output products
 

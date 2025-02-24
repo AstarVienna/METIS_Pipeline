@@ -70,8 +70,7 @@ class SinglePipelineInput(PipelineInput):
         self.tag_parameters = self.tag_matches
 
         for key, value in self.tag_parameters.items():
-            if not hasattr(self, key):
-                self.__setattr__(key, value)
+            self.__setattr__(key, value)
 
     def validate(self):
         """

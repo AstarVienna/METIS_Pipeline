@@ -23,8 +23,7 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
-from pymetis.inputs import PersistenceMapInput, LinearityInput
-from pymetis.inputs.common import RawInput, MasterDarkInput, GainMapInput
+from pymetis.inputs.common import RawInput, MasterDarkInput
 
 from .darkimage import DarkImageProcessor
 from ..base.product import PipelineProduct
@@ -46,16 +45,16 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             _description = "Flat image raw"
 
 
-    class Product(PipelineProduct):
+    class ProductMasterFlat(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        band: str = None
-        target: str = None
+        band: str = 'band'
+        target: str = 'target'
 
         @classmethod
         def tag(cls) -> str:
-            return fr"MASTER_IMG_FLAT_{cls.target}_{cls.band}"
+            return fr"MASTER_IMG_FLAT_{cls.target:s}_{cls.band:s}"
 
     def process_images(self) -> [PipelineProduct]:
         """
@@ -84,6 +83,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         combined_image = self.combine_images(self.inputset.load_raw_images(), method)
 
-        product = self.Product(self, header, combined_image, target=target)
+        product = self.ProductMasterFlat(self, header, combined_image, target=target)
 
         return [product]
