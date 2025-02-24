@@ -60,7 +60,7 @@ class MetisLmImgCalibrateImpl(MetisRecipeImpl):
 class MetisLmImgCalibrate(MetisRecipe):
     _name: str = "metis_lm_img_calibrate"
     _version: str = "0.1"
-    _author: str = "Chi-Hung Yan"
+    _author: str = "Chi-Hung Yan, A*"
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Determine optical distortion coefficients for the LM imager."
     _description: str = (

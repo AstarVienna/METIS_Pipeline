@@ -47,7 +47,7 @@ class MetisLmImgFlat(MetisRecipe):
     # Fill in recipe information
     _name: str = "metis_lm_img_flat"
     _version: str = "0.1"
-    _author: str = ["Kieran Leschinski", "Chi-Hung Yan", "Hugo Buddelmeijer", "Gilles PPL Otten", "Martin Baláž"]
+    _author: str = "A*"
     _email: str = "hugo@buddelmeijer.nl"
     _synopsis: str = "Create master flat for L/M band detectors"
     _description: str = "Prototype to create a METIS Masterflat for L/M band"

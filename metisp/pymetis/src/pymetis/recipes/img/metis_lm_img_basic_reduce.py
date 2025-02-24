@@ -181,7 +181,7 @@ class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
 
 class MetisLmImgBasicReduce(MetisRecipe):
     """
-    Apart from our own recipe implementation we have to provide the actual recipe for PyEsoRex.
+    Apart from our own recipe implementation, we have to provide the actual recipe for PyEsoRex.
     This is very simple: just the
 
     - seven required attributes as below
@@ -192,7 +192,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
     # Fill in recipe information
     _name: str = "metis_lm_img_basic_reduce"
     _version: str = "0.1"
-    _author: str = "A*"
+    _author: str = "Chi-Hung Yan, A*"
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Basic science image data processing"

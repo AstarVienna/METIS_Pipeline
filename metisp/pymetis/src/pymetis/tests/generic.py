@@ -116,6 +116,7 @@ class BaseInputSetTest(ABC):
             assert inp._description is not None,\
                 f"Input {inp} does not have a description defined"
 
+
 @pytest.mark.inputset
 class RawInputSetTest(BaseInputSetTest):
     _impl: RawImageProcessor.InputSet
@@ -174,11 +175,10 @@ class BaseRecipeTest(ABC):
         assert output.returncode == 0, \
             f"`pyesorex --man-page {name}` exited with non-zero return code {output.returncode}: {output.stderr}"
 
-    @pytest.mark.xfail(reason="Future-proofing tests")
     def test_does_author_name_conform_to_standard(self) -> None:
         """Test whether the recipe author's name is in the standard format. TBD what that means."""
         recipe = self._recipe()
-        assert re.match(rf"^[\w\- ]+, A\*$", recipe._author), "Author name is not in the standard format"
+        assert re.match(rf"^([\w\- ]+, )?A\*$", recipe._author), "Author name is not in the standard format"
 
     def test_recipe_uses_all_input_frames(self, frameset):
         instance = self._recipe()

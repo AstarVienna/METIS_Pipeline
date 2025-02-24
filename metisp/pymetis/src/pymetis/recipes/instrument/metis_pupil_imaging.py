@@ -142,7 +142,7 @@ class MetisPupilImaging(MetisRecipe):
     # Fill in recipe information
     _name: str = "metis_pupil_imaging"
     _version: str = "0.1"
-    _author: str = "Jennifer Karr"
+    _author: str = "Jennifer Karr, A*"
     _email: str = "jkarr@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Basic processing of pupil images"
