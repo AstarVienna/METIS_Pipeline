@@ -100,6 +100,11 @@ class MetisLmImgDistortion(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
+    _matched_keywords: [str] = ['DRS.FILTER']
+    _algorithm = """Subtract background image with `hdrl_imagelist_sub_image`.
+    Measure location of point source images in frames with `hdrl_catalogue_create`.
+    Call metis_fit_distortion to fit polynomial coefficients to deviations from grid positions."""
+
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name="metis_lm_img_distortion.stacking.method",

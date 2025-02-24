@@ -49,7 +49,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
                     "Bonus points if it is not visible from pyesorex.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
-    _matched_keywords = []
+    _matched_keywords: [str] = None
     _algorithm = None                                           # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
@@ -74,6 +74,9 @@ class MetisRecipe(cpl.ui.PyRecipe):
         """
         The main method, as required by PyCPL.
         Instantiates the decoupled implementation and then runs it.
+
+        Parameters
+        ----------
         """
         self.implementation = self.implementation_class(self, frameset, settings)
         self.implementation.__class__ = self.dispatch_implementation_class(self.implementation.inputset)
@@ -84,6 +87,14 @@ class MetisRecipe(cpl.ui.PyRecipe):
         Automatically build the `description` attribute from available attributes.
         This should only depend on the class, never on an instance.
         """
+
+        if self._matched_keywords is None:
+            matched_keywords = '<not defined>'
+        elif len(self._matched_keywords) == 0:
+            matched_keywords = '(none)'
+        else:
+            matched_keywords = ', '.join(self._matched_keywords)
+
         inputs = '\n'.join(
             [f"    {input_type._pretty_tags():<40}"
              f"[{'1' if issubclass(input_type, SinglePipelineInput) else 'N'}×]"
@@ -93,17 +104,19 @@ class MetisRecipe(cpl.ui.PyRecipe):
             inspect.getmembers(self.implementation_class.InputSet,
                                lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
         ])
+
         products = '\n'.join(
             [f"    {str(product_type.tag()):<56}{product_type.description}"
             for (name, product_type) in
             inspect.getmembers(self.implementation_class,
                                lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
         ])
+
         return \
 f"""{self.synopsis}
 
   Matched keywords
-    {', '.join(self._matched_keywords) or '<none>'}
+    {matched_keywords}
   Inputs\n{inputs}
   Outputs\n{products}
   Algorithm

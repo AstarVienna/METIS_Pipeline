@@ -28,12 +28,13 @@ from pymetis.inputs.common import (LinearityInput, GainMapInput,
                                    OptionalPersistenceMapInput, BadpixMapInput,
                                    PinholeTableInput)
 from pymetis.base.product import PipelineProduct
+from pymetis.inputs.mixins import LinearityInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
 class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
-    class InputSet(RawImageProcessor.InputSet):
+    class InputSet(LinearityInputSetMixin, RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_CHOPHOME_RAW")
@@ -43,13 +44,10 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
             _description = "Raw data for dark subtraction in other recipes."
 
-        LinearityInput = LinearityInput
         GainMapInput = GainMapInput
         PersistenceMapInput = OptionalPersistenceMapInput
         BadpixMapInput = BadpixMapInput
         PinholeTableInput = PinholeTableInput
-
-
 
     class ProductCombined(PipelineProduct):
         """
@@ -60,7 +58,6 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-
     class ProductBackground(PipelineProduct):
         """
         Intermediate product: the instrumental background (WCU OFF)
@@ -69,6 +66,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        description = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
 
 
     def process_images(self) -> [PipelineProduct]:
@@ -116,29 +114,20 @@ class MetisCalChophome(MetisRecipe):
     _author: str = "Oliver Czoske, A*"
     _email: str = "oliver.czoske@univie.ac.at"
     _copyright = "GPL-3.0-or-later"
-    _synopsis: str = "Determination of chopper home position"
+    _synopsis: str = "Determine the chopper home position from LM-imaging of the WCU pinhole mask."
     _description: str = """\
-    Determine the chopper home position from LM-imaging of the WCU pinhole mask.
-
-        Inputs
-            LM_CHOPHOME_RAW: Raw LM band images [1-n]
-            LM_WCU_RAW_OFF:  Background images with WCU black-body closed [1-n]
-            GAIN_MAP_2RG:    Gain map for 2RG detector
-            LINEARITY_2RG:   Linearity map for 2RG detector
-            BADPIX_MAP_2RG:  Bad-pixel map for 2RG detector [optional]
-            PINHOLE_TABLE:   Table with location of pinhole on mask
-            PERSISTENCE_MAP: Persistence map [optional]
-
-        Outputs
-            LM_CHOPHOME_BACKGROUND: Average of background images (WCU_OFF)
-            LM_CHOPHOME_COMBINED: Stacked background-subtracted images of pinhole mask
-                                  The chopper offset is in the header.
-
-        Algorithm
-           The position of the pinhole image on the detector is measured from the stacked
-           background-subtracted images. The measured position is compared to the WFS
-           metrology to give the chopper home position.
     """
+
+    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
+    _algorithm = """The position of the pinhole image on the detector is measured from the stacked
+    background-subtracted images. The measured position is compared to the WFS
+    metrology to give the chopper home position.
+    
+    Remove detector signature
+    Remove median background
+    Apply flatfield
+    Detect reference source from WCU via centroid peak detection
+    Calculate mirror offset"""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(

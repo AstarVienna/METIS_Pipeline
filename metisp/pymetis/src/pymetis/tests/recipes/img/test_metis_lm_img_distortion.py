@@ -20,13 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.img.metis_n_img_flat import (MetisNImgFlat as Recipe,
-                                                  MetisNImgFlatImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.img.metis_lm_img_distortion import (MetisLmImgDistortion as Recipe,
+                                                         MetisLmImgDistortionImpl as Impl)
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = r'metis_n_img_flat'
-targets = ['lamp', 'twilight']
+recipe_name = r'metis_lm_img_distortion'
 
 
 @pytest.fixture
@@ -36,24 +35,22 @@ def name() -> str:
 
 @pytest.fixture
 def sof(name: str) -> str:
-    return rf'{name}.lamp.sof'
+    return rf'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
     _recipe: type[MetisRecipe] = Recipe
-
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
-
-    def test_recipe_uses_all_input_frames(self, frameset):
-        super().test_recipe_uses_all_input_frames(frameset)
 
 
 class TestInputSet(BaseInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
 
 
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductMasterFlat
+class TestProductLmDistortionTable(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductLmDistortionTable
 
+class TestProductLmDistortionMap(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductLmDistortionMap
+
+class TestProductLmDistortionReduced(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductLmDistortionReduced

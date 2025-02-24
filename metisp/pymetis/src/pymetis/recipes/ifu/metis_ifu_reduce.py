@@ -133,4 +133,12 @@ class MetisIfuReduce(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
+    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
+    _algorithm = """Subtract dark, divide by master flat
+    Analyse and optionally remove masked regions and correct crosstalk and ghosts
+    Estimate stray light and subtract
+    Estimate background from dithered science exposures or blank-sky exposures and subtract
+    Rectify spectra and assemble cube
+    Extract 1D object spectrum"""
+
     implementation_class = MetisIfuReduceImpl

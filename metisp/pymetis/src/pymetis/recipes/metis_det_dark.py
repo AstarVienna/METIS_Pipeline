@@ -153,6 +153,7 @@ class MetisDetDark(MetisRecipe):
         "Prototype to create a METIS masterdark."
     )
 
+    _matched_keywords: [str] = []
     _algorithm = """Group files by detector and DIT, based on header keywords
     Call function metis_determine_dark for each set of files
     Call metis_update_dark_mask to flag deviant pixels

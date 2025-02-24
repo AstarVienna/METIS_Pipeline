@@ -22,7 +22,7 @@ import pytest
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
 from pymetis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe,
                                                 MetisIfuRsrfImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseProductTest, RawInputSetTest
+from pymetis.tests.classes import BaseRecipeTest, BaseProductTest, RawInputSetTest
 
 
 recipe_name = r'metis_ifu_rsrf'

@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.ifu.metis_ifu_calibrate import (MetisIfuCalibrate as Recipe,
-                                                     MetisIfuCalibrateImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.img.metis_lm_img_sci_postprocess import (MetisLmImgSciPostProcess as Recipe,
+                                                              MetisLmImgSciPostProcessImpl as Impl)
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = r'metis_ifu_calibrate'
+recipe_name = r'metis_lm_img_sci_postprocess'
 
 
 @pytest.fixture
@@ -44,7 +44,7 @@ class TestRecipe(BaseRecipeTest):
 
 class TestInputSet(BaseInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
-    
 
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductSciCubeCalibrated
+
+class TestProductCoadd(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductLmImgSciCoadd

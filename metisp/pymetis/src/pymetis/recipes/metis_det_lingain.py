@@ -150,6 +150,13 @@ class MetisDetLinGain(MetisRecipe):
         "Prototype to create a METIS linear gain map."
     )
 
+    _matched_keywords: [str] = []
+    _algorithm = """Subtract instrument dark (hdrl_imagelist_sub_image).
+    Compute mean and variance for each frame.
+    Gain is determined as the slope of variance against mean (metis_derive_gain).
+    Fit polynomial of value as a function of DIT and illumination level for each pixel (metis_derive_nonlinearity).
+    Flag pixels with coefficients significantly different from the mean of all pixels (hdrl_bpm_fit_compute)."""
+
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name=rf"{_name}.stacking.method",

@@ -206,7 +206,7 @@ class MetisIfuRsrf(MetisRecipe):
     _version: str = "0.1"
     _author: str = "Janus Brink, A*"
     _email: str = "janus.brink27@gmail.com"
-    _synopsis: str = "Determine the relative spectral response function."
+    _synopsis: str = "Determine the relative spectral response function for the IFU detector."
     _undescription: str = """\
     Create relative spectral response function for the IFU detector
 
@@ -230,19 +230,18 @@ class MetisIfuRsrf(MetisRecipe):
         MASTER_FLAT_IFU: Master flat frame for IFU image data
         RSRF_IFU: 1D relative spectral response function
         BADPIX_MAP_IFU: Updated bad-pixel map
+    """ # FixMe This is currently not shown anywhere
 
-    Algorithm            
-        Average / median stack WCU_OFF images to create background image
+    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
+    _algorithm = """Average / median stack WCU_OFF images to create background image
         Subtract background image from individual RSRF RAW frames
         TBC: subtract master_dark from above frames first?
         TBC: apply gain / linearity corrections to above frames?
         TBC: obtain bad pixel map from master_dark?
-        Create continuum image by mapping Planck spectrum at Tlamp to wavelength
-            image.
+        Create continuum image by mapping Planck spectrum at Tlamp to wavelength image.
         Divide exposures by continuum image.
         Create master flat (2D RSRF) - TBC one extension per input exposure?
         Average in spatial direction to obtain relative response function
-            (1D RSRF) - TBC multiple FITS extensions with spectral traces?
-    """
+            (1D RSRF) - TBC multiple FITS extensions with spectral traces?"""
 
     implementation_class = MetisIfuRsrfImpl

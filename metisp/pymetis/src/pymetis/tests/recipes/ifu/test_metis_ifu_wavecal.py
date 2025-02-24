@@ -20,13 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
-                                                           MetisLmImgBasicReduceImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.ifu.metis_ifu_wavecal import (MetisIfuWavecal as Recipe,
+                                                   MetisIfuWavecalImpl as Impl)
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = r'metis_lm_img_basic_reduce'
-targets = [r'sci', r'sky', r'std']
+recipe_name = r'metis_ifu_wavecal'
 
 
 @pytest.fixture
@@ -36,15 +35,11 @@ def name() -> str:
 
 @pytest.fixture
 def sof(name: str) -> str:
-    return rf'{name}.sci.sof'
+    return rf'{name}.sof'
 
 
 class TestRecipe(BaseRecipeTest):
     _recipe: type[MetisRecipe] = Recipe
-
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
 
 class TestInputSet(BaseInputSetTest):
@@ -52,4 +47,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBasicReduced
+    _product: type[PipelineProduct] = Impl.ProductIfuWavecal

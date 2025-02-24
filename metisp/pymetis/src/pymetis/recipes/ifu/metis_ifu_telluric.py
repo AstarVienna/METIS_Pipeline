@@ -169,6 +169,6 @@ class MetisIfuTelluric(MetisRecipe):
     _algorithm = """Extract 1D spectrum of science object or standard star.
         Compute telluric correction.
         Compute conversion to physical units as function of wave-length."""
-    _matched_keywords = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
+    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
 
     implementation_class = MetisIfuTelluricImpl

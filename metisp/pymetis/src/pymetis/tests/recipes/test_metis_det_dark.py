@@ -24,7 +24,7 @@ import cpl
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
 from pymetis.recipes.metis_det_dark import (MetisDetDark as Recipe,
                                             MetisDetDarkImpl as Impl)
-from generic import BandParamRecipeTest, BaseProductTest, RawInputSetTest
+from pymetis.tests.classes import BandParamRecipeTest, BaseProductTest, RawInputSetTest
 
 recipe_name = r'metis_det_dark'
 

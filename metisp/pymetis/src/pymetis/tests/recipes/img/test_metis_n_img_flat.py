@@ -20,12 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluric as Recipe,
-                                                    MetisIfuTelluricImpl as Impl)
-from pymetis.tests.generic import TargetParamRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.img.metis_n_img_flat import (MetisNImgFlat as Recipe,
+                                                  MetisNImgFlatImpl as Impl)
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = r'metis_ifu_telluric'
+recipe_name = r'metis_n_img_flat'
+targets = ['lamp', 'twilight']
 
 
 @pytest.fixture
@@ -35,25 +36,20 @@ def name() -> str:
 
 @pytest.fixture
 def sof(name: str) -> str:
-    return f'{name}.std.sof'
+    return rf'{name}.lamp.sof'
 
 
-class TestRecipe(TargetParamRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+class TestRecipe(BaseRecipeTest):
     _recipe: type[MetisRecipe] = Recipe
+
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
+        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
 
 class TestInputSet(BaseInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
 
 
-class TestProductFluxcalTab(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductFluxcalTab
-
-
-class TestProductTelluric(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductTelluricTransmission
-
-
-class TestProductResponseFunction(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductResponseFunction
+class TestProduct(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductMasterFlat

@@ -20,13 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
-from pymetis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as Recipe,
-                                                            MetisPupilImagingImpl as Impl)
+from pymetis.recipes.img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
+                                                           MetisLmImgBasicReduceImpl as Impl)
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = r'metis_pupil_imaging'
-bands = ['lm', 'n']
+recipe_name = r'metis_lm_img_basic_reduce'
+targets = [r'sci', r'sky', r'std']
 
 
 @pytest.fixture
@@ -36,26 +36,15 @@ def name() -> str:
 
 @pytest.fixture
 def sof(name: str) -> str:
-    return rf'{name}.lm.sof'
+    return rf'{name}.sci.sof'
 
 
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe: type[MetisRecipe] = Recipe
 
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in bands])
+    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
-
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in bands])
-    def test_recipe_can_be_run_directly(self, load_frameset, sof):
-        frameset = load_frameset(sof)
-        super().test_recipe_can_be_run_directly(frameset)
-
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in bands])
-    def test_recipe_uses_all_input_frames(self, load_frameset, sof):
-        frameset = load_frameset(sof)
-        super().test_recipe_uses_all_input_frames(frameset)
 
 
 class TestInputSet(BaseInputSetTest):
@@ -63,5 +52,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.Product
-
+    _product: type[PipelineProduct] = Impl.ProductBasicReduced

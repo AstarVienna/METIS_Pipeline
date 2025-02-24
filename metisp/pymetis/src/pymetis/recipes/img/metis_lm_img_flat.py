@@ -52,6 +52,14 @@ class MetisLmImgFlat(MetisRecipe):
     _synopsis: str = "Create master flat for L/M band detectors"
     _description: str = "Prototype to create a METIS Masterflat for L/M band"
 
+    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
+    _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
+    Subtract internal dark or master dark from flat exposures.
+    Call `metis_lm_img_flat` to fit slope of pixel values against illumination level.
+    Frames with the same exposure time will be averaged.
+    Compute median or average of input frames to improve statistics.
+    Call `metis_update_lm_flat_mask` to flag deviant pixels."""
+
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name=f"{_name}.stacking.method",
@@ -61,6 +69,7 @@ class MetisLmImgFlat(MetisRecipe):
             alternatives=("add", "average", "median"),
         ),
     ])
+
     implementation_class = MetisLmImgFlatImpl
 
     def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:

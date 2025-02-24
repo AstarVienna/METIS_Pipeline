@@ -67,7 +67,11 @@ class MetisLmImgSciPostProcess(MetisRecipe):
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Coadd reduced images"
 
-    _matched_keywords = ['DRS.FILTER']
+    _matched_keywords: [str] = ['DRS.FILTER']
+    _algorithm = """Check and refine WCS of input images by using the WFS-FS data.
+    Determine output pixel grid encompassing all input images.
+    Call hdrl_resample_compute to recenter the images.
+    Call hdrl_imagelist_collapse to stack the images."""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(

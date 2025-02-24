@@ -76,7 +76,7 @@ class MetisLmImgStdProcess(MetisRecipe):
     _description: str = (
         "Currently just a skeleton prototype."
     )
-    _matched_keywords = ['DRS.FILTER']
+    _matched_keywords: [str] = ['DRS.FILTER']
     _algorithm = """Call metis_lm_calculate_std_flux to measure flux in input images
         call hdrl_resample_compute to recenter the images
         call hdrl_imagelist_collapse to stack the images

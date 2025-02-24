@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe,
-                                                      MetisIfuDistortionImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.img.metis_lm_img_background import (MetisLmImgBackground as Recipe,
+                                                         MetisLmImgBackgroundImpl as Impl)
+from pymetis.tests.classes import BaseInputSetTest, BaseProductTest, TargetParamRecipeTest
 
 
-recipe_name = r'metis_ifu_distortion'
+recipe_name = r'metis_lm_img_background'
 
 
 @pytest.fixture
@@ -35,10 +35,10 @@ def name() -> str:
 
 @pytest.fixture
 def sof(name: str) -> str:
-    return rf'{name}.sof'
+    return rf'{name}.std.sof'
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(TargetParamRecipeTest):
     _recipe: type[MetisRecipe] = Recipe
 
 
@@ -46,8 +46,11 @@ class TestInputSet(BaseInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
 
 
-class TestProductDistortionTable(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductIfuDistortionTable
+class TestProductBkg(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductBkg
 
-class TestProductDistortionReduced(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductIfuDistortionReduced
+class TestProductBkgSubtracted(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductBkgSubtracted
+
+class TestProductObjectCat(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductObjectCat

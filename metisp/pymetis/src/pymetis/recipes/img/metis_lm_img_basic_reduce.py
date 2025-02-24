@@ -202,7 +202,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
             + "and it is divided by the master flat."
     )
 
-    _matched_keywords = ['DET.DIT', 'DET.NDIT', 'DRS.FILTER']
+    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.FILTER']
     _algorithm = """Remove crosstalk, correct non-linearity
         Analyse and optionally remove masked regions
         Subtract dark, divide by flat

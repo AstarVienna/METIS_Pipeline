@@ -67,6 +67,10 @@ class MetisLmImgCalibrate(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
+    _matched_keywords: [str] = ['DRS.FILTER']
+    _algorithm = """Call metis_lm_scale_image_flux to Scale image data to photon / s
+    Add header information (BUNIT, WCS, etc.)"""
+
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name=f"{_name}.stacking.method",

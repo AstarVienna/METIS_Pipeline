@@ -71,6 +71,6 @@ class MetisIfuWavecal(MetisRecipe):
         Compute deviation from optical models.
         Compute wavelength solution ξ(x, y, i), λ(x, y, i).
         Compute wavelength map."""
-    _matched_keywords = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
+    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
 
     implementation_class = MetisIfuWavecalImpl

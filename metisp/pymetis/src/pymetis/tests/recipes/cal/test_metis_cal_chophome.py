@@ -22,7 +22,7 @@ import pytest
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
 from pymetis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
                                                     MetisCalChophomeImpl as Impl)
-from pymetis.tests.generic import BaseInputSetTest, BaseRecipeTest, BaseProductTest
+from pymetis.tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 
 
 recipe_name = r'metis_cal_chophome'

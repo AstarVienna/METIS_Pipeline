@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.img.metis_lm_img_calibrate import (MetisLmImgCalibrate as Recipe,
-                                                        MetisLmImgCalibrateImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.metis_det_lingain import (MetisDetLinGain as Recipe,
+                                               MetisDetLinGainImpl as Impl)
+from pymetis.tests.classes import RawInputSetTest, BandParamRecipeTest, BaseProductTest
 
 
-recipe_name = r'metis_lm_img_calibrate'
+recipe_name = r'metis_det_lingain'
 
 
 @pytest.fixture
@@ -35,16 +35,23 @@ def name() -> str:
 
 @pytest.fixture
 def sof(name: str) -> str:
-    return rf'{name}.sof'
+    return rf'{name}.lm.sof'
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(BandParamRecipeTest):
+    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe: type[MetisRecipe] = Recipe
 
 
-class TestInputSet(BaseInputSetTest):
+class TestInputSet(RawInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
 
 
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmSciCalibrated
+class TestProductGain(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductGain
+
+class TestProductLinearity(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductLinearity
+
+class TestProductBadpixMap(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductBadpixMap

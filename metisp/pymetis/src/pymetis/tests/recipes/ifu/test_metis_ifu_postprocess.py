@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.img.metis_lm_img_std_process import (MetisLmImgStdProcess as Recipe,
-                                                          MetisLmImgsStdProcessImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.ifu.metis_ifu_postprocess import (MetisIfuPostprocess as Recipe,
+                                                       MetisIfuPostprocessImpl as Impl)
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = r'metis_lm_img_std_process'
+recipe_name = r'metis_ifu_postprocess'
 
 
 @pytest.fixture
@@ -44,11 +44,7 @@ class TestRecipe(BaseRecipeTest):
 
 class TestInputSet(BaseInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
+    
 
-
-class TestProductLmImgStdCombined(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmImgStdCombined
-
-
-class TestProductLmImgFluxcalTable(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmImgFluxCalTable
+class TestProduct(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductSciCoadd

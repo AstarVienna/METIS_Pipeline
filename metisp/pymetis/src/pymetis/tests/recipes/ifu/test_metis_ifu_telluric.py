@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.img.metis_lm_img_distortion import (MetisLmImgDistortion as Recipe,
-                                                         MetisLmImgDistortionImpl as Impl)
-from pymetis.tests.generic import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluric as Recipe,
+                                                    MetisIfuTelluricImpl as Impl)
+from pymetis.tests.classes import TargetParamRecipeTest, BaseInputSetTest, BaseProductTest
 
 
-recipe_name = r'metis_lm_img_distortion'
+recipe_name = r'metis_ifu_telluric'
 
 
 @pytest.fixture
@@ -35,10 +35,11 @@ def name() -> str:
 
 @pytest.fixture
 def sof(name: str) -> str:
-    return rf'{name}.sof'
+    return f'{name}.std.sof'
 
 
-class TestRecipe(BaseRecipeTest):
+class TestRecipe(TargetParamRecipeTest):
+    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
     _recipe: type[MetisRecipe] = Recipe
 
 
@@ -46,11 +47,13 @@ class TestInputSet(BaseInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
 
 
-class TestProductLmDistortionTable(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmDistortionTable
+class TestProductFluxcalTab(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductFluxcalTab
 
-class TestProductLmDistortionMap(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmDistortionMap
 
-class TestProductLmDistortionReduced(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmDistortionReduced
+class TestProductTelluric(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductTelluricTransmission
+
+
+class TestProductResponseFunction(BaseProductTest):
+    _product: type[PipelineProduct] = Impl.ProductResponseFunction

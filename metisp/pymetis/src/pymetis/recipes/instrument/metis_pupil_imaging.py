@@ -130,7 +130,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.Product(self, header, combined_image, band='LM') # ToDo Hardcoded for now
+        product = self.Product(self, header, combined_image, band='LM') # FixMe Hardcoded band for now
 
         return [product]
 
@@ -146,12 +146,14 @@ class MetisPupilImaging(MetisRecipe):
     _email: str = "jkarr@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Basic processing of pupil images"
-    _description: str = (
-            "This recipe performs basic reduction (dark current subtraction, flat fielding,\n"
-            "optional bias subtraction, persistance and linearity corrections) on engineering\n"
-            "images of the pupil masks. This recipe is not expected to be used by observers\n"
-            "during regular use."
-    )
+    _description: str = """
+        This recipe performs basic reduction (dark current subtraction, flat fielding,
+        optional bias subtraction, persistence and linearity corrections) on engineering
+        images of the pupil masks. This recipe is not expected to be used by observers
+        during regular use.""" # FixMe this is not shown anywhere now
+
+    _matched_keywords: [str] = ['DRS.PUPIL']
+    _algorithm = """Apply dark current and flat field corrections."""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
