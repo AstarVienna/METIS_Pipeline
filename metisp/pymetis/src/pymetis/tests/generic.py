@@ -178,15 +178,15 @@ class BaseRecipeTest(ABC):
     def test_does_author_name_conform_to_standard(self) -> None:
         """Test whether the recipe author's name is in the standard format. TBD what that means."""
         recipe = self._recipe()
-        assert re.match(rf"^[\w ]+, A\*$", recipe._author)
+        assert re.match(rf"^[\w\- ]+, A\*$", recipe._author), "Author name is not in the standard format"
 
     def test_recipe_uses_all_input_frames(self, frameset):
         instance = self._recipe()
         instance.run(frameset, {})
         all_frames = sorted([frame.file for frame in instance.implementation.inputset.frameset])
-        used_frames = sorted([frame.file for frame in instance.implementation.inputset.valid_frames])
-        assert all_frames == used_frames,\
-               f"Not all frames were used: {instance.implementation.inputset.valid_frames!s} vs {all_frames}"
+        loaded_frames = sorted([frame.file for frame in instance.implementation.inputset.valid_frames])
+        assert loaded_frames == all_frames,\
+               f"Not all frames were used: {instance.implementation.inputset.loaded_frames!s} vs {all_frames}"
 
     def test_all_parameters_have_correct_context(self):
         for param in self._recipe.parameters:

@@ -21,12 +21,11 @@ import re
 
 import cpl
 from cpl.core import Msg
-from typing import Dict
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, SinglePipelineInput
-from pymetis.inputs.common import FluxTableInput
+from pymetis.inputs import RawInput
+from pymetis.inputs.common import FluxstdCatalogInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
@@ -34,20 +33,17 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_STD_BKG_SUBTRACTED")
+            _description: str = "Thermal background subtracted images of standard LM exposures."
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.fluxstd_table = FluxTableInput(frameset)
-            self.inputs |= {self.fluxstd_table}
+        FluxstdCatalogInput = FluxstdCatalogInput
 
-    #import pdb ; pdb.set_trace()
     class ProductLmImgFluxCalTable(PipelineProduct):
-        tag = r"FLUXCAL_TAB"
+        _tag = r"FLUXCAL_TAB"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
 
     class ProductLmImgStdCombined(PipelineProduct):
-        tag = r"LM_STD_COMBINED"
+        _tag = r"LM_STD_COMBINED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -74,12 +70,20 @@ class MetisLmImgsStdProcessImpl(RawImageProcessor):
 class MetisLmImgStdProcess(MetisRecipe):
     _name: str = "metis_lm_img_std_process"
     _version: str = "0.1"
-    _author: str = "Chi-Hung Yan"
+    _author: str = "Chi-Hung Yan, A*"
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Determine the conversion factor between detector counts and physical source flux"
     _description: str = (
         "Currently just a skeleton prototype."
     )
+    _matched_keywords = ['DRS.FILTER']
+    _algorithm = """Call metis_lm_calculate_std_flux to measure flux in input images
+        call hdrl_resample_compute to recenter the images
+        call hdrl_imagelist_collapse to stack the images
+        call metis_lm_calculate_std_flux on the stacked image to get flux of the star in detector units
+        call metis_calculate_std_fluxcal to calculate the conversion factor to physical units
+        call metis_calculate_detection_limits to compute measure background noise (std,rms) and compute detection limits
+    """
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(

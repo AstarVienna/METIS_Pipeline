@@ -70,7 +70,6 @@ class PipelineProduct(ABC):
             raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
 
         for key, value in kwargs.items():
-            print(key, value)
             if not hasattr(self, key):
                 self.__setattr__(key, value)
 
@@ -125,7 +124,7 @@ class PipelineProduct(ABC):
         Msg.info(self.__class__.__qualname__,
                  f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
         Msg.info(self.__class__.__qualname__,
-                 f"Used frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
+                 f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
         # At least one frame in the recipe frameset must be tagged as RAW!
         # Otherwise, it *will not* save (rite of passage)
         cpl.dfs.save_image(

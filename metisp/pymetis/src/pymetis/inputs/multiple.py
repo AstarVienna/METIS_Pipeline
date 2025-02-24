@@ -80,6 +80,10 @@ class MultiplePipelineInput(PipelineInput):
         else:
             raise ValueError(f"Tag parameters are not equal for all frames! Found {matches}")
 
+        for key, value in self.tag_parameters.items():
+            Msg.warning(self.__class__.__qualname__, f"Setting {key} to {value}")
+            self.__setattr__(key, value)
+
     def validate(self):
         self._verify_frameset_not_empty()
         self._verify_same_detector()

@@ -25,15 +25,15 @@ from cpl.core import Msg
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput
-from pymetis.inputs.common import MasterDarkInput, GainMapInput, MasterFlatInput, BadpixMapInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
+from pymetis.inputs.common import MasterDarkInput, MasterFlatInput
+from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
     detector = '2RG'
 
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class
         that wraps all the recipe inputs. It encapsulates the entire input and
@@ -75,27 +75,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
             _description = "Master flat frame for LM image data."
 
-
-        # Alternatively, we could directly use MasterFlatInput(tags=re.compile(r"...")) in __init__,
-        # or go fully manual and specify it as
-        # SinglePipelineInput(tags=re.compile(r"..."), title="master flat", group=cpl.ui.Frame.FrameGroup.CALIB)
-        # Note that many of the required inputs are already handled by parent classes / mixins:
-        #   - persistence comes from `PersistenceInputSetMixin`,
-        #   - linearity comes from `LinearityInputSetMixin`
-        #   - master dark comes from `DarkImageProcessor`
-        #   - raw data come from `RawImageProcessor` via `DarkImageProcessor`
-        # This aims to reduce the attack surface™ for bugs.
-        # Still, we need to add and create all other inputs.
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.master_flat = self.MasterFlatInput(frameset)
-            self.gain_map = GainMapInput(frameset)
-            self.badpix_map = BadpixMapInput(frameset, required=False)
-
-            # We need to register the extra inputs (just to be able to say `for x in self.inputs:`)
-            self.inputs |= {self.master_flat, self.gain_map, self.badpix_map}
-
     class ProductBasicReduced(PipelineProduct):
         """
         The second big part is defining the products. For every product we create a separate class
@@ -106,6 +85,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        target = 'target'
 
         @classmethod
         def tag(cls) -> str:
@@ -178,6 +158,27 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         return [product]
 
 
+class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
+    target: str = 'STD'
+
+    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
+        target: str = 'STD'
+
+
+class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
+    target: str = 'SCI'
+
+    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
+        target: str = 'SCI'
+
+
+class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
+    target: str = 'SKY'
+
+    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
+        target: str = 'SKY'
+
+
 class MetisLmImgBasicReduce(MetisRecipe):
     """
     Apart from our own recipe implementation we have to provide the actual recipe for PyEsoRex.
@@ -201,6 +202,12 @@ class MetisLmImgBasicReduce(MetisRecipe):
             + "and it is divided by the master flat."
     )
 
+    _matched_keywords = ['DET.DIT', 'DET.NDIT', 'DRS.FILTER']
+    _algorithm = """Remove crosstalk, correct non-linearity
+        Analyse and optionally remove masked regions
+        Subtract dark, divide by flat
+        Remove blank sky pattern"""
+
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name=rf"{_name}.stacking.method",
@@ -210,4 +217,13 @@ class MetisLmImgBasicReduce(MetisRecipe):
             alternatives=("add", "average", "median"),
         )
     ])
+
     implementation_class = MetisLmImgBasicReduceImpl
+
+    def dispatch_implementation_class(self, frameset: cpl.ui.FrameSet) -> type[MetisLmImgBasicReduceImpl]:
+        inp = self.implementation_class.InputSet.RawInput(frameset)
+        return {
+            'STD': MetisLmStdBasicReduceImpl,
+            'SCI': MetisLmSciBasicReduceImpl,
+            'SKY': MetisLmSkyBasicReduceImpl,
+        }[inp.target]

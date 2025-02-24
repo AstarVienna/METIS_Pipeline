@@ -21,11 +21,10 @@ import re
 
 import cpl
 from cpl.core import Msg
-from typing import Dict
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.inputs import RawInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
@@ -33,19 +32,14 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_SCI_CALIBRATED")
-
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            
-            #self.inputs += [self.fluxstd_table]
+            _description = "LM band image with flux calibration, WC coordinate system and distorion information"
 
 
     class ProductLmImgSciCoadd(PipelineProduct):
-        category = rf"LM_SCI_COADD"
-        tag = category
+        _tag = rf"LM_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        description = "Coadded, mosaiced LM image."
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -76,6 +70,8 @@ class MetisLmImgSciPostProcess(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
+    _matched_keywords = ['DRS.FILTER']
+
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name="metis_lm_img_sci_postprocess.stacking.method",
@@ -85,5 +81,5 @@ class MetisLmImgSciPostProcess(MetisRecipe):
             alternatives=("add", "average", "median", "sigclip"),
         ),
     ])
-    #import pdb ; pdb.set_trace()
+
     implementation_class = MetisLmImgSciPostProcessImpl

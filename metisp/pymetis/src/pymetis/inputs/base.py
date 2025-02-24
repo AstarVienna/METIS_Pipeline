@@ -54,6 +54,10 @@ class PipelineInput:
     def detector(self):
         return self._detector
 
+    @detector.setter
+    def detector(self, value):
+        self._detector = value
+
     def __init__(self,
                  *,
                  title: str = None,
@@ -167,6 +171,7 @@ class PipelineInput:
     @classmethod
     def _pretty_tags(cls) -> str:
         """ Helper method to print `re.Pattern`s in man-page: remove named capture groups' names. """
+        return cls._tags.pattern
         return re.sub(r"\?P<\w+>", "", cls._tags.pattern)
 
 

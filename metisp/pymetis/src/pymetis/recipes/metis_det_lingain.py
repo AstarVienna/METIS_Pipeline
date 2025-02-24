@@ -34,10 +34,10 @@ class LinGainProduct(PipelineProduct, ABC):
     group = cpl.ui.Frame.FrameGroup.PRODUCT
     level = cpl.ui.Frame.FrameLevel.FINAL
     frame_type = cpl.ui.Frame.FrameType.IMAGE
-    detector = "unknown"
+    detector = 'det'
 
 
-class MetisDetLinGainImpl(RawImageProcessor):
+class MetisDetLinGainImpl(RawImageProcessor, ABC):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
@@ -53,28 +53,25 @@ class MetisDetLinGainImpl(RawImageProcessor):
 
 
     class ProductGain(LinGainProduct):
-        detector = 'det'
         description = "Gain map"
 
         @classmethod
         def tag(cls) -> str:
-            return rf"GAIN_MAP_{cls.detector}"
+            return rf"GAIN_MAP_{cls.detector:s}"
 
     class ProductLinearity(LinGainProduct):
-        detector = 'det'
         description = "Linearity map"
 
         @classmethod
         def tag(cls) -> str:
-            return rf"LINEARITY_{cls.detector}"
+            return rf"LINEARITY_{cls.detector:s}"
 
     class ProductBadpixMap(LinGainProduct):
-        detector = 'det'
         description = "Bad pixel map"
 
         @classmethod
         def tag(cls) -> str:
-            return rf"BADPIX_MAP_{cls.detector}"
+            return rf"BADPIX_MAP_{cls.detector:s}"
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = self.inputset.load_raw_images()
@@ -105,16 +102,40 @@ class Metis2rgLinGainImpl(MetisDetLinGainImpl):
     detector = '2RG'
 
     class ProductGain(MetisDetLinGainImpl.ProductGain):
-        detector = r"2RG"
+        detector = '2RG'
+
+    class ProductLinearity(MetisDetLinGainImpl.ProductLinearity):
+        detector = '2RG'
+
+    class ProductBadpixMap(MetisDetLinGainImpl.ProductBadpixMap):
+        detector = '2RG'
+
 
 class MetisGeoLinGainImpl(MetisDetLinGainImpl):
     detector = 'GEO'
 
+    class ProductGain(MetisDetLinGainImpl.ProductGain):
+        detector = 'GEO'
 
+    class ProductLinearity(MetisDetLinGainImpl.ProductLinearity):
+        detector = 'GEO'
+
+    class ProductBadpixMap(MetisDetLinGainImpl.ProductBadpixMap):
+        detector = 'GEO'
 
 
 class MetisIfuLinGainImpl(MetisDetLinGainImpl):
     detector = 'IFU'
+
+    class ProductGain(MetisDetLinGainImpl.ProductGain):
+        detector = 'IFU'
+
+    class ProductLinearity(MetisDetLinGainImpl.ProductLinearity):
+        detector = 'IFU'
+
+    class ProductBadpixMap(MetisDetLinGainImpl.ProductBadpixMap):
+        detector = 'IFU'
+
 
 
 class MetisDetLinGain(MetisRecipe):
@@ -152,10 +173,10 @@ class MetisDetLinGain(MetisRecipe):
 
     implementation_class = MetisDetLinGainImpl
 
-    def dispatch_implementation_class(self, frameset):
-        input = self.implementation_class.InputSet.RawInput(frameset)
+    def dispatch_implementation_class(self, frameset: cpl.ui.FrameSet) -> type[MetisDetLinGainImpl]:
+        inp = self.implementation_class.InputSet.RawInput(frameset)
         return {
             '2RG': Metis2rgLinGainImpl,
             'GEO': MetisGeoLinGainImpl,
             'IFU': MetisIfuLinGainImpl,
-        }[input.detector]
+        }[inp.detector]

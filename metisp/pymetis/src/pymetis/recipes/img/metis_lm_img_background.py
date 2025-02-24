@@ -25,30 +25,30 @@ import cpl
 from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, PipelineInputSet
+from pymetis.inputs import PipelineInputSet, SinglePipelineInput
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     detector = '2RG'
 
     class InputSet(PipelineInputSet):
-        class RawInput(RawInput):
+        class BasicReducedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
+            _title = "Detrended exposure"
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _description = "Science grade detrended exposure of the LM image mode."
+                           # "Standard detrended exposure of the LM image mode.")
 
-        class SkyInput(RawInput):
+        class SkyBasicReducedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_(?P<target>SKY)_BASIC_REDUCED")
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.basic_reduced = self.RawInput(frameset)
-            self.sky_reduced = self.SkyInput(frameset)
-
-            # We need to register the inputs (just to be able to do `for x in self.inputs:`)
-            self.inputs |= {self.basic_reduced, self.sky_reduced}
+            _group = cpl.ui.Frame.FrameGroup.CALIB
+            _title = "Sky basic-reduced exposure"
+            _description = "Detrended exposure of the sky."
 
     class ProductBkg(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        target = "SCI"
 
         @classmethod
         def tag(cls):
@@ -57,6 +57,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductBkgSubtracted(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        target = "SCI"
 
         @classmethod
         def tag(cls):
@@ -65,6 +66,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductObjectCat(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
+        target = "SCI"
 
         @classmethod
         def tag(cls):
@@ -73,7 +75,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
-        target = self.inputset.basic_reduced.get_target_name(self.inputset.basic_reduced.frameset)
+        target = self.inputset.tag_parameters['target']
         image = self._create_dummy_image()
 
         product_bkg = self.ProductBkg(self, self.header, image, target=target)
@@ -86,7 +88,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 class MetisLmImgBackground(MetisRecipe):
     _name: str = "metis_lm_img_background"
     _version: str = "0.1"
-    _author: str = "Chi-Hung Yan"
+    _author: str = "Chi-Hung Yan, A*"
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Basic reduction of raw exposures from the LM-band imager"

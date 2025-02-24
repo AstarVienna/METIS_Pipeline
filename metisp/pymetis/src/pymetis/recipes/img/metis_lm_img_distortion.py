@@ -23,57 +23,48 @@ import cpl
 from cpl.core import Msg
 from typing import Dict
 
-from pymetis.inputs.common import LinearityInput, BadpixMapInput, GainMapInput
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import RawInput, SinglePipelineInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin
+from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
 class MetisLmImgDistortionImpl(RawImageProcessor):
-    class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
+            _description = "Raw data for dark subtraction in other recipes."
 
         class DistortionInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_RAW")
             _title: str = "Distortion map"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+            _description = "Images of grid mask in WCU-FP2 or CFO-FP2."
 
         class PinholeTableInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"PINHOLE_TABLE")
             _title: str = "pinhole table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.pinhole_table = self.PinholeTableInput(frameset)
-            self.distortion = self.DistortionInput(frameset, required=False) 
-            self.linearity = LinearityInput(frameset, required=False) # But should be
-            self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.gain_map = GainMapInput(frameset, required=False) # But should be
-
-            self.inputs |= {self.pinhole_table, self.linearity, self.distortion,
-                            self.badpix_map, self.gain_map}
+            _description = "Table of pinhole locations"
 
 
     class ProductLmDistortionTable(PipelineProduct):
-        tag = r"LM_DISTORTION_TABLE"
+        _tag = r"LM_DISTORTION_TABLE"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         description = "Table of distortion information"
         oca_keywords = ['PRO.CATG', 'DRS.FILTER']
 
     class ProductLmDistortionMap(PipelineProduct):
-        tag = r"LM_DISTORTION_MAP"
+        _tag = r"LM_DISTORTION_MAP"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         description = "Map of pixel scale across the detector"
         oca_keywords = ['PRO.CATG', 'DRS.FILTER']
 
     class ProductLmDistortionReduced(PipelineProduct):
-        tag = r"LM_DIST_REDUCED"
+        _tag = r"LM_DIST_REDUCED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         description = "Table of polynomial coefficients for distortion correction"

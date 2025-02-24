@@ -93,6 +93,7 @@ class PersistenceMapInput(SinglePipelineInput):
 class OptionalPersistenceMapInput(OptionalInput, PersistenceMapInput):
     pass
 
+
 class GainMapInput(SinglePipelineInput):
     _title: str = "gain map"
     _tags: Pattern = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
@@ -121,19 +122,29 @@ class PinholeTableInput(SinglePipelineInput):
     _description = "Table of pinhole locations."
 
 
-class FluxTableInput(SinglePipelineInput):
+class FluxstdCatalogInput(SinglePipelineInput):
     _title: str = "flux standard star catalogue table"
     _tags: Pattern = re.compile(r"FLUXSTD_CATALOG")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Catalog of standard stars"
+
+
+class FluxcalTableInput(SinglePipelineInput):
+    _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
+    _title: str = "flux table"
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Conversion between instrumental and physical flux units"
 
 
 class LsfKernelInput(SinglePipelineInput):
     _title: str = "line spread function kernel"
     _tags: Pattern = re.compile(r"LSF_KERNEL")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Wavelength dependent model of the LSF"
 
 
 class AtmProfileInput(SinglePipelineInput):
     _title: str = "atmosphere profile"
     _tags: Pattern = re.compile(rf"ATM_PROFILE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "atmospheric profile containing height information on temperature, pressure and molecular abundances"

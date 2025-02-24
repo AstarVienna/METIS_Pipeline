@@ -25,7 +25,7 @@ import cpl
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.inputs.common import FluxTableInput, LsfKernelInput, AtmProfileInput
+from pymetis.inputs.common import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
 
 
 # The aim of this recipe is twofold,
@@ -45,11 +45,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         """Inputs for metis_ifu_telluric"""
         # TODO: still needs to be added to the input set
-        class Reduced1DInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "uncorrected mf input spectrum"
-            _description: str = "Uncorrected MF input spectrum."
+        #class Reduced1DInput(SinglePipelineInput):
+        #    _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
+        #    _group = cpl.ui.Frame.FrameGroup.CALIB
+        #    _title: str = "uncorrected mf input spectrum"
+        #    _description: str = "Uncorrected MF input spectrum."
 
         class CombinedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_COMBINED")
@@ -57,13 +57,9 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
             _title: str = "spectral cube of science object"
             _description: str = "Spectral cube of standard star, combining multiple exposures."
 
-        def __insxit__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.combined = self.CombinedInput(frameset)
-            self.fluxstd_catalog = FluxTableInput(frameset)
-            self.atm_profile = AtmProfileInput(frameset)
-            self.lsf_kernel = LsfKernelInput(frameset)
-            self.inputs |= {self.combined, self.fluxstd_catalog, self.atm_profile, self.lsf_kernel}
+        FluxstdCatalogInput = FluxstdCatalogInput
+        LsfKernelInput = LsfKernelInput
+        AtmProfileInput = AtmProfileInput
 
     # ++++++++++++++ Defining ouput +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Recipe is foreseen to do both, create transmission and response functions

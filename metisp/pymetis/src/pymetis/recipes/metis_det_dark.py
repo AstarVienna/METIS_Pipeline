@@ -18,22 +18,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
+from abc import ABC
 
 import cpl
 from cpl.core import Msg
 
-from pymetis.inputs.common import RawInput, LinearityInput, BadpixMapInput, PersistenceMapInput, GainMapInput, \
-    OptionalInput
+from pymetis.inputs.common import RawInput, BadpixMapInput, OptionalInput
 from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
+from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
 
-class MetisDetDarkImpl(RawImageProcessor):
-    _detector = None
-
-    class InputSet(RawImageProcessor.InputSet):
+class MetisDetDarkImpl(RawImageProcessor, ABC):
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
             _description = "Raw data for creating a master dark."
@@ -41,15 +40,11 @@ class MetisDetDarkImpl(RawImageProcessor):
         class BadpixMapInput(OptionalInput, BadpixMapInput):
             pass
 
-        PersistenceMapInput = PersistenceMapInput
-        LinearityInput = LinearityInput
-        GainMapInput = GainMapInput
-
     class ProductMasterDark(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        detector = "det"
+        detector = 'det'
         description = f"Master dark frame for {detector} detector data"
 
         @classmethod
@@ -93,16 +88,27 @@ class MetisDetDarkImpl(RawImageProcessor):
 
 class Metis2rgDarkImpl(MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
-        class RawDarkInput(MetisDetDarkImpl.InputSet.RawInput):
-            _tags: re.Pattern = re.compile(r"DARK_2RG_RAW")
+        class RawInput(MetisDetDarkImpl.InputSet.RawInput):
+            #_tags: re.Pattern = re.compile(r"DARK_2RG_RAW")
+            _detector: str = "2RG"
+
+        class GainMapInput(MetisDetDarkImpl.InputSet.GainMapInput):
+            #_tags: re.Pattern = re.compile(r"GAIN_MAP_2RG")
+            _detector: str = "2RG"
 
     class ProductMasterDark(MetisDetDarkImpl.ProductMasterDark):
         detector = r"2RG"
 
+
 class MetisGeoDarkImpl(MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
-        class RawDarkInput(RawInput):
-            tags: re.Pattern = re.compile(r"DARK_GEO_RAW")
+        class RawInput(MetisDetDarkImpl.InputSet.RawInput):
+            #_tags: re.Pattern = re.compile(r"DARK_GEO_RAW")
+            _detector: str = "GEO"
+
+    class GainMapInput(MetisDetDarkImpl.InputSet.GainMapInput):
+        #_tags: re.Pattern = re.compile(r"GAIN_MAP_GEO")
+        _detector: str = "GEO"
 
     class ProductMasterDark(MetisDetDarkImpl.ProductMasterDark):
         detector = r"GEO"
@@ -110,8 +116,13 @@ class MetisGeoDarkImpl(MetisDetDarkImpl):
 
 class MetisIfuDarkImpl(MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
-        class RawDarkInput(RawInput):
-            tags: re.Pattern = re.compile(r"DARK_IFU_RAW")
+        class RawInput(MetisDetDarkImpl.InputSet.RawInput):
+            #_tags: re.Pattern = re.compile(r"DARK_IFU_RAW")
+            _detector: str = "IFU"
+
+        class GainMapInput(MetisDetDarkImpl.InputSet.GainMapInput):
+            #_tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
+            _detector: str = "IFU"
 
     class ProductMasterDark(MetisDetDarkImpl.ProductMasterDark):
         detector = r"IFU"
@@ -122,7 +133,7 @@ class MetisDetDark(MetisRecipe):
     # Fill in recipe information
     _name: str = "metis_det_dark"
     _version: str = "0.1"
-    _author: str = "Kieran Chi-Hung Hugo Martin"
+    _author: str = "Hugo Buddelmeijer, A*"
     _email: str = "hugo@buddelmeijer.nl"
     _synopsis: str = "Create master dark"
     _description: str = (
@@ -166,7 +177,8 @@ class MetisDetDark(MetisRecipe):
             If the detector obtained from the `RawInput` object is not found in the
             implementation mapping.
         """
-        inputset = self.implementation_class.InputSet.RawInput(frameset)
+        inputset = self.implementation_class.InputSet(frameset)
+        inputset.validate()
         return {
             '2RG': Metis2rgDarkImpl,
             'GEO': MetisGeoDarkImpl,

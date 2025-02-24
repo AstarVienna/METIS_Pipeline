@@ -28,10 +28,11 @@ from pymetis.inputs.common import RawInput, MasterDarkInput, GainMapInput
 
 from .darkimage import DarkImageProcessor
 from ..base.product import PipelineProduct
+from ..inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
-    class InputSet(DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
@@ -42,13 +43,8 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             A subclass of RawInput that is handling the flat image raws.
             """
             _tags: re.Pattern = re.compile(r"(?P<band>(LM|N))_FLAT_(?P<target>LAMP|TWILIGHT)_RAW")
+            _description = "Flat image raw"
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.persistence = PersistenceMapInput(frameset)
-            self.linearity = LinearityInput(frameset)
-            self.gain_map = GainMapInput(frameset)
-            self.inputs |= {self.persistence, self.linearity, self.gain_map}
 
     class Product(PipelineProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT

@@ -39,4 +39,4 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         """
         A DarkImageProcessor's Input is just a raw image processor input with a master dark frame.
         """
-        MasterDarkInput: type = None
+        MasterDarkInput: type = NotImplemented

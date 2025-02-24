@@ -45,7 +45,7 @@ class PipelineInputSet(metaclass=ABCMeta):
     between the classes -- it is just a namespacing convention.
     """
 
-    detector: str = None
+    detector: str = NotImplemented
     inputs: {PipelineInput} = set()
 
     def __init__(self, frameset: cpl.ui.FrameSet, **kwargs):
@@ -61,7 +61,8 @@ class PipelineInputSet(metaclass=ABCMeta):
         cut_input = re.compile(r'Input$')
 
         # Now iterate over all refined Inputs, instantiate them and feed them the frameset to filter.
-        for (name, input_type) in inspect.getmembers(self.__class__, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput)):
+        for (name, input_type) in inspect.getmembers(self.__class__,
+                                                     lambda x: inspect.isclass(x) and issubclass(x, PipelineInput)):
             inp = input_type(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
             self.__setattr__(make_snake.sub('_', cut_input.sub('', name)).lower(), inp)
@@ -87,6 +88,10 @@ class PipelineInputSet(metaclass=ABCMeta):
         Some Inputs may have None if they are not specific to a detector.
         """
         detectors = list(set([inp.detector for inp in self.inputs]) - {None})
+
+        for inp in self.inputs:
+            Msg.warning(self.__class__.__qualname__, f"Detectors are {inp} {inp.detector}")
+
         if (detector_count := len(detectors)) == 0:
             Msg.debug(self.__class__.__qualname__, f"No detector could be identified from the SOF")
         elif detector_count == 1:
@@ -122,7 +127,6 @@ class PipelineInputSet(metaclass=ABCMeta):
         """
         frameset = cpl.ui.FrameSet()
 
-        print(self.inputs)
         for inp in self.inputs:
             frames = inp.valid_frames()
             for frame in frames:

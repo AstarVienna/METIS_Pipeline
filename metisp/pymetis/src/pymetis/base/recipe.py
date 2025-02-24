@@ -50,7 +50,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
     _matched_keywords = []
-    _algorithm = "Foo the bar and quux the baz [DEFAULT]."      # Verbal description of the algorithm
+    _algorithm = None                                           # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
     parameters: cpl.ui.ParameterList = cpl.ui.ParameterList([])
@@ -67,6 +67,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         Return the actual implementation class. By default, just returns `implementation_class`,
         but more complex recipes may need to select the appropriate class based on the frameset.
         """
+        print("DEFAULT")
         return self.implementation_class
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
@@ -106,7 +107,7 @@ f"""
     Inputs\n{inputs}
     Outputs\n{products}
     Algorithm
-        {self.algorithm}
+        {self.algorithm or '<not provided>'}
 """
 
     @property

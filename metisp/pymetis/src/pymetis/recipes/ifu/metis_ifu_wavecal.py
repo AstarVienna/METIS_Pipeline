@@ -23,28 +23,20 @@ from typing import Dict
 
 from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs.common import MasterDarkInput, GainMapInput, RawInput, DistortionTableInput, LinearityInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin
+from pymetis.inputs.common import MasterDarkInput, RawInput, DistortionTableInput
+from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuWavecalImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_WAVE_RAW")
             _description = ("Raw exposure of the WCU laser sources through the IFU to "
                             "achieve the first guess of the wavelength calibration.")
 
         MasterDarkInput = MasterDarkInput
-
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.gain_map = GainMapInput(frameset)
-            self.distortion_table = DistortionTableInput(frameset)
-            self.linearity = LinearityInput(frameset)
-
-            self.inputs |= {self.gain_map, self.distortion_table, self.linearity}
+        DistortionTableInput = DistortionTableInput
 
     class ProductIfuWavecal(PipelineProduct):
         _tag = r"IFU_WAVECAL"

@@ -25,6 +25,7 @@ from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.inputs.common import FluxcalTableInput
 
 
 class MetisLmImgCalibrateImpl(MetisRecipeImpl):
@@ -33,27 +34,19 @@ class MetisLmImgCalibrateImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"LM_SCI_BKG_SUBTRACTED")
             _title: str = "science background-subtracted"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+            _description = "Thermal background subtracted images of science LM exposures."
 
-        class PinholeTableInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
-            _title: str = "flux table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+        FluxcalTableInput = FluxcalTableInput
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_TABLE")
             _title: str = "distortion table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.background = self.BackgroundInput(frameset)
-            self.flux_table = self.PinholeTableInput(frameset)
-            self.distortion_table = self.DistortionTableInput(frameset)
-            self.inputs |= {self.background, self.flux_table, self.distortion_table}
+            _description = "Table of distortion information"
 
     class ProductLmSciCalibrated(PipelineProduct):
-        tag = r"LM_SCI_CALIBRATED"
+        _tag = r"LM_SCI_CALIBRATED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 

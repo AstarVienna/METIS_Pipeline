@@ -26,7 +26,7 @@ from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput
 from pymetis.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin, GainMapInputSetMixin
+from pymetis.inputs.mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin
 
 from pymetis.prefab.darkimage import DarkImageProcessor
 
@@ -34,15 +34,17 @@ from pymetis.prefab.darkimage import DarkImageProcessor
 class MetisIfuReduceImpl(DarkImageProcessor):
     target: Literal["SCI"] | Literal["STD"] = None
 
-    class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         detector = "IFU"
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
+            _description: str = "IFU raw exposure of a science object"
 
         class RawSkyInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_SKY_RAW")
             _title: str = "blank sky image"
+            _description: str = "Blank sky image"
 
         class MasterDarkInput(MasterDarkInput):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
@@ -51,16 +53,19 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"IFU_WAVECAL")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Wavelength calibration"
+            _description = "Image with wavelength at each pixel"
 
         class DistortionTableInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_TABLE")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Distortion table"
+            _description = "Table of distortion coefficients for an IFU data set"
 
         class RsrfInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"RSRF_IFU")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "RSRF"
+            _description = "2D relative spectral response function"
 
         MasterDarkInput = MasterDarkInput
 
@@ -68,6 +73,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductReduced(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        target = "SCI"
 
         @classmethod
         def tag(cls) -> str:
@@ -76,6 +82,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductBackground(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        target = "SCI"
 
         @classmethod
         def tag(cls) -> str:
@@ -84,6 +91,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductReducedCube(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        target = "SCI"
 
         @classmethod
         def tag(cls) -> str:
@@ -92,6 +100,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductCombined(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        target = "SCI"
 
         @classmethod
         def tag(cls) -> str:
