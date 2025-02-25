@@ -49,7 +49,7 @@ class BaseProductTest(ABC):
 
     @pytest.mark.metadata
     def test_does_it_have_a_description(self):
-        assert self._product._description is not None, \
+        assert self._product.description() is not None, \
             f"No description defined for {self._product.__qualname__}"
 
     @pytest.mark.metadata
@@ -58,7 +58,7 @@ class BaseProductTest(ABC):
             f"No OCA keywords defined for {self._product.__qualname__}"
 
     @pytest.mark.metadata
-    def test_are_oca_keywords_a_list_of_strings(self):
+    def test_are_oca_keywords_a_set_of_strings(self):
         assert isinstance(self._product.oca_keywords, set), \
             f"OCA keywords for {self._product.__qualname__} are not a set of strings"
         for kw in self._product.oca_keywords:

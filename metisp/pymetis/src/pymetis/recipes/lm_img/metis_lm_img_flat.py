@@ -21,7 +21,7 @@ import cpl
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.inputs import PipelineInputSet
-from pymetis.prefab.flat import MetisBaseImgFlatImpl
+from pymetis.prefab.img_flat import MetisBaseImgFlatImpl
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
@@ -30,18 +30,17 @@ class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
 
     class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
         _band: str = "LM"
+        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
 
 class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):
     class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
         _target: str = "TWILIGHT"
-        _description: str = "Master flat frame for LM image data"
 
 
 class MetisLmImgFlatLampImpl(MetisLmImgFlatImpl):
     class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
         _target: str = "LAMP"
-        _description: str = "Master flat frame for LM image data"
 
 
 class MetisLmImgFlat(MetisRecipe):

@@ -57,7 +57,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)")
 
 
-    class Product(PipelineProduct):
+    class ProductReduced(PipelineProduct):
         """
         Define the output product, here a reduced pupil image.
         """
@@ -66,6 +66,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         band = "LM"
+        _description = "Reduced pupil image in LM mode"
+        oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
 
         @classmethod
         def tag(cls):
@@ -130,7 +132,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.Product(self, header, combined_image, band='LM') # FixMe Hardcoded band for now
+        product = self.ProductReduced(self, header, combined_image, band='LM') # FixMe Hardcoded band for now
 
         return [product]
 

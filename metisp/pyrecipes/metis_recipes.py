@@ -30,6 +30,7 @@ from pymetis.recipes.n_img.metis_n_img_flat import MetisNImgFlat
 from pymetis.recipes.n_img.metis_n_img_calibrate import MetisNImgCalibrate
 from pymetis.recipes.n_img.metis_n_img_distortion import MetisNImgDistortion
 from pymetis.recipes.n_img.metis_n_img_chopnod import MetisNImgChopnod
+from pymetis.recipes.n_img.metis_n_img_std_process import MetisNImgStdProcess
 from pymetis.recipes.ifu.metis_ifu_distortion import MetisIfuDistortion
 from pymetis.recipes.ifu.metis_ifu_calibrate import MetisIfuCalibrate
 from pymetis.recipes.ifu.metis_ifu_postprocess import MetisIfuPostprocess
@@ -54,6 +55,7 @@ __all__ = [
     MetisNImgCalibrate,
     MetisNImgDistortion,
     MetisNImgChopnod,
+    MetisNImgStdProcess,
     MetisIfuDistortion,
     MetisIfuCalibrate,
     MetisIfuPostprocess,

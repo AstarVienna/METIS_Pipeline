@@ -21,16 +21,16 @@ import cpl
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.inputs import PipelineInputSet
-from pymetis.prefab.flat import MetisBaseImgFlatImpl
+from pymetis.prefab.img_flat import MetisBaseImgFlatImpl
 
 
 class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
     class InputSet(MetisBaseImgFlatImpl.InputSet):
         _band: str = "N"
-        _detector: str = "GEO"
 
     class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
         _band: str = "N"
+        oca_keywords: {str} = {'PRO.CATG', 'DRS.FILTER'}
 
 
 class MetisNImgFlatTwilightImpl(MetisNImgFlatImpl):

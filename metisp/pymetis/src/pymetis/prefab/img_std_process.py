@@ -22,25 +22,39 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.base.product import PipelineProduct, BandSpecificProduct
 from pymetis.inputs import RawInput
+from pymetis.inputs.common import FluxstdCatalogInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class MetisLmImgSciPostProcessImpl(RawImageProcessor):
+class MetisImgStdProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"LM_SCI_CALIBRATED")
-            _description = "LM band image with flux calibration, WC coordinate system and distorion information"
+            _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_STD_BKG_SUBTRACTED")
+            _description: str = "Thermal background subtracted images of standard LM/N exposures."
 
+        FluxstdCatalogInput = FluxstdCatalogInput
 
-    class ProductLmImgSciCoadd(PipelineProduct):
-        _tag = rf"LM_SCI_COADD"
+    class ProductImgFluxCalTable(PipelineProduct):
+        _tag = r"FLUXCAL_TAB"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.TABLE
+        _description = "Conversion between instrumental and physical flux units."
+        oca_keywords = {'PRO.CATG'}
+
+    class ProductImgStdCombined(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "Coadded, mosaiced LM image."
         oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+
+        @classmethod
+        def description(cls) -> str:
+            return f"Stacked {cls.band()} band exposures."
+
+        @classmethod
+        def tag(cls) -> str:
+            return fr"{cls.band()}_STD_COMBINED"
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -56,32 +70,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        product_coadd = self.ProductLmImgSciCoadd(self, self.header, combined_image)
+        product_fluxcal = self.ProductImgFluxCalTable(self, self.header, combined_image)
+        product_combined = self.ProductImgStdCombined(self, self.header, combined_image)
 
-        return [product_coadd]
-
-
-class MetisLmImgSciPostProcess(MetisRecipe):
-    _name: str = "metis_lm_img_sci_postprocess"
-    _version: str = "0.1"
-    _author: str = "Chi-Hung Yan, A*"
-    _email: str = "chyan@asiaa.sinica.edu.tw"
-    _synopsis: str = "Coadd reduced images"
-
-    _matched_keywords: {str} = {'DRS.FILTER'}
-    _algorithm = """Check and refine WCS of input images by using the WFS-FS data.
-    Determine output pixel grid encompassing all input images.
-    Call hdrl_resample_compute to recenter the images.
-    Call hdrl_imagelist_collapse to stack the images."""
-
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="metis_lm_img_sci_postprocess.stacking.method",
-            context="metis_lm_img_sci_postprocess",
-            description="Name of the method used to combine the input images",
-            default="average",
-            alternatives=("add", "average", "median", "sigclip"),
-        ),
-    ])
-
-    implementation_class = MetisLmImgSciPostProcessImpl
+        return [product_fluxcal, product_combined]

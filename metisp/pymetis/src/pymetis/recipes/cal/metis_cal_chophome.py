@@ -123,7 +123,7 @@ class MetisCalChophome(MetisRecipe):
     _algorithm = """The position of the pinhole image on the detector is measured from the stacked
     background-subtracted images. The measured position is compared to the WFS
     metrology to give the chopper home position.
-    
+
     Remove detector signature
     Remove median background
     Apply flatfield

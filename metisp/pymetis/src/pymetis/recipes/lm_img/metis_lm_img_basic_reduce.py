@@ -87,10 +87,12 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         target = 'target'
         oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+        _description = "Science grade detrended exposure of the LM image mode."
 
         @classmethod
         def tag(cls) -> str:
             return rf"LM_{cls.target:s}_BASIC_REDUCED"
+
 
 
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):

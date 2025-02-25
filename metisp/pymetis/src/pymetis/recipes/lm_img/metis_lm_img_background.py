@@ -24,7 +24,7 @@ import cpl
 
 from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.base.product import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import PipelineInputSet, SinglePipelineInput
 
 
@@ -45,32 +45,47 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             _title = "Sky basic-reduced exposure"
             _description = "Detrended exposure of the sky."
 
-    class ProductBkg(PipelineProduct):
+    class ProductBkg(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        target = "SCI"
+        oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+
+        @classmethod
+        def description(cls):
+            target = 'science' if cls.target == 'SCI' else 'standard'
+            return f"Thermal background of {target} LM exposures."
 
         @classmethod
         def tag(cls):
-            return f"LM_{cls.target:s}_BKG"
+            return f"LM_{cls.target():s}_BKG"
 
-    class ProductBkgSubtracted(PipelineProduct):
+    class ProductBkgSubtracted(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        target = "SCI"
+        oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+
+        @classmethod
+        def description(cls):
+            target = 'science' if cls.target == 'SCI' else 'standard'
+            return f"Thermal background subtracted images of {target} LM exposures."
 
         @classmethod
         def tag(cls):
-            return f"LM_{cls.target:s}_BKG_SUBTRACTED"
+            return f"LM_{cls.target():s}_BKG_SUBTRACTED"
 
-    class ProductObjectCat(PipelineProduct):
+    class ProductObjectCat(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        target = "SCI"
+        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+
+        @classmethod
+        def description(cls):
+            target = 'science' if cls.target == 'SCI' else 'standard'
+            return f"Catalog of masked objects in {target} LM exposures."
 
         @classmethod
         def tag(cls):
-            return rf"LM_{cls.target:s}_OBJECT_CAT"
+            return rf"LM_{cls.target():s}_OBJECT_CAT"
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
