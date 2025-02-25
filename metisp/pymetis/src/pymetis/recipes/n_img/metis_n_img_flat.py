@@ -26,21 +26,21 @@ from pymetis.prefab.flat import MetisBaseImgFlatImpl
 
 class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
     class InputSet(MetisBaseImgFlatImpl.InputSet):
-        band: str = "N"
-        detector: str = "GEO"
+        _band: str = "N"
+        _detector: str = "GEO"
 
     class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
-        band: str = "N"
+        _band: str = "N"
 
 
 class MetisNImgFlatTwilightImpl(MetisNImgFlatImpl):
     class ProductMasterFlat(MetisNImgFlatImpl.ProductMasterFlat):
-        target: str = "TWILIGHT"
+        _target: str = "TWILIGHT"
 
 
 class MetisNImgFlatLampImpl(MetisNImgFlatImpl):
     class ProductMasterFlat(MetisNImgFlatImpl.ProductMasterFlat):
-        target: str = "LAMP"
+        _target: str = "LAMP"
 
 
 class MetisNImgFlat(MetisRecipe):

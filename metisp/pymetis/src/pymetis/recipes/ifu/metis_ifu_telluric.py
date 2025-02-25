@@ -72,7 +72,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Transmission function for the telluric correction"
+        _description = "Transmission function for the telluric correction"
 
         @classmethod
         def tag(cls):
@@ -85,7 +85,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "response curve for the flux calibration"
+        _description = "response curve for the flux calibration"
 
         @classmethod
         def tag(cls):
@@ -94,7 +94,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     class ProductFluxcalTab(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        description = "flux calibration table"
+        _description = "flux calibration table"
 
         @classmethod
         def tag(cls):

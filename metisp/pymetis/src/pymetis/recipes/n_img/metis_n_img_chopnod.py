@@ -21,12 +21,12 @@ import re
 import cpl
 
 from pymetis.base import PipelineProduct
+from pymetis.base.product import TargetSpecificProduct
 from pymetis.base.recipe import MetisRecipe
 from pymetis.inputs import RawInput, BadpixMapInput, PipelineInputSet
 from pymetis.inputs.common import OptionalInput, LinearityInput, GainMapInput, MasterFlatInput, MasterDarkInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
-from pymetis.prefab.flat import MetisBaseImgFlatImpl
 
 
 class MetisNImgChopnodImpl(DarkImageProcessor):
@@ -45,17 +45,17 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         LinearityInput = LinearityInput
         GainMapInput = GainMapInput
 
-    class ProductBkgSubtracted(PipelineProduct):
+    class ProductBkgSubtracted(TargetSpecificProduct):
         band: str = "N"
-        target: str = "target"
+        _target: str = "target"
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        description = "Thermal background subtracted images of standard N exposures."
+        _description = "Thermal background subtracted images of standard N exposures."
         oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
         @classmethod
         def tag(cls) -> str:
-            return rf"N_{cls.target}_BKG_SUBTRACTED"
+            return rf"N_{cls.target()}_BKG_SUBTRACTED"
 
 
     def process_images(self) -> [PipelineProduct]:
@@ -68,26 +68,24 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
 class MetisNImgChopnodSciImpl(MetisNImgChopnodImpl):
     class ProductBkgSubtracted(MetisNImgChopnodImpl.ProductBkgSubtracted):
-        target: str = "SCI"
+        _target: str = "SCI"
 
 
 class MetisNImgChopnodStdImpl(MetisNImgChopnodImpl):
     class ProductBkgSubtracted(MetisNImgChopnodImpl.ProductBkgSubtracted):
-        target: str = "STD"
+        _target: str = "STD"
 
 
 class MetisNImgChopnod(MetisRecipe):
     _name: str = "metis_n_img_chopnod"
     _version: str = "0.1"
-    _author: str = "Hugo Buddelmeijer, A*"
-    _email: str = "hugo@buddelmeijer.nl"
-    _synopsis: str = "Create master flat for N band detectors"
+    _author: str = "Martin Baláž, A*"
+    _email: str = "martin.balaz@univie.ac.at"
+    _synopsis: str = "Chop / nod combination of exposures for background subtraction"
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
     _algorithm: str = """Analyse and optionally remove masked regions and correct crosstalk and ghosts
     Add/subtract images to subtract background"""
-
-    parameters = cpl.ui.ParameterList([])
 
     implementation_class = MetisNImgChopnodImpl
 

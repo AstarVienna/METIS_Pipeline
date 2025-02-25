@@ -56,7 +56,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         detector = 'det'
-        description = f"Master dark frame for '{detector}' detector data"
+        _description = f"Master dark frame for '{detector}' detector data"
         oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod

@@ -50,7 +50,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         _tag = rf"IFU_SCI_CUBE_CALIBRATED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+        _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
         oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:

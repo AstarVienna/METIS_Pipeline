@@ -26,7 +26,7 @@ from cpl.core import Msg
 from pymetis.inputs.common import RawInput, MasterDarkInput
 
 from .darkimage import DarkImageProcessor
-from ..base.product import PipelineProduct
+from ..base.product import PipelineProduct, TargetSpecificProduct, BandSpecificProduct
 from ..inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 
 
@@ -45,16 +45,18 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             _description = "Flat image raw"
 
 
-    class ProductMasterFlat(PipelineProduct):
+    class ProductMasterFlat(BandSpecificProduct, TargetSpecificProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        band: str = 'band'
-        target: str = 'target'
 
         @classmethod
         def tag(cls) -> str:
-            return fr"MASTER_IMG_FLAT_{cls.target:s}_{cls.band:s}"
+            return fr"MASTER_IMG_FLAT_{cls.target():s}_{cls.band():s}"
+
+        @classmethod
+        def description(cls) -> str:
+            return fr"Master flat frame for {cls.band():s} image data"
 
     def process_images(self) -> [PipelineProduct]:
         """

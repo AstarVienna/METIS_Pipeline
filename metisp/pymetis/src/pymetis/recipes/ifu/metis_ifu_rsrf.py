@@ -70,7 +70,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "something"
+        _description = "something"
 
         # SKEL: copy product keywords from header
         def add_properties(self) -> None:
@@ -83,7 +83,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Master flat frame for IFU image data"
+        _description = "Master flat frame for IFU image data"
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -96,7 +96,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
-        description = "something"
+        _description = "something"
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -108,7 +108,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "something"
+        _description = "something"
 
         # SKEL: copy product keywords from header
         def add_properties(self):

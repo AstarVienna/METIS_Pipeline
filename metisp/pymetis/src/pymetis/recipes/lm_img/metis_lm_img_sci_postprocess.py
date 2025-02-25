@@ -39,7 +39,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
         _tag = rf"LM_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Coadded, mosaiced LM image."
+        _description = "Coadded, mosaiced LM image."
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

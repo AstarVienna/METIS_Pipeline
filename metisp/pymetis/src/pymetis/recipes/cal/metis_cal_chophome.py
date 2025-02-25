@@ -57,7 +57,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Combined, background-subtracted images of the WCU source."
+        _description = "Combined, background-subtracted images of the WCU source."
 
     class ProductBackground(PipelineProduct):
         """
@@ -67,7 +67,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
+        _description = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
 
 
     def process_images(self) -> [PipelineProduct]:

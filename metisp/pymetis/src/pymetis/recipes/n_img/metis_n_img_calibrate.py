@@ -35,7 +35,7 @@ class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):
 
     class ProductSciCalibrated(MetisImgCalibrateImpl.ProductSciCalibrated):
         _tag = r"N_SCI_CALIBRATED"
-        description = "N band image with flux calibration, WC coordinate system and distorion information"
+        _description = "N band image with flux calibration, WC coordinate system and distorion information"
 
 
 class MetisNImgCalibrate(MetisRecipe):

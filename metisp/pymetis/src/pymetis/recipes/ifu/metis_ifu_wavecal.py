@@ -42,7 +42,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         _tag = r"IFU_WAVECAL"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Image with wavelength at each pixel."
+        _description = "Image with wavelength at each pixel."
         oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:

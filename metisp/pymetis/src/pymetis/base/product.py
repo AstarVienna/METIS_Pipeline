@@ -37,7 +37,7 @@ class PipelineProduct(ABC):
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
     oca_keywords: [str] = None
-    description: str = None
+    _description: str = None
 
     _tag: str = NotImplemented
 
@@ -168,3 +168,31 @@ class PipelineProduct(ABC):
     @classmethod
     def tag(cls) -> str:
         return cls._tag
+
+    @classmethod
+    def description(cls) -> str:
+        return cls._description
+
+
+class TargetSpecificProduct(PipelineProduct):
+    _target: str = None
+
+    @classmethod
+    def target(cls) -> str:
+        return cls._target or "{target}"
+
+
+class DetectorSpecificProduct(PipelineProduct):
+    _detector: str = None
+
+    @classmethod
+    def detector(cls) -> str:
+        return cls._detector or "{detector}"
+
+
+class BandSpecificProduct(PipelineProduct):
+    _band: str = None
+
+    @classmethod
+    def band(cls) -> str:
+        return cls._band or "{band}"

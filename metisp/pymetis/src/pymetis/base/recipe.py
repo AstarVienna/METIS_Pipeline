@@ -104,7 +104,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         ])
 
         products = '\n'.join(
-            [f"    {str(product_type.tag()):<75}{product_type.description or '<not defined>'}"
+            [f"    {str(product_type.tag()):<75}{product_type.description() or '<not defined>'}"
             for (name, product_type) in
             inspect.getmembers(self.implementation_class,
                                lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))

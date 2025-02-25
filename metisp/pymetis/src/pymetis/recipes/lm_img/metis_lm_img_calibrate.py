@@ -35,7 +35,7 @@ class MetisLmImgCalibrateImpl(MetisImgCalibrateImpl):
 
     class ProductSciCalibrated(MetisImgCalibrateImpl.ProductSciCalibrated):
         _tag = r"LM_SCI_CALIBRATED"
-        description = "LM band image with flux calibration, WC coordinate system and distorion information"
+        _description = "LM band image with flux calibration, WC coordinate system and distorion information"
 
 
 class MetisLmImgCalibrate(MetisRecipe):

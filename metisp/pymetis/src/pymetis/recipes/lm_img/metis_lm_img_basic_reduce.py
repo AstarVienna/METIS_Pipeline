@@ -160,24 +160,24 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
 
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    target: str = 'STD'
+    _target: str = 'STD'
 
     class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        target: str = 'STD'
+        _target: str = 'STD'
 
 
 class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    target: str = 'SCI'
+    _target: str = 'SCI'
 
     class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        target: str = 'SCI'
+        _target: str = 'SCI'
 
 
 class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    target: str = 'SKY'
+    _target: str = 'SKY'
 
     class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        target: str = 'SKY'
+        _target: str = 'SKY'
 
 
 class MetisLmImgBasicReduce(MetisRecipe):

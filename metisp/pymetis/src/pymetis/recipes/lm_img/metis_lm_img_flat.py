@@ -26,21 +26,22 @@ from pymetis.prefab.flat import MetisBaseImgFlatImpl
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
     class InputSet(MetisBaseImgFlatImpl.InputSet):
-        band: str = "LM"
-        detector: str = "2RG"
+        _band: str = "LM"
 
     class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
-        band: str = "LM"
+        _band: str = "LM"
 
 
 class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):
     class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
-        target: str = "TWILIGHT"
+        _target: str = "TWILIGHT"
+        _description: str = "Master flat frame for LM image data"
 
 
 class MetisLmImgFlatLampImpl(MetisLmImgFlatImpl):
     class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
-        target: str = "LAMP"
+        _target: str = "LAMP"
+        _description: str = "Master flat frame for LM image data"
 
 
 class MetisLmImgFlat(MetisRecipe):

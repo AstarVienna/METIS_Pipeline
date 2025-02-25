@@ -49,19 +49,19 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     class ProductDistortionTable(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        description = "Table of distortion information"
+        _description = "Table of distortion information"
         oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     class ProductDistortionMap(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Map of pixel scale across the detector"
+        _description = "Map of pixel scale across the detector"
         oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     class ProductDistortionReduced(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Table of polynomial coefficients for distortion correction"
+        _description = "Table of polynomial coefficients for distortion correction"
         oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     def process_images(self) -> [PipelineProduct]:
