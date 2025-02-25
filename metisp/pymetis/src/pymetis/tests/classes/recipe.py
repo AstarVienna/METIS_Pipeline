@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import os
+import pprint
 import re
 import subprocess
 import pytest
@@ -59,7 +60,14 @@ class BaseRecipeTest(ABC):
         recipe = self._recipe()
         assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet), \
             f"Recipe {recipe} did not return a FrameSet"
-        # pprint.pprint(instance.implementation.as_dict(), width=200)
+
+    @pytest.mark.metadata
+    def test_recipe_has_a_valid_as_dict(self, frameset) -> None:
+        recipe = self._recipe()
+        recipe.run(frameset, {})
+        out = pprint.pformat(recipe.implementation.as_dict(), width=200)
+        assert isinstance(out, str), \
+            f"Recipe {recipe.name} did not return a valid as_dict"
 
     @pytest.mark.pyesorex
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex) -> None:
@@ -83,6 +91,7 @@ class BaseRecipeTest(ABC):
         assert output.returncode == 0, \
             f"`pyesorex --man-page {name}` exited with non-zero return code {output.returncode}: {output.stderr}"
 
+    @pytest.mark.metadata
     def test_does_author_name_conform_to_standard(self) -> None:
         """Test whether the recipe author's name is in the standard format. TBD what that means."""
         recipe = self._recipe()
@@ -90,6 +99,8 @@ class BaseRecipeTest(ABC):
             "Author name is not in the standard format"
 
     def test_uses_all_input_frames(self, frameset):
+        """Test that the recipe uses all input frames."""
+        # FixMe this currently does not actually track usage, just loading
         instance = self._recipe()
         instance.run(frameset, {})
         all_frames = sorted([frame.file for frame in instance.implementation.inputset.frameset])
@@ -97,21 +108,23 @@ class BaseRecipeTest(ABC):
         assert loaded_frames == all_frames, \
             f"Not all frames were used: {instance.implementation.inputset.loaded_frames!s} vs {all_frames}"
 
-    def test_are_matched_keywords_defined(self, create_pyesorex):
-        pyesorex = create_pyesorex(self._recipe)
-        assert pyesorex.recipe._matched_keywords is not None, \
-            f"Recipe {pyesorex.recipe} does not have matched keywords defined"
+    @pytest.mark.metadata
+    def test_are_matched_keywords_defined(self):
+        assert self._recipe._matched_keywords is not None, \
+            f"Recipe {self._recipe.name} does not have matched keywords defined"
 
+    @pytest.mark.metadata
     def test_is_algorithm_described(self, create_pyesorex):
-        pyesorex = create_pyesorex(self._recipe)
-        assert pyesorex.recipe._algorithm is not None, \
-            f"Recipe {pyesorex.recipe} does not have an algorithm description"
+        assert self._recipe._algorithm is not None, \
+            f"Recipe {self._recipe} does not have an algorithm description"
 
+    @pytest.mark.metadata
     def test_all_parameters_have_correct_context(self):
         for param in self._recipe.parameters:
             assert param.context == self._recipe._name, \
                 f"Parameter context of {param.name} differs from recipe name {self._recipe.name}"
 
+    @pytest.mark.metadata
     def test_all_parameters_name_starts_with_context(self):
         for param in self._recipe.parameters:
             assert param.name.startswith(self._recipe._name), \
@@ -121,6 +134,7 @@ class BaseRecipeTest(ABC):
 class BandParamRecipeTest(BaseRecipeTest):
     """
     Tests for recipes whose SOFs also specify band parameters ("LM" | "N" | "IFU")
+    This is just a shorthand to parametrize them.
     """
     @pytest.mark.parametrize("band", bands)
     def test_recipe_can_be_run_directly(self, load_frameset, band):
@@ -138,6 +152,7 @@ class BandParamRecipeTest(BaseRecipeTest):
 class TargetParamRecipeTest(BaseRecipeTest):
     """
     Tests for recipes whose SOFs also specify target parameters ("SCI" | "STD")
+    This is just a shorthand to parametrize them.
     """
     @pytest.mark.parametrize("target", targets)
     def test_recipe_can_be_run_directly(self, load_frameset, target):

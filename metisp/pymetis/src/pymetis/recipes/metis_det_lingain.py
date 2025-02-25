@@ -55,6 +55,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
     class ProductGain(LinGainProduct):
         description = "Gain map"
+        oca_keywords = {'PRO.CATG'}
 
         @classmethod
         def tag(cls) -> str:
@@ -62,6 +63,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
     class ProductLinearity(LinGainProduct):
         description = "Linearity map"
+        oca_keywords = {'PRO.CATG'}
 
         @classmethod
         def tag(cls) -> str:
@@ -69,6 +71,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
     class ProductBadpixMap(LinGainProduct):
         description = "Bad pixel map"
+        oca_keywords = {'PRO.CATG'}
 
         @classmethod
         def tag(cls) -> str:

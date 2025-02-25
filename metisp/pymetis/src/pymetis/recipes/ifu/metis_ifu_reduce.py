@@ -74,6 +74,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         target = "SCI"
+        description = "Table of polynomial coefficients for distortion correction"
+        oca_keywords: [str] = ['PRO.CATG', 'DRS.IFU']
 
         @classmethod
         def tag(cls) -> str:

@@ -12,10 +12,11 @@ dynamic = ["description","requires-python","license","authors","classifiers","ur
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
 markers = [
-    "edps: marks EDPS tests that take a long time (deselect with '-m \"not edps\"')",
+    "edps: marks EDPS tests that usually take a long time (deselect with '-m \"not edps\"')",
     "inputset: marks tests related to `InputSet`",
     "product: marks tests related to `PipelineProduct`",
-    "recipe: marks tests related to `MetisRecipe` and `MetisRecipeImpl`",
+    "recipe: marks tests related to `MetisRecipe` or `MetisRecipeImpl`",
     "config: marks global configuration tests",
     "pyesorex: marks tests that depend on `pyesorex`",
+    "metadata: marks tests that verify recipe metadata",
 ]

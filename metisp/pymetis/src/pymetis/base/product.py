@@ -36,8 +36,8 @@ class PipelineProduct(ABC):
     group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
-    oca_keywords: [str] = []
-    description: str = "DEFAULT"
+    oca_keywords: [str] = None
+    description: str = None
 
     _tag: str = NotImplemented
 

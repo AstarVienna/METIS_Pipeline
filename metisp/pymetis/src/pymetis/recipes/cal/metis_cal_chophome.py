@@ -57,6 +57,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        description = "Combined, background-subtracted images of the WCU source."
 
     class ProductBackground(PipelineProduct):
         """

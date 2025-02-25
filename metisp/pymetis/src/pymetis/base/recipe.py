@@ -96,8 +96,8 @@ class MetisRecipe(cpl.ui.PyRecipe):
             matched_keywords = ', '.join(self._matched_keywords)
 
         inputs = '\n'.join(
-            [f"    {input_type._pretty_tags():<40}"
-             f"[{'1' if issubclass(input_type, SinglePipelineInput) else 'N'}×]"
+            [f"    {input_type._pretty_tags():<60}"
+             f"[{'1' if issubclass(input_type, SinglePipelineInput) else 'N'}]"
              f"{' (optional)' if not input_type._required else '           '} "
              f"{input_type._description}"
             for (name, input_type) in
@@ -106,7 +106,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         ])
 
         products = '\n'.join(
-            [f"    {str(product_type.tag()):<56}{product_type.description}"
+            [f"    {str(product_type.tag()):<75}{product_type.description or '<not defined>'}"
             for (name, product_type) in
             inspect.getmembers(self.implementation_class,
                                lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))

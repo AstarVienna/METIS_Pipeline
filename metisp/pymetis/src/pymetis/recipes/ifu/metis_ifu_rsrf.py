@@ -24,7 +24,7 @@ from pymetis.base import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs.base import OptionalMixin
 from pymetis.inputs.common import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                   WavecalInput, DistortionTableInput)
+                                   WavecalInput, DistortionTableInput, LinearityInput)
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
@@ -38,6 +38,15 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             _title: str = "IFU rsrf raw"
             _description: str = "Raw flats taken with black-body calibration lamp."
 
+        class MasterDarkInput(MasterDarkInput):
+            _tags: re.Pattern = re.compile(r"MASTER_DARK_IFU")
+
+        class GainMapInput(GainMapInput):
+            _tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
+
+        class LinearityInput(LinearityInput):
+            _tags: re.Pattern = re.compile(r"LINEARITY_IFU")
+
         class RsrfWcuOffInput(RawInput):
             """
             WCU_OFF input illuminated by the WCU up-to and including the
@@ -48,10 +57,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             _description: str = "Raw data for dark subtraction in other recipes."
 
         class BadpixMapInput(OptionalMixin, BadpixMapInput):
-            pass
+            _tags: re.Pattern = re.compile(r"BADPIX_MAP_IFU")
 
-        MasterDarkInput = MasterDarkInput
-        GainMapInput = GainMapInput
         DistortionTableInput = DistortionTableInput
         WavecalInput = WavecalInput
 
@@ -76,7 +83,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "something"
+        description = "Master flat frame for IFU image data"
 
         # SKEL: copy product keywords from header
         def add_properties(self):

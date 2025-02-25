@@ -28,21 +28,34 @@ from pymetis.base import PipelineProduct
 class BaseProductTest(ABC):
     _product: type[PipelineProduct] = None
 
+    @pytest.mark.metadata
     def test_is_it_even_a_product(self):
         assert issubclass(self._product, PipelineProduct)
 
+    @pytest.mark.metadata
     def test_does_it_have_a_group(self):
         assert self._product.group is not None, \
             f"Product group is not defined for {self._product.__qualname__}"
 
+    @pytest.mark.metadata
     def test_does_it_have_a_level(self):
         assert self._product.level is not None, \
             f"Product level is not defined for {self._product.__qualname__}"
 
+    @pytest.mark.metadata
     def test_does_it_have_a_frame_type(self):
         assert self._product.frame_type is not None, \
             f"Product frame type is not defined for {self._product.__qualname__}"
 
+    @pytest.mark.metadata
     def test_does_it_have_a_description(self):
         assert self._product.description is not None, \
             f"No description defined for {self._product.__qualname__}"
+
+    @pytest.mark.metadata
+    def test_does_it_define_oca_keywords(self):
+        assert isinstance(self._product.oca_keywords, set), \
+            f"OCA keywords for {self._product.__qualname__} are not a set of strings"
+        for kw in self._product.oca_keywords:
+            assert isinstance(kw, str), \
+                f"OCA keyword '{kw}' is not a string"

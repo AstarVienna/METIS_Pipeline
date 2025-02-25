@@ -44,7 +44,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         description = "Table of distortion coefficients for an IFU data set"
-        oca_keywords = ['PRO.CATG', 'DRS.IFU']
+        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     class ProductIfuDistortionReduced(PipelineProduct):
         _tag = r"IFU_DIST_REDUCED"
