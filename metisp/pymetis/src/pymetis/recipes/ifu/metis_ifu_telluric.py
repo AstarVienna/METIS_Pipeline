@@ -23,7 +23,7 @@ from typing import Dict
 import cpl
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.base.product import PipelineProduct
+from pymetis.base.product import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.inputs.common import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
 
@@ -73,32 +73,37 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Transmission function for the telluric correction"
+        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
-        def tag(cls):
+        def tag(cls) -> str:
             return r"IFU_TELLURIC"
 
     # Response curve
-    class ProductResponseFunction(PipelineProduct):
+    class ProductResponseFunction(TargetSpecificProduct):
         """
         Final product: response curve for the flux calibration
         """
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "response curve for the flux calibration"
+        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
-        def tag(cls):
-            return rf"IFU_SCI_REDUCED_1D" # FixMe: missing STD
+        def tag(cls) -> str:
+            return rf"IFU_{cls.target()}_REDUCED_1D"
+
+        @classmethod
+        def description(cls) -> str:
+            target = 'science object' if cls.target() == 'SCI' else 'reduced telluric standard star'
+            return f"Spectrum of a {target}."
 
     class ProductFluxcalTab(PipelineProduct):
+        _tag = r"FLUXCAL_TAB"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        _description = "flux calibration table"
-
-        @classmethod
-        def tag(cls):
-            return r"FLUXCAL_TAB"
+        _description = "Conversion between instrumental and physical flux units."
+        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 # TODO: Define input type for the paramfile in common.py
 
