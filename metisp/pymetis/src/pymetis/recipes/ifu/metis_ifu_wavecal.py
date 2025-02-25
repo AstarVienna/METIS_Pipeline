@@ -43,6 +43,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         description = "Image with wavelength at each pixel."
+        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()
@@ -71,6 +72,6 @@ class MetisIfuWavecal(MetisRecipe):
         Compute deviation from optical models.
         Compute wavelength solution ξ(x, y, i), λ(x, y, i).
         Compute wavelength map."""
-    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
+    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
     implementation_class = MetisIfuWavecalImpl

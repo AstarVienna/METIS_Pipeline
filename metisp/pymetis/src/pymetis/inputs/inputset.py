@@ -82,7 +82,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         self.tag_parameters = functools.reduce(operator.or_, [inp.tag_parameters for inp in self.inputs], {})
 
         for key, value in self.tag_parameters.items():
-            Msg.info(self.__class__.__qualname__, f"Setting tag parameter '{key}' = '{value}'")
+            Msg.info(self.__class__.__qualname__, f"Setting InputSet tag parameter '{key}' = '{value}'")
             self.__setattr__(key, value)
 
         self.print_debug()
@@ -118,7 +118,7 @@ class PipelineInputSet(metaclass=ABCMeta):
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            inp.tags: inp.as_dict()
+            inp.tags.pattern: inp.as_dict()
             for inp in self.inputs
         }
 

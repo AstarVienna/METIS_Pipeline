@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.img.metis_lm_img_distortion import (MetisLmImgDistortion as Recipe,
-                                                         MetisLmImgDistortionImpl as Impl)
+from pymetis.recipes.lm_img.metis_lm_img_distortion import (MetisLmImgDistortion as Recipe,
+                                                            MetisLmImgDistortionImpl as Impl)
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -47,10 +47,10 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductLmDistortionTable(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmDistortionTable
+    _product: type[PipelineProduct] = Impl.ProductDistortionTable
 
 class TestProductLmDistortionMap(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmDistortionMap
+    _product: type[PipelineProduct] = Impl.ProductDistortionMap
 
 class TestProductLmDistortionReduced(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmDistortionReduced
+    _product: type[PipelineProduct] = Impl.ProductDistortionReduced

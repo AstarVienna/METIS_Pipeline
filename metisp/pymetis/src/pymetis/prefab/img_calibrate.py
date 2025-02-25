@@ -17,68 +17,39 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
+from abc import ABC
 
 import cpl
 
 from pymetis.base import MetisRecipeImpl
-from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.inputs.common import FluxcalTableInput
 
 
-class MetisLmImgCalibrateImpl(MetisRecipeImpl):
+class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_SCI_BKG_SUBTRACTED")
             _title: str = "science background-subtracted"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description = "Thermal background subtracted images of science LM exposures."
+            _description: str = "Thermal background subtracted images of science LM exposures."
 
         FluxcalTableInput = FluxcalTableInput
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_DISTORTION_TABLE")
             _title: str = "distortion table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description = "Table of distortion information"
+            _description: str = "Table of distortion information"
 
-    class ProductLmSciCalibrated(PipelineProduct):
-        _tag = r"LM_SCI_CALIBRATED"
+    class ProductSciCalibrated(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        group = cpl.ui.Frame.FrameGroup.CALIB
+        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     def process_images(self) -> [PipelineProduct]:
         combined_image = self._create_dummy_image()
-        product_calibrated = self.ProductLmSciCalibrated(self, self.header, combined_image)
+        product_calibrated = self.ProductSciCalibrated(self, self.header, combined_image)
 
         return [product_calibrated]
-
-
-class MetisLmImgCalibrate(MetisRecipe):
-    _name: str = "metis_lm_img_calibrate"
-    _version: str = "0.1"
-    _author: str = "Chi-Hung Yan, A*"
-    _email: str = "chyan@asiaa.sinica.edu.tw"
-    _synopsis: str = "Determine optical distortion coefficients for the LM imager."
-    _description: str = (
-        "Currently just a skeleton prototype."
-    )
-
-    _matched_keywords: [str] = ['DRS.FILTER']
-    _algorithm = """Call metis_lm_scale_image_flux to Scale image data to photon / s
-    Add header information (BUNIT, WCS, etc.)"""
-
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name=f"{_name}.stacking.method",
-            context=_name,
-            description="Name of the method used to combine the input images",
-            default="average",
-            alternatives=("add", "average", "median", "sigclip"),
-        ),
-    ])
-
-    implementation_class = MetisLmImgCalibrateImpl

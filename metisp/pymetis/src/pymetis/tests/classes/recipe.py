@@ -66,6 +66,7 @@ class BaseRecipeTest(ABC):
         recipe = self._recipe()
         recipe.run(frameset, {})
         out = pprint.pformat(recipe.implementation.as_dict(), width=200)
+        print(out)
         assert isinstance(out, str), \
             f"Recipe {recipe.name} did not return a valid as_dict"
 
@@ -106,7 +107,7 @@ class BaseRecipeTest(ABC):
         all_frames = sorted([frame.file for frame in instance.implementation.inputset.frameset])
         loaded_frames = sorted([frame.file for frame in instance.implementation.inputset.valid_frames])
         assert loaded_frames == all_frames, \
-            f"Not all frames were used: {instance.implementation.inputset.loaded_frames!s} vs {all_frames}"
+            f"Not all frames were used: {instance.implementation.inputset.valid_frames!s} vs {all_frames}"
 
     @pytest.mark.metadata
     def test_are_matched_keywords_defined(self):

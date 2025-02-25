@@ -28,7 +28,7 @@ from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.inputs.common import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
 
 
-# The aim of this recipe is twofold,
+# The aim of this recipe is twofold:
 #   (a) to determine the transmission function for telluric absorption correction
 #   (b) determination of the response function for the flux calibration
 #
@@ -169,6 +169,6 @@ class MetisIfuTelluric(MetisRecipe):
     _algorithm = """Extract 1D spectrum of science object or standard star.
         Compute telluric correction.
         Compute conversion to physical units as function of wave-length."""
-    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
+    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
     implementation_class = MetisIfuTelluricImpl

@@ -70,8 +70,8 @@ class PipelineProduct(ABC):
             raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
 
         for key, value in kwargs.items():
-            if not hasattr(self, key):
-                self.__setattr__(key, value)
+            Msg.debug(self.__class__.__qualname__, f"Setting attribute '{key}' to '{value}'")
+            self.__setattr__(key, value)
 
         self.add_properties()
 

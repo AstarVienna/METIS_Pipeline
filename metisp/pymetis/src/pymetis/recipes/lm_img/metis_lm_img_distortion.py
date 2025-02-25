@@ -24,50 +24,25 @@ from cpl.core import Msg
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, SinglePipelineInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.prefab.img_distortion import MetisBaseImgDistortionImpl
 
 
-class MetisLmImgDistortionImpl(RawImageProcessor):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, RawImageProcessor.InputSet):
-        class RawInput(RawInput):
+class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
+    class InputSet(MetisBaseImgDistortionImpl.InputSet):
+        class RawInput(MetisBaseImgDistortionImpl.InputSet.RawInput):
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
-            _description = "Raw data for dark subtraction in other recipes."
 
-        class DistortionInput(SinglePipelineInput):
+        class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_RAW")
-            _title: str = "Distortion map"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description = "Images of grid mask in WCU-FP2 or CFO-FP2."
 
-        class PinholeTableInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"PINHOLE_TABLE")
-            _title: str = "pinhole table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description = "Table of pinhole locations"
-
-
-    class ProductLmDistortionTable(PipelineProduct):
+    class ProductDistortionTable(MetisBaseImgDistortionImpl.ProductDistortionTable):
         _tag = r"LM_DISTORTION_TABLE"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
-        description = "Table of distortion information"
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-    class ProductLmDistortionMap(PipelineProduct):
+    class ProductDistortionMap(MetisBaseImgDistortionImpl.ProductDistortionMap):
         _tag = r"LM_DISTORTION_MAP"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Map of pixel scale across the detector"
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-    class ProductLmDistortionReduced(PipelineProduct):
+    class ProductDistortionReduced(MetisBaseImgDistortionImpl.ProductDistortionReduced):
         _tag = r"LM_DIST_REDUCED"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        description = "Table of polynomial coefficients for distortion correction"
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -84,9 +59,9 @@ class MetisLmImgDistortionImpl(RawImageProcessor):
         combined_image = self.combine_images(raw_images, "average")
 
         return [
-            self.ProductLmDistortionTable(self, self.header, combined_image),
-            self.ProductLmDistortionMap(self, self.header, combined_image),
-            self.ProductLmDistortionReduced(self, self.header, combined_image),
+            self.ProductDistortionTable(self, self.header, combined_image),
+            self.ProductDistortionMap(self, self.header, combined_image),
+            self.ProductDistortionReduced(self, self.header, combined_image),
         ]
 
 
@@ -96,19 +71,16 @@ class MetisLmImgDistortion(MetisRecipe):
     _author: str = "Chi-Hung Yan, A*"
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Determine optical distortion coefficients for the LM imager."
-    _description: str = (
-        "Currently just a skeleton prototype."
-    )
 
-    _matched_keywords: [str] = ['DRS.FILTER']
-    _algorithm = """Subtract background image with `hdrl_imagelist_sub_image`.
+    _matched_keywords: {str} = {'DRS.FILTER'}
+    _algorithm: str = """Subtract background image with `hdrl_imagelist_sub_image`.
     Measure location of point source images in frames with `hdrl_catalogue_create`.
     Call metis_fit_distortion to fit polynomial coefficients to deviations from grid positions."""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_lm_img_distortion.stacking.method",
-            context="metis_lm_img_distortion",
+            name=f"{_name}.stacking.method",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),

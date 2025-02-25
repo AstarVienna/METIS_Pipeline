@@ -86,6 +86,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         target = 'target'
+        oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
         @classmethod
         def tag(cls) -> str:
@@ -134,7 +135,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions, or use functions from the parent classes:
-        for instance combine_images is a helper function that takes a frameset and a method and returns
+        for instance, combine_images is a helper function that takes a frameset and a method and returns
         a single combined frame that is used throughout the pipeline.
         """
 
@@ -202,7 +203,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
             + "and it is divided by the master flat."
     )
 
-    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.FILTER']
+    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
     _algorithm = """Remove crosstalk, correct non-linearity
         Analyse and optionally remove masked regions
         Subtract dark, divide by flat

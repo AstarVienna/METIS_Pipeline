@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.recipes.img.metis_lm_img_sci_postprocess import (MetisLmImgSciPostProcess as Recipe,
-                                                              MetisLmImgSciPostProcessImpl as Impl)
+from pymetis.recipes.lm_img.metis_lm_img_sci_postprocess import (MetisLmImgSciPostProcess as Recipe,
+                                                                 MetisLmImgSciPostProcessImpl as Impl)
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 

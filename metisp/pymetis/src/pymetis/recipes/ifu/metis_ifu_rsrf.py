@@ -239,7 +239,7 @@ class MetisIfuRsrf(MetisRecipe):
         BADPIX_MAP_IFU: Updated bad-pixel map
     """ # FixMe This is currently not shown anywhere
 
-    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
+    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """Average / median stack WCU_OFF images to create background image
         Subtract background image from individual RSRF RAW frames
         TBC: subtract master_dark from above frames first?

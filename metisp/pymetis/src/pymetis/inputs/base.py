@@ -105,7 +105,6 @@ class PipelineInput:
         # between Single and Multiple, so we just declare it here.
         self.tag_parameters: dict[str, str] = {}
 
-
     @abstractmethod
     def validate(self) -> None:
         """

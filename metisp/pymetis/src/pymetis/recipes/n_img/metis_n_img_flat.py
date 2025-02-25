@@ -24,41 +24,41 @@ from pymetis.inputs import PipelineInputSet
 from pymetis.prefab.flat import MetisBaseImgFlatImpl
 
 
-class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
+class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
     class InputSet(MetisBaseImgFlatImpl.InputSet):
-        band: str = "LM"
-        detector: str = "2RG"
+        band: str = "N"
+        detector: str = "GEO"
 
     class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
-        band: str = "LM"
+        band: str = "N"
 
 
-class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):
-    class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
+class MetisNImgFlatTwilightImpl(MetisNImgFlatImpl):
+    class ProductMasterFlat(MetisNImgFlatImpl.ProductMasterFlat):
         target: str = "TWILIGHT"
 
 
-class MetisLmImgFlatLampImpl(MetisLmImgFlatImpl):
-    class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
+class MetisNImgFlatLampImpl(MetisNImgFlatImpl):
+    class ProductMasterFlat(MetisNImgFlatImpl.ProductMasterFlat):
         target: str = "LAMP"
 
 
-class MetisLmImgFlat(MetisRecipe):
+class MetisNImgFlat(MetisRecipe):
     # Fill in recipe information
-    _name: str = "metis_lm_img_flat"
+    _name: str = "metis_n_img_flat"
     _version: str = "0.1"
-    _author: str = "A*"
+    _author: str = "Hugo Buddelmeijer, A*"
     _email: str = "hugo@buddelmeijer.nl"
-    _synopsis: str = "Create master flat for L/M band detectors"
-    _description: str = "Prototype to create a METIS Masterflat for L/M band"
+    _synopsis: str = "Create master flat for N band detectors"
+    _description: str = "Prototype to create a METIS master flat for N band"
 
-    _matched_keywords: [str] = ['DET.DIT', 'DET.NDIT', 'DRS.IFU']
-    _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
+    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _algorithm: str = """For internal flats: call metis_det_dark with LAMP OFF im ages to create dark frame.
     Subtract internal dark or master dark from flat exposures.
-    Call `metis_lm_img_flat` to fit slope of pixel values against illumination level.
+    Call metis_n_img_flat to fit slope of pixel values against illumination level.
     Frames with the same exposure time will be averaged.
     Compute median or average of input frames to improve statistics.
-    Call `metis_update_lm_flat_mask` to flag deviant pixels."""
+    Call metis_update_n_flat_mask to flag deviant pixels."""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
@@ -70,10 +70,10 @@ class MetisLmImgFlat(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisLmImgFlatImpl
+    implementation_class = MetisNImgFlatImpl
 
     def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
         return {
-            'LAMP': MetisLmImgFlatLampImpl,
-            'TWILIGHT': MetisLmImgFlatTwilightImpl,
+            'LAMP': MetisNImgFlatLampImpl,
+            'TWILIGHT': MetisNImgFlatTwilightImpl,
         }[inputset.target]

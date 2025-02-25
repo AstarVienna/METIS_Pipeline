@@ -39,18 +39,18 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
     # Seven mandatory attributes follow. These are required by pyesorex and not negotiable.
     # Some of them do not have to be overwritten as they are always the same.
-    _name = "metis_abstract_base"
-    _version = "0.0.1"
-    _author = "METIS PIP team"
-    _email = "astar.vienna@univie.ac.at"                        # ToDo is this a sensible default?
-    _copyright = "GPL-3.0-or-later"                             # I guess we're using the same copyright everywhere
-    _synopsis = "Abstract-like base class for METIS recipes"
-    _description = ("This class serves as the base class for all METIS recipes."
-                    "Bonus points if it is not visible from pyesorex.")
+    _name: str = "metis_abstract_base"
+    _version: str = "0.0.1"
+    _author: str = "METIS PIP team, A*"
+    _email: str = "astar.vienna@univie.ac.at"                        # ToDo is this a sensible default?
+    _copyright: str = "GPL-3.0-or-later"                             # I guess we are using the same copyright everywhere
+    _synopsis: str = "Abstract-like base class for METIS recipes"
+    _description: str = ("This class serves as the base class for all METIS recipes."
+                         "Bonus points if it is not visible from pyesorex.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
-    _matched_keywords: [str] = None
-    _algorithm = None                                           # Verbal description of the algorithm
+    _matched_keywords: {str} = None
+    _algorithm: str = None                                      # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
     parameters: cpl.ui.ParameterList = cpl.ui.ParameterList([])
@@ -73,10 +73,8 @@ class MetisRecipe(cpl.ui.PyRecipe):
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """
         The main method, as required by PyCPL.
-        Instantiates the decoupled implementation and then runs it.
-
-        Parameters
-        ----------
+        Instantiates the decoupled implementation, fills it with supplied frameset,
+        optionally promotes the class to the proper child class and then runs it.
         """
         self.implementation = self.implementation_class(self, frameset, settings)
         self.implementation.__class__ = self.dispatch_implementation_class(self.implementation.inputset)
