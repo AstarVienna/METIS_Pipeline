@@ -24,17 +24,17 @@ from abc import ABC
 import cpl
 
 from pymetis.base.recipe import MetisRecipe
+from pymetis.products import DetectorSpecificProduct
 from pymetis.products.product import PipelineProduct
 from pymetis.inputs.common import RawInput, BadpixMapInput, OptionalInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
-class LinGainProduct(PipelineProduct, ABC):
+class LinGainProduct(DetectorSpecificProduct, ABC):
     """ Common base class for all linearity and gain products. Just sets `group`, `level` and `frame_type`. """
     group = cpl.ui.Frame.FrameGroup.PRODUCT
     level = cpl.ui.Frame.FrameLevel.FINAL
     frame_type = cpl.ui.Frame.FrameType.IMAGE
-    detector = 'det'
 
 
 class MetisDetLinGainImpl(RawImageProcessor, ABC):
@@ -59,7 +59,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"GAIN_MAP_{cls.detector:s}"
+            return rf"GAIN_MAP_{cls.detector():s}"
 
     class ProductLinearity(LinGainProduct):
         _description = "Linearity map"
@@ -67,7 +67,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"LINEARITY_{cls.detector:s}"
+            return rf"LINEARITY_{cls.detector():s}"
 
     class ProductBadpixMap(LinGainProduct):
         _description = "Bad pixel map"
@@ -75,7 +75,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"BADPIX_MAP_{cls.detector:s}"
+            return rf"BADPIX_MAP_{cls.detector():s}"
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = self.inputset.load_raw_images()
@@ -103,42 +103,42 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
 
 class Metis2rgLinGainImpl(MetisDetLinGainImpl):
-    detector = '2RG'
+    _detector = '2RG'
 
     class ProductGain(MetisDetLinGainImpl.ProductGain):
-        detector = '2RG'
+        _detector = '2RG'
 
     class ProductLinearity(MetisDetLinGainImpl.ProductLinearity):
-        detector = '2RG'
+        _detector = '2RG'
 
     class ProductBadpixMap(MetisDetLinGainImpl.ProductBadpixMap):
-        detector = '2RG'
+        _detector = '2RG'
 
 
 class MetisGeoLinGainImpl(MetisDetLinGainImpl):
-    detector = 'GEO'
+    _detector = 'GEO'
 
     class ProductGain(MetisDetLinGainImpl.ProductGain):
-        detector = 'GEO'
+        _detector = 'GEO'
 
     class ProductLinearity(MetisDetLinGainImpl.ProductLinearity):
-        detector = 'GEO'
+        _detector = 'GEO'
 
     class ProductBadpixMap(MetisDetLinGainImpl.ProductBadpixMap):
-        detector = 'GEO'
+        _detector = 'GEO'
 
 
 class MetisIfuLinGainImpl(MetisDetLinGainImpl):
-    detector = 'IFU'
+    _detector = 'IFU'
 
     class ProductGain(MetisDetLinGainImpl.ProductGain):
-        detector = 'IFU'
+        _detector = 'IFU'
 
     class ProductLinearity(MetisDetLinGainImpl.ProductLinearity):
-        detector = 'IFU'
+        _detector = 'IFU'
 
     class ProductBadpixMap(MetisDetLinGainImpl.ProductBadpixMap):
-        detector = 'IFU'
+        _detector = 'IFU'
 
 
 
