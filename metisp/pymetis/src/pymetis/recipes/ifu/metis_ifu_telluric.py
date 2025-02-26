@@ -18,12 +18,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
-from typing import Dict
 
 import cpl
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.base.product import PipelineProduct, TargetSpecificProduct
+from pymetis.products import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.inputs.common import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
 
@@ -73,7 +72,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Transmission function for the telluric correction"
-        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
@@ -87,7 +86,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "response curve for the flux calibration"
-        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
@@ -103,7 +102,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         _description = "Conversion between instrumental and physical flux units."
-        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 # TODO: Define input type for the paramfile in common.py
 

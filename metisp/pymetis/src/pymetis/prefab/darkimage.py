@@ -19,8 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-import cpl.ui
-
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
@@ -32,7 +30,7 @@ class DarkImageProcessor(RawImageProcessor, ABC):
      2. requires a single `master_dark` frame, that will be subtracted from every raw image
      3. combines the raws after subtraction into a single product
 
-    Also provides methods for loading and verification of the dark frame,
+    It also provides methods for loading and verification of the dark frame,
     warns if multiple master darks are provided, etc.
     """
     class InputSet(RawImageProcessor.InputSet):

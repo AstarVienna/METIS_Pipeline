@@ -22,7 +22,7 @@ from abc import ABC
 import cpl
 
 from pymetis.base import MetisRecipeImpl
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.inputs.common import FluxcalTableInput
 
@@ -46,7 +46,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         group = cpl.ui.Frame.FrameGroup.CALIB
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     def process_images(self) -> [PipelineProduct]:
         combined_image = self._create_dummy_image()

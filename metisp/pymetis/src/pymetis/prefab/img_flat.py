@@ -26,7 +26,7 @@ from cpl.core import Msg
 from pymetis.inputs.common import RawInput, MasterDarkInput
 
 from .darkimage import DarkImageProcessor
-from ..base.product import PipelineProduct, TargetSpecificProduct, BandSpecificProduct
+from pymetis.products import PipelineProduct, TargetSpecificProduct, BandSpecificProduct
 from ..inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 
 

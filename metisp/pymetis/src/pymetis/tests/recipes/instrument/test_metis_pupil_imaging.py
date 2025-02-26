@@ -19,10 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl, PipelineProduct
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as Recipe,
                                                             MetisPupilImagingImpl as Impl)
+from pymetis.products.product import PipelineProduct
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
 recipe_name = r'metis_pupil_imaging'

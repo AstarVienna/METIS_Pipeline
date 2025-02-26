@@ -23,7 +23,7 @@ import cpl
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
@@ -38,6 +38,9 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         _tag = f"IFU_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _description = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
+                        "covering a different spatial and wavelength ranges.")
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def determine_output_grid(self):
         pass

@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import MasterDarkInput, MasterFlatInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
@@ -86,7 +86,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         target = 'target'
-        oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
         _description = "Science grade detrended exposure of the LM image mode."
 
         @classmethod

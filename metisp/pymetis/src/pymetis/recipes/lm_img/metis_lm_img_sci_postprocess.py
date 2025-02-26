@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs import RawInput
 from pymetis.prefab.rawimage import RawImageProcessor
 
@@ -40,7 +40,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Coadded, mosaiced LM image."
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

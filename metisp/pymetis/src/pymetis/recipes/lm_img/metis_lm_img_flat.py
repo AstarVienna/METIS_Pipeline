@@ -30,7 +30,7 @@ class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
 
     class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
         _band: str = "LM"
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
 
 class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):

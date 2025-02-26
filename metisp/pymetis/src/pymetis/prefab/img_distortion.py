@@ -25,7 +25,7 @@ from cpl.core import Msg
 
 from pymetis.prefab.rawimage import RawImageProcessor
 from pymetis.inputs import RawInput, SinglePipelineInput
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 
 
@@ -50,19 +50,19 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         _description = "Table of distortion information"
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     class ProductDistortionMap(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Map of pixel scale across the detector"
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     class ProductDistortionReduced(PipelineProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Table of polynomial coefficients for distortion correction"
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

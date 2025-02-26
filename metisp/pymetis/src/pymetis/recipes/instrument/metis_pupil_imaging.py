@@ -30,10 +30,10 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs import RawInput
-from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
-from pymetis.inputs.mixins import LinearityInputSetMixin, PersistenceInputSetMixin, GainMapInputSetMixin
+from pymetis.inputs.common import MasterDarkInput, MasterFlatInput
+from pymetis.inputs.mixins import LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
 class MetisPupilImagingImpl(DarkImageProcessor):
@@ -67,7 +67,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         band = "LM"
         _description = "Reduced pupil image in LM mode"
-        oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
+        _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
 
         @classmethod
         def tag(cls):

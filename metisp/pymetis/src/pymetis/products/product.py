@@ -36,10 +36,15 @@ class PipelineProduct(ABC):
     group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
-    oca_keywords: [str] = None
-    _description: str = None
 
+    # Product metadata.
+    # The standard way of defining them is to override the private class attribute;
+    # the default @classmethod just returns its value.
+    # If it depends on other attributes, override the corresponding @classmethod.
+    # All methods dealing with these should relate to the class, not instance!
     _tag: str = NotImplemented
+    _oca_keywords: [str] = None
+    _description: str = None
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -172,27 +177,3 @@ class PipelineProduct(ABC):
     @classmethod
     def description(cls) -> str:
         return cls._description
-
-
-class TargetSpecificProduct(PipelineProduct):
-    _target: str = None
-
-    @classmethod
-    def target(cls) -> str:
-        return cls._target or "{target}"
-
-
-class DetectorSpecificProduct(PipelineProduct):
-    _detector: str = None
-
-    @classmethod
-    def detector(cls) -> str:
-        return cls._detector or "{detector}"
-
-
-class BandSpecificProduct(PipelineProduct):
-    _band: str = None
-
-    @classmethod
-    def band(cls) -> str:
-        return cls._band or "{band}"

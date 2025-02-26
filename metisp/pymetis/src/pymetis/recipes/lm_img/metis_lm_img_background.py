@@ -18,13 +18,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
-from typing import Dict
 
 import cpl
 
 from pymetis.base import MetisRecipeImpl
 from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct, TargetSpecificProduct
+from pymetis.products import PipelineProduct, TargetSpecificProduct
 from pymetis.inputs import PipelineInputSet, SinglePipelineInput
 
 
@@ -48,7 +47,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductBkg(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
         @classmethod
         def description(cls):
@@ -62,7 +61,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductBkgSubtracted(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
         @classmethod
         def description(cls):
@@ -76,7 +75,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductObjectCat(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod
         def description(cls):

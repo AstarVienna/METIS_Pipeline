@@ -26,7 +26,7 @@ from cpl.core import Msg
 from pymetis.inputs.common import (RawInput, BadpixMapInput, PersistenceMapInput,
                                    LinearityInput, GainMapInput, OptionalInput)
 from pymetis.base import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
@@ -57,7 +57,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         detector = 'det'
         _description = f"Master dark frame for '{detector}' detector data"
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod
         def tag(cls) -> str:

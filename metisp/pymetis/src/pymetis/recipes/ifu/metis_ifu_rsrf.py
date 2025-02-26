@@ -21,12 +21,13 @@ import re
 import cpl
 
 from pymetis.base import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.products import PipelineProduct
 from pymetis.inputs.base import OptionalMixin
 from pymetis.inputs.common import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                    WavecalInput, DistortionTableInput, LinearityInput)
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
+from pymetis.products.common import ProductBadpixMapDet
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
@@ -71,6 +72,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "something"
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
         def add_properties(self) -> None:
@@ -83,7 +85,9 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
+
         _description = "Master flat frame for IFU image data"
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -96,24 +100,17 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
-        _description = "something"
+
+        _description = "2D relative spectral response function"
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
 
-    class ProductBadpixMapIfu(PipelineProduct):
-        _tag: str = r"BADPIX_MAP_IFU"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "something"
-
-        # SKEL: copy product keywords from header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
+    class ProductBadpixMapIfu(ProductBadpixMapDet):
+        _detector = "IFU"
 
     def process_images(self) -> [PipelineProduct]:
         # TODO: FUNC: basic raw processing of RSRF and WCU_OFF input frames:

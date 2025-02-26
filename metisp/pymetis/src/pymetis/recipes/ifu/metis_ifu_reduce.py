@@ -20,12 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 
 import cpl
-from typing import Dict, Literal
+from typing import Literal
 
 from pymetis.base import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.products import TargetSpecificProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput
-from pymetis.inputs.common import RawInput, MasterDarkInput, LinearityInput, PersistenceMapInput
+from pymetis.inputs.common import RawInput, MasterDarkInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin
 
 from pymetis.prefab.darkimage import DarkImageProcessor
@@ -70,39 +71,41 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         MasterDarkInput = MasterDarkInput
 
 
-    class ProductReduced(PipelineProduct):
+    class ProductReduced(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        target = "SCI"
         _description = "Table of polynomial coefficients for distortion correction"
-        oca_keywords: [str] = ['PRO.CATG', 'DRS.IFU']
+        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
             return rf"IFU_{cls.target}_REDUCED"
 
-    class ProductBackground(PipelineProduct):
+    class ProductBackground(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        target = "SCI"
+        _description = "Reduced 2D detector image of background."
+        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
             return rf"IFU_{cls.target}_BACKGROUND"
 
-    class ProductReducedCube(PipelineProduct):
+    class ProductReducedCube(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        target = "SCI"
+        _description = "Reduced 2D detector image of spectroscopic flux standard star."
+        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
             return rf"IFU_{cls.target}_REDUCED_CUBE"
 
-    class ProductCombined(PipelineProduct):
+    class ProductCombined(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        target = "SCI"
+        _description = "Spectral cube of standard star, combining multiple exposures."
+        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:

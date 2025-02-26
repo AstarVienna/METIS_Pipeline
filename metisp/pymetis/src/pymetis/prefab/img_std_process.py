@@ -22,7 +22,7 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.product import PipelineProduct, BandSpecificProduct
+from pymetis.products import PipelineProduct, BandSpecificProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import FluxstdCatalogInput
 from pymetis.prefab.rawimage import RawImageProcessor
@@ -41,12 +41,12 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         _description = "Conversion between instrumental and physical flux units."
-        oca_keywords = {'PRO.CATG'}
+        _oca_keywords = {'PRO.CATG'}
 
     class ProductImgStdCombined(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod
         def description(cls) -> str:

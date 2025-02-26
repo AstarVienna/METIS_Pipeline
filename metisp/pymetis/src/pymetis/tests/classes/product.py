@@ -21,7 +21,7 @@ import pytest
 
 from abc import ABC
 
-from pymetis.base import PipelineProduct
+from pymetis.products.product import PipelineProduct
 
 
 @pytest.mark.product
@@ -54,13 +54,13 @@ class BaseProductTest(ABC):
 
     @pytest.mark.metadata
     def test_does_it_define_oca_keywords(self):
-        assert self._product.oca_keywords is not None, \
+        assert self._product._oca_keywords is not None, \
             f"No OCA keywords defined for {self._product.__qualname__}"
 
     @pytest.mark.metadata
     def test_are_oca_keywords_a_set_of_strings(self):
-        assert isinstance(self._product.oca_keywords, set), \
+        assert isinstance(self._product._oca_keywords, set), \
             f"OCA keywords for {self._product.__qualname__} are not a set of strings"
-        for kw in self._product.oca_keywords:
+        for kw in self._product._oca_keywords:
             assert isinstance(kw, str), \
                 f"OCA keyword '{kw}' is not a string"

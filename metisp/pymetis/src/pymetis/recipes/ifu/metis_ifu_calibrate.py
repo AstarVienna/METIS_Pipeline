@@ -22,7 +22,7 @@ import re
 import cpl
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 
 
@@ -51,7 +51,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
-        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()

@@ -19,10 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 import cpl
-from typing import Dict
 
 from pymetis.base import MetisRecipe
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs.common import MasterDarkInput, RawInput, DistortionTableInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
@@ -43,7 +42,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Image with wavelength at each pixel."
-        oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()

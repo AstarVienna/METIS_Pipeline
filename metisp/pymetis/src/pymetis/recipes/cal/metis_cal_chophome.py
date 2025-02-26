@@ -24,10 +24,10 @@ from cpl.core import Msg
 
 from pymetis.base.recipe import MetisRecipe
 from pymetis.inputs import RawInput
-from pymetis.inputs.common import (LinearityInput, GainMapInput,
+from pymetis.inputs.common import (GainMapInput,
                                    OptionalPersistenceMapInput, BadpixMapInput,
                                    PinholeTableInput)
-from pymetis.base.product import PipelineProduct
+from pymetis.products.product import PipelineProduct
 from pymetis.inputs.mixins import LinearityInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
@@ -58,6 +58,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Combined, background-subtracted images of the WCU source."
+        _oca_keywords: {str} = {'PRO.CATG'}
 
     class ProductBackground(PipelineProduct):
         """
@@ -68,6 +69,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
+        _oca_keywords: {str} = {'PRO.CATG'}
 
 
     def process_images(self) -> [PipelineProduct]:

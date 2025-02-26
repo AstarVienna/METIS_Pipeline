@@ -20,8 +20,8 @@ import re
 
 import cpl
 
-from pymetis.base import PipelineProduct
-from pymetis.base.product import TargetSpecificProduct
+from pymetis.products.product import PipelineProduct
+from pymetis.products.common import TargetSpecificProduct
 from pymetis.base.recipe import MetisRecipe
 from pymetis.inputs import RawInput, BadpixMapInput, PipelineInputSet
 from pymetis.inputs.common import OptionalInput, LinearityInput, GainMapInput, MasterFlatInput, MasterDarkInput
@@ -51,7 +51,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description = "Thermal background subtracted images of standard N exposures."
-        oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
         @classmethod
         def tag(cls) -> str:
