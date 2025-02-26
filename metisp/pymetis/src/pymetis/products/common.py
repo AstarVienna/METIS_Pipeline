@@ -27,7 +27,7 @@ class TargetSpecificProduct(PipelineProduct):
 
     @classmethod
     def target(cls) -> str:
-        """Return the internal band, or a placeholder for manpage."""
+        """Return the internal target, or a placeholder for manpage."""
         return cls._target or "{target}"
 
 
@@ -36,7 +36,7 @@ class DetectorSpecificProduct(PipelineProduct):
 
     @classmethod
     def detector(cls) -> str:
-        """Return the internal band, or a placeholder for manpage."""
+        """Return the internal detector, or a placeholder for manpage."""
         return cls._detector or "{detector}"
 
 

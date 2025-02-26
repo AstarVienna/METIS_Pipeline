@@ -81,7 +81,7 @@ class BaseInputSetTest(ABC):
     @staticmethod
     def test_input_has_description(instance):
         for inp in instance.inputs:
-            assert inp._description is not None, \
+            assert inp.description() is not None, \
                 f"Input {inp} does not have a description defined"
 
 

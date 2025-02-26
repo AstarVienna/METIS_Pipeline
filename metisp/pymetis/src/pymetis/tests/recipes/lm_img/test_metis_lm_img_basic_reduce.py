@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.base import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.lm_img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
-                                                           MetisLmImgBasicReduceImpl as Impl)
+                                                              MetisLmImgBasicReduceImpl as Impl)
 from pymetis.products.product import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 

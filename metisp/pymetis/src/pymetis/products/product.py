@@ -49,8 +49,7 @@ class PipelineProduct(ABC):
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
                  header: cpl.core.PropertyList,
-                 image: cpl.core.Image,
-                 **kwargs):
+                 image: cpl.core.Image):
         self.recipe: 'MetisRecipeImpl' = recipe_impl
         self.header: cpl.core.PropertyList = header
         self.image: cpl.core.Image = image
@@ -73,10 +72,6 @@ class PipelineProduct(ABC):
 
         if self.category is None:
             raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
-
-        for key, value in kwargs.items():
-            Msg.debug(self.__class__.__qualname__, f"Setting attribute '{key}' to '{value}'")
-            self.__setattr__(key, value)
 
         self.add_properties()
 
@@ -115,6 +110,8 @@ class PipelineProduct(ABC):
         """ Return a dictionary representation of this Product """
         return {
             'tag': self.tag(),
+            'group': self.group,
+            'level': self.level,
         }
 
     @final

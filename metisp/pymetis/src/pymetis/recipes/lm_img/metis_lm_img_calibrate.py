@@ -28,7 +28,7 @@ from pymetis.prefab.img_calibrate import MetisImgCalibrateImpl
 class MetisLmImgCalibrateImpl(MetisImgCalibrateImpl):
     class InputSet(MetisImgCalibrateImpl.InputSet):
         class BackgroundInput(MetisImgCalibrateImpl.InputSet.BackgroundInput):
-            _tags: re.Pattern = re.compile(r"LM_SCI_BKG_SUBTRACTED")
+            _band: str = "LM"
 
         class DistortionTableInput(MetisImgCalibrateImpl.InputSet.DistortionTableInput):
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_TABLE")

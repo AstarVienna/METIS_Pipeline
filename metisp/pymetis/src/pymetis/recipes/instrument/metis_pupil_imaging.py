@@ -132,7 +132,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.ProductReduced(self, header, combined_image, band='LM') # FixMe Hardcoded band for now
+        product = self.ProductReduced(self, header, combined_image) # FixMe Hardcoded band for now
 
         return [product]
 

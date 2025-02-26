@@ -39,7 +39,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
                            # "Standard detrended exposure of the LM image mode.")
 
         class SkyBasicReducedInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_(?P<target>SKY)_BASIC_REDUCED")
+            _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title = "Sky basic-reduced exposure"
             _description = "Detrended exposure of the sky."
@@ -51,7 +51,10 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         @classmethod
         def description(cls):
-            target = 'science' if cls.target == 'SCI' else 'standard'
+            target = {
+                'SCI': 'science',
+                'STD': 'standard',
+            }[cls.target()]
             return f"Thermal background of {target} LM exposures."
 
         @classmethod
@@ -65,7 +68,10 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         @classmethod
         def description(cls):
-            target = 'science' if cls.target == 'SCI' else 'standard'
+            target = {
+                'SCI': 'science',
+                'STD': 'standard',
+            }[cls.target()]
             return f"Thermal background subtracted images of {target} LM exposures."
 
         @classmethod
@@ -79,7 +85,10 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         @classmethod
         def description(cls):
-            target = 'science' if cls.target == 'SCI' else 'standard'
+            target = {
+                'SCI': 'science',
+                'STD': 'standard',
+            }[cls.target()]
             return f"Catalog of masked objects in {target} LM exposures."
 
         @classmethod
@@ -92,11 +101,37 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         target = self.inputset.tag_parameters['target']
         image = self._create_dummy_image()
 
-        product_bkg = self.ProductBkg(self, self.header, image, target=target)
-        product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image, target=target)
-        product_object_cat = self.ProductObjectCat(self, self.header, image, target=target)
+        product_bkg = self.ProductBkg(self, self.header, image)
+        product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image)
+        product_object_cat = self.ProductObjectCat(self, self.header, image)
 
         return [product_bkg, product_bkg_subtracted, product_object_cat]
+
+
+class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
+    _target = 'STD'
+
+    class ProductBkg(MetisLmImgBackgroundImpl.ProductBkg):
+        _target = 'STD'
+
+    class ProductObjectCat(MetisLmImgBackgroundImpl.ProductObjectCat):
+        _target = 'STD'
+
+    class ProductBkgSubtracted(MetisLmImgBackgroundImpl.ProductBkgSubtracted):
+        _target = 'STD'
+
+
+class MetisLmImgBackgroundSciImpl(MetisLmImgBackgroundImpl):
+    _target = 'SCI'
+
+    class ProductBkg(MetisLmImgBackgroundImpl.ProductBkg):
+        _target = 'SCI'
+
+    class ProductObjectCat(MetisLmImgBackgroundImpl.ProductObjectCat):
+        _target = 'SCI'
+
+    class ProductBkgSubtracted(MetisLmImgBackgroundImpl.ProductBkgSubtracted):
+        _target = 'SCI'
 
 
 class MetisLmImgBackground(MetisRecipe):
@@ -123,3 +158,9 @@ class MetisLmImgBackground(MetisRecipe):
     Subtract background"""
 
     implementation_class = MetisLmImgBackgroundImpl
+
+    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
+        return {
+            'STD': MetisLmImgBackgroundStdImpl,
+            'SCI': MetisLmImgBackgroundSciImpl,
+        }[inputset.target]

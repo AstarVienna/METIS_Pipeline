@@ -79,7 +79,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"IFU_{cls.target}_REDUCED"
+            return rf"IFU_{cls.target():s}_REDUCED"
 
     class ProductBackground(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -89,7 +89,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"IFU_{cls.target}_BACKGROUND"
+            return rf"IFU_{cls.target():s}_BACKGROUND"
 
     class ProductReducedCube(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -99,7 +99,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"IFU_{cls.target}_REDUCED_CUBE"
+            return rf"IFU_{cls.target():s}_REDUCED_CUBE"
 
     class ProductCombined(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -109,7 +109,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"IFU_{cls.target}_COMBINED"
+            return rf"IFU_{cls.target():s}_COMBINED"
 
     def process_images(self) -> [PipelineProduct]:
         # do something... a lot of something
@@ -121,10 +121,10 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         image = self.combine_images(images, "add")
 
         return [
-            self.ProductReduced(self, header, image, target=self.target),
-            self.ProductBackground(self, header, image, target=self.target),
-            self.ProductReducedCube(self, header, image, target=self.target),
-            self.ProductCombined(self, header, image, target=self.target),
+            self.ProductReduced(self, header, image),
+            self.ProductBackground(self, header, image),
+            self.ProductReducedCube(self, header, image),
+            self.ProductCombined(self, header, image),
         ]
 
 

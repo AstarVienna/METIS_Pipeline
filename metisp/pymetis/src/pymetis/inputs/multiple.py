@@ -31,17 +31,13 @@ class MultiplePipelineInput(PipelineInput):
     A pipeline input that expects multiple frames, such as a raw processor.
     """
     def __init__(self,
-                 frameset: cpl.ui.FrameSet,
-                 *,
-                 tags: Pattern = None,
-                 required: bool = None,
-                 **kwargs):                     # Any other args
+                 frameset: cpl.ui.FrameSet):
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
-        super().__init__(tags=tags, required=required, **kwargs)
+        super().__init__()
 
         tag_matches = []
         for frame in frameset:
-            if match := self.tags.fullmatch(frame.tag):
+            if match := self.tags().fullmatch(frame.tag):
                 frame.group = self.group
                 self.frameset.append(frame)
                 Msg.debug(self.__class__.__qualname__,
@@ -94,10 +90,10 @@ class MultiplePipelineInput(PipelineInput):
         raise a `cpl.core.DataNotFoundError` with the appropriate message.
         """
         if (count := len(self.frameset)) == 0:
-            if self.required:
-                raise cpl.core.DataNotFoundError(f"No {self.title} frames ({self.tags}) found in the frameset.")
+            if self.required():
+                raise cpl.core.DataNotFoundError(f"No {self.title():s} frames ({self.tags().pattern:s}) found in the frameset.")
             else:
-                Msg.debug(self.__class__.__qualname__, f"No {self.title} frames found but not required.")
+                Msg.debug(self.__class__.__qualname__, f"No {self.title():s} frames found but not required.")
         else:
             Msg.debug(self.__class__.__qualname__, f"Frameset OK: {count} frame{'s' if count > 1 else ''} found")
 

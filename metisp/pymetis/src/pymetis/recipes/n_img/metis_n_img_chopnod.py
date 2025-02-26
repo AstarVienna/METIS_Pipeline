@@ -24,7 +24,7 @@ from pymetis.products.product import PipelineProduct
 from pymetis.products.common import TargetSpecificProduct
 from pymetis.base.recipe import MetisRecipe
 from pymetis.inputs import RawInput, BadpixMapInput, PipelineInputSet
-from pymetis.inputs.common import OptionalInput, LinearityInput, GainMapInput, MasterFlatInput, MasterDarkInput
+from pymetis.inputs.common import OptionalInputMixin, LinearityInput, GainMapInput, MasterFlatInput, MasterDarkInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 
@@ -37,7 +37,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
             _tags = re.compile(r"N_IMAGE_(?P<target>SCI|STD)_RAW")
             _description = "Flat field image taken with lamp / sky."
 
-        class BadpixMapInput(OptionalInput, BadpixMapInput):
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             _tags = re.compile(r"BADPIX_MAP_GEO")
 
         MasterDarkInput = MasterDarkInput
@@ -55,7 +55,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"N_{cls.target()}_BKG_SUBTRACTED"
+            return rf"N_{cls.target():s}_BKG_SUBTRACTED"
 
 
     def process_images(self) -> [PipelineProduct]:

@@ -28,7 +28,7 @@ from pymetis.prefab.img_std_process import MetisImgStdProcessImpl
 
 class MetisLmImgStdProcessImpl(MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
-        class RawInput(RawInput):
+        class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             _tags: re.Pattern = re.compile(r"LM_STD_BKG_SUBTRACTED")
             _description: str = "Thermal background subtracted images of standard LM exposures."
 

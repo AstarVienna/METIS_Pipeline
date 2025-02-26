@@ -69,7 +69,7 @@ class MetisIfuPostprocess(MetisRecipe):
     _version: str = "0.1"
     _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
-    _synopsis: str = "Calibrate IFU science data"
+    _synopsis: str = "Coaddition and mosaicing of reduced science cubes."
     _description: str = (
         "Currently just a skeleton prototype."
     )

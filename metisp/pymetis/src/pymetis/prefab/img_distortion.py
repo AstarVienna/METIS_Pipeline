@@ -25,6 +25,7 @@ from cpl.core import Msg
 
 from pymetis.prefab.rawimage import RawImageProcessor
 from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.products import BandSpecificProduct
 from pymetis.products.product import PipelineProduct
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 
@@ -32,37 +33,49 @@ from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMix
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _description = "Raw data for dark subtraction in other recipes."
+            _description: str = "Raw data for dark subtraction in other recipes."
 
         class DistortionInput(SinglePipelineInput):
             _title: str = "Distortion map"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description = "Images of grid mask in WCU-FP2 or CFO-FP2."
+            _description: str = "Images of grid mask in WCU-FP2 or CFO-FP2."
 
         class PinholeTableInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"PINHOLE_TABLE")
             _title: str = "pinhole table"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description = "Table of pinhole locations"
+            _description: str = "Table of pinhole locations"
 
 
-    class ProductDistortionTable(PipelineProduct):
+    class ProductDistortionTable(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         _description = "Table of distortion information"
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-    class ProductDistortionMap(PipelineProduct):
+        @classmethod
+        def tag(cls) -> str:
+            return rf"{cls.band():s}_DISTORTION_TABLE"
+
+    class ProductDistortionMap(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Map of pixel scale across the detector"
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-    class ProductDistortionReduced(PipelineProduct):
+        @classmethod
+        def tag(cls) -> str:
+            return rf"{cls.band():s}_DISTORTION_MAP"
+
+    class ProductDistortionReduced(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Table of polynomial coefficients for distortion correction"
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+
+        @classmethod
+        def tag(cls) -> str:
+            return rf"{cls.band():s}_DIST_REDUCED"
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

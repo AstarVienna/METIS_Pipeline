@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
 from abc import ABC
 
 import cpl
@@ -30,9 +31,14 @@ from pymetis.inputs.common import FluxcalTableInput
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
+            _band = None
+            _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_SCI_BKG_SUBTRACTED")
             _title: str = "science background-subtracted"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Thermal background subtracted images of science LM exposures."
+
+            @classmethod
+            def description(cls):
+                return rf"Thermal background subtracted images of science {cls._band} exposures."
 
         FluxcalTableInput = FluxcalTableInput
 

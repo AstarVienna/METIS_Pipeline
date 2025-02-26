@@ -26,7 +26,7 @@ import cpl
 from pymetis.base.recipe import MetisRecipe
 from pymetis.products import DetectorSpecificProduct
 from pymetis.products.product import PipelineProduct
-from pymetis.inputs.common import RawInput, BadpixMapInput, OptionalInput
+from pymetis.inputs.common import RawInput, BadpixMapInput, OptionalInputMixin
 from pymetis.prefab.rawimage import RawImageProcessor
 
 
@@ -49,8 +49,8 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
             _description: str = "Raw data for dark subtraction in other recipes."
             _required = False # FixMe This is just to shut EDPS up
 
-        class BadpixMapInput(OptionalInput, BadpixMapInput):
-            pass
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            _required = False
 
 
     class ProductGain(LinGainProduct):
@@ -95,9 +95,9 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         linearity_image = combined_image    # TODO Actual implementation missing
         badpix_map = combined_image         # TODO Actual implementation missing
 
-        product_gain_map = self.ProductGain(self, header, gain_image, detector=self.detector)
-        product_linearity = self.ProductLinearity(self, header, linearity_image, detector=self.detector)
-        product_badpix_map = self.ProductBadpixMap(self, header, badpix_map, detector=self.detector)
+        product_gain_map = self.ProductGain(self, header, gain_image)
+        product_linearity = self.ProductLinearity(self, header, linearity_image)
+        product_badpix_map = self.ProductBadpixMap(self, header, badpix_map)
 
         return [product_gain_map, product_linearity, product_badpix_map]
 

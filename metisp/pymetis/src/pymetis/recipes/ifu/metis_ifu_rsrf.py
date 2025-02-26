@@ -22,9 +22,8 @@ import cpl
 
 from pymetis.base import MetisRecipe
 from pymetis.products import PipelineProduct
-from pymetis.inputs.base import OptionalMixin
 from pymetis.inputs.common import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                   WavecalInput, DistortionTableInput, LinearityInput)
+                                   WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
 from pymetis.prefab.darkimage import DarkImageProcessor
 from pymetis.products.common import ProductBadpixMapDet
@@ -57,7 +56,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             _title: str = "IFU WCU off"
             _description: str = "Raw data for dark subtraction in other recipes."
 
-        class BadpixMapInput(OptionalMixin, BadpixMapInput):
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             _tags: re.Pattern = re.compile(r"BADPIX_MAP_IFU")
 
         DistortionTableInput = DistortionTableInput

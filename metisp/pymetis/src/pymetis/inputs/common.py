@@ -47,7 +47,7 @@ You should override class attributes:
     `_required = False` for optional inputs.
 """
 
-class OptionalInput(PipelineInput):
+class OptionalInputMixin(PipelineInput):
     _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
 
 
@@ -91,10 +91,6 @@ class PersistenceMapInput(SinglePipelineInput):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description = "Persistence map."
     _required = False # By default, persistence maps are optional
-
-
-class OptionalPersistenceMapInput(OptionalInput, PersistenceMapInput):
-    pass
 
 
 class GainMapInput(SinglePipelineInput):

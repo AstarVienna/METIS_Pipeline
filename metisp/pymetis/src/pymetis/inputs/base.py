@@ -27,24 +27,37 @@ from cpl.core import Msg
 
 
 class PipelineInput:
+    """
+    This class encapsulates a single logical input to a recipe:
+    - either a single file, or a line in the SOF (see SinglePipelineInput)
+    - or a set of equivalent files (see MultiplePipelineInput)
+    """
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided
-    _group: cpl.ui.Frame.FrameGroup = None  # No sensible default, must be provided explicitly
+    _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _detector: str | None = None            # Not specific to a detector until determined otherwise
     _description: str = None                # Description for man page
 
-    @property
-    def title(self):
-        return self._title
+    @classmethod
+    def title(cls) -> str:
+        return cls._title
 
-    @property
-    def tags(self):
-        return self._tags
+    @classmethod
+    def tags(cls) -> Pattern:
+        """
+        Return the tags for this pipeline input.
+        Override the method if it should depend on some parameter.
+        """
+        return cls._tags
 
-    @property
-    def required(self):
-        return self._required
+    @classmethod
+    def required(cls) -> bool:
+        return cls._required
+
+    @classmethod
+    def description(cls) -> str:
+        return cls._description
 
     @property
     def group(self):
@@ -58,43 +71,18 @@ class PipelineInput:
     def detector(self, value):
         self._detector = value
 
-    def __init__(self,
-                 *,
-                 title: str = None,
-                 tags: Pattern = None,
-                 required: bool = None,
-                 group: cpl.ui.Frame.FrameGroup = None,
-                 **kwargs):
-        # First override the title, if provided in the constructor
-        if title is not None:
-            self._title = title
-            Msg.debug(self.__class__.__qualname__, f"Overriding `title` to {self.title}")
-
+    def __init__(self):
         # Check if it is defined
-        if self.title is None:
+        if self.title() is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
 
-        # First override the tags if provided in the ctor
-        if tags is not None:
-            self._tags = tags
-            Msg.debug(self.__class__.__qualname__, f"Overriding `tags` to {self.tags}")
-
         # Check if tags are defined...
-        if not self.tags:
+        if not self.tags():
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined tag pattern")
 
         # ...and that they are a re pattern
-        if not isinstance(self.tags, re.Pattern):
-            raise TypeError(f"PipelineInput `tags` must be a `re.Pattern`, got '{self.tags}'")
-
-        # Override `required` if requested
-        if required is not None:
-            self._required = required
-            Msg.debug(self.__class__.__qualname__, f"Overriding `required` to {self.required}")
-
-        if group is not None:
-            self._group = group
-            Msg.debug(self.__class__.__qualname__, f"Overriding `group` to {self.group}")
+        if not isinstance(self.tags(), re.Pattern):
+            raise TypeError(f"PipelineInput `tags` must be a `re.Pattern`, got '{self.tags()}'")
 
         # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
@@ -116,12 +104,12 @@ class PipelineInput:
         """
         Print a short description of the tags with a small offset (n spaces).
         """
-        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags}")
+        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags()}")
 
     def as_dict(self) -> dict[str, Any]:
         return {
             'title': self.title,
-            'tags': self.tags,
+            'tags': self.tags(),
             'required': self.required,
             'group': self._group.name,
         }
@@ -170,10 +158,5 @@ class PipelineInput:
     @classmethod
     def _pretty_tags(cls) -> str:
         """ Helper method to print `re.Pattern`s in man-page: remove named capture groups' names. """
-        return cls._tags.pattern
-        return re.sub(r"\?P<\w+>", "", cls._tags.pattern)
-
-
-class OptionalMixin:
-    """ Mixin class for optional inputs """
-    _required: bool = False
+        return cls.tags().pattern
+        return re.sub(r"\?P<\w+>", "", cls.tags().pattern)

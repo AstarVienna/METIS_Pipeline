@@ -24,8 +24,9 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.inputs.common import (RawInput, BadpixMapInput, PersistenceMapInput,
-                                   LinearityInput, GainMapInput, OptionalInput)
+                                   LinearityInput, GainMapInput, OptionalInputMixin)
 from pymetis.base import MetisRecipe
+from pymetis.products import DetectorSpecificProduct
 from pymetis.products.product import PipelineProduct
 from pymetis.inputs.mixins import PersistenceInputSetMixin
 from pymetis.prefab.rawimage import RawImageProcessor
@@ -35,33 +36,35 @@ from pymetis.prefab.rawimage import RawImageProcessor
 class MetisDetDarkImpl(RawImageProcessor, ABC):
     class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
         # FixMe: these two should not be optional, but the current EDPS workflow does not supply them
-        class LinearityInput(OptionalInput, LinearityInput):
+        class LinearityInput(OptionalInputMixin, LinearityInput):
             pass
 
-        class GainMapInput(OptionalInput, GainMapInput):
+        class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
 
-        class PersistenceMapInput(OptionalInput, PersistenceMapInput):
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
             _description = "Raw data for creating a master dark."
 
-        class BadpixMapInput(OptionalInput, BadpixMapInput):
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             pass
 
-    class ProductMasterDark(PipelineProduct):
+    class ProductMasterDark(DetectorSpecificProduct):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        detector = 'det'
-        _description = f"Master dark frame for '{detector}' detector data"
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod
+        def description(cls) -> str:
+            return f"Master dark frame for '{cls.detector()}' detector data"
+
+        @classmethod
         def tag(cls) -> str:
-            return rf"MASTER_DARK_{cls.detector}"
+            return rf"MASTER_DARK_{cls.detector()}"
 
         @property
         def output_file_name(self) -> str:
@@ -93,7 +96,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         combined_image = self.combine_images(raw_images, method)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.ProductMasterDark(self, header, combined_image, detector=self.detector)
+        product = self.ProductMasterDark(self, header, combined_image)
 
         return [product]
 
@@ -110,7 +113,7 @@ class Metis2rgDarkImpl(MetisDetDarkImpl):
             _detector: str = "2RG"
 
     class ProductMasterDark(MetisDetDarkImpl.ProductMasterDark):
-        detector = r"2RG"
+        _detector = r"2RG"
 
 
 class MetisGeoDarkImpl(MetisDetDarkImpl):
@@ -124,7 +127,7 @@ class MetisGeoDarkImpl(MetisDetDarkImpl):
         _detector: str = "GEO"
 
     class ProductMasterDark(MetisDetDarkImpl.ProductMasterDark):
-        detector = r"GEO"
+        _detector = r"GEO"
 
 
 class MetisIfuDarkImpl(MetisDetDarkImpl):
@@ -134,12 +137,11 @@ class MetisIfuDarkImpl(MetisDetDarkImpl):
             _detector: str = "IFU"
 
         class GainMapInput(MetisDetDarkImpl.InputSet.GainMapInput):
-            pass
             #_tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
             _detector: str = "IFU"
 
     class ProductMasterDark(MetisDetDarkImpl.ProductMasterDark):
-        detector = r"IFU"
+        _detector = r"IFU"
 
 
 

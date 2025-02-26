@@ -36,13 +36,13 @@ class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_RAW")
 
     class ProductDistortionTable(MetisBaseImgDistortionImpl.ProductDistortionTable):
-        _tag = r"LM_DISTORTION_TABLE"
+        _band: str = "LM"
 
     class ProductDistortionMap(MetisBaseImgDistortionImpl.ProductDistortionMap):
-        _tag = r"LM_DISTORTION_MAP"
+        _band: str = "LM"
 
     class ProductDistortionReduced(MetisBaseImgDistortionImpl.ProductDistortionReduced):
-        _tag = r"LM_DIST_REDUCED"
+        _band: str = "LM"
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

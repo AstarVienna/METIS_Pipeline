@@ -85,6 +85,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         combined_image = self.combine_images(self.inputset.load_raw_images(), method)
 
-        product = self.ProductMasterFlat(self, header, combined_image, target=target)
+        product = self.ProductMasterFlat(self, header, combined_image)
 
         return [product]

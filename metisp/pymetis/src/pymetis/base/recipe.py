@@ -85,7 +85,6 @@ class MetisRecipe(cpl.ui.PyRecipe):
         Automatically build the `description` attribute from available attributes.
         This should only depend on the class, never on an instance.
         """
-
         if self._matched_keywords is None:
             matched_keywords = '<not defined>'
         elif len(self._matched_keywords) == 0:

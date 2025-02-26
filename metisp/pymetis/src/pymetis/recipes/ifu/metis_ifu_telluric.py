@@ -90,11 +90,14 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"IFU_{cls.target()}_REDUCED_1D"
+            return rf"IFU_{cls.target():s}_REDUCED_1D"
 
         @classmethod
         def description(cls) -> str:
-            target = 'science object' if cls.target() == 'SCI' else 'reduced telluric standard star'
+            return {
+                'STD': 'reduced telluric standard star',
+                'SCI': 'science object',
+            }[cls.target()]
             return f"Spectrum of a {target}."
 
     class ProductFluxcalTab(PipelineProduct):
@@ -113,14 +116,14 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         Purpose: invoke molecfit to achieve a best-fit in the fitting regions
         """
-        pass    # do nothing in the meanwhile
+        pass    # do nothing in the meantime
 
     # Invoke Calctrans
     def mf_calctrans(self):
         """
         Purpose: invoke calctrans to calculate transmission over the whole wavelength range
         """
-        pass    # do nothing in the meanwhile
+        pass    # do nothing in the meantime
 
     # Recipe is at the moment also foreseen to create the response curve for the flux calibration
     # Response determination
@@ -128,7 +131,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         Purpose: determine response function, i.e. compare observed standard star spectrum with the model in REF_STD_CAT
         """
-        pass    # do nothing in the meanwhile
+        pass    # do nothing in the meantime
 
     # Function to process everything?
     def process_images(self) -> [PipelineProduct]:

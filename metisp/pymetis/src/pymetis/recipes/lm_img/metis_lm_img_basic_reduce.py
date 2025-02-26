@@ -23,6 +23,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.base.recipe import MetisRecipe
+from pymetis.products import TargetSpecificProduct
 from pymetis.products.product import PipelineProduct
 from pymetis.inputs import RawInput
 from pymetis.inputs.common import MasterDarkInput, MasterFlatInput
@@ -75,7 +76,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
             _description = "Master flat frame for LM image data."
 
-    class ProductBasicReduced(PipelineProduct):
+    class ProductBasicReduced(TargetSpecificProduct):
         """
         The second big part is defining the products. For every product we create a separate class
         which defines the tag, group, level and frame type. Here we only have one kind of product,
@@ -85,13 +86,12 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        target = 'target'
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
         _description = "Science grade detrended exposure of the LM image mode."
 
         @classmethod
         def tag(cls) -> str:
-            return rf"LM_{cls.target:s}_BASIC_REDUCED"
+            return rf"LM_{cls.target():s}_BASIC_REDUCED"
 
 
 
@@ -156,7 +156,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         self.target = self.inputset.tag_parameters['target']
 
-        product = self.ProductBasicReduced(self, header, combined_image, target=self.target)
+        product = self.ProductBasicReduced(self, header, combined_image)
 
         return [product]
 

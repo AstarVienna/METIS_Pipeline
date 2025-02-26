@@ -31,18 +31,15 @@ class SinglePipelineInput(PipelineInput):
     A pipeline input that expects a single frame to be present.
     """
     def __init__(self,
-                 frameset: cpl.ui.FrameSet,
-                 *,
-                 tags: Pattern = None,
-                 required: bool = None,
-                 **kwargs):                       # Any other args
-        self.frame: cpl.ui.Frame | None = None
-        super().__init__(tags=tags, required=required, **kwargs)
+                 frameset: cpl.ui.FrameSet):                       # Any other args
 
+        self.frame: cpl.ui.Frame | None = None
         self.tag_matches: dict[str, str] = {}
+        super().__init__()
+
 
         for frame in frameset:
-            if match := self.tags.fullmatch(frame.tag):
+            if match := self.tags().fullmatch(frame.tag):
                 if self.frame is None:
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a {self.title} frame: {frame.file}.")
@@ -88,14 +85,15 @@ class SinglePipelineInput(PipelineInput):
         If it is not required, emit a warning but continue.
         """
         if frame is None:
-            if self.required:
-                raise cpl.core.DataNotFoundError(f"No {self.title} frame ({self.tags}) found in the frameset.")
+            if self.required():
+                raise cpl.core.DataNotFoundError(f"No {self.title()} frame ({self.tags().pattern}) "
+                                                 f"found in the frameset.")
             else:
                 Msg.debug(self.__class__.__qualname__,
-                          f"No {self.title} frame found, but not required.")
+                          f"No {self.title()} frame found, but not required.")
         else:
             Msg.debug(self.__class__.__qualname__,
-                      f"Found a {self.title} frame {frame.file}")
+                      f"Found a {self.title()} frame {frame.file}")
 
     def as_dict(self) -> dict[str, Any]:
         return super().as_dict() | {
