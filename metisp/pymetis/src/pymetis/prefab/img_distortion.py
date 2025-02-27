@@ -25,9 +25,9 @@ from cpl.core import Msg
 from pymetis.prefab.rawimage import RawImageProcessor
 from pymetis.inputs import RawInput, SinglePipelineInput
 from pymetis.inputs.common import PinholeTableInput
-from pymetis.products import BandSpecificProduct
-from pymetis.products.product import PipelineProduct
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.products.product import PipelineProduct
+from pymetis.products.common import BandSpecificProduct
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
@@ -92,4 +92,3 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
             self.ProductDistortionMap(self, self.header, combined_image),
             self.ProductDistortionReduced(self, self.header, combined_image),
         ]
-

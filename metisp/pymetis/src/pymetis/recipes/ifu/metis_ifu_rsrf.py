@@ -21,11 +21,11 @@ import re
 import cpl
 
 from pymetis.base import MetisRecipe
-from pymetis.products import PipelineProduct
+from pymetis.prefab.darkimage import DarkImageProcessor
 from pymetis.inputs.common import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                    WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
-from pymetis.prefab.darkimage import DarkImageProcessor
+from pymetis.products.product import PipelineProduct
 from pymetis.products.common import ProductBadpixMapDet
 
 
