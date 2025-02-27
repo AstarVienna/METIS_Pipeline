@@ -47,10 +47,10 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
             _title: str = "WCU off raw"
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
             _description: str = "Raw data for dark subtraction in other recipes."
-            _required = False # FixMe This is just to shut EDPS up
+            _required: bool = False # FixMe This is just to shut EDPS up
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
-            _required = False
+            _required: bool = False
 
 
     class ProductGain(LinGainProduct):

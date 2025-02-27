@@ -54,7 +54,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             target = {
                 'SCI': 'science',
                 'STD': 'standard',
-            }[cls.target()]
+            }.get(cls.target(), '{target}')
             return f"Thermal background of {target} LM exposures."
 
         @classmethod
@@ -71,7 +71,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             target = {
                 'SCI': 'science',
                 'STD': 'standard',
-            }[cls.target()]
+            }.get(cls.target(), '{target}')
             return f"Thermal background subtracted images of {target} LM exposures."
 
         @classmethod
@@ -88,7 +88,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             target = {
                 'SCI': 'science',
                 'STD': 'standard',
-            }[cls.target()]
+            }.get(cls.target(), '{target}')
             return f"Catalog of masked objects in {target} LM exposures."
 
         @classmethod

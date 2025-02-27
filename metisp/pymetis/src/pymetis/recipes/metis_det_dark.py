@@ -35,6 +35,10 @@ from pymetis.prefab.rawimage import RawImageProcessor
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):
     class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
+        class RawInput(RawInput):
+            _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
+            _description = "Raw data for creating a master dark."
+
         # FixMe: these two should not be optional, but the current EDPS workflow does not supply them
         class LinearityInput(OptionalInputMixin, LinearityInput):
             pass
@@ -44,10 +48,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
-
-        class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
-            _description = "Raw data for creating a master dark."
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             pass

@@ -116,7 +116,7 @@ class PipelineProduct(ABC):
 
     @final
     def __str__(self):
-        return f"{self.__class__.__qualname__} ({self.tag})"
+        return f"{self.__class__.__qualname__} ({self.tag()})"
 
     @final
     def save(self):

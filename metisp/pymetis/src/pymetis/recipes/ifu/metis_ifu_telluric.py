@@ -69,6 +69,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         Final product: Transmission function for the telluric correction
         """
+        title = "Telluric correction"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description = "Transmission function for the telluric correction"
@@ -97,7 +98,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
             return {
                 'STD': 'reduced telluric standard star',
                 'SCI': 'science object',
-            }[cls.target()]
+            }.get(cls.target(), '{target}')
             return f"Spectrum of a {target}."
 
     class ProductFluxcalTab(PipelineProduct):
@@ -147,10 +148,27 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         target = self.inputset.tag_parameters['target']
 
         product_telluric_transmission = self.ProductTelluricTransmission(self, header, image)
-        product_reduced_1d = self.ProductResponseFunction(self, header, image, target=target)
+        product_reduced_1d = self.ProductResponseFunction(self, header, image)
         product_fluxcal_tab = self.ProductFluxcalTab(self, header, image)
 
         return [product_telluric_transmission, product_reduced_1d, product_fluxcal_tab]
+
+
+class MetisIfuTelluricStdImpl(MetisIfuTelluricImpl):
+    class InputSet(MetisIfuTelluricImpl.InputSet):
+        pass
+
+    class ProductResponseFunction(MetisIfuTelluricImpl.ProductResponseFunction):
+        _target = 'STD'
+
+
+class MetisIfuTelluricSciImpl(MetisIfuTelluricImpl):
+    class InputSet(MetisIfuTelluricImpl.InputSet):
+        pass
+
+    class ProductResponseFunction(MetisIfuTelluricImpl.ProductResponseFunction):
+        _target = 'SCI'
+
 
 
 class MetisIfuTelluric(MetisRecipe):
@@ -179,3 +197,9 @@ class MetisIfuTelluric(MetisRecipe):
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
     implementation_class = MetisIfuTelluricImpl
+
+    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
+        return {
+            'STD': MetisIfuTelluricStdImpl,
+            'SCI': MetisIfuTelluricSciImpl,
+        }[inputset.target]

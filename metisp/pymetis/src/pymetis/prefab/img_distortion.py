@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
 from abc import ABC
 
 import cpl
@@ -25,6 +24,7 @@ from cpl.core import Msg
 
 from pymetis.prefab.rawimage import RawImageProcessor
 from pymetis.inputs import RawInput, SinglePipelineInput
+from pymetis.inputs.common import PinholeTableInput
 from pymetis.products import BandSpecificProduct
 from pymetis.products.product import PipelineProduct
 from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
@@ -40,11 +40,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _description: str = "Images of grid mask in WCU-FP2 or CFO-FP2."
 
-        class PinholeTableInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"PINHOLE_TABLE")
-            _title: str = "pinhole table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Table of pinhole locations"
+        PinholeTableInput = PinholeTableInput
 
 
     class ProductDistortionTable(BandSpecificProduct):
