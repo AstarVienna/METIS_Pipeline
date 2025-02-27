@@ -1,6 +1,7 @@
+
 [metadata]
 name = pymetis
-version = @PACKAGE_VERSION@
+version = 0.0.1
 license = GPL-3.0-or-later
 author = European Southern Observatory
 author_email = cpl-help@eso.org
@@ -32,8 +33,10 @@ packages =
     pymetis.base
     pymetis.inputs
     pymetis.mixins
-    pymetis.prefabricates
+    pymetis.prefab
     pymetis.recipes
+    pymetis.recipes.cal
+    pymetis.recipes.instrument
     pymetis.recipes.lm_img
     pymetis.recipes.n_img
     pymetis.recipes.ifu
@@ -43,8 +46,10 @@ package_dir =
     pymetis.base = ./src/pymetis/base
     pymetis.inputs = ./src/pymetis/inputs
     pymetis.mixins = ./src/pymetis/mixins
-    pymetis.prefabricates = ./src/pymetis/prefabricates
+    pymetis.prefab = ./src/pymetis/prefab
     pymetis.recipes = ./src/pymetis/recipes
+    pymetis.recipes.cal = ./src/pymetis/recipes/cat
+    pymetis.recipes.instrument = ./src/pymetis/recipes/instrument
     pymetis.recipes.lm_img = ./src/pymetis/recipes/lm_img
     pymetis.recipes.n_img = ./src/pymetis/recipes/n_img
     pymetis.recipes.ifu = ./src/pymetis/recipes/ifu
@@ -52,7 +57,7 @@ package_dir =
 zip_safe = False
 
 [options.extras_require]
-doc = 
+doc =
     sphinx
 test =
     pytest

@@ -112,7 +112,7 @@ class BaseRecipeTest(ABC):
     @pytest.mark.metadata
     def test_are_matched_keywords_defined(self):
         assert self._recipe._matched_keywords is not None, \
-            f"Recipe {self._recipe.name} does not have matched keywords defined"
+            f"Recipe {self._recipe._name} does not have matched keywords defined"
 
     @pytest.mark.metadata
     def test_is_algorithm_described(self, create_pyesorex):
@@ -123,7 +123,7 @@ class BaseRecipeTest(ABC):
     def test_all_parameters_have_correct_context(self):
         for param in self._recipe.parameters:
             assert param.context == self._recipe._name, \
-                f"Parameter context of {param.name} differs from recipe name {self._recipe.name}"
+                f"Parameter context of {param.name} differs from recipe name {self._recipe._name}"
 
     @pytest.mark.metadata
     def test_all_parameters_name_starts_with_context(self):
