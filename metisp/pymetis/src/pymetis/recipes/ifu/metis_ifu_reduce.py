@@ -25,7 +25,7 @@ from typing import Literal
 from pymetis.base import MetisRecipe
 from pymetis.products import TargetSpecificProduct
 from pymetis.products.product import PipelineProduct
-from pymetis.inputs import SinglePipelineInput
+from pymetis.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.inputs.common import RawInput, MasterDarkInput
 from pymetis.inputs.mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin
 
@@ -128,6 +128,34 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         ]
 
 
+class MetisIfuReduceStdImpl(MetisIfuReduceImpl):
+    class ProductReduced(MetisIfuReduceImpl.ProductReduced):
+        _target = 'STD'
+
+    class ProductBackground(MetisIfuReduceImpl.ProductBackground):
+        _target = 'STD'
+
+    class ProductCombined(MetisIfuReduceImpl.ProductCombined):
+        _target = 'STD'
+
+    class ProductReducedCube(MetisIfuReduceImpl.ProductReducedCube):
+        _target = 'STD'
+
+
+class MetisIfuReduceSciImpl(MetisIfuReduceImpl):
+    class ProductReduced(MetisIfuReduceImpl.ProductReduced):
+        _target = 'SCI'
+
+    class ProductBackground(MetisIfuReduceImpl.ProductBackground):
+        _target = 'SCI'
+
+    class ProductCombined(MetisIfuReduceImpl.ProductCombined):
+        _target = 'SCI'
+
+    class ProductReducedCube(MetisIfuReduceImpl.ProductReducedCube):
+        _target = 'SCI'
+
+
 class MetisIfuReduce(MetisRecipe):
     _name: str = "metis_ifu_reduce"
     _version: str = "0.1"
@@ -147,3 +175,9 @@ class MetisIfuReduce(MetisRecipe):
     Extract 1D object spectrum"""
 
     implementation_class = MetisIfuReduceImpl
+
+    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
+        return {
+            'STD': MetisIfuReduceStdImpl,
+            'SCI': MetisIfuReduceSciImpl,
+        }[inputset.target]
