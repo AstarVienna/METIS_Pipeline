@@ -60,4 +60,4 @@ class TestEDPS:
         assert output.returncode == 0
         assert output.stderr == b''
         assert re.findall('[eE]rror', message) == [], f"EDPS run resulted in errors: {message}"
-        assert re.findall('FAILED', message) == [], f"EDPS workflow failed: {message}"
+        assert 'FAILED' not in message, f"EDPS workflow failed: {message}"

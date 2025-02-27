@@ -47,7 +47,6 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
     class ProductBkgSubtracted(TargetSpecificProduct):
         band: str = "N"
-        _target: str = "target"
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description = "Thermal background subtracted images of standard N exposures."
