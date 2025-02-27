@@ -69,10 +69,10 @@ class MetisRecipe(cpl.ui.PyRecipe):
         By default, just returns `implementation_class`,
         but more complex recipes may need to select the appropriate class based on the frameset.
 
-        Typical use is to accomodate for different targets (STD|SCI):
-        this is determined from frameset at run time, and allows us to promote to the proper child class.
+        Typical use is then to accomodate for different targets (STD|SCI):
+        this is determined from frameset at run time, and allows us to promote to the correct child class.
 
-        It should be something along the lines
+        It should be something along these lines:
         ```
         return {
             'STD': ChildClassStd,
