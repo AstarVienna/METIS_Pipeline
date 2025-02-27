@@ -22,7 +22,6 @@ import re
 import cpl
 
 from pymetis.base.recipe import MetisRecipe
-from pymetis.inputs import RawInput
 from pymetis.prefab.img_std_process import MetisImgStdProcessImpl
 
 
@@ -32,7 +31,7 @@ class MetisNImgStdProcessImpl(MetisImgStdProcessImpl):
             _tags: re.Pattern = re.compile(r"N_STD_BKG_SUBTRACTED")
             _description: str = "Thermal background subtracted images of standard N exposures."
 
-    class ProductNImgStdCombined(MetisImgStdProcessImpl.ProductImgStdCombined):
+    class ProductImgStdCombined(MetisImgStdProcessImpl.ProductImgStdCombined):
         _band: str = "N"
 
 
@@ -48,12 +47,12 @@ class MetisNImgStdProcess(MetisRecipe):
     )
 
     _matched_keywords: {str} = {'DRS.FILTER'}
-    _algorithm = """Call metis_n_calculate_std_flux to measure flux in input images
+    _algorithm: str = """Call metis_n_calculate_std_flux to measure flux in input images
         call hdrl_resample_compute to recenter the images
         call hdrl_imagelist_collapse to stack the images
         call metis_n_calculate_std_flux on the stacked image to get flux of the star in detector units
         call metis_calculate_std_fluxcal to calculate the conversion factor to physical units
-        call metis_calculate_detection_limits to compute measure background noise (std,rms) and compute detection limits
+        call metis_calculate_detection_limits to compute measure background noise (std, rms) and compute detection limits
     """
 
     parameters = cpl.ui.ParameterList([
