@@ -42,7 +42,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             A subclass of RawInput that is handling the flat image raws.
             """
             _tags: re.Pattern = re.compile(r"(?P<band>(LM|N))_FLAT_(?P<target>LAMP|TWILIGHT)_RAW")
-            _description = "Flat image raw"
+            _description: str = "Flat image raw"
 
 
     class ProductMasterFlat(BandSpecificProduct, TargetSpecificProduct):

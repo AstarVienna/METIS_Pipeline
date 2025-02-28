@@ -32,25 +32,25 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
             _title: str = "science reduced"
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"IFU_SCI_REDUCED")
-            _description = "Reduced 2D detector image of science object."
+            _description: str = "Reduced 2D detector image of science object."
 
         class TelluricInput(SinglePipelineInput):
             _title: str = "telluric correction"
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"IFU_TELLURIC")
-            _description = "Telluric absorption correction."
+            _description: str = "Telluric absorption correction."
 
         class FluxcalTabInput(SinglePipelineInput):
             _title: str = "flux calibration table"
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
-            _description = "Conversion between instrumental and physical flux units."
+            _description: str = "Conversion between instrumental and physical flux units."
 
     class ProductSciCubeCalibrated(PipelineProduct):
         _tag = rf"IFU_SCI_CUBE_CALIBRATED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+        _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:

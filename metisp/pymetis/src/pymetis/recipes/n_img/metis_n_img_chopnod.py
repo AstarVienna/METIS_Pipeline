@@ -35,7 +35,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         class RawInput(RawInput):
             _tags = re.compile(r"N_IMAGE_(?P<target>SCI|STD)_RAW")
-            _description = "Flat field image taken with lamp / sky."
+            _description: str = "Flat field image taken with lamp / sky."
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             _tags = re.compile(r"BADPIX_MAP_GEO")
@@ -49,7 +49,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         band: str = "N"
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        _description = "Thermal background subtracted images of standard N exposures."
+        _description: str = "Thermal background subtracted images of standard N exposures."
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
         @classmethod

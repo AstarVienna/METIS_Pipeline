@@ -62,7 +62,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
-            _description = "Raw exposure of a standard star in the LM image mode."
+            _description: str = "Raw exposure of a standard star in the LM image mode."
             # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
             #    See https://github.com/AstarVienna/METIS_DRLD/issues/321
 
@@ -74,7 +74,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # Also one master flat is required. Again, we use a prefabricated class, but reset the tags
         class MasterFlatInput(MasterFlatInput):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
-            _description = "Master flat frame for LM image data."
+            _description: str = "Master flat frame for LM image data."
 
     class ProductBasicReduced(TargetSpecificProduct):
         """
@@ -87,7 +87,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
-        _description = "Science grade detrended exposure of the LM image mode."
+        _description: str = "Science grade detrended exposure of the LM image mode."
 
         @classmethod
         def tag(cls) -> str:

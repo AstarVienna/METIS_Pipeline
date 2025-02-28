@@ -37,20 +37,20 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
-            _description = "Images of multi-pinhole mask."
+            _description: str = "Images of multi-pinhole mask."
 
     class ProductIfuDistortionTable(PipelineProduct):
         _tag = r"IFU_DISTORTION_TABLE"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        _description = "Table of distortion coefficients for an IFU data set"
+        _description: str = "Table of distortion coefficients for an IFU data set"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     class ProductIfuDistortionReduced(PipelineProduct):
         _tag = r"IFU_DIST_REDUCED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "Table of polynomial coefficients for distortion correction"
+        _description: str = "Table of polynomial coefficients for distortion correction"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:

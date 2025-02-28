@@ -40,7 +40,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         _tag = r"FLUXCAL_TAB"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        _description = "Conversion between instrumental and physical flux units."
+        _description: str = "Conversion between instrumental and physical flux units."
         _oca_keywords = {'PRO.CATG'}
 
     class ProductImgStdCombined(BandSpecificProduct):

@@ -36,14 +36,14 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
             _title = "Detrended exposure"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _description = "Science grade detrended exposure of the LM image mode."
+            _description: str = "Science grade detrended exposure of the LM image mode."
                            # "Standard detrended exposure of the LM image mode.")
 
         class SkyBasicReducedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title = "Sky basic-reduced exposure"
-            _description = "Detrended exposure of the sky."
+            _description: str = "Detrended exposure of the sky."
 
     class ProductBkg(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL

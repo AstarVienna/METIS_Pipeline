@@ -36,11 +36,11 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_CHOPHOME_RAW")
-            _description = "Raw exposure of the LM image mode."
+            _description: str = "Raw exposure of the LM image mode."
 
         class BackgroundInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
-            _description = "Raw data for dark subtraction in other recipes."
+            _description: str = "Raw data for dark subtraction in other recipes."
 
         GainMapInput = GainMapInput
         PersistenceMapInput = PersistenceMapInput
@@ -55,7 +55,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "Combined, background-subtracted images of the WCU source."
+        _description: str = "Combined, background-subtracted images of the WCU source."
         _oca_keywords: {str} = {'PRO.CATG'}
 
     class ProductBackground(PipelineProduct):
@@ -66,7 +66,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
+        _description: str = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
         _oca_keywords: {str} = {'PRO.CATG'}
 
 

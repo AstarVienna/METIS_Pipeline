@@ -32,14 +32,14 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_SCI_CALIBRATED")
-            _description = "LM band image with flux calibration, WC coordinate system and distorion information"
+            _description: str = "LM band image with flux calibration, WC coordinate system and distorion information"
 
 
     class ProductLmImgSciCoadd(PipelineProduct):
         _tag = rf"LM_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "Coadded, mosaiced LM image."
+        _description: str = "Coadded, mosaiced LM image."
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     def process_images(self) -> [PipelineProduct]:

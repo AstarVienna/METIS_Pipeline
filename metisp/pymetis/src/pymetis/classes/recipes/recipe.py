@@ -60,7 +60,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
     def __init__(self):
         super().__init__()
         # Build a fancy description from attributes
-        self._description = self._build_description()
+        self._description: str = self._build_description()
         self.implementation: MetisRecipeImpl | None = None
 
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:

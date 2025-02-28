@@ -63,35 +63,35 @@ class MasterDarkInput(SinglePipelineInput):
     _title: str = "master dark"
     _tags: Pattern = re.compile(r"MASTER_DARK_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Master dark frame for {det} detector data"
+    _description: str = "Master dark frame for {det} detector data"
 
 
 class MasterFlatInput(SinglePipelineInput):
     _title: str = "master flat"
     _tags: Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Master flat frame for {det} data"
+    _description: str = "Master flat frame for {det} data"
 
 
 class LinearityInput(SinglePipelineInput):
     _title: str = "linearity map"
     _tags: Pattern = re.compile(r"LINEARITY_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Coefficients for the pixel non-linearity correction."
+    _description: str = "Coefficients for the pixel non-linearity correction."
 
 
 class BadpixMapInput(SinglePipelineInput):
     _title: str = "bad pixel map"
     _tags: Pattern = re.compile(r"BADPIX_MAP_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Bad pixel map. Also contains detector masks."
+    _description: str = "Bad pixel map. Also contains detector masks."
 
 
 class PersistenceMapInput(SinglePipelineInput):
     _title: str = "persistence map"
     _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Persistence map"
+    _description: str = "Persistence map"
     _required = False # By default, persistence maps are optional
 
 
@@ -99,53 +99,53 @@ class GainMapInput(SinglePipelineInput):
     _title: str = "gain map"
     _tags: Pattern = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Gain map."
+    _description: str = "Gain map."
 
 
 class DistortionTableInput(SinglePipelineInput):
     _title: str = "distortion table"
     _tags: Pattern = re.compile(r"IFU_DISTORTION_TABLE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Table of distortion coefficients for an IFU data set"
+    _description: str = "Table of distortion coefficients for an IFU data set"
 
 
 class WavecalInput(SinglePipelineInput):
     _title: str = "wavelength calibration"
     _tags: Pattern = re.compile(r"IFU_WAVECAL")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Image with wavelength at each pixel"
+    _description: str = "Image with wavelength at each pixel"
 
 
 class PinholeTableInput(SinglePipelineInput):
     _title: str = "pinhole table"
     _tags: Pattern = re.compile(r"PINHOLE_TABLE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Table of pinhole locations"
+    _description: str = "Table of pinhole locations"
 
 
 class FluxstdCatalogInput(SinglePipelineInput):
     _title: str = "flux standard star catalogue table"
     _tags: Pattern = re.compile(r"FLUXSTD_CATALOG")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Catalog of standard stars"
+    _description: str = "Catalog of standard stars"
 
 
 class FluxcalTableInput(SinglePipelineInput):
     _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
     _title: str = "flux table"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Conversion between instrumental and physical flux units"
+    _description: str = "Conversion between instrumental and physical flux units"
 
 
 class LsfKernelInput(SinglePipelineInput):
     _title: str = "line spread function kernel"
     _tags: Pattern = re.compile(r"LSF_KERNEL")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Wavelength dependent model of the LSF"
+    _description: str = "Wavelength dependent model of the LSF"
 
 
 class AtmProfileInput(SinglePipelineInput):
     _title: str = "atmosphere profile"
     _tags: Pattern = re.compile(rf"ATM_PROFILE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Atmospheric profile containing height information on temperature, pressure and molecular abundances"
+    _description: str = "Atmospheric profile containing height information on temperature, pressure and molecular abundances"

@@ -46,7 +46,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     class ProductDistortionTable(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        _description = "Table of distortion information"
+        _description: str = "Table of distortion information"
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod
@@ -56,7 +56,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     class ProductDistortionMap(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "Map of pixel scale across the detector"
+        _description: str = "Map of pixel scale across the detector"
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod
@@ -66,7 +66,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     class ProductDistortionReduced(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "Table of polynomial coefficients for distortion correction"
+        _description: str = "Table of polynomial coefficients for distortion correction"
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod

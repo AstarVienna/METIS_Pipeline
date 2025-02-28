@@ -55,7 +55,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
 
     class ProductGain(LinGainProduct):
-        _description = "Gain map"
+        _description: str = "Gain map"
         _oca_keywords = {'PRO.CATG'}
 
         @classmethod
@@ -63,7 +63,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
             return rf"GAIN_MAP_{cls.detector():s}"
 
     class ProductLinearity(LinGainProduct):
-        _description = "Linearity map"
+        _description: str = "Linearity map"
         _oca_keywords = {'PRO.CATG'}
 
         @classmethod
@@ -71,7 +71,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
             return rf"LINEARITY_{cls.detector():s}"
 
     class ProductBadpixMap(LinGainProduct):
-        _description = "Bad pixel map"
+        _description: str = "Bad pixel map"
         _oca_keywords = {'PRO.CATG'}
 
         @classmethod

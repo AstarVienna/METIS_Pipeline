@@ -37,7 +37,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
-            _description = "Raw data for creating a master dark."
+            _description: str = "Raw data for creating a master dark."
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput): pass
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput): pass

@@ -32,13 +32,13 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
             _title: str = "rectified spectral cube"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+            _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
     class ProductSciCoadd(PipelineProduct):
         _tag = f"IFU_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
+        _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
                         "covering a different spatial and wavelength ranges.")
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 

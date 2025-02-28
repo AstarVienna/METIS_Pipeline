@@ -48,7 +48,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
-            _description = "Raw exposure of the pupil in LM image mode" # FixMe N band
+            _description: str = "Raw exposure of the pupil in LM image mode" # FixMe N band
 
         MasterDarkInput = MasterDarkInput
 
@@ -66,7 +66,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         band = "LM"
-        _description = "Reduced pupil image in LM mode"
+        _description: str = "Reduced pupil image in LM mode"
         _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
 
         @classmethod

@@ -74,7 +74,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         title = "Telluric correction"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "Transmission function for the telluric correction"
+        _description: str = "Transmission function for the telluric correction"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
@@ -88,7 +88,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "response curve for the flux calibration"
+        _description: str = "response curve for the flux calibration"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
@@ -107,7 +107,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         _tag = r"FLUXCAL_TAB"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        _description = "Conversion between instrumental and physical flux units."
+        _description: str = "Conversion between instrumental and physical flux units."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 # TODO: Define input type for the paramfile in common.py

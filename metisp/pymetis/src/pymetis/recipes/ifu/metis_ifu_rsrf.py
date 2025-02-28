@@ -71,7 +71,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "something"
+        _description: str = "something"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
@@ -86,7 +86,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-        _description = "Master flat frame for IFU image data"
+        _description: str = "Master flat frame for IFU image data"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
@@ -101,7 +101,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
 
-        _description = "2D relative spectral response function"
+        _description: str = "2D relative spectral response function"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header

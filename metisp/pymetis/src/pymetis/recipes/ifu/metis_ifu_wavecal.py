@@ -31,7 +31,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_WAVE_RAW")
-            _description = ("Raw exposure of the WCU laser sources through the IFU to "
+            _description: str = ("Raw exposure of the WCU laser sources through the IFU to "
                             "achieve the first guess of the wavelength calibration.")
 
         MasterDarkInput = MasterDarkInput
@@ -41,7 +41,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         _tag = r"IFU_WAVECAL"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description = "Image with wavelength at each pixel."
+        _description: str = "Image with wavelength at each pixel."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:
