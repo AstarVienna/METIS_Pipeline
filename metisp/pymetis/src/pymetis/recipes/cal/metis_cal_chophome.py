@@ -22,12 +22,12 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.inputs import RawInput
-from pymetis.inputs.common import GainMapInput, PersistenceMapInput, BadpixMapInput, PinholeTableInput
-from pymetis.products.product import PipelineProduct
-from pymetis.inputs.mixins import LinearityInputSetMixin
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.inputs import RawInput
+from pymetis.classes.inputs import GainMapInput, PersistenceMapInput, BadpixMapInput, PinholeTableInput
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.inputs import LinearityInputSetMixin
+from pymetis.classes.prefab import RawImageProcessor
 
 
 class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?

@@ -21,10 +21,10 @@ import re
 
 import cpl
 
-from pymetis.base import MetisRecipeImpl
-from pymetis.base.recipe import MetisRecipe
-from pymetis.products import PipelineProduct, TargetSpecificProduct
-from pymetis.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.classes.recipes import MetisRecipeImpl
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
+from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):

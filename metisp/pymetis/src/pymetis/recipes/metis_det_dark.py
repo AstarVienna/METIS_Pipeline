@@ -23,13 +23,13 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
-from pymetis.base import MetisRecipe
-from pymetis.prefab.rawimage import RawImageProcessor
-from pymetis.inputs.common import (RawInput, BadpixMapInput, PersistenceMapInput,
-                                   LinearityInput, GainMapInput, OptionalInputMixin)
-from pymetis.inputs.mixins import PersistenceInputSetMixin
-from pymetis.products.product import PipelineProduct
-from pymetis.products.common import DetectorSpecificProduct
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.prefab import RawImageProcessor
+from pymetis.classes.inputs import (RawInput, BadpixMapInput, PersistenceMapInput,
+                                    LinearityInput, GainMapInput, OptionalInputMixin)
+from pymetis.classes.inputs import PersistenceInputSetMixin
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import DetectorSpecificProduct
 
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):

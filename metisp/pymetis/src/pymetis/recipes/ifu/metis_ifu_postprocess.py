@@ -21,9 +21,9 @@ import re
 
 import cpl
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.products.product import PipelineProduct
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.classes.products import PipelineProduct
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):

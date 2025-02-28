@@ -18,8 +18,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
-import cpl
+
+from abc import ABC
 from typing import Pattern
+
+import cpl
 
 from . import PipelineInput
 from .single import SinglePipelineInput
@@ -47,7 +50,7 @@ You should override class attributes:
     `_required = False` for optional inputs.
 """
 
-class OptionalInputMixin(PipelineInput):
+class OptionalInputMixin(PipelineInput, ABC):
     _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
 
 

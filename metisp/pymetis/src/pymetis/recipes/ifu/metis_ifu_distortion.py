@@ -22,12 +22,12 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.products.product import PipelineProduct
-from pymetis.inputs import RawInput, MasterDarkInput
-from pymetis.inputs.common import PinholeTableInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.inputs import RawInput, MasterDarkInput
+from pymetis.classes.inputs import PinholeTableInput
+from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuDistortionImpl(DarkImageProcessor):

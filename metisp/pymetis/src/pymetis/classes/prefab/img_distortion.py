@@ -22,12 +22,12 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
-from pymetis.prefab.rawimage import RawImageProcessor
-from pymetis.inputs import RawInput, SinglePipelineInput
-from pymetis.inputs.common import PinholeTableInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.products.product import PipelineProduct
-from pymetis.products.common import BandSpecificProduct
+from pymetis.classes.prefab.rawimage import RawImageProcessor
+from pymetis.classes.inputs import RawInput, SinglePipelineInput
+from pymetis.classes.inputs import PinholeTableInput
+from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.products.product import PipelineProduct
+from pymetis.classes.products.common import BandSpecificProduct
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):

@@ -20,12 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 
 import cpl
-from cpl.core import Msg
 
-from pymetis.base import MetisRecipeImpl
-from pymetis.base.recipe import MetisRecipe
-from pymetis.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.products.product import PipelineProduct
+from pymetis.classes.recipes import MetisRecipeImpl
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.classes.products import PipelineProduct
 
 
 class MetisNImgRestoreImpl(MetisRecipeImpl):

@@ -25,7 +25,7 @@ from typing import Type
 
 import cpl
 from pyesorex.pyesorex import Pyesorex
-from pymetis.base.recipe import MetisRecipe
+from pymetis.classes.recipes import MetisRecipe
 
 
 root = Path(os.path.expandvars("$SOF_DIR"))

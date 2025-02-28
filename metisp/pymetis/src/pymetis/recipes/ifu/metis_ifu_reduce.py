@@ -22,13 +22,13 @@ import re
 import cpl
 from typing import Literal
 
-from pymetis.base import MetisRecipe
-from pymetis.prefab.darkimage import DarkImageProcessor
-from pymetis.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.inputs.common import RawInput, MasterDarkInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin
-from pymetis.products.product import PipelineProduct
-from pymetis.products.common import TargetSpecificProduct
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.inputs import SinglePipelineInput
+from pymetis.classes.inputs import RawInput, MasterDarkInput
+from pymetis.classes.inputs import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import TargetSpecificProduct
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):

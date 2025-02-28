@@ -28,7 +28,7 @@ from typing import Any
 import cpl
 from cpl.core import Msg
 
-from pymetis.inputs.base import PipelineInput
+from pymetis.classes.inputs.base import PipelineInput
 
 
 class PipelineInputSet(metaclass=ABCMeta):

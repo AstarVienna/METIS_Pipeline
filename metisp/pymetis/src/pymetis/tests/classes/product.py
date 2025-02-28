@@ -21,7 +21,7 @@ import pytest
 
 from abc import ABC
 
-from pymetis.products.product import PipelineProduct
+from pymetis.classes.products import PipelineProduct
 
 
 @pytest.mark.product

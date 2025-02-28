@@ -22,10 +22,10 @@ from abc import ABC
 
 import cpl
 
-from pymetis.base import MetisRecipeImpl
-from pymetis.products.product import PipelineProduct
-from pymetis.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.inputs.common import FluxcalTableInput
+from pymetis.classes.recipes import MetisRecipeImpl
+from pymetis.classes.products.product import PipelineProduct
+from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.classes.inputs import FluxcalTableInput
 
 
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):

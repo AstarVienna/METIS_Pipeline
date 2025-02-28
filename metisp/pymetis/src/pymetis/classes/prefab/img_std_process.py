@@ -22,10 +22,10 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.products import PipelineProduct, BandSpecificProduct
-from pymetis.inputs import RawInput
-from pymetis.inputs.common import FluxstdCatalogInput
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.classes.products import PipelineProduct, BandSpecificProduct
+from pymetis.classes.inputs import RawInput
+from pymetis.classes.inputs import FluxstdCatalogInput
+from pymetis.classes.prefab.rawimage import RawImageProcessor
 
 
 class MetisImgStdProcessImpl(RawImageProcessor):

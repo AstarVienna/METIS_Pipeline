@@ -23,8 +23,8 @@ from typing import Literal
 import cpl
 from cpl.core import Msg
 
-from pymetis.base import MetisRecipeImpl
-from pymetis.inputs import PipelineInputSet, RawInput
+from pymetis.classes.recipes import MetisRecipeImpl
+from pymetis.classes.inputs import PipelineInputSet, RawInput
 
 
 class RawImageProcessor(MetisRecipeImpl, ABC):

@@ -21,11 +21,11 @@ import re
 
 import cpl
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.inputs.common import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
-from pymetis.products.product import PipelineProduct
-from pymetis.products.common import TargetSpecificProduct
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.classes.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import TargetSpecificProduct
 
 
 # The aim of this recipe is twofold:

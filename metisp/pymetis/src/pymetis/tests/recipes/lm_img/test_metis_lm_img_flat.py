@@ -19,10 +19,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.lm_img.metis_lm_img_flat import (MetisLmImgFlat as Recipe,
                                                       MetisLmImgFlatImpl as Impl)
-from pymetis.products.product import PipelineProduct
+from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 

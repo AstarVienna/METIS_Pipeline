@@ -23,8 +23,8 @@ from typing import Dict, Any, final
 import cpl
 from cpl.core import Msg
 
-from pymetis.products.product import PipelineProduct
-from pymetis.inputs.inputset import PipelineInputSet
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.inputs.inputset import PipelineInputSet
 
 
 class MetisRecipeImpl(ABC):

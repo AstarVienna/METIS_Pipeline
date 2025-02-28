@@ -21,8 +21,8 @@ import re
 
 import cpl
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.prefab.img_calibrate import MetisImgCalibrateImpl
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.prefab import MetisImgCalibrateImpl
 
 
 class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):

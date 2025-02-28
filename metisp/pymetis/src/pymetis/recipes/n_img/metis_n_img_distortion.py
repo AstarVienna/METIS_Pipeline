@@ -22,9 +22,9 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.products.product import PipelineProduct
-from pymetis.prefab.img_distortion import MetisBaseImgDistortionImpl
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.prefab import MetisBaseImgDistortionImpl
 
 
 class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):

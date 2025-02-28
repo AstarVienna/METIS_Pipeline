@@ -23,11 +23,11 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
-from pymetis.inputs.common import RawInput, MasterDarkInput
+from pymetis.classes.inputs import RawInput, MasterDarkInput
 
-from pymetis.prefab.darkimage import DarkImageProcessor
-from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.products import PipelineProduct, BandSpecificProduct, TargetSpecificProduct
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.products import PipelineProduct, BandSpecificProduct, TargetSpecificProduct
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):

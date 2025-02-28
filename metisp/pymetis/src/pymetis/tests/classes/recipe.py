@@ -27,7 +27,7 @@ from pathlib import Path
 
 import cpl
 
-from pymetis.base import MetisRecipe
+from pymetis.classes.recipes import MetisRecipe
 
 root = Path(os.path.expandvars("$SOF_DIR"))
 

@@ -22,9 +22,9 @@ import inspect
 
 from abc import ABC
 
-from pymetis.base import MetisRecipeImpl
-from pymetis.inputs import PipelineInputSet, PipelineInput, MultiplePipelineInput
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.classes.recipes import MetisRecipeImpl
+from pymetis.classes.inputs import PipelineInputSet, PipelineInput, MultiplePipelineInput
+from pymetis.classes.prefab import RawImageProcessor
 
 
 @pytest.mark.inputset

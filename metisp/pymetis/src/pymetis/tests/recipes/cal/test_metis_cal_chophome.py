@@ -19,10 +19,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
                                                     MetisCalChophomeImpl as Impl)
-from pymetis.products.product import PipelineProduct
+from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 
 

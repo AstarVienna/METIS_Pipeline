@@ -20,13 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 import cpl
 
-from pymetis.base import MetisRecipe
-from pymetis.prefab.darkimage import DarkImageProcessor
-from pymetis.inputs.common import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                   WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
-from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin
-from pymetis.products.product import PipelineProduct
-from pymetis.products.common import ProductBadpixMapDet
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
+                                    WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
+from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import ProductBadpixMapDet
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):

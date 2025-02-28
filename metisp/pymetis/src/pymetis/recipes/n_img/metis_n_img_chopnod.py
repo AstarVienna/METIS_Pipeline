@@ -20,13 +20,13 @@ import re
 
 import cpl
 
-from pymetis.products.product import PipelineProduct
-from pymetis.products.common import TargetSpecificProduct
-from pymetis.base.recipe import MetisRecipe
-from pymetis.inputs import RawInput, BadpixMapInput, PipelineInputSet
-from pymetis.inputs.common import OptionalInputMixin, LinearityInput, GainMapInput, MasterFlatInput, MasterDarkInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin
-from pymetis.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import TargetSpecificProduct
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.inputs import RawInput, BadpixMapInput
+from pymetis.classes.inputs import OptionalInputMixin, LinearityInput, GainMapInput, MasterFlatInput, MasterDarkInput
+from pymetis.classes.inputs import PersistenceInputSetMixin
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 
 class MetisNImgChopnodImpl(DarkImageProcessor):

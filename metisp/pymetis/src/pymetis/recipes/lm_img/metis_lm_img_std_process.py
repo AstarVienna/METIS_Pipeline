@@ -21,8 +21,8 @@ import re
 
 import cpl
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.prefab.img_std_process import MetisImgStdProcessImpl
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
 
 
 class MetisLmImgStdProcessImpl(MetisImgStdProcessImpl):

@@ -22,10 +22,10 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.prefab.rawimage import RawImageProcessor
-from pymetis.inputs import RawInput
-from pymetis.products.product import PipelineProduct
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.prefab import RawImageProcessor
+from pymetis.classes.inputs import RawInput
+from pymetis.classes.products import PipelineProduct
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor):

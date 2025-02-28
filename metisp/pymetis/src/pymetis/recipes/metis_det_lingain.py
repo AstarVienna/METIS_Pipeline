@@ -23,11 +23,11 @@ from abc import ABC
 
 import cpl
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.prefab.rawimage import RawImageProcessor
-from pymetis.inputs.common import RawInput, BadpixMapInput, OptionalInputMixin
-from pymetis.products.product import PipelineProduct
-from pymetis.products.common import DetectorSpecificProduct
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.prefab import RawImageProcessor
+from pymetis.classes.inputs import RawInput, BadpixMapInput, OptionalInputMixin
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import DetectorSpecificProduct
 
 
 class LinGainProduct(DetectorSpecificProduct, ABC):

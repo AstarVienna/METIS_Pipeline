@@ -22,9 +22,9 @@ from typing import Dict, Any
 
 import cpl
 
-from pymetis.products.product import PipelineProduct
-from pymetis.base.impl import MetisRecipeImpl
-from pymetis.inputs import PipelineInput, SinglePipelineInput, PipelineInputSet
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.recipes.impl import MetisRecipeImpl
+from pymetis.classes.inputs import PipelineInput, SinglePipelineInput
 
 
 class MetisRecipe(cpl.ui.PyRecipe):
@@ -54,7 +54,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
     # By default, a recipe does not have any parameters.
     parameters: cpl.ui.ParameterList = cpl.ui.ParameterList([])
-    # Default implementation class. This will not work, because it's abstract, but this is an abstract too.
+    # Default implementation class. This will not work, because it is abstract, but this is an abstract class too.
     implementation_class: type[MetisRecipeImpl] = MetisRecipeImpl
 
     def __init__(self):
