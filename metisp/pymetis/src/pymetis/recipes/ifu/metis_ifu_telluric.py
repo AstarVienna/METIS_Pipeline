@@ -96,7 +96,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
         @classmethod
         def description(cls) -> str:
-            return {
+            target = {
                 'STD': 'reduced telluric standard star',
                 'SCI': 'science object',
             }.get(cls.target(), '{target}')
@@ -152,6 +152,12 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
         return [product_telluric_transmission, product_reduced_1d, product_fluxcal_tab]
 
+    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
+        return {
+            'STD': MetisIfuTelluricStdImpl,
+            'SCI': MetisIfuTelluricSciImpl,
+        }[self.inputset.target]
+
 
 class MetisIfuTelluricStdImpl(MetisIfuTelluricImpl):
     class InputSet(MetisIfuTelluricImpl.InputSet):
@@ -196,9 +202,3 @@ class MetisIfuTelluric(MetisRecipe):
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
     implementation_class = MetisIfuTelluricImpl
-
-    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
-        return {
-            'STD': MetisIfuTelluricStdImpl,
-            'SCI': MetisIfuTelluricSciImpl,
-        }[inputset.target]

@@ -63,25 +63,6 @@ class MetisRecipe(cpl.ui.PyRecipe):
         self._description = self._build_description()
         self.implementation: MetisRecipeImpl | None = None
 
-    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
-        """
-        Return the actual implementation class **when the frameset is already available**.
-        By default, just returns `implementation_class`,
-        but more complex recipes may need to select the appropriate class based on the frameset.
-
-        Typical use is then to accomodate for different targets (STD|SCI):
-        this is determined from frameset at run time, and allows us to promote to the correct child class.
-
-        It should be something along these lines:
-        ```
-        return {
-            'STD': ChildClassStd,
-            'SCI': ChildClassSci,
-        }[inputset.target]
-        ```
-        """
-        return self.implementation_class
-
     def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
         """
         The main method, as required by PyCPL.
@@ -89,7 +70,6 @@ class MetisRecipe(cpl.ui.PyRecipe):
         optionally promotes the class to the proper child class and then runs it.
         """
         self.implementation = self.implementation_class(self, frameset, settings)
-        self.implementation.__class__ = self.dispatch_implementation_class(self.implementation.inputset)
         return self.implementation.run()
 
     def _build_description(self):

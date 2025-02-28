@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import re
+
 from abc import ABC
 from typing import Any, final
 
@@ -42,9 +44,10 @@ class PipelineProduct(ABC):
     # the default @classmethod just returns its value.
     # If it depends on other attributes, override the corresponding @classmethod.
     # All methods dealing with these should relate to the class, not instance!
-    _tag: str = NotImplemented
+    _tag: str = None
     _oca_keywords: [str] = None
     _description: str = None
+    _regex_tag: re.Pattern = re.compile(r"^[A-Z0-9]+[A-Z0-9_]+[A-Z0-9]+$")
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -127,6 +130,8 @@ class PipelineProduct(ABC):
                  f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
         Msg.info(self.__class__.__qualname__,
                  f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
+        assert self._regex_tag.match(self.tag()) is not None, \
+            f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
         # At least one frame in the recipe frameset must be tagged as RAW!
         # Otherwise, it *will not* save (rite of passage)
         cpl.dfs.save_image(

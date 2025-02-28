@@ -160,6 +160,13 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         return [product]
 
+    def _dispatch_child_class(self) -> type["MetisLmImgBasicReduceImpl"]:
+        return {
+            'STD': MetisLmStdBasicReduceImpl,
+            'SCI': MetisLmSciBasicReduceImpl,
+            'SKY': MetisLmSkyBasicReduceImpl,
+        }[self.inputset.target]
+
 
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
     _target: str = 'STD'
@@ -222,10 +229,3 @@ class MetisLmImgBasicReduce(MetisRecipe):
     ])
 
     implementation_class = MetisLmImgBasicReduceImpl
-
-    def dispatch_implementation_class(self, inputset) -> type[MetisLmImgBasicReduceImpl]:
-        return {
-            'STD': MetisLmStdBasicReduceImpl,
-            'SCI': MetisLmSciBasicReduceImpl,
-            'SKY': MetisLmSkyBasicReduceImpl,
-        }[inputset.target]

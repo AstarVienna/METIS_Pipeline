@@ -32,6 +32,12 @@ class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
         _band: str = "N"
         _oca_keywords: {str} = {'PRO.CATG', 'DRS.FILTER'}
 
+    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
+        return {
+            'LAMP': MetisNImgFlatLampImpl,
+            'TWILIGHT': MetisNImgFlatTwilightImpl,
+        }[self.inputset.target]
+
 
 class MetisNImgFlatTwilightImpl(MetisNImgFlatImpl):
     class ProductMasterFlat(MetisNImgFlatImpl.ProductMasterFlat):
@@ -71,9 +77,3 @@ class MetisNImgFlat(MetisRecipe):
     ])
 
     implementation_class = MetisNImgFlatImpl
-
-    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
-        return {
-            'LAMP': MetisNImgFlatLampImpl,
-            'TWILIGHT': MetisNImgFlatTwilightImpl,
-        }[inputset.target]

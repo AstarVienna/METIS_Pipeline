@@ -107,6 +107,12 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         return [product_bkg, product_bkg_subtracted, product_object_cat]
 
+    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
+        return {
+            'STD': MetisLmImgBackgroundStdImpl,
+            'SCI': MetisLmImgBackgroundSciImpl,
+        }[self.inputset.target]
+
 
 class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
     _target = 'STD'
@@ -159,8 +165,3 @@ class MetisLmImgBackground(MetisRecipe):
 
     implementation_class = MetisLmImgBackgroundImpl
 
-    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
-        return {
-            'STD': MetisLmImgBackgroundStdImpl,
-            'SCI': MetisLmImgBackgroundSciImpl,
-        }[inputset.target]

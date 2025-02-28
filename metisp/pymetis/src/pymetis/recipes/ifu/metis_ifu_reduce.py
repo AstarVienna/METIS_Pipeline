@@ -126,6 +126,14 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             self.ProductCombined(self, header, image),
         ]
 
+    def _dispatch_child_class(self):
+        klass = {
+            'STD': MetisIfuReduceStdImpl,
+            'SCI': MetisIfuReduceSciImpl,
+        }[self.inputset.target]
+        print(klass)
+        return klass
+
 
 class MetisIfuReduceStdImpl(MetisIfuReduceImpl):
     class ProductReduced(MetisIfuReduceImpl.ProductReduced):
@@ -174,9 +182,3 @@ class MetisIfuReduce(MetisRecipe):
     Extract 1D object spectrum"""
 
     implementation_class = MetisIfuReduceImpl
-
-    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
-        return {
-            'STD': MetisIfuReduceStdImpl,
-            'SCI': MetisIfuReduceSciImpl,
-        }[inputset.target]

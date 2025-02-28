@@ -59,7 +59,8 @@ class MetisRecipeImpl(ABC):
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
-        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?
+        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
+        self.__class__ = self._dispatch_child_class()
 
     def run(self) -> cpl.ui.FrameSet:
         """
@@ -69,7 +70,6 @@ class MetisRecipeImpl(ABC):
             (and hence it does not have to be repeated or overridden anywhere).
 
             ToDo: At least Martin thinks so now. It might change, but needs compelling arguments.
-            FixMe: If this structure does not cover the needs of your particular recipe, we should discuss and adapt.
         """
 
         try:
@@ -183,3 +183,21 @@ class MetisRecipeImpl(ABC):
     @property
     def valid_frames(self) -> cpl.ui.FrameSet:
         return self.inputset.valid_frames
+
+    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
+        """
+        Return the actual implementation class **when the frameset is already available**.
+        By default, just returns its own class, so nothing happens,
+        but more complex recipes may need to select the appropriate derived class based on the frameset.
+
+        Typical use is then to accomodate for different targets (STD|SCI) or similar:
+        this is only determined from the frameset at run time.
+        Then it should be something along these lines:
+        ```
+        return {
+            'STD': ChildClassStd,
+            'SCI': ChildClassSci,
+        }[self.inputset.target]
+        ```
+        """
+        return self.__class__

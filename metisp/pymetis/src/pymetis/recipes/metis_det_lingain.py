@@ -101,6 +101,13 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
         return [product_gain_map, product_linearity, product_badpix_map]
 
+    def _dispatch_child_class(self) -> type["MetisDetLinGainImpl"]:
+        return {
+            '2RG': Metis2rgLinGainImpl,
+            'GEO': MetisGeoLinGainImpl,
+            'IFU': MetisIfuLinGainImpl,
+        }[self.inputset.detector]
+
 
 class Metis2rgLinGainImpl(MetisDetLinGainImpl):
     _detector = '2RG'
@@ -183,10 +190,3 @@ class MetisDetLinGain(MetisRecipe):
     ])
 
     implementation_class = MetisDetLinGainImpl
-
-    def dispatch_implementation_class(self, inputset) -> type[MetisDetLinGainImpl]:
-        return {
-            '2RG': Metis2rgLinGainImpl,
-            'GEO': MetisGeoLinGainImpl,
-            'IFU': MetisIfuLinGainImpl,
-        }[inputset.detector]

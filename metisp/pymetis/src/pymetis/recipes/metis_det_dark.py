@@ -99,6 +99,32 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         return [product]
 
+    def _dispatch_child_class(self) -> type["MetisDetDarkImpl"]:
+        """
+        Find the implementation class based on the detector specified in the inputset's tags.
+        Tries to instantiate the RawInput and use its detector attribute to determine the correct implementation class.
+
+        Parameters:
+        frameset: cpl.ui.FrameSet
+            The input data used to create the `RawInput` object for dispatching the
+            implementation class.
+
+        Returns:
+        Type[Metis2rgDarkImpl | MetisGeoDarkImpl | MetisIfuDarkImpl]
+            The implementation class corresponding to the detector specified in the
+            `RawInput` object.
+
+        Raises:
+        KeyError
+            If the detector obtained from the `RawInput` object is not found in the
+            implementation mapping.
+        """
+        return {
+            '2RG': Metis2rgDarkImpl,
+            'GEO': MetisGeoDarkImpl,
+            'IFU': MetisIfuDarkImpl,
+        }[self.inputset.detector]
+
 
 class Metis2rgDarkImpl(MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
@@ -172,29 +198,3 @@ class MetisDetDark(MetisRecipe):
     ])
 
     implementation_class = MetisDetDarkImpl
-
-    def dispatch_implementation_class(self, inputset) -> type[MetisDetDarkImpl]:
-        """
-        Find the implementation class based on the detector specified in the inputset's tags.
-        Tries to instantiate the RawInput and use its detector attribute to determine the correct implementation class.
-
-        Parameters:
-        frameset: cpl.ui.FrameSet
-            The input data used to create the `RawInput` object for dispatching the
-            implementation class.
-
-        Returns:
-        Type[Metis2rgDarkImpl | MetisGeoDarkImpl | MetisIfuDarkImpl]
-            The implementation class corresponding to the detector specified in the
-            `RawInput` object.
-
-        Raises:
-        KeyError
-            If the detector obtained from the `RawInput` object is not found in the
-            implementation mapping.
-        """
-        return {
-            '2RG': Metis2rgDarkImpl,
-            'GEO': MetisGeoDarkImpl,
-            'IFU': MetisIfuDarkImpl,
-        }[inputset.detector]

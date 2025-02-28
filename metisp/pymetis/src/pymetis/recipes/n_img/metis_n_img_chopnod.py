@@ -64,6 +64,12 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         return [product_calibrated]
 
+    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
+        return {
+            'SCI': MetisNImgChopnodSciImpl,
+            'STD': MetisNImgChopnodStdImpl,
+        }[self.inputset.target]
+
 
 class MetisNImgChopnodSciImpl(MetisNImgChopnodImpl):
     class ProductBkgSubtracted(MetisNImgChopnodImpl.ProductBkgSubtracted):
@@ -87,9 +93,3 @@ class MetisNImgChopnod(MetisRecipe):
     Add/subtract images to subtract background"""
 
     implementation_class = MetisNImgChopnodImpl
-
-    def dispatch_implementation_class(self, inputset: PipelineInputSet) -> type["MetisRecipeImpl"]:
-        return {
-            'SCI': MetisNImgChopnodSciImpl,
-            'STD': MetisNImgChopnodStdImpl,
-        }[inputset.target]
