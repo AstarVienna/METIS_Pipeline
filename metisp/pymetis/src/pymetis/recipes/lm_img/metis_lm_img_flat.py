@@ -19,16 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
+from pymetis.classes.mixins.band import BandLmMixin
+from pymetis.classes.mixins.target import TargetTwilightMixin, TargetLampMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgFlatImpl
 
 
 class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
-    class InputSet(MetisBaseImgFlatImpl.InputSet):
-        _band: str = "LM"
+    class InputSet(BandLmMixin, MetisBaseImgFlatImpl.InputSet):
+        pass
 
-    class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
-        _band: str = "LM"
+    class ProductMasterFlat(BandLmMixin, MetisBaseImgFlatImpl.ProductMasterFlat):
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
@@ -39,13 +40,13 @@ class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
 
 
 class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):
-    class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
-        _target: str = "TWILIGHT"
+    class ProductMasterFlat(TargetTwilightMixin, MetisLmImgFlatImpl.ProductMasterFlat):
+        pass
 
 
 class MetisLmImgFlatLampImpl(MetisLmImgFlatImpl):
-    class ProductMasterFlat(MetisLmImgFlatImpl.ProductMasterFlat):
-        _target: str = "LAMP"
+    class ProductMasterFlat(TargetLampMixin, MetisLmImgFlatImpl.ProductMasterFlat):
+        pass
 
 
 class MetisLmImgFlat(MetisRecipe):

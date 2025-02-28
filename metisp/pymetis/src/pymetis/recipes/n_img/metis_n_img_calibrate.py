@@ -21,23 +21,21 @@ import re
 
 import cpl
 
+from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisImgCalibrateImpl
 
 
 class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):
     class InputSet(MetisImgCalibrateImpl.InputSet):
-        class BackgroundInput(MetisImgCalibrateImpl.InputSet.BackgroundInput):
-            _band: str = 'N'
+        class BackgroundInput(BandNMixin, MetisImgCalibrateImpl.InputSet.BackgroundInput):
             _tags: re.Pattern = re.compile(r"N_SCI_BKG_SUBTRACTED")
 
-        class DistortionTableInput(MetisImgCalibrateImpl.InputSet.DistortionTableInput):
-            _band: str = 'N'
+        class DistortionTableInput(BandNMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
             _tags: re.Pattern = re.compile(r"N_DISTORTION_TABLE")
 
-    class ProductSciCalibrated(MetisImgCalibrateImpl.ProductSciCalibrated):
-        _tag = r"N_SCI_CALIBRATED"
-        _description = "N band image with flux calibration, WC coordinate system and distorion information"
+    class ProductSciCalibrated(BandNMixin, MetisImgCalibrateImpl.ProductSciCalibrated):
+        pass
 
 
 class MetisNImgCalibrate(MetisRecipe):

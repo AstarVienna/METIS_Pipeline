@@ -22,6 +22,7 @@ from abc import ABC
 
 import cpl
 
+from pymetis.classes.products import BandSpecificProduct
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.products.product import PipelineProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
@@ -31,7 +32,6 @@ from pymetis.classes.inputs import FluxcalTableInput
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
-            _band = None
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_SCI_BKG_SUBTRACTED")
             _title: str = "science background-subtracted"
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
@@ -48,11 +48,19 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _description: str = "Table of distortion information"
 
-    class ProductSciCalibrated(PipelineProduct):
+    class ProductSciCalibrated(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         group = cpl.ui.Frame.FrameGroup.CALIB
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+
+        @classmethod
+        def tag(cls) -> str:
+            return rf"{cls.band()}_SCI_CALIBRATED"
+
+        @classmethod
+        def description(cls) -> str:
+            return rf"{cls.band()} band image with flux calibration, WC coordinate system and distorion information"
 
     def process_images(self) -> [PipelineProduct]:
         combined_image = self._create_dummy_image()

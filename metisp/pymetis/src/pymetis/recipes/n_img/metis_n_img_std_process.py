@@ -21,6 +21,7 @@ import re
 
 import cpl
 
+from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
 
@@ -31,8 +32,8 @@ class MetisNImgStdProcessImpl(MetisImgStdProcessImpl):
             _tags: re.Pattern = re.compile(r"N_STD_BKG_SUBTRACTED")
             _description: str = "Thermal background subtracted images of standard N exposures."
 
-    class ProductImgStdCombined(MetisImgStdProcessImpl.ProductImgStdCombined):
-        _band: str = "N"
+    class ProductImgStdCombined(BandNMixin, MetisImgStdProcessImpl.ProductImgStdCombined):
+        pass
 
 
 class MetisNImgStdProcess(MetisRecipe):

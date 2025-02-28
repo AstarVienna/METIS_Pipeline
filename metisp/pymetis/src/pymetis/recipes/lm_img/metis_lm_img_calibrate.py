@@ -21,21 +21,21 @@ import re
 
 import cpl
 
+from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisImgCalibrateImpl
 
 
 class MetisLmImgCalibrateImpl(MetisImgCalibrateImpl):
     class InputSet(MetisImgCalibrateImpl.InputSet):
-        class BackgroundInput(MetisImgCalibrateImpl.InputSet.BackgroundInput):
-            _band: str = "LM"
+        class BackgroundInput(BandLmMixin, MetisImgCalibrateImpl.InputSet.BackgroundInput):
+            pass
 
-        class DistortionTableInput(MetisImgCalibrateImpl.InputSet.DistortionTableInput):
+        class DistortionTableInput(BandLmMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_TABLE")
 
-    class ProductSciCalibrated(MetisImgCalibrateImpl.ProductSciCalibrated):
-        _tag = r"LM_SCI_CALIBRATED"
-        _description = "LM band image with flux calibration, WC coordinate system and distorion information"
+    class ProductSciCalibrated(BandLmMixin, MetisImgCalibrateImpl.ProductSciCalibrated):
+        pass
 
 
 class MetisLmImgCalibrate(MetisRecipe):

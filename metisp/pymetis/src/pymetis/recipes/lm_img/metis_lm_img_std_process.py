@@ -21,6 +21,7 @@ import re
 
 import cpl
 
+from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
 
@@ -31,9 +32,8 @@ class MetisLmImgStdProcessImpl(MetisImgStdProcessImpl):
             _tags: re.Pattern = re.compile(r"LM_STD_BKG_SUBTRACTED")
             _description: str = "Thermal background subtracted images of standard LM exposures."
 
-    class ProductImgStdCombined(MetisImgStdProcessImpl.ProductImgStdCombined):
-        _band: str = "LM"
-
+    class ProductImgStdCombined(BandLmMixin, MetisImgStdProcessImpl.ProductImgStdCombined):
+        pass
 
 class MetisLmImgStdProcess(MetisRecipe):
     # FixMe This can be probably also largely deduplicated

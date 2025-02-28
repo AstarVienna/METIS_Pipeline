@@ -24,3 +24,11 @@ class TargetStdMixin:
 
 class TargetSciMixin:
     _target: str = r'SCI'
+
+
+class TargetLampMixin:
+    _target: str = r'LAMP'
+
+
+class TargetTwilightMixin:
+    _target: str = r'TWILIGHT'
