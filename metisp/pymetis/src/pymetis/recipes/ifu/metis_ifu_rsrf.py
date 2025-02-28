@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 import cpl
 
+from pymetis.classes.mixins import DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
@@ -108,8 +109,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
 
-    class ProductBadpixMapIfu(ProductBadpixMapDet):
-        _detector = "IFU"
+    class ProductBadpixMapIfu(DetectorIfuMixin, ProductBadpixMapDet):
+        pass
 
     def process_images(self) -> [PipelineProduct]:
         # TODO: FUNC: basic raw processing of RSRF and WCU_OFF input frames:

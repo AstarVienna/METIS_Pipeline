@@ -78,7 +78,6 @@ class LinearityInput(SinglePipelineInput):
     _tags: Pattern = re.compile(r"LINEARITY_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description = "Coefficients for the pixel non-linearity correction."
-    _oca_keywords = "PRO.CATG"
 
 
 class BadpixMapInput(SinglePipelineInput):
@@ -92,7 +91,7 @@ class PersistenceMapInput(SinglePipelineInput):
     _title: str = "persistence map"
     _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Persistence map."
+    _description = "Persistence map"
     _required = False # By default, persistence maps are optional
 
 
@@ -107,21 +106,21 @@ class DistortionTableInput(SinglePipelineInput):
     _title: str = "distortion table"
     _tags: Pattern = re.compile(r"IFU_DISTORTION_TABLE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Table of distortion coefficients for an IFU data set."
+    _description = "Table of distortion coefficients for an IFU data set"
 
 
 class WavecalInput(SinglePipelineInput):
     _title: str = "wavelength calibration"
     _tags: Pattern = re.compile(r"IFU_WAVECAL")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Image with wavelength at each pixel."
+    _description = "Image with wavelength at each pixel"
 
 
 class PinholeTableInput(SinglePipelineInput):
     _title: str = "pinhole table"
     _tags: Pattern = re.compile(r"PINHOLE_TABLE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Table of pinhole locations."
+    _description = "Table of pinhole locations"
 
 
 class FluxstdCatalogInput(SinglePipelineInput):
@@ -149,4 +148,4 @@ class AtmProfileInput(SinglePipelineInput):
     _title: str = "atmosphere profile"
     _tags: Pattern = re.compile(rf"ATM_PROFILE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "atmospheric profile containing height information on temperature, pressure and molecular abundances"
+    _description = "Atmospheric profile containing height information on temperature, pressure and molecular abundances"

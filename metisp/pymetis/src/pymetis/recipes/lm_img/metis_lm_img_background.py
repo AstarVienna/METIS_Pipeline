@@ -21,6 +21,7 @@ import re
 
 import cpl
 
+from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
@@ -115,29 +116,15 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
 
 class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
-    _target = 'STD'
-
-    class ProductBkg(MetisLmImgBackgroundImpl.ProductBkg):
-        _target = 'STD'
-
-    class ProductObjectCat(MetisLmImgBackgroundImpl.ProductObjectCat):
-        _target = 'STD'
-
-    class ProductBkgSubtracted(MetisLmImgBackgroundImpl.ProductBkgSubtracted):
-        _target = 'STD'
+    class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg): pass
+    class ProductObjectCat(TargetStdMixin, MetisLmImgBackgroundImpl.ProductObjectCat): pass
+    class ProductBkgSubtracted(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted): pass
 
 
 class MetisLmImgBackgroundSciImpl(MetisLmImgBackgroundImpl):
-    _target = 'SCI'
-
-    class ProductBkg(MetisLmImgBackgroundImpl.ProductBkg):
-        _target = 'SCI'
-
-    class ProductObjectCat(MetisLmImgBackgroundImpl.ProductObjectCat):
-        _target = 'SCI'
-
-    class ProductBkgSubtracted(MetisLmImgBackgroundImpl.ProductBkgSubtracted):
-        _target = 'SCI'
+    class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg): pass
+    class ProductObjectCat(TargetSciMixin, MetisLmImgBackgroundImpl.ProductObjectCat): pass
+    class ProductBkgSubtracted(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted): pass
 
 
 class MetisLmImgBackground(MetisRecipe):

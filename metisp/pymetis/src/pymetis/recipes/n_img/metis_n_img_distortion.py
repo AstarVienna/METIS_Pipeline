@@ -22,6 +22,7 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
@@ -35,14 +36,9 @@ class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
             _tags: re.Pattern = re.compile(r"N_DISTORTION_RAW")
 
-    class ProductDistortionTable(MetisBaseImgDistortionImpl.ProductDistortionTable):
-        _band: str = "N"
-
-    class ProductDistortionMap(MetisBaseImgDistortionImpl.ProductDistortionMap):
-        _band: str = "N"
-
-    class ProductDistortionReduced(MetisBaseImgDistortionImpl.ProductDistortionReduced):
-        _band: str = "N"
+    class ProductDistortionTable(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionTable): pass
+    class ProductDistortionMap(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionMap): pass
+    class ProductDistortionReduced(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionReduced): pass
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()

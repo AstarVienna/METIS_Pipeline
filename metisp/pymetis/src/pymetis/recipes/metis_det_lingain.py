@@ -23,6 +23,7 @@ from abc import ABC
 
 import cpl
 
+from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput, BadpixMapInput, OptionalInputMixin
@@ -110,44 +111,19 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
 
 class Metis2rgLinGainImpl(MetisDetLinGainImpl):
-    _detector = '2RG'
-
-    class ProductGain(MetisDetLinGainImpl.ProductGain):
-        _detector = '2RG'
-
-    class ProductLinearity(MetisDetLinGainImpl.ProductLinearity):
-        _detector = '2RG'
-
-    class ProductBadpixMap(MetisDetLinGainImpl.ProductBadpixMap):
-        _detector = '2RG'
-
+    class ProductGain(Detector2rgMixin, MetisDetLinGainImpl.ProductGain): pass
+    class ProductLinearity(Detector2rgMixin, MetisDetLinGainImpl.ProductLinearity): pass
+    class ProductBadpixMap(Detector2rgMixin, MetisDetLinGainImpl.ProductBadpixMap): pass
 
 class MetisGeoLinGainImpl(MetisDetLinGainImpl):
-    _detector = 'GEO'
-
-    class ProductGain(MetisDetLinGainImpl.ProductGain):
-        _detector = 'GEO'
-
-    class ProductLinearity(MetisDetLinGainImpl.ProductLinearity):
-        _detector = 'GEO'
-
-    class ProductBadpixMap(MetisDetLinGainImpl.ProductBadpixMap):
-        _detector = 'GEO'
-
+    class ProductGain(DetectorGeoMixin, MetisDetLinGainImpl.ProductGain): pass
+    class ProductLinearity(DetectorGeoMixin, MetisDetLinGainImpl.ProductLinearity): pass
+    class ProductBadpixMap(DetectorGeoMixin, MetisDetLinGainImpl.ProductBadpixMap): pass
 
 class MetisIfuLinGainImpl(MetisDetLinGainImpl):
-    _detector = 'IFU'
-
-    class ProductGain(MetisDetLinGainImpl.ProductGain):
-        _detector = 'IFU'
-
-    class ProductLinearity(MetisDetLinGainImpl.ProductLinearity):
-        _detector = 'IFU'
-
-    class ProductBadpixMap(MetisDetLinGainImpl.ProductBadpixMap):
-        _detector = 'IFU'
-
-
+    class ProductGain(DetectorIfuMixin, MetisDetLinGainImpl.ProductGain): pass
+    class ProductLinearity(DetectorIfuMixin, MetisDetLinGainImpl.ProductLinearity): pass
+    class ProductBadpixMap(DetectorIfuMixin, MetisDetLinGainImpl.ProductBadpixMap): pass
 
 class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information

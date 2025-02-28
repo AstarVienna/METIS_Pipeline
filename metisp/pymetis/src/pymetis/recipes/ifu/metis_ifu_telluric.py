@@ -21,6 +21,7 @@ import re
 
 import cpl
 
+from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
@@ -160,20 +161,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
 
 class MetisIfuTelluricStdImpl(MetisIfuTelluricImpl):
-    class InputSet(MetisIfuTelluricImpl.InputSet):
-        pass
-
-    class ProductResponseFunction(MetisIfuTelluricImpl.ProductResponseFunction):
-        _target = 'STD'
+    class ProductResponseFunction(TargetStdMixin, MetisIfuTelluricImpl.ProductResponseFunction): pass
 
 
 class MetisIfuTelluricSciImpl(MetisIfuTelluricImpl):
-    class InputSet(MetisIfuTelluricImpl.InputSet):
-        pass
-
-    class ProductResponseFunction(MetisIfuTelluricImpl.ProductResponseFunction):
-        _target = 'SCI'
-
+    class ProductResponseFunction(TargetSciMixin, MetisIfuTelluricImpl.ProductResponseFunction): pass
 
 
 class MetisIfuTelluric(MetisRecipe):
@@ -182,23 +174,10 @@ class MetisIfuTelluric(MetisRecipe):
     _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Derive telluric absorption correction and optionally flux calibration"
-    _description: str = """
-        Recipe to derive the atmospheric transmission and the response function.
-
-        Inputs
-            IFU_(SCI|STD)_1D: 1d spectrum either from science target or standard star
-
-        Outputs
-            IFU_TELLURIC:   Tranmission of the Earth's atmosphere
-            FLUXCAL_TAB:    Response function
-
-        Algorithm
-            *TBwritten*
-    """
 
     _algorithm = """Extract 1D spectrum of science object or standard star.
-        Compute telluric correction.
-        Compute conversion to physical units as function of wave-length."""
+    Compute telluric correction.
+    Compute conversion to physical units as function of wave-length."""
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
     implementation_class = MetisIfuTelluricImpl
