@@ -23,6 +23,7 @@ from pymetis.classes.products.product import PipelineProduct
 
 
 class TargetSpecificProduct(PipelineProduct):
+    """Products specific to a target. Usually, but not necessarily, (SCI|STD|SKY) and (LAMP|TWILIGHT)"""
     _target: str = None
 
     @classmethod
@@ -32,6 +33,7 @@ class TargetSpecificProduct(PipelineProduct):
 
 
 class DetectorSpecificProduct(PipelineProduct):
+    """Products specific to a detector. Usually, but not necessarily, (2RG|GEO|IFU)"""
     _detector: str = None
 
     @classmethod
@@ -41,6 +43,7 @@ class DetectorSpecificProduct(PipelineProduct):
 
 
 class BandSpecificProduct(PipelineProduct):
+    """Products specific to a band. Usually, but not necessarily, (LM|N)"""
     _band: str = None
 
     @classmethod

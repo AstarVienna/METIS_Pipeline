@@ -34,19 +34,22 @@ class PipelineProduct(ABC):
         one FITS file with associated headers and a frame
     """
 
-    # There is no universal tag for all products. Make sure it is defined
+    # Global defaults for all Products
     group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
 
     # Product metadata.
     # The standard way of defining them is to override the private class attribute;
-    # the default @classmethod just returns its value.
+    # the default @classmethod with the same name (without the underscore) just returns its value.
     # If it depends on other attributes, override the corresponding @classmethod.
-    # All methods dealing with these should relate to the class, not instance!
+    # All methods dealing with these should relate to the class, not instances!
     _tag: str = None
-    _oca_keywords: [str] = None
+    _oca_keywords: {str} = None
     _description: str = None
+
+    # Use this regex to verify that the product tag is correct.
+    # This base version only verifies it is ALL_CAPS_WITH_UNDERSCORES
     _regex_tag: re.Pattern = re.compile(r"^[A-Z0-9]+[A-Z0-9_]+[A-Z0-9]+$")
 
     def __init__(self,
@@ -77,12 +80,6 @@ class PipelineProduct(ABC):
             raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
 
         self.add_properties()
-
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-
-        if cls.tag is NotImplemented:
-            raise NotImplementedError(f"{cls.__qualname__} does not define 'tag'")
 
     def add_properties(self) -> None:
         """
@@ -118,7 +115,7 @@ class PipelineProduct(ABC):
         }
 
     @final
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__qualname__} ({self.tag()})"
 
     @final
@@ -130,6 +127,7 @@ class PipelineProduct(ABC):
                  f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
         Msg.info(self.__class__.__qualname__,
                  f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
+        # Check that the tag matches the generic regex
         assert self._regex_tag.match(self.tag()) is not None, \
             f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
         # At least one frame in the recipe frameset must be tagged as RAW!

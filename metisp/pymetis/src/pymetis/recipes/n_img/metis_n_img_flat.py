@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
+from pymetis.classes.mixins.target import TargetTwilightMixin, TargetLampMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgFlatImpl
 
@@ -39,13 +40,13 @@ class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
 
 
 class MetisNImgFlatTwilightImpl(MetisNImgFlatImpl):
-    class ProductMasterFlat(MetisNImgFlatImpl.ProductMasterFlat):
-        _target: str = "TWILIGHT"
+    class ProductMasterFlat(TargetTwilightMixin, MetisNImgFlatImpl.ProductMasterFlat):
+        pass
 
 
 class MetisNImgFlatLampImpl(MetisNImgFlatImpl):
-    class ProductMasterFlat(MetisNImgFlatImpl.ProductMasterFlat):
-        _target: str = "LAMP"
+    class ProductMasterFlat(TargetLampMixin, MetisNImgFlatImpl.ProductMasterFlat):
+        pass
 
 
 class MetisNImgFlat(MetisRecipe):

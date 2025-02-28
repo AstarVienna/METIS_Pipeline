@@ -71,23 +71,20 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         Final product: Transmission function for the telluric correction
         """
-        title = "Telluric correction"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Transmission function for the telluric correction"
+        _tag: str = r"IFU_TELLURIC"
+        title: str = "Telluric correction"
+        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
+        _description: str = "transmission function for the telluric correction"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return r"IFU_TELLURIC"
 
     # Response curve
     class ProductResponseFunction(TargetSpecificProduct):
         """
         Final product: response curve for the flux calibration
         """
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "response curve for the flux calibration"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 

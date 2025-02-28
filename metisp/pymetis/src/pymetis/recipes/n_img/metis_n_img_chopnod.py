@@ -20,6 +20,7 @@ import re
 
 import cpl
 
+from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.products import TargetSpecificProduct
 from pymetis.classes.recipes import MetisRecipe
@@ -71,14 +72,14 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         }[self.inputset.target]
 
 
-class MetisNImgChopnodSciImpl(MetisNImgChopnodImpl):
-    class ProductBkgSubtracted(MetisNImgChopnodImpl.ProductBkgSubtracted):
-        _target: str = "SCI"
-
-
 class MetisNImgChopnodStdImpl(MetisNImgChopnodImpl):
-    class ProductBkgSubtracted(MetisNImgChopnodImpl.ProductBkgSubtracted):
-        _target: str = "STD"
+    class ProductBkgSubtracted(TargetStdMixin, MetisNImgChopnodImpl.ProductBkgSubtracted):
+        pass
+
+
+class MetisNImgChopnodSciImpl(MetisNImgChopnodImpl):
+    class ProductBkgSubtracted(TargetSciMixin, MetisNImgChopnodImpl.ProductBkgSubtracted):
+        pass
 
 
 class MetisNImgChopnod(MetisRecipe):

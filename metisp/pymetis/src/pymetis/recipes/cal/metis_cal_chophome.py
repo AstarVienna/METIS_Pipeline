@@ -52,8 +52,8 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         Final product: combined, background-subtracted images of the WCU source
         """
         _tag: str = "LM_CHOPHOME_COMBINED"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
+        group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
+        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Combined, background-subtracted images of the WCU source."
         _oca_keywords: {str} = {'PRO.CATG'}
@@ -63,8 +63,8 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         Intermediate product: the instrumental background (WCU OFF)
         """
         _tag: str = "LM_CHOPHOME_BACKGROUND"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+        group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
+        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
         _oca_keywords: {str} = {'PRO.CATG'}
