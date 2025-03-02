@@ -53,7 +53,7 @@ class MetisNImgFlat(MetisRecipe):
     # Fill in recipe information
     _name: str = "metis_n_img_flat"
     _version: str = "0.1"
-    _author: str = "Hugo Buddelmeijer, A*"
+    _author: str = "A*"
     _email: str = "hugo@buddelmeijer.nl"
     _synopsis: str = "Create master flat for N band detectors"
     _description: str = "Prototype to create a METIS master flat for N band"
