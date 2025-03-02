@@ -144,3 +144,54 @@ calib_atm_profile = (data_source()
                      .with_classification_rule(atm_profile_class)
                      .with_match_keywords(["simple"])
                      .build())
+
+# --- N-band Img Data Sources ---
+
+bad_pix_n_img_calib = (data_source()
+                       .with_classification_rule(badpix_geo_class)
+                       .build())
+
+detlin_n_raw = (data_source()
+                .with_classification_rule(detlin_geo_class)
+                .with_match_keywords(["instrume"])
+                .build())
+
+distortion_n_raw = (data_source()
+                    .with_classification_rule(distortion_n_class)
+                    .with_match_keywords(["instrume"])
+                    .build())
+
+dark_n_raw = (data_source()
+              .with_classification_rule(rawdark_geo_class)
+              .with_match_keywords(["instrume"])
+              .build())
+
+flat_twi_n_raw = (data_source()
+                  .with_classification_rule(flat_twi_n_raw_class)
+                  .with_match_keywords(["instrume"])
+                  .build())
+
+flat_lamp_n_raw = (data_source()
+                   .with_classification_rule(flat_lamp_n_raw_class)
+                   .with_match_keywords(["instrume"])
+                   .build())
+
+sci_n_raw = (data_source()
+             .with_classification_rule(sci_n_raw_class)
+             .with_match_keywords(["instrume"])
+             .build())
+
+std_n_bkg_sub = (data_source()
+                 .with_classification_rule(std_n_bkg_sub_class)
+                 .with_match_keywords(["instrume"])
+                 .build())
+
+sci_n_bkg_sub = (data_source()
+                 .with_classification_rule(sci_n_bkg_sub_class)
+                 .with_match_keywords(["instrume"])
+                 .build())
+
+sci_n_calib = (data_source()
+               .with_classification_rule(sci_n_calibrated_class)
+               .with_match_keywords(["instrume"])
+               .build())

@@ -80,6 +80,68 @@ pinhole_table_class = classification_rule("PINHOLE_TABLE",
     {metis_kwd.pro_catg: "PINHOLE_TABLE",
     })
 
+# --- N-band Imaging Classifications ---
+
+badpix_geo_class = classification_rule("BADPIX_MAP_GEO",
+                                       {"pro.catg": "BADPIX_MAP_det",
+                                        })
+
+detlin_geo_class = classification_rule("DETLIN_GEO_RAW",
+                                       {"instrume": "METIS",
+                                        "dpr.catg": "CALIB",
+                                        "dpr.type": "DETLIN",
+                                        "dpr.tech": "IMAGE,N",
+                                        })
+
+distortion_n_class = classification_rule("N_DISTORTION_RAW",
+                                         {"instrume": "METIS",
+                                          "dpr.catg": "CALIB",
+                                          "dpr.type": "DISTORTION",
+                                          "dpr.tech": "IMAGE,N",
+                                          })
+
+rawdark_geo_class = classification_rule("DARK_GEO_RAW",
+                                        {"instrume": "METIS",
+                                         "dpr.catg": "CALIB",
+                                         "dpr.type": "DARK",
+                                         "dpr.tech": "IMAGE,N",
+                                         })
+
+flat_lamp_n_raw_class = classification_rule("N_FLAT_LAMP_RAW",
+                                       {"instrume": "METIS",
+                                        "dpr.catg": "CALIB",
+                                        "dpr.type": "FLAT,LAMP",
+                                        "dpr.tech": "IMAGE,N",
+                                        })
+
+flat_twi_n_raw_class = classification_rule("N_FLAT_TWILIGHT_RAW",
+                                           {"instrume": "METIS",
+                                           "dpr.catg": "CALIB",
+                                           "dpr.type": "FLAT,TWILIGHT",
+                                           "dpr.tech": "IMAGE,N",
+                                           })
+
+sci_n_raw_class = classification_rule("N_IMAGE_SCI_RAW",
+                                {"instrume": "METIS",
+                                 "dpr.catg": "SCIENCE",
+                                 "dpr.type": "OBJECT",
+                                 "dpr.tech": "IMAGE,N",
+                                 })
+
+std_n_bkg_sub_class = classification_rule("N_STD_BKG_SUBTRACTED",
+                                    {"instrume": "METIS",
+                                     "pro.catg": "N_STD_BKG_SUBTRACTED",
+                                     })
+
+sci_n_bkg_sub_class = classification_rule("N_SCI_BKG_SUBTRACTED",
+                                    {"instrume": "METIS",
+                                     "pro.catg": "N_SCI_BKG_SUBTRACTED",
+                                     })
+
+sci_n_calibrated_class = classification_rule("N_SCI_CALIBRATED",
+                                       {"instrume": "METIS",
+                                        "pro.catg": "N_SCI_CALIBRATED",
+                                        })
 # --- IFU Classifications ---
 
 badpix_ifu_class = classification_rule("BADPIX_MAP_IFU",
