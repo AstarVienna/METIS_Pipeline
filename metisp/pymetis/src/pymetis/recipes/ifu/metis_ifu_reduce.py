@@ -25,11 +25,9 @@ from typing import Literal
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.inputs import SinglePipelineInput
-from pymetis.classes.inputs import RawInput, MasterDarkInput
-from pymetis.classes.inputs import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.products import TargetSpecificProduct
+from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput,
+                                    PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):
