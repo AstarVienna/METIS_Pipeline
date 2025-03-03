@@ -49,8 +49,8 @@ class PipelineProduct(ABC):
     _description: str = None
 
     # Use this regex to verify that the product tag is correct.
-    # This base version only verifies it is ALL_CAPS_WITH_UNDERSCORES
-    _regex_tag: re.Pattern = re.compile(r"^[A-Z0-9]+[A-Z0-9_]+[A-Z0-9]+$")
+    # This base version only verifies it is ALL_CAPS_WITH_UNDERSCORES, feel free to override
+    _regex_tag: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',

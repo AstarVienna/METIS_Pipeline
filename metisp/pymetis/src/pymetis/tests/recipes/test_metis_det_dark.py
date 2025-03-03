@@ -27,6 +27,7 @@ from pymetis.recipes.metis_det_dark import (MetisDetDark as Recipe,
 from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BandParamRecipeTest, BaseProductTest, RawInputSetTest
 
+
 recipe_name = r'metis_det_dark'
 
 
