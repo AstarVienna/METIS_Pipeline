@@ -92,26 +92,12 @@ class MetisDetDarkImpl(RawImageProcessor):
         def tag(cls) -> str:
             return rf"MASTER_DARK_{cls.detector()}"
 
-    # At this point we should have defined all inputs and outputs, the "what" part of the recipe implementation.
+    # At this point we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
-    # See the documentation of the parent's `process_images` function for more.
+    # See the documentation of the parent's `process_images` function for more details.
+    # Feel free to define other functions to break up the algorithm into more manageable chunks,
+    # and call them from within `process_images` as needed.
     def process_images(self) -> [PipelineProduct]:
-        # By default, images are loaded as Python float data. Raw image
-        # data which is usually represented as 2-byte integer data in a
-        # FITS file is converted on the fly when an image is loaded from
-        # a file. It is, however, also possible to load images without
-        # performing this conversion.
-
-        # Flat field preparation: subtract bias and normalize it to median 1
-        # Msg.info(self.__class__.__qualname__, "Preparing flat field")
-        # if flat_image:
-        #     if bias_image:
-        #         flat_image.subtract(bias_image)
-        #     median = flat_image.get_median()
-        #     flat_image.divide_scalar(median)
-
-        # Combine the images in the image list using the image stacking
-        # option requested by the user.
         method = self.parameters["metis_det_dark.stacking.method"].value
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
@@ -124,8 +110,9 @@ class MetisDetDarkImpl(RawImageProcessor):
 
         return [product]
 
-    # For all recipes that can further specialize based on the provided data, we need to provide a mechanism
-    # to select the correct class. Here, it depends on the detector.
+    # For recipes that can further specialize based on the provided data, we need to provide a mechanism
+    # to select the correct derived class.
+    # Here, it depends on the detector.
     def _dispatch_child_class(self) -> type["MetisDetDarkImpl"]:
         """
         Find the implementation class based on the detector specified in the inputset tags.

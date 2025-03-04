@@ -100,31 +100,32 @@ class MetisRecipeImpl(ABC):
     def process_images(self) -> [PipelineProduct]:
         """
         The core method of the recipe implementation. It should contain all the processing logic.
-        At its entry point the Input class must be already loaded and validated.
+        At its entry point the `InputSet` class must be already loaded and validated.
 
         All pixel manipulation should happen inside this function (or something it calls from within).
-        Put explicitly,
+        Put explicitly, this means
             - no pixel manipulation *before* entering `process_images`,
             - and no pixel manipulation *after* exiting `process_images`.
 
         The basic workflow inside this function should be as follows:
 
-        1.  Load the actual CPL Images associated with Input frames.
+        1.  Load the CPL Images associated with `Input` frames.
         2.  Do the preprocessing (dark, bias, flat, persistence...) as needed.
-            When implementing this function, please use the topmost applicable method:
+            When implementing this function, please always use the topmost applicable method:
                 - Use the functions provided in the pipeline if possible (derive or override).
                   Much of the functionality is common to many recipes, and we should not repeat ourselves.
+                  Some classes / functions are provided in `prefab`.
                 - Use HDRL functions, if available.
                 - Use CPL functions, if available.
                 - Implement what you need yourself.
         3.  Build the output images as specified in the DRLD.
-            Each product should be an instance of the associated `Product` class.
-            There should be exactly one `Product` for every file produced (at least for now).
-        4.  Return a dictionary in the form {tag: ProductTag(...)}
+            Each product should be an instance of the associated `PipelineProduct` class.
+            There should be exactly one `PipelineProduct` for every file produced (at least for now).
+        4.  Return a list of `PipelineProduct`s.
 
         The resulting products dict is then passed to `save_products()` (see `run`).
         """
-        return {}
+        return []
 
     @final
     def _save_products(self) -> None:
@@ -186,13 +187,17 @@ class MetisRecipeImpl(ABC):
 
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         """
-        Return the actual implementation class **when the frameset is already available**.
+        Return the actual implementation class **when the frameset is already available**, e.g. at runtime.
         By default, just returns its own class, so nothing happens,
-        but more complex recipes may need to select the appropriate derived class based on the frameset.
+        but more complex recipes may need to select the appropriate derived class based on the input data.
 
-        Typical use is then to accomodate for different targets (STD|SCI) or similar:
-        this is only determined from the frameset at run time.
-        Then it should be something along these lines:
+        Typical use is to accomodate for different implementations for
+            - multiple detectors (2RG|GEO|IFU)
+            - different targets (STD|SCI)
+            - different bands (LM|N)
+        or similar.
+
+        It should be something along these lines:
         ```
         return {
             'STD': ChildClassStd,
