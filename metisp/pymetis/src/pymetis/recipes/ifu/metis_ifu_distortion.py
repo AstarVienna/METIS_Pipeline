@@ -28,6 +28,7 @@ from pymetis.classes.inputs import RawInput, MasterDarkInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.headers.header import Header, ProCatg, DrsIfu
 
 
 class MetisIfuDistortionImpl(DarkImageProcessor):
@@ -44,14 +45,14 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         _description: str = "Table of distortion coefficients for an IFU data set"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: {Header} = {ProCatg, DrsIfu}
 
     class ProductIfuDistortionReduced(PipelineProduct):
         _tag = r"IFU_DIST_REDUCED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: {Header} = {ProCatg, DrsIfu}
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -83,7 +84,7 @@ class MetisIfuDistortion(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: {str} = {'DRS.IFU'}
+    _matched_keywords: {str} = {DrsIfu}
     _algorithm = """Calculate table mapping pixel position to position on sky."""
 
     implementation_class = MetisIfuDistortionImpl
