@@ -72,6 +72,14 @@ class MetisRecipe(cpl.ui.PyRecipe):
         self.implementation = self.implementation_class(self, frameset, settings)
         return self.implementation.run()
 
+    def _list_inputs(self) -> [PipelineInput]:
+        return inspect.getmembers(self.implementation_class.InputSet,
+                                  lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
+
+    def _list_products(self) -> [PipelineProduct]:
+        return inspect.getmembers(self.implementation_class,
+                                  lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
+
     def _build_description(self):
         """
         Automatically build the `description` attribute from available attributes.
@@ -84,22 +92,8 @@ class MetisRecipe(cpl.ui.PyRecipe):
         else:
             matched_keywords = ', '.join(self._matched_keywords)
 
-        inputs = '\n'.join(
-            sorted([f"    {input_type._pretty_tags():<60}"
-             f"[{'1' if issubclass(input_type, SinglePipelineInput) else 'N'}]"
-             f"{' (optional)' if not input_type._required else '           '} "
-             f"{input_type._description}"
-            for (name, input_type) in
-            inspect.getmembers(self.implementation_class.InputSet,
-                               lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
-        ]))
-
-        products = '\n'.join(
-            sorted([f"    {str(product_type.tag()):<75}{product_type.description() or '<not defined>'}"
-            for (name, product_type) in
-            inspect.getmembers(self.implementation_class,
-                               lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
-        ]))
+        inputs = '\n'.join(sorted([input_type.description_line() for (_, input_type) in self._list_inputs()]))
+        products = '\n'.join(sorted([product_type.description_line() for (_, product_type) in self._list_products()]))
 
         return \
 f"""{self.synopsis}

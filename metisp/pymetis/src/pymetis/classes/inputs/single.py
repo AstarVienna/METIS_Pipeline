@@ -30,6 +30,8 @@ class SinglePipelineInput(PipelineInput):
     """
     A pipeline input that expects a single frame to be present.
     """
+    _multiplicity = '1'
+
     def __init__(self,
                  frameset: cpl.ui.FrameSet):                       # Any other args
 
