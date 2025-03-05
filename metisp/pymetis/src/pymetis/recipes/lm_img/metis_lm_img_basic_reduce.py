@@ -22,13 +22,16 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import TargetSpecificProduct
 from pymetis.classes.products import PipelineProduct
-from pymetis.classes.inputs import RawInput
-from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
-from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
+                                    PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.headers.header import Header, ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter, \
+    DetDit, DetNDit
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
@@ -39,21 +42,21 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         The first step of writing a recipe is to define an InputSet: the one-to-one class
         that wraps all the recipe inputs. It encapsulates the entire input and
 
-        - defines which tags to look for, optionally with placeholders like `{det}`, that can be set globally
+        - defines which tags to look for, optionally with placeholders like `{det}`, which can be set globally
         - which of the inputs are optional (just set `required = False`)
-        - provides mechanism for verification that the required frames are actually present
+        - provides a mechanism for verification that the required frames are actually present
 
         Inputs are twofold:
 
         - children of SinglePipelineInput, which expect exactly one frame to be present (or at most one if optional).
-            They will warn is multiple frames are found and keep the last one.
+            They will warn if multiple frames are found and keep the last one.
         - children of MultiplePipelineInput, which expect multiple frames with the same tag (usually RAWs).
             Again, the frame set may be empty if `required` is set to False.
 
         You may instantiate your inputs directly as SinglePipelineInput or MultiplePipelineInput with appropriate tags,
         or use or extend one of the predefined classes (see `pymetis.inputs.common`).
 
-        The input is automatically verified (see the base InputSet class and its Single and Multiple children)
+        The input is automatically verified (see the base InputSet class and its Single and Multiple children),
         and an exception is raised whenever something is amiss.
         """
 
@@ -86,7 +89,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+        _oca_keywords: {Header} = {ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter}
         _description: str = "Science grade detrended exposure of the LM image mode."
 
         @classmethod
@@ -169,24 +172,13 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
 
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    _target: str = 'STD'
-
-    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        _target: str = 'STD'
-
+    class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
 
 class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    _target: str = 'SCI'
-
-    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        _target: str = 'SCI'
-
+    class ProductBasicReduced(TargetSciMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
 
 class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    _target: str = 'SKY'
-
-    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        _target: str = 'SKY'
+    class ProductBasicReduced(TargetSkyMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
 
 
 class MetisLmImgBasicReduce(MetisRecipe):
@@ -212,7 +204,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
             + "and it is divided by the master flat."
     )
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _matched_keywords: {Header} = {DetDit, DetNDit, DrsFilter}
     _algorithm = """Remove crosstalk, correct non-linearity
         Analyse and optionally remove masked regions
         Subtract dark, divide by flat

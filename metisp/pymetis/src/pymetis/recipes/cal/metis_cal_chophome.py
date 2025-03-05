@@ -23,16 +23,16 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import RawInput
-from pymetis.classes.inputs import GainMapInput, PersistenceMapInput, BadpixMapInput, PinholeTableInput
+from pymetis.classes.inputs import (RawInput, BadpixMapInput, PinholeTableInput,
+                                    PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
 from pymetis.classes.products import PipelineProduct
-from pymetis.classes.inputs import LinearityInputSetMixin
 from pymetis.classes.prefab import RawImageProcessor
+from pymetis.classes.headers.header import Header, ProCatg, DetDit, DetNDit, DrsFilter
 
 
 class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
-    class InputSet(LinearityInputSetMixin, RawImageProcessor.InputSet):
+    class InputSet(LinearityInputSetMixin, PersistenceInputSetMixin, GainMapInputSetMixin, RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_CHOPHOME_RAW")
@@ -42,8 +42,6 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
             _description: str = "Raw data for dark subtraction in other recipes."
 
-        GainMapInput = GainMapInput
-        PersistenceMapInput = PersistenceMapInput
         BadpixMapInput = BadpixMapInput
         PinholeTableInput = PinholeTableInput
 
@@ -56,7 +54,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Combined, background-subtracted images of the WCU source."
-        _oca_keywords: {str} = {'PRO.CATG'}
+        _oca_keywords: {str} = {ProCatg}
 
     class ProductBackground(PipelineProduct):
         """
@@ -67,7 +65,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
-        _oca_keywords: {str} = {'PRO.CATG'}
+        _oca_keywords: {str} = {ProCatg}
 
 
     def process_images(self) -> [PipelineProduct]:
@@ -119,7 +117,7 @@ class MetisCalChophome(MetisRecipe):
     _description: str = """\
     """
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: {Header} = {DetDit, DetNDit, DrsFilter}
     _algorithm = """The position of the pinhole image on the detector is measured from the stacked
     background-subtracted images. The measured position is compared to the WFS
     metrology to give the chopper home position.

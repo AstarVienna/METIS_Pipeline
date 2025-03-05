@@ -22,6 +22,7 @@ import pytest
 from abc import ABC
 
 from pymetis.classes.products import PipelineProduct
+from pymetis.classes.headers.header import Header
 
 
 @pytest.mark.product
@@ -60,7 +61,7 @@ class BaseProductTest(ABC):
     @pytest.mark.metadata
     def test_are_oca_keywords_a_set_of_strings(self):
         assert isinstance(self._product._oca_keywords, set), \
-            f"OCA keywords for {self._product.__qualname__} are not a set of strings"
+            f"OCA keywords for {self._product.__qualname__} are not a set of `Header`s"
         for kw in self._product._oca_keywords:
-            assert isinstance(kw, str), \
-                f"OCA keyword '{kw}' is not a string"
+            assert isinstance(kw, Header), \
+                f"OCA keyword '{kw}' is not a `Header`"

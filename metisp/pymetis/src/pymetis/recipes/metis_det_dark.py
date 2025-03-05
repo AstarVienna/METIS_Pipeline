@@ -22,14 +22,13 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
-from pymetis.classes.inputs import (RawInput, BadpixMapInput, PersistenceMapInput,
-                                    LinearityInput, GainMapInput, OptionalInputMixin)
-from pymetis.classes.inputs import PersistenceInputSetMixin
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.products import DetectorSpecificProduct
+from pymetis.classes.inputs import (RawInput, BadpixMapInput, PersistenceMapInput, LinearityInput, GainMapInput,
+                                    OptionalInputMixin, PersistenceInputSetMixin)
+from pymetis.classes.products import PipelineProduct, DetectorSpecificProduct
+from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.headers.header import Header, ProCatg, DrsFilter
 
 
 class MetisDetDarkImpl(RawImageProcessor):
@@ -40,7 +39,7 @@ class MetisDetDarkImpl(RawImageProcessor):
     # We start by deriving the implementation class from `MetisRecipeImpl`, or in this case, one of its subclasses,
     # namely `RawImageProcessor, as this recipe processes raw images and we would like to reuse the functionality.
 
-    # First of all we need to define the input set. Since we are deriving from `RawImageProcessor`,
+    # First of all, we need to define the input set. Since we are deriving from `RawImageProcessor`,
     # we need to reuse the `InputSet` class from it too. This automatically adds a `RawInput` for us.
     class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
         """
@@ -76,7 +75,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords: {Header} = {ProCatg, DrsFilter}
 
         # The actual description depends on the detector, so we need to redefine it.
         # If it did not, we would just redefine `_description: str = "*describe* *describe*"`,
@@ -186,7 +185,7 @@ class MetisDetDark(MetisRecipe):
 
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
     # for the man page. Later we would like to be able to compare them directly to DRLD and test for that.
-    _matched_keywords: {str} = {}
+    _matched_keywords: {Header} = {}
     _algorithm: str = """Group files by detector and DIT, based on header keywords
     Call function metis_determine_dark for each set of files
     Call metis_update_dark_mask to flag deviant pixels

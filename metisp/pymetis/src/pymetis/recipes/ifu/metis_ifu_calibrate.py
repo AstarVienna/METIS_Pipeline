@@ -76,7 +76,7 @@ class MetisIfuCalibrate(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: {str} = {'DRS.IFU'}
+    _matched_keywords: {Header} = {DrsIfu}
     _algorithm = """Correct for telluric absorption.
     Apply flux calibration."""
 

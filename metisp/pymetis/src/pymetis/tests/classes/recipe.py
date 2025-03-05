@@ -27,6 +27,7 @@ from pathlib import Path
 
 import cpl
 
+from pymetis.classes.headers.header import Header
 from pymetis.classes.recipes import MetisRecipe
 
 root = Path(os.path.expandvars("$SOF_DIR"))
@@ -113,6 +114,12 @@ class BaseRecipeTest(ABC):
     def test_are_matched_keywords_defined(self):
         assert self._recipe._matched_keywords is not None, \
             f"Recipe {self._recipe._name} does not have matched keywords defined"
+
+    @pytest.mark.metadata
+    def test_are_matched_keywords_headers(self):
+        for kw in self._recipe._matched_keywords:
+            assert isinstance(kw, Header),\
+                f"Recipe {self._recipe._name} has a keyword that is not a `Header`"
 
     @pytest.mark.metadata
     def test_is_algorithm_described(self, create_pyesorex):

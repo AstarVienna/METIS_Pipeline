@@ -22,10 +22,10 @@ import re
 import cpl
 
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
-from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.classes.headers.header import Header, ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
@@ -36,8 +36,15 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
             _title = "Detrended exposure"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Science grade detrended exposure of the LM image mode."
-                           # "Standard detrended exposure of the LM image mode.")
+            _description = "Detrended exposure of the LM image mode."
+
+            # @classmethod
+            # def description(cls) -> str:
+            #     target = {
+            #         'SCI': 'Science grade',
+            #         'STD': 'Standard',
+            #     }.get(cls._target, '{target}')
+            #     return f"{target} detrended exposure of the LM image mode."
 
         class SkyBasicReducedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
@@ -48,7 +55,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductBkg(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+        _oca_keywords: {Header} = {ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter}
 
         @classmethod
         def description(cls):
@@ -65,7 +72,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductBkgSubtracted(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+        _oca_keywords: {Header} = {ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter}
 
         @classmethod
         def description(cls):
@@ -82,7 +89,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductObjectCat(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords: {Header} = {ProCatg, DrsFilter}
 
         @classmethod
         def description(cls):
@@ -116,12 +123,18 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
 
 class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
+    class InputSet(TargetStdMixin, MetisLmImgBackgroundImpl.InputSet):
+        class BasicReducedInput(TargetStdMixin, MetisLmImgBackgroundImpl.InputSet.BasicReducedInput): pass
+
     class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg): pass
     class ProductObjectCat(TargetStdMixin, MetisLmImgBackgroundImpl.ProductObjectCat): pass
     class ProductBkgSubtracted(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted): pass
 
 
 class MetisLmImgBackgroundSciImpl(MetisLmImgBackgroundImpl):
+    class InputSet(TargetSciMixin, MetisLmImgBackgroundImpl.InputSet):
+        class BasicReducedInput(TargetSciMixin, MetisLmImgBackgroundImpl.InputSet.BasicReducedInput): pass
+
     class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg): pass
     class ProductObjectCat(TargetSciMixin, MetisLmImgBackgroundImpl.ProductObjectCat): pass
     class ProductBkgSubtracted(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted): pass
@@ -146,7 +159,7 @@ class MetisLmImgBackground(MetisRecipe):
         )
     ])
 
-    _matched_keywords: {str} = {'DRS.FILTER'}
+    _matched_keywords: {Header} = {DrsFilter}
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 

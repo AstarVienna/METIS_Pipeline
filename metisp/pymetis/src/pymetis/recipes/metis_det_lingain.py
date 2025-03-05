@@ -27,8 +27,8 @@ from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, 
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput, BadpixMapInput, OptionalInputMixin
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.products import DetectorSpecificProduct
+from pymetis.classes.products import PipelineProduct, DetectorSpecificProduct
+from pymetis.classes.headers.header import Header, ProCatg
 
 
 class LinGainProduct(DetectorSpecificProduct, ABC):
@@ -56,7 +56,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
     class ProductGain(LinGainProduct):
         _description: str = "Gain map"
-        _oca_keywords = {'PRO.CATG'}
+        _oca_keywords = {ProCatg}
 
         @classmethod
         def tag(cls) -> str:
@@ -64,7 +64,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
     class ProductLinearity(LinGainProduct):
         _description: str = "Linearity map"
-        _oca_keywords = {'PRO.CATG'}
+        _oca_keywords = {ProCatg}
 
         @classmethod
         def tag(cls) -> str:
@@ -72,7 +72,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
     class ProductBadpixMap(LinGainProduct):
         _description: str = "Bad pixel map"
-        _oca_keywords = {'PRO.CATG'}
+        _oca_keywords = {ProCatg}
 
         @classmethod
         def tag(cls) -> str:
@@ -136,7 +136,7 @@ class MetisDetLinGain(MetisRecipe):
         "Prototype to create a METIS linear gain map."
     )
 
-    _matched_keywords: {str} = {}
+    _matched_keywords: {Header} = {}
     _algorithm = """Subtract instrument dark (hdrl_imagelist_sub_image).
     Compute mean and variance for each frame.
     Gain is determined as the slope of variance against mean (metis_derive_gain).

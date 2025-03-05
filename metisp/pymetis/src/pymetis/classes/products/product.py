@@ -25,6 +25,8 @@ from typing import Any, final
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.headers.header import Header
+
 PIPELINE = r'METIS'
 
 
@@ -45,7 +47,7 @@ class PipelineProduct(ABC):
     # If it depends on other attributes, override the corresponding @classmethod.
     # All methods dealing with these should relate to the class, not instances!
     _tag: str = None
-    _oca_keywords: {str} = None
+    _oca_keywords: {Header} = None
     _description: str = None
 
     # Use this regex to verify that the product tag is correct.

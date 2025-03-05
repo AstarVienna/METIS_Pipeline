@@ -21,13 +21,13 @@ import re
 import cpl
 
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.products import TargetSpecificProduct
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import RawInput, BadpixMapInput
-from pymetis.classes.inputs import OptionalInputMixin, LinearityInput, GainMapInput, MasterFlatInput, MasterDarkInput
-from pymetis.classes.inputs import PersistenceInputSetMixin
+from pymetis.classes.inputs import (RawInput, BadpixMapInput, LinearityInput, GainMapInput, MasterFlatInput,
+                                    MasterDarkInput, PersistenceInputSetMixin, OptionalInputMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.headers.header import (Header, ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name,
+                                            DetDit, DetNDit, DrsFilter)
 
 
 class MetisNImgChopnodImpl(DarkImageProcessor):
@@ -51,7 +51,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Thermal background subtracted images of standard N exposures."
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+        _oca_keywords: {Header} = {ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter}
 
         @classmethod
         def tag(cls) -> str:
@@ -89,7 +89,7 @@ class MetisNImgChopnod(MetisRecipe):
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Chop / nod combination of exposures for background subtraction"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _matched_keywords: {Header} = {DetDit, DetNDit, DrsFilter}
     _algorithm: str = """Analyse and optionally remove masked regions and correct crosstalk and ghosts
     Add/subtract images to subtract background"""
 

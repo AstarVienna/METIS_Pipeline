@@ -24,6 +24,7 @@ import cpl
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.products import PipelineProduct
+from pymetis.classes.headers.header import Header, ProCatg, DrsIfu
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
@@ -40,7 +41,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
                         "covering a different spatial and wavelength ranges.")
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: {Header} = {ProCatg, DrsIfu}
 
     def determine_output_grid(self):
         pass
@@ -74,7 +75,7 @@ class MetisIfuPostprocess(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords = ['DRS.IFU']
+    _matched_keywords: {Header} = {DrsIfu}
     _algorithm = """Call metis_ifu_grid_output to find the output grid encompassing all input cubes
     Call metis_ifu_resampling to resample input cubes to output grid
     Call metis_ifu_coadd to stack the images"""

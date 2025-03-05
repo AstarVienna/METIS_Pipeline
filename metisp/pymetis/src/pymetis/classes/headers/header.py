@@ -26,6 +26,9 @@ class Header:
         self.name = name
         self.description = description
 
+    def __str__(self):
+        return self.name
+
     @staticmethod
     def load(filename):
         return Header(name='a', description='b')
@@ -40,3 +43,8 @@ InsOpti12Name = Header(name="INS.OPTI12.NAME", description="N-LSS mask / grism n
 
 ProCatg = Header(name="PRO.CATG", description="Processed data product category")
 DrsIfu = Header(name="DRS.IFU", description="Keyword alias for ND filter settings")
+DrsPupil = Header(name="DRS.PUPIL", description="Keyword alias for pupil settings")
+DrsFilter = Header(name="DRS.FILTER", description="Keyword alias for filter settings")
+
+DetDit = Header(name="DET.DIT", description="Detector integration time (average when NDIT > 1)")
+DetNDit = Header(name="DET.NDIT", description="Number of detector integrations")

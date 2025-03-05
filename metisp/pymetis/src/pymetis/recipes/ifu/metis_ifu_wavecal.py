@@ -22,9 +22,10 @@ import cpl
 
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct
-from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput
-from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.inputs import (MasterDarkInput, RawInput, DistortionTableInput,
+                                    PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.headers.header import Header, ProCatg, DetDit, DetNDit, DrsIfu
 
 
 class MetisIfuWavecalImpl(DarkImageProcessor):
@@ -32,7 +33,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_WAVE_RAW")
             _description: str = ("Raw exposure of the WCU laser sources through the IFU to "
-                            "achieve the first guess of the wavelength calibration.")
+                                 "achieve the first guess of the wavelength calibration.")
 
         MasterDarkInput = MasterDarkInput
         DistortionTableInput = DistortionTableInput
@@ -42,7 +43,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Image with wavelength at each pixel."
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: {Header} = {ProCatg, DrsIfu}
 
     def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()
@@ -71,6 +72,6 @@ class MetisIfuWavecal(MetisRecipe):
         Compute deviation from optical models.
         Compute wavelength solution ξ(x, y, i), λ(x, y, i).
         Compute wavelength map."""
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: {Header} = {DetDit, DetNDit, DrsIfu}
 
     implementation_class = MetisIfuWavecalImpl

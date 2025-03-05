@@ -36,7 +36,7 @@ class PipelineInput:
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
-    _detector: str | None = None            # Not specific to a detector until determined otherwise
+    _detector: str = None                   # Not specific to a detector until determined otherwise
     _description: str = None                # Description for man page
 
     @classmethod
@@ -118,7 +118,7 @@ class PipelineInput:
     def description_line(cls) -> str:
         return (f"    {cls._pretty_tags():<60} [{cls._multiplicity}]"
                 f"{' (optional)' if not cls._required else '          '} "
-                f"{cls._description}")
+                f"{cls.description() or "<not defined>"}")
 
     def _verify_same_detector_from_header(self) -> None:
         """

@@ -22,9 +22,10 @@ from typing import Dict, Any
 
 import cpl
 
+from pymetis.classes.headers.header import Header
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import PipelineInput, SinglePipelineInput
+from pymetis.classes.inputs import PipelineInput
 
 
 class MetisRecipe(cpl.ui.PyRecipe):
@@ -49,7 +50,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
                          "Bonus points if it is not visible from pyesorex.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
-    _matched_keywords: {str} = None
+    _matched_keywords: {Header} = None
     _algorithm: str = None                                      # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
@@ -90,7 +91,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         elif len(self._matched_keywords) == 0:
             matched_keywords = '(none)'
         else:
-            matched_keywords = ', '.join(self._matched_keywords)
+            matched_keywords = ', '.join([str(kw) for kw in self._matched_keywords])
 
         inputs = '\n'.join(sorted([input_type.description_line() for (_, input_type) in self._list_inputs()]))
         products = '\n'.join(sorted([product_type.description_line() for (_, product_type) in self._list_products()]))

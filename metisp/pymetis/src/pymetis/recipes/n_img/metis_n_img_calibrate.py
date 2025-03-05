@@ -24,6 +24,7 @@ import cpl
 from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisImgCalibrateImpl
+from pymetis.classes.headers.header import Header, DrsFilter
 
 
 class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):
@@ -48,7 +49,7 @@ class MetisNImgCalibrate(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: {str} = {'DRS.FILTER'}
+    _matched_keywords: {Header} = {DrsFilter}
     _algorithm: str = """Call metis_n_scale_image_flux to scale image data to photon / s
     Add header information (BUNIT, WCS, etc.)"""
 

@@ -26,6 +26,7 @@ from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
+from pymetis.classes.headers.header import Header, DrsFilter
 
 
 class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
@@ -68,7 +69,7 @@ class MetisLmImgDistortion(MetisRecipe):
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Determine optical distortion coefficients for the LM imager."
 
-    _matched_keywords: {str} = {'DRS.FILTER'}
+    _matched_keywords: {Header} = {DrsFilter}
     _algorithm: str = """Subtract background image with `hdrl_imagelist_sub_image`.
     Measure location of point source images in frames with `hdrl_catalogue_create`.
     Call metis_fit_distortion to fit polynomial coefficients to deviations from grid positions."""

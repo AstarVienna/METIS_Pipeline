@@ -26,8 +26,8 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.products import ProductBadpixMapDet
+from pymetis.classes.products import PipelineProduct, ProductBadpixMapDet
+from pymetis.classes.headers.header import Header, ProCatg, DetDit, DetNDit, DrsIfu
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
@@ -68,11 +68,11 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         Intermediate product: the instrumental background (WCU OFF)
         """
         _tag: str = r"IFU_RSRF_BACKGROUND"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
+        group = cpl.ui.Frame.FrameGroup.PRODUCT # ToDo TBC
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "something"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: {Header} = {ProCatg, DrsIfu}
 
         # SKEL: copy product keywords from header
         def add_properties(self) -> None:
@@ -82,12 +82,12 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
     class ProductMasterFlatIfu(PipelineProduct):
         _tag: str = r"MASTER_FLAT_IFU"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        group = cpl.ui.Frame.FrameGroup.CALIB # ToDo TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         _description: str = "Master flat frame for IFU image data"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: {Header} = {ProCatg, DrsIfu}
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -102,7 +102,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
 
         _description: str = "2D relative spectral response function"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: {Header} = {ProCatg, DrsIfu}
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -236,7 +236,7 @@ class MetisIfuRsrf(MetisRecipe):
         BADPIX_MAP_IFU: Updated bad-pixel map
     """ # FixMe This is currently not shown anywhere
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: {Header} = {DetDit, DetNDit, DrsIfu}
     _algorithm = """Average / median stack WCU_OFF images to create background image
         Subtract background image from individual RSRF RAW frames
         TBC: subtract master_dark from above frames first?

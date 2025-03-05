@@ -27,6 +27,7 @@ from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.products.product import PipelineProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs import FluxcalTableInput
+from pymetis.classes.headers.header import Header, ProCatg, DrsFilter
 
 
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
@@ -37,7 +38,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
             @classmethod
-            def description(cls):
+            def description(cls) -> str:
                 return rf"Thermal background subtracted images of science {cls._band} exposures."
 
         FluxcalTableInput = FluxcalTableInput
@@ -52,7 +53,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         group = cpl.ui.Frame.FrameGroup.CALIB
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords: {Header} = {ProCatg, DrsFilter}
 
         @classmethod
         def tag(cls) -> str:
