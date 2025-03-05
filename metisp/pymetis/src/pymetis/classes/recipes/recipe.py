@@ -50,12 +50,14 @@ class MetisRecipe(cpl.ui.PyRecipe):
                          "Bonus points if it is not visible from pyesorex.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
-    _matched_keywords: {Header} = None
-    _algorithm: str = None                                      # Verbal description of the algorithm
+    # A set of matched keywords (should match those in DRLD)
+    _matched_keywords: {Header} = {}
+    # Verbal description of the algorithm (no sensible global default exists)
+    _algorithm: str = None
 
-    # By default, a recipe does not have any parameters.
+    # A CPL list of parameters (again, required by pyesorex). By default, a recipe does not have any parameters.
     parameters: cpl.ui.ParameterList = cpl.ui.ParameterList([])
-    # Default implementation class. This will not work, because it is abstract, but this is an abstract class too.
+    # Default implementation class. This will not work, because it is abstract, so has to be overridden.
     implementation_class: type[MetisRecipeImpl] = MetisRecipeImpl
 
     def __init__(self):
@@ -74,17 +76,23 @@ class MetisRecipe(cpl.ui.PyRecipe):
         return self.implementation.run()
 
     def _list_inputs(self) -> [PipelineInput]:
+        """
+        Helper function: build a pretty-printed list of all inputs
+        """
         return inspect.getmembers(self.implementation_class.InputSet,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
     def _list_products(self) -> [PipelineProduct]:
+        """
+        Helper function: build a pretty-printed list of all products
+        """
         return inspect.getmembers(self.implementation_class,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
 
     def _build_description(self):
         """
         Automatically build the `description` attribute from available attributes.
-        This should only depend on the class, never on an instance.
+        This should only ever depend on the class, never on the instance.
         """
         if self._matched_keywords is None:
             matched_keywords = '<not defined>'

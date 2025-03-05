@@ -30,7 +30,7 @@ class BaseProductTest(ABC):
     _product: type[PipelineProduct] = None
 
     @pytest.mark.metadata
-    def test_is_it_even_a_product(self):
+    def test_is_it_really_a_product(self):
         assert issubclass(self._product, PipelineProduct)
 
     @pytest.mark.metadata
