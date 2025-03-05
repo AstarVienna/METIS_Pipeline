@@ -63,14 +63,14 @@ class MasterDarkInput(SinglePipelineInput):
     _title: str = "master dark"
     _tags: Pattern = re.compile(r"MASTER_DARK_(?P<detector>2RG|GEO|IFU)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Master dark frame for {det} detector data"
+    _description: str = "Master dark frame for {detector} data"
 
 
 class MasterFlatInput(SinglePipelineInput):
     _title: str = "master flat"
     _tags: Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Master flat frame for {det} data"
+    _description: str = "Master flat frame for {detector} data"
 
 
 class LinearityInput(SinglePipelineInput):
