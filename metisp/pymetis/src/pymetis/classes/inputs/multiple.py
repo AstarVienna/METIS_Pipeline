@@ -30,6 +30,8 @@ class MultiplePipelineInput(PipelineInput):
     """
     A pipeline input that expects multiple frames, such as a raw processor.
     """
+    _multiplicity = 'N'
+
     def __init__(self,
                  frameset: cpl.ui.FrameSet):
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()

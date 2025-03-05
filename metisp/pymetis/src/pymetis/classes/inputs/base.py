@@ -114,6 +114,12 @@ class PipelineInput:
             'group': self._group.name,
         }
 
+    @classmethod
+    def description_line(cls) -> str:
+        return (f"    {cls._pretty_tags():<60} [{cls._multiplicity}]"
+                f"{' (optional)' if not cls._required else '          '} "
+                f"{cls._description}")
+
     def _verify_same_detector_from_header(self) -> None:
         """
         Verification for headers, currently disabled
@@ -159,4 +165,4 @@ class PipelineInput:
     def _pretty_tags(cls) -> str:
         """ Helper method to print `re.Pattern`s in man-page: remove named capture groups' names. """
         return cls.tags().pattern
-        return re.sub(r"\?P<\w+>", "", cls.tags().pattern)
+        # return re.sub(r"\?P<\w+>", "", cls.tags().pattern)
