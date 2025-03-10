@@ -29,63 +29,49 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct, BandSpecificProduct
-from pymetis.inputs import RawInput
-from pymetis.inputs.common import MasterDarkInput, LinearityInput, PersistenceMapInput, GainMapInput, MasterFlatInput
-from pymetis.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.inputs import RawInput
+from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
+from pymetis.classes.inputs import LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 class MetisPupilImagingImpl(DarkImageProcessor):
-    class InputSet(DarkImageProcessor.InputSet):
+    class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
-        Define the input sets and tags. 
+        Define the input sets and tags.
         Here, we define dark, flat, linearity, persistence and gain map
         and the tags for PUPIL_RAW
 
         TODO; currently works for LM band, need to set up to work for both LM and N with proper filtering.
         """
 
-        class Raw(RawInput):
+        class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
+            _description: str = "Raw exposure of the pupil in LM image mode" # FixMe N band
 
-        # Also one master flat is required. We use a prefabricated class
-        class MasterFlat(MasterFlatInput):
-            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
-
-
-        RawInput = Raw
         MasterDarkInput = MasterDarkInput
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.master_flat = self.MasterFlat(frameset,
-                                               tags=re.compile("MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)"),
-                                               det=self.detector)
-            self.linearity = LinearityInput(frameset, det=self.detector)
-            self.persistence = PersistenceMapInput(frameset, required=False)
-            self.gain_map = GainMapInput(frameset, det=self.detector)
+        # Also one master flat is required. We use a prefabricated class
+        class MasterFlatInput(MasterFlatInput):
+            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)")
 
-            # We need to register the inputs (just to be able to do `for x in self.inputs:`)
-            self.inputs |= {self.master_flat, self.linearity, self.persistence, self.gain_map}
-            # ToDo This is not correct; need to handle both LM and N.
-            self.band = 'LM'
 
-    class Product(BandSpecificProduct):
+    class ProductReduced(PipelineProduct):
         """
         Define the output product, here a reduced pupil image.
         """
         _tag = r"LM_PUPIL_IMAGING_REDUCED"
-        _group = cpl.ui.Frame.FrameGroup.PRODUCT
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        band = "LM"
+        _description: str = "Reduced pupil image in LM mode"
+        _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
 
-        @property
-        def tag(self):
-            return rf"{self.band}_PUPIL_IMAGING_REDUCED"
-
-        @property
-        def output_file_name(self):
-            return f"{self.category}.fits"
+        @classmethod
+        def tag(cls):
+            return rf"{cls.band}_PUPIL_IMAGING_REDUCED"
 
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
@@ -108,7 +94,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         prepared_images = cpl.core.ImageList()
 
         """Prepare the images; bias subtracting and flat fielding"""
-        
+
         for index, frame in enumerate(raw_frames):
             Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
 
@@ -129,8 +115,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
     def process_images(self) -> [PipelineProduct]:
         """
-        Runner for processing images. Currently setup to do dark/bias/flat/gain plus combining images. 
-        TODO No actually processing is performed. 
+        Runner for processing images. Currently setup to do dark/bias/flat/gain plus combining images.
+        TODO No actually processing is performed.
         """
 
         Msg.info(self.__class__.__qualname__, f"Starting processing image attribute.")
@@ -146,28 +132,30 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.Product(self, header, combined_image, band='LM') # ToDo Hardcoded for now
+        product = self.ProductReduced(self, header, combined_image) # FixMe Hardcoded band for now
 
         return [product]
 
 
 class MetisPupilImaging(MetisRecipe):
     """
-    Wrapper for the recipe for pyesorex, defining neessary attributes and parameters, plus the implementation class. 
+    Wrapper for the recipe for pyesorex, defining neessary attributes and parameters, plus the implementation class.
     """
     # Fill in recipe information
     _name: str = "metis_pupil_imaging"
     _version: str = "0.1"
-    _author: str = "Jennifer Karr"
+    _author: str = "Jennifer Karr, A*"
     _email: str = "jkarr@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Basic processing of pupil images"
-    _description: str = (
-            "This recipe performs basic reduction (dark current subtraction, flat fielding,\n"
-            "optional bias subtraction, persistance and linearity corrections) on engineering\n"
-            "images of the pupil masks. This recipe is not expected to be used by observers\n"
-            "during regular use."
-    )
+    _description: str = """
+        This recipe performs basic reduction (dark current subtraction, flat fielding,
+        optional bias subtraction, persistence and linearity corrections) on engineering
+        images of the pupil masks. This recipe is not expected to be used by observers
+        during regular use.""" # FixMe this is not shown anywhere now
+
+    _matched_keywords: {str} = {'DRS.PUPIL'}
+    _algorithm = """Apply dark current and flat field corrections."""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(

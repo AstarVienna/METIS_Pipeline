@@ -20,12 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 
 import cpl
-from cpl.core import Msg
-from typing import Dict
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.base.product import PipelineProduct
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.classes.products import PipelineProduct
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
@@ -34,19 +32,15 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
             _title: str = "rectified spectral cube"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.sci_cube_calibrated = self.SciCubeCalibratedInput(frameset)
-            self.inputs |= {self.sci_cube_calibrated}
+            _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
     class ProductSciCoadd(PipelineProduct):
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        @property
-        def tag(self) -> str:
-            return rf"IFU_SCI_COADD"
+        _tag = f"IFU_SCI_COADD"
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
+                        "covering a different spatial and wavelength ranges.")
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def determine_output_grid(self):
         pass
@@ -73,22 +67,16 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
 class MetisIfuPostprocess(MetisRecipe):
     _name: str = "metis_ifu_postprocess"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
-    _copyright = "GPL-3.0-or-later"
-    _synopsis: str = "Calibrate IFU science data"
+    _synopsis: str = "Coaddition and mosaicing of reduced science cubes."
     _description: str = (
         "Currently just a skeleton prototype."
     )
 
-    implementation_class = MetisIfuPostprocessImpl
+    _matched_keywords = ['DRS.IFU']
+    _algorithm = """Call metis_ifu_grid_output to find the output grid encompassing all input cubes
+    Call metis_ifu_resampling to resample input cubes to output grid
+    Call metis_ifu_coadd to stack the images"""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name=f"{_name}.telluric",
-            context=_name,
-            description="Use telluric correction",
-            default=False,
-            alternatives=(True, False),
-        ),
-    ])
+    implementation_class = MetisIfuPostprocessImpl

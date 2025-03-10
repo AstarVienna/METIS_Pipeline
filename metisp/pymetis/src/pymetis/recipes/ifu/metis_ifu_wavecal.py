@@ -19,34 +19,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 import cpl
-from typing import Dict
 
-from pymetis.base import MetisRecipe
-from pymetis.base.product import PipelineProduct
-from pymetis.inputs.common import MasterDarkInput, GainMapInput, RawInput, DistortionTableInput, LinearityInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin
-from pymetis.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput
+from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuWavecalImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_WAVE_RAW")
+            _description: str = ("Raw exposure of the WCU laser sources through the IFU to "
+                            "achieve the first guess of the wavelength calibration.")
 
         MasterDarkInput = MasterDarkInput
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.gain_map = GainMapInput(frameset)
-            self.distortion_table = DistortionTableInput(frameset)
-            self.linearity = LinearityInput(frameset)
-
-            self.inputs |= {self.gain_map, self.distortion_table, self.linearity}
+        DistortionTableInput = DistortionTableInput
 
     class ProductIfuWavecal(PipelineProduct):
         _tag = r"IFU_WAVECAL"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _description: str = "Image with wavelength at each pixel."
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()
@@ -64,11 +60,17 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
 class MetisIfuWavecal(MetisRecipe):
     _name: str = "metis_ifu_wavecal"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Determine the relative spectral response function"
     _description: str = (
         "Currently just a skeleton prototype."
     )
+
+    _algorithm = """Measure line locations (left and right edges, centroid by Gaussian fit).
+        Compute deviation from optical models.
+        Compute wavelength solution ξ(x, y, i), λ(x, y, i).
+        Compute wavelength map."""
+    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
     implementation_class = MetisIfuWavecalImpl

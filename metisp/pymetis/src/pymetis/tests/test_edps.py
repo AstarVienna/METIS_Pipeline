@@ -29,9 +29,9 @@ def reset_edps():
         os.system("edps -shutdown")
 
         with contextlib.suppress(OSError):
-            os.remove("/tmp/EDPS_Data/")
+            os.remove("/tmp/EDPS_data/")
 
-        os.makedirs("/tmp/EDPS_Data/", exist_ok=True)
+        os.makedirs("/tmp/EDPS_data/", exist_ok=True)
 
     return inner
 
@@ -60,4 +60,5 @@ class TestEDPS:
         assert output.returncode == 0
         assert output.stderr == b''
         assert re.findall('[eE]rror', message) == [], f"EDPS run resulted in errors: {message}"
-        assert re.findall('FAILED', message) == [], f"EDPS workflow failed: {message}"
+        assert 'FAILED' not in message, f"EDPS workflow failed: {message}"
+        assert 'COMPLETED' in message, f"EDPS workflow not completed: {message}"
