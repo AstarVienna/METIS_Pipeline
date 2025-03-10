@@ -1,0 +1,33 @@
+headers:
+  DET.DIT:
+    name: "DET.DIT"
+    class: "header"
+    context: "template"
+    type: double
+    value: %.3f
+    unit: s
+    default: 1
+    range:
+      min: 0
+      max: 3600
+    description: "Detector integration time (average when NDIT > 1)"
+  DET.NDIT:
+    name: "DET.NDIT"
+    class: "header"
+    context: "template"
+    type: int
+    value: %i
+    unit: ~
+    default: 1
+    range:
+      min: 0
+      max: 10
+  DET.ID:
+    name: "DET.ID"
+    class: "header"
+    context: "template"
+    type: string
+    value: %.3s
+    unit: ~
+    range: ['2RG', 'GEO', 'IFU']
+    description: ""

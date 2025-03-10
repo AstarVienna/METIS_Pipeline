@@ -17,21 +17,52 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import yaml
+
 
 class Header:
     def __init__(self,
                  name: str = None,
                  *,
-                 description: str = None):
+                 _cls: str = None,
+                 _context: str = None,
+                 _type: type = None,
+                 _value: str = None,
+                 _unit: str = None,
+                 _comment: str = None,
+                 _default: bool = None,
+                 _range: set = None,
+                 _description: str = None):
         self.name = name
-        self.description = description
+        self.cls = _cls
+        self.description = _description
 
     def __str__(self):
         return self.name
 
     @staticmethod
-    def load(filename):
-        return Header(name='a', description='b')
+    def from_yaml(chunk):
+        return Header(
+            chunk['name'],
+            _cls=chunk['class'],
+            _context=chunk['context'],
+            _type=chunk['type'],
+            _value=chunk['value'],
+            _unit=chunk['unit'],
+            _comment=chunk.get('comment', ""),
+            _default=chunk['default'],
+            _range=set(chunk['range']) if isinstance(chunk['range'], list) else (chunk['range'].min, chunk['range'].max),
+            _description=chunk.get('description', "")
+        )
+
+    @staticmethod
+    def load(filename) -> {'Header'}:
+        data = yaml.load(filename, Loader=yaml.SafeLoader)
+
+        return {
+            chunk: Header.from_yaml(data[chunk])
+            for chunk in data['headers']
+        }
 
 
 HeaderInsOpti3Name = Header(name="INS.OPTI3.NAME", description="LSS slit name")
