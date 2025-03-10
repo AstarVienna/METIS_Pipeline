@@ -30,8 +30,8 @@ from pymetis.classes.products import PipelineProduct
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.headers.header import Header, ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter, \
-    DetDit, DetNDit
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderInsOpti3Name, HeaderInsOpti9Name, HeaderInsOpti10Name, HeaderDrsFilter, \
+    HeaderDetDit, HeaderDetNDit
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
@@ -89,7 +89,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords: {Header} = {ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderInsOpti3Name, HeaderInsOpti9Name, HeaderInsOpti10Name, HeaderDrsFilter}
         _description: str = "Science grade detrended exposure of the LM image mode."
 
         @classmethod
@@ -204,7 +204,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
             + "and it is divided by the master flat."
     )
 
-    _matched_keywords: {Header} = {DetDit, DetNDit, DrsFilter}
+    _matched_keywords: {Header} = {HeaderDetDit, HeaderDetNDit, HeaderDrsFilter}
     _algorithm = """Remove crosstalk, correct non-linearity
         Analyse and optionally remove masked regions
         Subtract dark, divide by flat

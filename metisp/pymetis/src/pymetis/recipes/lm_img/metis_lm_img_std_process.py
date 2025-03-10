@@ -24,7 +24,7 @@ import cpl
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
-from pymetis.classes.headers.header import Header, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderDrsFilter
 
 
 class MetisLmImgStdProcessImpl(MetisImgStdProcessImpl):
@@ -47,7 +47,7 @@ class MetisLmImgStdProcess(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: {Header} = {DrsFilter}
+    _matched_keywords: {Header} = {HeaderDrsFilter}
     _algorithm: str = """Call metis_lm_calculate_std_flux to measure flux in input images
     call hdrl_resample_compute to recenter the images
     call hdrl_imagelist_collapse to stack the images

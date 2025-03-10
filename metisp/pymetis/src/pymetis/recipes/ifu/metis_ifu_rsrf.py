@@ -27,7 +27,7 @@ from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, G
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
 from pymetis.classes.products import PipelineProduct, ProductBadpixMapDet
-from pymetis.classes.headers.header import Header, ProCatg, DetDit, DetNDit, DrsIfu
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDetDit, HeaderDetNDit, HeaderDrsIfu
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
@@ -72,7 +72,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "something"
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
         # SKEL: copy product keywords from header
         def add_properties(self) -> None:
@@ -87,7 +87,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         _description: str = "Master flat frame for IFU image data"
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -102,7 +102,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
 
         _description: str = "2D relative spectral response function"
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -236,7 +236,7 @@ class MetisIfuRsrf(MetisRecipe):
         BADPIX_MAP_IFU: Updated bad-pixel map
     """ # FixMe This is currently not shown anywhere
 
-    _matched_keywords: {Header} = {DetDit, DetNDit, DrsIfu}
+    _matched_keywords: {Header} = {HeaderDetDit, HeaderDetNDit, HeaderDrsIfu}
     _algorithm = """Average / median stack WCU_OFF images to create background image
         Subtract background image from individual RSRF RAW frames
         TBC: subtract master_dark from above frames first?

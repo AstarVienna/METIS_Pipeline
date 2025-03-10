@@ -26,7 +26,7 @@ from pymetis.classes.products import PipelineProduct, BandSpecificProduct
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import FluxstdCatalogInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.classes.headers.header import Header, ProCatg, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDrsFilter
 
 
 class MetisImgStdProcessImpl(RawImageProcessor):
@@ -42,12 +42,12 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         _description: str = "Conversion between instrumental and physical flux units."
-        _oca_keywords = {ProCatg}
+        _oca_keywords = {HeaderProCatg}
 
     class ProductImgStdCombined(BandSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
         @classmethod
         def description(cls) -> str:

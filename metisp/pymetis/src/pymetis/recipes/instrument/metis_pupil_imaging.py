@@ -34,7 +34,7 @@ from pymetis.classes.products import PipelineProduct
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.headers.header import Header, ProCatg, DrsPupil
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDrsPupil
 
 
 class MetisPupilImagingImpl(DarkImageProcessor):
@@ -68,7 +68,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         band = "LM"
         _description: str = "Reduced pupil image in LM mode"
-        _oca_keywords: {Header} = {ProCatg, DrsPupil}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsPupil}
 
         @classmethod
         def tag(cls):
@@ -155,7 +155,7 @@ class MetisPupilImaging(MetisRecipe):
         images of the pupil masks. This recipe is not expected to be used by observers
         during regular use.""" # FixMe this is not shown anywhere now
 
-    _matched_keywords: {Header} = {DrsPupil}
+    _matched_keywords: {Header} = {HeaderDrsPupil}
     _algorithm = """Apply dark current and flat field corrections."""
 
     parameters = cpl.ui.ParameterList([

@@ -28,7 +28,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput, BadpixMapInput, OptionalInputMixin
 from pymetis.classes.products import PipelineProduct, DetectorSpecificProduct
-from pymetis.classes.headers.header import Header, ProCatg
+from pymetis.classes.headers.header import Header, HeaderProCatg
 
 
 class LinGainProduct(DetectorSpecificProduct, ABC):
@@ -56,7 +56,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
     class ProductGain(LinGainProduct):
         _description: str = "Gain map"
-        _oca_keywords = {ProCatg}
+        _oca_keywords = {HeaderProCatg}
 
         @classmethod
         def tag(cls) -> str:
@@ -64,7 +64,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
     class ProductLinearity(LinGainProduct):
         _description: str = "Linearity map"
-        _oca_keywords = {ProCatg}
+        _oca_keywords = {HeaderProCatg}
 
         @classmethod
         def tag(cls) -> str:
@@ -72,7 +72,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
     class ProductBadpixMap(LinGainProduct):
         _description: str = "Bad pixel map"
-        _oca_keywords = {ProCatg}
+        _oca_keywords = {HeaderProCatg}
 
         @classmethod
         def tag(cls) -> str:

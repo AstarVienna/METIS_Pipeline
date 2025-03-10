@@ -28,7 +28,7 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
 from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
-from pymetis.classes.headers.header import Header, DetDit, DetNDit, ProCatg, DrsIfu
+from pymetis.classes.headers.header import Header, HeaderDetDit, HeaderDetNDit, HeaderProCatg, HeaderDrsIfu
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):
@@ -70,7 +70,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
         @classmethod
         def tag(cls) -> str:
@@ -80,7 +80,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Reduced 2D detector image of background."
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
         @classmethod
         def tag(cls) -> str:
@@ -90,7 +90,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Reduced 2D detector image of spectroscopic flux standard star."
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
         @classmethod
         def tag(cls) -> str:
@@ -100,7 +100,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Spectral cube of standard star, combining multiple exposures."
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
         @classmethod
         def tag(cls) -> str:
@@ -151,7 +151,7 @@ class MetisIfuReduce(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: {Header} = {DetDit, DetNDit, DrsIfu}
+    _matched_keywords: {Header} = {HeaderDetDit, HeaderDetNDit, HeaderDrsIfu}
     _algorithm = """Subtract dark, divide by master flat
     Analyse and optionally remove masked regions and correct crosstalk and ghosts
     Estimate stray light and subtract

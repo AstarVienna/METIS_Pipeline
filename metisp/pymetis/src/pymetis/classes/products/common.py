@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.products.product import PipelineProduct
-from pymetis.classes.headers.header import ProCatg
+from pymetis.classes.headers.header import HeaderProCatg
 
 
 class TargetSpecificProduct(PipelineProduct):
@@ -59,7 +59,7 @@ class ProductBadpixMapDet(DetectorSpecificProduct):
     level = cpl.ui.Frame.FrameLevel.FINAL
     frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-    _oca_keywords = {ProCatg}
+    _oca_keywords = {HeaderProCatg}
 
     @classmethod
     def description(cls) -> str:

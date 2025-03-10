@@ -24,7 +24,7 @@ import cpl
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.products import PipelineProduct
-from pymetis.classes.headers.header import Header, ProCatg, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDrsFilter
 
 
 class MetisNImgRestoreImpl(MetisRecipeImpl):
@@ -41,7 +41,7 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
         _description: str = "N band image with a single positive beam restored from chop-nod image"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
 
     def process_images(self) -> [PipelineProduct]:
@@ -60,7 +60,7 @@ class MetisNImgRestore(MetisRecipe):
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Restore a single positive beam from chop-nod difference image."
 
-    _matched_keywords: {Header} = {DrsFilter}
+    _matched_keywords: {Header} = {HeaderDrsFilter}
     _algorithm: str = """Call metis_cutout_region to cut regions around beams
     Add regions with appropriate signs with `hdrl_imagelist_collapse`"""
 

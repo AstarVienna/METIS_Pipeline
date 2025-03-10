@@ -26,7 +26,7 @@ from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import (SinglePipelineInput, PipelineInputSet,
                                     FluxstdCatalogInput, LsfKernelInput, AtmProfileInput)
 from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
-from pymetis.classes.headers.header import Header, ProCatg, DetDit, DetNDit, DrsIfu
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDetDit, HeaderDetNDit, HeaderDrsIfu
 
 
 # The aim of this recipe is twofold:
@@ -76,7 +76,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "transmission function for the telluric correction"
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
     # Response curve
     class ProductResponseFunction(TargetSpecificProduct):
@@ -86,7 +86,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "response curve for the flux calibration"
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
         @classmethod
         def tag(cls) -> str:
@@ -105,7 +105,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         _description: str = "Conversion between instrumental and physical flux units."
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
 
 # TODO: Define input type for the paramfile in common.py
 
@@ -175,6 +175,6 @@ class MetisIfuTelluric(MetisRecipe):
     _algorithm = """Extract 1D spectrum of science object or standard star.
     Compute telluric correction.
     Compute conversion to physical units as function of wave-length."""
-    _matched_keywords: {Header} = {DetDit, DetNDit, DrsIfu}
+    _matched_keywords: {Header} = {HeaderDetDit, HeaderDetNDit, HeaderDrsIfu}
 
     implementation_class = MetisIfuTelluricImpl

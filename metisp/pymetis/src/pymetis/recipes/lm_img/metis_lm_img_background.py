@@ -25,7 +25,7 @@ from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.headers.header import Header, ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderInsOpti3Name, HeaderInsOpti9Name, HeaderInsOpti10Name, HeaderDrsFilter
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
@@ -55,7 +55,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductBkg(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords: {Header} = {ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderInsOpti3Name, HeaderInsOpti9Name, HeaderInsOpti10Name, HeaderDrsFilter}
 
         @classmethod
         def description(cls):
@@ -72,7 +72,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductBkgSubtracted(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords: {Header} = {ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderInsOpti3Name, HeaderInsOpti9Name, HeaderInsOpti10Name, HeaderDrsFilter}
 
         @classmethod
         def description(cls):
@@ -89,7 +89,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     class ProductObjectCat(TargetSpecificProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
         @classmethod
         def description(cls):
@@ -159,9 +159,8 @@ class MetisLmImgBackground(MetisRecipe):
         )
     ])
 
-    _matched_keywords: {Header} = {DrsFilter}
+    _matched_keywords: {Header} = {HeaderDrsFilter}
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 
     implementation_class = MetisLmImgBackgroundImpl
-

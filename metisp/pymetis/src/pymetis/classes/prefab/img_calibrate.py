@@ -27,7 +27,7 @@ from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.products.product import PipelineProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs import FluxcalTableInput
-from pymetis.classes.headers.header import Header, ProCatg, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDrsFilter
 
 
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
@@ -53,7 +53,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         group = cpl.ui.Frame.FrameGroup.CALIB
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
         @classmethod
         def tag(cls) -> str:

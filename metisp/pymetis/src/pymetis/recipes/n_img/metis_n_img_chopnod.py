@@ -26,8 +26,8 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, BadpixMapInput, LinearityInput, GainMapInput, MasterFlatInput,
                                     MasterDarkInput, PersistenceInputSetMixin, OptionalInputMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.headers.header import (Header, ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name,
-                                            DetDit, DetNDit, DrsFilter)
+from pymetis.classes.headers.header import (Header, HeaderProCatg, HeaderInsOpti3Name, HeaderInsOpti9Name, HeaderInsOpti10Name,
+                                            HeaderDetDit, HeaderDetNDit, HeaderDrsFilter)
 
 
 class MetisNImgChopnodImpl(DarkImageProcessor):
@@ -51,7 +51,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Thermal background subtracted images of standard N exposures."
-        _oca_keywords: {Header} = {ProCatg, InsOpti3Name, InsOpti9Name, InsOpti10Name, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderInsOpti3Name, HeaderInsOpti9Name, HeaderInsOpti10Name, HeaderDrsFilter}
 
         @classmethod
         def tag(cls) -> str:
@@ -89,7 +89,7 @@ class MetisNImgChopnod(MetisRecipe):
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Chop / nod combination of exposures for background subtraction"
 
-    _matched_keywords: {Header} = {DetDit, DetNDit, DrsFilter}
+    _matched_keywords: {Header} = {HeaderDetDit, HeaderDetNDit, HeaderDrsFilter}
     _algorithm: str = """Analyse and optionally remove masked regions and correct crosstalk and ghosts
     Add/subtract images to subtract background"""
 

@@ -27,7 +27,7 @@ from pymetis.classes.inputs import (RawInput, BadpixMapInput, PinholeTableInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.prefab import RawImageProcessor
-from pymetis.classes.headers.header import Header, ProCatg, DetDit, DetNDit, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDetDit, HeaderDetNDit, HeaderDrsFilter
 
 
 class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
@@ -54,7 +54,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Combined, background-subtracted images of the WCU source."
-        _oca_keywords: {str} = {ProCatg}
+        _oca_keywords: {str} = {HeaderProCatg}
 
     class ProductBackground(PipelineProduct):
         """
@@ -65,7 +65,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
-        _oca_keywords: {str} = {ProCatg}
+        _oca_keywords: {str} = {HeaderProCatg}
 
 
     def process_images(self) -> [PipelineProduct]:
@@ -117,7 +117,7 @@ class MetisCalChophome(MetisRecipe):
     _description: str = """\
     """
 
-    _matched_keywords: {Header} = {DetDit, DetNDit, DrsFilter}
+    _matched_keywords: {Header} = {HeaderDetDit, HeaderDetNDit, HeaderDrsFilter}
     _algorithm = """The position of the pinhole image on the detector is measured from the stacked
     background-subtracted images. The measured position is compared to the WFS
     metrology to give the chopper home position.

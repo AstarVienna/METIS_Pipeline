@@ -28,7 +28,7 @@ from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.products.product import PipelineProduct
 from pymetis.classes.products.common import BandSpecificProduct
-from pymetis.classes.headers.header import Header, ProCatg, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDrsFilter
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
@@ -48,7 +48,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         _description: str = "Table of distortion information"
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
         @classmethod
         def tag(cls) -> str:
@@ -58,7 +58,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Map of pixel scale across the detector"
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
         @classmethod
         def tag(cls) -> str:
@@ -68,7 +68,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
         @classmethod
         def tag(cls) -> str:

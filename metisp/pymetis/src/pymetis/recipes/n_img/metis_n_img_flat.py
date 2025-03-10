@@ -22,7 +22,7 @@ import cpl
 from pymetis.classes.mixins.target import TargetTwilightMixin, TargetLampMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgFlatImpl
-from pymetis.classes.headers.header import Header, DetDit, DetNDit, ProCatg, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderDetDit, HeaderDetNDit, HeaderProCatg, HeaderDrsFilter
 
 
 class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
@@ -31,7 +31,7 @@ class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
 
     class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
         _band: str = "N"
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         return {
@@ -59,7 +59,7 @@ class MetisNImgFlat(MetisRecipe):
     _synopsis: str = "Create master flat for N band detectors"
     _description: str = "Prototype to create a METIS master flat for N band"
 
-    _matched_keywords: {Header} = {DetDit, DetNDit, DrsFilter}
+    _matched_keywords: {Header} = {HeaderDetDit, HeaderDetNDit, HeaderDrsFilter}
     _algorithm: str = """For internal flats: call metis_det_dark with LAMP OFF im ages to create dark frame.
     Subtract internal dark or master dark from flat exposures.
     Call metis_n_img_flat to fit slope of pixel values against illumination level.

@@ -26,7 +26,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.products import PipelineProduct
-from pymetis.classes.headers.header import Header, ProCatg, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDrsFilter
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor):
@@ -41,7 +41,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Coadded, mosaiced LM image."
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -69,7 +69,7 @@ class MetisLmImgSciPostProcess(MetisRecipe):
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Coadd reduced images"
 
-    _matched_keywords: {Header} = {DrsFilter}
+    _matched_keywords: {Header} = {HeaderDrsFilter}
     _algorithm = """Check and refine WCS of input images by using the WFS-FS data.
     Determine output pixel grid encompassing all input images.
     Call hdrl_resample_compute to recenter the images.

@@ -25,7 +25,7 @@ from pymetis.classes.products import PipelineProduct
 from pymetis.classes.inputs import (MasterDarkInput, RawInput, DistortionTableInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.headers.header import Header, ProCatg, DetDit, DetNDit, DrsIfu
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDetDit, HeaderDetNDit, HeaderDrsIfu
 
 
 class MetisIfuWavecalImpl(DarkImageProcessor):
@@ -43,11 +43,17 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Image with wavelength at each pixel."
-        _oca_keywords: {Header} = {ProCatg, DrsIfu}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsIfu}
+
+    def correct_telluric(self):
+        pass
+
+    def apply_fluxcal(self):
+        pass
 
     def process_images(self) -> [PipelineProduct]:
-        # self.correct_telluric()
-        # self.apply_fluxcal()
+        self.correct_telluric()
+        self.apply_fluxcal()
 
         header = cpl.core.PropertyList()
         images = self.inputset.load_raw_images()
@@ -72,6 +78,6 @@ class MetisIfuWavecal(MetisRecipe):
         Compute deviation from optical models.
         Compute wavelength solution ξ(x, y, i), λ(x, y, i).
         Compute wavelength map."""
-    _matched_keywords: {Header} = {DetDit, DetNDit, DrsIfu}
+    _matched_keywords: {Header} = {HeaderDetDit, HeaderDetNDit, HeaderDrsIfu}
 
     implementation_class = MetisIfuWavecalImpl

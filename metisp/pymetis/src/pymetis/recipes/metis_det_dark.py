@@ -28,7 +28,7 @@ from pymetis.classes.inputs import (RawInput, BadpixMapInput, PersistenceMapInpu
                                     OptionalInputMixin, PersistenceInputSetMixin)
 from pymetis.classes.products import PipelineProduct, DetectorSpecificProduct
 from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
-from pymetis.classes.headers.header import Header, ProCatg, DrsFilter
+from pymetis.classes.headers.header import Header, HeaderProCatg, HeaderDrsFilter
 
 
 class MetisDetDarkImpl(RawImageProcessor):
@@ -75,7 +75,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords: {Header} = {ProCatg, DrsFilter}
+        _oca_keywords: {Header} = {HeaderProCatg, HeaderDrsFilter}
 
         # The actual description depends on the detector, so we need to redefine it.
         # If it did not, we would just redefine `_description: str = "*describe* *describe*"`,
