@@ -27,4 +27,4 @@ SciPy==1.11.4
 adari_core==0.6.0
 edps==1.4.6
 pycpl==1.0.0
-pyesorex==1.0.2b0
+pyesorex==1.0.2
