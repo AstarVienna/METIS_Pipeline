@@ -161,6 +161,11 @@ distortion_n_raw = (data_source()
                     .with_match_keywords(["instrume"])
                     .build())
 
+wcu_off_n_raw = (data_source()
+                 .with_classification_rule(wcu_off_n_class)
+                 .with_match_keywords(["instrume"])
+                 .build())
+
 dark_n_raw = (data_source()
               .with_classification_rule(rawdark_geo_class)
               .with_match_keywords(["instrume"])

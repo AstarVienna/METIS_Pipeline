@@ -1,4 +1,4 @@
-from edps import task, SCIENCE
+from edps import task, SCIENCE, alternative_associated_inputs
 from .metis_datasources import *
 
 # --- Processing tasks ---
@@ -18,6 +18,7 @@ distortion_n_task = (task("metis_n_distortion")
                      .with_associated_input(lingain_n_task)
                      .with_associated_input(calib_persistence, min_ret=0)
                      .with_associated_input(calib_pinhole)
+                     .with_associated_input(wcu_off_n_raw)
                      .build())
 
 dark_n_task = (task("metis_n_dark")
@@ -28,15 +29,18 @@ dark_n_task = (task("metis_n_dark")
                .with_associated_input(calib_persistence, min_ret=0)
                .build())
 
-#TODO Find out if you can have multiple classification rules in one Data Source
+#Could also achive this with a WKF parameter
+calibrations = (alternative_associated_inputs()
+                .with_associated_input(flat_lamp_n_raw)
+                .with_associated_input(flat_twi_n_raw))
+
 flat_n_task = (task("metis_n_flat")
                .with_recipe("metis_n_img_flat")
-               .with_main_input(flat_twi_n_raw)
+               .with_main_input(dark_n_task)
                .with_associated_input(bad_pix_n_img_calib, min_ret=0)
-               .with_associated_input(flat_lamp_n_raw)
+               .with_alternatives(calibrations)
                .with_associated_input(lingain_n_task)
                .with_associated_input(calib_persistence, min_ret=0)
-               .with_associated_input(dark_n_task)
                .build())
 
 chopnod_n_task = (task("metis_n_chopnod")

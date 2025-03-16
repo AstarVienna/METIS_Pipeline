@@ -100,6 +100,12 @@ distortion_n_class = classification_rule("N_DISTORTION_RAW",
                                           "dpr.tech": "IMAGE,N",
                                           })
 
+wcu_off_n_class = classification_rule("N_WCU_OFF_RAW",
+                                      {"instrume": "METIS",
+                                       "dpr.catg": "CALIB",
+                                       "dpr.type": "DARK,WCUOFF",
+                                       "dpr.tech": "IMAGE,N",})
+
 rawdark_geo_class = classification_rule("DARK_GEO_RAW",
                                         {"instrume": "METIS",
                                          "dpr.catg": "CALIB",
