@@ -21,40 +21,37 @@ import re
 
 import cpl
 from cpl.core import Msg
-from typing import Dict
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct
-from pymetis.inputs import RawInput, SinglePipelineInput, MasterDarkInput
-from pymetis.inputs.common import PinholeTableInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.prefab.darkimage import DarkImageProcessor
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.inputs import RawInput, MasterDarkInput
+from pymetis.classes.inputs import PinholeTableInput
+from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuDistortionImpl(DarkImageProcessor):
     class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, PersistenceInputSetMixin, DarkImageProcessor.InputSet):
         MasterDarkInput = MasterDarkInput
+        PinholeTableInput = PinholeTableInput
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.pinhole_table = PinholeTableInput(frameset)
-
-            self.inputs |= {self.pinhole_table}
-
+            _description: str = "Images of multi-pinhole mask."
 
     class ProductIfuDistortionTable(PipelineProduct):
         _tag = r"IFU_DISTORTION_TABLE"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.TABLE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.TABLE
+        _description: str = "Table of distortion coefficients for an IFU data set"
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     class ProductIfuDistortionReduced(PipelineProduct):
         _tag = r"IFU_DIST_REDUCED"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _description: str = "Table of polynomial coefficients for distortion correction"
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -79,11 +76,14 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 class MetisIfuDistortion(MetisRecipe):
     _name: str = "metis_ifu_distortion"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Reduce raw science exposures of the IFU."
     _description: str = (
         "Currently just a skeleton prototype."
     )
+
+    _matched_keywords: {str} = {'DRS.IFU'}
+    _algorithm = """Calculate table mapping pixel position to position on sky."""
 
     implementation_class = MetisIfuDistortionImpl

@@ -20,11 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 
 import cpl
-from typing import Dict
 
-from pymetis.base import MetisRecipe, MetisRecipeImpl
-from pymetis.base.product import PipelineProduct
-from pymetis.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
@@ -33,30 +32,26 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
             _title: str = "science reduced"
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"IFU_SCI_REDUCED")
+            _description: str = "Reduced 2D detector image of science object."
 
         class TelluricInput(SinglePipelineInput):
             _title: str = "telluric correction"
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"IFU_TELLURIC")
+            _description: str = "Telluric absorption correction."
 
         class FluxcalTabInput(SinglePipelineInput):
             _title: str = "flux calibration table"
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
-
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.sci_reduced = self.SciReducedInput(frameset)
-            self.telluric = self.TelluricInput(frameset)
-            self.fluxcal = self.FluxcalTabInput(frameset)
-
-            self.inputs |= {self.sci_reduced, self.telluric, self.fluxcal}
+            _description: str = "Conversion between instrumental and physical flux units."
 
     class ProductSciCubeCalibrated(PipelineProduct):
         _tag = rf"IFU_SCI_CUBE_CALIBRATED"
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
-
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> [PipelineProduct]:
         # self.correct_telluric()
@@ -73,12 +68,15 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 class MetisIfuCalibrate(MetisRecipe):
     _name: str = "metis_ifu_calibrate"
     _version: str = "0.1"
-    _author: str = "Martin Baláž"
+    _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
-    _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Calibrate IFU science data"
     _description: str = (
         "Currently just a skeleton prototype."
     )
+
+    _matched_keywords: {str} = {'DRS.IFU'}
+    _algorithm = """Correct for telluric absorption.
+    Apply flux calibration."""
 
     implementation_class =  MetisIfuCalibrateImpl

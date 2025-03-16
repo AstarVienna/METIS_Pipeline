@@ -20,53 +20,63 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 
 from abc import ABC
-from typing import Dict
 
 import cpl
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.base.product import PipelineProduct, DetectorSpecificProduct
-from pymetis.inputs.common import RawInput, BadpixMapInput
-from pymetis.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.prefab import RawImageProcessor
+from pymetis.classes.inputs import RawInput, BadpixMapInput, OptionalInputMixin
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import DetectorSpecificProduct
 
 
 class LinGainProduct(DetectorSpecificProduct, ABC):
     """ Common base class for all linearity and gain products. Just sets `group`, `level` and `frame_type`. """
-    _group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    group = cpl.ui.Frame.FrameGroup.PRODUCT
+    level = cpl.ui.Frame.FrameLevel.FINAL
+    frame_type = cpl.ui.Frame.FrameType.IMAGE
 
 
-class MetisDetLinGainImpl(RawImageProcessor):
+class MetisDetLinGainImpl(RawImageProcessor, ABC):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
+            _description: str = "Raw data for non-linearity determination."
 
         class WcuOffInput(RawInput):
             _title: str = "WCU off raw"
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
+            _description: str = "Raw data for dark subtraction in other recipes."
+            _required: bool = False # FixMe This is just to shut EDPS up
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.wcu_off = self.WcuOffInput(frameset, required=False)
-            self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.inputs |= {self.badpix_map, self.wcu_off}
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            _required: bool = False
+
 
     class ProductGain(LinGainProduct):
-        @property
-        def tag(self) -> str:
-            return f"GAIN_MAP_{self.detector:s}"
+        _description: str = "Gain map"
+        _oca_keywords = {'PRO.CATG'}
+
+        @classmethod
+        def tag(cls) -> str:
+            return rf"GAIN_MAP_{cls.detector():s}"
 
     class ProductLinearity(LinGainProduct):
-        @property
-        def tag(self) -> str:
-            return f"LINEARITY_{self.detector:s}"
+        _description: str = "Linearity map"
+        _oca_keywords = {'PRO.CATG'}
+
+        @classmethod
+        def tag(cls) -> str:
+            return rf"LINEARITY_{cls.detector():s}"
 
     class ProductBadpixMap(LinGainProduct):
-        @property
-        def tag(self) -> str:
-            return f"BADPIX_MAP_{self.detector:s}"
+        _description: str = "Bad pixel map"
+        _oca_keywords = {'PRO.CATG'}
+
+        @classmethod
+        def tag(cls) -> str:
+            return rf"BADPIX_MAP_{cls.detector():s}"
 
     def process_images(self) -> [PipelineProduct]:
         raw_images = self.inputset.load_raw_images()
@@ -86,35 +96,52 @@ class MetisDetLinGainImpl(RawImageProcessor):
         linearity_image = combined_image    # TODO Actual implementation missing
         badpix_map = combined_image         # TODO Actual implementation missing
 
-        product_gain_map = self.ProductGain(self, header, gain_image, detector=self.detector)
-        product_linearity = self.ProductLinearity(self, header, linearity_image, detector=self.detector)
-        product_badpix_map = self.ProductBadpixMap(self, header, badpix_map, detector=self.detector)
+        product_gain_map = self.ProductGain(self, header, gain_image)
+        product_linearity = self.ProductLinearity(self, header, linearity_image)
+        product_badpix_map = self.ProductBadpixMap(self, header, badpix_map)
 
         return [product_gain_map, product_linearity, product_badpix_map]
 
+    def _dispatch_child_class(self) -> type["MetisDetLinGainImpl"]:
+        return {
+            '2RG': Metis2rgLinGainImpl,
+            'GEO': MetisGeoLinGainImpl,
+            'IFU': MetisIfuLinGainImpl,
+        }[self.inputset.detector]
 
-class Metis2rgLinGainImpl(Detector2rgMixin, MetisDetLinGainImpl):
-    pass
 
+class Metis2rgLinGainImpl(MetisDetLinGainImpl):
+    class ProductGain(Detector2rgMixin, MetisDetLinGainImpl.ProductGain): pass
+    class ProductLinearity(Detector2rgMixin, MetisDetLinGainImpl.ProductLinearity): pass
+    class ProductBadpixMap(Detector2rgMixin, MetisDetLinGainImpl.ProductBadpixMap): pass
 
-class MetisGeoLinGainImpl(DetectorGeoMixin, MetisDetLinGainImpl):
-    pass
+class MetisGeoLinGainImpl(MetisDetLinGainImpl):
+    class ProductGain(DetectorGeoMixin, MetisDetLinGainImpl.ProductGain): pass
+    class ProductLinearity(DetectorGeoMixin, MetisDetLinGainImpl.ProductLinearity): pass
+    class ProductBadpixMap(DetectorGeoMixin, MetisDetLinGainImpl.ProductBadpixMap): pass
 
-
-class MetisIfuLinGainImpl(DetectorIfuMixin, MetisDetLinGainImpl):
-    pass
-
+class MetisIfuLinGainImpl(MetisDetLinGainImpl):
+    class ProductGain(DetectorIfuMixin, MetisDetLinGainImpl.ProductGain): pass
+    class ProductLinearity(DetectorIfuMixin, MetisDetLinGainImpl.ProductLinearity): pass
+    class ProductBadpixMap(DetectorIfuMixin, MetisDetLinGainImpl.ProductBadpixMap): pass
 
 class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information
     _name: str = "metis_det_lingain"
     _version: str = "0.1"
-    _author: str = "A*Vienna"
+    _author: str = "A*"
     _email: str = "hugo@buddelmeijer.nl"
     _synopsis: str = "Measure detector non-linearity and gain"
     _description: str = (
         "Prototype to create a METIS linear gain map."
     )
+
+    _matched_keywords: {str} = {}
+    _algorithm = """Subtract instrument dark (hdrl_imagelist_sub_image).
+    Compute mean and variance for each frame.
+    Gain is determined as the slope of variance against mean (metis_derive_gain).
+    Fit polynomial of value as a function of DIT and illumination level for each pixel (metis_derive_nonlinearity).
+    Flag pixels with coefficients significantly different from the mean of all pixels (hdrl_bpm_fit_compute)."""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
@@ -139,11 +166,3 @@ class MetisDetLinGain(MetisRecipe):
     ])
 
     implementation_class = MetisDetLinGainImpl
-
-    def dispatch_implementation_class(self, frameset):
-        input = self.implementation_class.InputSet.RawInput(frameset)
-        return {
-            '2RG': Metis2rgLinGainImpl,
-            'GEO': MetisGeoLinGainImpl,
-            'IFU': MetisIfuLinGainImpl,
-        }[input.detector]

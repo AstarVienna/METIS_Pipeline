@@ -41,12 +41,12 @@ class TestConfigured:
             # FIXME This is just a temporary workaround and should be solved properly instead.
         """
         from pymetis.recipes.metis_det_dark import MetisDetDarkImpl
-        assert MetisDetDarkImpl.__name__ == 'MetisDetDarkImpl',\
+        assert MetisDetDarkImpl.__name__ == 'MetisDetDarkImpl', \
             "Could not import the pipeline, review your PYTHONPATH"
 
     def test_can_we_import_at_least_raw_input(self):
-        from pymetis.inputs import RawInput
-        assert RawInput.__name__ == 'RawInput',\
+        from pymetis.classes.inputs import RawInput
+        assert RawInput.__name__ == 'RawInput', \
             "Could not import the pipeline, review your PYTHONPATH"
 
     def test_is_sof_data_set(self):
@@ -54,9 +54,9 @@ class TestConfigured:
             You need to point `pyesorex` to the SOF data (setting the `SOF_DATA` environment variable),
             by default to ../METIS_Simulations/ESO/output/. Maybe this can be set for every run though?
         """
-        assert os.environ['SOF_DATA'] is not None,\
+        assert os.environ['SOF_DATA'] is not None, \
             "Environment variable `SOF_DATA` is not defined"
 
     def test_is_recipe_dir_set(self):
-        assert os.environ['PYESOREX_PLUGIN_DIR'] is not None,\
+        assert os.environ['PYESOREX_PLUGIN_DIR'] is not None, \
             "Environment variable `PYESOREX_PLUGIN_DIR` is not defined"

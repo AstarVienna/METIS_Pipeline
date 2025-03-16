@@ -18,85 +18,56 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
-from typing import Dict
 
 import cpl
 from cpl.core import Msg
 
-from pymetis.base.recipe import MetisRecipe
-from pymetis.inputs import RawInput
-from pymetis.inputs.common import (LinearityInput, GainMapInput,
-                                   PersistenceMapInput, BadpixMapInput,
-                                   PinholeTableInput)
-from pymetis.base.product import PipelineProduct
-from pymetis.prefab.rawimage import RawImageProcessor
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.inputs import RawInput
+from pymetis.classes.inputs import GainMapInput, PersistenceMapInput, BadpixMapInput, PinholeTableInput
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.inputs import LinearityInputSetMixin
+from pymetis.classes.prefab import RawImageProcessor
 
 
 class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
-    target = "LM_CHOPHOME"
-
-    class InputSet(RawImageProcessor.InputSet):
+    class InputSet(LinearityInputSetMixin, RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_CHOPHOME_RAW")
+            _description: str = "Raw exposure of the LM image mode."
 
         class BackgroundInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
+            _description: str = "Raw data for dark subtraction in other recipes."
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.background = self.BackgroundInput(frameset)
-            self.linearity = LinearityInput(frameset)
-            self.gain_map = GainMapInput(frameset)
-            self.persistence = PersistenceMapInput(frameset, required=False)
-            self.badpix_map = BadpixMapInput(frameset, required=False)
-            self.pinhole_table = PinholeTableInput(frameset, required=True)
-
-            self.inputs |= {self.background, self.linearity, self.gain_map,
-                            self.badpix_map, self.persistence, self.pinhole_table}
-
+        GainMapInput = GainMapInput
+        PersistenceMapInput = PersistenceMapInput
+        BadpixMapInput = BadpixMapInput
+        PinholeTableInput = PinholeTableInput
 
     class ProductCombined(PipelineProduct):
         """
         Final product: combined, background-subtracted images of the WCU source
         """
-        _group = cpl.ui.Frame.FrameGroup.PRODUCT
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        @property
-        def category(self) -> str:
-            return "LM_CHOPHOME_COMBINED"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
-
+        _tag: str = "LM_CHOPHOME_COMBINED"
+        group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
+        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _description: str = "Combined, background-subtracted images of the WCU source."
+        _oca_keywords: {str} = {'PRO.CATG'}
 
     class ProductBackground(PipelineProduct):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        _group = cpl.ui.Frame.FrameGroup.PRODUCT
-        _level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        @property
-        def category(self) -> str:
-            return "LM_CHOPHOME_BACKGROUND"
-
-        @property
-        def output_file_name(self) -> str:
-            return f"{self.category}.fits"
-
-        @property
-        def tag(self) -> str:
-            return rf"{self.category}"
+        _tag: str = "LM_CHOPHOME_BACKGROUND"
+        group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
+        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _description: str = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
+        _oca_keywords: {str} = {'PRO.CATG'}
 
 
     def process_images(self) -> [PipelineProduct]:
@@ -144,34 +115,25 @@ class MetisCalChophome(MetisRecipe):
     _author: str = "Oliver Czoske, A*"
     _email: str = "oliver.czoske@univie.ac.at"
     _copyright = "GPL-3.0-or-later"
-    _synopsis: str = "Determination of chopper home position"
+    _synopsis: str = "Determine the chopper home position from LM-imaging of the WCU pinhole mask."
     _description: str = """\
-    Determine the chopper home position from LM-imaging of the WCU pinhole mask.
-
-        Inputs
-            LM_CHOPHOME_RAW: Raw LM band images [1-n]
-            LM_WCU_RAW_OFF:  Background images with WCU black-body closed [1-n]
-            GAIN_MAP_2RG:    Gain map for 2RG detector
-            LINEARITY_2RG:   Linearity map for 2RG detector
-            BADPIX_MAP_2RG:  Bad-pixel map for 2RG detector [optional]
-            PINHOLE_TABLE:   Table with location of pinhole on mask
-            PERSISTENCE_MAP: Persistence map [optional]
-
-        Outputs
-            LM_CHOPHOME_BACKGROUND: Average of background images (WCU_OFF)
-            LM_CHOPHOME_COMBINED: Stacked background-subtracted images of pinhole mask
-                                  The chopper offset is in the header.
-
-        Algorithm
-           The position of the pinhole image on the detector is measured from the stacked
-           background-subtracted images. The measured position is compared to the WFS
-           metrology to give the chopper home position.
     """
+
+    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _algorithm = """The position of the pinhole image on the detector is measured from the stacked
+    background-subtracted images. The measured position is compared to the WFS
+    metrology to give the chopper home position.
+
+    Remove detector signature
+    Remove median background
+    Apply flatfield
+    Detect reference source from WCU via centroid peak detection
+    Calculate mirror offset"""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name="metis_cal_chophome.stacking.method",
-            context="metis_cal_chophome",
+            name=f"{_name}.stacking.method",
+            context=_name,
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),

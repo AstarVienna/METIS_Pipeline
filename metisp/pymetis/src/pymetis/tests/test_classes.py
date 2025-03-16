@@ -1,7 +1,7 @@
 import cpl
 import pytest
 
-from pymetis.inputs.single import SinglePipelineInput
+from pymetis.classes.inputs.single import SinglePipelineInput
 
 
 class TestPipelineInput:

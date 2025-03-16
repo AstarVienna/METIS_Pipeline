@@ -19,30 +19,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 import cpl
-from typing import Dict
 
-from pymetis.base import MetisRecipe
-from pymetis.base.product import PipelineProduct
-from pymetis.inputs.common import SinglePipelineInput, MultiplePipelineInput, \
-                            BadpixMapInput, MasterDarkInput, LinearityInput, \
-                            RawInput, GainMapInput, PersistenceMapInput, \
-                            WavecalInput, DistortionTableInput
-from pymetis.inputs.mixins import PersistenceInputSetMixin
-from pymetis.prefab.darkimage import DarkImageProcessor
-
-
-
+from pymetis.classes.mixins import DetectorIfuMixin
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
+                                    WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
+from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
+from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import ProductBadpixMapDet
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         detector = "IFU"
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_RSRF_RAW")
             _title: str = "IFU rsrf raw"
+            _description: str = "Raw flats taken with black-body calibration lamp."
 
-        MasterDarkInput = MasterDarkInput
+        class MasterDarkInput(MasterDarkInput):
+            _tags: re.Pattern = re.compile(r"MASTER_DARK_IFU")
+
+        class GainMapInput(GainMapInput):
+            _tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
+
+        class LinearityInput(LinearityInput):
+            _tags: re.Pattern = re.compile(r"LINEARITY_IFU")
 
         class RsrfWcuOffInput(RawInput):
             """
@@ -51,28 +55,24 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             """
             _tags: re.Pattern = re.compile(r"IFU_WCU_OFF_RAW")
             _title: str = "IFU WCU off"
+            _description: str = "Raw data for dark subtraction in other recipes."
 
-        def __init__(self, frameset: cpl.ui.FrameSet):
-            super().__init__(frameset)
-            self.background = self.RsrfWcuOffInput(frameset)
-            self.linearity = LinearityInput(frameset)
-            self.gain_map = GainMapInput(frameset)
-            self.distortion_table = DistortionTableInput(frameset)
-            self.wavecal = WavecalInput(frameset)
-            self.badpixmap = BadpixMapInput(frameset, required=False)
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            _tags: re.Pattern = re.compile(r"BADPIX_MAP_IFU")
 
-            self.inputs |= {self.background, self.linearity,
-                            self.gain_map, self.distortion_table,
-                            self.wavecal, self.badpixmap}
+        DistortionTableInput = DistortionTableInput
+        WavecalInput = WavecalInput
 
-    class ProductBackground(PipelineProduct):
+    class ProductRsrfBackground(PipelineProduct):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        _tag = r"IFU_RSRF_BACKGROUND"
-        _group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
-        _level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag: str = r"IFU_RSRF_BACKGROUND"
+        group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
+        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _description: str = "something"
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
         def add_properties(self) -> None:
@@ -81,10 +81,13 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
 
     class ProductMasterFlatIfu(PipelineProduct):
-        _tag = r"MASTER_FLAT_IFU"
-        _group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
+        _tag: str = r"MASTER_FLAT_IFU"
+        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+        _description: str = "Master flat frame for IFU image data"
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
         def add_properties(self):
@@ -93,26 +96,21 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
 
     class ProductRsrfIfu(PipelineProduct):
-        _tag = r"RSRF_IFU"
-        _group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
+        _tag: str = r"RSRF_IFU"
+        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        level = cpl.ui.Frame.FrameLevel.FINAL
+        frame_type = cpl.ui.Frame.FrameType.IMAGE # set of 1D spectra?
+
+        _description: str = "2D relative spectral response function"
+        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
 
-    class ProductBadpixMapIfu(PipelineProduct):
-        _tag = r"BADPIX_MAP_IFU"
-        _group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        _level = cpl.ui.Frame.FrameLevel.FINAL
-        _frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        # SKEL: copy product keywords from header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
+    class ProductBadpixMapIfu(DetectorIfuMixin, ProductBadpixMapDet):
+        pass
 
     def process_images(self) -> [PipelineProduct]:
         # TODO: FUNC: basic raw processing of RSRF and WCU_OFF input frames:
@@ -141,7 +139,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         background_hdr = \
             cpl.core.PropertyList()
         # self.inputset.background.frameset.dump() # debug
-        bg_images = self.load_images(self.inputset.background.frameset)
+        bg_images = self.load_images(self.inputset.rsrf_wcu_off.frameset)
         background_img = self.combine_images(bg_images, "median") # if >2 images
         # TODO: SKEL: define usedframes?
         # TODO: SKEL: Add product keywords - currently none defined in DRLD
@@ -182,7 +180,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         rsrf_img = spec_flat_img.rebin(1, 1, img_height, 1)
         rsrf_img.divide_scalar(img_height)
 
-        product_background = self.ProductBackground(self, background_hdr, background_img)
+        product_background = self.ProductRsrfBackground(self, background_hdr, background_img)
         product_master_flat_ifu = self.ProductMasterFlatIfu(self, spec_flat_hdr, spec_flat_img)
         product_rsrf_ifu = self.ProductRsrfIfu(self, rsrf_hdr, rsrf_img)
         product_badpix_map_ifu = self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img)
@@ -210,10 +208,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 class MetisIfuRsrf(MetisRecipe):
     _name: str = "metis_ifu_rsrf"
     _version: str = "0.1"
-    _author: str = "Janus Brink"
+    _author: str = "Janus Brink, A*"
     _email: str = "janus.brink27@gmail.com"
-    _synopsis: str = "Determine the relative spectral response function."
-    _description: str = """\
+    _synopsis: str = "Determine the relative spectral response function for the IFU detector."
+    _undescription: str = """\
     Create relative spectral response function for the IFU detector
 
     Inputs
@@ -236,29 +234,18 @@ class MetisIfuRsrf(MetisRecipe):
         MASTER_FLAT_IFU: Master flat frame for IFU image data
         RSRF_IFU: 1D relative spectral response function
         BADPIX_MAP_IFU: Updated bad-pixel map
+    """ # FixMe This is currently not shown anywhere
 
-    Algorithm            
-        Average / median stack WCU_OFF images to create background image
+    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _algorithm = """Average / median stack WCU_OFF images to create background image
         Subtract background image from individual RSRF RAW frames
         TBC: subtract master_dark from above frames first?
         TBC: apply gain / linearity corrections to above frames?
         TBC: obtain bad pixel map from master_dark?
-        Create continuum image by mapping Planck spectrum at Tlamp to wavelength
-            image.
+        Create continuum image by mapping Planck spectrum at Tlamp to wavelength image.
         Divide exposures by continuum image.
         Create master flat (2D RSRF) - TBC one extension per input exposure?
         Average in spatial direction to obtain relative response function
-            (1D RSRF) - TBC multiple FITS extensions with spectral traces?
-    """
-
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name="metis_ifu_rsrf.stacking.method",
-            context="metis_ifu_rsrf",
-            description="Name of the method used to combine the input images",
-            default="average",
-            alternatives=("add", "average", "median", "sigclip"),
-        ),
-    ])     # no parameters defined in DRLD
+            (1D RSRF) - TBC multiple FITS extensions with spectral traces?"""
 
     implementation_class = MetisIfuRsrfImpl
