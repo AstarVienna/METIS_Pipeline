@@ -26,6 +26,10 @@ class TargetSciMixin:
     _target: str = r'SCI'
 
 
+class TargetSkyMixin:
+    _target: str = r'SKY'
+
+
 class TargetLampMixin:
     _target: str = r'LAMP'
 
