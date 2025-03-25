@@ -50,32 +50,35 @@ class Header:
             _value=chunk['value'],
             _unit=chunk['unit'],
             _comment=chunk.get('comment', ""),
-            _default=chunk['default'],
-            _range=set(chunk['range']) if isinstance(chunk['range'], list) else (chunk['range'].min, chunk['range'].max),
+            _default=chunk.get('default', ""),
+            _range=set(chunk['range']) if isinstance(chunk['range'], list) else (chunk['range']['min'], chunk['range']['max']),
             _description=chunk.get('description', "")
         )
 
     @staticmethod
-    def load(filename) -> {'Header'}:
-        data = yaml.load(filename, Loader=yaml.SafeLoader)
+    def load(filename) -> {str: 'Header'}:
+        with open(filename) as f:
+            data = yaml.safe_load(f)
+            print(data)
 
-        return {
-            chunk: Header.from_yaml(data[chunk])
-            for chunk in data['headers']
-        }
+            return {
+                chunk: Header.from_yaml(data['headers'][chunk])
+                for chunk in data['headers']
+            }
 
+Header.load('pymetis/headers/headers.yaml')
 
-HeaderInsOpti3Name = Header(name="INS.OPTI3.NAME", description="LSS slit name")
-HeaderInsOpti6Name = Header(name="INS.OPTI6.NAME", description="LMS spectral IFU mechanism")
-HeaderInsOpti9Name = Header(name="INS.OPTI9.NAME", description="LM-LSS mask / grism name")
-HeaderInsOpti10Name = Header(name="INS.OPTI10.NAME", description="LM-LSS filter name")
-HeaderInsOpti11Name = Header(name="INS.OPTI11.NAME", description="ND filter name")
-HeaderInsOpti12Name = Header(name="INS.OPTI12.NAME", description="N-LSS mask / grism name")
+HeaderInsOpti3Name = Header(name="INS.OPTI3.NAME", _description="LSS slit name")
+HeaderInsOpti6Name = Header(name="INS.OPTI6.NAME", _description="LMS spectral IFU mechanism")
+HeaderInsOpti9Name = Header(name="INS.OPTI9.NAME", _description="LM-LSS mask / grism name")
+HeaderInsOpti10Name = Header(name="INS.OPTI10.NAME", _description="LM-LSS filter name")
+HeaderInsOpti11Name = Header(name="INS.OPTI11.NAME", _description="ND filter name")
+HeaderInsOpti12Name = Header(name="INS.OPTI12.NAME", _description="N-LSS mask / grism name")
 
-HeaderProCatg = Header(name="PRO.CATG", description="Processed data product category")
-HeaderDrsIfu = Header(name="DRS.IFU", description="Keyword alias for ND filter settings")
-HeaderDrsPupil = Header(name="DRS.PUPIL", description="Keyword alias for pupil settings")
-HeaderDrsFilter = Header(name="DRS.FILTER", description="Keyword alias for filter settings")
+HeaderProCatg = Header(name="PRO.CATG", _description="Processed data product category")
+HeaderDrsIfu = Header(name="DRS.IFU", _description="Keyword alias for ND filter settings")
+HeaderDrsPupil = Header(name="DRS.PUPIL", _description="Keyword alias for pupil settings")
+HeaderDrsFilter = Header(name="DRS.FILTER", _description="Keyword alias for filter settings")
 
-HeaderDetDit = Header(name="DET.DIT", description="Detector integration time (average when NDIT > 1)")
-HeaderDetNDit = Header(name="DET.NDIT", description="Number of detector integrations")
+HeaderDetDit = Header(name="DET.DIT", _description="Detector integration time (average when NDIT > 1)")
+HeaderDetNDit = Header(name="DET.NDIT", _description="Number of detector integrations")

@@ -4,7 +4,7 @@ headers:
     class: "header"
     context: "template"
     type: double
-    value: %.3f
+    value: "%.3f"
     unit: s
     default: 1
     range:
@@ -16,7 +16,7 @@ headers:
     class: "header"
     context: "template"
     type: int
-    value: %i
+    value: "%i"
     unit: ~
     default: 1
     range:
@@ -27,7 +27,7 @@ headers:
     class: "header"
     context: "template"
     type: string
-    value: %.3s
+    value: "%.3s"
     unit: ~
     range: ['2RG', 'GEO', 'IFU']
     description: ""
