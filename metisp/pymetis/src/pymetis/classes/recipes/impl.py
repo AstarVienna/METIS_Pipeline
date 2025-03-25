@@ -56,10 +56,12 @@ class MetisRecipeImpl(ABC):
         self.product_frames = cpl.ui.FrameSet()
 
         self.frameset: cpl.ui.FrameSet = frameset
-        self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
+        # Create an appropriate InputSet object from the frameset
+        self.inputset: PipelineInputSet = self.InputSet(frameset)
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
-        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
+        self.inputset.validate()                        # Verify that the input is valid
+        # Promote to the correct child class if available
         self.__class__ = self._dispatch_child_class()
 
     def run(self) -> cpl.ui.FrameSet:
