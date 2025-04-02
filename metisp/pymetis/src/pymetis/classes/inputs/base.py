@@ -117,7 +117,7 @@ class PipelineInput:
     @classmethod
     def description_line(cls) -> str:
         return (f"    {cls._pretty_tags():<60} [{cls._multiplicity}]"
-                f"{' (optional)' if not cls._required else '          '} "
+                f"{' (optional)' if not cls._required else '           '} "
                 f"{cls.description() or "<not defined>"}")
 
     def _verify_same_detector_from_header(self) -> None:

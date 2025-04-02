@@ -182,4 +182,4 @@ class PipelineProduct(ABC):
 
     @classmethod
     def description_line(cls) -> str:
-        return f"    {cls.tag():<75s}{cls.description() or '<not defined>'}"
+        return f"    {cls.tag():<76s}{cls.description() or '<not defined>'}"
