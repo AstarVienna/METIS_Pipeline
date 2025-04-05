@@ -212,3 +212,82 @@ telluric_ifu_class =classification_rule("IFU_TELLURIC",
 flux_tab_class = classification_rule("FLUXCAL_TAB",
                                      {"pro.catg": "FLUXCAL_TAB",
                                       })
+
+# --- LM_LSS Classifications ---
+
+raw_dark_lm_lss_class = classification_rule("DARK_2RG_RAW",
+                                            {"instrume": "METIS",
+                                             "dpr.catg": "CALIB",
+                                             "dpr.tech": "IMAGE,LM",
+                                             "dpr.type": "DARK",
+                                             })
+
+raw_rsrf_lm_lss_class = classification_rule("LM_LSS_RSRF_RAW",
+                                            {"instrume": "METIS",
+                                             "dpr.catg": "CALIB",
+                                             "dpr.tech": "LSS,LM",
+                                             "dpr.type": "FLAT,LAMP",
+                                             })
+
+raw_rsrf_pin_lm_lass_class = classification_rule("LM_LSS_RSRF_PINH_RAW",
+                                                {"instrume": "METIS",
+                                                 "dpr.catg": "CALIB",
+                                                 "dpr.tech": "LSS,LM",
+                                                 "dpr.type": "FLAT,LAMP,PINH",
+                                                 })
+
+raw_wave_lm_lass_class = classification_rule("LM_LSS_WAVE_RAW",
+                                             {"instrume": "METIS",
+                                              "dpr.catg": "CALIB",
+                                              "dpr.tech": "LSS,LM",
+                                              "dpr.type": "WAVE",
+                                              })
+
+raw_std_lm_lss_class = classification_rule("LM_LSS_STD_RAW",
+                                            {"instrume": "METIS",
+                                             "dpr.catg": "CALIB",
+                                             "dpr.tech": "LSS,LM",
+                                             "dpr.type": "STD",
+                                             })
+
+raw_sci_lm_lss_class = classification_rule("LM_LSS_SCI_RAW",
+                                            {"instrume": "METIS",
+                                             "dpr.catg": "SCIENCE",
+                                             "dpr.tech": "LSS,LM",
+                                             "dpr.type": "OBJECT",
+                                             })
+
+#--- LSS_CALIB Classifications ---
+
+gain_map_2rg_class = classification_rule("GAIN_MAP_2RG",
+                                         {"pro.catg": "GAIN_MAP_det",
+                                          "pro.tech": "IMAGE,LM",
+                                          "pro.type": "REDUCED",
+                                          })
+
+laser_tab_class = classification_rule("LASER_TAB",
+                                        {"pro.catg": "LASER_TAB",
+                                         })
+
+atm_lines_class = classification_rule("ATM_LINE_CAT",
+                                        {"pro.catg": "ATM_PROFILE",
+                                         })
+
+ref_std_class = classification_rule("REF_STD_CAT",
+                                    {"pro.catg": "REF_STD_CAT",
+                                     })
+
+lm_synth_trans_class = classification_rule("LM_SYNTH_TRANS",
+                                           {"pro.catg": "LM_SYNTH_TRANS",
+                                            })
+
+ao_psf_class = classification_rule("AO_PSF_MODEL",
+                                    {"pro.catg": "AO_PSF_MODEL",
+                                     })
+
+slitloss_lm_lss_class = classification_rule("LM_ADC_SLITLOSS",
+                                            {"pro.catg": "CALIB",
+                                             "pro.tech": "LSS,LM",
+                                             "pro.type": "SLITLOSS",
+                                             })
+
