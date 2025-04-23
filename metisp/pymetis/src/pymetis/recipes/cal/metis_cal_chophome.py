@@ -25,14 +25,14 @@ from cpl.core import Msg
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import GainMapInput, PersistenceMapInput, BadpixMapInput, PinholeTableInput
+from pymetis.classes.inputs import LinearityInput
 from pymetis.classes.products import PipelineProduct
-from pymetis.classes.inputs import LinearityInputSetMixin
 from pymetis.classes.prefab import RawImageProcessor
 
 
 class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
-    class InputSet(LinearityInputSetMixin, RawImageProcessor.InputSet):
+    class InputSet(RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_CHOPHOME_RAW")
@@ -42,10 +42,19 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
             _description: str = "Raw data for dark subtraction in other recipes."
 
-        GainMapInput = GainMapInput
+        class GainMapInput(GainMapInput):
+            _required = False     # CHECK Optional for functional development
+
+        class LinearityInput(LinearityInput):
+            _required = False    # CHECK Optional for functional development
+
         PersistenceMapInput = PersistenceMapInput
-        BadpixMapInput = BadpixMapInput
-        PinholeTableInput = PinholeTableInput
+
+        class BadpixMapInput(BadpixMapInput):
+            _required = False     # CHECK Optional for functional development
+
+        class PinholeTableInput(PinholeTableInput):
+            _required = False     # CHECK Is this needed for single pinhole?
 
     class ProductCombined(PipelineProduct):
         """
@@ -83,9 +92,23 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         raw_images.subtract_image(background_img)
         combined_img = self.combine_images(raw_images, "median")
 
+        # TODO: locate the pinhole image
+        pinhole_loc = locate_pinhole(combined_img)
+
+        # Extract QC parameters   # FIXME these are not written to the product header
+        combined_hdr.append(cpl.core.Property("QC XCEN", cpl.core.Type.DOUBLE,
+                                              pinhole_loc["xcen"], "[pix] x position of pinhole"))
+        combined_hdr.append(cpl.core.Property("QC YCEN", cpl.core.Type.DOUBLE,
+                                              pinhole_loc["ycen"], "[pix] y position of pinhole"))
+        combined_hdr.append(cpl.core.Property("QC FWHMX", cpl.core.Type.DOUBLE,
+                                              pinhole_loc["fwhm_x"], "[pix] fwhm in x of pinhole"))
+        combined_hdr.append(cpl.core.Property("QC FWHMY", cpl.core.Type.DOUBLE,
+                                              pinhole_loc["fwhm_y"], "[pix] fwhm in y of pinhole"))
+
+
         return [
-            self.ProductCombined(self, combined_hdr, combined_img),
-            self.ProductBackground(self, background_hdr, background_img),
+            self.ProductCombined(self, header=combined_hdr, image=combined_img),
+            self.ProductBackground(self, header=background_hdr, image=background_img),
         ]
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
@@ -130,14 +153,42 @@ class MetisCalChophome(MetisRecipe):
     Detect reference source from WCU via centroid peak detection
     Calculate mirror offset"""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
-            name=f"{_name}.stacking.method",
-            context=_name,
-            description="Name of the method used to combine the input images",
-            default="average",
-            alternatives=("add", "average", "median", "sigclip"),
-        ),
-    ])     # no parameters defined in DRLD
+    parameters = cpl.ui.ParameterList()
+    # --stacking.method
+    p = cpl.ui.ParameterEnum(
+        name=f"{_name}.stacking.method",
+        context=_name,
+        description="Name of the method used to combine the input images",
+        default="average",
+        alternatives=("add", "average", "median", "sigclip"),
+    )
+    p.cli_alias = "stacking.method"
+    parameters.append(p)
+
+    # --halfwindow
+    p = cpl.ui.ParameterRange(
+        name=f"{_name}.halfwindow",
+        context=_name,
+        description="Half size of window for centroid determination [pix]",
+        default=15,
+        min=1,
+        max=1024
+    )
+    p.cli_alias = "halfwindow"
+    parameters.append(p)
 
     implementation_class = MetisCalChophomeImpl
+
+
+def locate_pinhole(cimg: cpl.core.Image):
+    """Locate the pinhole on cimg"""
+    # Rough location: brightest pixel
+    # -- this may not be robust enough
+    # -- maybe use first guess based on chopper keywords?
+    x0, y0 = cimg.get_maxpos()
+    # TODO: turn window size into a recipe parameter
+    xcen = cimg.get_centroid_x(window=(x0-15, y0-15, x0+15, y0+15))
+    ycen = cimg.get_centroid_x(window=(x0-15, y0-15, x0+15, y0+15))
+    fwhm_x, fwhm_y = cimg.get_fwhm(round(xcen), round(ycen))
+    result = {"xcen": xcen, "ycen": ycen, "fwhm_x": fwhm_x, "fwhm_y": fwhm_y}
+    return result
