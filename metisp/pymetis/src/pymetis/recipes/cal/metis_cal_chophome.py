@@ -80,31 +80,50 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
 
     def process_images(self) -> [PipelineProduct]:
-        """do something"""
+        """This function processes the input images
+
+        - stack the wcu_off images into background_img
+        - subtract background_img from raw_images and stack
+        - locate pinhole on combined image
+        """
+
+        stackmethod = self.parameters[f"{self.name}.stacking.method"].value
+        hwidth = self.parameters[f"{self.name}.halfwindow"].value
 
         background_hdr = cpl.core.PropertyList()
         bg_images = self.load_images(self.inputset.background.frameset)
-        background_img = self.combine_images(bg_images, "median")
+        background_img = self.combine_images(bg_images, stackmethod)
         # TODO: define usedframes
 
         combined_hdr = cpl.core.PropertyList()
         raw_images = self.load_images(self.inputset.raw.frameset)
         raw_images.subtract_image(background_img)
-        combined_img = self.combine_images(raw_images, "median")
+        combined_img = self.combine_images(raw_images, stackmethod)
 
-        # TODO: locate the pinhole image
-        pinhole_loc = locate_pinhole(combined_img)
+        # Locate the pinhole image
+        pinhole_loc = locate_pinhole(combined_img, hwidth)
 
-        # Extract QC parameters   # FIXME these are not written to the product header
-        combined_hdr.append(cpl.core.Property("QC XCEN", cpl.core.Type.DOUBLE,
-                                              pinhole_loc["xcen"], "[pix] x position of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC YCEN", cpl.core.Type.DOUBLE,
-                                              pinhole_loc["ycen"], "[pix] y position of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC FWHMX", cpl.core.Type.DOUBLE,
-                                              pinhole_loc["fwhm_x"], "[pix] fwhm in x of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC FWHMY", cpl.core.Type.DOUBLE,
-                                              pinhole_loc["fwhm_y"], "[pix] fwhm in y of pinhole"))
-
+        # Extract QC parameters
+        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME XCEN",
+                                              cpl.core.Type.DOUBLE,
+                                              pinhole_loc["xcen"],
+                                              "[pix] x position of pinhole"))
+        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME YCEN",
+                                              cpl.core.Type.DOUBLE,
+                                              pinhole_loc["ycen"],
+                                              "[pix] y position of pinhole"))
+        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME FWHMX",
+                                              cpl.core.Type.DOUBLE,
+                                              pinhole_loc["fwhm_x"],
+                                              "[pix] fwhm in x of pinhole"))
+        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME FWHMY",
+                                              cpl.core.Type.DOUBLE,
+                                              pinhole_loc["fwhm_y"],
+                                              "[pix] fwhm in y of pinhole"))
+        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME SNR",
+                                              cpl.core.Type.DOUBLE,
+                                              pinhole_loc["snr"],
+                                              "signal-to-noise ratio of pinhole image"))
 
         return [
             self.ProductCombined(self, header=combined_hdr, image=combined_img),
@@ -160,7 +179,7 @@ class MetisCalChophome(MetisRecipe):
         context=_name,
         description="Name of the method used to combine the input images",
         default="average",
-        alternatives=("add", "average", "median", "sigclip"),
+        alternatives=("add", "average", "median"),
     )
     p.cli_alias = "stacking.method"
     parameters.append(p)
@@ -180,15 +199,32 @@ class MetisCalChophome(MetisRecipe):
     implementation_class = MetisCalChophomeImpl
 
 
-def locate_pinhole(cimg: cpl.core.Image):
+def locate_pinhole(cimg: cpl.core.Image, hwidth: int):
     """Locate the pinhole on cimg"""
     # Rough location: brightest pixel
     # -- this may not be robust enough
     # -- maybe use first guess based on chopper keywords?
-    x0, y0 = cimg.get_maxpos()
-    # TODO: turn window size into a recipe parameter
-    xcen = cimg.get_centroid_x(window=(x0-15, y0-15, x0+15, y0+15))
-    ycen = cimg.get_centroid_x(window=(x0-15, y0-15, x0+15, y0+15))
+    y0, x0 = cimg.get_maxpos()
+
+    # Analyse window around maximum position
+    win = (x0 - hwidth, y0 - hwidth, x0 + hwidth, y0 + hwidth)
+
+    xcen = cimg.get_centroid_x(window=win)
+    ycen = cimg.get_centroid_y(window=win)
     fwhm_x, fwhm_y = cimg.get_fwhm(round(xcen), round(ycen))
-    result = {"xcen": xcen, "ycen": ycen, "fwhm_x": fwhm_x, "fwhm_y": fwhm_y}
+    if fwhm_x is None or fwhm_y is None:
+        Msg.warning(self.__class__.__qualname__,
+                    ": detection of pinhole failed")
+        fwhm_x = 999
+        fwhm_y = 999
+
+    # Signal-to-noise ration using flux over the window and pixel noise
+    # over the image
+    flux = cimg.get_flux(win)
+    noise = cimg.get_stdev() * 2 * hwidth
+    print("FLUX:", flux)
+    print("NOISE:", noise)
+
+    result = {"xcen": xcen, "ycen": ycen, "fwhm_x": fwhm_x, "fwhm_y": fwhm_y,
+              "snr": flux / noise}
     return result
