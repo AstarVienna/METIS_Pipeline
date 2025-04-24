@@ -207,7 +207,11 @@ def locate_pinhole(cimg: cpl.core.Image, hwidth: int):
     y0, x0 = cimg.get_maxpos()
 
     # Analyse window around maximum position
-    win = (x0 - hwidth, y0 - hwidth, x0 + hwidth, y0 + hwidth)
+    llx = max(x0 - hwidth, 0)
+    lly = max(y0 - hwidth, 0)
+    urx = min(x0 + hwidth, cimg.shape[1]-1)
+    ury = min(y0 + hwidth, cimg.shape[0]-1)
+    win = (llx, lly, urx, ury)
 
     xcen = cimg.get_centroid_x(window=win)
     ycen = cimg.get_centroid_y(window=win)
