@@ -64,7 +64,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Combined, background-subtracted images of the WCU source."
+        _description: str = "Combined, background-subtracted images of the WCU pinhole mask. The chopper offset is in the header."
         _oca_keywords: {str} = {'PRO.CATG'}
 
     class ProductBackground(PipelineProduct):
@@ -75,7 +75,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Stacked background-subtracted images of pinhole mask. The chopper offset is in the header."
+        _description: str = "Stacked background image."
         _oca_keywords: {str} = {'PRO.CATG'}
 
 
@@ -161,16 +161,12 @@ class MetisCalChophome(MetisRecipe):
     _description: str = """\
     """
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
-    _algorithm = """The position of the pinhole image on the detector is measured from the stacked
-    background-subtracted images. The measured position is compared to the WFS
-    metrology to give the chopper home position.
-
-    Remove detector signature
-    Remove median background
-    Apply flatfield
-    Detect reference source from WCU via centroid peak detection
-    Calculate mirror offset"""
+    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT'}
+    _algorithm = """
+    The position of the pinhole image on the detector is measured from the
+    stacked background-subtracted images. The measured position is compared
+    to the WFS metrology to give the chopper home position.
+    """
 
     parameters = cpl.ui.ParameterList()
     # --stacking.method
@@ -200,10 +196,30 @@ class MetisCalChophome(MetisRecipe):
 
 
 def locate_pinhole(cimg: cpl.core.Image, hwidth: int):
-    """Locate the pinhole on cimg"""
+    """Locate the pinhole on cimg
+
+    Parameters
+    ----------
+    - cimg  : cpl.core.Image
+    - hwidth : int
+          half-width of window around pixel with maximum value
+
+    Returns
+    -------
+    A dictionary with parameters:
+    - xcen, ycen : [pix] location of the centroid of the pinhole image
+    - fwhm_x, fwhm_y: [pix] full-width at half maximum of the pinhole
+                            image in x- and y-direction
+    - snr: signal-to-noise ratio determined as total flux in window divided
+           by pixel stdev times number of pixels in window
+
+
+    Note
+    ----
+    The function uses a fairly rough algorithm. Its robustness depends on the
+    pinhole image having high signal-to-noise without being saturated.
+    """
     # Rough location: brightest pixel
-    # -- this may not be robust enough
-    # -- maybe use first guess based on chopper keywords?
     y0, x0 = cimg.get_maxpos()
 
     # Analyse window around maximum position
