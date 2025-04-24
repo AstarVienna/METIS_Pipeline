@@ -59,7 +59,12 @@ class PipelineProduct(ABC):
         self.recipe: 'MetisRecipeImpl' = recipe_impl
         self.header: cpl.core.PropertyList = header
         self.image: cpl.core.Image = image
-        self.properties = cpl.core.PropertyList()
+
+        # FIXME: temporary to get QC parameters into the product header [OC]
+        if self.header is not None:
+            self.properties = self.header
+        else:
+            self.properties = cpl.core.PropertyList()
 
         self._used_frames: cpl.ui.FrameSet | None = None
 
@@ -141,7 +146,6 @@ class PipelineProduct(ABC):
             self.properties,            # Properties to be appended
             PIPELINE,
             self.output_file_name,
-            header=self.header,
         )
 
     @property
@@ -181,4 +185,3 @@ class PipelineProduct(ABC):
     @classmethod
     def description_line(cls) -> str:
         return f"    {cls.tag():<75s}{cls.description() or '<not defined>'}"
-
