@@ -103,6 +103,12 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         # Locate the pinhole image
         pinhole_loc = locate_pinhole(combined_img, hwidth)
 
+        if pinhole_loc["fwhm_x"] is None or pinhole_loc["fwhm_y"] is None:
+            Msg.warning(self.__class__.__qualname__,
+                        ": detection of pinhole failed")
+            pinhole_loc["fwhm_x"] = 999
+            pinhole_loc["fwhm_y"] = 999
+
         # Extract QC parameters
         combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME XCEN",
                                               cpl.core.Type.DOUBLE,
@@ -231,12 +237,7 @@ def locate_pinhole(cimg: cpl.core.Image, hwidth: int):
 
     xcen = cimg.get_centroid_x(window=win)
     ycen = cimg.get_centroid_y(window=win)
-    fwhm_x, fwhm_y = cimg.get_fwhm(round(xcen), round(ycen))
-    if fwhm_x is None or fwhm_y is None:
-        Msg.warning(self.__class__.__qualname__,
-                    ": detection of pinhole failed")
-        fwhm_x = 999
-        fwhm_y = 999
+    fwhm_y, fwhm_x = cimg.get_fwhm(y0, x0)
 
     # Signal-to-noise ration using flux over the window and pixel noise
     # over the image
