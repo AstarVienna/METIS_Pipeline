@@ -59,8 +59,12 @@ class PipelineProduct(ABC):
         self.recipe: 'MetisRecipeImpl' = recipe_impl
         self.header: cpl.core.PropertyList = header
         self.image: cpl.core.Image = image
-        self.properties = self.header   # FIXME: temporary to get QC parameters
-                                        # into the product header [OC]
+
+        # FIXME: temporary to get QC parameters into the product header [OC]
+        if self.header is not None:
+            self.properties = self.header
+        else:
+            self.properties = cpl.core.PropertyList()
 
         self._used_frames: cpl.ui.FrameSet | None = None
 
