@@ -93,22 +93,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         def tag(cls) -> str:
             return rf"LM_{cls.target():s}_BASIC_REDUCED"
 
-
-
-    def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
-        """ Flat field preparation: subtract bias and normalize it to median 1 """
-        Msg.info(self.__class__.__qualname__, "Preparing flat field")
-
-        if flat is None:
-            raise RuntimeError("No flat frames found in the frameset.")
-        else:
-            if bias is not None:
-                flat.subtract(bias)
-            median = flat.get_median()
-            return flat
-
-            # return flat.divide_scalar(median)
-
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet,
                        bias: cpl.core.Image | None = None,
@@ -120,14 +104,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file}")
             raw_image = cpl.core.Image.load(frame.file, extension=1)
-
-            if bias:
-                Msg.debug(self.__class__.__qualname__, "Bias subtracting...")
-                raw_image.subtract(bias)
-
-            if flat:
-                Msg.debug(self.__class__.__qualname__, "Flat fielding...")
-                raw_image.divide(flat)
 
             prepared_images.append(raw_image)
 
@@ -141,18 +117,51 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         a single combined frame that is used throughout the pipeline.
         """
 
-        Msg.info(self.__class__.__qualname__, f"Starting processing image attribute.")
+        Msg.info(self.__class__.__qualname__, f"Processing Images")
+
+        Msg.info(self.__class__.__qualname__, f"Loading calibration files")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
-
-        flat = self.prepare_flat(flat, bias)
+        
+        Msg.info(self.__class__.__qualname__, f"Loading raw images")
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
+        Msg.info(self.__class__.__qualname__, f"Pretending to correct crosstalk")
+        Msg.info(self.__class__.__qualname__, f"Pretending to correct for linearity")
+
+        Msg.info(self.__class__.__qualname__, f"Subtracting Dark")
+
+        images.subtract_image(bias)
+
+        Msg.info(self.__class__.__qualname__, f"Flat fielding")
+
+        images.divide_image(flat)
+
+        Msg.info(self.__class__.__qualname__, f"Pretending to remove masked regions")
+
+        Msg.info(self.__class__.__qualname__, f"Combining Images")
         combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
+        
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+
+        Msg.info(self.__class__.__qualname__, f"Pretending to calculate noise")
+        
+        Msg.info(self.__class__.__qualname__, f"Pretending to calculate bad pixels")
+        
+        Msg.info(self.__class__.__qualname__, f"Actually Calculating QC Parameters")
+
+        qc_lm_img_median = combined_image.get_median()
+        qc_lm_img_std = combined_image.get_stdev()
+        qc_lm_img_max = combined_image.get_max()
+
+        Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
+
+        header.append("QC_LM_IMG_MEDIAN",qc_lm_img_median)
+        header.append("QC_LM_IMG_STD",qc_lm_img_std)
+        header.append("QC_LM_IMG_MAX",qc_lm_img_max)
 
         self.target = self.inputset.tag_parameters['target']
 
