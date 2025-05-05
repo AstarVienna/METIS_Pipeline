@@ -95,7 +95,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
     class ProductMasterFlatIfu(PipelineProduct):
         _tag: str = r"MASTER_FLAT_IFU"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        group = cpl.ui.Frame.FrameGroup.PRODUCT #TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
@@ -110,7 +110,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
     class ProductRsrfIfu(TableProduct):
         _tag: str = r"RSRF_IFU"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
+        group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
 
