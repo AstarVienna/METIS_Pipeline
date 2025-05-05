@@ -36,8 +36,7 @@ from pymetis.classes.products import PipelineProduct
 from pymetis.classes.products import TableProduct
 from pymetis.classes.products import ProductBadpixMapDet
 
-EXT = 1 # TODO: update to read multi-extension files
-EXTRACT_WIDTH = 10 # TODO: make this a parameter
+EXT = 4 # TODO: update to read multi-extension files
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
@@ -53,9 +52,11 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         class GainMapInput(GainMapInput):
             _tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
+            _required = False
 
         class LinearityInput(LinearityInput):
             _tags: re.Pattern = re.compile(r"LINEARITY_IFU")
+            _required = False
 
         class RsrfWcuOffInput(RawInput):
             """
@@ -67,8 +68,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             _title: str = "IFU WCU off"
             _description: str = "Raw data for dark subtraction in other recipes."
 
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+        # TBC: could this be replaced by the MASTER_DARK_IFU input?
+        class BadpixMapInput(BadpixMapInput):
             _tags: re.Pattern = re.compile(r"BADPIX_MAP_IFU")
+            _required = False
 
         DistortionTableInput = DistortionTableInput
         WavecalInput = WavecalInput
@@ -78,10 +81,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         Intermediate product: the instrumental background (WCU OFF)
         """
         _tag: str = r"IFU_RSRF_BACKGROUND"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
+        group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "something"
+        _description: str = "Stacked background image."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
@@ -96,7 +99,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-        _description: str = "Master flat frame for IFU image data"
+        _description: str = "2D relative spectral response image"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from header
@@ -123,33 +126,34 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         pass
 
     def process_images(self) -> [PipelineProduct]:
+        """This function processes the input images
+
+        - stack the wcu_off images into background_img
+        - subtract background_img from raw_images and stack
+        - calculate the black-body image from the wavecal_img
+        - divide the stacked raw image by the black-body image
+        - create the 1D RSRF curves from the flat image
+        - create the bad pixel map from the master dark and update it
+        """
+
+        # load parameters
+        stackmethod = self.parameters[f"{self.name}.stacking.method"].value
+        extract_hwidth = self.parameters[f"{self.name}.extract.hwidth"].value
+
         # TODO: FUNC: basic raw processing of RSRF and WCU_OFF input frames:
         # - dark subtraction? (subtracting WCU_OFF frame should suffice?)
         # - gain / linearity correction?
-        # - master dark will be used for bad-pixel map as a minimum
 
-        # create bad pixel map
-        # TODO: FUNC: create updated bad pixel map
-        badpix_hdr = cpl.core.PropertyList()
-        # placeholder data for now - bad-pixel map based on master_dark
-        badpix_img = cpl.core.Image.load(self.inputset.master_dark.frame.file,
-                                         extension=0)
-        # TODO: create QC1 parameters:
-        qc_badpix_count = 0
-        # Add QC keywords
-        badpix_hdr.append(
-            cpl.core.Property(
-                "QC IFU RSRF NBADPIX",
-                cpl.core.Type.INT,
-                qc_badpix_count,
-                )
-            )
-
-        # Msg.debug(self.__class__.__qualname__,
-        #     f"Dist table file: {self.inputset.distortion_table.frame.file}")
+        ## load MASTER_DARK_IFU image and extract bad pixel map
+        # TODO: update to load multi-extension file, current intermediate
+        # products are only single-extension
+        master_dark_img = cpl.core.Image.load(
+            self.inputset.master_dark.frame.file, extension=0)
+        badpix_map = master_dark_img.bpm
 
         ## load IFU trace definition file - only one extension for now
-        trace_list = self.read_ifu_distortion_table(self.inputset.distortion_table.frame.file, EXT)
+        trace_list = self.read_ifu_distortion_table(
+            self.inputset.distortion_table.frame.file, ext=EXT)
 
         ## load wavelength calibration image
         wavecal_img = cpl.core.Image.load(
@@ -160,7 +164,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             cpl.core.PropertyList()
         # self.inputset.background.frameset.dump() # debug
         bg_images = self.load_images(self.inputset.rsrf_wcu_off.frameset)
-        background_img = self.combine_images(bg_images, "median") # if >2 images
+        background_img = self.combine_images(bg_images, stackmethod)
         
         # TODO: define usedframes?
         # TODO: Add product keywords - currently none defined in DRLD
@@ -168,9 +172,14 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         ## create 2D flat image (raw images are added together)
         spec_flat_hdr = \
             cpl.core.PropertyList()
-        
-        # load RSRF_RAW images, stack them and subtract the background
+        # load RSRF_RAW images, subtract the background and stack them
         raw_images = self.load_images(self.inputset.raw.frameset)
+        # FUNC: single-extension data product for now
+        raw_images.subtract_image(background_img)
+        spec_flat_img = self.combine_images(raw_images, stackmethod)
+        # propagate badpixel mask
+        spec_flat_img.reject_from_mask(badpix_map)
+        # TODO: propagate errors
 
         # obtain black-body temperature from first frame's header
         # NOTE: this assumes raw frames were grouped by BB temperature
@@ -178,20 +187,6 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.inputset.raw.frameset[0].file,
             position=0)
         bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
-
-        # TODO: make stacking method a parameter
-        # SKEL: placeholder single-file, single-extension data product for now
-        spec_flat_img = self.combine_images(raw_images, "median") # if >2 images
-        spec_flat_img.subtract(background_img)
-
-        # SKEL: Add QC keywords
-        spec_flat_hdr.append(
-            cpl.core.Property(
-                "QC IFU RSRF NBADPIX",
-                cpl.core.Type.INT,
-                qc_badpix_count,
-                )
-            )
 
         ## create black-body image
         bb_img = self.create_ifu_blackbody_image(wavecal_img, bb_temp)
@@ -204,10 +199,36 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # divide the RSRF image by the black-body spectrum
         # (inherits the bb bad-pixel mask)
         spec_flat_img.divide(bb_img)
+        # TODO: propagate errors
 
-        # extract 1D RSRF curves
+        # SKEL: Add QC keywords
+        qc_badpix_count = spec_flat_img.count_rejected()
+        spec_flat_hdr.append(
+            cpl.core.Property(
+                "QC IFU RSRF NBADPIX",
+                cpl.core.Type.INT,
+                qc_badpix_count,
+                )
+            )
+
+        ## create bad pixel map product
+        # TODO: FUNC: create updated bad pixel map
+        badpix_hdr = cpl.core.PropertyList()
+        # placeholder data for now - bad-pixel map based on master_dark
+        badpix_img = master_dark_img
+        # TODO: create QC1 parameters:
+        # Add QC keywords
+        badpix_hdr.append(
+            cpl.core.Property(
+                "QC IFU RSRF NBADPIX",
+                cpl.core.Type.INT,
+                qc_badpix_count,
+                )
+            )
+
+        ## extract 1D RSRF curves
         rsrf_1d_list = self.extract_ifu_1d_spectra(spec_flat_img, trace_list,
-                                                   trace_width=EXTRACT_WIDTH)
+                                                   trace_width=extract_hwidth)
 
         # global normalisation of the 1D RSRF curves
         rsrf_med = np.zeros(len(rsrf_1d_list))
@@ -224,8 +245,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # create 1D RSRF product
         rsrf_hdr = cpl.core.PropertyList()
         # TODO: FUNC: Add product keywords - currently none defined in DRLD
-        from astropy import table
-        table = table.QTable()
+        table = QTable()
         for i, rsrf in enumerate(rsrf_1d_list, start=1):
             table[f'rsrf_{i}'] = rsrf
             table[f'rsrf_{i}'].name = f'rsrf_{i}'
@@ -254,7 +274,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         for idx, frame in enumerate(frameset):
             cpl.core.Msg.info(self.__class__.__qualname__,
                      f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
+            output.append(cpl.core.Image.load(frame.file, extension=EXT))
 
         return output
 
@@ -400,13 +420,41 @@ class MetisIfuRsrf(MetisRecipe):
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """Average / median stack WCU_OFF images to create background image
         Subtract background image from individual RSRF RAW frames
+        Stack the RSRF RAW frames
         TBC: subtract master_dark from above frames first?
         TBC: apply gain / linearity corrections to above frames?
         TBC: obtain bad pixel map from master_dark?
-        Create continuum image by mapping Planck spectrum at Tlamp to wavelength image.
-        Divide exposures by continuum image.
-        Create master flat (2D RSRF) - TBC one extension per input exposure?
-        Average in spatial direction to obtain relative response function
-            (1D RSRF) - TBC multiple FITS extensions with spectral traces?"""
+        Create continuum image by mapping Planck spectrum at Tlamp to wavelength image
+        Scale continuum image to match the RSRF image
+        Divide stacked RAW frame by continuum image and save as MASTER_FLAT_IFU (2D RSRF)
+        Average in spatial direction for each spectral trace to obtain
+            relative response function (1D RSRF) - table with 1D spectra
+        Normalise the set of 1D spectra to a common level before saving as RSRF_IFU
+        Create bad pixel map from the master flat and update with locations
+            of zero values in the continuum image - save as BADPIX_MAP_IFU"""
+
+    parameters = cpl.ui.ParameterList()
+    # --stacking.method
+    p = cpl.ui.ParameterEnum(
+        name=f"{_name}.stacking.method",
+        context=_name,
+        description="Name of the method used to combine the input images",
+        default="median",
+        alternatives=("average", "median"),
+    )
+    p.cli_alias = "stacking.method"
+    parameters.append(p)
+
+    # --extract.hwidth
+    p = cpl.ui.ParameterRange(
+        name=f"{_name}.extract.hwidth",
+        context=_name,
+        description="Half width of trace for 1D RSRF extraction [pix]",
+        default=20,
+        min=1,
+        max=30
+    )
+    p.cli_alias = "extract.hwidth"
+    parameters.append(p)
 
     implementation_class = MetisIfuRsrfImpl
