@@ -208,6 +208,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
                 "QC IFU RSRF NBADPIX",
                 cpl.core.Type.INT,
                 qc_badpix_count,
+                "Number of bad pixels"
                 )
             )
 
@@ -223,6 +224,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
                 "QC IFU RSRF NBADPIX",
                 cpl.core.Type.INT,
                 qc_badpix_count,
+                "Number of bad pixels"
                 )
             )
 
