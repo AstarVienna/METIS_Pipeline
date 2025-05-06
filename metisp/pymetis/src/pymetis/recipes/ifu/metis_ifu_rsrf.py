@@ -152,7 +152,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         badpix_map = master_dark_img.bpm
 
         ## load IFU trace definition file - only one extension for now
-        trace_list = self.read_ifu_distortion_table(
+        trace_list = read_ifu_distortion_table(
             self.inputset.distortion_table.frame.file, ext=EXT)
 
         ## load wavelength calibration image
@@ -189,7 +189,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
 
         ## create black-body image
-        bb_img = self.create_ifu_blackbody_image(wavecal_img, bb_temp)
+        bb_img = create_ifu_blackbody_image(wavecal_img, bb_temp)
 
         # scale the BB image to the RSRF image before dividing
         raw_level = spec_flat_img.get_max()
@@ -229,7 +229,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             )
 
         ## extract 1D RSRF curves
-        rsrf_1d_list = self.extract_ifu_1d_spectra(spec_flat_img, trace_list,
+        rsrf_1d_list = extract_ifu_1d_spectra(spec_flat_img, trace_list,
                                                    trace_width=extract_hwidth)
 
         # global normalisation of the 1D RSRF curves
@@ -280,113 +280,113 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         return output
 
-    def create_ifu_blackbody_image(self, wavecal_img, bb_temp):
-        """
-        Create a blackbody image from the RSRF image and the wavelength calibration image.
-        """
+def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
+    """
+    Create a blackbody image from the RSRF image and the wavelength calibration image.
+    """
+    
+    wdata = wavecal_img.as_array()
+
+    # create a new image to hold the black-body spectrum
+    # each pixel will hold the BB flux at the wavelength of that pixel
+    bb_data = np.zeros_like(wdata)
+
+    # create wavelength lookup table [im um]
+    wlookup = np.unique(wdata)[1:]  # remove the first element (0)
+    wavelengths = cpl.core.Vector(wlookup / 1e6)  # Wavelengths in meters
+
+    # Calculate the black-body flux at each wavelength
+    flux = cpl.drs.photom.fill_blackbody(cpl.drs.photom.Unit.LESS,  # output unit
+                                wavelengths,  # Wavelengths in meters
+                                cpl.drs.photom.Unit.LENGTH,  # input unit
+                                bb_temp  # Temperature in Kelvin
+                                )
+
+    # convert lookup table to vector for binary search functionality
+    wlookup = cpl.core.Vector(wlookup)
+
+    # fill the BB data array with the flux values
+    for i in range(bb_data.shape[0]):
+        for j in range(bb_data.shape[1]):
+            if wdata[i, j] > 0: # only fill valid pixels
+                # find the index of the closest wavelength in the lookup table
+                # and assign the corresponding flux value
+                bb_data[i, j] = flux[wlookup.binary_search(wdata[i, j])]
+
+    # mask the zero values with the bad-pixel mask to avoid division by zero
+    bb_img = cpl.core.Image(bb_data)
+    bb_img.reject_value({0})
+
+    return bb_img
+
+def read_ifu_distortion_table(fits_file, ext=1) -> list:
+    """
+    Read the IFU distortion table from the given FITS file.
+
+    Parameters:
+    fits_file (str): Path to the FITS file containing the distortion table.
+
+    Returns:
+    list: A list of tuples containing the x- and y-coordinates of the traces.
+    """
+    # Load the distortion table
+    # TODO: assumes distortion table has one set of coefficients for each extension
+    distortion_table = cpl.core.Table.load(fits_file, xtnum=ext)
+
+    # obtain the trace polynomials from the distortion table
+    trace_polys = distortion_table.column_array('orders')[0]
+    x_ranges = distortion_table.column_array('column_range')[0]
+
+    # create a list of y-coordinates for each trace from the distortion table
+    # x_arr = np.arange(0, rsrf_raw_img.width)
+    trace_list = []
+    for x_range, trace in zip(x_ranges, trace_polys):
+        x_arr = np.arange(x_range[0], x_range[1])
+        poly_n = len(trace) - 1
+        y_arr = [sum([k*x**(poly_n-i) for i, k in enumerate(trace)]) for x in x_arr]
+        trace_list.append((x_arr, y_arr))
         
-        wdata = wavecal_img.as_array()
+    # return the list of x,y coordinates for each trace
+    return trace_list
+    
+def extract_ifu_1d_spectra(img, trace_list, trace_width=10) -> list:
+    """
+    Extract 1D spectra from the given image using the provided list of
+    spectral trace coordinates.
 
-        # create a new image to hold the black-body spectrum
-        # each pixel will hold the BB flux at the wavelength of that pixel
-        bb_data = np.zeros_like(wdata)
+    Parameters:
+    img : cpl.core.Image
+        The image from which to extract the spectra.
+    trace_list : list of tuples
+        Each tuple contains two arrays: x-coordinates and y-coordinates
+        of the spectral trace.
+    trace_width : int
+        The width of the trace to be used for extraction.
+    
+    Returns:
+    list of cpl.core.Vector
+        A list of 1D spectra extracted from the image.
+    """
+    
+    # copy data to np.masked_array for processing
+    rej_mask = np.array(img.bpm)  # set bad pixels
+    mdata = ma.masked_array(img.as_array(), mask=rej_mask)
+    imwidth = img.width
 
-        # create wavelength lookup table [im um]
-        wlookup = np.unique(wdata)[1:]  # remove the first element (0)
-        wavelengths = cpl.core.Vector(wlookup / 1e6)  # Wavelengths in meters
+    # TODO: check that traces are within the image bounds
 
-        # Calculate the black-body flux at each wavelength
-        flux = cpl.drs.photom.fill_blackbody(cpl.drs.photom.Unit.LESS,  # output unit
-                                    wavelengths,  # Wavelengths in meters
-                                    cpl.drs.photom.Unit.LENGTH,  # input unit
-                                    bb_temp  # Temperature in Kelvin
-                                    )
-
-        # convert lookup table to vector for binary search functionality
-        wlookup = cpl.core.Vector(wlookup)
-
-        # fill the BB data array with the flux values
-        for i in range(bb_data.shape[0]):
-            for j in range(bb_data.shape[1]):
-                if wdata[i, j] > 0: # only fill valid pixels
-                    # find the index of the closest wavelength in the lookup table
-                    # and assign the corresponding flux value
-                    bb_data[i, j] = flux[wlookup.binary_search(wdata[i, j])]
-
-        # mask the zero values with the bad-pixel mask to avoid division by zero
-        bb_img = cpl.core.Image(bb_data)
-        bb_img.reject_value({0})
-
-        return bb_img
-
-    def read_ifu_distortion_table(self, fits_file, ext=1) -> list:
-        """
-        Read the IFU distortion table from the given FITS file.
-
-        Parameters:
-        fits_file (str): Path to the FITS file containing the distortion table.
-
-        Returns:
-        list: A list of tuples containing the x- and y-coordinates of the traces.
-        """
-        # Load the distortion table
-        # TODO: assumes distortion table has one set of coefficients for each extension
-        distortion_table = cpl.core.Table.load(fits_file, xtnum=ext)
-
-        # obtain the trace polynomials from the distortion table
-        trace_polys = distortion_table.column_array('orders')[0]
-        x_ranges = distortion_table.column_array('column_range')[0]
-
-        # create a list of y-coordinates for each trace from the distortion table
-        # x_arr = np.arange(0, rsrf_raw_img.width)
-        trace_list = []
-        for x_range, trace in zip(x_ranges, trace_polys):
-            x_arr = np.arange(x_range[0], x_range[1])
-            poly_n = len(trace) - 1
-            y_arr = [sum([k*x**(poly_n-i) for i, k in enumerate(trace)]) for x in x_arr]
-            trace_list.append((x_arr, y_arr))
-            
-        # return the list of x,y coordinates for each trace
-        return trace_list
-        
-    def extract_ifu_1d_spectra(self, img, trace_list, trace_width=10) -> list:
-        """
-        Extract 1D spectra from the given image using the provided list of
-        spectral trace coordinates.
-
-        Parameters:
-        img : cpl.core.Image
-            The image from which to extract the spectra.
-        trace_list : list of tuples
-            Each tuple contains two arrays: x-coordinates and y-coordinates
-            of the spectral trace.
-        trace_width : int
-            The width of the trace to be used for extraction.
-        
-        Returns:
-        list of cpl.core.Vector
-            A list of 1D spectra extracted from the image.
-        """
-        
-        # copy data to np.masked_array for processing
-        rej_mask = np.array(img.bpm)  # set bad pixels
-        mdata = ma.masked_array(img.as_array(), mask=rej_mask)
-        imwidth = img.width
-
-        # TODO: check that traces are within the image bounds
-
-        # create a list of 1D RSRF curves (width is the image width)
-        rsrf_1d_list = []
-        for trace in trace_list:
-            x_arr = trace[0]
-            y_arr = trace[1]
-            rsrf_1d = np.zeros(imwidth, dtype=float)
-            for i, x in enumerate(x_arr):
-                yc = y_arr[i]
-                rsrf_1d[x] = mdata[int(yc-trace_width):int(yc+trace_width), x].mean()
-            rsrf_1d_list.append(cpl.core.Vector(rsrf_1d))
-        
-        return rsrf_1d_list
+    # create a list of 1D RSRF curves (width is the image width)
+    rsrf_1d_list = []
+    for trace in trace_list:
+        x_arr = trace[0]
+        y_arr = trace[1]
+        rsrf_1d = np.zeros(imwidth, dtype=float)
+        for i, x in enumerate(x_arr):
+            yc = y_arr[i]
+            rsrf_1d[x] = mdata[int(yc-trace_width):int(yc+trace_width), x].mean()
+        rsrf_1d_list.append(cpl.core.Vector(rsrf_1d))
+    
+    return rsrf_1d_list
 
 class MetisIfuRsrf(MetisRecipe):
     _name: str = "metis_ifu_rsrf"
