@@ -173,18 +173,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
 
-            header.append(cpl.core.Property("QC LM IMG MEDIAN",    # no underscores; is "LM IMG" necessary?
-                           cpl.core.Type.DOUBLE,
-                           image.get_median(),    # actually individual image
-                           "[ADU] median value of image")
-            header.append(cpl.core.Property("QC LM IMG STD",    # no underscores; is "LM IMG" necessary?
-                           cpl.core.Type.DOUBLE,
-                           image.get_stddev(),    # actually individual image
-                           "[ADU] standard deviation of image")
-            header.append(cpl.core.Property("QC LM IMG MAX",    # no underscores; is "LM IMG" necessary?
-                           cpl.core.Type.DOUBLE,
-                           image.get_max(),    # actually individual image
-                           "[ADU] maximum value of image")
+            header.append(cpl.core.Property("QC LM IMG MEDIAN",cpl.core.Type.DOUBLE,image.get_median(),"[ADU] median value of image"))
+            header.append(cpl.core.Property("QC LM IMG STDEV",cpl.core.Type.DOUBLE,image.get_median(),"[ADU] stddev value of image"))
+            header.append(cpl.core.Property("QC LM IMG MAX",cpl.core.Type.DOUBLE,image.get_median(),"[ADU] max value of image"))
+
 
             self.target = self.inputset.tag_parameters['target']
 
