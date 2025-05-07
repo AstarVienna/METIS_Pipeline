@@ -93,42 +93,44 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         _description: str = "Science grade detrended exposure of the LM image mode."
 
         def __init__(self,
-        	         recipe_impl: 'MetisRecipeImpl',
-        	         header: cpl.core.PropertyList,
-        	         image: cpl.core.Image,
-        	         noise: cpl.core.Image,
-        	         mask: cpl.core.Image):
-        	self.recipe: 'MetisRecipeImpl' = recipe_impl
-        	self.header: cpl.core.PropertyList = header
-        	self.image: cpl.core.Image = image
-        	self.noise: cpl.core.Image = noise
-        	self.mask: cpl.core.Image = mask
+                         recipe_impl: 'MetisRecipeImpl',
+                         header: cpl.core.PropertyList,
+                         image: cpl.core.Image,
+                         noise: cpl.core.Image,
+                         mask: cpl.core.Image,
+                         nFrame: int):
+                self.recipe: 'MetisRecipeImpl' = recipe_impl
+                self.header: cpl.core.PropertyList = header
+                self.image: cpl.core.Image = image
+                self.noise: cpl.core.Image = noise
+                self.mask: cpl.core.Image = mask
+                self.nFrame: int = nFrame
 
-	        # FIXME: temporary to get QC parameters into the product header [OC]
-	        if self.header is not None:
-	            self.properties = self.header
-	        else:
-	            self.properties = cpl.core.PropertyList()
-	
-	        self._used_frames: cpl.ui.FrameSet | None = None
-	
-	        # Raise a NotImplementedError in case a derived class forgot to set a class attribute
-	        if self.tag is None:
-	            raise NotImplementedError(f"Products must define 'tag', but {self.__class__.__qualname__} does not")
-	
-	        if self.group is None:
-	            raise NotImplementedError(f"Products must define 'group', but {self.__class__.__qualname__} does not")
-	
-	        if self.level is None:
-	            raise NotImplementedError(f"Products must define 'level', but {self.__class__.__qualname__} does not")
-	
-	        if self.frame_type is None:
-	            raise NotImplementedError(f"Products must define 'frame_type', but {self.__class__.__qualname__} does not")
-	
-	        if self.category is None:
-	            raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
-	
-	        self.add_properties()
+                # FIXME: temporary to get QC parameters into the product header [OC]
+                if self.header is not None:
+                    self.properties = self.header
+                else:
+                    self.properties = cpl.core.PropertyList()
+        
+                self._used_frames: cpl.ui.FrameSet | None = None
+        
+                # Raise a NotImplementedError in case a derived class forgot to set a class attribute
+                if self.tag is None:
+                    raise NotImplementedError(f"Products must define 'tag', but {self.__class__.__qualname__} does not")
+        
+                if self.group is None:
+                    raise NotImplementedError(f"Products must define 'group', but {self.__class__.__qualname__} does not")
+        
+                if self.level is None:
+                    raise NotImplementedError(f"Products must define 'level', but {self.__class__.__qualname__} does not")
+        
+                if self.frame_type is None:
+                    raise NotImplementedError(f"Products must define 'frame_type', but {self.__class__.__qualname__} does not")
+        
+                if self.category is None:
+                    raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
+        
+                self.add_properties()
 
         
         @classmethod
@@ -143,7 +145,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             """
             super().output_file_name
 
-            return f"{self.category}_{os.path.basename(self.recipe.frameset[0].file)}"
+            return f"{self.category}_{os.path.basename(self.recipe.frameset[self.nFrame].file)}"
 
 
         @final
@@ -271,7 +273,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             self.target = self.inputset.tag_parameters['target']
 
-            product = self.ProductBasicReduced(self, header, image, noise, bmask)
+            product = self.ProductBasicReduced(self, header, image, noise, bmask, i)
             productSet.append(product)
             
         return productSet
