@@ -123,7 +123,7 @@ class PipelineProduct(ABC):
     def __str__(self) -> str:
         return f"{self.__class__.__qualname__} ({self.tag()})"
 
-    @final
+    # @final
     def save(self):
         """ Save this Product to a file """
         Msg.info(self.__class__.__qualname__,
