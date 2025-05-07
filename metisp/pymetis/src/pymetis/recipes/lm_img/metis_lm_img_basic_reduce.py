@@ -105,9 +105,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             return f"{self.category}_{os.path.basename(self.recipe.frameset[0].file)}"
         
     def prepare_images(self,
-                       raw_frames: cpl.ui.FrameSet,
-                       bias: cpl.core.Image | None = None,
-                       flat: cpl.core.Image | None = None) -> cpl.core.ImageList:
+                       raw_frames: cpl.ui.FrameSet) -> cpl.core.ImageList:
         prepared_images = cpl.core.ImageList()
 
         for index, frame in enumerate(raw_frames):
@@ -133,19 +131,19 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         Msg.info(self.__class__.__qualname__, f"Loading calibration files")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
-        bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
+        dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
         
         Msg.info(self.__class__.__qualname__, f"Loading raw images")
-        images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
+        images = self.prepare_images(self.inputset.raw.frameset)
         Msg.info(self.__class__.__qualname__, f"Pretending to correct crosstalk")
         Msg.info(self.__class__.__qualname__, f"Pretending to correct for linearity")
 
         Msg.info(self.__class__.__qualname__, f"Subtracting Dark")
 
-        images.subtract_image(bias)
+        images.subtract_image(dark)
 
         Msg.info(self.__class__.__qualname__, f"Flat fielding")
 
@@ -173,15 +171,20 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         
             Msg.info(self.__class__.__qualname__, f"Actually Calculating QC Parameters")
 
-            qc_lm_img_median = image.get_median()
-            qc_lm_img_std = image.get_stdev()
-            qc_lm_img_max = image.get_max()
-
             Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
 
-            header.append("QC_LM_IMG_MEDIAN",qc_lm_img_median)
-            header.append("QC_LM_IMG_STD",qc_lm_img_std)
-            header.append("QC_LM_IMG_MAX",qc_lm_img_max)
+            header.append(cpl.core.Property("QC LM IMG MEDIAN",    # no underscores; is "LM IMG" necessary?
+                           cpl.core.Type.DOUBLE,
+                           image.get_median(),    # actually individual image
+                           "[ADU] median value of image")
+            header.append(cpl.core.Property("QC LM IMG STD",    # no underscores; is "LM IMG" necessary?
+                           cpl.core.Type.DOUBLE,
+                           image.get_stddev(),    # actually individual image
+                           "[ADU] standard deviation of image")
+            header.append(cpl.core.Property("QC LM IMG MAX",    # no underscores; is "LM IMG" necessary?
+                           cpl.core.Type.DOUBLE,
+                           image.get_max(),    # actually individual image
+                           "[ADU] maximum value of image")
 
             self.target = self.inputset.tag_parameters['target']
 
@@ -242,7 +245,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
     _synopsis: str = "Basic science image data processing"
     _description: str = (
             "The recipe combines all science input files in the input set-of-frames using\n"
-            + "the given method. For each input science image the master bias is subtracted,\n"
+            + "the given method. For each input science image the master dark is subtracted,\n"
             + "and it is divided by the master flat."
     )
 
