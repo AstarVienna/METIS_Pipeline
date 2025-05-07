@@ -21,6 +21,7 @@ import re
 
 import cpl
 from cpl.core import Msg
+import os
 
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import TargetSpecificProduct
@@ -29,7 +30,7 @@ from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-
+import numpy.random as random
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
     detector = '2RG'
@@ -93,26 +94,18 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         def tag(cls) -> str:
             return rf"LM_{cls.target():s}_BASIC_REDUCED"
 
+        @property
+        def output_file_name(self) -> str:
+            """
+            Form the output file name.
+            By default, this should be just the category with ".fits" appended. Feel free to override if needed.
+            """
+            super().output_file_name
 
-
-    def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
-        """ Flat field preparation: subtract bias and normalize it to median 1 """
-        Msg.info(self.__class__.__qualname__, "Preparing flat field")
-
-        if flat is None:
-            raise RuntimeError("No flat frames found in the frameset.")
-        else:
-            if bias is not None:
-                flat.subtract(bias)
-            median = flat.get_median()
-            return flat
-
-            # return flat.divide_scalar(median)
-
+            return f"{self.category}_{os.path.basename(self.recipe.frameset[0].file)}"
+        
     def prepare_images(self,
-                       raw_frames: cpl.ui.FrameSet,
-                       bias: cpl.core.Image | None = None,
-                       flat: cpl.core.Image | None = None) -> cpl.core.ImageList:
+                       raw_frames: cpl.ui.FrameSet) -> cpl.core.ImageList:
         prepared_images = cpl.core.ImageList()
 
         for index, frame in enumerate(raw_frames):
@@ -120,14 +113,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file}")
             raw_image = cpl.core.Image.load(frame.file, extension=1)
-
-            if bias:
-                Msg.debug(self.__class__.__qualname__, "Bias subtracting...")
-                raw_image.subtract(bias)
-
-            if flat:
-                Msg.debug(self.__class__.__qualname__, "Flat fielding...")
-                raw_image.divide(flat)
 
             prepared_images.append(raw_image)
 
@@ -141,24 +126,64 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         a single combined frame that is used throughout the pipeline.
         """
 
-        Msg.info(self.__class__.__qualname__, f"Starting processing image attribute.")
+        Msg.info(self.__class__.__qualname__, f"Processing Images")
+
+        Msg.info(self.__class__.__qualname__, f"Loading calibration files")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
-        bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
+        dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
+        
+        Msg.info(self.__class__.__qualname__, f"Loading raw images")
+        images = self.prepare_images(self.inputset.raw.frameset)
+        Msg.info(self.__class__.__qualname__, f"Pretending to correct crosstalk")
+        Msg.info(self.__class__.__qualname__, f"Pretending to correct for linearity")
 
-        flat = self.prepare_flat(flat, bias)
-        images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
-        combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
-        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+        Msg.info(self.__class__.__qualname__, f"Subtracting Dark")
 
-        self.target = self.inputset.tag_parameters['target']
+        images.subtract_image(dark)
 
-        product = self.ProductBasicReduced(self, header, combined_image)
+        Msg.info(self.__class__.__qualname__, f"Flat fielding")
 
-        return [product]
+        images.divide_image(flat)
+
+        Msg.info(self.__class__.__qualname__, f"Pretending to remove masked regions")
+
+        Msg.info(self.__class__.__qualname__, f"Combining Images")
+        
+        #combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
+
+        productSet = []
+        for i,image in enumerate(images):
+
+            frame = self.inputset.raw.frameset[i]
+            
+            Msg.info(self.__class__.__qualname__, f"Processing frame {frame.file}")
+
+            
+            header = cpl.core.PropertyList.load(frame.file, 0)
+
+            Msg.info(self.__class__.__qualname__, f"Pretending to calculate noise")
+        
+            Msg.info(self.__class__.__qualname__, f"Pretending to calculate bad pixels")
+        
+            Msg.info(self.__class__.__qualname__, f"Actually Calculating QC Parameters")
+
+            Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
+
+            header.append(cpl.core.Property("QC LM IMG MEDIAN",cpl.core.Type.DOUBLE,image.get_median(),"[ADU] median value of image"))
+            header.append(cpl.core.Property("QC LM IMG STDEV",cpl.core.Type.DOUBLE,image.get_median(),"[ADU] stddev value of image"))
+            header.append(cpl.core.Property("QC LM IMG MAX",cpl.core.Type.DOUBLE,image.get_median(),"[ADU] max value of image"))
+
+
+            self.target = self.inputset.tag_parameters['target']
+
+            product = self.ProductBasicReduced(self, header, image)
+            productSet.append(product)
+            
+        return productSet
 
     def _dispatch_child_class(self) -> type["MetisLmImgBasicReduceImpl"]:
         return {
@@ -168,11 +193,15 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         }[self.inputset.target]
 
 
+
+
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
     _target: str = 'STD'
 
     class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
         _target: str = 'STD'
+
+        
 
 
 class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
@@ -208,7 +237,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
     _synopsis: str = "Basic science image data processing"
     _description: str = (
             "The recipe combines all science input files in the input set-of-frames using\n"
-            + "the given method. For each input science image the master bias is subtracted,\n"
+            + "the given method. For each input science image the master dark is subtracted,\n"
             + "and it is divided by the master flat."
     )
 
