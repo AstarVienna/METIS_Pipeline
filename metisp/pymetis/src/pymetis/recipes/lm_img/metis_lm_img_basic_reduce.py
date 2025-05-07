@@ -21,6 +21,7 @@ import re
 
 import cpl
 from cpl.core import Msg
+import os
 
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import TargetSpecificProduct
@@ -29,7 +30,7 @@ from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-
+import numpy.random as random
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
     detector = '2RG'
@@ -93,6 +94,16 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         def tag(cls) -> str:
             return rf"LM_{cls.target():s}_BASIC_REDUCED"
 
+        @property
+        def output_file_name(self) -> str:
+            """
+            Form the output file name.
+            By default, this should be just the category with ".fits" appended. Feel free to override if needed.
+            """
+            super().output_file_name
+
+            return f"{self.category}_{os.path.basename(self.recipe.frameset[0].file)}"
+        
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet,
                        bias: cpl.core.Image | None = None,
@@ -143,31 +154,41 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         Msg.info(self.__class__.__qualname__, f"Pretending to remove masked regions")
 
         Msg.info(self.__class__.__qualname__, f"Combining Images")
-        combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
         
-        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+        #combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
 
-        Msg.info(self.__class__.__qualname__, f"Pretending to calculate noise")
+        productSet = []
+        for i,image in enumerate(images):
+
+            frame = self.inputset.raw.frameset[i]
+            
+            Msg.info(self.__class__.__qualname__, f"Processing frame {frame.file}")
+
+            
+            header = cpl.core.PropertyList.load(frame.file, 0)
+
+            Msg.info(self.__class__.__qualname__, f"Pretending to calculate noise")
         
-        Msg.info(self.__class__.__qualname__, f"Pretending to calculate bad pixels")
+            Msg.info(self.__class__.__qualname__, f"Pretending to calculate bad pixels")
         
-        Msg.info(self.__class__.__qualname__, f"Actually Calculating QC Parameters")
+            Msg.info(self.__class__.__qualname__, f"Actually Calculating QC Parameters")
 
-        qc_lm_img_median = combined_image.get_median()
-        qc_lm_img_std = combined_image.get_stdev()
-        qc_lm_img_max = combined_image.get_max()
+            qc_lm_img_median = image.get_median()
+            qc_lm_img_std = image.get_stdev()
+            qc_lm_img_max = image.get_max()
 
-        Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
+            Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
 
-        header.append("QC_LM_IMG_MEDIAN",qc_lm_img_median)
-        header.append("QC_LM_IMG_STD",qc_lm_img_std)
-        header.append("QC_LM_IMG_MAX",qc_lm_img_max)
+            header.append("QC_LM_IMG_MEDIAN",qc_lm_img_median)
+            header.append("QC_LM_IMG_STD",qc_lm_img_std)
+            header.append("QC_LM_IMG_MAX",qc_lm_img_max)
 
-        self.target = self.inputset.tag_parameters['target']
+            self.target = self.inputset.tag_parameters['target']
 
-        product = self.ProductBasicReduced(self, header, combined_image)
-
-        return [product]
+            product = self.ProductBasicReduced(self, header, image)
+            productSet.append(product)
+            
+        return productSet
 
     def _dispatch_child_class(self) -> type["MetisLmImgBasicReduceImpl"]:
         return {
@@ -177,11 +198,15 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         }[self.inputset.target]
 
 
+
+
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
     _target: str = 'STD'
 
     class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
         _target: str = 'STD'
+
+        
 
 
 class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
