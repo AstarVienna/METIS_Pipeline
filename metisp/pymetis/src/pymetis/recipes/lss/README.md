@@ -42,13 +42,14 @@ metis_lm_lss_task_functions.py
 metis_lm_lss_wkf.py
 ```
 
-## Modified files
+## Other modified files
 ```
 METIS_Pipeline/metisp/pymetis/src/pymetis/classes/inputs/__init__.py
 METIS_Pipeline/metisp/pymetis/src/pymetis/classes/inputs/common.py
-
 METIS_Pipeline/metisp/pyrecipes/metis_recipes.py
 ```
 
 ## Remarks
+This is a snapshot only! There might be bugs/inconsistencies and other suprises!
+EDPS is not yet fully functional!
 
