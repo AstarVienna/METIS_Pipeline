@@ -56,3 +56,5 @@ METIS_Pipeline/metisp/pyrecipes/metis_recipes.py
 This is a snapshot only! There might be bugs/inconsistencies and other suprises!
 EDPS is not yet fully functional!
 
+There will be frequent updates!
+
