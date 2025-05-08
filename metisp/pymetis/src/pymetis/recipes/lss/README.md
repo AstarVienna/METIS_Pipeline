@@ -14,6 +14,7 @@ metis_lm_lss_mf_model.py
 metis_lm_lss_mf_calctrans.py
 metis_lm_lss_mf_correct.py
 metis_lm_lss_test.py  (for testing purposes only)
+metis_lss_utils.py (remnant, not needed for the time being)
 ```
 
 - Test scripts (`METIS_Pipeline/metisp/pymetis/src/pymetis/tests/recipes/lss`):
