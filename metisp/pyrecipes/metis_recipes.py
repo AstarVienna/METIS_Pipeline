@@ -41,6 +41,18 @@ from pymetis.recipes.ifu.metis_ifu_telluric import MetisIfuTelluric
 from pymetis.recipes.ifu.metis_ifu_wavecal import MetisIfuWavecal
 from pymetis.recipes.cal.metis_cal_chophome import MetisCalChophome
 from pymetis.recipes.instrument.metis_pupil_imaging import MetisPupilImaging
+from pymetis.recipes.lss.metis_lm_lss_rsrf import MetisLmLssRsrf
+from pymetis.recipes.lss.metis_lm_lss_trace import MetisLmLssTrace
+from pymetis.recipes.lss.metis_lm_lss_wave import MetisLmLssWave
+from pymetis.recipes.lss.metis_lm_lss_std import MetisLmLssStd
+from pymetis.recipes.lss.metis_lm_lss_sci import MetisLmLssSci
+from pymetis.recipes.lss.metis_lm_lss_mf_model import MetisLmLssMfModel
+from pymetis.recipes.lss.metis_lm_lss_mf_calctrans import MetisLmLssMfCalctrans
+from pymetis.recipes.lss.metis_lm_lss_mf_correct import MetisLmLssMfCorrect
+# from pymetis.recipes.lss.metis_testrecipe import MetisTestRecipe
+from pymetis.recipes.lss.metis_lm_adc_slitloss import MetisLmAdcSlitloss
+from pymetis.recipes.lss.metis_create_file import MetisCreateFile
+
 
 __all__ = [
     MetisDetLinGain,
@@ -67,4 +79,15 @@ __all__ = [
     MetisIfuWavecal,
     MetisCalChophome,
     MetisPupilImaging,
+    MetisLmLssRsrf,
+    MetisLmLssTrace,
+    MetisLmLssWave,
+    MetisLmLssStd,
+    MetisLmLssSci,
+    MetisLmLssMfModel,
+    MetisLmLssMfCalctrans,
+    MetisLmLssMfCorrect,
+    MetisLmAdcSlitloss,
+    # MetisTestRecipe,
+    MetisCreateFile
 ]

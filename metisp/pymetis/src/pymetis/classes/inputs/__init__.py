@@ -37,5 +37,8 @@ from .common import (RawInput,
                      DistortionTableInput,
                      LsfKernelInput,
                      AtmProfileInput,
+                     AtmLineCatInput,
                      WavecalInput,
-                     OptionalInputMixin)
+                     OptionalInputMixin,
+                     LaserTableInput,
+                     SynthTransInput)

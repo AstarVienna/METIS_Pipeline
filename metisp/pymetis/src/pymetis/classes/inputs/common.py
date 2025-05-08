@@ -149,3 +149,22 @@ class AtmProfileInput(SinglePipelineInput):
     _tags: Pattern = re.compile(rf"ATM_PROFILE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Atmospheric profile containing height information on temperature, pressure and molecular abundances"
+
+class AtmLineCatInput(SinglePipelineInput):
+    _title: str = "Line catalogue of atmospheric lines"
+    _tags: Pattern = re.compile(rf"ATM_LINE_CAT")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = "Catalogue containing a line list of atmospheric molecular lines"
+
+class LaserTableInput(SinglePipelineInput):
+    _title: str = "Laser table"
+    _tags: Pattern = re.compile(r"LASER_TAB")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = "Table with laser lines"
+
+class SynthTransInput(SinglePipelineInput):
+    _title: str = "Synthetic transmission"
+    _tags: Pattern = re.compile(r"SYNTH_TRANS")
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = "Synthetic transmission used for default telluric correction of STD stars"
+
