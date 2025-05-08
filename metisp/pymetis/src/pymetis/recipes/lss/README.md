@@ -15,7 +15,9 @@ metis_lm_lss_mf_calctrans.py
 metis_lm_lss_mf_correct.py
 
 metis_lm_lss_test.py  (for testing purposes only)
-metis_lss_utils.py (remnant, not needed for the time being)
+metis_lss_utils.py (good looking, but useless remnant, not needed for the time being)
+
+pyesorex_all.sh - script to run all recipes with pyesorex with individual logfiles
 ```
 
 - Test scripts (`METIS_Pipeline/metisp/pymetis/src/pymetis/tests/recipes/lss`):
