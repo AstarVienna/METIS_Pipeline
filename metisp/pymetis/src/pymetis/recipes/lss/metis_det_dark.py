@@ -1,1 +1,0 @@
-../metis_det_dark.py
