@@ -1,1 +1,0 @@
-/daten/ELT/METIS/devel/edps/workflows/metis/edps_activate.sh
