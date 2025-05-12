@@ -76,7 +76,7 @@ jobs:
           export PYESOREX_OUTPUT_DIR="$SOF_DATA"
           
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/cal/test_metis_cal_chophome.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/instrument/metis_pupil_imaging.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/instrument/test_metis_pupil_imaging.py
           
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_calibrate.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_distortion.py
