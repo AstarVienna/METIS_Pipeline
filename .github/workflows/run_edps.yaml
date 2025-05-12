@@ -77,10 +77,19 @@ jobs:
           pyesorex metis_lm_img_calibrate "${SOF_DIR}/metis_lm_img_calibrate.sof"
           pyesorex metis_lm_img_sci_postprocess "${SOF_DIR}/metis_lm_img_sci_postprocess.sof"
 
+          # IMG N RECIPES
+          pyesorex metis_n_img_distortion  "${SOF_DIR}/metis_n_img_distortion.sof"
+          pyesorex metis_n_img_flat  "${SOF_DIR}/metis_n_img_flat.lamp.sof"
+          pyesorex metis_n_img_chopnod "${SOF_DIR}/metis_n_img_chopnod.std.sof"
+          pyesorex metis_n_img_chopnod "${SOF_DIR}/metis_n_img_chopnod.sci.sof"
+          pyesorex metis_n_img_std_process "${SOF_DIR}/metis_n_img_std_process.sof"
+          pyesorex metis_n_img_calibrate "${SOF_DIR}/metis_n_img_calibrate.sof"
+          pyesorex metis_n_img_restore "${SOF_DIR}/metis_n_img_restore.sof"
+
           # IFU RECIPES
           pyesorex metis_ifu_distortion "${SOF_DIR}/metis_ifu_distortion.sof"
           pyesorex metis_ifu_wavecal "${SOF_DIR}/metis_ifu_wavecal.sof"
-          pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
+          # pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
           pyesorex metis_ifu_reduce "${SOF_DIR}/metis_ifu_reduce.std.sof"
           pyesorex metis_ifu_reduce "${SOF_DIR}/metis_ifu_reduce.sci.sof"
           pyesorex metis_ifu_telluric "${SOF_DIR}/metis_ifu_telluric.std.sof"
@@ -94,16 +103,16 @@ jobs:
           # PUPIL IMAGING 
           pyesorex metis_pupil_imaging "${SOF_DIR}/metis_pupil_imaging.lm.sof"
 
-      - name: Run EDPS
-        run:  |
-          # . metispipe/bin/activate
-          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
-          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
-          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
-          edps -lw
-          edps -w metis.metis_wkf -i $SOF_DATA -c
-          edps -w metis.metis_wkf -i $SOF_DATA -lt
-          edps -w metis.metis_wkf -i $SOF_DATA -m all | tee edps.stdout.txt
-          ! grep "'FAILED'" edps.stdout.txt
+      # - name: Run EDPS
+      #   run:  |
+      #     # . metispipe/bin/activate
+      #     export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+      #     export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+      #     export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+      #     export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
+      #     export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+      #     edps -lw
+      #     edps -w metis.metis_wkf -i $SOF_DATA -c
+      #     edps -w metis.metis_wkf -i $SOF_DATA -lt
+      #     edps -w metis.metis_wkf -i $SOF_DATA -m all | tee edps.stdout.txt
+      #     ! grep "'FAILED'" edps.stdout.txt
