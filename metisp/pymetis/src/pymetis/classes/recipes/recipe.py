@@ -31,8 +31,8 @@ from pymetis.classes.inputs import PipelineInput
 class MetisRecipe(cpl.ui.PyRecipe):
     """
         The abstract base class for all METIS recipes.
-        In an ideal world it would also be abstract (derived from ABC, or metaclass=abc.ABCMeta),
-        but `pyesorex` tries to instantiate all recipes it finds and would crash if it were an abstract class.
+        In an ideal world it would be actually abstract (derived from ABC, or metaclass=abc.ABCMeta).
+        However, `pyesorex` tries to instantiate all recipes it finds and would crash if it were one.
 
         The underscored _fields must be present but should be overwritten
         by every child class (`pyesorex` actually checks for their presence).
@@ -57,7 +57,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
     # A CPL list of parameters (again, required by pyesorex). By default, a recipe does not have any parameters.
     parameters: cpl.ui.ParameterList = cpl.ui.ParameterList([])
-    # Default implementation class. This will not work, because it is abstract, so has to be overridden.
+    # Default implementation class. This will not work, because it is abstract, so it has to be overridden.
     implementation_class: type[MetisRecipeImpl] = MetisRecipeImpl
 
     def __init__(self):

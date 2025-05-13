@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import pprint
 
 import yaml
 
@@ -41,7 +42,13 @@ class Header:
         return self.name
 
     @staticmethod
-    def from_yaml(chunk):
+    def from_dict(chunk):
+
+        if 'range' in chunk:
+            range = set(chunk['range']) if isinstance(chunk['range'], list) else (chunk['range']['min'], chunk['range']['max']),
+        else:
+            range = None
+
         return Header(
             chunk['name'],
             _cls=chunk['class'],
@@ -51,7 +58,7 @@ class Header:
             _unit=chunk['unit'],
             _comment=chunk.get('comment', ""),
             _default=chunk.get('default', ""),
-            _range=set(chunk['range']) if isinstance(chunk['range'], list) else (chunk['range']['min'], chunk['range']['max']),
+            _range=range,
             _description=chunk.get('description', "")
         )
 
@@ -59,11 +66,11 @@ class Header:
     def load(filename) -> {str: 'Header'}:
         with open(filename) as f:
             data = yaml.safe_load(f)
-            print(data)
+            pprint.pprint(data)
 
             return {
-                chunk: Header.from_yaml(data['headers'][chunk])
-                for chunk in data['headers']
+                chunk: Header.from_dict(data[chunk])
+                for chunk in data
             }
 
 Header.load('pymetis/headers/headers.yaml')
