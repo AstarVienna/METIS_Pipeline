@@ -58,9 +58,9 @@ class TableProduct(PipelineProduct):
     """Product with table data"""
 
     def __init__(self,
-                    recipe_impl: 'MetisRecipeImpl',
-                    header: cpl.core.PropertyList,
-                    table: cpl.core.Table):
+                 recipe_impl: 'MetisRecipeImpl',
+                 header: cpl.core.PropertyList,
+                 table: cpl.core.Table):
         super().__init__(recipe_impl, header, image=None)
         self.table: cpl.core.Table = table
 

@@ -43,7 +43,7 @@ class PipelineProduct(ABC):
     # The standard way of defining them is to override the private class attribute;
     # the default @classmethod with the same name (without the underscore) just returns its value.
     # If it depends on other attributes, override the corresponding @classmethod.
-    # All methods dealing with these should relate to the class, not instances!
+    # All methods dealing with these should relate to the **class**, not its instances!
     _tag: str = None
     _oca_keywords: {str} = None
     _description: str = None
@@ -123,7 +123,6 @@ class PipelineProduct(ABC):
     def __str__(self) -> str:
         return f"{self.__class__.__qualname__} ({self.tag()})"
 
-    # @final
     def save(self):
         """ Save this Product to a file """
         Msg.info(self.__class__.__qualname__,
@@ -183,5 +182,6 @@ class PipelineProduct(ABC):
         return cls._description
 
     @classmethod
+    @final
     def description_line(cls) -> str:
         return f"    {cls.tag():<75s}{cls.description() or '<not defined>'}"

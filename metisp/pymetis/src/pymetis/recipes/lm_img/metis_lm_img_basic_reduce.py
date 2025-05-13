@@ -49,7 +49,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         Inputs are twofold:
 
         - children of SinglePipelineInput, which expect exactly one frame to be present (or at most one if optional).
-            They will warn is multiple frames are found and keep the last one.
+            They will warn if multiple frames are found and keep the last one.
         - children of MultiplePipelineInput, which expect multiple frames with the same tag (usually RAWs).
             Again, the frame set may be empty if `required` is set to False.
 
@@ -81,7 +81,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
     class ProductBasicReduced(TargetSpecificProduct):
         """
-        The second big part is defining the products. For every product we create a separate class
+        The second big part is defining the products. For every product, we create a separate class
         which defines the tag, group, level and frame type. Here we only have one kind of product,
         so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
         But feel free to be more creative with names: it could be `MetisLmImgBasicReduceImpl.ProductBasicReduced`.
@@ -143,10 +143,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             Form the output file name.
             By default, this should be just the category with ".fits" appended. Feel free to override if needed.
             """
-            super().output_file_name
-
             return f"{self.category}_{os.path.basename(self.recipe.frameset[self.nFrame].file)}"
-
 
         @final
         def save(self):
@@ -242,7 +239,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         #combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
 
         productSet = []
-        for i,image in enumerate(images):
+        for i, image in enumerate(images):
 
             frame = self.inputset.raw.frameset[i]
             
@@ -267,9 +264,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
 
-            header.append(cpl.core.Property("QC LM IMG MEDIAN",cpl.core.Type.DOUBLE,image.get_median(),"[ADU] median value of image"))
-            header.append(cpl.core.Property("QC LM IMG STDEV",cpl.core.Type.DOUBLE,image.get_median(),"[ADU] stddev value of image"))
-            header.append(cpl.core.Property("QC LM IMG MAX",cpl.core.Type.DOUBLE,image.get_median(),"[ADU] max value of image"))
+            header.append(cpl.core.Property("QC LM IMG MEDIAN", cpl.core.Type.DOUBLE,image.get_median(), "[ADU] median value of image"))
+            header.append(cpl.core.Property("QC LM IMG STDEV", cpl.core.Type.DOUBLE,image.get_median(), "[ADU] stddev value of image"))
+            header.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,image.get_median(), "[ADU] max value of image"))
 
             self.target = self.inputset.tag_parameters['target']
 
@@ -327,9 +324,9 @@ class MetisLmImgBasicReduce(MetisRecipe):
     _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Basic science image data processing"
     _description: str = (
-            "The recipe combines all science input files in the input set-of-frames using\n"
-            + "the given method. For each input science image the master dark is subtracted,\n"
-            + "and it is divided by the master flat."
+        "The recipe combines all science input files in the input set-of-frames using\n"
+        "the given method. For each input science image the master dark is subtracted,\n"
+        "and it is divided by the master flat."
     )
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
