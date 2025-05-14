@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, final
 
 import cpl
@@ -30,12 +30,12 @@ PIPELINE = r'METIS'
 
 class PipelineProduct(ABC):
     """
-        The abstract base class for a pipeline product:
-        one FITS file with associated headers and a frame
+    The abstract base class for a pipeline product:
+    one FITS file with associated headers and a frame
     """
 
     # Global defaults for all Products
-    group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
+    group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
 
@@ -54,11 +54,9 @@ class PipelineProduct(ABC):
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
-                 header: cpl.core.PropertyList,
-                 image: cpl.core.Image):
+                 header: cpl.core.PropertyList):
         self.recipe: 'MetisRecipeImpl' = recipe_impl
         self.header: cpl.core.PropertyList = header
-        self.image: cpl.core.Image = image
 
         # FIXME: temporary to get QC parameters into the product header [OC]
         if self.header is not None:
@@ -68,7 +66,7 @@ class PipelineProduct(ABC):
 
         self._used_frames: cpl.ui.FrameSet | None = None
 
-        # Raise a NotImplementedError in case a derived class forgot to set a class attribute
+        # Raise a `NotImplementedError` in case a derived class forgot to set a class attribute
         if self.tag is None:
             raise NotImplementedError(f"Products must define 'tag', but {self.__class__.__qualname__} does not")
 
@@ -136,16 +134,11 @@ class PipelineProduct(ABC):
             f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
         # At least one frame in the recipe frameset must be tagged as RAW!
         # Otherwise, it *will not* save (rite of passage)
-        cpl.dfs.save_image(
-            self.recipe.frameset,       # All frames for the recipe
-            self.recipe.parameters,     # The list of input parameters
-            self.recipe.valid_frames,   # The list of frames actually used FixMe currently not working as intended
-            self.image,                 # Image to be saved
-            self.recipe.name,           # Name of the recipe
-            self.properties,            # Properties to be appended
-            PIPELINE,
-            self.output_file_name,
-        )
+        self.save_files()
+
+    @abstractmethod
+    def save_files(self):
+        pass
 
     @property
     def category(self) -> str:

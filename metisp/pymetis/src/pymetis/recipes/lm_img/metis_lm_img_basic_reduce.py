@@ -25,7 +25,7 @@ import os
 from typing import Any, final
 
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import TargetSpecificProduct
+from pymetis.classes.products import TargetSpecificProduct, PipelineImageProduct
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
@@ -79,16 +79,14 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
             _description: str = "Master flat frame for LM image data."
 
-    class ProductBasicReduced(TargetSpecificProduct):
+    class ProductBasicReduced(TargetSpecificProduct, PipelineImageProduct):
         """
         The second big part is defining the products. For every product, we create a separate class
         which defines the tag, group, level and frame type. Here we only have one kind of product,
         so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
         But feel free to be more creative with names: it could be `MetisLmImgBasicReduceImpl.ProductBasicReduced`.
         """
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
         _description: str = "Science grade detrended exposure of the LM image mode."
 
@@ -254,8 +252,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             noise.copy_into(image,0,0)
             noise.power(0.5)
 
+            print(type(noise))
             bmask = cpl.core.Image(noise)
-            bmask.copy_into(image,0,0)
+            bmask.copy_into(image, 0, 0)
             bmask.multiply_scalar(0)
             
             Msg.info(self.__class__.__qualname__, f"Pretending to calculate bad pixels")

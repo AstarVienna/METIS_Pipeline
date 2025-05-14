@@ -21,7 +21,7 @@ import re
 import cpl
 
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.products import TargetSpecificProduct
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import RawInput, BadpixMapInput
@@ -46,9 +46,8 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         LinearityInput = LinearityInput
         GainMapInput = GainMapInput
 
-    class ProductBkgSubtracted(TargetSpecificProduct):
+    class ProductBkgSubtracted(TargetSpecificProduct, PipelineImageProduct):
         band: str = "N"
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Thermal background subtracted images of standard N exposures."
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}

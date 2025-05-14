@@ -25,7 +25,7 @@ from cpl.core import Msg
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor):
@@ -35,10 +35,9 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
             _description: str = "LM band image with flux calibration, WC coordinate system and distorion information"
 
 
-    class ProductLmImgSciCoadd(PipelineProduct):
+    class ProductLmImgSciCoadd(PipelineImageProduct):
         _tag = rf"LM_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Coadded, mosaiced LM image."
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 

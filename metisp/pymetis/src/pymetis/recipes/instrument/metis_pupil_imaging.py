@@ -30,7 +30,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
 from pymetis.classes.inputs import LinearityInputSetMixin, GainMapInputSetMixin
@@ -57,14 +57,12 @@ class MetisPupilImagingImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)")
 
 
-    class ProductReduced(PipelineProduct):
+    class ProductReduced(PipelineImageProduct):
         """
         Define the output product, here a reduced pupil image.
         """
         _tag = r"LM_PUPIL_IMAGING_REDUCED"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         band = "LM"
         _description: str = "Reduced pupil image in LM mode"
         _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}

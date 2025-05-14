@@ -181,6 +181,14 @@ class MetisRecipeImpl(ABC):
         """
         return cpl.core.Image.load(os.path.expandvars("$SOF_DATA/LINEARITY_2RG.fits"))
 
+    @staticmethod
+    def _create_dummy_table() -> cpl.core.Table:
+        """
+        Create a dummy table (absolutely no assumptions, just to have something to work with).
+        # ToDo This function should not survive in the future.
+        """
+        return cpl.core.Table.empty(3)
+
     @property
     def valid_frames(self) -> cpl.ui.FrameSet:
         return self.inputset.valid_frames
@@ -188,7 +196,7 @@ class MetisRecipeImpl(ABC):
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         """
         Return the actual implementation class **when the frameset is already available**, e.g. at runtime.
-        By default, just returns its own class, so nothing happens,
+        The base implementation just returns its own class, so nothing happens,
         but more complex recipes may need to select the appropriate derived class based on the input data.
 
         Typical use is to accomodate for different implementations for
@@ -204,5 +212,6 @@ class MetisRecipeImpl(ABC):
             'SCI': ChildClassSci,
         }[self.inputset.target]
         ```
+        or use a proper match ... case ... structure if appropriate.
         """
         return self.__class__

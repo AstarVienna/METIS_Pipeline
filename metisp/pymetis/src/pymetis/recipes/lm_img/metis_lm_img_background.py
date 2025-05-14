@@ -24,7 +24,7 @@ import cpl
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, PipelineTableProduct
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 
 
@@ -45,9 +45,8 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             _title = "Sky basic-reduced exposure"
             _description: str = "Detrended exposure of the sky."
 
-    class ProductBkg(TargetSpecificProduct):
+    class ProductBkg(TargetSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
         @classmethod
@@ -62,7 +61,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         def tag(cls):
             return f"LM_{cls.target():s}_BKG"
 
-    class ProductBkgSubtracted(TargetSpecificProduct):
+    class ProductBkgSubtracted(TargetSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
@@ -79,9 +78,8 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         def tag(cls):
             return f"LM_{cls.target():s}_BKG_SUBTRACTED"
 
-    class ProductObjectCat(TargetSpecificProduct):
+    class ProductObjectCat(TargetSpecificProduct, PipelineTableProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod
@@ -101,10 +99,11 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         target = self.inputset.tag_parameters['target']
         image = self._create_dummy_image()
+        table = self._create_dummy_table()
 
         product_bkg = self.ProductBkg(self, self.header, image)
         product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image)
-        product_object_cat = self.ProductObjectCat(self, self.header, image)
+        product_object_cat = self.ProductObjectCat(self, self.header, table)
 
         return [product_bkg, product_bkg_subtracted, product_object_cat]
 

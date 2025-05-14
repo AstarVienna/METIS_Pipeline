@@ -32,8 +32,7 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, SinglePipelineInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.products import TableProduct
+from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct
 from pymetis.classes.products import ProductBadpixMapDet
 
 EXT = 4 # TODO: update to read multi-extension files
@@ -93,26 +92,22 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.properties.append(self.header)
 
 
-    class ProductMasterFlatIfu(PipelineProduct):
+    class ProductMasterFlatIfu(PipelineImageProduct):
         _tag: str = r"MASTER_FLAT_IFU"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT #TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         _description: str = "2D relative spectral response image"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-        # SKEL: copy product keywords from header
+        # SKEL: copy product keywords from the header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
 
 
-    class ProductRsrfIfu(TableProduct):
+    class ProductRsrfIfu(PipelineTableProduct):
         _tag: str = r"RSRF_IFU"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
 
         _description: str = "1D relative spectral response function"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
@@ -319,7 +314,7 @@ def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
 
     return bb_img
 
-def read_ifu_distortion_table(fits_file, ext=1) -> list:
+def read_ifu_distortion_table(fits_file, ext: int = 1) -> list:
     """
     Read the IFU distortion table from the given FITS file.
 
@@ -387,6 +382,7 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width=10) -> list:
         rsrf_1d_list.append(cpl.core.Vector(rsrf_1d))
     
     return rsrf_1d_list
+
 
 class MetisIfuRsrf(MetisRecipe):
     _name: str = "metis_ifu_rsrf"
