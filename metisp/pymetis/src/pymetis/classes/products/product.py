@@ -110,7 +110,9 @@ class PipelineProduct(ABC):
         )
 
     def as_dict(self) -> dict[str, Any]:
-        """ Return a dictionary representation of this Product """
+        """
+        Return a dictionary representation of this Product
+        """
         return {
             'tag': self.tag(),
             'group': self.group,
@@ -121,23 +123,29 @@ class PipelineProduct(ABC):
     def __str__(self) -> str:
         return f"{self.__class__.__qualname__} ({self.tag()})"
 
-    def save(self):
-        """ Save this Product to a file """
+    @final
+    def save(self) -> None:
+        """ Save Product data to appropriate file(s) """
         Msg.info(self.__class__.__qualname__,
                  f"Saving product file as {self.output_file_name!r}:")
         Msg.info(self.__class__.__qualname__,
                  f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
         Msg.info(self.__class__.__qualname__,
                  f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
+
         # Check that the tag matches the generic regex
         assert self._regex_tag.match(self.tag()) is not None, \
             f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
+
         # At least one frame in the recipe frameset must be tagged as RAW!
-        # Otherwise, it *will not* save (rite of passage)
+        # Otherwise, PyCPL **will not** save (rite of passage)
         self.save_files()
 
     @abstractmethod
-    def save_files(self):
+    def save_files(self) -> None:
+        """
+        Actually save the files. This is a hook for derived classes.
+        """
         pass
 
     @property
@@ -145,7 +153,8 @@ class PipelineProduct(ABC):
         """
         Return the category of this product.
 
-        By default, the tag is the same as the category. Feel free to override if needed.
+        By default, the tag is the same as the category.
+        Feel free to override if needed.
         """
         return self.tag()
 
@@ -153,7 +162,14 @@ class PipelineProduct(ABC):
     def output_file_name(self) -> str:
         """
         Form the output file name.
-        By default, this should be just the category with ".fits" appended. Feel free to override if needed.
+        By default, this should be just the category with ".fits" appended.
+        Feel free to override if needed.
+
+        Returns
+        -------
+        str
+            A string representing the generated output filename in the format
+            "{category}.fits".
         """
         return f"{self.category}.fits"
 
@@ -177,4 +193,7 @@ class PipelineProduct(ABC):
     @classmethod
     @final
     def description_line(cls) -> str:
-        return f"    {cls.tag():<75s}{cls.description() or '<not defined>'}"
+        """
+        Generate a line for 'pyesorex --man-page' with the description of the recipe.
+        """
+        return f"    {cls.tag():<76s}{cls.description() or '<no description defined>'}"

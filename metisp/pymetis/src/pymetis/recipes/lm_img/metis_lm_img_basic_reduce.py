@@ -24,6 +24,8 @@ from cpl.core import Msg
 import os
 from typing import Any, final
 
+from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import TargetSpecificProduct, PipelineImageProduct
 from pymetis.classes.products import PipelineProduct
@@ -74,9 +76,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # it explicitly anywhere, `MasterDarkInput` takes care of that for us.
         MasterDarkInput = MasterDarkInput
 
-        # Also one master flat is required. Again, we use a prefabricated class, but reset the tags
+        # Also, one master flat is required. Again, we use a prefabricated class, but reset the tags
         class MasterFlatInput(MasterFlatInput):
-            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>LM)")
+            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_LM")
             _description: str = "Master flat frame for LM image data."
 
     class ProductBasicReduced(TargetSpecificProduct, PipelineImageProduct):
@@ -145,46 +147,33 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         @final
         def save(self):
-                """ Save this Product to a file """
-                Msg.info(self.__class__.__qualname__,
-                         f"Saving product file as {self.output_file_name!r}:")
-                Msg.info(self.__class__.__qualname__,
-                         f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
-                Msg.info(self.__class__.__qualname__,
-                         f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
-                # Check that the tag matches the generic regex
-                assert self._regex_tag.match(self.tag()) is not None, \
-                    f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
-                # At least one frame in the recipe frameset must be tagged as RAW!
-                # Otherwise, it *will not* save (rite of passage)
+            """ Save this Product to a file """
+            Msg.info(self.__class__.__qualname__,
+                     f"Saving product file as {self.output_file_name!r}:")
+            Msg.info(self.__class__.__qualname__,
+                     f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
+            Msg.info(self.__class__.__qualname__,
+                     f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
+            # Check that the tag matches the generic regex
+            assert self._regex_tag.match(self.tag()) is not None, \
+                f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
+            # At least one frame in the recipe frameset must be tagged as RAW!
+            # Otherwise, it *will not* save (rite of passage)
 
-                cpl.dfs.save_propertylist(
-                    self.recipe.frameset,
-                    self.recipe.parameters,
-                    self.recipe.frameset,
-                    self.recipe.name,
-                    self.properties,
-                    f"demo/",
-                    self.output_file_name,
-                    header=self.header,
-                )
-                self.image.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
-                self.noise.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
-                self.mask.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
+            cpl.dfs.save_propertylist(
+                self.recipe.frameset,
+                self.recipe.parameters,
+                self.recipe.frameset,
+                self.recipe.name,
+                self.properties,
+                f"demo/",
+                self.output_file_name,
+                header=self.header,
+            )
+            self.image.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
+            self.noise.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
+            self.mask.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
 
-                
-                #cpl.dfs.save_image(
-                #    self.recipe.frameset,       # All frames for the recipe
-                #    self.recipe.parameters,     # The list of input parameters
-                #    self.recipe.valid_frames,   # The list of frames actually used FixMe currently not working as intended
-                #    self.image,                 # Image to be saved
-                #    self.recipe.name,           # Name of the recipe
-                #    self.properties,            # Properties to be appended
-                #    PIPELINE,
-                #    self.output_file_name,
-                #)
-
-        
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet) -> cpl.core.ImageList:
         prepared_images = cpl.core.ImageList()
@@ -238,7 +227,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         productSet = []
         for i, image in enumerate(images):
-
             frame = self.inputset.raw.frameset[i]
             
             Msg.info(self.__class__.__qualname__, f"Processing frame {frame.file}")
@@ -249,23 +237,23 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             Msg.info(self.__class__.__qualname__, f"Pretending to calculate noise")
 
             noise = cpl.core.Image(image)
-            noise.copy_into(image,0,0)
+            noise.copy_into(image, 0, 0)
             noise.power(0.5)
 
-            print(type(noise))
-            bmask = cpl.core.Image(noise)
+            bmask = cpl.core.Image(image)
             bmask.copy_into(image, 0, 0)
             bmask.multiply_scalar(0)
             
             Msg.info(self.__class__.__qualname__, f"Pretending to calculate bad pixels")
-        
             Msg.info(self.__class__.__qualname__, f"Actually Calculating QC Parameters")
-
             Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
 
-            header.append(cpl.core.Property("QC LM IMG MEDIAN", cpl.core.Type.DOUBLE,image.get_median(), "[ADU] median value of image"))
-            header.append(cpl.core.Property("QC LM IMG STDEV", cpl.core.Type.DOUBLE,image.get_median(), "[ADU] stddev value of image"))
-            header.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,image.get_median(), "[ADU] max value of image"))
+            header.append(cpl.core.Property("QC LM IMG MEDIAN", cpl.core.Type.DOUBLE,
+                                            image.get_median(), "[ADU] median value of image"))
+            header.append(cpl.core.Property("QC LM IMG STDEV", cpl.core.Type.DOUBLE,
+                                            image.get_median(), "[ADU] stddev value of image"))
+            header.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
+                                            image.get_median(), "[ADU] max value of image"))
 
             self.target = self.inputset.tag_parameters['target']
 
@@ -282,34 +270,20 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         }[self.inputset.target]
 
 
+class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl, TargetStdMixin):
+    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced, TargetStdMixin): pass
 
+class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl, TargetSciMixin):
+    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced, TargetSciMixin): pass
 
-class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    _target: str = 'STD'
-
-    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        _target: str = 'STD'
-
-
-class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    _target: str = 'SCI'
-
-    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        _target: str = 'SCI'
-
-
-class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    _target: str = 'SKY'
-
-    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        _target: str = 'SKY'
+class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl, TargetSkyMixin):
+    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced, TargetSkyMixin): pass
 
 
 class MetisLmImgBasicReduce(MetisRecipe):
     """
     Apart from our own recipe implementation, we have to provide the actual recipe for PyEsoRex.
     This is very simple: just the
-
     - seven required attributes as below
         - copyright may be omitted as it is provided in the base class and probably will remain the same everywhere,
     - list of parameters as required (consult DRL-D for the particular recipe)
@@ -330,9 +304,9 @@ class MetisLmImgBasicReduce(MetisRecipe):
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
     _algorithm = """Remove crosstalk, correct non-linearity
-        Analyse and optionally remove masked regions
-        Subtract dark, divide by flat
-        Remove blank sky pattern"""
+    Analyse and optionally remove masked regions
+    Subtract dark, divide by flat
+    Remove blank sky pattern"""
 
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(

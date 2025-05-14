@@ -53,12 +53,13 @@ class PipelineInputSet(metaclass=ABCMeta):
         """
             Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
             By default, there is nothing: no inputs, no tag_parameters.
+            This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
         """
         self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
         self.tag_parameters: dict[str, str] = {}        # A dict of all tunable parameters determined from tags
         self.frameset: cpl.ui.FrameSet = frameset
 
-        # Regex: remove "Input" from the name of the class...
+        # Regex: remove final "Input" from the name of the class...
         cut_input = re.compile(r'Input$')
         # Regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
         make_snake = re.compile(r'(?<!^)(?=[A-Z])')
