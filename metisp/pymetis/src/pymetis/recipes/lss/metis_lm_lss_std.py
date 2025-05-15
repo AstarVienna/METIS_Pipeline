@@ -131,8 +131,8 @@ class MetisLmLssStdImpl(RawImageProcessor):
         """
         Synthetic Transmission
         """
-        class MasterLmSynthTrans(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_SYNTH_TRANS")
+        class MasterLmLssSynthTrans(SinglePipelineInput):
+            _tags: re.Pattern = re.compile(r"LM_LSS_SYNTH_TRANS")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Transmission model"
             _description: str = "Transmission of the Earth's atmosphere for a quick telluric correction"
