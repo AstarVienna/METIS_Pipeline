@@ -133,7 +133,7 @@ static_lsf_kernel = (data_source()
 static_atm_line_cat = (data_source()
             .with_classification_rule(static_atm_line_cat_class)
             .with_match_keywords([metis_kwd.instrume])
-            .with_match_keywords([metis_kwd.pro_catg])
+            # .with_match_keywords([metis_kwd.pro_catg])
             .build())
 
 static_laser_tab = (data_source()
@@ -153,6 +153,11 @@ static_lm_lss_dist_sol = (data_source()
 
 static_lm_lss_wave_guess = (data_source()
             .with_classification_rule(static_lm_lss_wave_guess_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+static_lm_lss_synth_trans = (data_source()
+            .with_classification_rule(static_lm_lss_synth_trans_class)
             .with_match_keywords([metis_kwd.instrume])
             .build())
 

@@ -67,7 +67,7 @@ lm_rsrf_pinh_class = classification_rule("LM_LSS_RSRF_PINH_RAW", {metis_kwd.inst
 # Wavelength calib files (WCU laser sources)
 lm_wave_class = classification_rule("LM_LSS_WAVE_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "LSS,LM",  metis_kwd.dpr_type:"WAVE"})
 # Standrad stars raw
-lm_raw_std_class = classification_rule("LM_LSS_FLUX_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "LSS,LM",  metis_kwd.dpr_type:"STD"})
+lm_raw_std_class = classification_rule("LM_LSS_STD_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "LSS,LM",  metis_kwd.dpr_type:"STD"})
 # Sci obs raw
 lm_raw_sci_class = classification_rule("LM_LSS_SCI_RAW", {metis_kwd.instrume: "METIS",
                                  metis_kwd.dpr_catg:"SCIENCE",
@@ -113,6 +113,8 @@ static_badpix_map_h2rg_class = classification_rule("BADPIX_MAP_2RG", {metis_kwd.
 static_persistence_map_class = classification_rule("PERSISTENCE_MAP", {metis_kwd.pro_catg:"PERSISTENCE_MAP"})
 # Atmospheric profiles (for molecfit)
 static_atm_profile_class = classification_rule("ATM_PROFILE", {metis_kwd.pro_catg:"ATM_PROFILE"})
+# Synthetic transmission for the LM LSS mode
+static_lm_lss_synth_trans_class = classification_rule("LM_LSS_SYNTH_TRANS", {metis_kwd.pro_catg:"LM_LSS_SYNTH_TRANS"})
 # Line spread function class
 static_lsf_kernel_class = classification_rule("LSF_KERNEL", {metis_kwd.pro_catg:"LSF_KERNEL"})
 # Table for best-fit molecfit parameters
