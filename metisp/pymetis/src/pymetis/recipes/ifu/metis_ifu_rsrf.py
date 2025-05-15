@@ -86,7 +86,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         _description: str = "Stacked background image."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-        # SKEL: copy product keywords from header
+        # SKEL: copy product keywords from the header
         def add_properties(self) -> None:
             super().add_properties()
             self.properties.append(self.header)
@@ -390,30 +390,6 @@ class MetisIfuRsrf(MetisRecipe):
     _author: str = "Janus Brink, A*"
     _email: str = "janus.brink27@gmail.com"
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
-    _undescription: str = """\
-    Create relative spectral response function for the IFU detector
-
-    Inputs
-        IFU_RSRF_RAW:    Raw RSRF images [1-n]
-        IFU_WCU_RAW_OFF: Background images with WCU black-body closed [1-n]
-        MASTER_DARK_IFU: Master dark frame [optional?]
-        BADPIX_MAP_IFU:  Bad-pixel map for 2RG detector [optional]
-        PERSISTENCE_MAP: Persistence map [optional]
-        GAIN_MAP_IFU:    Gain map for 2RG detector
-        LINEARITY_IFU:   Linearity map for 2RG detector
-        IFU_DISTORTION_TABLE: Distortion coefficients for an IFU data set
-        IFU_WAVECAL:     IFU wavelength calibration
-
-    Matched Keywords
-        DET.DIT
-        DET.NDIT
-        DRS.IFU
-    
-    Outputs
-        MASTER_FLAT_IFU: Master flat frame for IFU image data
-        RSRF_IFU: 1D relative spectral response function
-        BADPIX_MAP_IFU: Updated bad-pixel map
-    """ # FixMe This is currently not shown anywhere
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """Average / median stack WCU_OFF images to create background image

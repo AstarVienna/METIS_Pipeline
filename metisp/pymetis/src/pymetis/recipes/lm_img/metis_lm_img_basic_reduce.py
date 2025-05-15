@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 
+import copy
 import cpl
 from cpl.core import Msg
 import os
@@ -27,14 +28,11 @@ from typing import Any, final
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import TargetSpecificProduct, PipelineImageProduct
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.inputs import RawInput
-from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
-from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct
+from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
+                                    PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-import numpy.random as random
-import numpy as np
+
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
     detector = '2RG'
@@ -43,27 +41,26 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class
         that wraps all the recipe inputs. It encapsulates the entire input and
-
         - defines which tags to look for, optionally with placeholders like `{det}`, that can be set globally
         - which of the inputs are optional (just set `required = False`)
-        - provides mechanism for verification that the required frames are actually present
+        - provides a mechanism for verification that the required frames are actually present
 
         Inputs are twofold:
-
-        - children of SinglePipelineInput, which expect exactly one frame to be present (or at most one if optional).
+        - Children of SinglePipelineInput, which expect exactly one frame to be present (or at most one if optional).
             They will warn if multiple frames are found and keep the last one.
-        - children of MultiplePipelineInput, which expect multiple frames with the same tag (usually RAWs).
+        - Children of MultiplePipelineInput, which expect multiple frames with the same tag (usually RAWs).
             Again, the frame set may be empty if `required` is set to False.
 
         You may instantiate your inputs directly as SinglePipelineInput or MultiplePipelineInput with appropriate tags,
         or use or extend one of the predefined classes (see `pymetis.inputs.common`).
 
-        The input is automatically verified (see the base InputSet class and its Single and Multiple children)
+        The input is automatically verified (see the base InputSet class and its Single and Multiple children),
         and an exception is raised whenever something is amiss.
         """
 
-        # This InputSet class derives from `DarkImageProcessor.InputSet`, which in turn inherits from
-        # `RawImageProcessor.InputSet`. It already knows that it wants a RawInput and MasterDarkInput class,
+        # This InputSet class derives from `DarkImageProcessor.InputSet`,
+        # which in turn inherits from `RawImageProcessor.InputSet`.
+        # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
@@ -71,12 +68,12 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
             #    See https://github.com/AstarVienna/METIS_DRLD/issues/321
 
-        # Now we need a master dark. Since nothing is changed and the tag is always the same,
+        # Now we need a master dark frame. Since nothing is changed and the tag is always the same,
         # we just point to the provided MasterDarkInput. Note that we do not have to instantiate
         # it explicitly anywhere, `MasterDarkInput` takes care of that for us.
         MasterDarkInput = MasterDarkInput
 
-        # Also, one master flat is required. Again, we use a prefabricated class, but reset the tags
+        # Also, one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_LM")
             _description: str = "Master flat frame for LM image data."
@@ -93,46 +90,17 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         _description: str = "Science grade detrended exposure of the LM image mode."
 
         def __init__(self,
-                         recipe_impl: 'MetisRecipeImpl',
-                         header: cpl.core.PropertyList,
-                         image: cpl.core.Image,
-                         noise: cpl.core.Image,
-                         mask: cpl.core.Image,
-                         nFrame: int):
-                self.recipe: 'MetisRecipeImpl' = recipe_impl
-                self.header: cpl.core.PropertyList = header
-                self.image: cpl.core.Image = image
+                     recipe_impl: 'MetisRecipeImpl',
+                     header: cpl.core.PropertyList,
+                     image: cpl.core.Image,
+                     noise: cpl.core.Image,
+                     mask: cpl.core.Image,
+                     nFrame: int):
+                super().__init__(recipe_impl, header, image)
                 self.noise: cpl.core.Image = noise
                 self.mask: cpl.core.Image = mask
                 self.nFrame: int = nFrame
 
-                # FIXME: temporary to get QC parameters into the product header [OC]
-                if self.header is not None:
-                    self.properties = self.header
-                else:
-                    self.properties = cpl.core.PropertyList()
-        
-                self._used_frames: cpl.ui.FrameSet | None = None
-        
-                # Raise a NotImplementedError in case a derived class forgot to set a class attribute
-                if self.tag is None:
-                    raise NotImplementedError(f"Products must define 'tag', but {self.__class__.__qualname__} does not")
-        
-                if self.group is None:
-                    raise NotImplementedError(f"Products must define 'group', but {self.__class__.__qualname__} does not")
-        
-                if self.level is None:
-                    raise NotImplementedError(f"Products must define 'level', but {self.__class__.__qualname__} does not")
-        
-                if self.frame_type is None:
-                    raise NotImplementedError(f"Products must define 'frame_type', but {self.__class__.__qualname__} does not")
-        
-                if self.category is None:
-                    raise NotImplementedError(f"Products must define 'category', but {self.__class__.__qualname__} does not")
-        
-                self.add_properties()
-
-        
         @classmethod
         def tag(cls) -> str:
             return rf"LM_{cls.target():s}_BASIC_REDUCED"
@@ -145,15 +113,16 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             """
             return f"{self.category}_{os.path.basename(self.recipe.frameset[self.nFrame].file)}"
 
-        @final
-        def save(self):
+        def save_files(self):
             """ Save this Product to a file """
             Msg.info(self.__class__.__qualname__,
                      f"Saving product file as {self.output_file_name!r}:")
             Msg.info(self.__class__.__qualname__,
-                     f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
+                     f"All frames ({len(self.recipe.frameset)}): "
+                     f"{sorted([frame.tag for frame in self.recipe.frameset])}")
             Msg.info(self.__class__.__qualname__,
-                     f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
+                     f"Loaded frames ({len(self.recipe.valid_frames)}): "
+                     f"{sorted([frame.tag for frame in self.recipe.valid_frames])}")
             # Check that the tag matches the generic regex
             assert self._regex_tag.match(self.tag()) is not None, \
                 f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
@@ -191,8 +160,8 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
     def process_images(self) -> [PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
-        You can define extra private functions, or use functions from the parent classes:
-        for instance, combine_images is a helper function that takes a frameset and a method and returns
+        You can define extra private functions or use functions from the parent classes:
+        for instance, `combine_images` is a helper function that takes a frameset and a method and returns
         a single combined frame that is used throughout the pipeline.
         """
 
@@ -212,17 +181,15 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         Msg.info(self.__class__.__qualname__, f"Pretending to correct for linearity")
 
         Msg.info(self.__class__.__qualname__, f"Subtracting Dark")
-
         images.subtract_image(dark)
 
         Msg.info(self.__class__.__qualname__, f"Flat fielding")
-
         images.divide_image(flat)
 
         Msg.info(self.__class__.__qualname__, f"Pretending to remove masked regions")
 
         Msg.info(self.__class__.__qualname__, f"Combining Images")
-        
+
         #combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
 
         productSet = []
@@ -231,16 +198,16 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             
             Msg.info(self.__class__.__qualname__, f"Processing frame {frame.file}")
 
-            
             header = cpl.core.PropertyList.load(frame.file, 0)
 
             Msg.info(self.__class__.__qualname__, f"Pretending to calculate noise")
 
+            a = copy.deepcopy(image)
             noise = cpl.core.Image(image)
             noise.copy_into(image, 0, 0)
             noise.power(0.5)
 
-            bmask = cpl.core.Image(image)
+            bmask = cpl.core.Image(a)
             bmask.copy_into(image, 0, 0)
             bmask.multiply_scalar(0)
             
@@ -270,14 +237,14 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         }[self.inputset.target]
 
 
-class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl, TargetStdMixin):
-    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced, TargetStdMixin): pass
+class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
+    class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
 
-class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl, TargetSciMixin):
-    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced, TargetSciMixin): pass
+class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
+    class ProductBasicReduced(TargetSciMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
 
-class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl, TargetSkyMixin):
-    class ProductBasicReduced(MetisLmImgBasicReduceImpl.ProductBasicReduced, TargetSkyMixin): pass
+class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
+    class ProductBasicReduced(TargetSkyMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
 
 
 class MetisLmImgBasicReduce(MetisRecipe):

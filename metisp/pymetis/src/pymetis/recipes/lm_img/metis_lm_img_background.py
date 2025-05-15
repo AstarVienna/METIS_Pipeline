@@ -22,10 +22,9 @@ import re
 import cpl
 
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
-from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, PipelineTableProduct
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, PipelineTableProduct
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
@@ -36,8 +35,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
             _title = "Detrended exposure"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Science grade detrended exposure of the LM image mode."
-                           # "Standard detrended exposure of the LM image mode.")
+            _description: str = "Detrended exposure of the LM image mode."
 
         class SkyBasicReducedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
@@ -84,11 +82,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         @classmethod
         def description(cls):
-            target = {
-                'SCI': 'science',
-                'STD': 'standard',
-            }.get(cls.target(), '{target}')
-            return f"Catalog of masked objects in {target} LM exposures."
+            return f"Catalog of masked objects in {cls.verbose()} LM exposures."
 
         @classmethod
         def tag(cls):
