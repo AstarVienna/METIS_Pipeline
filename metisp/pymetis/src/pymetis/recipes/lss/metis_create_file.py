@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+# from typing import Any, Dict   # <------ TODO: Check whether necessary, taken from example of pyesorex webpages
 
 # Import the required PyCPL modules
 import re
@@ -25,49 +25,49 @@ from cpl.core import Msg
 
 from pymetis.classes.mixins import Detector2rgMixin
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-
-from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.classes.products import PipelineProduct
 
+from pymetis.classes.recipes.impl import MetisRecipeImpl
+from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
+                                    LinearityInput, OptionalInputMixin)
+from pymetis.classes.products import PipelineProduct
 
 # =========================================================================================
 #    Define main class
 # =========================================================================================
-class MetisLmLssMfModelImpl(RawImageProcessor):
-    class InputSet(PipelineInputSet):
+class MetisCreateFileImpl(RawImageProcessor):
+    class InputSet(RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
         band = "LM"
         detector = "2RG"
 
-    # ++++++++++++ Main input ++++++++++++
-        # Default (Path #2 in DRLD Section CritAlg)
-        class LmLssSciFlux1d(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_LSS_SCI_FLUX_1D")
-            # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
-            # For the SKEL this is set to CALIB,although not correct!
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "LM LSS sci flux 1D"
-            _description: str = "Flux calibrated 1D LM LSS science spectrum"
+        # Define input classes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        """
+        Raw image LM_LSS_RSRF_RAW
+        """
+        class RawInput(RawInput):
+            _tags: re.Pattern = re.compile(r"LM_LSS_RSRF_RAW")
+            _title: str = "LM LSS rsrf raw"
+            _description: str = "Raw LSS flats taken with black-body calibration lamp."
 
-        # Alternative (Path #3 in DRLD Section CritAlg)
-        class LmLssStdFlux1d(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_LSS_STD_1D")
-            # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
-            # For the SKEL this is set to CALIB,although not correct!
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "LM LSS standard star 1D spectrum"
-            _description: str = "1D LM LSS standard star spectrum"
-    # ++++++++++++ Intermediate / QC products ++++++++++++
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
-    # TODO: Check whether the new mf writes out the best-fit param file
-    class ProductMfBestFitTab(PipelineProduct):
-        _tag = rf"MF_BEST_FIT_TAB"
-        _title: str = "Molecfit best-fit table"
+    """
+    Final Master RSRF
+    """
+    class ProductMasterAtmProfile(PipelineProduct):
+        _tag: str = r"ATM_PROFILE"
+        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Table with best-fit parameters for calctrans."
+
+        _description: str = "ATM_PROFILE"
+        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+
+        # SKEL: copy product keywords from header
+        def add_properties(self):
+            super().add_properties()
+            self.properties.append(self.header)
 
 
 # =========================================================================================
@@ -77,18 +77,22 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
     """
     Method for processing
     """
+# Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++
     def process_images(self) -> [PipelineProduct]:
+        # Load raw image
+        std_raw_hdr = \
+            cpl.core.PropertyList()
+        raw_images = self.load_images(self.inputset.raw.frameset)
+
         """Create dummy file (should do something more fancy in the future)"""
-
-        # TODO: Invoke molecfit here
-
-        # TODO: Check whether the new mf writes out the best-fit param file
-        header = self._create_dummy_header()
+        # header = self._create_dummy_header()
+        headr = self._create_dummy_header()
         image = self._create_dummy_image()
-        return [
-            self.ProductMfBestFitTab(self, header, image),
-        ]
 
+        # Write files
+        return [
+            self.ProductMasterAtmProfile(self, headr, image),
+        ]
     """
     Method for loading images (stolen from metis_chop_home.py)
     """
@@ -109,61 +113,71 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
 
         return output
 
+
 # =========================================================================================
 #    MAIN PART
 # =========================================================================================
 
+
 # Define recipe main function as a class which inherits from
 # the PyCPL class cpl.ui.PyRecipe
-class MetisLmLssMfModel(MetisRecipe):
+class MetisCreateFile(MetisRecipe):
     # The information about the recipe needs to be set. The base class
     # cpl.ui.PyRecipe provides the class variables to be set.
     # The recipe name must be unique, because it is this name which is
     # used to identify a particular recipe among all installed recipes.
     # The name of the python source file where this class is defined
     # is not at all used in this context.
-    _name: str = "metis_lm_lss_mf_model"
+    _name: str = "metis_create_file"
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
-    _synopsis: str = "Calculation of molecfit model"
+    _synopsis: str = "Create spectroscopic relative spectral response function (RSRF) for the 2RG detector"
     _undescription: str = """\
-    Calculation of molecfit model
+    Create relative spectral response function for the 2RG LSS detector
 
     Inputs
-        LM_LSS_SCI_FLUX_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science object
-        LM_LSS_STD_1D: Coadded, wavelength calibrated, collapsed 1D spectrum of the standard star
-        LSF_KERNEL:         LSF Kernel file
-        ATM_LINE_CAT:       Catalogue of atmospheric lines
-        ATMP_PROFILE:       Atmospheric input profile
+        LM_LSS_RSRF_RAW: Raw RSRF images [1-n]
+        LM_WCU_OFF_RAW:  raw WCU OFF background frames [1-n]
+        MASTER_DARK_2RG: Master dark frame [optional?]
+        BADPIX_MAP_2RG:  Bad-pixel map for 2RG detector [optional]
+        PERSISTENCE_MAP: Persistence map [optional]
+        GAIN_MAP_2RG:    Gain map for 2RG detector
+        LINEARITY_2RG:   Linearity map for 2RG detector
 
      Matched Keywords
+        DET.DIT
+        DET.NDIT
         DRS.SLIT
 
     Outputs
-        MF_BEST_FIT_TAB: Table with best-fit parameters
+        MASTER_LM_LSS_RSRF:     Master flat (RSRF) frame
+        MEDIAN_LM_LSS_RSRF_IMG: Median map (QC)
+        MEAN_LM_LSS_RSRF_IMG:   Mean map (QC)
     """
+# TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows"""
+    _algorithm = """Fancy description follows (cf. ifu_rsrf recipe)""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     """
     Define parameters
     """
-    # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # TODO: Implement real parameters
+# Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# TODO: Implement real parameters
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.stacking.method",
             context=_name,
-            description="Description of parameter 1",
-            default="value1",
-            alternatives=("value2", "value1"),
+            description="Name of the method used to combine the input images",
+            default="median",
+            alternatives=("average", "median"),
         ),
-    ])
-    # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ])     # no parameters defined in DRLD
+# Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
-    implementation_class = MetisLmLssMfModelImpl
+    implementation_class = MetisCreateFileImpl
+
