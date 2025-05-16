@@ -39,7 +39,6 @@ class SinglePipelineInput(PipelineInput):
         self.tag_matches: dict[str, str] = {}
         super().__init__()
 
-
         for frame in frameset:
             if match := self.tags().fullmatch(frame.tag):
                 if self.frame is None:

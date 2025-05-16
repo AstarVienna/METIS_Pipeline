@@ -21,7 +21,7 @@ import re
 import cpl
 
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -37,10 +37,9 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         MasterDarkInput = MasterDarkInput
         DistortionTableInput = DistortionTableInput
 
-    class ProductIfuWavecal(PipelineProduct):
+    class ProductIfuWavecal(PipelineImageProduct):
         _tag = r"IFU_WAVECAL"
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Image with wavelength at each pixel."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 

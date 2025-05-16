@@ -25,7 +25,7 @@ from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 from pymetis.classes.products import TargetSpecificProduct
 
 
@@ -67,24 +67,22 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     # We therefore need to define transmission spectrum and response curve class
 
     # Tranmission spectrum
-    class ProductTelluricTransmission(PipelineProduct):
+    class ProductTelluricTransmission(PipelineImageProduct):
         """
         Final product: Transmission function for the telluric correction
         """
         _tag: str = r"IFU_TELLURIC"
         title: str = "Telluric correction"
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "transmission function for the telluric correction"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     # Response curve
-    class ProductResponseFunction(TargetSpecificProduct):
+    class ProductResponseFunction(TargetSpecificProduct, PipelineImageProduct):
         """
         Final product: response curve for the flux calibration
         """
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "response curve for the flux calibration"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
@@ -100,10 +98,9 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
             }.get(cls.target(), '{target}')
             return f"Spectrum of a {target}."
 
-    class ProductFluxcalTab(PipelineProduct):
+    class ProductFluxcalTab(PipelineTableProduct):
         _tag = r"FLUXCAL_TAB"
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
         _description: str = "Conversion between instrumental and physical flux units."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
@@ -143,10 +140,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
         header = self._create_dummy_header()
         image = self._create_dummy_image()
+        table = self._create_dummy_table()
 
         product_telluric_transmission = self.ProductTelluricTransmission(self, header, image)
         product_reduced_1d = self.ProductResponseFunction(self, header, image)
-        product_fluxcal_tab = self.ProductFluxcalTab(self, header, image)
+        product_fluxcal_tab = self.ProductFluxcalTab(self, header, table)
 
         return [product_telluric_transmission, product_reduced_1d, product_fluxcal_tab]
 

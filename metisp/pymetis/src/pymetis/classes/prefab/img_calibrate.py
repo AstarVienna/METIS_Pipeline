@@ -22,7 +22,7 @@ from abc import ABC
 
 import cpl
 
-from pymetis.classes.products import BandSpecificProduct
+from pymetis.classes.products import BandSpecificProduct, PipelineImageProduct
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.products.product import PipelineProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
@@ -48,9 +48,8 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _description: str = "Table of distortion information"
 
-    class ProductSciCalibrated(BandSpecificProduct):
+    class ProductSciCalibrated(BandSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         group = cpl.ui.Frame.FrameGroup.CALIB
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 

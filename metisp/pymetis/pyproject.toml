@@ -3,10 +3,10 @@ requires = [
     "setuptools >= 45",
 ]
 build-backend = "setuptools.build_meta"
+
 [project]
 name = "pymetis"
 version = "0.0.1"
-
 dynamic = ["description","requires-python","license","authors","classifiers","urls","dependencies","optional-dependencies"]
 
 [tool.pytest.ini_options]

@@ -23,7 +23,7 @@ import cpl
 
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
@@ -34,12 +34,11 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
-    class ProductSciCoadd(PipelineProduct):
+    class ProductSciCoadd(PipelineImageProduct):
         _tag = f"IFU_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
-                        "covering a different spatial and wavelength ranges.")
+        _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures "
+                             "covering a different spatial and wavelength ranges.")
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def determine_output_grid(self):

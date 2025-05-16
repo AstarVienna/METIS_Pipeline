@@ -22,10 +22,9 @@ import re
 import cpl
 
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
-from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, PipelineTableProduct
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
@@ -36,8 +35,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
             _title = "Detrended exposure"
             _group = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Science grade detrended exposure of the LM image mode."
-                           # "Standard detrended exposure of the LM image mode.")
+            _description: str = "Detrended exposure of the LM image mode."
 
         class SkyBasicReducedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
@@ -45,9 +43,8 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             _title = "Sky basic-reduced exposure"
             _description: str = "Detrended exposure of the sky."
 
-    class ProductBkg(TargetSpecificProduct):
+    class ProductBkg(TargetSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
         @classmethod
@@ -62,7 +59,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         def tag(cls):
             return f"LM_{cls.target():s}_BKG"
 
-    class ProductBkgSubtracted(TargetSpecificProduct):
+    class ProductBkgSubtracted(TargetSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
@@ -79,18 +76,13 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         def tag(cls):
             return f"LM_{cls.target():s}_BKG_SUBTRACTED"
 
-    class ProductObjectCat(TargetSpecificProduct):
+    class ProductObjectCat(TargetSpecificProduct, PipelineTableProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod
         def description(cls):
-            target = {
-                'SCI': 'science',
-                'STD': 'standard',
-            }.get(cls.target(), '{target}')
-            return f"Catalog of masked objects in {target} LM exposures."
+            return f"Catalog of masked objects in {cls.verbose()} LM exposures."
 
         @classmethod
         def tag(cls):
@@ -101,10 +93,11 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         target = self.inputset.tag_parameters['target']
         image = self._create_dummy_image()
+        table = self._create_dummy_table()
 
         product_bkg = self.ProductBkg(self, self.header, image)
         product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image)
-        product_object_cat = self.ProductObjectCat(self, self.header, image)
+        product_object_cat = self.ProductObjectCat(self, self.header, table)
 
         return [product_bkg, product_bkg_subtracted, product_object_cat]
 

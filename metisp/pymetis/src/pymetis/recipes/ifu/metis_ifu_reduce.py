@@ -27,7 +27,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):
@@ -65,9 +65,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             _description: str = "2D relative spectral response function"
 
 
-    class ProductReduced(TargetSpecificProduct):
+    class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Table of polynomial coefficients for distortion correction"
         _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
 
@@ -75,9 +74,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(cls) -> str:
             return rf"IFU_{cls.target():s}_REDUCED"
 
-    class ProductBackground(TargetSpecificProduct):
+    class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Reduced 2D detector image of background."
         _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
 
@@ -85,9 +83,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(cls) -> str:
             return rf"IFU_{cls.target():s}_BACKGROUND"
 
-    class ProductReducedCube(TargetSpecificProduct):
+    class ProductReducedCube(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Reduced 2D detector image of spectroscopic flux standard star."
         _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
 
@@ -95,9 +92,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(cls) -> str:
             return rf"IFU_{cls.target():s}_REDUCED_CUBE"
 
-    class ProductCombined(TargetSpecificProduct):
+    class ProductCombined(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Spectral cube of standard star, combining multiple exposures."
         _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
 

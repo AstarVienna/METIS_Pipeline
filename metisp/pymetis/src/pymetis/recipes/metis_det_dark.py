@@ -28,7 +28,7 @@ from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import (RawInput, BadpixMapInput, PersistenceMapInput,
                                     LinearityInput, GainMapInput, OptionalInputMixin)
 from pymetis.classes.inputs import PersistenceInputSetMixin
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.products import DetectorSpecificProduct
 
 
@@ -67,15 +67,13 @@ class MetisDetDarkImpl(RawImageProcessor):
     # Note that master darks might be obtained by different means for different detectors,
     # so we derive from `DetectorSpecificProduct`, not from `PipelineProduct`.
     # This provides a mechanism for ensuring the `detector` is defined and parsed.
-    class ProductMasterDark(DetectorSpecificProduct):
+    class ProductMasterDark(DetectorSpecificProduct, PipelineImageProduct):
         """
         Master dark frame product.
         """
 
         # We define the required attributes for CPL.
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         # The actual description depends on the detector, so we need to redefine it.

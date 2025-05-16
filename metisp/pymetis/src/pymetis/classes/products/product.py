@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, final
 
 import cpl
@@ -30,12 +30,12 @@ PIPELINE = r'METIS'
 
 class PipelineProduct(ABC):
     """
-        The abstract base class for a pipeline product:
-        one FITS file with associated headers and a frame
+    The abstract base class for a pipeline product:
+    one FITS file with associated headers and a frame
     """
 
     # Global defaults for all Products
-    group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT        # ToDo: Is this a sensible default?
+    group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
     level: cpl.ui.Frame.FrameLevel = None
     frame_type: cpl.ui.Frame.FrameType = None
 
@@ -43,7 +43,7 @@ class PipelineProduct(ABC):
     # The standard way of defining them is to override the private class attribute;
     # the default @classmethod with the same name (without the underscore) just returns its value.
     # If it depends on other attributes, override the corresponding @classmethod.
-    # All methods dealing with these should relate to the class, not instances!
+    # All methods dealing with these should relate to the **class**, not its instances!
     _tag: str = None
     _oca_keywords: {str} = None
     _description: str = None
@@ -54,11 +54,9 @@ class PipelineProduct(ABC):
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
-                 header: cpl.core.PropertyList,
-                 image: cpl.core.Image):
+                 header: cpl.core.PropertyList):
         self.recipe: 'MetisRecipeImpl' = recipe_impl
         self.header: cpl.core.PropertyList = header
-        self.image: cpl.core.Image = image
 
         # FIXME: temporary to get QC parameters into the product header [OC]
         if self.header is not None:
@@ -68,7 +66,7 @@ class PipelineProduct(ABC):
 
         self._used_frames: cpl.ui.FrameSet | None = None
 
-        # Raise a NotImplementedError in case a derived class forgot to set a class attribute
+        # Raise a `NotImplementedError` in case a derived class forgot to set a class attribute
         if self.tag is None:
             raise NotImplementedError(f"Products must define 'tag', but {self.__class__.__qualname__} does not")
 
@@ -112,7 +110,9 @@ class PipelineProduct(ABC):
         )
 
     def as_dict(self) -> dict[str, Any]:
-        """ Return a dictionary representation of this Product """
+        """
+        Return a dictionary representation of this Product
+        """
         return {
             'tag': self.tag(),
             'group': self.group,
@@ -123,37 +123,38 @@ class PipelineProduct(ABC):
     def __str__(self) -> str:
         return f"{self.__class__.__qualname__} ({self.tag()})"
 
-    # @final
-    def save(self):
-        """ Save this Product to a file """
+    @final
+    def save(self) -> None:
+        """ Save Product data to appropriate file(s) """
         Msg.info(self.__class__.__qualname__,
                  f"Saving product file as {self.output_file_name!r}:")
         Msg.info(self.__class__.__qualname__,
                  f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
         Msg.info(self.__class__.__qualname__,
                  f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
+
         # Check that the tag matches the generic regex
         assert self._regex_tag.match(self.tag()) is not None, \
             f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
+
         # At least one frame in the recipe frameset must be tagged as RAW!
-        # Otherwise, it *will not* save (rite of passage)
-        cpl.dfs.save_image(
-            self.recipe.frameset,       # All frames for the recipe
-            self.recipe.parameters,     # The list of input parameters
-            self.recipe.valid_frames,   # The list of frames actually used FixMe currently not working as intended
-            self.image,                 # Image to be saved
-            self.recipe.name,           # Name of the recipe
-            self.properties,            # Properties to be appended
-            PIPELINE,
-            self.output_file_name,
-        )
+        # Otherwise, PyCPL **will not** save (rite of passage)
+        self.save_files()
+
+    @abstractmethod
+    def save_files(self) -> None:
+        """
+        Actually save the files. This is a hook for derived classes.
+        """
+        pass
 
     @property
     def category(self) -> str:
         """
         Return the category of this product.
 
-        By default, the tag is the same as the category. Feel free to override if needed.
+        By default, the tag is the same as the category.
+        Feel free to override if needed.
         """
         return self.tag()
 
@@ -161,7 +162,14 @@ class PipelineProduct(ABC):
     def output_file_name(self) -> str:
         """
         Form the output file name.
-        By default, this should be just the category with ".fits" appended. Feel free to override if needed.
+        By default, this should be just the category with ".fits" appended.
+        Feel free to override if needed.
+
+        Returns
+        -------
+        str
+            A string representing the generated output filename in the format
+            "{category}.fits".
         """
         return f"{self.category}.fits"
 
@@ -183,5 +191,9 @@ class PipelineProduct(ABC):
         return cls._description
 
     @classmethod
+    @final
     def description_line(cls) -> str:
-        return f"    {cls.tag():<75s}{cls.description() or '<not defined>'}"
+        """
+        Generate a line for 'pyesorex --man-page' with the description of the recipe.
+        """
+        return f"    {cls.tag():<76s}{cls.description() or '<no description defined>'}"

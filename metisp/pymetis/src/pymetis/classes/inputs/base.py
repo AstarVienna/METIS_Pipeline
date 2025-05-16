@@ -17,9 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import abstractmethod
 import re
-from typing import Pattern, Any
+from abc import abstractmethod
+from typing import Pattern, Any, Optional
 
 import cpl
 
@@ -36,8 +36,8 @@ class PipelineInput:
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
-    _detector: str | None = None            # Not specific to a detector until determined otherwise
-    _description: str = None                # Description for man page
+    _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
+    _description: Optional[str] = None      # Description for man page
 
     @classmethod
     def title(cls) -> str:
@@ -64,7 +64,7 @@ class PipelineInput:
         return self._group
 
     @property
-    def detector(self):
+    def detector(self) -> str:
         return self._detector
 
     @detector.setter
@@ -117,7 +117,7 @@ class PipelineInput:
     @classmethod
     def description_line(cls) -> str:
         return (f"    {cls._pretty_tags():<60} [{cls._multiplicity}]"
-                f"{' (optional)' if not cls._required else '          '} "
+                f"{' (optional)' if not cls._required else '           '} "
                 f"{cls._description}")
 
     def _verify_same_detector_from_header(self) -> None:

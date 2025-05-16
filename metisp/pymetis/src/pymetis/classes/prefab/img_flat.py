@@ -27,7 +27,7 @@ from pymetis.classes.inputs import RawInput, MasterDarkInput
 
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.classes.products import PipelineProduct, BandSpecificProduct, TargetSpecificProduct
+from pymetis.classes.products import PipelineProduct, BandSpecificProduct, TargetSpecificProduct, PipelineImageProduct
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
@@ -45,10 +45,8 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             _description: str = "Flat image raw"
 
 
-    class ProductMasterFlat(BandSpecificProduct, TargetSpecificProduct):
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
+    class ProductMasterFlat(BandSpecificProduct, TargetSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         @classmethod
         def tag(cls) -> str:

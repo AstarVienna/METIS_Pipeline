@@ -21,65 +21,60 @@ import re
 
 import cpl
 from cpl.core import Msg
-import os
-from typing import Any, final
 
+from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import TargetSpecificProduct
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.inputs import RawInput
-from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
-from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct, TargetSpecificProduct
+from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
+                                    PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-import numpy.random as random
-import numpy as np
 
 class MetisNImgChopnodImpl(DarkImageProcessor):
     detector = '2RG'
 
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
-        The first step of writing a recipe is to define an InputSet: the one-to-one class
-        that wraps all the recipe inputs. It encapsulates the entire input and
-
-        - defines which tags to look for, optionally with placeholders like `{det}`, that can be set globally
-        - which of the inputs are optional (just set `required = False`)
-        - provides mechanism for verification that the required frames are actually present
+        The first step of writing a recipe is to define an InputSet:
+        the one-to-one class that wraps all the recipe inputs.
+        It encapsulates the entire input and
+        - defines which tags to look for, optionally with placeholders like `{det}` that can be set globally
+        - defines which of the inputs are optional (just set `required = False`)
+        - provides a mechanism for verification that the required frames are actually present
 
         Inputs are twofold:
-
         - children of SinglePipelineInput, which expect exactly one frame to be present (or at most one if optional).
-            They will warn is multiple frames are found and keep the last one.
+            They will warn if multiple frames are found and keep the last one.
         - children of MultiplePipelineInput, which expect multiple frames with the same tag (usually RAWs).
             Again, the frame set may be empty if `required` is set to False.
 
         You may instantiate your inputs directly as SinglePipelineInput or MultiplePipelineInput with appropriate tags,
         or use or extend one of the predefined classes (see `pymetis.inputs.common`).
 
-        The input is automatically verified (see the base InputSet class and its Single and Multiple children)
+        The input is automatically verified (see the base InputSet class and its Single and Multiple children),
         and an exception is raised whenever something is amiss.
         """
 
-        # This InputSet class derives from `DarkImageProcessor.InputSet`, which in turn inherits from
-        # `RawImageProcessor.InputSet`. It already knows that it wants a RawInput and MasterDarkInput class,
+        # This InputSet class derives from `DarkImageProcessor.InputSet`,
+        # which in turn inherits from `RawImageProcessor.InputSet`.
+        # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"N_IMAGE_(?P<target>SCI|STD)_RAW")
             _description: str = "Raw exposure of a standard star in the N image mode."
 
-        # Now we need a master dark. Since nothing is changed and the tag is always the same,
-        # we just point to the provided MasterDarkInput. Note that we do not have to instantiate
-        # it explicitly anywhere, `MasterDarkInput` takes care of that for us.
+        # Now we need a master dark frame.
+        # Since nothing is changed and the tag is always the same, # we just point to the provided MasterDarkInput.
+        # Note that we do not have to instantiate it explicitly anywhere, `MasterDarkInput` takes care of that for us.
         MasterDarkInput = MasterDarkInput
 
-        # Also one master flat is required. Again, we use a prefabricated class, but reset the tags
+        # Also one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>N)")
             _description: str = "Master flat frame for N image data."
 
-    class ProductReduced(TargetSpecificProduct):
+    class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
         """
-        The second big part is defining the products. For every product we create a separate class
+        The second big part is defining the products. For every product, we create a separate class
         which defines the tag, group, level and frame type. Here we only have one kind of product,
         so its name is `Product` (or fully qualified, `MetisNImgChopnodImpl.Product`).
         But feel free to be more creative with names: it could be `MetisNImgChopnodImpl.ProductBasicReduced`.
@@ -90,16 +85,17 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
         _description: str = "Science grade detrended exposure of the N image mode."
 
-        
+
         @classmethod
         def tag(cls) -> str:
             return rf"N_{cls.target():s}_BKG_SUBTRACTED"
 
-    class ProductBackground(TargetSpecificProduct):
+    class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
         """
-        The second big part is defining the products. For every product we create a separate class
-        which defines the tag, group, level and frame type. Here we only have one kind of product,
-        so its name is `Product` (or fully qualified, `MetisNImgChopnodImpl.Product`).
+        The second big part is defining the products.
+        For every product, we create a separate class which defines the tag, group, level and frame type.
+        Here we only have one kind of product, so its name is `Product`
+        (or fully qualified, `MetisNImgChopnodImpl.Product`).
         But feel free to be more creative with names: it could be `MetisNImgChopnodImpl.ProductBasicReduced`.
         """
         group = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -108,12 +104,10 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
         _description: str = "Science grade detrended exposure of the N image mode."
 
-        
         @classmethod
         def tag(cls) -> str:
             return rf"N_{cls.target():s}_BACKGROUND"
 
-        
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet) -> cpl.core.ImageList:
         prepared_images = cpl.core.ImageList()
@@ -131,28 +125,27 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
     def process_images(self) -> [PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
-        You can define extra private functions, or use functions from the parent classes:
+        You can define extra private functions or use functions from the parent classes:
         for instance, combine_images is a helper function that takes a frameset and a method and returns
         a single combined frame that is used throughout the pipeline.
         """
 
         Msg.info(self.__class__.__qualname__, f"Processing Images")
-
         Msg.info(self.__class__.__qualname__, f"Loading calibration files")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
         images = self.prepare_images(self.inputset.raw.frameset)
-        
+
         combined_image = self.combine_images(images, self.parameters["metis_n_img_chopnod.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         self.target = self.inputset.tag_parameters['target']
 
-        productR = self.ProductReduced(self, header, combined_image) 
-        productB = self.ProductBackground(self, header, combined_image) 
+        productR = self.ProductReduced(self, header, combined_image)
+        productB = self.ProductBackground(self, header, combined_image)
 
-        return [productR,productB]
+        return [productR, productB]
 
     def _dispatch_child_class(self) -> type["MetisNImgChopnodImpl"]:
         return {
@@ -161,24 +154,14 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         }[self.inputset.target]
 
 
-
-
 class MetisNStdImgChopnodImpl(MetisNImgChopnodImpl):
-    _target: str = 'STD'
-
-    class ProductReduced(MetisNImgChopnodImpl.ProductReduced):
-        _target: str = 'STD'
-    class ProductBackground(MetisNImgChopnodImpl.ProductBackground):
-        _target: str = 'STD'
+    class ProductReduced(TargetStdMixin, MetisNImgChopnodImpl.ProductReduced): pass
+    class ProductBackground(TargetStdMixin, MetisNImgChopnodImpl.ProductBackground): pass
 
 
 class MetisNSciImgChopnodImpl(MetisNImgChopnodImpl):
-    _target: str = 'SCI'
-
-    class ProductReduced(MetisNImgChopnodImpl.ProductReduced):
-        _target: str = 'SCI'
-    class ProductBackground(MetisNImgChopnodImpl.ProductBackground):
-        _target: str = 'SCI'
+    class ProductReduced(TargetSciMixin, MetisNImgChopnodImpl.ProductReduced): pass
+    class ProductBackground(TargetSciMixin, MetisNImgChopnodImpl.ProductBackground): pass
 
 
 
@@ -186,7 +169,6 @@ class MetisNImgChopnod(MetisRecipe):
     """
     Apart from our own recipe implementation, we have to provide the actual recipe for PyEsoRex.
     This is very simple: just the
-
     - seven required attributes as below
         - copyright may be omitted as it is provided in the base class and probably will remain the same everywhere,
     - list of parameters as required (consult DRL-D for the particular recipe)

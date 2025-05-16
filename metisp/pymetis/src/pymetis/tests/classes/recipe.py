@@ -66,7 +66,6 @@ class BaseRecipeTest(ABC):
         recipe = self._recipe()
         recipe.run(frameset, {})
         out = pprint.pformat(recipe.implementation.as_dict(), width=200)
-        # print(out)
         assert isinstance(out, str), \
             f"Recipe {recipe.name} did not return a valid as_dict"
 

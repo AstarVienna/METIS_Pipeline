@@ -26,7 +26,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import GainMapInput, PersistenceMapInput, BadpixMapInput, PinholeTableInput
 from pymetis.classes.inputs import LinearityInput
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.prefab import RawImageProcessor
 
 
@@ -56,7 +56,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         class PinholeTableInput(PinholeTableInput):
             _required = False     # CHECK Is this needed for single pinhole?
 
-    class ProductCombined(PipelineProduct):
+    class ProductCombined(PipelineImageProduct):
         """
         Final product: combined, background-subtracted images of the WCU source
         """
@@ -67,7 +67,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         _description: str = "Combined, background-subtracted images of the WCU pinhole mask. The chopper offset is in the header."
         _oca_keywords: {str} = {'PRO.CATG'}
 
-    class ProductBackground(PipelineProduct):
+    class ProductBackground(PipelineImageProduct):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
@@ -79,7 +79,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         _oca_keywords: {str} = {'PRO.CATG'}
 
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> [PipelineImageProduct]:
         """This function processes the input images
 
         - stack the wcu_off images into background_img

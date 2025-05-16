@@ -43,6 +43,7 @@ def sof(name: str) -> str:
 class TestRecipe(BaseRecipeTest):
     _recipe: type[MetisRecipe] = Recipe
 
+    @pytest.mark.pyesorex
     @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)

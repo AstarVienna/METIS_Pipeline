@@ -53,11 +53,12 @@ class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
             raw_images.append(raw_image)
 
         combined_image = self.combine_images(raw_images, "average")
+        table = self._create_dummy_table()
 
         return [
-            self.ProductDistortionTable(self, self.header, combined_image),
+            self.ProductDistortionTable(self, self.header, table),
             self.ProductDistortionMap(self, self.header, combined_image),
-            self.ProductDistortionReduced(self, self.header, combined_image),
+            self.ProductDistortionReduced(self, self.header, table),
         ]
 
 
