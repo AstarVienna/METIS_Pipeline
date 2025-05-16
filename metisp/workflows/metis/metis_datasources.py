@@ -24,8 +24,8 @@ detlin_2rg_raw = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-raw_dark = (data_source()
-            .with_classification_rule(rawdark_class)
+raw_2rg_dark = (data_source()
+            .with_classification_rule(rawdark_2rg_class)
             .with_match_keywords(["instrume"])
             .build())
 
@@ -45,19 +45,61 @@ lm_wcu_off_raw = (data_source()
             .build())
 
 lm_raw_science = (data_source()
-            .with_classification_rule(raw_science_class)        
+            .with_classification_rule(lm_raw_science_class)        
             .with_match_keywords(["instrume"])
             .build())
 
 lm_raw_sky = (data_source()
-            .with_classification_rule(raw_sky_class)        
+            .with_classification_rule(lm_raw_sky_class)        
             .with_match_keywords(["instrume"])
             .build())
 
 lm_raw_std = (data_source()
-            .with_classification_rule(raw_std_class)        
+            .with_classification_rule(lm_raw_std_class)        
             .with_match_keywords(["instrume"])
             .build())
+# ------- N BAND DATA SOURCES ---------
+
+detlin_geo_raw = (data_source()
+            .with_classification_rule(detlin_geo_raw_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
+raw_geo_dark = (data_source()
+            .with_classification_rule(rawdark_geo_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
+n_lamp_flat = (data_source()
+            .with_classification_rule(n_lampflat_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
+n_distortion_raw = (data_source()
+            .with_classification_rule(n_distortion_raw_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
+n_wcu_off_raw = (data_source()
+            .with_classification_rule(n_wcu_off_raw_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
+n_raw_science = (data_source()
+            .with_classification_rule(n_raw_science_class)        
+            .with_match_keywords(["instrume"])
+            .build())
+
+n_raw_sky = (data_source()
+            .with_classification_rule(n_raw_sky_class)        
+            .with_match_keywords(["instrume"])
+            .build())
+
+n_raw_std = (data_source()
+            .with_classification_rule(n_raw_std_class)        
+            .with_match_keywords(["instrume"])
+            .build())
+
 
 fluxstd_catalog = (data_source()
                 .with_classification_rule(fluxstd_catalog_class)
