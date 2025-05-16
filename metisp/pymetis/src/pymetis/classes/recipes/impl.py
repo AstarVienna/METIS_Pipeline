@@ -193,6 +193,10 @@ class MetisRecipeImpl(ABC):
     def valid_frames(self) -> cpl.ui.FrameSet:
         return self.inputset.valid_frames
 
+    @property
+    def used_frames(self) -> cpl.ui.FrameSet:
+        return self.inputset.used_frames
+
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         """
         Return the actual implementation class **when the frameset is already available**, e.g. at runtime.

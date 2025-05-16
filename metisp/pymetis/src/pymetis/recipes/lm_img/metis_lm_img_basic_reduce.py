@@ -143,20 +143,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             self.noise.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
             self.mask.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
 
-    def prepare_images(self,
-                       raw_frames: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        prepared_images = cpl.core.ImageList()
-
-        for index, frame in enumerate(raw_frames):
-            Msg.info(self.__class__.__qualname__, f"Processing {frame.file}...")
-
-            Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file}")
-            raw_image = cpl.core.Image.load(frame.file, extension=1)
-
-            prepared_images.append(raw_image)
-
-        return prepared_images
-
     def process_images(self) -> [PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
@@ -176,7 +162,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
         
         Msg.info(self.__class__.__qualname__, f"Loading raw images")
-        images = self.prepare_images(self.inputset.raw.frameset)
+        images = self.inputset.load_raw_images()
         Msg.info(self.__class__.__qualname__, f"Pretending to correct crosstalk")
         Msg.info(self.__class__.__qualname__, f"Pretending to correct for linearity")
 

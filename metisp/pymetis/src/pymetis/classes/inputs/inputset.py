@@ -129,6 +129,9 @@ class PipelineInputSet(metaclass=ABCMeta):
             inp.print_debug(offset=offset + 4)
 
     def as_dict(self) -> dict[str, Any]:
+        """
+        Return a dict representation of the input patterns.
+        """
         return {
             inp.tags().pattern: inp.as_dict()
             for inp in self.inputs
@@ -136,15 +139,6 @@ class PipelineInputSet(metaclass=ABCMeta):
 
     @property
     def valid_frames(self) -> cpl.ui.FrameSet:
-        """
-        Return the frames that actually affect the output anyhow (if a frame is not listed here, the output without
-        that frame should be identical
-
-        - [HB]: also includes frames that do not contribute any pixel data,
-                for instance discarded outliers (without them a different frame might be an outlier)
-
-        FixMe: Currently this only ensures that frames are loaded, not actually used!
-        """
         frameset = cpl.ui.FrameSet()
 
         for inp in self.inputs:
@@ -153,3 +147,15 @@ class PipelineInputSet(metaclass=ABCMeta):
                 frameset.append(frame)
 
         return frameset
+
+    @property
+    def used_frames(self) -> cpl.ui.FrameSet:
+        """
+        Return the frames that actually affect the output anyhow (if a frame is not listed here, the output without
+        that frame should be identical
+
+        - [HB]: also includes frames that do not contribute any pixel data,
+                for instance, discarded outliers (without them a different frame might be an outlier)
+        # FixMe: Currently this only ensures that frames are loaded, not actually used!
+        """
+        return self.valid_frames
