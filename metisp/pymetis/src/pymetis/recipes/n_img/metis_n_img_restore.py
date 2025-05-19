@@ -24,7 +24,7 @@ import cpl
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 
 
 class MetisNImgRestoreImpl(MetisRecipeImpl):
@@ -36,11 +36,10 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
             _title = "N science calibrated"
 
 
-    class ProductRestored(PipelineProduct):
+    class ProductRestored(PipelineImageProduct):
         _tag: re.Pattern = r'N_SCI_RESTORED'
         _description: str = "N band image with a single positive beam restored from chop-nod image"
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
 

@@ -53,12 +53,13 @@ class PipelineInputSet(metaclass=ABCMeta):
         """
             Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
             By default, there is nothing: no inputs, no tag_parameters.
+            This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
         """
         self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
         self.tag_parameters: dict[str, str] = {}        # A dict of all tunable parameters determined from tags
         self.frameset: cpl.ui.FrameSet = frameset
 
-        # Regex: remove "Input" from the name of the class...
+        # Regex: remove final "Input" from the name of the class...
         cut_input = re.compile(r'Input$')
         # Regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
         make_snake = re.compile(r'(?<!^)(?=[A-Z])')
@@ -128,6 +129,9 @@ class PipelineInputSet(metaclass=ABCMeta):
             inp.print_debug(offset=offset + 4)
 
     def as_dict(self) -> dict[str, Any]:
+        """
+        Return a dict representation of the input patterns.
+        """
         return {
             inp.tags().pattern: inp.as_dict()
             for inp in self.inputs
@@ -135,15 +139,6 @@ class PipelineInputSet(metaclass=ABCMeta):
 
     @property
     def valid_frames(self) -> cpl.ui.FrameSet:
-        """
-        Return the frames that actually affect the output anyhow (if a frame is not listed here, the output without
-        that frame should be identical
-
-        - [HB]: also includes frames that do not contribute any pixel data,
-                for instance discarded outliers (without them a different frame might be an outlier)
-
-        FixMe: Currently this only ensures that frames are loaded, not actually used!
-        """
         frameset = cpl.ui.FrameSet()
 
         for inp in self.inputs:
@@ -152,3 +147,15 @@ class PipelineInputSet(metaclass=ABCMeta):
                 frameset.append(frame)
 
         return frameset
+
+    @property
+    def used_frames(self) -> cpl.ui.FrameSet:
+        """
+        Return the frames that actually affect the output anyhow (if a frame is not listed here, the output without
+        that frame should be identical
+
+        - [HB]: also includes frames that do not contribute any pixel data,
+                for instance, discarded outliers (without them a different frame might be an outlier)
+        # FixMe: Currently this only ensures that frames are loaded, not actually used!
+        """
+        return self.valid_frames

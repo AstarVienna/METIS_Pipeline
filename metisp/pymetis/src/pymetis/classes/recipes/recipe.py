@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import inspect
+import re
 from typing import Dict, Any
 
 import cpl
@@ -90,10 +91,15 @@ class MetisRecipe(cpl.ui.PyRecipe):
         elif len(self._matched_keywords) == 0:
             matched_keywords = '(none)'
         else:
-            matched_keywords = ', '.join(self._matched_keywords)
+            matched_keywords = '\n    '.join(self._matched_keywords)
 
         inputs = '\n'.join(sorted([input_type.description_line() for (_, input_type) in self._list_inputs()]))
         products = '\n'.join(sorted([product_type.description_line() for (_, product_type) in self._list_products()]))
+
+        fix_spacing = re.compile(r'\n\s*')
+        fix_first_space = re.compile(r'^\s*')
+        algorithm = fix_spacing.sub('\n    ', fix_first_space.sub('    ', self.algorithm)) \
+            if self.algorithm is not None else '<no algorithm defined>'
 
         return \
 f"""{self.synopsis}
@@ -102,8 +108,7 @@ f"""{self.synopsis}
     {matched_keywords}
   Inputs\n{inputs}
   Outputs\n{products}
-  Algorithm
-    {self.algorithm or '<not provided>'}
+  Algorithm\n{algorithm}
 """
 
     @property

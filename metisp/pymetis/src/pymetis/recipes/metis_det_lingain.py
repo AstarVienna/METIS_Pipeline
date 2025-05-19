@@ -27,15 +27,13 @@ from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, 
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput, BadpixMapInput, OptionalInputMixin
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.products import DetectorSpecificProduct
 
 
-class LinGainProduct(DetectorSpecificProduct, ABC):
-    """ Common base class for all linearity and gain products. Just sets `group`, `level` and `frame_type`. """
-    group = cpl.ui.Frame.FrameGroup.PRODUCT
+class LinGainProduct(DetectorSpecificProduct, PipelineImageProduct, ABC):
+    """ Common base class for all linearity and gain products. It just sets `level`. """
     level = cpl.ui.Frame.FrameLevel.FINAL
-    frame_type = cpl.ui.Frame.FrameType.IMAGE
 
 
 class MetisDetLinGainImpl(RawImageProcessor, ABC):

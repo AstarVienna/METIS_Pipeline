@@ -22,7 +22,7 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.products import PipelineProduct, BandSpecificProduct
+from pymetis.classes.products import PipelineProduct, BandSpecificProduct, PipelineTableProduct, PipelineImageProduct
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import FluxstdCatalogInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
@@ -36,14 +36,14 @@ class MetisImgStdProcessImpl(RawImageProcessor):
 
         FluxstdCatalogInput = FluxstdCatalogInput
 
-    class ProductImgFluxCalTable(PipelineProduct):
+    class ProductImgFluxCalTable(PipelineTableProduct):
         _tag = r"FLUXCAL_TAB"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.TABLE
         _description: str = "Conversion between instrumental and physical flux units."
         _oca_keywords = {'PRO.CATG'}
 
-    class ProductImgStdCombined(BandSpecificProduct):
+    class ProductImgStdCombined(BandSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
@@ -69,8 +69,9 @@ class MetisImgStdProcessImpl(RawImageProcessor):
             raw_images.append(raw_image)
 
         combined_image = self.combine_images(raw_images, "average")
+        table = self._create_dummy_table()
 
-        product_fluxcal = self.ProductImgFluxCalTable(self, self.header, combined_image)
+        product_fluxcal = self.ProductImgFluxCalTable(self, self.header, table)
         product_combined = self.ProductImgStdCombined(self, self.header, combined_image)
 
         return [product_fluxcal, product_combined]

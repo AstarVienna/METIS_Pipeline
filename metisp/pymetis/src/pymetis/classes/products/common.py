@@ -16,16 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from abc import ABC
 
 import cpl
-from cpl.core import Msg
 
-from .product import PIPELINE
-
+from pymetis.classes.products.image import PipelineImageProduct
 from pymetis.classes.products.product import PipelineProduct
 
 
-class TargetSpecificProduct(PipelineProduct):
+class TargetSpecificProduct(PipelineProduct, ABC):
     """Products specific to a target. Usually, but not necessarily, (SCI|STD|SKY) and (LAMP|TWILIGHT)"""
     _target: str = None
 
@@ -34,8 +33,15 @@ class TargetSpecificProduct(PipelineProduct):
         """Return the internal target, or a placeholder for manpage."""
         return cls._target or "{target}"
 
+    @classmethod
+    def verbose(cls) -> str:
+        return {
+            'SCI': 'science',
+            'STD': 'standard',
+        }.get(cls.target(), '{target}')
 
-class DetectorSpecificProduct(PipelineProduct):
+
+class DetectorSpecificProduct(PipelineProduct, ABC):
     """Products specific to a detector. Usually, but not necessarily, (2RG|GEO|IFU)"""
     _detector: str = None
 
@@ -45,7 +51,7 @@ class DetectorSpecificProduct(PipelineProduct):
         return cls._detector or "{detector}"
 
 
-class BandSpecificProduct(PipelineProduct):
+class BandSpecificProduct(PipelineProduct, ABC):
     """Products specific to a band. Usually, but not necessarily, (LM|N)"""
     _band: str = None
 
@@ -53,46 +59,11 @@ class BandSpecificProduct(PipelineProduct):
     def band(cls) -> str:
         """Return the internal band, or a placeholder for manpage."""
         return cls._band or "{band}"
-    
-class TableProduct(PipelineProduct):
-    """Product with table data"""
-
-    def __init__(self,
-                    recipe_impl: 'MetisRecipeImpl',
-                    header: cpl.core.PropertyList,
-                    table: cpl.core.Table):
-        super().__init__(recipe_impl, header, image=None)
-        self.table: cpl.core.Table = table
-
-    def save(self):
-        """ Save this Product to a file """
-        Msg.info(self.__class__.__qualname__,
-                 f"Saving product file as {self.output_file_name!r}:")
-        Msg.info(self.__class__.__qualname__,
-                 f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
-        Msg.info(self.__class__.__qualname__,
-                 f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
-        # Check that the tag matches the generic regex
-        assert self._regex_tag.match(self.tag()) is not None, \
-            f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
-        # At least one frame in the recipe frameset must be tagged as RAW!
-        # Otherwise, it *will not* save (rite of passage)
-        cpl.dfs.save_table(
-            self.recipe.frameset,       # All frames for the recipe
-            self.recipe.parameters,     # The list of input parameters
-            self.recipe.valid_frames,   # The list of frames actually used FixMe currently not working as intended
-            self.table,                 # Table to be saved
-            self.recipe.name,           # Name of the recipe
-            self.properties,            # Properties to be appended
-            PIPELINE,
-            self.output_file_name,
-            header=self.header,
-        )
 
 
 # FixMe move this to some prefab
-class ProductBadpixMapDet(DetectorSpecificProduct):
-    group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
+class ProductBadpixMapDet(DetectorSpecificProduct, PipelineImageProduct):
+    group = cpl.ui.Frame.FrameGroup.CALIB  # ToDo TBC
     level = cpl.ui.Frame.FrameLevel.FINAL
     frame_type = cpl.ui.Frame.FrameType.IMAGE
 

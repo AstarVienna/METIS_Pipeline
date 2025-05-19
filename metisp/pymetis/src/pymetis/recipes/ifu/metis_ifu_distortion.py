@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 from pymetis.classes.inputs import RawInput, MasterDarkInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
@@ -39,17 +39,15 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
             _description: str = "Images of multi-pinhole mask."
 
-    class ProductIfuDistortionTable(PipelineProduct):
+    class ProductIfuDistortionTable(PipelineTableProduct):
         _tag = r"IFU_DISTORTION_TABLE"
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
         _description: str = "Table of distortion coefficients for an IFU data set"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    class ProductIfuDistortionReduced(PipelineProduct):
+    class ProductIfuDistortionReduced(PipelineImageProduct):
         _tag = r"IFU_DIST_REDUCED"
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Table of polynomial coefficients for distortion correction"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
@@ -66,8 +64,9 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
             raw_images.append(raw_image)
 
         combined_image = self.combine_images(raw_images, "average")
+        table = self._create_dummy_table()
 
-        product_distortion = self.ProductIfuDistortionTable(self, self.header, combined_image)
+        product_distortion = self.ProductIfuDistortionTable(self, self.header, table)
         product_distortion_reduced = self.ProductIfuDistortionReduced(self, self.header, combined_image)
 
         return [product_distortion, product_distortion_reduced]
