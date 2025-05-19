@@ -6,6 +6,10 @@ from pymetis.classes.products.product import PIPELINE
 
 
 class PipelineMultiProduct(PipelineProduct):
+    """
+    PipelineMultiProduct represents products with multi-extensions FITS files.
+    The base structure is the PropertyList, with tables or images saved in extensions.
+    """
     frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
 
     def __init__(self,
