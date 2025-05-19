@@ -27,10 +27,10 @@ ma = np.ma
 from astropy.table import QTable
 
 from pymetis.classes.mixins import DetectorIfuMixin
-from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    WavecalInput, DistortionTableInput, SinglePipelineInput, LinearityInput, OptionalInputMixin)
+                                    WavecalInput, DistortionTableInput, LinearityInput)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
 from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct
 from pymetis.classes.products import ProductBadpixMapDet
@@ -75,14 +75,12 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         DistortionTableInput = DistortionTableInput
         WavecalInput = WavecalInput
 
-    class ProductRsrfBackground(PipelineProduct):
+    class ProductRsrfBackground(PipelineImageProduct):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
         _tag: str = r"IFU_RSRF_BACKGROUND"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Stacked background image."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
@@ -121,8 +119,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         pass
 
     def process_images(self) -> [PipelineProduct]:
-        """This function processes the input images
-
+        """
+        This function processes the input images:
         - stack the wcu_off images into background_img
         - subtract background_img from raw_images and stack
         - calculate the black-body image from the wavecal_img
@@ -431,4 +429,4 @@ class MetisIfuRsrf(MetisRecipe):
     p.cli_alias = "extract.hwidth"
     parameters.append(p)
 
-    implementation_class = MetisIfuRsrfImpl
+    implementation_class: type[MetisRecipeImpl] = MetisIfuRsrfImpl
