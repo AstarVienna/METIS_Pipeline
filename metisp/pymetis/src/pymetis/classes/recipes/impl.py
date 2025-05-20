@@ -81,7 +81,6 @@ class MetisRecipeImpl(ABC):
             Msg.error(self.__class__.__qualname__, f"Data not found error: {e.message}")
             raise e
 
-
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """
         Update the recipe parameters with the values requested by the user.
@@ -145,7 +144,7 @@ class MetisRecipeImpl(ABC):
         Gather all the products and build a FrameSet from their frames so that it can be returned from `run`.
         """
         Msg.debug(self.__class__.__qualname__,
-                  f"Building the product frameset")
+                  "Building the product frameset")
         return cpl.ui.FrameSet([product.as_frame() for product in self.products])
 
     @final

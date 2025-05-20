@@ -43,7 +43,6 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
 
         PinholeTableInput = PinholeTableInput
 
-
     class ProductDistortionTable(BandSpecificProduct, PipelineTableProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Table of distortion information"

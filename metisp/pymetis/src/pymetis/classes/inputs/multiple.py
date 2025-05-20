@@ -69,11 +69,11 @@ class MultiplePipelineInput(PipelineInput):
         if len(matches) == 0:
             return
 
-        Msg.debug(self.__class__.__qualname__, f"Verifying tag parameters are equal for all frames...")
+        Msg.debug(self.__class__.__qualname__, "Verifying that tag parameters are equal for all frames...")
         # Check if all matches are created equal
         if matches[:-1] == matches[1:]:
             self.tag_parameters = matches[0]
-            #self._detector = matches[0].get('detector', None)
+            #   self._detector = matches[0].get('detector', None)
             Msg.debug(self.__class__.__qualname__, f"Tag parameters are equal for all frames: {self.tag_parameters}")
         else:
             raise ValueError(f"Tag parameters are not equal for all frames! Found {matches}")
@@ -93,7 +93,9 @@ class MultiplePipelineInput(PipelineInput):
         """
         if (count := len(self.frameset)) == 0:
             if self.required():
-                raise cpl.core.DataNotFoundError(f"No {self.title():s} frames ({self.tags().pattern:s}) found in the frameset.")
+                raise cpl.core.DataNotFoundError(
+                    f"No {self.title():s} frames ({self.tags().pattern:s}) found in the frameset."
+                )
             else:
                 Msg.debug(self.__class__.__qualname__, f"No {self.title():s} frames found but not required.")
         else:

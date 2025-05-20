@@ -138,7 +138,7 @@ class PipelineInput:
                 except KeyError as e:
                     raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
             except KeyError:
-                Msg.warning(self.__class__.__qualname__, f"No detector (ESO DPR TECH) set!")
+                Msg.warning(self.__class__.__qualname__, "No detector (ESO DPR TECH) set!")
 
         # Check if all the raws have the same detector, if not, we have a problem
         if (detector_count := len(unique := list(set(detectors)))) == 1:
@@ -147,7 +147,7 @@ class PipelineInput:
                       f"Detector determined: {self.detector}")
         elif detector_count == 0:
             Msg.warning(self.__class__.__qualname__,
-                        f"No detectors specified (this is probably fine in skeleton stage)")
+                        "No detectors specified (this is probably fine in skeleton stage)")
         else:
             # raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
             Msg.warning(self.__class__.__qualname__,

@@ -43,8 +43,8 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _name: str = "metis_abstract_base"
     _version: str = "0.0.1"
     _author: str = "METIS PIP team, A*"
-    _email: str = "astar.vienna@univie.ac.at"                        # ToDo is this a sensible default?
-    _copyright: str = "GPL-3.0-or-later"                             # I guess we are using the same copyright everywhere
+    _email: str = "astar.vienna@univie.ac.at"                    # ToDo is this a sensible default?
+    _copyright: str = "GPL-3.0-or-later"                         # I guess we are using the same copyright everywhere
     _synopsis: str = "Abstract-like base class for METIS recipes"
     _description: str = ("This class serves as the base class for all METIS recipes."
                          "Bonus points if it is not visible from pyesorex.")
