@@ -31,9 +31,8 @@ from cpl.core import Msg
 
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
-from pymetis.classes.inputs import RawInput
-from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
-from pymetis.classes.inputs import LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
+                                    LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 

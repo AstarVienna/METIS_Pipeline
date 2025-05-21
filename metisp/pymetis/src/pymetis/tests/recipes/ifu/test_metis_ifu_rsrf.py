@@ -44,7 +44,7 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
+    """A bunch of extremely simple and stupid test cases... just to see if it does something."""
     _recipe: type[MetisRecipe] = Recipe
 
 
