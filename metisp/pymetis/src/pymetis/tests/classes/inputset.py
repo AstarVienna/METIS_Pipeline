@@ -32,7 +32,7 @@ class BaseInputSetTest(ABC):
     """
     A set of basic tests common for all InputSets
     """
-    _impl: MetisRecipeImpl = None
+    _impl: type[MetisRecipeImpl] = None
 
     @pytest.fixture(autouse=True)
     def instance(self, load_frameset, sof):
@@ -87,7 +87,7 @@ class BaseInputSetTest(ABC):
 
 @pytest.mark.inputset
 class RawInputSetTest(BaseInputSetTest):
-    _impl: RawImageProcessor.InputSet
+    _impl: type[MetisRecipeImpl]
 
     @staticmethod
     def test_inputset_has_raw_and_it_is_multiple_input(instance):

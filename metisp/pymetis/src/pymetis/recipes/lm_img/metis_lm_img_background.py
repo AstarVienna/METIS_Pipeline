@@ -88,7 +88,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         def tag(cls):
             return rf"LM_{cls.target():s}_OBJECT_CAT"
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         target = self.inputset.tag_parameters['target']

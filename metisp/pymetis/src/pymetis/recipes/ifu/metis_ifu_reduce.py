@@ -100,7 +100,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         def tag(cls) -> str:
             return rf"IFU_{cls.target():s}_COMBINED"
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         # do something... a lot of something
 
         header = cpl.core.PropertyList()

@@ -51,7 +51,6 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             _required: bool = False
 
-
     class ProductGain(LinGainProduct):
         _description: str = "Gain map"
         _oca_keywords = {'PRO.CATG'}
@@ -76,7 +75,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         def tag(cls) -> str:
             return rf"BADPIX_MAP_{cls.detector():s}"
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         raw_images = self.inputset.load_raw_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)

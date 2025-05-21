@@ -35,6 +35,7 @@ class MetisLmImgStdProcessImpl(MetisImgStdProcessImpl):
     class ProductImgStdCombined(BandLmMixin, MetisImgStdProcessImpl.ProductImgStdCombined):
         pass
 
+
 class MetisLmImgStdProcess(MetisRecipe):
     # FixMe This can be probably also largely deduplicated
     _name: str = "metis_lm_img_std_process"

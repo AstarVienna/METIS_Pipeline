@@ -52,7 +52,7 @@ class MetisRecipeImpl(ABC):
         self.parameters = recipe.parameters
 
         self.header: cpl.core.PropertyList | None = None
-        self.products: [PipelineProduct] = []
+        self.products: list[PipelineProduct] = []
         self.product_frames = cpl.ui.FrameSet()
 
         self.frameset: cpl.ui.FrameSet = frameset
@@ -96,7 +96,7 @@ class MetisRecipeImpl(ABC):
                             f"has no parameter named {key}.")
 
     @abstractmethod
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         """
         The core method of the recipe implementation. It should contain all the processing logic.
         At its entry point the `InputSet` class must be already loaded and validated.

@@ -102,7 +102,7 @@ class MetisDetDarkImpl(RawImageProcessor):
     # See the documentation of the parent's `process_images` function for more details.
     # Feel free to define other functions to break up the algorithm into more manageable chunks,
     # and call them from within `process_images` as needed.
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         method = self.parameters["metis_det_dark.stacking.method"].value
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
@@ -174,7 +174,6 @@ class MetisIfuDarkImpl(MetisDetDarkImpl):
 
     class ProductMasterDark(DetectorIfuMixin, MetisDetDarkImpl.ProductMasterDark):
         pass
-
 
 
 # This is the actual recipe class that is visible by `pyesorex`.

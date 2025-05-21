@@ -142,7 +142,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             self.noise.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
             self.mask.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions or use functions from the parent classes:

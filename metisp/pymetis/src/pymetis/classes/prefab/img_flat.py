@@ -55,7 +55,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         def description(cls) -> str:
             return fr"Master flat frame for {cls.band():s} image data"
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         """
         Do the actual processing of the images.
         Here, it means loading the input images and a master dark,

@@ -73,13 +73,21 @@ class MetisRecipe(cpl.ui.PyRecipe):
         self.implementation = self.implementation_class(self, frameset, settings)
         return self.implementation.run()
 
-    def _list_inputs(self) -> [PipelineInput]:
+    def _list_inputs(self) -> list[PipelineInput]:
         return inspect.getmembers(self.implementation_class.InputSet,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
-    def _list_products(self) -> [PipelineProduct]:
+    def _list_products(self) -> list[PipelineProduct]:
         return inspect.getmembers(self.implementation_class,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
+
+    @staticmethod
+    def _format_spacing(text: str, title: str, offset: int = 4) -> str:
+        fix_spacing = re.compile(r'\n\s*')
+        fix_first_space = re.compile(r'^\s*')
+
+        return fix_spacing.sub('\n' + ' ' * offset, fix_first_space.sub(' ' * offset, text)) \
+            if text is not None else f'<no {title} defined>'
 
     def _build_description(self):
         """
@@ -95,14 +103,11 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
         inputs = '\n'.join(sorted([input_type.description_line() for (_, input_type) in self._list_inputs()]))
         products = '\n'.join(sorted([product_type.description_line() for (_, product_type) in self._list_products()]))
-
-        fix_spacing = re.compile(r'\n\s*')
-        fix_first_space = re.compile(r'^\s*')
-        algorithm = fix_spacing.sub('\n    ', fix_first_space.sub('    ', self.algorithm)) \
-            if self.algorithm is not None else '<no algorithm defined>'
+        description = self._format_spacing(self._description, 'description', 2)
+        algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
 
         return \
-            f"""{self.synopsis}
+            f"""{self.synopsis}\n\n{description}
 
   Matched keywords
     {matched_keywords}

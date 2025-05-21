@@ -49,14 +49,13 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
-            _description: str = "Raw exposure of the pupil in LM image mode" # FixMe N band
+            _description: str = "Raw exposure of the pupil in LM image mode"    # FixMe N band
 
         MasterDarkInput = MasterDarkInput
 
         # Also one master flat is required. We use a prefabricated class
         class MasterFlatInput(MasterFlatInput):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)")
-
 
     class ProductReduced(PipelineImageProduct):
         """
@@ -112,7 +111,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         """
         Runner for processing images. Currently setup to do dark/bias/flat/gain plus combining images.
         TODO No actual processing is performed.
@@ -131,7 +130,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.ProductReduced(self, header, combined_image) # FixMe Hardcoded band for now
+        product = self.ProductReduced(self, header, combined_image)     # FixMe Hardcoded band for now
 
         return [product]
 
@@ -152,7 +151,7 @@ class MetisPupilImaging(MetisRecipe):
         This recipe performs basic reduction (dark current subtraction, flat fielding,
         optional bias subtraction, persistence and linearity corrections) on engineering
         images of the pupil masks. This recipe is not expected to be used by observers
-        during regular use.""" # FixMe this is not shown anywhere now
+        during regular use."""  # FixMe this is not shown anywhere now
 
     _matched_keywords: {str} = {'DRS.PUPIL'}
     _algorithm = """Apply dark current and flat field corrections."""

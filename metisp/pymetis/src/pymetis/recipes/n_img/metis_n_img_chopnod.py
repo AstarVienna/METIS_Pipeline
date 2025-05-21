@@ -122,7 +122,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions or use functions from the parent classes:
@@ -142,10 +142,10 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         self.target = self.inputset.tag_parameters['target']
 
-        productR = self.ProductReduced(self, header, combined_image)
-        productB = self.ProductBackground(self, header, combined_image)
+        product_r = self.ProductReduced(self, header, combined_image)
+        product_b = self.ProductBackground(self, header, combined_image)
 
-        return [productR, productB]
+        return [product_r, product_b]
 
     def _dispatch_child_class(self) -> type["MetisNImgChopnodImpl"]:
         return {

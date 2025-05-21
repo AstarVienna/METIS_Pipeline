@@ -70,7 +70,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         def tag(cls) -> str:
             return rf"{cls.band():s}_DIST_REDUCED"
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):

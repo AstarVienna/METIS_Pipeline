@@ -46,11 +46,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         """Inputs for metis_ifu_telluric"""
         # TODO: still needs to be added to the input set
-        #class Reduced1DInput(SinglePipelineInput):
-        #    _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
-        #    _group = cpl.ui.Frame.FrameGroup.CALIB
-        #    _title: str = "uncorrected mf input spectrum"
-        #    _description: str = "Uncorrected MF input spectrum."
+        # class Reduced1DInput(SinglePipelineInput):
+        #     _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
+        #     _group = cpl.ui.Frame.FrameGroup.CALIB
+        #     _title: str = "uncorrected mf input spectrum"
+        #     _description: str = "Uncorrected MF input spectrum."
 
         class CombinedInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_COMBINED")
@@ -131,7 +131,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         pass    # do nothing in the meantime
 
     # Function to process everything?
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
         self.mf_model()
@@ -156,11 +156,13 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
 
 class MetisIfuTelluricStdImpl(MetisIfuTelluricImpl):
-    class ProductResponseFunction(TargetStdMixin, MetisIfuTelluricImpl.ProductResponseFunction): pass
+    class ProductResponseFunction(TargetStdMixin, MetisIfuTelluricImpl.ProductResponseFunction):
+        pass
 
 
 class MetisIfuTelluricSciImpl(MetisIfuTelluricImpl):
-    class ProductResponseFunction(TargetSciMixin, MetisIfuTelluricImpl.ProductResponseFunction): pass
+    class ProductResponseFunction(TargetSciMixin, MetisIfuTelluricImpl.ProductResponseFunction):
+        pass
 
 
 class MetisIfuTelluric(MetisRecipe):

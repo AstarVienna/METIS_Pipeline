@@ -36,11 +36,16 @@ class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_RAW")
 
-    class ProductDistortionTable(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionTable): pass
-    class ProductDistortionMap(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionMap): pass
-    class ProductDistortionReduced(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionReduced): pass
+    class ProductDistortionTable(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionTable):
+        pass
 
-    def process_images(self) -> [PipelineProduct]:
+    class ProductDistortionMap(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionMap):
+        pass
+
+    class ProductDistortionReduced(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionReduced):
+        pass
+
+    def process_images(self) -> list[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):

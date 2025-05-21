@@ -56,7 +56,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         def tag(cls) -> str:
             return fr"{cls.band():s}_STD_COMBINED"
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> list[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
