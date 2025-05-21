@@ -389,7 +389,7 @@ class MetisIfuRsrf(MetisRecipe):
     _email: str = "janus.brink27@gmail.com"
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """Average / median stack WCU_OFF images to create background image
         Subtract background image from individual RSRF RAW frames
         Stack the RSRF RAW frames

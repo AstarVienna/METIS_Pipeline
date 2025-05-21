@@ -65,7 +65,7 @@ class MultiplePipelineInput(PipelineInput):
             else:
                 return None
 
-    def extract_tag_parameters(self, matches: [dict[str, str]]):
+    def extract_tag_parameters(self, matches: list[dict[str, str]]):
         if len(matches) == 0:
             return
 

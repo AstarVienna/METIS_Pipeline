@@ -178,7 +178,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # combined_image = self.combine_images(images,
         #                                      self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
 
-        productSet = []
+        product_set: list[PipelineProduct] = []
         for i, image in enumerate(images):
             frame = self.inputset.raw.frameset[i]
 
@@ -211,9 +211,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             self.target = self.inputset.tag_parameters['target']
 
             product = self.ProductBasicReduced(self, header, image, noise, bmask, i)
-            productSet.append(product)
+            product_set.append(product)
 
-        return productSet
+        return product_set
 
     def _dispatch_child_class(self) -> type["MetisLmImgBasicReduceImpl"]:
         return {
@@ -260,7 +260,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
         "and it is divided by the master flat."
     )
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
     _algorithm = """Remove crosstalk, correct non-linearity
     Analyse and optionally remove masked regions
     Subtract dark, divide by flat

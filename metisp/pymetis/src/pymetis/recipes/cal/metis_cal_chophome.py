@@ -66,7 +66,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = ("Combined, background-subtracted images of the WCU pinhole mask. "
                              "The chopper offset is in the header.")
-        _oca_keywords: {str} = {'PRO.CATG'}
+        _oca_keywords: set[str] = {'PRO.CATG'}
 
     class ProductBackground(PipelineImageProduct):
         """
@@ -77,14 +77,14 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Stacked background image."
-        _oca_keywords: {str} = {'PRO.CATG'}
+        _oca_keywords: set[str] = {'PRO.CATG'}
 
-    def process_images(self) -> [PipelineImageProduct]:
+    def process_images(self) -> list[PipelineImageProduct]:
         """This function processes the input images
 
         - stack the wcu_off images into background_img
         - subtract background_img from raw_images and stack
-        - locate pinhole on combined image
+        - locate pinhole on the combined image
         """
 
         stackmethod = self.parameters[f"{self.name}.stacking.method"].value
@@ -167,7 +167,7 @@ class MetisCalChophome(MetisRecipe):
     _description: str = """\
     """
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT'}
     _algorithm = """
     The position of the pinhole image on the detector is measured from the
     stacked background-subtracted images. The measured position is compared

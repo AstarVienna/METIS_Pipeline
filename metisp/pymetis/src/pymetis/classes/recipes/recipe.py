@@ -50,7 +50,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
                          "Bonus points if it is not visible from pyesorex.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
-    _matched_keywords: {str} = None
+    _matched_keywords: set[str] = None
     _algorithm: str = None                                      # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
@@ -89,7 +89,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         return fix_spacing.sub('\n' + ' ' * offset, fix_first_space.sub(' ' * offset, text)) \
             if text is not None else f'<no {title} defined>'
 
-    def _build_description(self):
+    def _build_description(self) -> str:
         """
         Automatically build the `description` attribute from available attributes.
         This should only depend on the class, never on an instance.

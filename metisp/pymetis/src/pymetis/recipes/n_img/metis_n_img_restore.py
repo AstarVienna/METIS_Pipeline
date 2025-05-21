@@ -57,7 +57,7 @@ class MetisNImgRestore(MetisRecipe):
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Restore a single positive beam from chop-nod difference image."
 
-    _matched_keywords: {str} = {'DRS.FILTER'}
+    _matched_keywords: set[str] = {'DRS.FILTER'}
     _algorithm: str = """Call metis_cutout_region to cut regions around beams
     Add regions with appropriate signs with `hdrl_imagelist_collapse`"""
 

@@ -48,7 +48,7 @@ class MetisNImgCalibrate(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: {str} = {'DRS.FILTER'}
+    _matched_keywords: set[str] = {'DRS.FILTER'}
     _algorithm: str = """Call metis_n_scale_image_flux to scale image data to photon / s
     Add header information (BUNIT, WCS, etc.)"""
 

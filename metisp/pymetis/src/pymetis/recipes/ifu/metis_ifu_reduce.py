@@ -67,7 +67,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
@@ -76,7 +76,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Reduced 2D detector image of background."
-        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
@@ -85,7 +85,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductReducedCube(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Reduced 2D detector image of spectroscopic flux standard star."
-        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
@@ -94,7 +94,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductCombined(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Spectral cube of standard star, combining multiple exposures."
-        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
@@ -159,7 +159,7 @@ class MetisIfuReduce(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """Subtract dark, divide by master flat
     Analyse and optionally remove masked regions and correct crosstalk and ghosts
     Estimate stray light and subtract

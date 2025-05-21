@@ -89,7 +89,7 @@ class BaseRecipeTest(ABC):
     def test_pyesorex_can_display_manpage(self, name) -> None:
         output = subprocess.run(['pyesorex', '--man-page', name, '--log-level', 'DEBUG'], capture_output=True)
         assert output.returncode == 0, \
-            f"`pyesorex --man-page {name}` exited with non-zero return code {output.returncode}: {output.stderr}"
+            f"`pyesorex --man-page {name}` exited with non-zero return code {output.returncode}: {output.stderr!r}"
 
     @pytest.mark.metadata
     def test_does_author_name_conform_to_standard(self) -> None:

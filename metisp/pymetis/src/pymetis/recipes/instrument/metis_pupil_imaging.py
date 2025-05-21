@@ -153,7 +153,7 @@ class MetisPupilImaging(MetisRecipe):
         images of the pupil masks. This recipe is not expected to be used by observers
         during regular use."""  # FixMe this is not shown anywhere now
 
-    _matched_keywords: {str} = {'DRS.PUPIL'}
+    _matched_keywords: set[str] = {'DRS.PUPIL'}
     _algorithm = """Apply dark current and flat field corrections."""
 
     parameters = cpl.ui.ParameterList([

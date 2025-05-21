@@ -24,7 +24,6 @@ from abc import ABC
 
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, PipelineInput, MultiplePipelineInput
-from pymetis.classes.prefab import RawImageProcessor
 
 
 @pytest.mark.inputset
