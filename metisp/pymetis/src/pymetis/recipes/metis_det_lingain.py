@@ -46,7 +46,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
             _title: str = "WCU off raw"
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
             _description: str = "Raw data for dark subtraction in other recipes."
-            _required: bool = False # FixMe This is just to shut EDPS up
+            _required: bool = False     # FixMe This is just to shut EDPS up
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             _required: bool = False
@@ -109,19 +109,37 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
 
 class Metis2rgLinGainImpl(MetisDetLinGainImpl):
-    class ProductGain(Detector2rgMixin, MetisDetLinGainImpl.ProductGain): pass
-    class ProductLinearity(Detector2rgMixin, MetisDetLinGainImpl.ProductLinearity): pass
-    class ProductBadpixMap(Detector2rgMixin, MetisDetLinGainImpl.ProductBadpixMap): pass
+    class ProductGain(Detector2rgMixin, MetisDetLinGainImpl.ProductGain):
+        pass
+
+    class ProductLinearity(Detector2rgMixin, MetisDetLinGainImpl.ProductLinearity):
+        pass
+
+    class ProductBadpixMap(Detector2rgMixin, MetisDetLinGainImpl.ProductBadpixMap):
+        pass
+
 
 class MetisGeoLinGainImpl(MetisDetLinGainImpl):
-    class ProductGain(DetectorGeoMixin, MetisDetLinGainImpl.ProductGain): pass
-    class ProductLinearity(DetectorGeoMixin, MetisDetLinGainImpl.ProductLinearity): pass
-    class ProductBadpixMap(DetectorGeoMixin, MetisDetLinGainImpl.ProductBadpixMap): pass
+    class ProductGain(DetectorGeoMixin, MetisDetLinGainImpl.ProductGain):
+        pass
+
+    class ProductLinearity(DetectorGeoMixin, MetisDetLinGainImpl.ProductLinearity):
+        pass
+
+    class ProductBadpixMap(DetectorGeoMixin, MetisDetLinGainImpl.ProductBadpixMap):
+        pass
+
 
 class MetisIfuLinGainImpl(MetisDetLinGainImpl):
-    class ProductGain(DetectorIfuMixin, MetisDetLinGainImpl.ProductGain): pass
-    class ProductLinearity(DetectorIfuMixin, MetisDetLinGainImpl.ProductLinearity): pass
-    class ProductBadpixMap(DetectorIfuMixin, MetisDetLinGainImpl.ProductBadpixMap): pass
+    class ProductGain(DetectorIfuMixin, MetisDetLinGainImpl.ProductGain):
+        pass
+
+    class ProductLinearity(DetectorIfuMixin, MetisDetLinGainImpl.ProductLinearity):
+        pass
+
+    class ProductBadpixMap(DetectorIfuMixin, MetisDetLinGainImpl.ProductBadpixMap):
+        pass
+
 
 class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information

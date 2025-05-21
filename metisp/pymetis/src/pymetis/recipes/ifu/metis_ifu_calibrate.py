@@ -47,7 +47,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
             _description: str = "Conversion between instrumental and physical flux units."
 
     class ProductSciCubeCalibrated(PipelineImageProduct):
-        _tag = rf"IFU_SCI_CUBE_CALIBRATED"
+        _tag = r"IFU_SCI_CUBE_CALIBRATED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
@@ -79,4 +79,4 @@ class MetisIfuCalibrate(MetisRecipe):
     _algorithm = """Correct for telluric absorption.
     Apply flux calibration."""
 
-    implementation_class =  MetisIfuCalibrateImpl
+    implementation_class: type[MetisRecipeImpl] = MetisIfuCalibrateImpl

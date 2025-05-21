@@ -7,5 +7,5 @@ from .common import DetectorSpecificProduct, BandSpecificProduct, TargetSpecific
 __all__ = [
     'PipelineProduct',
     'PipelineTableProduct', 'PipelineImageProduct', 'PipelineMultiProduct',
-    'DetectorSpecificProduct', 'BandSpecificProduct', 'TargetSpecificProduct', 'PipelineTableProduct'
+    'DetectorSpecificProduct', 'BandSpecificProduct', 'TargetSpecificProduct', 'ProductBadpixMapDet',
 ]

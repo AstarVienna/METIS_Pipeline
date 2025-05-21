@@ -29,6 +29,7 @@ from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
+
 class MetisNImgChopnodImpl(DarkImageProcessor):
     detector = '2RG'
 
@@ -43,7 +44,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         Inputs are twofold:
         - children of SinglePipelineInput, which expect exactly one frame to be present (or at most one if optional).
-            They will warn if multiple frames are found and keep the last one.
+            They will warn if multiple frames are found and keep the last one;
         - children of MultiplePipelineInput, which expect multiple frames with the same tag (usually RAWs).
             Again, the frame set may be empty if `required` is set to False.
 
@@ -84,7 +85,6 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
         _description: str = "Science grade detrended exposure of the N image mode."
-
 
         @classmethod
         def tag(cls) -> str:
@@ -130,8 +130,8 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         a single combined frame that is used throughout the pipeline.
         """
 
-        Msg.info(self.__class__.__qualname__, f"Processing Images")
-        Msg.info(self.__class__.__qualname__, f"Loading calibration files")
+        Msg.info(self.__class__.__qualname__, "Processing Images")
+        Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
@@ -155,14 +155,19 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
 
 class MetisNStdImgChopnodImpl(MetisNImgChopnodImpl):
-    class ProductReduced(TargetStdMixin, MetisNImgChopnodImpl.ProductReduced): pass
-    class ProductBackground(TargetStdMixin, MetisNImgChopnodImpl.ProductBackground): pass
+    class ProductReduced(TargetStdMixin, MetisNImgChopnodImpl.ProductReduced):
+        pass
+
+    class ProductBackground(TargetStdMixin, MetisNImgChopnodImpl.ProductBackground):
+        pass
 
 
 class MetisNSciImgChopnodImpl(MetisNImgChopnodImpl):
-    class ProductReduced(TargetSciMixin, MetisNImgChopnodImpl.ProductReduced): pass
-    class ProductBackground(TargetSciMixin, MetisNImgChopnodImpl.ProductBackground): pass
+    class ProductReduced(TargetSciMixin, MetisNImgChopnodImpl.ProductReduced):
+        pass
 
+    class ProductBackground(TargetSciMixin, MetisNImgChopnodImpl.ProductBackground):
+        pass
 
 
 class MetisNImgChopnod(MetisRecipe):

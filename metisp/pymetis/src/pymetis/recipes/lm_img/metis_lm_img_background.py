@@ -109,15 +109,25 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
 
 class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
-    class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg): pass
-    class ProductObjectCat(TargetStdMixin, MetisLmImgBackgroundImpl.ProductObjectCat): pass
-    class ProductBkgSubtracted(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted): pass
+    class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg):
+        pass
+
+    class ProductObjectCat(TargetStdMixin, MetisLmImgBackgroundImpl.ProductObjectCat):
+        pass
+
+    class ProductBkgSubtracted(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted):
+        pass
 
 
 class MetisLmImgBackgroundSciImpl(MetisLmImgBackgroundImpl):
-    class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg): pass
-    class ProductObjectCat(TargetSciMixin, MetisLmImgBackgroundImpl.ProductObjectCat): pass
-    class ProductBkgSubtracted(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted): pass
+    class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg):
+        pass
+
+    class ProductObjectCat(TargetSciMixin, MetisLmImgBackgroundImpl.ProductObjectCat):
+        pass
+
+    class ProductBkgSubtracted(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted):
+        pass
 
 
 class MetisLmImgBackground(MetisRecipe):
@@ -144,4 +154,3 @@ class MetisLmImgBackground(MetisRecipe):
     Subtract background"""
 
     implementation_class = MetisLmImgBackgroundImpl
-

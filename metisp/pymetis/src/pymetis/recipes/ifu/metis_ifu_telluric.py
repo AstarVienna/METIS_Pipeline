@@ -53,7 +53,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         #    _description: str = "Uncorrected MF input spectrum."
 
         class CombinedInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_COMBINED")
+            _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_COMBINED")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "spectral cube of science object"
             _description: str = "Spectral cube of standard star, combining multiple exposures."

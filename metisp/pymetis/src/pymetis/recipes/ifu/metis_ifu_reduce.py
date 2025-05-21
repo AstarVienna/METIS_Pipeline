@@ -64,7 +64,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             _title: str = "RSRF"
             _description: str = "2D relative spectral response function"
 
-
     class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Table of polynomial coefficients for distortion correction"
@@ -123,17 +122,31 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
 
 class MetisIfuReduceStdImpl(MetisIfuReduceImpl):
-    class ProductReduced(TargetStdMixin, MetisIfuReduceImpl.ProductReduced): pass
-    class ProductBackground(TargetStdMixin, MetisIfuReduceImpl.ProductBackground): pass
-    class ProductCombined(TargetStdMixin, MetisIfuReduceImpl.ProductCombined): pass
-    class ProductReducedCube(TargetStdMixin, MetisIfuReduceImpl.ProductReducedCube): pass
+    class ProductReduced(TargetStdMixin, MetisIfuReduceImpl.ProductReduced):
+        pass
+
+    class ProductBackground(TargetStdMixin, MetisIfuReduceImpl.ProductBackground):
+        pass
+
+    class ProductCombined(TargetStdMixin, MetisIfuReduceImpl.ProductCombined):
+        pass
+
+    class ProductReducedCube(TargetStdMixin, MetisIfuReduceImpl.ProductReducedCube):
+        pass
 
 
 class MetisIfuReduceSciImpl(MetisIfuReduceImpl):
-    class ProductReduced(TargetSciMixin, MetisIfuReduceImpl.ProductReduced): pass
-    class ProductBackground(TargetSciMixin, MetisIfuReduceImpl.ProductBackground): pass
-    class ProductCombined(TargetSciMixin, MetisIfuReduceImpl.ProductCombined): pass
-    class ProductReducedCube(TargetSciMixin, MetisIfuReduceImpl.ProductReducedCube): pass
+    class ProductReduced(TargetSciMixin, MetisIfuReduceImpl.ProductReduced):
+        pass
+
+    class ProductBackground(TargetSciMixin, MetisIfuReduceImpl.ProductBackground):
+        pass
+
+    class ProductCombined(TargetSciMixin, MetisIfuReduceImpl.ProductCombined):
+        pass
+
+    class ProductReducedCube(TargetSciMixin, MetisIfuReduceImpl.ProductReducedCube):
+        pass
 
 
 class MetisIfuReduce(MetisRecipe):

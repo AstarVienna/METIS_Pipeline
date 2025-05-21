@@ -23,7 +23,6 @@ import copy
 import cpl
 from cpl.core import Msg
 import os
-from typing import Any, final
 
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.target import TargetSkyMixin
@@ -96,10 +95,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
                      noise: cpl.core.Image,
                      mask: cpl.core.Image,
                      nFrame: int):
-                super().__init__(recipe_impl, header, image)
-                self.noise: cpl.core.Image = noise
-                self.mask: cpl.core.Image = mask
-                self.nFrame: int = nFrame
+            super().__init__(recipe_impl, header, image)
+            self.noise: cpl.core.Image = noise
+            self.mask: cpl.core.Image = mask
+            self.nFrame: int = nFrame
 
         @classmethod
         def tag(cls) -> str:
@@ -135,7 +134,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
                 self.recipe.frameset,
                 self.recipe.name,
                 self.properties,
-                f"demo/",
+                "demo/",
                 self.output_file_name,
                 header=self.header,
             )
@@ -151,42 +150,43 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         a single combined frame that is used throughout the pipeline.
         """
 
-        Msg.info(self.__class__.__qualname__, f"Processing Images")
+        Msg.info(self.__class__.__qualname__, "Processing images")
 
-        Msg.info(self.__class__.__qualname__, f"Loading calibration files")
+        Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
-        
-        Msg.info(self.__class__.__qualname__, f"Loading raw images")
-        images = self.inputset.load_raw_images()
-        Msg.info(self.__class__.__qualname__, f"Pretending to correct crosstalk")
-        Msg.info(self.__class__.__qualname__, f"Pretending to correct for linearity")
 
-        Msg.info(self.__class__.__qualname__, f"Subtracting Dark")
+        Msg.info(self.__class__.__qualname__, "Loading raw images")
+        images = self.inputset.load_raw_images()
+        Msg.info(self.__class__.__qualname__, "Pretending to correct crosstalk")
+        Msg.info(self.__class__.__qualname__, "Pretending to correct for linearity")
+
+        Msg.info(self.__class__.__qualname__, "Subtracting Dark")
         images.subtract_image(dark)
 
-        Msg.info(self.__class__.__qualname__, f"Flat fielding")
+        Msg.info(self.__class__.__qualname__, "Flat fielding")
         images.divide_image(flat)
 
-        Msg.info(self.__class__.__qualname__, f"Pretending to remove masked regions")
+        Msg.info(self.__class__.__qualname__, "Pretending to remove masked regions")
 
-        Msg.info(self.__class__.__qualname__, f"Combining Images")
+        Msg.info(self.__class__.__qualname__, "Combining Images")
 
-        #combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
+        # combined_image = self.combine_images(images,
+        #                                      self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
 
         productSet = []
         for i, image in enumerate(images):
             frame = self.inputset.raw.frameset[i]
-            
+
             Msg.info(self.__class__.__qualname__, f"Processing frame {frame.file}")
 
             header = cpl.core.PropertyList.load(frame.file, 0)
 
-            Msg.info(self.__class__.__qualname__, f"Pretending to calculate noise")
+            Msg.info(self.__class__.__qualname__, "Pretending to calculate noise")
 
             a = copy.deepcopy(image)
             noise = cpl.core.Image(image)
@@ -196,10 +196,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             bmask = cpl.core.Image(a)
             bmask.copy_into(image, 0, 0)
             bmask.multiply_scalar(0)
-            
-            Msg.info(self.__class__.__qualname__, f"Pretending to calculate bad pixels")
-            Msg.info(self.__class__.__qualname__, f"Actually Calculating QC Parameters")
-            Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
+
+            Msg.info(self.__class__.__qualname__, "Pretending to calculate bad pixels")
+            Msg.info(self.__class__.__qualname__, "Actually Calculating QC Parameters")
+            Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
             header.append(cpl.core.Property("QC LM IMG MEDIAN", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] median value of image"))
@@ -212,7 +212,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             product = self.ProductBasicReduced(self, header, image, noise, bmask, i)
             productSet.append(product)
-            
+
         return productSet
 
     def _dispatch_child_class(self) -> type["MetisLmImgBasicReduceImpl"]:
@@ -224,13 +224,18 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
 
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
+    class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
+        pass
+
 
 class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetSciMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
+    class ProductBasicReduced(TargetSciMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
+        pass
+
 
 class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetSkyMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
+    class ProductBasicReduced(TargetSkyMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
+        pass
 
 
 class MetisLmImgBasicReduce(MetisRecipe):

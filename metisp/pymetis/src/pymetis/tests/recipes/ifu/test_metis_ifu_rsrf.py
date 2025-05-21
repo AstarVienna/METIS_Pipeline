@@ -76,7 +76,7 @@ class TestBlackBodyImg:
         wavecal_data = 3.55 + (x / 512.0 * 0.37)
         wavecal_img = cpl.core.Image(wavecal_data)
 
-        bb_temp = 800 # K
+        bb_temp = 800   # K
         bb_img = create_ifu_blackbody_image(wavecal_img, bb_temp)
 
         assert bb_img.get_median() == approx(3.2575, rel=1e-3)
@@ -89,13 +89,13 @@ class TestExtractTraces:
         # build a dummy trace list
         trace_list = []
         x_arr = np.arange(512)
-        trace = [1.0e-2, 0] 
+        trace = [1.0e-2, 0]
         for i in np.arange(5):
             trace[-1] = (i + 1) * 80.0
             poly_n = len(trace) - 1
             y_arr = \
-                [sum([k*x**(poly_n-i) for i, k in enumerate(trace)]) \
-                  for x in x_arr]
+                [sum([k*x**(poly_n-i) for i, k in enumerate(trace)])
+                 for x in x_arr]
             trace_list.append((x_arr, y_arr))
 
         # create a gradient image
@@ -111,11 +111,3 @@ class TestExtractTraces:
 
         assert med == approx([111.73828125, 142.98828125, 174.23828125,
                               205.48828125, 236.73828125])
-        
-
-            
-
-
-
-        
-

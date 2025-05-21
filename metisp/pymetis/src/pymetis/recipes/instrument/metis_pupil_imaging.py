@@ -36,6 +36,7 @@ from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
 from pymetis.classes.inputs import LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
+
 class MetisPupilImagingImpl(DarkImageProcessor):
     class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
@@ -114,10 +115,10 @@ class MetisPupilImagingImpl(DarkImageProcessor):
     def process_images(self) -> [PipelineProduct]:
         """
         Runner for processing images. Currently setup to do dark/bias/flat/gain plus combining images.
-        TODO No actually processing is performed.
+        TODO No actual processing is performed.
         """
 
-        Msg.info(self.__class__.__qualname__, f"Starting processing image attribute.")
+        Msg.info(self.__class__.__qualname__, "Starting processing image attribute.")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
@@ -137,7 +138,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
 class MetisPupilImaging(MetisRecipe):
     """
-    Wrapper for the recipe for pyesorex, defining neessary attributes and parameters, plus the implementation class.
+    Wrapper for the recipe for pyesorex, defining the necessary attributes and parameters,
+    plus the implementation class.
     """
     # Fill in recipe information
     _name: str = "metis_pupil_imaging"

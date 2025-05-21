@@ -133,7 +133,8 @@ class PipelineProduct(ABC):
         Msg.info(self.__class__.__qualname__,
                  f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
         Msg.info(self.__class__.__qualname__,
-                 f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
+                 f"Loaded frames ({len(self.recipe.valid_frames)}): "
+                 f"{sorted([frame.tag for frame in self.recipe.valid_frames])}")
 
         # Check that the tag matches the generic regex
         assert self._regex_tag.match(self.tag()) is not None, \

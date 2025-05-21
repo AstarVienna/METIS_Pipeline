@@ -35,7 +35,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
     class ProductSciCoadd(PipelineImageProduct):
-        _tag = f"IFU_SCI_COADD"
+        _tag = "IFU_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures "
                              "covering a different spatial and wavelength ranges.")
@@ -56,11 +56,11 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         self.coadd_cubes()
 
         header = self._create_dummy_header()
-        image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file) # ToDo actual processing
+        image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file)  # ToDo actual processing
 
         product = self.ProductSciCoadd(self, header, image)
 
-        return [product] # ToDo is just a dummy for now
+        return [product]  # ToDo is just a dummy for now
 
 
 class MetisIfuPostprocess(MetisRecipe):

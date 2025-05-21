@@ -25,7 +25,7 @@ import cpl
 
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import PipelineInput, SinglePipelineInput
+from pymetis.classes.inputs import PipelineInput
 
 
 class MetisRecipe(cpl.ui.PyRecipe):
@@ -102,7 +102,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
             if self.algorithm is not None else '<no algorithm defined>'
 
         return \
-f"""{self.synopsis}
+            f"""{self.synopsis}
 
   Matched keywords
     {matched_keywords}

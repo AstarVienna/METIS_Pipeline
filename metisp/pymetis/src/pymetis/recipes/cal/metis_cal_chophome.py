@@ -26,7 +26,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import GainMapInput, PersistenceMapInput, BadpixMapInput, PinholeTableInput
 from pymetis.classes.inputs import LinearityInput
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
+from pymetis.classes.products import PipelineImageProduct
 from pymetis.classes.prefab import RawImageProcessor
 
 
@@ -64,7 +64,8 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Combined, background-subtracted images of the WCU pinhole mask. The chopper offset is in the header."
+        _description: str = ("Combined, background-subtracted images of the WCU pinhole mask. "
+                             "The chopper offset is in the header.")
         _oca_keywords: {str} = {'PRO.CATG'}
 
     class ProductBackground(PipelineImageProduct):
@@ -77,7 +78,6 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Stacked background image."
         _oca_keywords: {str} = {'PRO.CATG'}
-
 
     def process_images(self) -> [PipelineImageProduct]:
         """This function processes the input images

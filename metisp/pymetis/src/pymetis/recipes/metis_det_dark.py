@@ -57,11 +57,18 @@ class MetisDetDarkImpl(RawImageProcessor):
         # Here we mark them as optional, but if we did not need that, we could have also said
         # ```PersistenceMapInput = PersistenceMapInput```
         # to tell the class that its persistence map input is just the global `PersistenceMapInput` class.
-        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput): pass
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput): pass
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            pass
+
         # FixMe: these two should not be optional, but the current EDPS workflow does not supply them
-        class LinearityInput(OptionalInputMixin, LinearityInput): pass
-        class GainMapInput(OptionalInputMixin, GainMapInput): pass
+        class LinearityInput(OptionalInputMixin, LinearityInput):
+            pass
+
+        class GainMapInput(OptionalInputMixin, GainMapInput):
+            pass
 
     # Next, we have to define all the product classes for this recipe. Here we only have one, the master dark frame.
     # Note that master darks might be obtained by different means for different detectors,

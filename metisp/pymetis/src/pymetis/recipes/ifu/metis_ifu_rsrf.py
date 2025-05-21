@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 import cpl
-from cpl.core import np
+import numpy as np
 from cpl.core import Msg
 ma = np.ma
 
@@ -32,10 +32,10 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
-from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct
-from pymetis.classes.products import ProductBadpixMapDet
+from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct, ProductBadpixMapDet
 
 EXT = 4 # TODO: update to read multi-extension files
+
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
@@ -158,7 +158,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # self.inputset.background.frameset.dump() # debug
         bg_images = self.load_images(self.inputset.rsrf_wcu_off.frameset)
         background_img = self.combine_images(bg_images, stackmethod)
-        
+
         # TODO: define usedframes?
         # TODO: Add product keywords - currently none defined in DRLD
 
@@ -277,7 +277,7 @@ def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
     """
     Create a blackbody image from the RSRF image and the wavelength calibration image.
     """
-    
+
     wdata = wavecal_img.as_array()
 
     # create a new image to hold the black-body spectrum
@@ -338,10 +338,10 @@ def read_ifu_distortion_table(fits_file, ext: int = 1) -> list:
         poly_n = len(trace) - 1
         y_arr = [sum([k*x**(poly_n-i) for i, k in enumerate(trace)]) for x in x_arr]
         trace_list.append((x_arr, y_arr))
-        
+
     # return the list of x,y coordinates for each trace
     return trace_list
-    
+
 def extract_ifu_1d_spectra(img, trace_list, trace_width=10) -> list:
     """
     Extract 1D spectra from the given image using the provided list of
@@ -355,12 +355,12 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width=10) -> list:
         of the spectral trace.
     trace_width : int
         The width of the trace to be used for extraction.
-    
+
     Returns:
     list of cpl.core.Vector
         A list of 1D spectra extracted from the image.
     """
-    
+
     # copy data to np.masked_array for processing
     rej_mask = np.array(img.bpm)  # set bad pixels
     mdata = ma.masked_array(img.as_array(), mask=rej_mask)
@@ -378,7 +378,7 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width=10) -> list:
             yc = y_arr[i]
             rsrf_1d[x] = mdata[int(yc-trace_width):int(yc+trace_width), x].mean()
         rsrf_1d_list.append(cpl.core.Vector(rsrf_1d))
-    
+
     return rsrf_1d_list
 
 
