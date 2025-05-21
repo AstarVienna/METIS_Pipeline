@@ -22,7 +22,7 @@ import re
 import cpl
 
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineImageProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 
 
@@ -46,14 +46,14 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
             _description: str = "Conversion between instrumental and physical flux units."
 
-    class ProductSciCubeCalibrated(PipelineProduct):
+    class ProductSciCubeCalibrated(PipelineImageProduct):
         _tag = rf"IFU_SCI_CUBE_CALIBRATED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> [PipelineImageProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 

@@ -55,14 +55,18 @@ class TestInputSet(RawInputSetTest):
 class TestProductRsrfBackground(BaseProductTest):
     _product: type[PipelineProduct] = Impl.ProductRsrfBackground
 
+
 class TestProductMasterFlatIfu(BaseProductTest):
     _product: type[PipelineProduct] = Impl.ProductMasterFlatIfu
+
 
 class TestProductRsrfIfu(BaseProductTest):
     _product: type[PipelineProduct] = Impl.ProductRsrfIfu
 
+
 class TestProductBadpixMap(BaseProductTest):
     _product: type[PipelineProduct] = Impl.ProductBadpixMapIfu
+
 
 class TestBlackBodyImg:
     def test_blackbody_image(self):
@@ -70,16 +74,15 @@ class TestBlackBodyImg:
 
         # wavecal image with spectral dimension along x
         wavecal_data = 3.55 + (x / 512.0 * 0.37)
-
         wavecal_img = cpl.core.Image(wavecal_data)
 
         bb_temp = 800 # K
-
         bb_img = create_ifu_blackbody_image(wavecal_img, bb_temp)
 
         assert bb_img.get_median() == approx(3.2575, rel=1e-3)
         assert bb_img.get_min() == approx(3.21761, rel=1e-3)
         assert bb_img.get_max() == approx(3.265, rel=1e-3)
+
 
 class TestExtractTraces:
     def test_extract_traces(self):

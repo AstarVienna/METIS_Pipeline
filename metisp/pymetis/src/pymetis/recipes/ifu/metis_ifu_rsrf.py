@@ -27,13 +27,12 @@ ma = np.ma
 from astropy.table import QTable
 
 from pymetis.classes.mixins import DetectorIfuMixin
-from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    WavecalInput, DistortionTableInput, SinglePipelineInput, LinearityInput, OptionalInputMixin)
+                                    WavecalInput, DistortionTableInput, LinearityInput)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.products import TableProduct
+from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct
 from pymetis.classes.products import ProductBadpixMapDet
 
 EXT = 4 # TODO: update to read multi-extension files
@@ -76,43 +75,37 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         DistortionTableInput = DistortionTableInput
         WavecalInput = WavecalInput
 
-    class ProductRsrfBackground(PipelineProduct):
+    class ProductRsrfBackground(PipelineImageProduct):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
         _tag: str = r"IFU_RSRF_BACKGROUND"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Stacked background image."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-        # SKEL: copy product keywords from header
+        # SKEL: copy product keywords from the header
         def add_properties(self) -> None:
             super().add_properties()
             self.properties.append(self.header)
 
 
-    class ProductMasterFlatIfu(PipelineProduct):
+    class ProductMasterFlatIfu(PipelineImageProduct):
         _tag: str = r"MASTER_FLAT_IFU"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT #TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
         _description: str = "2D relative spectral response image"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-        # SKEL: copy product keywords from header
+        # SKEL: copy product keywords from the header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
 
 
-    class ProductRsrfIfu(TableProduct):
+    class ProductRsrfIfu(PipelineTableProduct):
         _tag: str = r"RSRF_IFU"
-        group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
 
         _description: str = "1D relative spectral response function"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
@@ -126,8 +119,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         pass
 
     def process_images(self) -> [PipelineProduct]:
-        """This function processes the input images
-
+        """
+        This function processes the input images:
         - stack the wcu_off images into background_img
         - subtract background_img from raw_images and stack
         - calculate the black-body image from the wavecal_img
@@ -319,7 +312,7 @@ def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
 
     return bb_img
 
-def read_ifu_distortion_table(fits_file, ext=1) -> list:
+def read_ifu_distortion_table(fits_file, ext: int = 1) -> list:
     """
     Read the IFU distortion table from the given FITS file.
 
@@ -388,36 +381,13 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width=10) -> list:
     
     return rsrf_1d_list
 
+
 class MetisIfuRsrf(MetisRecipe):
     _name: str = "metis_ifu_rsrf"
     _version: str = "0.1"
     _author: str = "Janus Brink, A*"
     _email: str = "janus.brink27@gmail.com"
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
-    _undescription: str = """\
-    Create relative spectral response function for the IFU detector
-
-    Inputs
-        IFU_RSRF_RAW:    Raw RSRF images [1-n]
-        IFU_WCU_RAW_OFF: Background images with WCU black-body closed [1-n]
-        MASTER_DARK_IFU: Master dark frame [optional?]
-        BADPIX_MAP_IFU:  Bad-pixel map for 2RG detector [optional]
-        PERSISTENCE_MAP: Persistence map [optional]
-        GAIN_MAP_IFU:    Gain map for 2RG detector
-        LINEARITY_IFU:   Linearity map for 2RG detector
-        IFU_DISTORTION_TABLE: Distortion coefficients for an IFU data set
-        IFU_WAVECAL:     IFU wavelength calibration
-
-    Matched Keywords
-        DET.DIT
-        DET.NDIT
-        DRS.IFU
-    
-    Outputs
-        MASTER_FLAT_IFU: Master flat frame for IFU image data
-        RSRF_IFU: 1D relative spectral response function
-        BADPIX_MAP_IFU: Updated bad-pixel map
-    """ # FixMe This is currently not shown anywhere
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """Average / median stack WCU_OFF images to create background image
@@ -459,4 +429,4 @@ class MetisIfuRsrf(MetisRecipe):
     p.cli_alias = "extract.hwidth"
     parameters.append(p)
 
-    implementation_class = MetisIfuRsrfImpl
+    implementation_class: type[MetisRecipeImpl] = MetisIfuRsrfImpl
