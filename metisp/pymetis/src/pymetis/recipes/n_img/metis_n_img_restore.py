@@ -35,21 +35,19 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title = "N science calibrated"
 
-
     class ProductRestored(PipelineImageProduct):
         _tag: re.Pattern = r'N_SCI_RESTORED'
         _description: str = "N band image with a single positive beam restored from chop-nod image"
         level = cpl.ui.Frame.FrameLevel.FINAL
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         header = self._create_dummy_header()
         image = self._create_dummy_image()
 
         product = self.ProductRestored(self, header, image)
 
-        return [product] # ToDo is just a dummy for now
+        return {product}    # ToDo is just a dummy for now
 
 
 class MetisNImgRestore(MetisRecipe):
@@ -59,7 +57,7 @@ class MetisNImgRestore(MetisRecipe):
     _email: str = "martin.balaz@univie.ac.at"
     _synopsis: str = "Restore a single positive beam from chop-nod difference image."
 
-    _matched_keywords: {str} = {'DRS.FILTER'}
+    _matched_keywords: set[str] = {'DRS.FILTER'}
     _algorithm: str = """Call metis_cutout_region to cut regions around beams
     Add regions with appropriate signs with `hdrl_imagelist_collapse`"""
 

@@ -22,3 +22,7 @@ from .darkimage import DarkImageProcessor
 from .img_calibrate import MetisImgCalibrateImpl
 from .img_distortion import MetisBaseImgDistortionImpl
 from .img_flat import MetisBaseImgFlatImpl
+
+
+__all__ = ['RawImageProcessor', 'DarkImageProcessor',
+           'MetisImgCalibrateImpl', 'MetisBaseImgDistortionImpl', 'MetisBaseImgFlatImpl']

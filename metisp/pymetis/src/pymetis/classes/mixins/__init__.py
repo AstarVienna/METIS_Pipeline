@@ -19,3 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from .detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from .target import TargetStdMixin, TargetSciMixin
+
+
+__all__ = ['Detector2rgMixin', 'DetectorGeoMixin', 'DetectorIfuMixin',
+           'TargetStdMixin', 'TargetSciMixin']

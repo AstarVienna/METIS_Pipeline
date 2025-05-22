@@ -45,7 +45,7 @@ class TestEDPS:
     def test_does_edps_classify(self, workflow_name, reset_edps):
         reset_edps()
         output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', os.path.expandvars('$SOF_DATA'), '-c'],
-                       capture_output=True)
+                                capture_output=True)
         message = str(output.stdout.decode('utf8'))
         assert output.returncode == 0, f"EDPS exited with a non-zero return code {output.returncode}"
         assert output.stderr == b'', f"EDPS exited with a non-empty stderr: {output.stderr}"

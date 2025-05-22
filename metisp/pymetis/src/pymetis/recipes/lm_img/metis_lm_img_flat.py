@@ -58,7 +58,7 @@ class MetisLmImgFlat(MetisRecipe):
     _synopsis: str = "Create master flat for L/M band detectors"
     _description: str = "Prototype to create a METIS Masterflat for L/M band"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
     Subtract internal dark or master dark from flat exposures.
     Call `metis_lm_img_flat` to fit slope of pixel values against illumination level.

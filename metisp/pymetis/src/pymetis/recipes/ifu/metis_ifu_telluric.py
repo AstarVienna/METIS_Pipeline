@@ -46,14 +46,14 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         """Inputs for metis_ifu_telluric"""
         # TODO: still needs to be added to the input set
-        #class Reduced1DInput(SinglePipelineInput):
-        #    _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
-        #    _group = cpl.ui.Frame.FrameGroup.CALIB
-        #    _title: str = "uncorrected mf input spectrum"
-        #    _description: str = "Uncorrected MF input spectrum."
+        # class Reduced1DInput(SinglePipelineInput):
+        #     _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
+        #     _group = cpl.ui.Frame.FrameGroup.CALIB
+        #     _title: str = "uncorrected mf input spectrum"
+        #     _description: str = "Uncorrected MF input spectrum."
 
         class CombinedInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_COMBINED")
+            _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_COMBINED")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "spectral cube of science object"
             _description: str = "Spectral cube of standard star, combining multiple exposures."
@@ -131,7 +131,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         pass    # do nothing in the meantime
 
     # Function to process everything?
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
         self.mf_model()
@@ -146,7 +146,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         product_reduced_1d = self.ProductResponseFunction(self, header, image)
         product_fluxcal_tab = self.ProductFluxcalTab(self, header, table)
 
-        return [product_telluric_transmission, product_reduced_1d, product_fluxcal_tab]
+        return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}
 
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         return {
@@ -156,11 +156,13 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
 
 class MetisIfuTelluricStdImpl(MetisIfuTelluricImpl):
-    class ProductResponseFunction(TargetStdMixin, MetisIfuTelluricImpl.ProductResponseFunction): pass
+    class ProductResponseFunction(TargetStdMixin, MetisIfuTelluricImpl.ProductResponseFunction):
+        pass
 
 
 class MetisIfuTelluricSciImpl(MetisIfuTelluricImpl):
-    class ProductResponseFunction(TargetSciMixin, MetisIfuTelluricImpl.ProductResponseFunction): pass
+    class ProductResponseFunction(TargetSciMixin, MetisIfuTelluricImpl.ProductResponseFunction):
+        pass
 
 
 class MetisIfuTelluric(MetisRecipe):
@@ -173,6 +175,6 @@ class MetisIfuTelluric(MetisRecipe):
     _algorithm = """Extract 1D spectrum of science object or standard star.
     Compute telluric correction.
     Compute conversion to physical units as function of wave-length."""
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
     implementation_class = MetisIfuTelluricImpl

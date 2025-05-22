@@ -29,6 +29,7 @@ from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
+
 class MetisNImgChopnodImpl(DarkImageProcessor):
     detector = '2RG'
 
@@ -43,7 +44,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         Inputs are twofold:
         - children of SinglePipelineInput, which expect exactly one frame to be present (or at most one if optional).
-            They will warn if multiple frames are found and keep the last one.
+            They will warn if multiple frames are found and keep the last one;
         - children of MultiplePipelineInput, which expect multiple frames with the same tag (usually RAWs).
             Again, the frame set may be empty if `required` is set to False.
 
@@ -85,7 +86,6 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
         _description: str = "Science grade detrended exposure of the N image mode."
 
-
         @classmethod
         def tag(cls) -> str:
             return rf"N_{cls.target():s}_BKG_SUBTRACTED"
@@ -122,7 +122,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions or use functions from the parent classes:
@@ -130,8 +130,8 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         a single combined frame that is used throughout the pipeline.
         """
 
-        Msg.info(self.__class__.__qualname__, f"Processing Images")
-        Msg.info(self.__class__.__qualname__, f"Loading calibration files")
+        Msg.info(self.__class__.__qualname__, "Processing Images")
+        Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
@@ -142,10 +142,10 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         self.target = self.inputset.tag_parameters['target']
 
-        productR = self.ProductReduced(self, header, combined_image)
-        productB = self.ProductBackground(self, header, combined_image)
+        product_reduced = self.ProductReduced(self, header, combined_image)
+        product_background = self.ProductBackground(self, header, combined_image)
 
-        return [productR, productB]
+        return {product_reduced, product_background}
 
     def _dispatch_child_class(self) -> type["MetisNImgChopnodImpl"]:
         return {
@@ -155,14 +155,19 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
 
 class MetisNStdImgChopnodImpl(MetisNImgChopnodImpl):
-    class ProductReduced(TargetStdMixin, MetisNImgChopnodImpl.ProductReduced): pass
-    class ProductBackground(TargetStdMixin, MetisNImgChopnodImpl.ProductBackground): pass
+    class ProductReduced(TargetStdMixin, MetisNImgChopnodImpl.ProductReduced):
+        pass
+
+    class ProductBackground(TargetStdMixin, MetisNImgChopnodImpl.ProductBackground):
+        pass
 
 
 class MetisNSciImgChopnodImpl(MetisNImgChopnodImpl):
-    class ProductReduced(TargetSciMixin, MetisNImgChopnodImpl.ProductReduced): pass
-    class ProductBackground(TargetSciMixin, MetisNImgChopnodImpl.ProductBackground): pass
+    class ProductReduced(TargetSciMixin, MetisNImgChopnodImpl.ProductReduced):
+        pass
 
+    class ProductBackground(TargetSciMixin, MetisNImgChopnodImpl.ProductBackground):
+        pass
 
 
 class MetisNImgChopnod(MetisRecipe):
@@ -187,7 +192,7 @@ class MetisNImgChopnod(MetisRecipe):
             + "and it is divided by the master flat."
     )
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
     _algorithm = """Remove crosstalk, correct non-linearity
         Analyse and optionally remove masked regions
         Subtract dark, divide by flat

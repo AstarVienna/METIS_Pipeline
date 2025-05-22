@@ -23,9 +23,8 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import RawInput
-from pymetis.classes.inputs import GainMapInput, PersistenceMapInput, BadpixMapInput, PinholeTableInput
-from pymetis.classes.inputs import LinearityInput
+from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadpixMapInput,
+                                    PinholeTableInput, LinearityInput)
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.prefab import RawImageProcessor
 
@@ -46,7 +45,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             _required = False     # CHECK Optional for functional development
 
         class LinearityInput(LinearityInput):
-            _required = False    # CHECK Optional for functional development
+            _required = False     # CHECK Optional for functional development
 
         PersistenceMapInput = PersistenceMapInput
 
@@ -60,31 +59,29 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """
         Final product: combined, background-subtracted images of the WCU source
         """
-        _tag: str = "LM_CHOPHOME_COMBINED"
-        group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
+        _tag: str = r"LM_CHOPHOME_COMBINED"
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Combined, background-subtracted images of the WCU pinhole mask. The chopper offset is in the header."
-        _oca_keywords: {str} = {'PRO.CATG'}
+        _description: str = ("Combined, background-subtracted images of the WCU pinhole mask. "
+                             "The chopper offset is in the header.")
+        _oca_keywords: set[str] = {'PRO.CATG'}
 
     class ProductBackground(PipelineImageProduct):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        _tag: str = "LM_CHOPHOME_BACKGROUND"
-        group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
+        _tag: str = r"LM_CHOPHOME_BACKGROUND"
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE
         _description: str = "Stacked background image."
-        _oca_keywords: {str} = {'PRO.CATG'}
+        _oca_keywords: set[str] = {'PRO.CATG'}
 
-
-    def process_images(self) -> [PipelineImageProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         """This function processes the input images
 
         - stack the wcu_off images into background_img
         - subtract background_img from raw_images and stack
-        - locate pinhole on combined image
+        - locate pinhole on the combined image
         """
 
         stackmethod = self.parameters[f"{self.name}.stacking.method"].value
@@ -131,10 +128,10 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
                                               pinhole_loc["snr"],
                                               "signal-to-noise ratio of pinhole image"))
 
-        return [
+        return {
             self.ProductCombined(self, header=combined_hdr, image=combined_img),
             self.ProductBackground(self, header=background_hdr, image=background_img),
-        ]
+        }
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
@@ -167,7 +164,7 @@ class MetisCalChophome(MetisRecipe):
     _description: str = """\
     """
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT'}
     _algorithm = """
     The position of the pinhole image on the detector is measured from the
     stacked background-subtracted images. The measured position is compared

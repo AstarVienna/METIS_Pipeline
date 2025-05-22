@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import cpl
 
 from pymetis.classes.products import PipelineProduct

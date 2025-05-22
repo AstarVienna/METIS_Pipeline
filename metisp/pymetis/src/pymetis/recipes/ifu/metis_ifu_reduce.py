@@ -64,11 +64,10 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             _title: str = "RSRF"
             _description: str = "2D relative spectral response function"
 
-
     class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
@@ -77,7 +76,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Reduced 2D detector image of background."
-        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
@@ -86,7 +85,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductReducedCube(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Reduced 2D detector image of spectroscopic flux standard star."
-        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
@@ -95,25 +94,25 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class ProductCombined(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Spectral cube of standard star, combining multiple exposures."
-        _oca_keywords: {str} = {'PRO.CATG', 'DRS.IFU'}
+        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
 
         @classmethod
         def tag(cls) -> str:
             return rf"IFU_{cls.target():s}_COMBINED"
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         # do something... a lot of something
 
         header = cpl.core.PropertyList()
         images = self.inputset.load_raw_images()
         image = self.combine_images(images, "add")
 
-        return [
+        return {
             self.ProductReduced(self, header, image),
             self.ProductBackground(self, header, image),
             self.ProductReducedCube(self, header, image),
             self.ProductCombined(self, header, image),
-        ]
+        }
 
     def _dispatch_child_class(self):
         return {
@@ -123,17 +122,31 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
 
 class MetisIfuReduceStdImpl(MetisIfuReduceImpl):
-    class ProductReduced(TargetStdMixin, MetisIfuReduceImpl.ProductReduced): pass
-    class ProductBackground(TargetStdMixin, MetisIfuReduceImpl.ProductBackground): pass
-    class ProductCombined(TargetStdMixin, MetisIfuReduceImpl.ProductCombined): pass
-    class ProductReducedCube(TargetStdMixin, MetisIfuReduceImpl.ProductReducedCube): pass
+    class ProductReduced(TargetStdMixin, MetisIfuReduceImpl.ProductReduced):
+        pass
+
+    class ProductBackground(TargetStdMixin, MetisIfuReduceImpl.ProductBackground):
+        pass
+
+    class ProductCombined(TargetStdMixin, MetisIfuReduceImpl.ProductCombined):
+        pass
+
+    class ProductReducedCube(TargetStdMixin, MetisIfuReduceImpl.ProductReducedCube):
+        pass
 
 
 class MetisIfuReduceSciImpl(MetisIfuReduceImpl):
-    class ProductReduced(TargetSciMixin, MetisIfuReduceImpl.ProductReduced): pass
-    class ProductBackground(TargetSciMixin, MetisIfuReduceImpl.ProductBackground): pass
-    class ProductCombined(TargetSciMixin, MetisIfuReduceImpl.ProductCombined): pass
-    class ProductReducedCube(TargetSciMixin, MetisIfuReduceImpl.ProductReducedCube): pass
+    class ProductReduced(TargetSciMixin, MetisIfuReduceImpl.ProductReduced):
+        pass
+
+    class ProductBackground(TargetSciMixin, MetisIfuReduceImpl.ProductBackground):
+        pass
+
+    class ProductCombined(TargetSciMixin, MetisIfuReduceImpl.ProductCombined):
+        pass
+
+    class ProductReducedCube(TargetSciMixin, MetisIfuReduceImpl.ProductReducedCube):
+        pass
 
 
 class MetisIfuReduce(MetisRecipe):
@@ -146,7 +159,7 @@ class MetisIfuReduce(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """Subtract dark, divide by master flat
     Analyse and optionally remove masked regions and correct crosstalk and ghosts
     Estimate stray light and subtract

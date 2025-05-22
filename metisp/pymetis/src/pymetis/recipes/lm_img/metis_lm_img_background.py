@@ -88,7 +88,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         def tag(cls):
             return rf"LM_{cls.target():s}_OBJECT_CAT"
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         target = self.inputset.tag_parameters['target']
@@ -99,7 +99,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image)
         product_object_cat = self.ProductObjectCat(self, self.header, table)
 
-        return [product_bkg, product_bkg_subtracted, product_object_cat]
+        return {product_bkg, product_bkg_subtracted, product_object_cat}
 
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         return {
@@ -109,15 +109,25 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
 
 class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
-    class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg): pass
-    class ProductObjectCat(TargetStdMixin, MetisLmImgBackgroundImpl.ProductObjectCat): pass
-    class ProductBkgSubtracted(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted): pass
+    class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg):
+        pass
+
+    class ProductObjectCat(TargetStdMixin, MetisLmImgBackgroundImpl.ProductObjectCat):
+        pass
+
+    class ProductBkgSubtracted(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted):
+        pass
 
 
 class MetisLmImgBackgroundSciImpl(MetisLmImgBackgroundImpl):
-    class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg): pass
-    class ProductObjectCat(TargetSciMixin, MetisLmImgBackgroundImpl.ProductObjectCat): pass
-    class ProductBkgSubtracted(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted): pass
+    class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg):
+        pass
+
+    class ProductObjectCat(TargetSciMixin, MetisLmImgBackgroundImpl.ProductObjectCat):
+        pass
+
+    class ProductBkgSubtracted(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted):
+        pass
 
 
 class MetisLmImgBackground(MetisRecipe):
@@ -139,9 +149,8 @@ class MetisLmImgBackground(MetisRecipe):
         )
     ])
 
-    _matched_keywords: {str} = {'DRS.FILTER'}
+    _matched_keywords: set[str] = {'DRS.FILTER'}
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 
     implementation_class = MetisLmImgBackgroundImpl
-

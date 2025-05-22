@@ -31,10 +31,10 @@ from cpl.core import Msg
 
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
-from pymetis.classes.inputs import RawInput
-from pymetis.classes.inputs import MasterDarkInput, MasterFlatInput
-from pymetis.classes.inputs import LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
+                                    LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+
 
 class MetisPupilImagingImpl(DarkImageProcessor):
     class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
@@ -48,14 +48,13 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
-            _description: str = "Raw exposure of the pupil in LM image mode" # FixMe N band
+            _description: str = "Raw exposure of the pupil in LM image mode"    # FixMe N band
 
         MasterDarkInput = MasterDarkInput
 
         # Also one master flat is required. We use a prefabricated class
         class MasterFlatInput(MasterFlatInput):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)")
-
 
     class ProductReduced(PipelineImageProduct):
         """
@@ -111,13 +110,13 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         """
         Runner for processing images. Currently setup to do dark/bias/flat/gain plus combining images.
-        TODO No actually processing is performed.
+        TODO No actual processing is performed.
         """
 
-        Msg.info(self.__class__.__qualname__, f"Starting processing image attribute.")
+        Msg.info(self.__class__.__qualname__, "Starting processing image attribute.")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
@@ -130,14 +129,15 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.ProductReduced(self, header, combined_image) # FixMe Hardcoded band for now
+        product = self.ProductReduced(self, header, combined_image)     # FixMe Hardcoded band for now
 
-        return [product]
+        return {product}
 
 
 class MetisPupilImaging(MetisRecipe):
     """
-    Wrapper for the recipe for pyesorex, defining neessary attributes and parameters, plus the implementation class.
+    Wrapper for the recipe for pyesorex, defining the necessary attributes and parameters,
+    plus the implementation class.
     """
     # Fill in recipe information
     _name: str = "metis_pupil_imaging"
@@ -150,9 +150,9 @@ class MetisPupilImaging(MetisRecipe):
         This recipe performs basic reduction (dark current subtraction, flat fielding,
         optional bias subtraction, persistence and linearity corrections) on engineering
         images of the pupil masks. This recipe is not expected to be used by observers
-        during regular use.""" # FixMe this is not shown anywhere now
+        during regular use."""  # FixMe this is not shown anywhere now
 
-    _matched_keywords: {str} = {'DRS.PUPIL'}
+    _matched_keywords: set[str] = {'DRS.PUPIL'}
     _algorithm = """Apply dark current and flat field corrections."""
 
     parameters = cpl.ui.ParameterList([
