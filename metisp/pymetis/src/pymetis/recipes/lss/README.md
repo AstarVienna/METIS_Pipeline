@@ -3,8 +3,11 @@ This is a first draft of the LM LSS skeleton for the METIS instrument
 
 ## Added files
 
-- pyesorex skeleton recipes (`METIS_Pipeline/metisp/pymetis/src/pymetis/recipes/lss`):
+- Order of the pyesorex skeleton recipes (`METIS_Pipeline/metisp/pymetis/src/pymetis/recipes/lss`):
 ```
+metis_det_dark.py  (recipe common with other METIS pipelines)
+metis_det_lingain.py  (recipe common with other METIS pipelines)
+metis_lm_adc_slitloss.py
 metis_lm_lss_rsrf.py
 metis_lm_lss_trace.py
 metis_lm_lss_wave.py
@@ -14,7 +17,6 @@ metis_lm_lss_mf_model.py
 metis_lm_lss_mf_calctrans.py
 metis_lm_lss_mf_correct.py
 
-metis_lm_lss_test.py  (for testing purposes only)
 metis_lss_utils.py (good looking, but useless remnant, not needed for the time being)
 
 pyesorex_all.sh - script to run all recipes with pyesorex with individual logfiles
