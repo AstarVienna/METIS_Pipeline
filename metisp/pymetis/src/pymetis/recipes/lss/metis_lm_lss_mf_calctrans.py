@@ -27,7 +27,7 @@ from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineTableProduct
 
 # =========================================================================================
 #    Define main class
@@ -37,24 +37,36 @@ class MetisLmLssMfCalctransImpl(RawImageProcessor):
         band = "LM"
         detector = "2RG"
 
+        """
+        Table with best-fit parameters
+        """
         class MfBestFitTab(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"MF_BEST_FIT_TAB")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Table with best-fit parameters"
             _description: str = "Calculation of transmission function."
 
+        """
+        Table with LSF Kernel (if external kernel is used)
+        """
         class LsfKernel(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LSF_KERNEL")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "LSF Kernel"
             _description: str = "Kernel of the Line-Spred-Function."
 
+        """
+        Atmospheric line catalogue
+        """
         class AtmLineCat(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"ATM_LINE_CAT")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Table with best-fit parameters"
             _description: str = "Line catalogue of atmopsheric lines."
 
+        """
+        Atmospheric input profile
+        """
         class AtmProfile(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"ATM_PROFILE")
             _group = cpl.ui.Frame.FrameGroup.CALIB
@@ -65,7 +77,10 @@ class MetisLmLssMfCalctransImpl(RawImageProcessor):
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
     # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
-    class ProductTransmission(PipelineProduct):
+    """
+    Final transmission
+    """
+    class ProductTransmission(PipelineTableProduct):
         _tag = rf"LM_LSS_SYNTH_TRANS"
         _title: str = "Transmission spectrum"
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -87,9 +102,9 @@ class MetisLmLssMfCalctransImpl(RawImageProcessor):
         # TODO: Check whether calctrans creates the Transmission file - if so, no need to
         # write it out here again
         header = self._create_dummy_header()
-        image = self._create_dummy_image()
+        table = self._create_dummy_table()
         return [
-            self.ProductTransmission(self, header, image),
+            self.ProductTransmission(self, header, table),
         ]
 
 
@@ -130,7 +145,7 @@ class MetisLmLssMfCalctrans(MetisRecipe):
     """
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows"""
+    _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     """

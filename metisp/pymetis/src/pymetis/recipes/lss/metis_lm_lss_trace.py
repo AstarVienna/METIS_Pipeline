@@ -29,7 +29,7 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import (SinglePipelineInput, BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin)
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineTableProduct
 
 # =========================================================================================
 #    Define main class
@@ -39,6 +39,9 @@ class MetisLmLssTraceImpl(RawImageProcessor):
         band = "LM"
         detector = "2RG"
 
+        """
+        Raw pinhole frames LM_LSS_RSRF_PINH_RAW
+        """
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_LSS_RSRF_PINH_RAW")
             _title: str = "LM LSS rsrf pinhole raw"
@@ -94,13 +97,13 @@ class MetisLmLssTraceImpl(RawImageProcessor):
     """
     Final trace table
     """
-    class ProductTraceTab(PipelineProduct):
+    class ProductTraceTab(PipelineTableProduct):
         _tag: str = r"LM_LSS_TRACE"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-        _description: str = "Table with polynomials for the traces"
+        _description: str = "Table with polynomials describing the location of the traces on the detector"
         _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
 
@@ -131,13 +134,13 @@ class MetisLmLssTraceImpl(RawImageProcessor):
     """
     Method for processing
     """
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> [PipelineTableProduct]:
         """Create dummy file (should do something more fancy in the future)"""
         # trace_tab_hdr = self._create_dummy_header()
-        trace_tab_hdr = cpl.core.PropertyList()
-        trace_tab_img = self._create_dummy_image()
+        trace_tab_hdr = self._create_dummy_header()
+        trace_tab_data = self._create_dummy_table()
         return [
-            self.ProductTraceTab(self, trace_tab_hdr, trace_tab_img)
+            self.ProductTraceTab(self, trace_tab_hdr, trace_tab_data)
         ]
 
 # =========================================================================================
@@ -164,12 +167,13 @@ class MetisLmLssTrace(MetisRecipe):
 
     Inputs
         LM_LSS_RSRF_PINH_RAW: Raw RSRF pinhole frames [1-n]
-        PERSISTENCE_MAP: Persistence map [optional]
-        GAIN_MAP_2RG:    Gain map for 2RG detector
-        LINEARITY_2RG:   Linearity map for 2RG detector
-        MASTER_DARK_2RG: Master dark frame [optional?]
-        BADPIX_MAP_2RG:  Bad-pixel map for 2RG detector [optional]
-        MASTER_LM_LSS_RSRF:     Master flat (RSRF) frame
+        LM_WCU_OFF_RAW:       Raw WCU OFF background frames [1-n]
+        PERSISTENCE_MAP:      Persistence map [optional]
+        GAIN_MAP_2RG:         Gain map for 2RG detector
+        LINEARITY_2RG:        Linearity map for 2RG detector
+        MASTER_DARK_2RG:      Master dark frame [optional?]
+        BADPIX_MAP_2RG:       Bad-pixel map for 2RG detector [optional]
+        MASTER_LM_LSS_RSRF:   Master flat (RSRF) frame
 
     Matched Keywords
         DET.DIT
@@ -177,12 +181,11 @@ class MetisLmLssTrace(MetisRecipe):
         DRS.SLIT
 
     Outputs
-        LM_LSS_TRACE:   Location of the orders (TBD)
+        LM_LSS_TRACE:   Location of the orders ***TBD***
     """
-# TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows """
+    _algorithm = """Fancy algorithm description follows ***TBD*** """
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     """

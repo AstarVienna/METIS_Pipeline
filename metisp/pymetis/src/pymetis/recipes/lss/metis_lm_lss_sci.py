@@ -32,7 +32,7 @@ from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin, AtmLineCatInput,
                                     PersistenceMapInput)
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 
 
 # =========================================================================================
@@ -50,7 +50,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_LSS_SCI_RAW")
             _title: str = "LM LSS sci raw"
-            _description: str = "Raw spectra of sciecne objects."
+            _description: str = "Raw spectra of science targets"
 
         # MASTER CALIBS ++++++++++++++++++++++++++++++++++++++++++++
         """
@@ -129,6 +129,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
             _description: str = "Transmission function derived from standard star"
 
 # --------------------------------------------------------------------
+# TODO:
 # CHECK THE AO PSF MODEL - why not included? forgotten????
         # """
         # AO PSF MODEL
@@ -167,7 +168,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
     """
     Pixel map of object pixels
     """
-    class ProductLmLssSciObjMap(PipelineProduct):
+    class ProductLmLssSciObjMap(PipelineImageProduct):
         _tag: str = r"LM_LSS_SCI_OBJ_MAP"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -189,7 +190,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
     """
     Pixel map of sky pixels
     """
-    class ProductLmLssSciSkyMap(PipelineProduct):
+    class ProductLmLssSciSkyMap(PipelineImageProduct):
         _tag: str = r"LM_LSS_SCI_SKY_MAP"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -211,7 +212,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
     """
     Final 1D spectrum of standard star
     """
-    class ProductLmLssSci1d(PipelineProduct):
+    class ProductLmLssSci1d(PipelineTableProduct):
         _tag: str = r"LM_LSS_SCI_1D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -233,7 +234,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
     """
     Final 2D spectrum of standard star
     """
-    class ProductLmLssSci2d(PipelineProduct):
+    class ProductLmLssSci2d(PipelineImageProduct):
         _tag: str = r"LM_LSS_SCI_2D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -255,7 +256,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
     """
     Final flux calibrated 1D spectrum of standard star
     """
-    class ProductLmLssSciFlux1d(PipelineProduct):
+    class ProductLmLssSciFlux1d(PipelineTableProduct):
         _tag: str = r"LM_LSS_SCI_FLUX_1D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -278,7 +279,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
     """
     Final flux calibrated 2D spectrum of standard star
     """
-    class ProductLmLssSciFlux2d(PipelineProduct):
+    class ProductLmLssSciFlux2d(PipelineImageProduct):
         _tag: str = r"LM_LSS_SCI_FLUX_2D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -301,7 +302,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
     Final flux calibrated, telluric corrected 1D spectrum of standard star
     """
     # TODO: What about the 2d version?
-    class ProductLmLssSciFluxTell1d(PipelineProduct):
+    class ProductLmLssSciFluxTell1d(PipelineTableProduct):
         _tag: str = r"LM_LSS_SCI_FLUX_TELL_1D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -356,14 +357,15 @@ class MetisLmLssSciImpl(RawImageProcessor):
         """Create dummy file (should do something more fancy in the future)"""
         header = self._create_dummy_header()
         image = self._create_dummy_image()
+        table = self._create_dummy_table()
 
         # Write files
         return [
 
-            self.ProductLmLssSci1d(self, header, image),
+            self.ProductLmLssSci1d(self, header, table),
             self.ProductLmLssSci2d(self, header, image),
-            self.ProductLmLssSciFlux1d(self, header, image),
-            self.ProductLmLssSciFluxTell1d(self, header, image),
+            self.ProductLmLssSciFlux1d(self, header, table),
+            self.ProductLmLssSciFluxTell1d(self, header, table),
             self.ProductLmLssSciFlux2d(self, header, image),
             self.ProductLmLssSciObjMap(self, header, image),
             self.ProductLmLssSciSkyMap(self, header, image),
@@ -424,7 +426,7 @@ class MetisLmLssSci(MetisRecipe):
     """
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows"""
+    _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     """

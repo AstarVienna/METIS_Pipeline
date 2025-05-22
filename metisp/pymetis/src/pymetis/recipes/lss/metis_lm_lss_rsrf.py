@@ -31,7 +31,7 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin)
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineImageProduct
 
 # =========================================================================================
 #    Define main class
@@ -85,29 +85,11 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
         class LinearityInput(LinearityInput):
             _tags: re.Pattern = re.compile(r"LINEARITY_2RG")
 
-
-    # Define output classes +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # class ProductRsrfBackground(PipelineProduct):
-    #     """
-    #     Intermediate product: the instrumental background (WCU OFF)
-    #     """
-    #     _tag: str = r"IFU_RSRF_BACKGROUND"
-    #     group = cpl.ui.Frame.FrameGroup.PRODUCT # TBC
-    #     level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    #     frame_type = cpl.ui.Frame.FrameType.IMAGE
-    #     _description: str = "something"
-    #     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-    #
-    #     # SKEL: copy product keywords from header
-    #     def add_properties(self) -> None:
-    #         super().add_properties()
-    #         self.properties.append(self.header)
-
     # # ++++++++++++++++++ Intermediate products ++++++++++++++++++
     """
     Median RSRF (QC)
     """
-    class ProductMedianLmLssRsrfImg(PipelineProduct):
+    class ProductMedianLmLssRsrfImg(PipelineImageProduct):
         _tag: str = r"MEDIAN_LM_LSS_RSRF_IMG"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -124,7 +106,7 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
     """
     Mean RSRF (QC)
     """
-    class ProductMeanLmLssRsrfImg(PipelineProduct):
+    class ProductMeanLmLssRsrfImg(PipelineImageProduct):
         _tag: str = r"MEAN_LM_LSS_RSRF_IMG"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -138,7 +120,7 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
     """
     Final Master RSRF
     """
-    class ProductMasterLmLssRsrf(PipelineProduct):
+    class ProductMasterLmLssRsrf(PipelineImageProduct):
         _tag: str = r"MASTER_LM_LSS_RSRF"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -160,7 +142,7 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
     """
     Method for processing
     """
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> [PipelineImageProduct]:
         """do something more fancy in the future"""
         # Load raw image
         spec_flat_hdr = \
@@ -250,7 +232,7 @@ class MetisLmLssRsrf(MetisRecipe):
 # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows (cf. ifu_rsrf recipe)""" # TODO: Write description
+    _algorithm = """Fancy algorithm description follows ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     """

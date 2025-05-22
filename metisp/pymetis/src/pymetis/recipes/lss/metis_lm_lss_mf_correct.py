@@ -27,7 +27,7 @@ from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct,PipelineTableProduct
 
 # TODO: Check 2D input spectra - correct all row with same trans?
 
@@ -41,6 +41,9 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
         detector = "2RG"
 
     # ++++++++++++ Main input++++++++++++
+        """
+        Science spectrum
+        """
         class LmLssSciFlux1d(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_LSS_SCI_FLUX_1D")
             # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
@@ -49,6 +52,9 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
             _title: str = "LM LSS sci flux 1D"
             _description: str = "Flux calibrated 1D LM LSS science spectrum"
 
+        """
+        Transmission spectrum
+        """
         class Transmission(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_LSS_SYNTH_TRANS")
             _group = cpl.ui.Frame.FrameGroup.CALIB
@@ -57,7 +63,10 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
     # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
-    class ProductTellCorrFinalSpectrum(PipelineProduct):
+    """
+    Final telluric corrected science spectrum
+    """
+    class ProductTellCorrFinalSpectrum(PipelineTableProduct):
         _tag = rf"LM_LSS_SCI_FLUX_TELL_1D"
         _title: str = "Final science spectrum"
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -78,9 +87,9 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
         # TODO: Check whether calctrans creates the Transmission file - if so, no need to
         # write it out here again
         header = self._create_dummy_header()
-        image = self._create_dummy_image()
+        table = self._create_dummy_table()
         return [
-            self.ProductTellCorrFinalSpectrum(self, header, image),
+            self.ProductTellCorrFinalSpectrum(self, header, table),
         ]
 
 # =========================================================================================
@@ -106,7 +115,8 @@ class MetisLmLssMfCorrect(MetisRecipe):
     Application of the telluric correction
 
     Inputs
-        LM_LSS_SCI_FLUX_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science         LM_LSS_SYNTH_TRANS: Synthetic transmission of the Earth's atmosphere'
+        LM_LSS_SCI_FLUX_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science
+        LM_LSS_SYNTH_TRANS: Synthetic transmission of the Earth's atmosphere'
 
      Matched Keywords
         DRS.SLIT
@@ -115,7 +125,7 @@ class MetisLmLssMfCorrect(MetisRecipe):
         LM_LSS_SCI_FLUX_TELL_1D: Coadded, wavelength + flux calibrated, telluric corrected 1D spectrum of the science object
     """
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows"""
+    _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     """

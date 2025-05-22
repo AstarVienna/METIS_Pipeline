@@ -34,19 +34,19 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin)
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineTableProduct
 
 # =========================================================================================
 #    Define main class
 # =========================================================================================
 class MetisLmAdcSlitlossImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
-        band = "LM"
-        detector = "2RG"
+        band = "LM"    # <---- TODO: Check why not automatically determined
+        detector = "2RG"   # <---- TODO: Check why not automatically determined
 
         # Define input classes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         """
-        Raw image LM_LSS_RSRF_RAW
+        Raw image LM_LSS_SLITLOSS_RAW
         """
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_ADC_SLITLOSS_RAW")   # <---- TBD
@@ -69,7 +69,7 @@ class MetisLmAdcSlitlossImpl(RawImageProcessor):
     """
     Final Master RSRF
     """
-    class ProductLmAdcSlitloss(PipelineProduct):
+    class ProductLmAdcSlitloss(PipelineTableProduct):
         _tag: str = r"LM_ADC_SLITLOSS"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -116,12 +116,12 @@ class MetisLmAdcSlitlossImpl(RawImageProcessor):
     """
     Method for processing
     """
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> [PipelineTableProduct]:
         """Create dummy file (should do something more fancy in the future)"""
         header = self._create_dummy_header()
-        image = self._create_dummy_image()
+        table = self._create_dummy_table()
         return [
-            self.ProductLmAdcSlitloss(self, header, image),
+            self.ProductLmAdcSlitloss(self, header, table),
         ]
 
 
@@ -148,14 +148,16 @@ class MetisLmAdcSlitloss(MetisRecipe):
     _undescription: str = """\
     Determines ADC slitlosses
 
+    Remark: Recipe not welldefined as actual algorithm not well defined (cf. DRLD, Calib plan)
+
     Inputs
-        LM_LSS_RSRF_RAW: Raw RSRF images [1-n]
-        LM_WCU_OFF_RAW:  raw WCU OFF background frames [1-n]
-        MASTER_DARK_2RG: Master dark frame [optional?]
-        BADPIX_MAP_2RG:  Bad-pixel map for 2RG detector [optional]
-        PERSISTENCE_MAP: Persistence map [optional]
-        GAIN_MAP_2RG:    Gain map for 2RG detector
-        LINEARITY_2RG:   Linearity map for 2RG detector
+        LM_ADC_SLITLOSS_RAW: Raw SLITLOSS images [1-n]  ***TBD***
+        LM_WCU_OFF_RAW:      Raw WCU OFF background frames [1-n]
+        MASTER_DARK_2RG:     Master dark frame [optional?]  ***TBChecked***
+        BADPIX_MAP_2RG:      Bad-pixel map for 2RG detector [optional] ***TBChecked***
+        PERSISTENCE_MAP:     Persistence map [optional] ***TBChecked***
+        GAIN_MAP_2RG:        Gain map for 2RG detector ***TBChecked***
+        LINEARITY_2RG:       Linearity map for 2RG detector ***TBChecked***
 
      Matched Keywords
         DET.DIT
@@ -163,14 +165,12 @@ class MetisLmAdcSlitloss(MetisRecipe):
         DRS.SLIT
 
     Outputs
-        MASTER_LM_LSS_RSRF:     Master flat (RSRF) frame
-        MEDIAN_LM_LSS_RSRF_IMG: Median map (QC)
-        MEAN_LM_LSS_RSRF_IMG:   Mean map (QC)
+        LM_ADC_SLITLOSS:     Table with slit losses ***TBD***
     """
 # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows (cf. ifu_rsrf recipe)""" # TODO: Write description
+    _algorithm = """Incredible fancy description of algorithm follows... ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     """

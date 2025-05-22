@@ -32,7 +32,7 @@ from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin, FluxstdCatalogInput, AtmLineCatInput,
                                     PersistenceMapInput)
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 
 # =========================================================================================
 #    Define main class
@@ -161,7 +161,7 @@ class MetisLmLssStdImpl(RawImageProcessor):
     """
     Pixel map of object pixels
     """
-    class ProductLmLssStdObjMap(PipelineProduct):
+    class ProductLmLssStdObjMap(PipelineImageProduct):
         _tag: str = r"LM_LSS_STD_OBJ_MAP"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -183,7 +183,7 @@ class MetisLmLssStdImpl(RawImageProcessor):
     """
     Pixel map of sky pixels
     """
-    class ProductLmLssStdSkyMap(PipelineProduct):
+    class ProductLmLssStdSkyMap(PipelineImageProduct):
         _tag: str = r"LM_LSS_STD_SKY_MAP"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -206,7 +206,7 @@ class MetisLmLssStdImpl(RawImageProcessor):
     """
     Final Master Response Curve
     """
-    class ProductMasterLmResponse(PipelineProduct):
+    class ProductMasterLmResponse(PipelineImageProduct):
         _tag: str = r"MASTER_LM_RESPONSE"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -228,7 +228,7 @@ class MetisLmLssStdImpl(RawImageProcessor):
     """
     Final Transmission
     """
-    class ProductStdTransmission(PipelineProduct):
+    class ProductStdTransmission(PipelineImageProduct):
         _tag: str = r"STD_TRANSMISSION"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -250,7 +250,7 @@ class MetisLmLssStdImpl(RawImageProcessor):
     """
     Final Wave solution
     """
-    class ProductLmLssWave(PipelineProduct):
+    class ProductLmLssWave(PipelineImageProduct):
         _tag: str = r"LM_LSS_STD_WAVE"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -272,7 +272,7 @@ class MetisLmLssStdImpl(RawImageProcessor):
     """
     Final 1D spectrum of standard star
     """
-    class ProductLmLssStd1d(PipelineProduct):
+    class ProductLmLssStd1d(PipelineImageProduct):
         _tag: str = r"LM_LSS_STD_1D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -331,12 +331,16 @@ class MetisLmLssStdImpl(RawImageProcessor):
 
         """Create dummy file (should do something more fancy in the future)"""
         # header = self._create_dummy_header()
-        ProductMasterLmResponseHdr = self._create_dummy_header()
-        ProductStdTransmissionHdr = self._create_dummy_header()
-        ProductLmLssStd1dHdr = self._create_dummy_header()
+        # PipelineImageProducts
         ProductLmLssStdObjMapHdr = self._create_dummy_header()
         ProductLmLssStdSkyMapHdr = self._create_dummy_header()
         image = self._create_dummy_image()
+
+        # PipelineTableProducts
+        ProductMasterLmResponseHdr = self._create_dummy_header()
+        ProductStdTransmissionHdr = self._create_dummy_header()
+        ProductLmLssStd1dHdr = self._create_dummy_header()
+        table = self._create_dummy_table()
 
         # Write files
         return [
@@ -404,7 +408,7 @@ class MetisLmLssStd(MetisRecipe):
     """
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows"""
+    _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     """

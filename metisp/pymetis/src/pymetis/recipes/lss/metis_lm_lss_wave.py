@@ -28,7 +28,7 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadpixMapInput, MasterDarkInput, RawInput, GainMapInput, LinearityInput, OptionalInputMixin, LaserTableInput)
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineTableProduct
 
 
 
@@ -40,6 +40,9 @@ class MetisLmLssWaveImpl(RawImageProcessor):
         band = "LM"
         detector = "2RG"
 
+        """
+        Raw frames with laser lines
+        """
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_LSS_WAVE_RAW")
             _title: str = "LM LSS wave raw"
@@ -118,7 +121,7 @@ class MetisLmLssWaveImpl(RawImageProcessor):
     """
     Trace curvature
     """
-    class ProductLmLssCurve(PipelineProduct):
+    class ProductLmLssCurve(PipelineTableProduct):
         _tag: str = r"LM_LSS_CURVE"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -133,7 +136,7 @@ class MetisLmLssWaveImpl(RawImageProcessor):
     """
     Distortion solution
     """
-    class ProductLmLssDistSol(PipelineProduct):
+    class ProductLmLssDistSol(PipelineTableProduct):
         _tag: str = r"LM_LSS_DIST_SOL"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -145,7 +148,7 @@ class MetisLmLssWaveImpl(RawImageProcessor):
     """
     First guess of the wavelength solution
     """
-    class ProductLmLssWaveGuess(PipelineProduct):
+    class ProductLmLssWaveGuess(PipelineTableProduct):
         _tag: str = r"LM_LSS_WAVE_GUESS"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -186,18 +189,18 @@ class MetisLmLssWaveImpl(RawImageProcessor):
     """
     Method for processing
     """
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> [PipelineTableProduct]:
         """Create dummy file (should do something more fancy in the future)"""
         # header = self._create_dummy_header()
-        image = self._create_dummy_image()
+        table = self._create_dummy_table()
         LmLssCurveHdr = cpl.core.PropertyList()
         LmLssDistSolHdr = cpl.core.PropertyList()
         LmLssWaveGuessHdr = cpl.core.PropertyList()
 
         return [
-            self.ProductLmLssCurve(self, LmLssCurveHdr, image),
-            self.ProductLmLssDistSol(self, LmLssDistSolHdr, image),
-            self.ProductLmLssWaveGuess(self, LmLssWaveGuessHdr, image),
+            self.ProductLmLssCurve(self, LmLssCurveHdr, table),
+            self.ProductLmLssDistSol(self, LmLssDistSolHdr, table),
+            self.ProductLmLssWaveGuess(self, LmLssWaveGuessHdr, table),
         ]
 
 
@@ -226,6 +229,7 @@ class MetisLmLssWave(MetisRecipe):
 
     Inputs
         LM_LSS_WAVE_RAW:    Raw WCU laser spectra [1-n]
+        LM_WCU_OFF_RAW:     Raw WCU OFF background frames [1-n]
         PERSISTENCE_MAP:    Persistence map [optional]
         GAIN_MAP_2RG:       Gain map for 2RG detector
         LINEARITY_2RG:      Linearity map for 2RG detector
@@ -245,10 +249,9 @@ class MetisLmLssWave(MetisRecipe):
         LM_LSS_DIST_SOL:   Distortion solution
         LM_LSS_WAVE_GUESS: First guess of the wavelength solution
     """
-# TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows"""
+    _algorithm = """Fancy algorithm description follows ***TBD***"""
 
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

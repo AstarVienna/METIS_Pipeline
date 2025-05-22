@@ -29,7 +29,7 @@ from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import PipelineProduct, PipelineTableProduct
 
 
 # =========================================================================================
@@ -42,6 +42,9 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
 
     # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
+        """
+        Science spectrum
+        """
         class LmLssSciFlux1d(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_LSS_SCI_FLUX_1D")
             # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
@@ -51,6 +54,9 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
             _description: str = "Flux calibrated 1D LM LSS science spectrum"
 
         # Alternative (Path #3 in DRLD Section CritAlg)
+        """
+        Standard star spectrum
+        """
         class LmLssStdFlux1d(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"LM_LSS_STD_1D")
             # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
@@ -59,10 +65,14 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
             _title: str = "LM LSS standard star 1D spectrum"
             _description: str = "1D LM LSS standard star spectrum"
     # ++++++++++++ Intermediate / QC products ++++++++++++
+    # Currently none foreseen (some for QC?)
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
     # TODO: Check whether the new mf writes out the best-fit param file
-    class ProductMfBestFitTab(PipelineProduct):
+    """
+    Table with best-fit parameters
+    """
+    class ProductMfBestFitTab(PipelineTableProduct):
         _tag = rf"MF_BEST_FIT_TAB"
         _title: str = "Molecfit best-fit table"
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -81,12 +91,11 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
         """Create dummy file (should do something more fancy in the future)"""
 
         # TODO: Invoke molecfit here
-
         # TODO: Check whether the new mf writes out the best-fit param file
         header = self._create_dummy_header()
-        image = self._create_dummy_image()
+        table = self._create_dummy_table()
         return [
-            self.ProductMfBestFitTab(self, header, image),
+            self.ProductMfBestFitTab(self, header, table),
         ]
 
     """
@@ -139,14 +148,14 @@ class MetisLmLssMfModel(MetisRecipe):
         ATMP_PROFILE:       Atmospheric input profile
 
      Matched Keywords
-        DRS.SLIT
+        DRS.SLIT    ***TBChecked***
 
     Outputs
         MF_BEST_FIT_TAB: Table with best-fit parameters
     """
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy description follows"""
+    _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     """
