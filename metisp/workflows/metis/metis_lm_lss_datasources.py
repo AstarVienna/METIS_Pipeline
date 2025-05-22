@@ -58,13 +58,6 @@ lm_wcu_off_raw = (data_source()
             .with_match_keywords([metis_kwd.instrume])
             .build())
 
-
-# raw_dark = (data_source()
-#             .with_classification_rule(dark_class)
-#             .with_min_group_size(MIN_NUM_DARKS)
-#             .with_match_keywords([metis_kwd.instrume])
-#             .build())
-
 lm_raw_rsrf = (data_source()
             .with_classification_rule(lm_rsrf_raw_class)
             .with_min_group_size(MIN_NUM_RSRF)

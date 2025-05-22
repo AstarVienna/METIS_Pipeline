@@ -24,55 +24,23 @@ lm_lss_calibs = {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis
 # RAW data classes -----------------------------------------------------------
 # ----------------------------------------------------------------------------
 # Linearity file class
-detlin_2rg_raw_class = classification_rule("DETLIN_2RG_RAW",
-    {metis_kwd.instrume: "METIS",
-     metis_kwd.dpr_catg: "CALIB",
-     metis_kwd.dpr_tech: "IMAGE,LM",
-     # metis_kwd.det_id: "2RG",
-     metis_kwd.dpr_type:"DETLIN"})
-
+detlin_2rg_raw_class = classification_rule("DETLIN_2RG_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "IMAGE,LM", metis_kwd.dpr_type:"DETLIN"})
 # # DARK class
-rawdark_class = classification_rule("DARK_2RG_RAW",
-    {metis_kwd.instrume: "METIS",
-     metis_kwd.dpr_catg: "CALIB",
-     metis_kwd.dpr_tech: "IMAGE,LM",
-     metis_kwd.dpr_type:"DARK"})
-
+rawdark_class = classification_rule("DARK_2RG_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "IMAGE,LM", metis_kwd.dpr_type:"DARK"})
 # Class for WCU OFF files
-lm_wcu_off_raw_class = classification_rule("LM_WCU_OFF_RAW",
-    {metis_kwd.instrume: "METIS",
-     metis_kwd.dpr_catg: "CALIB",
-     metis_kwd.dpr_tech: "IMAGE,LM",
-     # metis_kwd.det_id: "2RG",
-     metis_kwd.dpr_type:"DARK,WCUOFF"})
-
+lm_wcu_off_raw_class = classification_rule("LM_WCU_OFF_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "IMAGE,LM", metis_kwd.dpr_type:"DARK,WCUOFF"})
 # Slitloss files (TODO: Check the difference to STATIC ones - doubly defined??  Also check whether img or lss mode)
-lm_slitloss_class = classification_rule("LM_ADC_SLITLOSS_RAW",
-    {metis_kwd.instrume: "METIS",
-     metis_kwd.dpr_catg: "CALIB",
-     metis_kwd.dpr_tech: "LSS,LM",
-     # metis_kwd.det_id: "2RG",
-     metis_kwd.dpr_type:"SLITLOSS"})
-
+lm_slitloss_class = classification_rule("LM_ADC_SLITLOSS_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "LSS,LM", metis_kwd.dpr_type:"SLITLOSS"})
 # RSRF / FLATFIELDS
-lm_rsrf_raw_class = classification_rule("LM_LSS_RSRF_RAW",
-    {metis_kwd.instrume: "METIS",
-     metis_kwd.dpr_catg: "CALIB",
-     metis_kwd.dpr_tech: "LSS,LM",
-     # metis_kwd.det_id: "2RG",
-     metis_kwd.dpr_type:"FLAT,LAMP"})
-
+lm_rsrf_raw_class = classification_rule("LM_LSS_RSRF_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "LSS,LM", metis_kwd.dpr_type:"FLAT,LAMP"})
 # RSRF Pinhole frames
-lm_rsrf_pinh_class = classification_rule("LM_LSS_RSRF_PINH_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "LSS,LM",  metis_kwd.dpr_type:"FLAT,LAMP,PINH"})
+lm_rsrf_pinh_class = classification_rule("LM_LSS_RSRF_PINH_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "LSS,LM", metis_kwd.dpr_type:"FLAT,LAMP,PINH"})
 # Wavelength calib files (WCU laser sources)
 lm_wave_class = classification_rule("LM_LSS_WAVE_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "LSS,LM",  metis_kwd.dpr_type:"WAVE"})
 # Standrad stars raw
 lm_raw_std_class = classification_rule("LM_LSS_STD_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg: "CALIB", metis_kwd.dpr_tech: "LSS,LM",  metis_kwd.dpr_type:"STD"})
 # Sci obs raw
-lm_raw_sci_class = classification_rule("LM_LSS_SCI_RAW", {metis_kwd.instrume: "METIS",
-                                 metis_kwd.dpr_catg:"SCIENCE",
-                                 metis_kwd.dpr_type:"OBJECT",
-                                 metis_kwd.dpr_tech:"LSS,LM"})
+lm_raw_sci_class = classification_rule("LM_LSS_SCI_RAW", {metis_kwd.instrume: "METIS", metis_kwd.dpr_catg:"SCIENCE", metis_kwd.dpr_type:"OBJECT", metis_kwd.dpr_tech:"LSS,LM"})
 
 # ----------------------------------------------------------------------------
 # MASTER and intermediate calibrations classes -------------------------------
