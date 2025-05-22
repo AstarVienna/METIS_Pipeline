@@ -88,7 +88,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         def tag(cls):
             return rf"LM_{cls.target():s}_OBJECT_CAT"
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         target = self.inputset.tag_parameters['target']
@@ -99,7 +99,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image)
         product_object_cat = self.ProductObjectCat(self, self.header, table)
 
-        return [product_bkg, product_bkg_subtracted, product_object_cat]
+        return {product_bkg, product_bkg_subtracted, product_object_cat}
 
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         return {

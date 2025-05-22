@@ -102,7 +102,7 @@ class MetisDetDarkImpl(RawImageProcessor):
     # See the documentation of the parent's `process_images` function for more details.
     # Feel free to define other functions to break up the algorithm into more manageable chunks,
     # and call them from within `process_images` as needed.
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         method = self.parameters["metis_det_dark.stacking.method"].value
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
@@ -113,7 +113,7 @@ class MetisDetDarkImpl(RawImageProcessor):
 
         product = self.ProductMasterDark(self, header, combined_image)
 
-        return [product]
+        return {product}
 
     # For recipes that can further specialize based on the provided data, we need to provide a mechanism
     # to select the correct derived class.
@@ -190,7 +190,7 @@ class MetisDetDark(MetisRecipe):
 
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
     # for the man page. Later we would like to be able to compare them directly to DRLD and test for that.
-    _matched_keywords: set[str] = {}
+    _matched_keywords: set[str] = set()
     _algorithm: str = """Group files by detector and DIT, based on header keywords
     Call function metis_determine_dark for each set of files
     Call metis_update_dark_mask to flag deviant pixels

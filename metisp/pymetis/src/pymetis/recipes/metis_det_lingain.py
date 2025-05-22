@@ -75,7 +75,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         def tag(cls) -> str:
             return rf"BADPIX_MAP_{cls.detector():s}"
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         raw_images = self.inputset.load_raw_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)
@@ -97,7 +97,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         product_linearity = self.ProductLinearity(self, header, linearity_image)
         product_badpix_map = self.ProductBadpixMap(self, header, badpix_map)
 
-        return [product_gain_map, product_linearity, product_badpix_map]
+        return {product_gain_map, product_linearity, product_badpix_map}
 
     def _dispatch_child_class(self) -> type["MetisDetLinGainImpl"]:
         return {
@@ -151,7 +151,7 @@ class MetisDetLinGain(MetisRecipe):
         "Prototype to create a METIS linear gain map."
     )
 
-    _matched_keywords: set[str] = {}
+    _matched_keywords: set[str] = set()
     _algorithm = """Subtract instrument dark (hdrl_imagelist_sub_image).
     Compute mean and variance for each frame.
     Gain is determined as the slope of variance against mean (metis_derive_gain).

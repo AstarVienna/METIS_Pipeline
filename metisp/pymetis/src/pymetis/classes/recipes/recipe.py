@@ -50,7 +50,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
                          "Bonus points if it is not visible from pyesorex.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
-    _matched_keywords: set[str] = None
+    _matched_keywords: set[str] = set()
     _algorithm: str = None                                      # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
@@ -77,7 +77,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         return inspect.getmembers(self.implementation_class.InputSet,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
-    def _list_products(self) -> list[PipelineProduct]:
+    def _list_products(self) -> list[str, PipelineProduct]:
         return inspect.getmembers(self.implementation_class,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
 

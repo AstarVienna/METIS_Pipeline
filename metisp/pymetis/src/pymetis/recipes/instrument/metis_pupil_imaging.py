@@ -110,7 +110,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         """
         Runner for processing images. Currently setup to do dark/bias/flat/gain plus combining images.
         TODO No actual processing is performed.
@@ -131,7 +131,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         product = self.ProductReduced(self, header, combined_image)     # FixMe Hardcoded band for now
 
-        return [product]
+        return {product}
 
 
 class MetisPupilImaging(MetisRecipe):

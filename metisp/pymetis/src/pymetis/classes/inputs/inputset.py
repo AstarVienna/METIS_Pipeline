@@ -47,7 +47,6 @@ class PipelineInputSet(metaclass=ABCMeta):
     """
 
     detector: str = NotImplemented
-    inputs: {PipelineInput} = set()
 
     def __init__(self, frameset: cpl.ui.FrameSet):
         """

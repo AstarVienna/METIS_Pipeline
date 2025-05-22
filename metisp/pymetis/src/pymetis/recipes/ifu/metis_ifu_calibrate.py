@@ -53,7 +53,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
@@ -62,7 +62,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 
         product_scc = self.ProductSciCubeCalibrated(self, header, image)
 
-        return [product_scc]
+        return {product_scc}
 
 
 class MetisIfuCalibrate(MetisRecipe):

@@ -142,7 +142,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             self.noise.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
             self.mask.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions or use functions from the parent classes:
@@ -178,7 +178,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # combined_image = self.combine_images(images,
         #                                      self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
 
-        product_set: list[PipelineProduct] = []
+        product_set: set[PipelineProduct] = set()
         for i, image in enumerate(images):
             frame = self.inputset.raw.frameset[i]
 
@@ -211,7 +211,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             self.target = self.inputset.tag_parameters['target']
 
             product = self.ProductBasicReduced(self, header, image, noise, bmask, i)
-            product_set.append(product)
+            product_set |= {product}
 
         return product_set
 

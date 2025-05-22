@@ -40,7 +40,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
         _description: str = "Coadded, mosaiced LM image."
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -56,7 +56,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 
         product_coadd = self.ProductLmImgSciCoadd(self, self.header, combined_image)
 
-        return [product_coadd]
+        return {product_coadd}
 
 
 class MetisLmImgSciPostProcess(MetisRecipe):

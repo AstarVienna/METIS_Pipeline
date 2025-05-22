@@ -47,7 +47,7 @@ class PipelineProduct(ABC):
     # If it depends on other attributes, override the corresponding @classmethod.
     # All methods dealing with these should relate to the **class**, not its instances!
     _tag: str = None
-    _oca_keywords: set[str] = None
+    _oca_keywords: set[str] = set()
     _description: str = None
 
     # Use this regex to verify that the product tag is correct.

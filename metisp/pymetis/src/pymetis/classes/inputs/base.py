@@ -39,6 +39,8 @@ class PipelineInput:
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     _description: Optional[str] = None      # Description for man page
 
+    _multiplicity: str = '<undefined>'
+
     @classmethod
     def title(cls) -> str:
         return cls._title

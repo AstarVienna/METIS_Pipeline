@@ -56,7 +56,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         def tag(cls) -> str:
             return fr"{cls.band():s}_STD_COMBINED"
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -74,4 +74,4 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         product_fluxcal = self.ProductImgFluxCalTable(self, self.header, table)
         product_combined = self.ProductImgStdCombined(self, self.header, combined_image)
 
-        return [product_fluxcal, product_combined]
+        return {product_fluxcal, product_combined}

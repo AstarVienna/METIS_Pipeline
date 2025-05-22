@@ -21,6 +21,7 @@ import pytest
 import inspect
 
 from abc import ABC
+from typing import Optional
 
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, PipelineInput, MultiplePipelineInput
@@ -31,7 +32,7 @@ class BaseInputSetTest(ABC):
     """
     A set of basic tests common for all InputSets
     """
-    _impl: type[MetisRecipeImpl] = None
+    _impl: Optional[type[MetisRecipeImpl]] = None
 
     @pytest.fixture(autouse=True)
     def instance(self, load_frameset, sof):

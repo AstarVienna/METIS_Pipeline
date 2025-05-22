@@ -116,7 +116,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
     class ProductBadpixMapIfu(DetectorIfuMixin, ProductBadpixMapDet):
         pass
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         """
         This function processes the input images:
         - stack the wcu_off images into background_img
@@ -252,7 +252,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         product_rsrf_ifu = self.ProductRsrfIfu(self, rsrf_hdr, rsrf_table)
         product_badpix_map_ifu = self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img)
 
-        return [product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu]
+        return {product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu}
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet

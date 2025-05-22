@@ -43,7 +43,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         _description: str = "Image with wavelength at each pixel."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
@@ -53,7 +53,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
 
         product_wavecal = self.ProductIfuWavecal(self, header, image)
 
-        return [product_wavecal]
+        return {product_wavecal}
 
 
 class MetisIfuWavecal(MetisRecipe):

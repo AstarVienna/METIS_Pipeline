@@ -41,13 +41,13 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
         level = cpl.ui.Frame.FrameLevel.FINAL
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         header = self._create_dummy_header()
         image = self._create_dummy_image()
 
         product = self.ProductRestored(self, header, image)
 
-        return [product]    # ToDo is just a dummy for now
+        return {product}    # ToDo is just a dummy for now
 
 
 class MetisNImgRestore(MetisRecipe):

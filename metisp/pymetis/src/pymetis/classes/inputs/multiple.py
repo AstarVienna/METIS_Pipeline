@@ -30,7 +30,7 @@ class MultiplePipelineInput(PipelineInput):
     """
     A pipeline input that expects multiple frames, such as a raw processor.
     """
-    _multiplicity = 'N'
+    _multiplicity: str = 'N'
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):
@@ -56,7 +56,6 @@ class MultiplePipelineInput(PipelineInput):
         """
         Extracts the 'target' name from the input string based on the '_tags' regex.
 
-        :param inputString: The string to be matched against the pattern.
         :return: The target name if a match is found, otherwise None.
         """
         for frame in frameset:
@@ -65,7 +64,10 @@ class MultiplePipelineInput(PipelineInput):
             else:
                 return None
 
+        return None
+
     def extract_tag_parameters(self, matches: list[dict[str, str]]):
+        """Extract the tag parameters from regex matches."""
         if len(matches) == 0:
             return
 
@@ -90,6 +92,11 @@ class MultiplePipelineInput(PipelineInput):
         """
         Verification shorthand: if a required frameset is not present or empty,
         raise a `cpl.core.DataNotFoundError` with the appropriate message.
+
+        Raises
+        ------
+        cpl.core.DataNotFoundError:
+            If the input is required but the frameset is empty
         """
         if (count := len(self.frameset)) == 0:
             if self.required():
@@ -119,9 +126,18 @@ class MultiplePipelineInput(PipelineInput):
         """
 
     def as_dict(self) -> dict[str, Any]:
+        """
+        Return a dictionary representation of the input.
+        """
         return super().as_dict() | {
             'frame': str(self.frameset),
         }
 
     def valid_frames(self) -> cpl.ui.FrameSet:
+        """
+        Return a list of valid frames.
+
+        # FixMe: currently returns everything, but should only return valid frames.
+        :return:
+        """
         return self.frameset

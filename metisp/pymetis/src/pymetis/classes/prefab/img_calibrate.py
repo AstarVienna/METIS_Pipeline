@@ -61,8 +61,8 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
         def description(cls) -> str:
             return rf"{cls.band()} band image with flux calibration, WC coordinate system and distorion information"
 
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         combined_image = self._create_dummy_image()
         product_calibrated: PipelineProduct = self.ProductSciCalibrated(self, self.header, combined_image)
 
-        return [product_calibrated]
+        return {product_calibrated}

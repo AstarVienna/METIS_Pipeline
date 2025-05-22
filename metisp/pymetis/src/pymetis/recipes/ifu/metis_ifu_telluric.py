@@ -131,7 +131,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         pass    # do nothing in the meantime
 
     # Function to process everything?
-    def process_images(self) -> list[PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
         self.mf_model()
@@ -146,7 +146,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         product_reduced_1d = self.ProductResponseFunction(self, header, image)
         product_fluxcal_tab = self.ProductFluxcalTab(self, header, table)
 
-        return [product_telluric_transmission, product_reduced_1d, product_fluxcal_tab]
+        return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}
 
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         return {
