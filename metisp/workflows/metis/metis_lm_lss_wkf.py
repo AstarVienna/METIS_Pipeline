@@ -27,7 +27,7 @@ slitloss_task = (task('metis_lm_adc_slitloss')
             .with_main_input(raw_slitloss)
             .with_associated_input(lm_wcu_off_raw)        # check how that is exactly delivered by the ICS!
             # .with_associated_input(static_persistence_map, min_ret=0)
-            # .with_meta_targets([QC1_CALIB])
+            .with_meta_targets([QC1_CALIB])
             .build())
 
 
@@ -35,7 +35,7 @@ dark_task = (task('metis_det_dark')
             .with_recipe("metis_det_dark")
             .with_main_input(raw_dark)       # check what the minimum number of raw darks is!
             # .with_associated_input(static_persistence_map, min_ret=0)
-            # .with_meta_targets([QC1_CALIB])
+            .with_meta_targets([QC1_CALIB])
             .build())
 
 linearity_task = (task('metis_det_lingain')
@@ -44,7 +44,7 @@ linearity_task = (task('metis_det_lingain')
             .with_associated_input(dark_task, min_ret=0) # min_ret=0 --> optional input            # .with_main_input(raw_dark)       # check what the minimum number of raw darks is!
             # .with_associated_input(static_persistence_map, min_ret=0) # min_ret=0 --> optional input
             .with_associated_input(lm_wcu_off_raw)        # check how that is exactly delivered by the ICS!
-            # .with_meta_targets([QC1_CALIB])
+            .with_meta_targets([QC1_CALIB])
             .build())
 
 flatfield_task = (task('metis_lm_lss_rsrf')
@@ -53,7 +53,7 @@ flatfield_task = (task('metis_lm_lss_rsrf')
             .with_associated_input(lm_wcu_off_raw)
             .with_associated_input(dark_task)
             .with_associated_input(linearity_task)
-            # .with_meta_targets([QC1_CALIB])
+            .with_meta_targets([QC1_CALIB])
             .build())
 
 trace_finding_task = (task("metis_lm_lss_trace")
@@ -161,7 +161,7 @@ mf_correct_task = (task("metis_lm_lss_mf_correct")
             .with_main_input(sci_reduction_task)
             .with_associated_input(mf_calctrans_task)
             .with_recipe("metis_lm_lss_mf_correct")
-            .with_meta_targets([QC1_CALIB])
+            .with_meta_targets([QC1_CALIB, SCIENCE])
             .build())
 
 

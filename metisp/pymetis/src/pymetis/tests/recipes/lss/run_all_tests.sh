@@ -1,8 +1,8 @@
-python test_metis_lm_trace.py
-python test_metis_lm_wave.py
-python test_metis_lm_rsrf.py
-python test_metis_lm_std.py
-python test_metis_lm_sci.py
-python test_metis_lm_mf_model.py
-python test_metis_lm_mf_calctrans.py
-python test_metis_lm_mf_correct.py
+python test_metis_lm_lss_trace.py
+python test_metis_lm_lss_wave.py
+python test_metis_lm_lss_rsrf.py
+python test_metis_lm_lss_std.py
+python test_metis_lm_lss_sci.py
+python test_metis_lm_lss_mf_model.py
+python test_metis_lm_lss_mf_calctrans.py
+python test_metis_lm_lss_mf_correct.py
