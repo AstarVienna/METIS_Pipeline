@@ -35,7 +35,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
     class ProductSciCoadd(PipelineImageProduct):
-        _tag = "IFU_SCI_COADD"
+        _tag = r"IFU_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures "
                              "covering a different spatial and wavelength ranges.")

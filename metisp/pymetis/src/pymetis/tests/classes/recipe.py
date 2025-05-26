@@ -51,17 +51,20 @@ class BaseRecipeTest(ABC):
         return subprocess.run(['pyesorex', name, root / sof, '--log-level', 'DEBUG'],
                               capture_output=True)
 
+    @pytest.mark.external
     def test_recipe_can_be_instantiated(self) -> None:
         recipe = self._recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe), \
             "Recipe is not a PyRecipe"
 
+    @pytest.mark.external
     def test_recipe_can_be_run_directly(self, frameset) -> None:
         recipe = self._recipe()
         assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet), \
             f"Recipe {recipe} did not return a FrameSet"
 
     @pytest.mark.metadata
+    @pytest.mark.external
     def test_recipe_has_a_valid_as_dict(self, frameset) -> None:
         recipe = self._recipe()
         recipe.run(frameset, {})
@@ -70,6 +73,7 @@ class BaseRecipeTest(ABC):
             f"Recipe {recipe.name} did not return a valid as_dict"
 
     @pytest.mark.pyesorex
+    @pytest.mark.external
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex) -> None:
         pyesorex = create_pyesorex(self._recipe)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe), \
@@ -78,6 +82,7 @@ class BaseRecipeTest(ABC):
             f"Recipe name {name} does not match the pyesorex name {pyesorex.recipe.name}"
 
     @pytest.mark.pyesorex
+    @pytest.mark.external
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex) -> None:
         output = self._run_pyesorex(name, sof)
         assert output.returncode == 0, \
@@ -98,6 +103,7 @@ class BaseRecipeTest(ABC):
         assert re.match(r"^([\w\- ]+, )?A\*$", recipe._author), \
             "Author name is not in the standard format"
 
+    @pytest.mark.external
     def test_uses_all_input_frames(self, frameset):
         """Test that the recipe uses all input frames."""
         # FixMe this currently does not actually track usage, just loading
@@ -137,6 +143,7 @@ class BandParamRecipeTest(BaseRecipeTest):
     This is just a shorthand to parametrize them.
     """
     @pytest.mark.parametrize("band", bands)
+    @pytest.mark.external
     def test_recipe_can_be_run_directly(self, load_frameset, band):
         sof = f"{self._recipe._name}.{band}.sof"
         frameset = load_frameset(sof)
@@ -144,6 +151,7 @@ class BandParamRecipeTest(BaseRecipeTest):
 
     @pytest.mark.pyesorex
     @pytest.mark.parametrize("band", bands)
+    @pytest.mark.external
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, band, create_pyesorex):
         sof = f"{self._recipe._name}.{band}.sof"
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
@@ -154,6 +162,7 @@ class TargetParamRecipeTest(BaseRecipeTest):
     Tests for recipes whose SOFs also specify target parameters ("SCI" | "STD")
     This is just a shorthand to parametrize them.
     """
+    @pytest.mark.external
     @pytest.mark.parametrize("target", targets)
     def test_recipe_can_be_run_directly(self, load_frameset, target):
         sof = f"{self._recipe._name}.{target}.sof"
@@ -161,6 +170,7 @@ class TargetParamRecipeTest(BaseRecipeTest):
         super().test_recipe_can_be_run_directly(frameset)
 
     @pytest.mark.pyesorex
+    @pytest.mark.external
     @pytest.mark.parametrize("target", targets)
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, target, create_pyesorex):
         sof = f"{self._recipe._name}.{target}.sof"

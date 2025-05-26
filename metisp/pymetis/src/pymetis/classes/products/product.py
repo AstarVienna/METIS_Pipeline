@@ -147,7 +147,7 @@ class PipelineProduct(ABC):
     @abstractmethod
     def save_files(self) -> None:
         """
-        Actually save the files. This is a hook for derived classes.
+        Actually save the files. This is only a hook for derived classes.
         """
         pass
 

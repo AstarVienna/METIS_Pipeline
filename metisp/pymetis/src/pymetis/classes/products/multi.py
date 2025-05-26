@@ -5,7 +5,7 @@ from pymetis.classes.products import PipelineProduct
 from pymetis.classes.products.product import PIPELINE
 
 
-class PipelineMultiProduct(PipelineProduct):
+class PipelineMultipleProduct(PipelineProduct):
     """
     PipelineMultiProduct represents products with multi-extensions FITS files.
     The base structure is the PropertyList, with tables or images saved in extensions.

@@ -40,6 +40,7 @@ workflows = ['metis_lm_img_wkf', 'metis_ifu_wkf', 'metis_pupil_imaging_wkf', 'me
 
 
 @pytest.mark.edps
+@pytest.mark.external
 class TestEDPS:
     @pytest.mark.parametrize('workflow_name', workflows)
     def test_does_edps_classify(self, workflow_name, reset_edps):
