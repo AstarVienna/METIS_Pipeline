@@ -50,7 +50,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
 
     class ProductSciCalibrated(BandSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
-        group = cpl.ui.Frame.FrameGroup.CALIB
+        group = cpl.ui.Frame.FrameGroup.CALIB   # ToDO Review if this should not be PRODUCT instead.
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod

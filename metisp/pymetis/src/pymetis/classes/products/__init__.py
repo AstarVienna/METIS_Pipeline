@@ -1,7 +1,7 @@
 from .product import PipelineProduct
 from .table import PipelineTableProduct
 from .image import PipelineImageProduct
-from .multi import PipelineMultipleProduct
+from .multiple import PipelineMultipleProduct
 from .common import DetectorSpecificProduct, BandSpecificProduct, TargetSpecificProduct, ProductBadpixMapDet
 
 __all__ = [

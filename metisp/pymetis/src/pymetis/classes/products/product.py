@@ -127,7 +127,7 @@ class PipelineProduct(ABC):
 
     @final
     def save(self) -> None:
-        """ Save Product data to appropriate file(s) """
+        """ Run finalization checks and then save Product data to the appropriate file(s) """
         Msg.info(self.__class__.__qualname__,
                  f"Saving product file as {self.output_file_name!r}:")
         Msg.info(self.__class__.__qualname__,
@@ -141,7 +141,7 @@ class PipelineProduct(ABC):
             f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
 
         # At least one frame in the recipe frameset must be tagged as RAW!
-        # Otherwise, PyCPL **will not** save (rite of passage)
+        # Otherwise, PyCPL **will not** save (rite of passage problem)
         self.save_files()
 
     @abstractmethod
@@ -181,16 +181,29 @@ class PipelineProduct(ABC):
         """
         Returns
         -------
-            cpl.ui.FrameSet:    List of all frames actually used by the product.
+        cpl.ui.FrameSet
+            List of all frames actually used by the product.
         """
         return self._used_frames
 
     @classmethod
     def tag(cls) -> str:
+        """
+        Returns
+        -------
+        str
+            The tag of this product.
+        """
         return cls._tag
 
     @classmethod
     def description(cls) -> str:
+        """
+        Returns
+        -------
+        str
+            An unformatted description of this product.
+        """
         return cls._description
 
     @classmethod

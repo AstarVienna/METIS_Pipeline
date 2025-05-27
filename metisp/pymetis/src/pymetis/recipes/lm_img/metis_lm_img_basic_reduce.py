@@ -27,7 +27,8 @@ import os
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, \
+    PipelineMultipleProduct
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -77,7 +78,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_LM")
             _description: str = "Master flat frame for LM image data."
 
-    class ProductBasicReduced(TargetSpecificProduct, PipelineImageProduct):
+    class ProductBasicReduced(TargetSpecificProduct, PipelineMultipleProduct):
         """
         The second big part is defining the products. For every product, we create a separate class
         which defines the tag, group, level and frame type. Here we only have one kind of product,
@@ -91,14 +92,13 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         def __init__(self,
                      recipe_impl: 'MetisRecipeImpl',
                      header: cpl.core.PropertyList,
+                     *,
                      image: cpl.core.Image,
                      noise: cpl.core.Image,
                      mask: cpl.core.Image,
-                     nFrame: int):
-            super().__init__(recipe_impl, header, image)
-            self.noise: cpl.core.Image = noise
-            self.mask: cpl.core.Image = mask
-            self.nFrame: int = nFrame
+                     original_file_name: str):
+            super().__init__(recipe_impl, header, image=image, noise=noise, mask=mask)
+            self.original_file_name: str = original_file_name
 
         @classmethod
         def tag(cls) -> str:
@@ -110,37 +110,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             Form the output file name.
             By default, this should be just the category with ".fits" appended. Feel free to override if needed.
             """
-            return f"{self.category}_{os.path.basename(self.recipe.frameset[self.nFrame].file)}"
-
-        def save_files(self):
-            """ Save this Product to a file """
-            Msg.info(self.__class__.__qualname__,
-                     f"Saving product file as {self.output_file_name!r}:")
-            Msg.info(self.__class__.__qualname__,
-                     f"All frames ({len(self.recipe.frameset)}): "
-                     f"{sorted([frame.tag for frame in self.recipe.frameset])}")
-            Msg.info(self.__class__.__qualname__,
-                     f"Loaded frames ({len(self.recipe.valid_frames)}): "
-                     f"{sorted([frame.tag for frame in self.recipe.valid_frames])}")
-            # Check that the tag matches the generic regex
-            assert self._regex_tag.match(self.tag()) is not None, \
-                f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
-            # At least one frame in the recipe frameset must be tagged as RAW!
-            # Otherwise, it *will not* save (rite of passage)
-
-            cpl.dfs.save_propertylist(
-                self.recipe.frameset,
-                self.recipe.parameters,
-                self.recipe.frameset,
-                self.recipe.name,
-                self.properties,
-                "demo/",
-                self.output_file_name,
-                header=self.header,
-            )
-            self.image.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
-            self.noise.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
-            self.mask.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
+            return f"{self.category}_{self.original_file_name}"
 
     def process_images(self) -> set[PipelineProduct]:
         """
@@ -210,7 +180,8 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             self.target = self.inputset.tag_parameters['target']
 
-            product = self.ProductBasicReduced(self, header, image, noise, bmask, i)
+            product = self.ProductBasicReduced(self, header, image=image, noise=noise, mask=bmask,
+                                               original_file_name=os.path.basename(frame.file))
             product_set |= {product}
 
         return product_set
