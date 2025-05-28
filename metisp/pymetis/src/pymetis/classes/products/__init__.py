@@ -1,4 +1,11 @@
 from .product import PipelineProduct
-from .common import DetectorSpecificProduct, BandSpecificProduct, TargetSpecificProduct, ProductBadpixMapDet
 from .table import PipelineTableProduct
 from .image import PipelineImageProduct
+from .multiple import PipelineMultipleProduct
+from .common import DetectorSpecificProduct, BandSpecificProduct, TargetSpecificProduct, ProductBadpixMapDet
+
+__all__ = [
+    'PipelineProduct',
+    'PipelineTableProduct', 'PipelineImageProduct', 'PipelineMultipleProduct',
+    'DetectorSpecificProduct', 'BandSpecificProduct', 'TargetSpecificProduct', 'ProductBadpixMapDet',
+]

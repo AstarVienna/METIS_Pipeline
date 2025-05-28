@@ -21,10 +21,10 @@ import pytest
 import inspect
 
 from abc import ABC
+from typing import Optional
 
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, PipelineInput, MultiplePipelineInput
-from pymetis.classes.prefab import RawImageProcessor
 
 
 @pytest.mark.inputset
@@ -32,7 +32,7 @@ class BaseInputSetTest(ABC):
     """
     A set of basic tests common for all InputSets
     """
-    _impl: MetisRecipeImpl = None
+    _impl: Optional[type[MetisRecipeImpl]] = None
 
     @pytest.fixture(autouse=True)
     def instance(self, load_frameset, sof):
@@ -87,7 +87,7 @@ class BaseInputSetTest(ABC):
 
 @pytest.mark.inputset
 class RawInputSetTest(BaseInputSetTest):
-    _impl: RawImageProcessor.InputSet
+    _impl: type[MetisRecipeImpl]
 
     @staticmethod
     def test_inputset_has_raw_and_it_is_multiple_input(instance):

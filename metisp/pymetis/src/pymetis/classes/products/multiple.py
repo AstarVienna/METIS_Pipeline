@@ -5,7 +5,7 @@ from pymetis.classes.products import PipelineProduct
 from pymetis.classes.products.product import PIPELINE
 
 
-class PipelineMultiProduct(PipelineProduct):
+class PipelineMultipleProduct(PipelineProduct):
     """
     PipelineMultiProduct represents products with multi-extensions FITS files.
     The base structure is the PropertyList, with tables or images saved in extensions.
@@ -19,7 +19,7 @@ class PipelineMultiProduct(PipelineProduct):
         super().__init__(recipe_impl, header)
 
         self.extensions = extensions
-        for key, ext in self.extensions:
+        for key, ext in self.extensions.items():
             self.__setattr__(key, ext)
 
     def save_files(self):
@@ -34,5 +34,5 @@ class PipelineMultiProduct(PipelineProduct):
             header=self.header,
         )
 
-        for key, ext in self.extensions:
+        for key, ext in self.extensions.items():
             ext.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)

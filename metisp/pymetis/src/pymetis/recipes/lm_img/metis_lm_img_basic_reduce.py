@@ -23,12 +23,12 @@ import copy
 import cpl
 from cpl.core import Msg
 import os
-from typing import Any, final
 
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct
+from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, \
+    PipelineMultipleProduct
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -78,7 +78,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_LM")
             _description: str = "Master flat frame for LM image data."
 
-    class ProductBasicReduced(TargetSpecificProduct, PipelineImageProduct):
+    class ProductBasicReduced(TargetSpecificProduct, PipelineMultipleProduct):
         """
         The second big part is defining the products. For every product, we create a separate class
         which defines the tag, group, level and frame type. Here we only have one kind of product,
@@ -92,14 +92,13 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         def __init__(self,
                      recipe_impl: 'MetisRecipeImpl',
                      header: cpl.core.PropertyList,
+                     *,
                      image: cpl.core.Image,
                      noise: cpl.core.Image,
                      mask: cpl.core.Image,
-                     nFrame: int):
-                super().__init__(recipe_impl, header, image)
-                self.noise: cpl.core.Image = noise
-                self.mask: cpl.core.Image = mask
-                self.nFrame: int = nFrame
+                     original_file_name: str):
+            super().__init__(recipe_impl, header, image=image, noise=noise, mask=mask)
+            self.original_file_name: str = original_file_name
 
         @classmethod
         def tag(cls) -> str:
@@ -111,39 +110,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             Form the output file name.
             By default, this should be just the category with ".fits" appended. Feel free to override if needed.
             """
-            return f"{self.category}_{os.path.basename(self.recipe.frameset[self.nFrame].file)}"
+            return f"{self.category}_{self.original_file_name}"
 
-        def save_files(self):
-            """ Save this Product to a file """
-            Msg.info(self.__class__.__qualname__,
-                     f"Saving product file as {self.output_file_name!r}:")
-            Msg.info(self.__class__.__qualname__,
-                     f"All frames ({len(self.recipe.frameset)}): "
-                     f"{sorted([frame.tag for frame in self.recipe.frameset])}")
-            Msg.info(self.__class__.__qualname__,
-                     f"Loaded frames ({len(self.recipe.valid_frames)}): "
-                     f"{sorted([frame.tag for frame in self.recipe.valid_frames])}")
-            # Check that the tag matches the generic regex
-            assert self._regex_tag.match(self.tag()) is not None, \
-                f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
-            # At least one frame in the recipe frameset must be tagged as RAW!
-            # Otherwise, it *will not* save (rite of passage)
-
-            cpl.dfs.save_propertylist(
-                self.recipe.frameset,
-                self.recipe.parameters,
-                self.recipe.frameset,
-                self.recipe.name,
-                self.properties,
-                f"demo/",
-                self.output_file_name,
-                header=self.header,
-            )
-            self.image.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
-            self.noise.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
-            self.mask.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)
-
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions or use functions from the parent classes:
@@ -151,42 +120,43 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         a single combined frame that is used throughout the pipeline.
         """
 
-        Msg.info(self.__class__.__qualname__, f"Processing Images")
+        Msg.info(self.__class__.__qualname__, "Processing images")
 
-        Msg.info(self.__class__.__qualname__, f"Loading calibration files")
+        Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
-        
-        Msg.info(self.__class__.__qualname__, f"Loading raw images")
-        images = self.inputset.load_raw_images()
-        Msg.info(self.__class__.__qualname__, f"Pretending to correct crosstalk")
-        Msg.info(self.__class__.__qualname__, f"Pretending to correct for linearity")
 
-        Msg.info(self.__class__.__qualname__, f"Subtracting Dark")
+        Msg.info(self.__class__.__qualname__, "Loading raw images")
+        images = self.inputset.load_raw_images()
+        Msg.info(self.__class__.__qualname__, "Pretending to correct crosstalk")
+        Msg.info(self.__class__.__qualname__, "Pretending to correct for linearity")
+
+        Msg.info(self.__class__.__qualname__, "Subtracting Dark")
         images.subtract_image(dark)
 
-        Msg.info(self.__class__.__qualname__, f"Flat fielding")
+        Msg.info(self.__class__.__qualname__, "Flat fielding")
         images.divide_image(flat)
 
-        Msg.info(self.__class__.__qualname__, f"Pretending to remove masked regions")
+        Msg.info(self.__class__.__qualname__, "Pretending to remove masked regions")
 
-        Msg.info(self.__class__.__qualname__, f"Combining Images")
+        Msg.info(self.__class__.__qualname__, "Combining Images")
 
-        #combined_image = self.combine_images(images, self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
+        # combined_image = self.combine_images(images,
+        #                                      self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
 
-        productSet = []
+        product_set: set[PipelineProduct] = set()
         for i, image in enumerate(images):
             frame = self.inputset.raw.frameset[i]
-            
+
             Msg.info(self.__class__.__qualname__, f"Processing frame {frame.file}")
 
             header = cpl.core.PropertyList.load(frame.file, 0)
 
-            Msg.info(self.__class__.__qualname__, f"Pretending to calculate noise")
+            Msg.info(self.__class__.__qualname__, "Pretending to calculate noise")
 
             a = copy.deepcopy(image)
             noise = cpl.core.Image(image)
@@ -196,10 +166,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             bmask = cpl.core.Image(a)
             bmask.copy_into(image, 0, 0)
             bmask.multiply_scalar(0)
-            
-            Msg.info(self.__class__.__qualname__, f"Pretending to calculate bad pixels")
-            Msg.info(self.__class__.__qualname__, f"Actually Calculating QC Parameters")
-            Msg.info(self.__class__.__qualname__, f"Appending QC Parameters to header")
+
+            Msg.info(self.__class__.__qualname__, "Pretending to calculate bad pixels")
+            Msg.info(self.__class__.__qualname__, "Actually Calculating QC Parameters")
+            Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
             header.append(cpl.core.Property("QC LM IMG MEDIAN", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] median value of image"))
@@ -210,10 +180,11 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             self.target = self.inputset.tag_parameters['target']
 
-            product = self.ProductBasicReduced(self, header, image, noise, bmask, i)
-            productSet.append(product)
-            
-        return productSet
+            product = self.ProductBasicReduced(self, header, image=image, noise=noise, mask=bmask,
+                                               original_file_name=os.path.basename(frame.file))
+            product_set |= {product}
+
+        return product_set
 
     def _dispatch_child_class(self) -> type["MetisLmImgBasicReduceImpl"]:
         return {
@@ -224,13 +195,18 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
 
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
+    class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
+        pass
+
 
 class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetSciMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
+    class ProductBasicReduced(TargetSciMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
+        pass
+
 
 class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetSkyMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced): pass
+    class ProductBasicReduced(TargetSkyMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
+        pass
 
 
 class MetisLmImgBasicReduce(MetisRecipe):
@@ -255,7 +231,7 @@ class MetisLmImgBasicReduce(MetisRecipe):
         "and it is divided by the master flat."
     )
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
     _algorithm = """Remove crosstalk, correct non-linearity
     Analyse and optionally remove masked regions
     Subtract dark, divide by flat
