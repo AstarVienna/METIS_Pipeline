@@ -109,10 +109,10 @@ class BaseRecipeTest(ABC):
         # FixMe this currently does not actually track usage, just loading
         instance = self._recipe()
         instance.run(frameset, {})
-        all_frames = sorted([frame.file for frame in instance.implementation.inputset.frameset])
-        loaded_frames = sorted([frame.file for frame in instance.implementation.inputset.valid_frames])
+        all_frames = set([frame.file for frame in instance.implementation.inputset.frameset])
+        loaded_frames = set([frame.file for frame in instance.implementation.inputset.valid_frames])
         assert loaded_frames == all_frames, \
-            f"Not all frames were used: {instance.implementation.inputset.valid_frames!s} vs {all_frames}"
+            f"Frames are present in the SOF file but not used: {all_frames - loaded_frames}"
 
     @pytest.mark.metadata
     def test_are_matched_keywords_defined(self):
