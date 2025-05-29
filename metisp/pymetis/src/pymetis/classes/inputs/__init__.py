@@ -50,5 +50,6 @@ __all__ = [
     'PersistenceMapInput', 'GainMapInput', 'FluxcalTableInput', 'FluxstdCatalogInput',
     'PinholeTableInput', 'DistortionTableInput', 'LsfKernelInput', 'AtmProfileInput',
     'WavecalInput', 'OptionalInputMixin',
-    'PersistenceInputSetMixin', 'GainMapInputSetMixin', 'LinearityInputSetMixin'
+    'LsfKernelInput', 'AtmLineCatInput', 'LaserTableInput', 'SynthTransInput',
+    'PersistenceInputSetMixin', 'GainMapInputSetMixin', 'LinearityInputSetMixin',
 ]

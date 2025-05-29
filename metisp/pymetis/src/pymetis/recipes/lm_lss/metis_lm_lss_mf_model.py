@@ -27,7 +27,8 @@ from pymetis.classes.mixins import Detector2rgMixin
 
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 
-from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.classes.inputs import (SinglePipelineInput, PipelineInputSet,
+                                    AtmProfileInput, AtmLineCatInput, LsfKernelInput)
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.products import PipelineProduct, PipelineTableProduct
 
@@ -66,6 +67,10 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
             _description: str = "1D LM LSS standard star spectrum"
     # ++++++++++++ Intermediate / QC products ++++++++++++
     # Currently none foreseen (some for QC?)
+
+        AtmProfileInput = AtmProfileInput
+        AtmLineCatInput = AtmLineCatInput
+        LsfKernelInput = LsfKernelInput
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
     # TODO: Check whether the new mf writes out the best-fit param file
