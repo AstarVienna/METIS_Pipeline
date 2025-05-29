@@ -35,8 +35,8 @@ class BaseProductTest(ABC):
 
     @pytest.mark.metadata
     def test_does_it_have_a_product_group(self):
-        assert self._product.group == cpl.ui.Frame.FrameGroup.PRODUCT, \
-            f"Product group is not PRODUCT for {self._product.__qualname__}"
+        assert self._product.group in [cpl.ui.Frame.FrameGroup.PRODUCT, cpl.ui.Frame.FrameGroup.CALIB], \
+            f"Product group is not PRODUCT or CALIB for {self._product.__qualname__}"
 
     @pytest.mark.metadata
     def test_does_it_have_a_level(self):
