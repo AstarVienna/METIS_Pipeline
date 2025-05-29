@@ -49,9 +49,7 @@ from pymetis.recipes.lss.metis_lm_lss_sci import MetisLmLssSci
 from pymetis.recipes.lss.metis_lm_lss_mf_model import MetisLmLssMfModel
 from pymetis.recipes.lss.metis_lm_lss_mf_calctrans import MetisLmLssMfCalctrans
 from pymetis.recipes.lss.metis_lm_lss_mf_correct import MetisLmLssMfCorrect
-# from pymetis.recipes.lss.metis_testrecipe import MetisTestRecipe
 from pymetis.recipes.lss.metis_lm_adc_slitloss import MetisLmAdcSlitloss
-from pymetis.recipes.lss.metis_create_file import MetisCreateFile
 
 
 __all__ = [
@@ -88,6 +86,4 @@ __all__ = [
     MetisLmLssMfCalctrans,
     MetisLmLssMfCorrect,
     MetisLmAdcSlitloss,
-    # MetisTestRecipe,
-    MetisCreateFile
 ]
