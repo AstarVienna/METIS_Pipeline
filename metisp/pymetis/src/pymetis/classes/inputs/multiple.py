@@ -101,7 +101,8 @@ class MultiplePipelineInput(PipelineInput):
         if (count := len(self.frameset)) == 0:
             if self.required():
                 raise cpl.core.DataNotFoundError(
-                    f"No {self.title():s} frames ({self.tags().pattern:s}) found in the frameset."
+                    f"{self.__class__.__qualname__}: no {self.title():s} frames "
+                    f"({self.tags().pattern:s}) found in the frameset."
                 )
             else:
                 Msg.debug(self.__class__.__qualname__, f"No {self.title():s} frames found but not required.")
