@@ -40,20 +40,21 @@ class MetisDetDarkImpl(RawImageProcessor):
     # We start by deriving the implementation class from `MetisRecipeImpl`, or in this case, one of its subclasses,
     # namely `RawImageProcessor, as this recipe processes raw images and we would like to reuse the functionality.
 
-    # First of all we need to define the input set. Since we are deriving from `RawImageProcessor`,
+    # First of all, we need to define the input set. Since we are deriving from `RawImageProcessor`,
     # we need to reuse the `InputSet` class from it too. This automatically adds a `RawInput` for us.
     class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
         """
         InputSet class for `metis_det_dark`.
         """
 
-        # However, we still need to define the tags on class level. Therefore, we override the `_tags`
-        # attribute and also the description, since this is specific to this raw input, not all raw inputs.
+        # However, we still need to define the tags on the class level.
+        # Therefore, we override the `_tags` attribute and also the description,
+        # since this is specific to this raw input, not all raw inputs.
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
             _description: str = "Raw data for creating a master dark."
 
-        # Next, we define all other input classes, using predefined ones.
+        # Next, we define all other input classes using predefined ones.
         # Here we mark them as optional, but if we did not need that, we could have also said
         # ```PersistenceMapInput = PersistenceMapInput```
         # to tell the class that its persistence map input is just the global `PersistenceMapInput` class.
