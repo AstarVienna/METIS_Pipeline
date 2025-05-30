@@ -1,3 +1,23 @@
+"""
+This file is part of the METIS Pipeline.
+Copyright (C) 2024 European Southern Observatory
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+"""
+
+from __future__ import annotations
 import cpl
 from cpl.core import Msg
 
@@ -5,7 +25,7 @@ from pymetis.classes.products import PipelineProduct
 from pymetis.classes.products.product import PIPELINE
 
 
-class PipelineMultiProduct(PipelineProduct):
+class PipelineMultipleProduct(PipelineProduct):
     """
     PipelineMultiProduct represents products with multi-extensions FITS files.
     The base structure is the PropertyList, with tables or images saved in extensions.
@@ -19,7 +39,7 @@ class PipelineMultiProduct(PipelineProduct):
         super().__init__(recipe_impl, header)
 
         self.extensions = extensions
-        for key, ext in self.extensions:
+        for key, ext in self.extensions.items():
             self.__setattr__(key, ext)
 
     def save_files(self):
@@ -34,5 +54,5 @@ class PipelineMultiProduct(PipelineProduct):
             header=self.header,
         )
 
-        for key, ext in self.extensions:
+        for key, ext in self.extensions.items():
             ext.save(self.output_file_name, cpl.core.PropertyList(), cpl.core.io.EXTEND)

@@ -19,16 +19,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
+from pymetis.classes.inputs import PipelineInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 
 
 class DarkImageProcessor(RawImageProcessor, ABC):
     """
-    DarkImageProcessor is a subclass of RawImageProcessor that:
-
-     1. takes a set of raw images to combine
-     2. requires a single `master_dark` frame, that will be subtracted from every raw image
-     3. combines the raws after subtraction into a single product
+    `DarkImageProcessor` is a subclass of `RawImageProcessor` that:
+        1. takes a set of raw images to combine
+        2. requires a single `master_dark` frame, that will be subtracted from every raw image
+        3. combines the raws after subtraction into a single product
 
     It also provides methods for loading and verification of the dark frame,
     warns if multiple master darks are provided, etc.
@@ -36,5 +36,6 @@ class DarkImageProcessor(RawImageProcessor, ABC):
     class InputSet(RawImageProcessor.InputSet):
         """
         A DarkImageProcessor's Input is just a raw image processor input with a master dark frame.
+        The exact class is not specified at this point -- it must be set by the subclass.
         """
-        MasterDarkInput: type = NotImplemented
+        MasterDarkInput: type[PipelineInput] = NotImplemented

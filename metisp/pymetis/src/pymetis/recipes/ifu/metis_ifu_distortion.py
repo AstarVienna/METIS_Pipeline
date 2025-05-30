@@ -51,7 +51,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         _description: str = "Table of polynomial coefficients for distortion correction"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -69,7 +69,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         product_distortion = self.ProductIfuDistortionTable(self, self.header, table)
         product_distortion_reduced = self.ProductIfuDistortionReduced(self, self.header, combined_image)
 
-        return [product_distortion, product_distortion_reduced]
+        return {product_distortion, product_distortion_reduced}
 
 
 class MetisIfuDistortion(MetisRecipe):
@@ -82,7 +82,7 @@ class MetisIfuDistortion(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: {str} = {'DRS.IFU'}
+    _matched_keywords: set[str] = {'DRS.IFU'}
     _algorithm = """Calculate table mapping pixel position to position on sky."""
 
     implementation_class = MetisIfuDistortionImpl

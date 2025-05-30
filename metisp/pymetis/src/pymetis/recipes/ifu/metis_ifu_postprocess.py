@@ -35,7 +35,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
     class ProductSciCoadd(PipelineImageProduct):
-        _tag = f"IFU_SCI_COADD"
+        _tag = r"IFU_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures "
                              "covering a different spatial and wavelength ranges.")
@@ -50,17 +50,17 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
     def coadd_cubes(self):
         pass
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         self.determine_output_grid()
         self.resample_cubes()
         self.coadd_cubes()
 
         header = self._create_dummy_header()
-        image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file) # ToDo actual processing
+        image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file)  # ToDo actual processing
 
         product = self.ProductSciCoadd(self, header, image)
 
-        return [product] # ToDo is just a dummy for now
+        return {product}  # ToDo is just a dummy for now
 
 
 class MetisIfuPostprocess(MetisRecipe):
@@ -73,7 +73,7 @@ class MetisIfuPostprocess(MetisRecipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords = ['DRS.IFU']
+    _matched_keywords = {'DRS.IFU'}
     _algorithm = """Call metis_ifu_grid_output to find the output grid encompassing all input cubes
     Call metis_ifu_resampling to resample input cubes to output grid
     Call metis_ifu_coadd to stack the images"""

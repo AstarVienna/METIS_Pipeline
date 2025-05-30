@@ -29,7 +29,7 @@ from pymetis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
 from pymetis.recipes.cal.metis_cal_chophome import locate_pinhole
 from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductTest
-
+from pymetis.tests.classes.product import ImageProductTest
 
 recipe_name = r'metis_cal_chophome'
 
@@ -57,7 +57,7 @@ class TestProductCombined(BaseProductTest):
     _product: type[PipelineProduct] = Impl.ProductCombined
 
 
-class TestProductBackground(BaseProductTest):
+class TestProductBackground(ImageProductTest):
     _product: type[PipelineProduct] = Impl.ProductBackground
 
 

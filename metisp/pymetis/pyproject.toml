@@ -14,6 +14,7 @@ addopts = "--strict-markers"
 markers = [
     "edps: marks EDPS tests that usually take a long time (deselect with '-m \"not edps\"')",
     "inputset: marks tests related to `InputSet`",
+    "external: marks test that require external data (usually from simulations)",
     "product: marks tests related to `PipelineProduct`",
     "recipe: marks tests related to `MetisRecipe` or `MetisRecipeImpl`",
     "config: marks global configuration tests",

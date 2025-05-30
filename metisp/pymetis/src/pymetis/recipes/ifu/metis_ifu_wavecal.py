@@ -32,7 +32,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"IFU_WAVE_RAW")
             _description: str = ("Raw exposure of the WCU laser sources through the IFU to "
-                            "achieve the first guess of the wavelength calibration.")
+                                 "achieve the first guess of the wavelength calibration.")
 
         MasterDarkInput = MasterDarkInput
         DistortionTableInput = DistortionTableInput
@@ -43,7 +43,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         _description: str = "Image with wavelength at each pixel."
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
@@ -53,7 +53,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
 
         product_wavecal = self.ProductIfuWavecal(self, header, image)
 
-        return [product_wavecal]
+        return {product_wavecal}
 
 
 class MetisIfuWavecal(MetisRecipe):
@@ -70,6 +70,6 @@ class MetisIfuWavecal(MetisRecipe):
         Compute deviation from optical models.
         Compute wavelength solution ξ(x, y, i), λ(x, y, i).
         Compute wavelength map."""
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
     implementation_class = MetisIfuWavecalImpl

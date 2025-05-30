@@ -40,28 +40,36 @@ class MetisDetDarkImpl(RawImageProcessor):
     # We start by deriving the implementation class from `MetisRecipeImpl`, or in this case, one of its subclasses,
     # namely `RawImageProcessor, as this recipe processes raw images and we would like to reuse the functionality.
 
-    # First of all we need to define the input set. Since we are deriving from `RawImageProcessor`,
+    # First of all, we need to define the input set. Since we are deriving from `RawImageProcessor`,
     # we need to reuse the `InputSet` class from it too. This automatically adds a `RawInput` for us.
     class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):
         """
         InputSet class for `metis_det_dark`.
         """
 
-        # However, we still need to define the tags on class level. Therefore, we override the `_tags`
-        # attribute and also the description, since this is specific to this raw input, not all raw inputs.
+        # However, we still need to define the tags on the class level.
+        # Therefore, we override the `_tags` attribute and also the description,
+        # since this is specific to this raw input, not all raw inputs.
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
             _description: str = "Raw data for creating a master dark."
 
-        # Next, we define all other input classes, using predefined ones.
+        # Next, we define all other input classes using predefined ones.
         # Here we mark them as optional, but if we did not need that, we could have also said
         # ```PersistenceMapInput = PersistenceMapInput```
         # to tell the class that its persistence map input is just the global `PersistenceMapInput` class.
-        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput): pass
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput): pass
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            pass
+
         # FixMe: these two should not be optional, but the current EDPS workflow does not supply them
-        class LinearityInput(OptionalInputMixin, LinearityInput): pass
-        class GainMapInput(OptionalInputMixin, GainMapInput): pass
+        class LinearityInput(OptionalInputMixin, LinearityInput):
+            pass
+
+        class GainMapInput(OptionalInputMixin, GainMapInput):
+            pass
 
     # Next, we have to define all the product classes for this recipe. Here we only have one, the master dark frame.
     # Note that master darks might be obtained by different means for different detectors,
@@ -95,7 +103,7 @@ class MetisDetDarkImpl(RawImageProcessor):
     # See the documentation of the parent's `process_images` function for more details.
     # Feel free to define other functions to break up the algorithm into more manageable chunks,
     # and call them from within `process_images` as needed.
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         method = self.parameters["metis_det_dark.stacking.method"].value
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
@@ -106,7 +114,7 @@ class MetisDetDarkImpl(RawImageProcessor):
 
         product = self.ProductMasterDark(self, header, combined_image)
 
-        return [product]
+        return {product}
 
     # For recipes that can further specialize based on the provided data, we need to provide a mechanism
     # to select the correct derived class.
@@ -169,7 +177,6 @@ class MetisIfuDarkImpl(MetisDetDarkImpl):
         pass
 
 
-
 # This is the actual recipe class that is visible by `pyesorex`.
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information for `pyesorex`. These are required and checked by `pyesorex`.
@@ -184,7 +191,7 @@ class MetisDetDark(MetisRecipe):
 
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
     # for the man page. Later we would like to be able to compare them directly to DRLD and test for that.
-    _matched_keywords: {str} = {}
+    _matched_keywords: set[str] = set()
     _algorithm: str = """Group files by detector and DIT, based on header keywords
     Call function metis_determine_dark for each set of files
     Call metis_update_dark_mask to flag deviant pixels

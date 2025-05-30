@@ -30,7 +30,7 @@ class SinglePipelineInput(PipelineInput):
     """
     A pipeline input that expects a single frame to be present.
     """
-    _multiplicity = '1'
+    _multiplicity: str = '1'
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):                       # Any other args
@@ -87,8 +87,9 @@ class SinglePipelineInput(PipelineInput):
         """
         if frame is None:
             if self.required():
-                raise cpl.core.DataNotFoundError(f"No {self.title()} frame ({self.tags().pattern}) "
-                                                 f"found in the frameset.")
+                raise cpl.core.DataNotFoundError(
+                    f"{self.__class__.__qualname__}: no {self.title()} frame "
+                    f"({self.tags().pattern}) found in the frameset.")
             else:
                 Msg.debug(self.__class__.__qualname__,
                           f"No {self.title()} frame found, but not required.")

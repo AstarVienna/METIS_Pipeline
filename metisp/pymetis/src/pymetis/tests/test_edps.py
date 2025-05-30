@@ -40,12 +40,18 @@ workflows = ['metis_lm_img_wkf', 'metis_ifu_wkf', 'metis_pupil_imaging_wkf', 'me
 
 
 @pytest.mark.edps
+@pytest.mark.external
 class TestEDPS:
+    def test_can_at_least_run_edps(self):
+        output = subprocess.run(['edps', '-lw'])
+        assert output.returncode == 0, \
+            "Could not run `edps -lw`, review your PATH"
+
     @pytest.mark.parametrize('workflow_name', workflows)
     def test_does_edps_classify(self, workflow_name, reset_edps):
         reset_edps()
         output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', os.path.expandvars('$SOF_DATA'), '-c'],
-                       capture_output=True)
+                                capture_output=True)
         message = str(output.stdout.decode('utf8'))
         assert output.returncode == 0, f"EDPS exited with a non-zero return code {output.returncode}"
         assert output.stderr == b'', f"EDPS exited with a non-empty stderr: {output.stderr}"
