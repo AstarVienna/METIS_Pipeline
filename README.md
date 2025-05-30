@@ -48,14 +48,14 @@ Optionally, you may install `pytest` to be able to run automated tests, with
 ```
 pip install pytest
 ```
-or for `pipenv`,
+or for `pipenv`
 ```
 pipenv install --dev pytest
 ```
 
 ### Set up environment variables
-For some reason the `PYESOREX_PLUGIN_DIR` environment variable needs to be pointin
-to the recipes already **before** you install pyesorex and edps.
+For some reason the `PYESOREX_PLUGIN_DIR` environment variable needs to point
+to the recipes, even **before** you install pyesorex and edps:
 
 ```
 export PYTHONPATH="$(pwd)/METIS_Pipeline/metisp/pymetis/src/"
@@ -63,8 +63,9 @@ export PYCPL_RECIPE_DIR="$(pwd)/METIS_Pipeline/metisp/pyrecipes/"
 export PYESOREX_PLUGIN_DIR="$PYCPL_RECIPE_DIR"
 ```
 
-Or optionally put the `export`s into the `.rc` file of the shell of your choice.
+Optionally, you may put the `export`s into the `.rc` file of the shell of your choice.
 
+The pipeline also requires file locations to be set:
 ```
 export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
 export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
@@ -81,4 +82,5 @@ pip install --extra-index-url \
 
 ### Run `pytest`
 If everything is configured properly, you should be able to run `pytest` from within `.../metisp/pymetis`.
-If EDPS has not yet been set up, `pytest -m "not edps"` deselects the related tests (which are also much slower than the rest).
+If EDPS has not yet been set up, `pytest -m "not edps"` deselects the related tests
+(which also take much longer than the rest).
