@@ -25,7 +25,8 @@ import pytest
 @pytest.mark.config
 class TestConfigured:
     """
-    These are actually meta-tests: if they fail, probably your environment is not set up correctly.
+    These tests are just a quick diagnosis of your environment.
+    If they fail, most probably something is not set up correctly.
     # ToDo: Everything here is currently designed rather ad hoc.
     """
 
@@ -36,9 +37,9 @@ class TestConfigured:
 
     def test_can_we_find_the_whole_package(self):
         """
-            If this fails, your Python is unable to find the package.
-            Set PYTHONPATH to the root directory.
-            # FIXME This is just a temporary workaround and should be solved properly instead.
+        If this fails, your Python is unable to find the package.
+        Set PYTHONPATH to the root directory.
+        # FIXME This is just a temporary workaround and should be solved properly instead.
         """
         from pymetis.recipes.metis_det_dark import MetisDetDarkImpl
         assert MetisDetDarkImpl.__name__ == 'MetisDetDarkImpl', \
@@ -51,8 +52,9 @@ class TestConfigured:
 
     def test_is_sof_data_set(self):
         """
-            You need to point `pyesorex` to the SOF data (setting the `SOF_DATA` environment variable),
-            by default to ../METIS_Simulations/ESO/output/. Maybe this can be set for every run though?
+        You need to point `pyesorex` to the SOF data (setting the `SOF_DATA` environment variable),
+        by default to `../METIS_Simulations/ESO/output/`.
+        Maybe this can be set for every run though?
         """
         assert os.environ['SOF_DATA'] is not None, \
             "Environment variable `SOF_DATA` is not defined"
