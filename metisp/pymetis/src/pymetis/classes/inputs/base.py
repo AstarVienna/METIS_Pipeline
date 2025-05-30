@@ -16,14 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import inspect
 import re
 from abc import abstractmethod
-from typing import Pattern, Any, Optional
+from typing import Pattern, Any, Optional, Generator, final
 
 import cpl
 
 from cpl.core import Msg
+
+import pymetis
 
 
 class PipelineInput:
@@ -117,10 +119,21 @@ class PipelineInput:
         }
 
     @classmethod
-    def description_line(cls) -> str:
+    @final
+    def _description_line(cls, name: str = None) -> str:
+        """ Produce a description line for man page. """
         return (f"    {cls._pretty_tags():<60} [{cls._multiplicity}]"
                 f"{' (optional)' if not cls._required else '           '} "
-                f"{cls._description}")
+                f"{cls._description}\n{' ' * 84}")
+
+    @classmethod
+    @final
+    def _extended_description_line(cls, name: str = None) -> str:
+        """ Produce ae extended description line for man page. """
+        return (f"    {name}\n      {cls._pretty_tags():<60} [{cls._multiplicity}]"
+                f"{' (optional)' if not cls._required else '           '} "
+                f"{cls._description}\n{' ' * 84}"
+                f"{f'\n{' ' * 84}'.join([x.__name__ for x in list(cls.input_for_classes())])}")
 
     def _verify_same_detector_from_header(self) -> None:
         """
@@ -168,3 +181,18 @@ class PipelineInput:
         """ Helper method to print `re.Pattern`s in man-page: remove named capture groups' names. """
         return cls.tags().pattern
         # return re.sub(r"\?P<\w+>", "", cls.tags().pattern)
+
+    @classmethod
+    def input_for_classes(cls) -> Generator['PipelineRecipe', None, None]:
+        """
+        List all PipelineRecipe classes that use this Input.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in inspect.getmembers(
+            pymetis.recipes,
+            lambda x: inspect.isclass(x) and x.implementation_class.InputSet is not None
+        ):
+            for (n, kls) in inspect.getmembers(klass.implementation_class.InputSet, lambda x: inspect.isclass(x)):
+                if issubclass(kls, cls):
+                    yield klass

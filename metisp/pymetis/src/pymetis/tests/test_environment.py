@@ -52,7 +52,8 @@ class TestConfigured:
     def test_is_sof_data_set(self):
         """
             You need to point `pyesorex` to the SOF data (setting the `SOF_DATA` environment variable),
-            by default to ../METIS_Simulations/ESO/output/. Maybe this can be set for every run though?
+            by default to `../METIS_Simulations/ESO/output/`.
+            Maybe this can be set for every run though?
         """
         assert os.environ['SOF_DATA'] is not None, \
             "Environment variable `SOF_DATA` is not defined"

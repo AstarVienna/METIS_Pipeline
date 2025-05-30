@@ -93,15 +93,15 @@ class MetisDetDarkImpl(RawImageProcessor):
         def description(cls) -> str:
             return f"Master dark frame for '{cls.detector()}' detector data"
 
-        # Same goes for `tag`.
+        # The same goes for `tag`.
         @classmethod
         def tag(cls) -> str:
             return rf"MASTER_DARK_{cls.detector()}"
 
-    # At this point we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
+    # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
     # See the documentation of the parent's `process_images` function for more details.
-    # Feel free to define other functions to break up the algorithm into more manageable chunks,
+    # Feel free to define other functions to break up the algorithm into more manageable chunks
     # and call them from within `process_images` as needed.
     def process_images(self) -> set[PipelineProduct]:
         method = self.parameters["metis_det_dark.stacking.method"].value
@@ -119,7 +119,7 @@ class MetisDetDarkImpl(RawImageProcessor):
     # For recipes that can further specialize based on the provided data, we need to provide a mechanism
     # to select the correct derived class.
     # Here, it depends on the detector.
-    def _dispatch_child_class(self) -> type["MetisDetDarkImpl"]:
+    def _dispatch_child_class(self) -> type['MetisDetDarkImpl']:
         """
         Find the implementation class based on the detector specified in the inputset tags.
 
@@ -192,9 +192,10 @@ class MetisDetDark(MetisRecipe):
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
     # for the man page. Later we would like to be able to compare them directly to DRLD and test for that.
     _matched_keywords: set[str] = set()
-    _algorithm: str = """Group files by detector and DIT, based on header keywords
-    Call function metis_determine_dark for each set of files
-    Call metis_update_dark_mask to flag deviant pixels
+    _algorithm: str = """
+        - Group files by detector and DIT, based on header keywords
+        - Call function metis_determine_dark for each set of files
+        - Call metis_update_dark_mask to flag deviant pixels
     """
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
@@ -209,5 +210,5 @@ class MetisDetDark(MetisRecipe):
     ])
 
     # Point the `implementation_class` to the *top* class of your recipe hierarchy.
-    # Promotions happen at instantiation time.
+    # Promotions should happen at instantiation time.
     implementation_class = MetisDetDarkImpl

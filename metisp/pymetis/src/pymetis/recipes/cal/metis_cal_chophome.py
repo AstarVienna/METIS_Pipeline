@@ -161,7 +161,8 @@ class MetisCalChophome(MetisRecipe):
     _email: str = "oliver.czoske@univie.ac.at"
     _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Determine the chopper home position from LM-imaging of the WCU pinhole mask."
-    _description: str = """\
+    _description: str = """
+        (nothing yet)
     """
 
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT'}

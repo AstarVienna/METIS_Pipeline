@@ -73,18 +73,24 @@ class MetisRecipe(cpl.ui.PyRecipe):
         self.implementation = self.implementation_class(self, frameset, settings)
         return self.implementation.run()
 
-    def _list_inputs(self) -> list[PipelineInput]:
+    def _list_inputs(self) -> list[tuple[str, PipelineInput]]:
         return inspect.getmembers(self.implementation_class.InputSet,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
-    def _list_products(self) -> list[str, PipelineProduct]:
+    def _list_products(self) -> list[tuple[str, PipelineProduct]]:
         return inspect.getmembers(self.implementation_class,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:
-        fix_spacing = re.compile(r'\n\s*')
+        """
+        A kludgy attempt to format the algorithm description to have nice indentation.
+        """
+
+        # First, remove all spaces from the beginning of the string.
         fix_first_space = re.compile(r'^\s*')
+        # Second, remove all spaces from the beginning of each line and a fixed number of spaces.
+        fix_spacing = re.compile(r'\n\s*')
 
         return fix_spacing.sub('\n' + ' ' * offset, fix_first_space.sub(' ' * offset, text)) \
             if text is not None else f'<no {title} defined>'
@@ -101,8 +107,10 @@ class MetisRecipe(cpl.ui.PyRecipe):
         else:
             matched_keywords = '\n    '.join(self._matched_keywords)
 
-        inputs = '\n'.join(sorted([input_type.description_line() for (_, input_type) in self._list_inputs()]))
-        products = '\n'.join(sorted([product_type.description_line() for (_, product_type) in self._list_products()]))
+        inputs = '\n'.join(sorted([input_type._extended_description_line(name)
+                                   for (name, input_type) in self._list_inputs()]))
+        products = '\n'.join(sorted([product_type._extended_description_line(name)
+                                     for (name, product_type) in self._list_products()]))
         description = self._format_spacing(self._description, 'description', 2)
         algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
 

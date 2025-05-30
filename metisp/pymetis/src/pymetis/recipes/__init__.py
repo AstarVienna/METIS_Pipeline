@@ -16,3 +16,55 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
+from pymetis.recipes.metis_det_lingain import MetisDetLinGain
+from pymetis.recipes.metis_det_dark import MetisDetDark
+from pymetis.recipes.lm_img.metis_lm_img_basic_reduce import MetisLmImgBasicReduce
+from pymetis.recipes.lm_img.metis_lm_img_flat import MetisLmImgFlat
+from pymetis.recipes.lm_img.metis_lm_img_background import MetisLmImgBackground
+from pymetis.recipes.lm_img.metis_lm_img_std_process import MetisLmImgStdProcess
+from pymetis.recipes.lm_img.metis_lm_img_distortion import MetisLmImgDistortion
+from pymetis.recipes.lm_img.metis_lm_img_calibrate import MetisLmImgCalibrate
+from pymetis.recipes.lm_img.metis_lm_img_sci_postprocess import MetisLmImgSciPostProcess
+from pymetis.recipes.n_img.metis_n_img_flat import MetisNImgFlat
+from pymetis.recipes.n_img.metis_n_img_calibrate import MetisNImgCalibrate
+from pymetis.recipes.n_img.metis_n_img_distortion import MetisNImgDistortion
+from pymetis.recipes.n_img.metis_n_img_chopnod import MetisNImgChopnod
+from pymetis.recipes.n_img.metis_n_img_std_process import MetisNImgStdProcess
+from pymetis.recipes.n_img.metis_n_img_restore import MetisNImgRestore
+from pymetis.recipes.ifu.metis_ifu_distortion import MetisIfuDistortion
+from pymetis.recipes.ifu.metis_ifu_calibrate import MetisIfuCalibrate
+from pymetis.recipes.ifu.metis_ifu_postprocess import MetisIfuPostprocess
+from pymetis.recipes.ifu.metis_ifu_reduce import MetisIfuReduce
+from pymetis.recipes.ifu.metis_ifu_rsrf import MetisIfuRsrf
+from pymetis.recipes.ifu.metis_ifu_telluric import MetisIfuTelluric
+from pymetis.recipes.ifu.metis_ifu_wavecal import MetisIfuWavecal
+from pymetis.recipes.cal.metis_cal_chophome import MetisCalChophome
+from pymetis.recipes.instrument.metis_pupil_imaging import MetisPupilImaging
+
+__all__ = [
+    MetisDetLinGain,
+    MetisDetDark,
+    MetisLmImgBasicReduce,
+    MetisLmImgBackground,
+    MetisLmImgStdProcess,
+    MetisLmImgFlat,
+    MetisLmImgDistortion,
+    MetisLmImgCalibrate,
+    MetisLmImgSciPostProcess,
+    MetisNImgFlat,
+    MetisNImgCalibrate,
+    MetisNImgDistortion,
+    MetisNImgChopnod,
+    MetisNImgStdProcess,
+    MetisNImgRestore,
+    MetisIfuDistortion,
+    MetisIfuCalibrate,
+    MetisIfuPostprocess,
+    MetisIfuRsrf,
+    MetisIfuReduce,
+    MetisIfuTelluric,
+    MetisIfuWavecal,
+    MetisCalChophome,
+    MetisPupilImaging,
+]
