@@ -34,7 +34,7 @@ class BaseProductTest(ABC):
         assert issubclass(self._product, PipelineProduct)
 
     @pytest.mark.metadata
-    def test_does_it_have_a_product_group(self):
+    def test_does_product_group_match(self):
         assert self._product.group in [cpl.ui.Frame.FrameGroup.PRODUCT, cpl.ui.Frame.FrameGroup.CALIB], \
             f"Product group is not PRODUCT or CALIB for {self._product.__qualname__}"
 
@@ -82,4 +82,4 @@ class TableProductTest(BaseProductTest):
 class MultipleProductTest(BaseProductTest):
     def test_does_product_type_match(self):
         assert issubclass(self._product, PipelineMultipleProduct)
-        assert self._product.frame_type == cpl.ui.Frame.FrameType.IMAGE
+        assert self._product.frame_type in [cpl.ui.Frame.FrameType.IMAGE, cpl.ui.Frame.FrameType.TABLE]

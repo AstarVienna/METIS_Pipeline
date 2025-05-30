@@ -82,7 +82,7 @@ class PipelineInput:
         if not self.tags():
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined tag pattern")
 
-        # ...and that they are a re pattern
+        # ...and that they are a `re` pattern
         if not isinstance(self.tags(), re.Pattern):
             raise TypeError(f"PipelineInput `tags` must be a `re.Pattern`, got '{self.tags()}'")
 
