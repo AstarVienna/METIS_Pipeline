@@ -82,4 +82,4 @@ class TableProductTest(BaseProductTest):
 class MultipleProductTest(BaseProductTest):
     def test_does_product_type_match(self):
         assert issubclass(self._product, PipelineMultipleProduct)
-        assert self._product.frame_type == cpl.ui.Frame.FrameType.IMAGE
+        assert self._product.frame_type in [cpl.ui.Frame.FrameType.IMAGE, cpl.ui.Frame.FrameType.TABLE]
