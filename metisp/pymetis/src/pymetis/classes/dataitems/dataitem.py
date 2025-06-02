@@ -27,19 +27,18 @@ import cpl
 from cpl.core import Msg
 
 import pymetis
-from pymetis.classes.dataitems.dataitem import DataItem
 
 
-class PipelineInput:
+class DataItem:
     """
+    The `DataItem` class encapsulates a single data item: something that.
+    Possible derivatives are an `Input` or a `Product`.
+
     This class encapsulates a single logical input to a recipe:
     - either a single file, or a line in the SOF (see SinglePipelineInput)
     - or a set of equivalent files (see MultiplePipelineInput)
     """
-    _item: type[DataItem] = None
     _title: str = None                      # No universal title makes sense
-    _required: bool = True                  # By default, inputs are required to be present
-    _tags: Pattern = None                   # No universal tags are provided
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     _description: Optional[str] = None      # Description for man page
@@ -48,8 +47,6 @@ class PipelineInput:
 
     @classmethod
     def title(cls) -> str:
-        if cls._item is not None:
-            return cls._item.title()
         return cls._title
 
     @classmethod
@@ -101,19 +98,6 @@ class PipelineInput:
         # A list of matched groups from `tags`. Acquisition differs
         # between Single and Multiple, so we just declare it here.
         self.tag_parameters: dict[str, str] = {}
-
-    @abstractmethod
-    def validate(self) -> None:
-        """
-        Verify that the input has all the required frames and that they are valid themselves.
-        There is no default logic, implementation is fully deferred to derived classes.
-        """
-
-    def print_debug(self, *, offset: int = 0) -> None:
-        """
-        Print a short description of the tags with a small offset (n spaces).
-        """
-        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags()}")
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -173,14 +157,6 @@ class PipelineInput:
             Msg.warning(self.__class__.__qualname__,
                         f"Darks from more than one detector found: {unique}!")
 
-    @abstractmethod
-    def valid_frames(self) -> cpl.ui.FrameSet:
-        """
-        Return a FrameSet containing all valid, used frames.
-        This is abstract as it differes significantly for Single and Multiple Inputs.
-        """
-        pass
-
     @classmethod
     def _pretty_tags(cls) -> str:
         """ Helper method to print `re.Pattern`s in man-page: remove named capture groups' names. """
@@ -195,9 +171,24 @@ class PipelineInput:
         Useful for reconstruction of DRLD input/product cards.
         """
         for (name, klass) in inspect.getmembers(
-            pymetis.recipes,
-            lambda x: inspect.isclass(x) and x.implementation_class.InputSet is not None
+                pymetis.recipes,
+                lambda x: inspect.isclass(x) and x.implementation_class.InputSet is not None
         ):
             for (n, kls) in inspect.getmembers(klass.implementation_class.InputSet, lambda x: inspect.isclass(x)):
+                if issubclass(kls, cls):
+                    yield klass
+
+    @classmethod
+    def product_of_recipes(cls) -> Generator['PipelineRecipe', None, None]:
+        """
+        List all PipelineRecipe classes that output this as a product.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in inspect.getmembers(
+                pymetis.recipes,
+                lambda x: inspect.isclass(x) and x.implementation_class is not None
+        ):
+            for (n, kls) in inspect.getmembers(klass.implementation_class, lambda x: inspect.isclass(x)):
                 if issubclass(kls, cls):
                     yield klass

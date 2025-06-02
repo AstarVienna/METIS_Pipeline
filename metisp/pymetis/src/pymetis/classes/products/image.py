@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import cpl
-from pyesorex.parameter import Parameter
 
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.products.product import PIPELINE

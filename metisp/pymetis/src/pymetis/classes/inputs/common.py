@@ -28,6 +28,9 @@ from . import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 
+from ..dataitems.common import Raw
+from ..dataitems.dataitem import DataItem
+
 """
 This file contains various ready-to-use `PipelineInput` classes.
 You should never derive directly from `PipelineInput`, but rather from
@@ -55,8 +58,8 @@ class OptionalInputMixin(PipelineInput, ABC):
     _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
 
 
-class RawInput(MultiplePipelineInput):
-    _title: str = "raw"
+class RawInput(MultiplePipelineInput, ABC):
+    _item: type[DataItem] = Raw
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
 
 

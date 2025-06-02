@@ -103,7 +103,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
         if pinhole_loc["fwhm_x"] is None or pinhole_loc["fwhm_y"] is None:
             Msg.warning(self.__class__.__qualname__,
-                        ": detection of pinhole failed")
+                        "detection of pinhole failed")
             pinhole_loc["fwhm_x"] = 999
             pinhole_loc["fwhm_y"] = 999
 

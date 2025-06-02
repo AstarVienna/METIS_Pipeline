@@ -145,7 +145,7 @@ class PipelineProduct(ABC):
             f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
 
         # At least one frame in the recipe frameset must be tagged as RAW!
-        # Otherwise, PyCPL **will not** save (rite of passage problem)
+        # Otherwise, PyCPL **will not** save (rite-of-passage problem)
 
         parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in self.recipe.parameters])
         self.save_files(parameters)
@@ -228,10 +228,10 @@ class PipelineProduct(ABC):
         """
         return (f"    {name}\n      {cls.tag():<76s}{cls.description() or '<no description defined>'}"
                 f"\n{' ' * 84}"
-                f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.input_for_classes())])}")
+                f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
 
     @classmethod
-    def input_for_classes(cls) -> Generator['PipelineRecipe', None, None]:
+    def product_of_recipes(cls) -> Generator['PipelineRecipe', None, None]:
         """
         List all PipelineRecipe classes that use this Product.
         Warning: heavy introspection.
