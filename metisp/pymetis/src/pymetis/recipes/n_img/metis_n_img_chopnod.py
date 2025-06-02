@@ -22,6 +22,8 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pyesorex.parameter import ParameterList, ParameterEnum
+
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct, TargetSpecificProduct
@@ -198,8 +200,8 @@ class MetisNImgChopnod(MetisRecipe):
         Subtract dark, divide by flat
         Remove blank sky pattern"""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=rf"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",

@@ -22,6 +22,8 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 from pymetis.classes.inputs import RawInput, MasterDarkInput

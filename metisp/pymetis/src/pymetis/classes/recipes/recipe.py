@@ -23,6 +23,8 @@ from typing import Dict, Any
 
 import cpl
 
+from pyesorex.parameter import ParameterList
+
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInput
@@ -54,7 +56,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _algorithm: str = None                                      # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
-    parameters: cpl.ui.ParameterList = cpl.ui.ParameterList([])
+    parameters: ParameterList = ParameterList([])
     # Default implementation class. This will not work, because it is abstract, but this is an abstract class too.
     implementation_class: type[MetisRecipeImpl] = MetisRecipeImpl
 

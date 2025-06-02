@@ -22,6 +22,8 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pyesorex.parameter import ParameterList, ParameterEnum
+
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct
@@ -79,8 +81,8 @@ class MetisLmImgDistortion(MetisRecipe):
     Measure location of point source images in frames with `hdrl_catalogue_create`.
     Call metis_fit_distortion to fit polynomial coefficients to deviations from grid positions."""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",

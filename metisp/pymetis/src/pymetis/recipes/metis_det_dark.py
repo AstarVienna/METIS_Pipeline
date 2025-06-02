@@ -22,6 +22,8 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pyesorex.parameter import ParameterList, ParameterEnum
+
 from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
@@ -199,8 +201,8 @@ class MetisDetDark(MetisRecipe):
     """
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",

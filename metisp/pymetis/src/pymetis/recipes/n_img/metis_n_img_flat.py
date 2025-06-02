@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
+from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.mixins.target import TargetTwilightMixin, TargetLampMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -66,8 +66,8 @@ class MetisNImgFlat(MetisRecipe):
     Compute median or average of input frames to improve statistics.
     Call metis_update_n_flat_mask to flag deviant pixels."""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",

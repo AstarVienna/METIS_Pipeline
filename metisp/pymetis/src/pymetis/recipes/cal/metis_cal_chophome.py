@@ -21,6 +21,7 @@ import re
 
 import cpl
 from cpl.core import Msg
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadpixMapInput,
@@ -172,29 +173,25 @@ class MetisCalChophome(MetisRecipe):
     to the WFS metrology to give the chopper home position.
     """
 
-    parameters = cpl.ui.ParameterList()
-    # --stacking.method
-    p = cpl.ui.ParameterEnum(
-        name=f"{_name}.stacking.method",
-        context=_name,
-        description="Name of the method used to combine the input images",
-        default="average",
-        alternatives=("add", "average", "median"),
-    )
-    p.cli_alias = "stacking.method"
-    parameters.append(p)
-
-    # --halfwindow
-    p = cpl.ui.ParameterRange(
-        name=f"{_name}.halfwindow",
-        context=_name,
-        description="Half size of window for centroid determination [pix]",
-        default=15,
-        min=1,
-        max=1024
-    )
-    p.cli_alias = "halfwindow"
-    parameters.append(p)
+    parameters = ParameterList([
+        ParameterEnum(
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            cli_alias="stacking.method",
+            default="average",
+            alternatives=("add", "average", "median"),
+        ),
+        ParameterRange(
+            name=f"{_name}.halfwindow",
+            context=_name,
+            description="Half size of window for centroid determination [pix]",
+            cli_alias="halfwindow",
+            default=15,
+            min=1,
+            max=1024
+        ),
+    ])
 
     implementation_class = MetisCalChophomeImpl
 

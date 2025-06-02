@@ -23,6 +23,8 @@ from typing import Dict, Any, final
 import cpl
 from cpl.core import Msg
 
+from pyesorex.parameter import ParameterList
+
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.inputs.inputset import PipelineInputSet
 
@@ -36,7 +38,7 @@ class MetisRecipeImpl(ABC):
     InputSet: type[PipelineInputSet] = None
 
     # Available parameters are a class variable. This must be present, even if empty.
-    parameters = cpl.ui.ParameterList([])
+    parameters = ParameterList([])
 
     def __init__(self,
                  recipe: 'MetisRecipe',
@@ -99,7 +101,7 @@ class MetisRecipeImpl(ABC):
     def process_images(self) -> set[PipelineProduct]:
         """
         The core method of the recipe implementation. It should contain all the processing logic.
-        At its entry point the `InputSet` class must be already loaded and validated.
+        At its entry point, the `InputSet` class must be already loaded and validated.
 
         All pixel manipulation should happen inside this function (or something it calls from within).
         Put explicitly, this means

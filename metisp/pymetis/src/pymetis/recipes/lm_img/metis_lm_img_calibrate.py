@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 
-import cpl
+from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -52,8 +52,8 @@ class MetisLmImgCalibrate(MetisRecipe):
     _algorithm: str = """Call metis_lm_scale_image_flux to scale image data to photon / s
     Add header information (BUNIT, WCS, etc.)"""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import cpl
+from pyesorex.parameter import Parameter
 
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.products.product import PIPELINE
@@ -16,11 +17,11 @@ class PipelineImageProduct(PipelineProduct):
         super().__init__(recipe_impl, header)
         self.image: cpl.core.Image = image
 
-    def save_files(self):
+    def save_files(self, parameters: cpl.ui.ParameterList) -> None:
         cpl.dfs.save_image(
             self.recipe.frameset,       # All frames for the recipe
-            self.recipe.parameters,     # The list of input parameters
-            self.recipe.used_frames,    # The list of frames actually used FixMe currently not working as intended
+            parameters,                 # The list of input parameters
+            self.recipe.used_frames,    # The list of frames actually used  FixMe currently not working as intended
             self.image,                 # Image to be saved
             self.recipe.name,           # Name of the recipe
             self.properties,            # Properties to be appended

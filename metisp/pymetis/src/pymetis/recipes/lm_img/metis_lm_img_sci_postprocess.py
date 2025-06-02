@@ -22,6 +22,8 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pyesorex.parameter import ParameterList, ParameterEnum
+
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput
@@ -72,8 +74,8 @@ class MetisLmImgSciPostProcess(MetisRecipe):
     Call hdrl_resample_compute to recenter the images.
     Call hdrl_imagelist_collapse to stack the images."""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name="metis_lm_img_sci_postprocess.stacking.method",
             context="metis_lm_img_sci_postprocess",
             description="Name of the method used to combine the input images",

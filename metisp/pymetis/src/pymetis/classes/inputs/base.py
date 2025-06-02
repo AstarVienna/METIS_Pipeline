@@ -133,7 +133,7 @@ class PipelineInput:
         return (f"    {name}\n      {cls._pretty_tags():<60} [{cls._multiplicity}]"
                 f"{' (optional)' if not cls._required else '           '} "
                 f"{cls._description}\n{' ' * 84}"
-                f"{f'\n{' ' * 84}'.join([x.__name__ for x in list(cls.input_for_classes())])}")
+                f"{f'\n{' ' * 84}'.join([x.__name__ for x in set(cls.input_for_classes())])}")
 
     def _verify_same_detector_from_header(self) -> None:
         """

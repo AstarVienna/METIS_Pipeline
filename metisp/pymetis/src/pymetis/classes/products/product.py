@@ -27,6 +27,7 @@ from typing import Any, final, Generator
 
 import cpl
 from cpl.core import Msg
+from pyesorex.parameter import Parameter
 
 import pymetis
 
@@ -145,10 +146,12 @@ class PipelineProduct(ABC):
 
         # At least one frame in the recipe frameset must be tagged as RAW!
         # Otherwise, PyCPL **will not** save (rite of passage problem)
-        self.save_files()
+
+        parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in self.recipe.parameters])
+        self.save_files(parameters)
 
     @abstractmethod
-    def save_files(self) -> None:
+    def save_files(self, parameters: cpl.ui.ParameterList) -> None:
         """
         Actually save the files. This is only a hook for derived classes.
         """
@@ -225,7 +228,7 @@ class PipelineProduct(ABC):
         """
         return (f"    {name}\n      {cls.tag():<76s}{cls.description() or '<no description defined>'}"
                 f"\n{' ' * 84}"
-                f"{f'\n{'a' * 84}'.join([x.__name__ for x in list(cls.input_for_classes())])}")
+                f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.input_for_classes())])}")
 
     @classmethod
     def input_for_classes(cls) -> Generator['PipelineRecipe', None, None]:

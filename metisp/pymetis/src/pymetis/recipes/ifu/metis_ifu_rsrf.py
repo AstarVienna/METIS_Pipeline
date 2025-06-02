@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 import cpl
 import numpy as np
+
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 from cpl.core import Msg
 
 # is this legal?
@@ -405,28 +407,26 @@ class MetisIfuRsrf(MetisRecipe):
         Create bad pixel map from the master flat and update with locations
             of zero values in the continuum image - save as BADPIX_MAP_IFU"""
 
-    parameters = cpl.ui.ParameterList()
-    # --stacking.method
-    p = cpl.ui.ParameterEnum(
-        name=f"{_name}.stacking.method",
-        context=_name,
-        description="Name of the method used to combine the input images",
-        default="median",
-        alternatives=("average", "median"),
-    )
-    p.cli_alias = "stacking.method"
-    parameters.append(p)
-
-    # --extract.hwidth
-    p = cpl.ui.ParameterRange(
-        name=f"{_name}.extract.hwidth",
-        context=_name,
-        description="Half width of trace for 1D RSRF extraction [pix]",
-        default=20,
-        min=1,
-        max=30
-    )
-    p.cli_alias = "extract.hwidth"
-    parameters.append(p)
+    parameters = ParameterList([
+        # --stacking.method
+        ParameterEnum(
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            default="median",
+            alternatives=("average", "median"),
+            cli_alias="stacking.method",
+        ),
+        # --extract.hwidth
+        ParameterRange(
+            name=f"{_name}.extract.hwidth",
+            context=_name,
+            description="Half width of trace for 1D RSRF extraction [pix]",
+            cli_alias="extract.hwidth",
+            default=20,
+            min=1,
+            max=30,
+        ),
+    ])
 
     implementation_class: type[MetisRecipeImpl] = MetisIfuRsrfImpl

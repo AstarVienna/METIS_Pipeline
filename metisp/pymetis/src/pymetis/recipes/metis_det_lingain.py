@@ -23,6 +23,8 @@ from abc import ABC
 
 import cpl
 
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+
 from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
@@ -158,21 +160,21 @@ class MetisDetLinGain(MetisRecipe):
     Fit polynomial of value as a function of DIT and illumination level for each pixel (metis_derive_nonlinearity).
     Flag pixels with coefficients significantly different from the mean of all pixels (hdrl_bpm_fit_compute)."""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=rf"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
             default="median",
             alternatives=("add", "average", "median"),
         ),
-        cpl.ui.ParameterValue(
+        ParameterValue(
             name=rf"{_name}.threshold.lowlim",
             context=_name,
             description="Thresholding threshold lower limit",
             default=0,
         ),
-        cpl.ui.ParameterValue(
+        ParameterValue(
             name=rf"{_name}.threshold.uplim",
             context=_name,
             description="Thresholding threshold upper limit",

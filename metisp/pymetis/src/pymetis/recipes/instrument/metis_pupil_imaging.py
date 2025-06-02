@@ -29,6 +29,8 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pyesorex.parameter import ParameterList, ParameterEnum
+
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
@@ -155,8 +157,8 @@ class MetisPupilImaging(MetisRecipe):
     _matched_keywords: set[str] = {'DRS.PUPIL'}
     _algorithm = """Apply dark current and flat field corrections."""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name="metis_pupil_imaging.stacking.method",
             context="metis_pupil_imaging",
             description="Name of the method used to combine the input images",

@@ -21,6 +21,8 @@ import re
 
 import cpl
 
+from pyesorex.parameter import ParameterList, ParameterEnum
+
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
@@ -139,8 +141,8 @@ class MetisLmImgBackground(MetisRecipe):
     _synopsis: str = "Basic reduction of raw exposures from the LM-band imager"
     _description: str = ""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name="metis_lm_img_background.stacking.method",
             context="metis_lm_img_background",
             description="Name of the method used to combine the input images",

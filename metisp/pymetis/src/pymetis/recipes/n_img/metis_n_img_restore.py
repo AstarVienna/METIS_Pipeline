@@ -21,8 +21,9 @@ import re
 
 import cpl
 
-from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.classes.recipes import MetisRecipe
+from pyesorex.parameter import ParameterList, ParameterValue
+
+from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 
@@ -61,8 +62,8 @@ class MetisNImgRestore(MetisRecipe):
     _algorithm: str = """Call metis_cutout_region to cut regions around beams
     Add regions with appropriate signs with `hdrl_imagelist_collapse`"""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterValue(
+    parameters = ParameterList([
+        ParameterValue(
             name=f"{_name}.cutout_size",
             context=_name,
             description="Name of the method used to combine the input images",
