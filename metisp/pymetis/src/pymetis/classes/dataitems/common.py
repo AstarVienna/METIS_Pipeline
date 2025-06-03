@@ -70,3 +70,57 @@ class TelluricCorrection(DataItem):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Telluric absorption correction."
     _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+
+
+class AtmProfile(DataItem):
+    _title: str = "atmosphere profile"
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = ("Atmospheric profile containing height information on temperature, "
+                         "pressure and molecular abundances")
+
+
+class LsfKernel(DataItem):
+    _title: str = "line spread function kernel"
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = "Wavelength dependent model of the LSF"
+
+
+class FluxStdCatalog(DataItem):
+    _title: str = "catalog of standard stars"
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = "Catalog of standard stars"
+
+
+class SciCubeCalibrated(DataItem):
+    _title: str = "rectified spectral cube"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+
+
+class IfuSciCoadd(DetectorIfuMixin, DataItem):
+    _title: str = "IFU science coadd"
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
+                         "covering a different spatial and wavelength ranges.")
+    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+
+
+class Rsrf(DataItem):
+    _title: str = "RSRF"
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = "2D relative spectral response function"
+    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+
+
+class IfuWavecal(DetectorIfuMixin, DataItem):
+    _title: str = "wavelength calibration"
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = "Image with wavelength at each pixel"
+    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+
+
+class Combined(DataItem):
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _title: str = "spectral cube of science object"
+    _description: str = "Spectral cube of standard star, combining multiple exposures."
+

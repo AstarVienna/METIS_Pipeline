@@ -29,9 +29,12 @@ from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 
 from ..dataitems.dataitem import DataItem
-from ..dataitems.common import Raw, PersistenceMap, LinearityMap, FluxCalTable, PinholeTable
+from ..dataitems.common import Raw, PersistenceMap, LinearityMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel, \
+    FluxStdCatalog, IfuWavecal
 from ..dataitems.badpixmap import BadPixMap
+from ..dataitems.distortion import DistortionTable
 from ..dataitems.gainmap import GainMap
+from ..dataitems.masterdark import MasterDarkIfu, MasterDark
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
@@ -66,10 +69,8 @@ class RawInput(MultiplePipelineInput, ABC):
 
 
 class MasterDarkInput(SinglePipelineInput):
-    _title: str = "master dark"
+    _item: type[DataItem] = MasterDark
     _tags: Pattern = re.compile(r"MASTER_DARK_(?P<detector>2RG|GEO|IFU)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Master dark frame for {detector} data"
 
 
 class MasterFlatInput(SinglePipelineInput):
@@ -101,13 +102,12 @@ class GainMapInput(SinglePipelineInput):
 
 
 class DistortionTableInput(SinglePipelineInput):
-    _title: str = "distortion table"
+    _item: type[DataItem] = DistortionTable
     _tags: Pattern = re.compile(r"IFU_DISTORTION_TABLE")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Table of distortion coefficients for an IFU data set"
 
 
 class WavecalInput(SinglePipelineInput):
+    _item: type[DataItem] = IfuWavecal
     _title: str = "wavelength calibration"
     _tags: Pattern = re.compile(r"IFU_WAVECAL")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
@@ -120,10 +120,8 @@ class PinholeTableInput(SinglePipelineInput):
 
 
 class FluxstdCatalogInput(SinglePipelineInput):
-    _title: str = "catalog of standard stars"
+    _item: type[DataItem] = FluxStdCatalog
     _tags: Pattern = re.compile(r"FLUXSTD_CATALOG")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Catalog of standard stars"
 
 
 class FluxCalTableInput(SinglePipelineInput):
@@ -132,15 +130,10 @@ class FluxCalTableInput(SinglePipelineInput):
 
 
 class LsfKernelInput(SinglePipelineInput):
-    _title: str = "line spread function kernel"
+    _item: type[DataItem] = LsfKernel
     _tags: Pattern = re.compile(r"LSF_KERNEL")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Wavelength dependent model of the LSF"
 
 
 class AtmProfileInput(SinglePipelineInput):
-    _title: str = "atmosphere profile"
+    _item: type[DataItem] = AtmProfile
     _tags: Pattern = re.compile(r"ATM_PROFILE")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = ("Atmospheric profile containing height information on temperature, "
-                         "pressure and molecular abundances")

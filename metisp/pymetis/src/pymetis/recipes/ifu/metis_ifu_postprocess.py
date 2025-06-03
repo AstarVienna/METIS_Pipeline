@@ -21,6 +21,8 @@ import re
 
 import cpl
 
+from pymetis.classes.dataitems.common import SciCubeCalibrated, IfuSciCoadd
+from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
@@ -29,12 +31,11 @@ from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(SinglePipelineInput):
+            _item: type[DataItem] = SciCubeCalibrated
             _tags: re.Pattern = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
-            _title: str = "rectified spectral cube"
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
     class ProductSciCoadd(PipelineImageProduct):
+        _item: type[DataItem] = IfuSciCoadd
         _tag = r"IFU_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures "

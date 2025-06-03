@@ -59,24 +59,12 @@ class DataItem(ABC):
         return cls._tags
 
     @classmethod
-    def required(cls) -> bool:
-        return cls._required
-
-    @classmethod
     def description(cls) -> str:
         return cls._description
 
     @classmethod
     def group(cls):
         return cls._group
-
-    @property
-    def detector(self) -> str:
-        return self._detector
-
-    @detector.setter
-    def detector(self, value):
-        self._detector = value
 
     def __init__(self):
         # Check if it is defined

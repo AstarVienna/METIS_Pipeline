@@ -22,10 +22,13 @@ import re
 import cpl
 from typing import Literal
 
+from pymetis.classes.dataitems.common import Rsrf
+from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.distortion import DistortionTableIfu
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput,
+from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput, WavecalInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
 from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct
 
@@ -46,23 +49,15 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         class MasterDarkInput(MasterDarkInput):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
 
-        class WavecalInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"IFU_WAVECAL")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Wavelength calibration"
-            _description: str = "Image with wavelength at each pixel"
+        WavecalInput = WavecalInput
 
         class DistortionTableInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_TABLE")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Distortion table"
-            _description: str = "Table of distortion coefficients for an IFU data set"
+            _item: type[DataItem] = DistortionTableIfu
 
         class RsrfInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"RSRF_IFU")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "RSRF"
-            _description: str = "2D relative spectral response function"
+            _item: type[DataItem] = Rsrf
 
     class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
