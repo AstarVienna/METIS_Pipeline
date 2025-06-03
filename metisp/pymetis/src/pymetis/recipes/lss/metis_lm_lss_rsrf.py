@@ -42,16 +42,14 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
         detector = "2RG"
 
         # Define input classes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        """
-        Raw image LM_LSS_RSRF_RAW
-        """
         class RawInput(RawInput):
+            """
+            Raw image LM_LSS_RSRF_RAW
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_RSRF_RAW")
             _title: str = "LM LSS rsrf raw"
             _description: str = "Raw LSS flats taken with black-body calibration lamp."
-        """
-        WCU off frames
-        """
+
         class LmRsrfWcuOffInput(RawInput):
             """
             WCU_OFF input illuminated by the WCU up-to and including the
@@ -61,35 +59,35 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
             _title: str = "LM LSS WCU off"
             _description: str = "Raw data for dark subtraction in other recipes."
 
-        """
-        Master dark MASTER_DARK_2RG
-        """
         class MasterDarkInput(MasterDarkInput):
+            """
+            Master dark MASTER_DARK_2RG
+            """
             _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
 
-        """
-        Bad pixel BADPIX_MAP_2RG
-        """
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            """
+            Bad pixel BADPIX_MAP_2RG
+            """
             _tags: re.Pattern = re.compile(r"BADPIX_MAP_2RG")
 
-        """
-        Gain map
-        """
         class GainMapInput(GainMapInput):
+            """
+            Gain map
+            """
             _tags: re.Pattern = re.compile(r"GAIN_MAP_2RG")
 
-        """
-        Linearity
-        """
         class LinearityInput(LinearityInput):
+            """
+            Linearity
+            """
             _tags: re.Pattern = re.compile(r"LINEARITY_2RG")
 
     # # ++++++++++++++++++ Intermediate products ++++++++++++++++++
-    """
-    Median RSRF (QC)
-    """
     class ProductMedianLmLssRsrfImg(PipelineImageProduct):
+        """
+        Median RSRF (QC)
+        """
         _tag: str = r"MEDIAN_LM_LSS_RSRF_IMG"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -103,10 +101,10 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
         #     super().add_properties()
         #     self.properties.append(self.header)
 
-    """
-    Mean RSRF (QC)
-    """
     class ProductMeanLmLssRsrfImg(PipelineImageProduct):
+        """
+        Mean RSRF (QC)
+        """
         _tag: str = r"MEAN_LM_LSS_RSRF_IMG"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -117,10 +115,10 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
 
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
-    """
-    Final Master RSRF
-    """
     class ProductMasterLmLssRsrf(PipelineImageProduct):
+        """
+        Final Master RSRF
+        """
         _tag: str = r"MASTER_LM_LSS_RSRF"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -139,9 +137,7 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
 #    Methods
 # =========================================================================================
 
-    """
-    Method for processing
-    """
+#   Method for processing
     def process_images(self) -> [PipelineImageProduct]:
         """do something more fancy in the future"""
         # Load raw image
@@ -166,9 +162,7 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
             self.ProductMedianLmLssRsrfImg(self, combined_median_hdr, combined_median_img),
         ]
 
-    """
-    Method for loading images (stolen from metis_chop_home.py)
-    """
+#   Method for loading images (stolen from metis_chop_home.py)
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
 
@@ -235,11 +229,8 @@ class MetisLmLssRsrf(MetisRecipe):
     _algorithm = """Fancy algorithm description follows ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    """
-    Define parameters
-    """
 # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# TODO: Implement real parameters
+    # TODO: Implement real parameters
     parameters = cpl.ui.ParameterList([
         cpl.ui.ParameterEnum(
             name=f"{_name}.stacking.method",

@@ -44,85 +44,85 @@ class MetisLmLssSciImpl(RawImageProcessor):
         detector = "2RG"
 
         # RAW FILES ++++++++++++++++++++++++++++++++++++++++++++++++
-        """
-        Raw standard star observations
-        """
         class RawInput(RawInput):
+            """
+            Raw standard star observations
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_SCI_RAW")
             _title: str = "LM LSS sci raw"
             _description: str = "Raw spectra of science targets"
 
         # MASTER CALIBS ++++++++++++++++++++++++++++++++++++++++++++
-        """
-        Persistence map
-        """
         class MasterPersistenceMap(PersistenceMapInput):
+            """
+            Persistence map
+            """
             _tags: re.Pattern = re.compile(r"PERSISTENCE_MAP")
 
-        """
-        Master dark MASTER_DARK_2RG
-        """
         class MasterDarkInput(MasterDarkInput):
+            """
+            Master dark MASTER_DARK_2RG
+            """
             _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
 
-        """
-        Bad pixel BADPIX_MAP_2RG
-        """
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            """
+            Bad pixel BADPIX_MAP_2RG
+            """
             _tags: re.Pattern = re.compile(r"BADPIX_MAP_2RG")
 
-        """
-        Gain map
-        """
         class GainMapInput(GainMapInput):
+            """
+            Gain map
+            """
             _tags: re.Pattern = re.compile(r"GAIN_MAP_2RG")
 
-        """
-        Linearity
-        """
         class LinearityInput(LinearityInput):
+            """
+            Linearity
+            """
             _tags: re.Pattern = re.compile(r"LINEARITY_2RG")
 
-        """
-        MASTER LM LSS RSRF
-        """
         class MasterRsrfInput(SinglePipelineInput):
+            """
+            MASTER LM LSS RSRF
+            """
             _tags: re.Pattern = re.compile(r"MASTER_LM_LSS_RSRF")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "MASTER_RSRF"
             _description: str = "Master 2D RSRF"
 
-        """
-        Distortion solution
-        """
         class MasterLmLssDistSol(SinglePipelineInput):
+            """
+            Distortion solution
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_DIST_SOL")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Distortion solution"
             _description: str = "Distortion solution for rectifying"
 
-        """
-        Wavelength solution first guess
-        """
         class MasterLmLssWaveGuess(SinglePipelineInput):
+            """
+            Wavelength solution first guess
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_WAVE_GUESS")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "First guess of the wavelength solution"
             _description: str = "First guess of the wavelength solution"
 
-        """
-        Master response
-        """
         class MasterLmLssResponse(SinglePipelineInput):
+            """
+            Master response
+            """
             _tags: re.Pattern = re.compile(r"MASTER_LM_RESPONSE")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Response function"
             _description: str = "Master response curve for flux calibration"
 
-        """
-        Transmission from the standard star (optional)
-        """
         class MasterStdTransmission(SinglePipelineInput):
+            """
+            Transmission from the standard star (optional)
+            """
             _tags: re.Pattern = re.compile(r"STD_TRANSMISSION")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Standard transmission"
@@ -144,19 +144,19 @@ class MetisLmLssSciImpl(RawImageProcessor):
 
 
         # STATIC CALIBS ++++++++++++++++++++++++++++++++++++++++++++
-        """
-        Slitloss file
-        """
         class MasterLmAdcSlitloss(SinglePipelineInput):
+            """
+            Slitloss file
+            """
             _tags: re.Pattern = re.compile(r"LM_ADC_SLITLOSS")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Slitloss file"
             _description: str = "Slitlosses induced by the ADC"
 
-        """
-        Catalogue of atmospheric lines
-        """
         class MasterAtmLineCat(AtmLineCatInput):
+            """
+            Catalogue of atmospheric lines
+            """
             _tags: re.Pattern = re.compile(r"ATM_LINE_CAT")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Line catalogue of atmospheric lines"
@@ -165,10 +165,10 @@ class MetisLmLssSciImpl(RawImageProcessor):
 
 
     # ++++++++++++ Intermediate / QC products ++++++++++++
-    """
-    Pixel map of object pixels
-    """
     class ProductLmLssSciObjMap(PipelineImageProduct):
+        """
+        Pixel map of object pixels
+        """
         _tag: str = r"LM_LSS_SCI_OBJ_MAP"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -187,10 +187,10 @@ class MetisLmLssSciImpl(RawImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
 
-    """
-    Pixel map of sky pixels
-    """
     class ProductLmLssSciSkyMap(PipelineImageProduct):
+        """
+        Pixel map of sky pixels
+        """
         _tag: str = r"LM_LSS_SCI_SKY_MAP"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -209,10 +209,10 @@ class MetisLmLssSciImpl(RawImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
     # ++++++++++++++++++ Final products ++++++++++++++++++
-    """
-    Final 1D spectrum of standard star
-    """
     class ProductLmLssSci1d(PipelineTableProduct):
+        """
+        Final 1D spectrum of standard star
+        """
         _tag: str = r"LM_LSS_SCI_1D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -231,10 +231,10 @@ class MetisLmLssSciImpl(RawImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
 
-    """
-    Final 2D spectrum of standard star
-    """
     class ProductLmLssSci2d(PipelineImageProduct):
+        """
+        Final 2D spectrum of standard star
+        """
         _tag: str = r"LM_LSS_SCI_2D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -253,10 +253,10 @@ class MetisLmLssSciImpl(RawImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
 
-    """
-    Final flux calibrated 1D spectrum of standard star
-    """
     class ProductLmLssSciFlux1d(PipelineTableProduct):
+        """
+        Final flux calibrated 1D spectrum of standard star
+        """
         _tag: str = r"LM_LSS_SCI_FLUX_1D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -276,10 +276,10 @@ class MetisLmLssSciImpl(RawImageProcessor):
             self.properties.append(self.header)
 
 
-    """
-    Final flux calibrated 2D spectrum of standard star
-    """
     class ProductLmLssSciFlux2d(PipelineImageProduct):
+        """
+        Final flux calibrated 2D spectrum of standard star
+        """
         _tag: str = r"LM_LSS_SCI_FLUX_2D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -298,11 +298,11 @@ class MetisLmLssSciImpl(RawImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
 
-    """
-    Final flux calibrated, telluric corrected 1D spectrum of standard star
-    """
     # TODO: What about the 2d version?
     class ProductLmLssSciFluxTell1d(PipelineTableProduct):
+        """
+        Final flux calibrated, telluric corrected 1D spectrum of standard star
+        """
         _tag: str = r"LM_LSS_SCI_FLUX_TELL_1D"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -325,9 +325,7 @@ class MetisLmLssSciImpl(RawImageProcessor):
 #    Methods
 # =========================================================================================
 
-    """
-    Method for loading images (stolen from metis_chop_home.py)
-    """
+#   Method for loading images
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
 
@@ -429,9 +427,6 @@ class MetisLmLssSci(MetisRecipe):
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    """
-    Define parameters
-    """
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # TODO: Implement real parameters
     parameters = cpl.ui.ParameterList([

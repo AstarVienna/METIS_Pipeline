@@ -40,17 +40,14 @@ class MetisLmLssWaveImpl(RawImageProcessor):
         band = "LM"
         detector = "2RG"
 
-        """
-        Raw frames with laser lines
-        """
         class RawInput(RawInput):
+            """
+            Raw frames with laser lines
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_WAVE_RAW")
             _title: str = "LM LSS wave raw"
             _description: str = "Raw LSS spectra of the WCU lasers."
 
-        """
-        WCU off frames
-        """
         class LmRsrfWcuOffInput(RawInput):
             """
             WCU_OFF input illuminated by the WCU up-to and including the
@@ -59,57 +56,58 @@ class MetisLmLssWaveImpl(RawImageProcessor):
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
             _title: str = "LM LSS WCU off"
             _description: str = "Raw data for dark subtraction in other recipes."
+
         """
         Persistence map
         """
        # TODO: add persistence map ***TBD***
 
-        """
-        Master dark MASTER_DARK_2RG
-        """
         class MasterDarkInput(MasterDarkInput):
+            """
+            Master dark MASTER_DARK_2RG
+            """
             _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
 
-        """
-        Bad pixel BADPIX_MAP_2RG
-        """
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            """
+            Bad pixel BADPIX_MAP_2RG
+            """
             _tags: re.Pattern = re.compile(r"BADPIX_MAP_2RG")
 
-        """
-        Gain map
-        """
         class GainMapInput(GainMapInput):
+            """
+            Gain map
+            """
             _tags: re.Pattern = re.compile(r"GAIN_MAP_2RG")
 
-        """
-        Linearity
-        """
         class LinearityInput(LinearityInput):
+            """
+            Linearity
+            """
             _tags: re.Pattern = re.compile(r"LINEARITY_2RG")
 
-        """
-        MASTER LM LSS RSRF
-        """
         class MasterRsrfInput(SinglePipelineInput):
+            """
+            MASTER LM LSS RSRF
+            """
             _tags: re.Pattern = re.compile(r"MASTER_LM_LSS_RSRF")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "MASTER_RSRF"
             _description: str = "Master 2D RSRF"
 
-        """
-        LM LSS TRACE
-        """
         class LmLssTrace(SinglePipelineInput):
+            """
+            LM LSS TRACE
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_TRACE")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Trace table"
             _description: str = "LM LSS polynomial trace table"
 
-        """
-        LASER_TAB
-        """
         class LaserTable(LaserTableInput):   # TODO: Own input class in common.py? DONE!
+            """
+            LASER_TAB
+            """
             _tags: re.Pattern = re.compile(r"LASER_TAB")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Laser line table"
@@ -118,10 +116,10 @@ class MetisLmLssWaveImpl(RawImageProcessor):
 
     # ++++++++++++ Intermediate / QC products ++++++++++++
 
-    """
-    Trace curvature
-    """
     class ProductLmLssCurve(PipelineTableProduct):
+        """
+        Trace curvature
+        """
         _tag: str = r"LM_LSS_CURVE"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -133,10 +131,10 @@ class MetisLmLssWaveImpl(RawImageProcessor):
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
 
-    """
-    Distortion solution
-    """
     class ProductLmLssDistSol(PipelineTableProduct):
+        """
+        Distortion solution
+        """
         _tag: str = r"LM_LSS_DIST_SOL"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -145,10 +143,10 @@ class MetisLmLssWaveImpl(RawImageProcessor):
         _description: str = "Distortion solution"
         _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
-    """
-    First guess of the wavelength solution
-    """
     class ProductLmLssWaveGuess(PipelineTableProduct):
+        """
+        First guess of the wavelength solution
+        """
         _tag: str = r"LM_LSS_WAVE_GUESS"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -166,9 +164,7 @@ class MetisLmLssWaveImpl(RawImageProcessor):
 #    Methods
 # =========================================================================================
 
-    """
-    Method for loading images (stolen from metis_chop_home.py)
-    """
+#   Method for loading images
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
 
@@ -186,9 +182,7 @@ class MetisLmLssWaveImpl(RawImageProcessor):
 
         return output
 
-    """
-    Method for processing
-    """
+#   Method for processing
     def process_images(self) -> [PipelineTableProduct]:
         """Create dummy file (should do something more fancy in the future)"""
         # header = self._create_dummy_header()
@@ -255,9 +249,6 @@ class MetisLmLssWave(MetisRecipe):
 
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    """
-    Define parameters
-    """
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # TODO: Implement real parameters
     parameters = cpl.ui.ParameterList([

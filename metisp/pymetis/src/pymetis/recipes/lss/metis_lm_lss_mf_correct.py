@@ -41,10 +41,10 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
         detector = "2RG"
 
     # ++++++++++++ Main input++++++++++++
-        """
-        Science spectrum
-        """
         class LmLssSciFlux1d(SinglePipelineInput):
+            """
+            Science spectrum
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_SCI_FLUX_1D")
             # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
             # For the SKEL this is set to CALIB,although not correct!
@@ -52,10 +52,10 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
             _title: str = "LM LSS sci flux 1D"
             _description: str = "Flux calibrated 1D LM LSS science spectrum"
 
-        """
-        Transmission spectrum
-        """
         class Transmission(SinglePipelineInput):
+            """
+            Transmission spectrum
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_SYNTH_TRANS")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Transmission spectrum"
@@ -63,10 +63,10 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
     # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
-    """
-    Final telluric corrected science spectrum
-    """
     class ProductTellCorrFinalSpectrum(PipelineTableProduct):
+        """
+        Final telluric corrected science spectrum
+        """
         _tag = rf"LM_LSS_SCI_FLUX_TELL_1D"
         _title: str = "Final science spectrum"
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -76,9 +76,7 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
 #    Methods
 # =========================================================================================
 
-    """
-    Method for processing
-    """
+#   Method for processing
     def process_images(self) -> [PipelineProduct]:
         """Create dummy file (should do something more fancy in the future)"""
 
@@ -128,9 +126,6 @@ class MetisLmLssMfCorrect(MetisRecipe):
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    """
-    Define parameters
-    """
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # TODO: Implement real parameters
     parameters = cpl.ui.ParameterList([

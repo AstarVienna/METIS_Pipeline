@@ -39,17 +39,14 @@ class MetisLmLssTraceImpl(RawImageProcessor):
         band = "LM"
         detector = "2RG"
 
-        """
-        Raw pinhole frames LM_LSS_RSRF_PINH_RAW
-        """
         class RawInput(RawInput):
+            """
+            Raw pinhole frames LM_LSS_RSRF_PINH_RAW
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_RSRF_PINH_RAW")
             _title: str = "LM LSS rsrf pinhole raw"
             _description: str = "Raw flats taken with black-body calibration lamp through the pinhole mask."
 
-        """
-        WCU off frames
-        """
         class LmRsrfWcuOffInput(RawInput):
             """
             WCU_OFF input illuminated by the WCU up-to and including the
@@ -59,34 +56,34 @@ class MetisLmLssTraceImpl(RawImageProcessor):
             _title: str = "LM LSS WCU off"
             _description: str = "Raw data for dark subtraction in other recipes."
 
-        """
-        Master dark MASTER_DARK_2RG
-        """
         class MasterDarkInput(MasterDarkInput):
+            """
+            Master dark MASTER_DARK_2RG
+            """
             _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
 
-        """
-        Bad pixel BADPIX_MAP_2RG
-        """
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            """
+            Bad pixel BADPIX_MAP_2RG
+            """
             _tags: re.Pattern = re.compile(r"BADPIX_MAP_2RG")
 
-        """
-        Gain map
-        """
         class GainMapInput(GainMapInput):
+            """
+            Gain map
+            """
             _tags: re.Pattern = re.compile(r"GAIN_MAP_2RG")
 
-        """
-        Linearity
-        """
         class LinearityInput(LinearityInput):
+            """
+            Linearity
+            """
             _tags: re.Pattern = re.compile(r"LINEARITY_2RG")
 
-        """
-        MASTER LM LSS RSRF
-        """
         class MasterRsrfInput(SinglePipelineInput):
+            """
+            MASTER LM LSS RSRF
+            """
             _tags: re.Pattern = re.compile(r"MASTER_LM_LSS_RSRF")
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "MASTER_RSRF"
@@ -94,10 +91,10 @@ class MetisLmLssTraceImpl(RawImageProcessor):
 
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
-    """
-    Final trace table
-    """
     class ProductTraceTab(PipelineTableProduct):
+        """
+        Final trace table
+        """
         _tag: str = r"LM_LSS_TRACE"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -111,9 +108,7 @@ class MetisLmLssTraceImpl(RawImageProcessor):
 #    Methods
 # =========================================================================================
 
-    """
-    Method for loading images (stolen from metis_chop_home.py)
-    """
+#   Method for loading images
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
 
@@ -131,9 +126,7 @@ class MetisLmLssTraceImpl(RawImageProcessor):
 
         return output
 
-    """
-    Method for processing
-    """
+#   Method for processing
     def process_images(self) -> [PipelineTableProduct]:
         """Create dummy file (should do something more fancy in the future)"""
         # trace_tab_hdr = self._create_dummy_header()
@@ -188,9 +181,6 @@ class MetisLmLssTrace(MetisRecipe):
     _algorithm = """Fancy algorithm description follows ***TBD*** """
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    """
-    Define parameters
-    """
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # TODO: Implement real parameters
     parameters = cpl.ui.ParameterList([

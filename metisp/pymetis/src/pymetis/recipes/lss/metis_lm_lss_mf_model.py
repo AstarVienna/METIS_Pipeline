@@ -42,10 +42,10 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
 
     # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
-        """
-        Science spectrum
-        """
         class LmLssSciFlux1d(SinglePipelineInput):
+            """
+            Science spectrum
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_SCI_FLUX_1D")
             # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
             # For the SKEL this is set to CALIB,although not correct!
@@ -54,10 +54,10 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
             _description: str = "Flux calibrated 1D LM LSS science spectrum"
 
         # Alternative (Path #3 in DRLD Section CritAlg)
-        """
-        Standard star spectrum
-        """
         class LmLssStdFlux1d(SinglePipelineInput):
+            """
+            Standard star spectrum
+            """
             _tags: re.Pattern = re.compile(r"LM_LSS_STD_1D")
             # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
             # For the SKEL this is set to CALIB,although not correct!
@@ -69,10 +69,10 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
     # TODO: Check whether the new mf writes out the best-fit param file
-    """
-    Table with best-fit parameters
-    """
     class ProductMfBestFitTab(PipelineTableProduct):
+        """
+        Table with best-fit parameters
+        """
         _tag = rf"MF_BEST_FIT_TAB"
         _title: str = "Molecfit best-fit table"
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -84,9 +84,7 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
 #    Methods
 # =========================================================================================
 
-    """
-    Method for processing
-    """
+#   Method for processing
     def process_images(self) -> [PipelineProduct]:
         """Create dummy file (should do something more fancy in the future)"""
 
@@ -98,9 +96,8 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
             self.ProductMfBestFitTab(self, header, table),
         ]
 
-    """
-    Method for loading images (stolen from metis_chop_home.py)
-    """
+
+#   Method for loading images (stolen from metis_chop_home.py)
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
 
@@ -158,9 +155,6 @@ class MetisLmLssMfModel(MetisRecipe):
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    """
-    Define parameters
-    """
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # TODO: Implement real parameters
     parameters = cpl.ui.ParameterList([

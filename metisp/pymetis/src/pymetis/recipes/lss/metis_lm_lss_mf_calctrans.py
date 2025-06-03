@@ -37,37 +37,37 @@ class MetisLmLssMfCalctransImpl(RawImageProcessor):
         band = "LM"
         detector = "2RG"
 
-        """
-        Table with best-fit parameters
-        """
         class MfBestFitTab(SinglePipelineInput):
+            """
+            Table with best-fit parameters
+            """
             _tags: re.Pattern = re.compile(r"MF_BEST_FIT_TAB")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Table with best-fit parameters"
             _description: str = "Calculation of transmission function."
 
-        """
-        Table with LSF Kernel (if external kernel is used)
-        """
         class LsfKernel(SinglePipelineInput):
+            """
+            Table with LSF Kernel (if external kernel is used)
+            """
             _tags: re.Pattern = re.compile(r"LSF_KERNEL")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "LSF Kernel"
             _description: str = "Kernel of the Line-Spred-Function."
 
-        """
-        Atmospheric line catalogue
-        """
         class AtmLineCat(SinglePipelineInput):
+            """
+            Atmospheric line catalogue
+            """
             _tags: re.Pattern = re.compile(r"ATM_LINE_CAT")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Table with best-fit parameters"
             _description: str = "Line catalogue of atmopsheric lines."
 
-        """
-        Atmospheric input profile
-        """
         class AtmProfile(SinglePipelineInput):
+            """
+            Atmospheric input profile
+            """
             _tags: re.Pattern = re.compile(r"ATM_PROFILE")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Table with best-fit parameters"
@@ -77,10 +77,10 @@ class MetisLmLssMfCalctransImpl(RawImageProcessor):
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
     # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
-    """
-    Final transmission
-    """
     class ProductTransmission(PipelineTableProduct):
+        """
+        Final transmission
+        """
         _tag = rf"LM_LSS_SYNTH_TRANS"
         _title: str = "Transmission spectrum"
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -91,9 +91,7 @@ class MetisLmLssMfCalctransImpl(RawImageProcessor):
 #    Methods
 # =========================================================================================
 
-    """
-    Method for processing
-    """
+#   Method for processing
     def process_images(self) -> [PipelineProduct]:
         """Create dummy file (should do something more fancy in the future)"""
 
@@ -148,9 +146,6 @@ class MetisLmLssMfCalctrans(MetisRecipe):
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    """
-    Define parameters
-    """
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # TODO: Implement real parameters
     parameters = cpl.ui.ParameterList([
