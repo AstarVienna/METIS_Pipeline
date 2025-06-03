@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import inspect
 import re
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Pattern, Any, Optional, Generator, final
 
 import cpl
@@ -29,7 +29,7 @@ from cpl.core import Msg
 import pymetis
 
 
-class DataItem:
+class DataItem(ABC):
     """
     The `DataItem` class encapsulates a single data item: something that.
     Possible derivatives are an `Input` or a `Product`.
@@ -42,6 +42,7 @@ class DataItem:
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     _description: Optional[str] = None      # Description for man page
+    _oca_keywords: set[str] = set()
 
     _multiplicity: str = '<undefined>'      # Multiplicity of the input, '1' or 'N'
 
@@ -65,9 +66,9 @@ class DataItem:
     def description(cls) -> str:
         return cls._description
 
-    @property
-    def group(self):
-        return self._group
+    @classmethod
+    def group(cls):
+        return cls._group
 
     @property
     def detector(self) -> str:
@@ -93,7 +94,7 @@ class DataItem:
         # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
         if not self.group:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group!")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined group!")
 
         # A list of matched groups from `tags`. Acquisition differs
         # between Single and Multiple, so we just declare it here.
@@ -103,7 +104,6 @@ class DataItem:
         return {
             'title': self.title,
             'tags': self.tags(),
-            'required': self.required,
             'group': self._group.name,
         }
 

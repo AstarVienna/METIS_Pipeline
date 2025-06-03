@@ -73,16 +73,11 @@ class BaseInputSetTest(ABC):
     def test_all_inputs(instance):
         # We should really be testing a class here, not an instance
         for inp in instance.inputs:
-            assert inp._group is not None, \
-                f"Input {inp} does not have a group defined"
-            assert isinstance(inp._title, str), \
-                f"Input {inp} does not have a title defined"
+            assert inp.item() is not None, \
+                f"Input {inp} has no data item defined"
 
-    @staticmethod
-    def test_input_has_description(instance):
-        for inp in instance.inputs:
-            assert inp.description() is not None, \
-                f"Input {inp} does not have a description defined"
+            assert isinstance(inp.item()._title, str), \
+                f"Input {inp} does not have a title defined"
 
 
 @pytest.mark.inputset

@@ -40,16 +40,19 @@ class PipelineInput:
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided
-    _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     _description: Optional[str] = None      # Description for man page
 
     _multiplicity: str = '<undefined>'      # Multiplicity of the input, '1' or 'N'
 
     @classmethod
+    def item(cls) -> type[DataItem]:
+        return cls._item
+
+    @classmethod
     def title(cls) -> str:
-        if cls._item is not None:
-            return cls._item.title()
+        if cls.item() is not None:
+            return cls.item().title()
         return cls._title
 
     @classmethod
@@ -64,13 +67,9 @@ class PipelineInput:
     def required(cls) -> bool:
         return cls._required
 
-    @classmethod
-    def description(cls) -> str:
-        return cls._description
-
     @property
     def group(self):
-        return self._group
+        return self._item._group
 
     @property
     def detector(self) -> str:
@@ -81,22 +80,8 @@ class PipelineInput:
         self._detector = value
 
     def __init__(self):
-        # Check if it is defined
-        if self.title() is None:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
-
-        # Check if tags are defined...
-        if not self.tags():
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined tag pattern")
-
-        # ...and that they are a re pattern
-        if not isinstance(self.tags(), re.Pattern):
-            raise TypeError(f"PipelineInput `tags` must be a `re.Pattern`, got '{self.tags()}'")
-
-        # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL
-        # that you really do not want to deal with)
-        if not self.group:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group!")
+        if self._item is None:
+            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined data item")
 
         # A list of matched groups from `tags`. Acquisition differs
         # between Single and Multiple, so we just declare it here.
@@ -117,10 +102,9 @@ class PipelineInput:
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            'title': self.title,
+            'item': self._item,
             'tags': self.tags(),
             'required': self.required,
-            'group': self._group.name,
         }
 
     @classmethod
@@ -139,39 +123,6 @@ class PipelineInput:
                 f"{' (optional)' if not cls._required else '           '} "
                 f"{cls._description}\n{' ' * 84}"
                 f"{f'\n{' ' * 84}'.join([x.__name__ for x in set(cls.input_for_recipes())])}")
-
-    def _verify_same_detector_from_header(self) -> None:
-        """
-        Verification for headers, currently disabled
-        """
-        detectors = []
-        for frame in self.frameset:
-            header = cpl.core.PropertyList.load(frame.file, 0)
-            try:
-                det = header['ESO DPR TECH'].value
-                try:
-                    detectors.append({
-                                         'IMAGE,LM': '2RG',
-                                         'IMAGE,N': 'GEO',
-                                         'IFU': 'IFU',
-                                     }[det])
-                except KeyError as e:
-                    raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
-            except KeyError:
-                Msg.warning(self.__class__.__qualname__, "No detector (ESO DPR TECH) set!")
-
-        # Check if all the raws have the same detector, if not, we have a problem
-        if (detector_count := len(unique := list(set(detectors)))) == 1:
-            self._detector = unique[0]
-            Msg.debug(self.__class__.__qualname__,
-                      f"Detector determined: {self.detector}")
-        elif detector_count == 0:
-            Msg.warning(self.__class__.__qualname__,
-                        "No detectors specified (this is probably fine in skeleton stage)")
-        else:
-            # raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
-            Msg.warning(self.__class__.__qualname__,
-                        f"Darks from more than one detector found: {unique}!")
 
     @abstractmethod
     def valid_frames(self) -> cpl.ui.FrameSet:

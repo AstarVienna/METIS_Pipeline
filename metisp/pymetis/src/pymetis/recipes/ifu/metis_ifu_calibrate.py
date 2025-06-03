@@ -21,32 +21,31 @@ import re
 
 import cpl
 
+from pymetis.classes.dataitems.common import IfuSciReduced, TelluricCorrection
+from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.products import PipelineImageProduct, PipelineProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.classes.inputs.common import FluxCalTableInput
 
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciReducedInput(SinglePipelineInput):
+            _item: type[DataItem] = IfuSciReduced
             _title: str = "science reduced"
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"IFU_SCI_REDUCED")
-            _description: str = "Reduced 2D detector image of science object."
 
         class TelluricInput(SinglePipelineInput):
-            _title: str = "telluric correction"
+            _item: type[DataItem] = TelluricCorrection
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"IFU_TELLURIC")
-            _description: str = "Telluric absorption correction."
 
-        class FluxcalTabInput(SinglePipelineInput):
-            _title: str = "flux calibration table"
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
-            _description: str = "Conversion between instrumental and physical flux units."
+        FluxCalTableInput = FluxCalTableInput
 
     class ProductSciCubeCalibrated(PipelineImageProduct):
+
         _tag = r"IFU_SCI_CUBE_CALIBRATED"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE

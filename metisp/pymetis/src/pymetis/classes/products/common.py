@@ -30,7 +30,7 @@ class TargetSpecificProduct(PipelineProduct, ABC):
 
     @classmethod
     def target(cls) -> str:
-        """Return the internal target, or a placeholder for manpage."""
+        """Return the internal target, or a placeholder for the manpage."""
         return cls._target or "{target}"
 
     @classmethod

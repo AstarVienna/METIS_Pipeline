@@ -28,8 +28,10 @@ from . import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 
-from ..dataitems.common import Raw
 from ..dataitems.dataitem import DataItem
+from ..dataitems.common import Raw, PersistenceMap, LinearityMap, FluxCalTable, PinholeTable
+from ..dataitems.badpixmap import BadPixMap
+from ..dataitems.gainmap import GainMap
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
@@ -55,7 +57,7 @@ You should override class attributes:
 
 
 class OptionalInputMixin(PipelineInput, ABC):
-    _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
+    _required: bool = False     # Many inputs are by default optional, this mixin provides that
 
 
 class RawInput(MultiplePipelineInput, ABC):
@@ -78,32 +80,24 @@ class MasterFlatInput(SinglePipelineInput):
 
 
 class LinearityInput(SinglePipelineInput):
-    _title: str = "linearity map"
+    _item: type[DataItem] = LinearityMap
     _tags: Pattern = re.compile(r"LINEARITY_(?P<detector>2RG|GEO|IFU)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Coefficients for the pixel non-linearity correction."
 
 
 class BadpixMapInput(SinglePipelineInput):
-    _title: str = "bad pixel map"
+    _item: type[DataItem] = BadPixMap
     _tags: Pattern = re.compile(r"BADPIX_MAP_(?P<detector>2RG|GEO|IFU)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Bad pixel map. Also contains detector masks."
 
 
 class PersistenceMapInput(SinglePipelineInput):
-    _title: str = "persistence map"
+    _item: type[DataItem] = PersistenceMap
     _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Persistence map"
     _required = False           # By default, persistence maps are optional
 
 
 class GainMapInput(SinglePipelineInput):
-    _title: str = "gain map"
+    _item: type[DataItem] = GainMap
     _tags: Pattern = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Gain map."
 
 
 class DistortionTableInput(SinglePipelineInput):
@@ -121,10 +115,8 @@ class WavecalInput(SinglePipelineInput):
 
 
 class PinholeTableInput(SinglePipelineInput):
-    _title: str = "pinhole table"
+    _item: type[DataItem] = PinholeTable
     _tags: Pattern = re.compile(r"PINHOLE_TABLE")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Table of pinhole locations"
 
 
 class FluxstdCatalogInput(SinglePipelineInput):
@@ -134,11 +126,9 @@ class FluxstdCatalogInput(SinglePipelineInput):
     _description: str = "Catalog of standard stars"
 
 
-class FluxcalTableInput(SinglePipelineInput):
+class FluxCalTableInput(SinglePipelineInput):
+    _item: type[DataItem] = FluxCalTable
     _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
-    _title: str = "flux table"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Conversion between instrumental and physical flux units"
 
 
 class LsfKernelInput(SinglePipelineInput):

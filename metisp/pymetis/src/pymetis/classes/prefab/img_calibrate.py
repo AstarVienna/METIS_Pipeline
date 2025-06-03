@@ -26,7 +26,7 @@ from pymetis.classes.products import BandSpecificProduct, PipelineImageProduct
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.products.product import PipelineProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.classes.inputs import FluxcalTableInput
+from pymetis.classes.inputs import FluxCalTableInput
 
 
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
@@ -40,7 +40,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
             def description(cls):
                 return rf"Thermal background subtracted images of science {cls._band} exposures."
 
-        FluxcalTableInput = FluxcalTableInput
+        FluxcalTableInput = FluxCalTableInput
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
