@@ -371,7 +371,7 @@ class MetisLmLssStd(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Reduction of the standard star frames for determining the response function (flux calibration) and/or the transmission (telluric correction)"
-    _undescription: str = """\
+    _description: str = """\
     Reduction of the standard star frames for determining the response function (flux calibration) and/or the transmission (telluric correction)
 
     Inputs

@@ -201,7 +201,7 @@ class MetisLmLssRsrf(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Create spectroscopic relative spectral response function (RSRF) for the 2RG detector"
-    _undescription: str = """\
+    _description: str = """\
     Create relative spectral response function for the 2RG LSS detector
 
     Inputs

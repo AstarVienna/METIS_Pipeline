@@ -218,7 +218,7 @@ class MetisLmLssWave(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "First guess of the wavelength solution based on WCU laser reference"
-    _undescription: str = """\
+    _description: str = """\
     First guess of the wavelength solution based on WCU laser reference
 
     Inputs

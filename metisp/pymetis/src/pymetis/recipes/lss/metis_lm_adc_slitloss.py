@@ -45,16 +45,13 @@ class MetisLmAdcSlitlossImpl(RawImageProcessor):
         detector = "2RG"   # <---- TODO: Check why not automatically determined
 
         # Define input classes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        """
-        Raw image LM_LSS_SLITLOSS_RAW
-        """
         class RawInput(RawInput):
+            """
+            Raw image LM_LSS_SLITLOSS_RAW
+            """
             _tags: re.Pattern = re.compile(r"LM_ADC_SLITLOSS_RAW")   # <---- TBD
             _title: str = "LM ADC slitloss raw"
             _description: str = "Raw files for ADC slitloss determination (TBD)."
-        """
-        WCU off frames
-        """
         class LmAdcSlitlossWcuOffInput(RawInput):
             """
             WCU_OFF input illuminated by the WCU up-to and including the
@@ -66,10 +63,10 @@ class MetisLmAdcSlitlossImpl(RawImageProcessor):
 
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
-    """
-    Final Master RSRF
-    """
     class ProductLmAdcSlitloss(PipelineTableProduct):
+        """
+        Final Master RSRF
+        """
         _tag: str = r"LM_ADC_SLITLOSS"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -93,9 +90,8 @@ class MetisLmAdcSlitlossImpl(RawImageProcessor):
 #    Methods
 # =========================================================================================
 
-    """
-    Method for loading images (stolen from metis_chop_home.py)
-    """
+
+#   Method for loading images (stolen from metis_chop_home.py)
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
 
@@ -113,9 +109,7 @@ class MetisLmAdcSlitlossImpl(RawImageProcessor):
 
         return output
 
-    """
-    Method for processing
-    """
+#   Method for processing
     def process_images(self) -> [PipelineTableProduct]:
         """Create dummy file (should do something more fancy in the future)"""
         header = self._create_dummy_header()
@@ -145,7 +139,7 @@ class MetisLmAdcSlitloss(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Determines ADC slitlosses"
-    _undescription: str = """\
+    _description: str = """\
     Determines ADC slitlosses
 
     Remark: Recipe not welldefined as actual algorithm not well defined (cf. DRLD, Calib plan)
@@ -173,13 +167,6 @@ class MetisLmAdcSlitloss(MetisRecipe):
     _algorithm = """Incredible fancy description of algorithm follows... ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    """
-    Define parameters
-    """
-    # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    """
-    Define parameters
-    """
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # TODO: Implement real parameters
     parameters = cpl.ui.ParameterList([

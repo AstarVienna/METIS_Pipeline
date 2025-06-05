@@ -155,7 +155,7 @@ class MetisLmLssTrace(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Detection of LM order location on the 2RG detector"
-    _undescription: str = """\
+    _description: str = """\
     Detection of LM order location on the 2RG detector
 
     Inputs

@@ -126,7 +126,7 @@ class MetisLmLssMfCalctrans(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of transmission function"
-    _undescription: str = """\
+    _description: str = """\
     Calculation of transmission function
 
     Inputs

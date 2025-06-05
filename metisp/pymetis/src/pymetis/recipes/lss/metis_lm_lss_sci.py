@@ -390,7 +390,7 @@ class MetisLmLssSci(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Reduction of the LSS science star frames"
-    _undescription: str = """\
+    _description: str = """\
     Reduction of the LSS science star frames
 
     Inputs

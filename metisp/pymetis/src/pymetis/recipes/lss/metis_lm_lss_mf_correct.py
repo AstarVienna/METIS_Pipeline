@@ -109,7 +109,7 @@ class MetisLmLssMfCorrect(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Application of the telluric correction"
-    _undescription: str = """\
+    _description: str = """\
     Application of the telluric correction
 
     Inputs

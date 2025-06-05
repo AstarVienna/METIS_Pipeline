@@ -134,7 +134,7 @@ class MetisLmLssMfModel(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of molecfit model"
-    _undescription: str = """\
+    _description: str = """\
     Calculation of molecfit model
 
     Inputs
