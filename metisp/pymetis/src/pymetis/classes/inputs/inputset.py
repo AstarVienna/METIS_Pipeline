@@ -47,7 +47,6 @@ class PipelineInputSet(metaclass=ABCMeta):
     """
 
     detector: str = NotImplemented
-    inputs: {PipelineInput} = set()
 
     def __init__(self, frameset: cpl.ui.FrameSet):
         """
@@ -84,7 +83,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         Msg.debug(self.__class__.__qualname__, f"Validating the inputset {self.inputs}")
 
         if len(self.inputs) == 0:
-            raise NotImplementedError(f"PipelineInput must define at least one input.")
+            raise NotImplementedError("PipelineInput must define at least one input.")
 
         for inp in self.inputs:
             inp.validate()
@@ -112,7 +111,7 @@ class PipelineInputSet(metaclass=ABCMeta):
 
         if (detector_count := len(detectors)) == 0:
             Msg.debug(self.__class__.__qualname__,
-                      f"No detector could be identified from the SOF")
+                      "No detector could be identified from the SOF")
         elif detector_count == 1:
             self.detector = detectors[0]
             Msg.debug(self.__class__.__qualname__,

@@ -21,32 +21,29 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins import Detector2rgMixin
+from pymetis.classes.mixins.detector import Detector2rgMixin
+from pymetis.classes.prefab import DarkImageProcessor
 
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.rawimage import RawImageProcessor
-
-from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadpixMapInput, MasterDarkInput, RawInput, GainMapInput, LinearityInput, OptionalInputMixin, LaserTableInput)
+from pymetis.classes.inputs import (SinglePipelineInput, BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
+                                    LinearityInput, OptionalInputMixin, PersistenceInputSetMixin)
 from pymetis.classes.products import PipelineTableProduct
-
-
 
 # =========================================================================================
 #    Define main class
 # =========================================================================================
-class MetisLmLssWaveImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):
+class MetisLmLssTraceImpl(DarkImageProcessor):
+    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
         band = "LM"
         detector = "2RG"
 
         class RawInput(RawInput):
             """
-            Raw frames with laser lines
+            Raw pinhole frames LM_LSS_RSRF_PINH_RAW
             """
-            _tags: re.Pattern = re.compile(r"LM_LSS_WAVE_RAW")
-            _title: str = "LM LSS wave raw"
-            _description: str = "Raw LSS spectra of the WCU lasers."
+            _tags: re.Pattern = re.compile(r"LM_LSS_RSRF_PINH_RAW")
+            _title: str = "LM LSS rsrf pinhole raw"
+            _description: str = "Raw flats taken with black-body calibration lamp through the pinhole mask."
 
         class LmRsrfWcuOffInput(RawInput):
             """
@@ -56,11 +53,6 @@ class MetisLmLssWaveImpl(RawImageProcessor):
             _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
             _title: str = "LM LSS WCU off"
             _description: str = "Raw data for dark subtraction in other recipes."
-
-        """
-        Persistence map
-        """
-       # TODO: add persistence map ***TBD***
 
         class MasterDarkInput(MasterDarkInput):
             """
@@ -95,70 +87,20 @@ class MetisLmLssWaveImpl(RawImageProcessor):
             _title: str = "MASTER_RSRF"
             _description: str = "Master 2D RSRF"
 
-        class LmLssTrace(SinglePipelineInput):
-            """
-            LM LSS TRACE
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_TRACE")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Trace table"
-            _description: str = "LM LSS polynomial trace table"
-
-        class LaserTable(LaserTableInput):   # TODO: Own input class in common.py? DONE!
-            """
-            LASER_TAB
-            """
-            _tags: re.Pattern = re.compile(r"LASER_TAB")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Laser line table"
-            _description: str = "Table with WCU laser lines"
-
-
-    # ++++++++++++ Intermediate / QC products ++++++++++++
-
-    class ProductLmLssCurve(PipelineTableProduct):
-        """
-        Trace curvature
-        """
-        _tag: str = r"LM_LSS_CURVE"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        _description: str = "Trace curvature information"
-        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
-
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
-
-    class ProductLmLssDistSol(PipelineTableProduct):
+    class ProductTraceTab(PipelineTableProduct):
         """
-        Distortion solution
+        Final trace table
         """
-        _tag: str = r"LM_LSS_DIST_SOL"
+        _tag: str = r"LM_LSS_TRACE"
         group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 
-        _description: str = "Distortion solution"
+        _description: str = "Table with polynomials describing the location of the traces on the detector"
         _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
-    class ProductLmLssWaveGuess(PipelineTableProduct):
-        """
-        First guess of the wavelength solution
-        """
-        _tag: str = r"LM_LSS_WAVE_GUESS"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        _description: str = "First guess of the wavelength solution"
-        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
-
-        # # SKEL: copy product keywords from header
-        # def add_properties(self):
-        #     super().add_properties()
-        #     self.properties.append(self.header)
 
 # =========================================================================================
 #    Methods
@@ -185,53 +127,44 @@ class MetisLmLssWaveImpl(RawImageProcessor):
 #   Method for processing
     def process_images(self) -> [PipelineTableProduct]:
         """Create dummy file (should do something more fancy in the future)"""
-        # header = self._create_dummy_header()
-        table = self._create_dummy_table()
-        LmLssCurveHdr = cpl.core.PropertyList()
-        LmLssDistSolHdr = cpl.core.PropertyList()
-        LmLssWaveGuessHdr = cpl.core.PropertyList()
-
+        # trace_tab_hdr = self._create_dummy_header()
+        trace_tab_hdr = self._create_dummy_header()
+        trace_tab_data = self._create_dummy_table()
         return [
-            self.ProductLmLssCurve(self, LmLssCurveHdr, table),
-            self.ProductLmLssDistSol(self, LmLssDistSolHdr, table),
-            self.ProductLmLssWaveGuess(self, LmLssWaveGuessHdr, table),
+            self.ProductTraceTab(self, trace_tab_hdr, trace_tab_data)
         ]
-
 
 # =========================================================================================
 #    MAIN PART
 # =========================================================================================
 
-
 # Define recipe main function as a class which inherits from
 # the PyCPL class cpl.ui.PyRecipe
-class MetisLmLssWave(MetisRecipe):
+class MetisLmLssTrace(MetisRecipe):
     # The information about the recipe needs to be set. The base class
     # cpl.ui.PyRecipe provides the class variables to be set.
     # The recipe name must be unique, because it is this name which is
     # used to identify a particular recipe among all installed recipes.
     # The name of the python source file where this class is defined
     # is not at all used in this context.
-    _name: str = "metis_lm_lss_wave"
+    _name: str = "metis_lm_lss_trace"
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
-    _synopsis: str = "First guess of the wavelength solution based on WCU laser reference"
+    _synopsis: str = "Detection of LM order location on the 2RG detector"
     _description: str = """\
-    First guess of the wavelength solution based on WCU laser reference
+    Detection of LM order location on the 2RG detector
 
     Inputs
-        LM_LSS_WAVE_RAW:    Raw WCU laser spectra [1-n]
-        LM_WCU_OFF_RAW:     Raw WCU OFF background frames [1-n]
-        PERSISTENCE_MAP:    Persistence map [optional]
-        GAIN_MAP_2RG:       Gain map for 2RG detector
-        LINEARITY_2RG:      Linearity map for 2RG detector
-        MASTER_DARK_2RG:    Master dark frame [optional?]
-        BADPIX_MAP_2RG:     Bad-pixel map for 2RG detector [optional]
-        MASTER_LM_LSS_RSRF: Master flat (RSRF) frame
-        LM_LSS_TRACE:       Location of the orders (TBD)
-        LASER_TAB:          Table with laser lines
+        LM_LSS_RSRF_PINH_RAW: Raw RSRF pinhole frames [1-n]
+        LM_WCU_OFF_RAW:       Raw WCU OFF background frames [1-n]
+        PERSISTENCE_MAP:      Persistence map [optional]
+        GAIN_MAP_2RG:         Gain map for 2RG detector
+        LINEARITY_2RG:        Linearity map for 2RG detector
+        MASTER_DARK_2RG:      Master dark frame [optional?]
+        BADPIX_MAP_2RG:       Bad-pixel map for 2RG detector [optional]
+        MASTER_LM_LSS_RSRF:   Master flat (RSRF) frame
 
     Matched Keywords
         DET.DIT
@@ -239,14 +172,11 @@ class MetisLmLssWave(MetisRecipe):
         DRS.SLIT
 
     Outputs
-        LM_LSS_CURVE:      Line curvature table (TBD)
-        LM_LSS_DIST_SOL:   Distortion solution
-        LM_LSS_WAVE_GUESS: First guess of the wavelength solution
+        LM_LSS_TRACE:   Location of the orders ***TBD***
     """
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy algorithm description follows ***TBD***"""
-
+    _algorithm = """Fancy algorithm description follows ***TBD*** """
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -263,5 +193,5 @@ class MetisLmLssWave(MetisRecipe):
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
-    implementation_class = MetisLmLssWaveImpl
+    implementation_class = MetisLmLssTraceImpl
 

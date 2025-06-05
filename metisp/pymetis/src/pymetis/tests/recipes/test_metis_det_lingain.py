@@ -23,8 +23,8 @@ from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.metis_det_lingain import (MetisDetLinGain as Recipe,
                                                MetisDetLinGainImpl as Impl)
 from pymetis.classes.products import PipelineProduct
-from pymetis.tests.classes import RawInputSetTest, BandParamRecipeTest, BaseProductTest
-
+from pymetis.tests.classes import RawInputSetTest, BandParamRecipeTest
+from pymetis.tests.classes.product import ImageProductTest
 
 recipe_name = r'metis_det_lingain'
 
@@ -48,11 +48,13 @@ class TestInputSet(RawInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
 
 
-class TestProductGain(BaseProductTest):
+class TestProductGain(ImageProductTest):
     _product: type[PipelineProduct] = Impl.ProductGain
 
-class TestProductLinearity(BaseProductTest):
+
+class TestProductLinearity(ImageProductTest):
     _product: type[PipelineProduct] = Impl.ProductLinearity
 
-class TestProductBadpixMap(BaseProductTest):
+
+class TestProductBadpixMap(ImageProductTest):
     _product: type[PipelineProduct] = Impl.ProductBadpixMap

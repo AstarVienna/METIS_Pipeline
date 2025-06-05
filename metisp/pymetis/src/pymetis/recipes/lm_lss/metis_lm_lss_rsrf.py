@@ -30,14 +30,14 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    LinearityInput, OptionalInputMixin)
+                                    LinearityInput, OptionalInputMixin, PersistenceInputSetMixin)
 from pymetis.classes.products import PipelineImageProduct
 
 # =========================================================================================
 #    Define main class
 # =========================================================================================
 class MetisLmLssRsrfImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
+    class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
         band = "LM"
         detector = "2RG"
 

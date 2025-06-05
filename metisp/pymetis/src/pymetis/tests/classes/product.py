@@ -16,12 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import cpl.ui
 import pytest
 
 from abc import ABC
 
-from pymetis.classes.products import PipelineProduct
+from pymetis.classes.products import (PipelineProduct,
+                                      PipelineImageProduct, PipelineTableProduct, PipelineMultipleProduct)
 
 
 @pytest.mark.product
@@ -33,9 +34,9 @@ class BaseProductTest(ABC):
         assert issubclass(self._product, PipelineProduct)
 
     @pytest.mark.metadata
-    def test_does_it_have_a_group(self):
-        assert self._product.group is not None, \
-            f"Product group is not defined for {self._product.__qualname__}"
+    def test_does_product_group_match(self):
+        assert self._product.group in [cpl.ui.Frame.FrameGroup.PRODUCT, cpl.ui.Frame.FrameGroup.CALIB], \
+            f"Product group is not PRODUCT or CALIB for {self._product.__qualname__}"
 
     @pytest.mark.metadata
     def test_does_it_have_a_level(self):
@@ -64,3 +65,21 @@ class BaseProductTest(ABC):
         for kw in self._product._oca_keywords:
             assert isinstance(kw, str), \
                 f"OCA keyword '{kw}' is not a string"
+
+
+class ImageProductTest(BaseProductTest):
+    def test_does_product_type_match(self):
+        assert issubclass(self._product, PipelineImageProduct)
+        assert self._product.frame_type == cpl.ui.Frame.FrameType.IMAGE
+
+
+class TableProductTest(BaseProductTest):
+    def test_does_product_type_match(self):
+        assert issubclass(self._product, PipelineTableProduct)
+        assert self._product.frame_type == cpl.ui.Frame.FrameType.TABLE
+
+
+class MultipleProductTest(BaseProductTest):
+    def test_does_product_type_match(self):
+        assert issubclass(self._product, PipelineMultipleProduct)
+        assert self._product.frame_type in [cpl.ui.Frame.FrameType.IMAGE, cpl.ui.Frame.FrameType.TABLE]

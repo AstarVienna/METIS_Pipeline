@@ -19,9 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 import cpl
-from cpl.core import np
+import numpy as np
 from cpl.core import Msg
-ma = np.ma
 
 # is this legal?
 from astropy.table import QTable
@@ -32,10 +31,11 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
-from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct
-from pymetis.classes.products import ProductBadpixMapDet
+from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct, ProductBadpixMapDet
 
-EXT = 4 # TODO: update to read multi-extension files
+ma = np.ma
+EXT = 4  # TODO: update to read multi-extension files
+
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
@@ -89,7 +89,6 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
 
-
     class ProductMasterFlatIfu(PipelineImageProduct):
         _tag: str = r"MASTER_FLAT_IFU"
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -102,7 +101,6 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
 
-
     class ProductRsrfIfu(PipelineTableProduct):
         _tag: str = r"RSRF_IFU"
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -110,7 +108,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         _description: str = "1D relative spectral response function"
         _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-        # SKEL: copy product keywords from header
+        # SKEL: copy product keywords from the header
         def add_properties(self):
             super().add_properties()
             self.properties.append(self.header)
@@ -118,7 +116,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
     class ProductBadpixMapIfu(DetectorIfuMixin, ProductBadpixMapDet):
         pass
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         """
         This function processes the input images:
         - stack the wcu_off images into background_img
@@ -137,32 +135,32 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # - dark subtraction? (subtracting WCU_OFF frame should suffice?)
         # - gain / linearity correction?
 
-        ## load MASTER_DARK_IFU image and extract bad pixel map
+        # load MASTER_DARK_IFU image and extract bad pixel map
         # TODO: update to load multi-extension file, current intermediate
         # products are only single-extension
         master_dark_img = cpl.core.Image.load(
             self.inputset.master_dark.frame.file, extension=0)
         badpix_map = master_dark_img.bpm
 
-        ## load IFU trace definition file - only one extension for now
+        # load IFU trace definition file - only one extension for now
         trace_list = read_ifu_distortion_table(
             self.inputset.distortion_table.frame.file, ext=EXT)
 
-        ## load wavelength calibration image
+        # load wavelength calibration image
         wavecal_img = cpl.core.Image.load(
             self.inputset.wavecal.frame.file, extension=EXT)
 
-        ## create master WCU_OFF background image
+        # create master WCU_OFF background image
         background_hdr = \
             cpl.core.PropertyList()
         # self.inputset.background.frameset.dump() # debug
         bg_images = self.load_images(self.inputset.rsrf_wcu_off.frameset)
         background_img = self.combine_images(bg_images, stackmethod)
-        
+
         # TODO: define usedframes?
         # TODO: Add product keywords - currently none defined in DRLD
 
-        ## create 2D flat image (raw images are added together)
+        # create 2D flat image (raw images are added together)
         spec_flat_hdr = \
             cpl.core.PropertyList()
         # load RSRF_RAW images, subtract the background and stack them
@@ -181,7 +179,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             position=0)
         bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
 
-        ## create black-body image
+        # create black-body image
         bb_img = create_ifu_blackbody_image(wavecal_img, bb_temp)
 
         # scale the BB image to the RSRF image before dividing
@@ -202,13 +200,13 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
                 cpl.core.Type.INT,
                 qc_badpix_count,
                 "Number of bad pixels"
-                )
             )
+        )
 
-        ## create bad pixel map product
+        # create bad pixel map product
         # TODO: FUNC: create updated bad pixel map
         badpix_hdr = cpl.core.PropertyList()
-        # placeholder data for now - bad-pixel map based on master_dark
+        # placeholder data for now -- bad-pixel map based on master_dark
         badpix_img = master_dark_img
         # TODO: create QC1 parameters:
         # Add QC keywords
@@ -218,12 +216,12 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
                 cpl.core.Type.INT,
                 qc_badpix_count,
                 "Number of bad pixels"
-                )
             )
+        )
 
-        ## extract 1D RSRF curves
+        # extract 1D RSRF curves
         rsrf_1d_list = extract_ifu_1d_spectra(spec_flat_img, trace_list,
-                                                   trace_width=extract_hwidth)
+                                              trace_width=extract_hwidth)
 
         # global normalisation of the 1D RSRF curves
         rsrf_med = np.zeros(len(rsrf_1d_list))
@@ -235,7 +233,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         # TODD: exception for zero scale
         for i in range(len(rsrf_1d_list)):
-                rsrf_1d_list[i].divide_scalar(scale)
+            rsrf_1d_list[i].divide_scalar(scale)
 
         # create 1D RSRF product
         rsrf_hdr = cpl.core.PropertyList()
@@ -254,7 +252,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         product_rsrf_ifu = self.ProductRsrfIfu(self, rsrf_hdr, rsrf_table)
         product_badpix_map_ifu = self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img)
 
-        return [product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu]
+        return {product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu}
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
@@ -268,16 +266,17 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         for idx, frame in enumerate(frameset):
             cpl.core.Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
+                              f"Processing input frame #{idx}: {frame.file!r}...")
             output.append(cpl.core.Image.load(frame.file, extension=EXT))
 
         return output
+
 
 def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
     """
     Create a blackbody image from the RSRF image and the wavelength calibration image.
     """
-    
+
     wdata = wavecal_img.as_array()
 
     # create a new image to hold the black-body spectrum
@@ -290,10 +289,9 @@ def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
 
     # Calculate the black-body flux at each wavelength
     flux = cpl.drs.photom.fill_blackbody(cpl.drs.photom.Unit.LESS,  # output unit
-                                wavelengths,  # Wavelengths in meters
-                                cpl.drs.photom.Unit.LENGTH,  # input unit
-                                bb_temp  # Temperature in Kelvin
-                                )
+                                         wavelengths,  # Wavelengths in meters
+                                         cpl.drs.photom.Unit.LENGTH,  # input unit
+                                         bb_temp)  # Temperature in Kelvin
 
     # convert lookup table to vector for binary search functionality
     wlookup = cpl.core.Vector(wlookup)
@@ -301,7 +299,7 @@ def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
     # fill the BB data array with the flux values
     for i in range(bb_data.shape[0]):
         for j in range(bb_data.shape[1]):
-            if wdata[i, j] > 0: # only fill valid pixels
+            if wdata[i, j] > 0:  # only fill valid pixels
                 # find the index of the closest wavelength in the lookup table
                 # and assign the corresponding flux value
                 bb_data[i, j] = flux[wlookup.binary_search(wdata[i, j])]
@@ -311,6 +309,7 @@ def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
     bb_img.reject_value({0})
 
     return bb_img
+
 
 def read_ifu_distortion_table(fits_file, ext: int = 1) -> list:
     """
@@ -336,13 +335,14 @@ def read_ifu_distortion_table(fits_file, ext: int = 1) -> list:
     for x_range, trace in zip(x_ranges, trace_polys):
         x_arr = np.arange(x_range[0], x_range[1])
         poly_n = len(trace) - 1
-        y_arr = [sum([k*x**(poly_n-i) for i, k in enumerate(trace)]) for x in x_arr]
+        y_arr = [sum([k * x ** (poly_n - i) for i, k in enumerate(trace)]) for x in x_arr]
         trace_list.append((x_arr, y_arr))
-        
+
     # return the list of x,y coordinates for each trace
     return trace_list
-    
-def extract_ifu_1d_spectra(img, trace_list, trace_width=10) -> list:
+
+
+def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
     """
     Extract 1D spectra from the given image using the provided list of
     spectral trace coordinates.
@@ -355,12 +355,12 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width=10) -> list:
         of the spectral trace.
     trace_width : int
         The width of the trace to be used for extraction.
-    
+
     Returns:
     list of cpl.core.Vector
         A list of 1D spectra extracted from the image.
     """
-    
+
     # copy data to np.masked_array for processing
     rej_mask = np.array(img.bpm)  # set bad pixels
     mdata = ma.masked_array(img.as_array(), mask=rej_mask)
@@ -376,9 +376,9 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width=10) -> list:
         rsrf_1d = np.zeros(imwidth, dtype=float)
         for i, x in enumerate(x_arr):
             yc = y_arr[i]
-            rsrf_1d[x] = mdata[int(yc-trace_width):int(yc+trace_width), x].mean()
+            rsrf_1d[x] = mdata[int(yc - trace_width):int(yc + trace_width), x].mean()
         rsrf_1d_list.append(cpl.core.Vector(rsrf_1d))
-    
+
     return rsrf_1d_list
 
 
@@ -389,7 +389,7 @@ class MetisIfuRsrf(MetisRecipe):
     _email: str = "janus.brink27@gmail.com"
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """Average / median stack WCU_OFF images to create background image
         Subtract background image from individual RSRF RAW frames
         Stack the RSRF RAW frames

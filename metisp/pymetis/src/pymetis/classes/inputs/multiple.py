@@ -30,7 +30,7 @@ class MultiplePipelineInput(PipelineInput):
     """
     A pipeline input that expects multiple frames, such as a raw processor.
     """
-    _multiplicity = 'N'
+    _multiplicity: str = 'N'
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):
@@ -56,7 +56,6 @@ class MultiplePipelineInput(PipelineInput):
         """
         Extracts the 'target' name from the input string based on the '_tags' regex.
 
-        :param inputString: The string to be matched against the pattern.
         :return: The target name if a match is found, otherwise None.
         """
         for frame in frameset:
@@ -65,15 +64,18 @@ class MultiplePipelineInput(PipelineInput):
             else:
                 return None
 
-    def extract_tag_parameters(self, matches: [dict[str, str]]):
+        return None
+
+    def extract_tag_parameters(self, matches: list[dict[str, str]]):
+        """Extract the tag parameters from regex matches."""
         if len(matches) == 0:
             return
 
-        Msg.debug(self.__class__.__qualname__, f"Verifying tag parameters are equal for all frames...")
+        Msg.debug(self.__class__.__qualname__, "Verifying that tag parameters are equal for all frames...")
         # Check if all matches are created equal
         if matches[:-1] == matches[1:]:
             self.tag_parameters = matches[0]
-            #self._detector = matches[0].get('detector', None)
+            #   self._detector = matches[0].get('detector', None)
             Msg.debug(self.__class__.__qualname__, f"Tag parameters are equal for all frames: {self.tag_parameters}")
         else:
             raise ValueError(f"Tag parameters are not equal for all frames! Found {matches}")
@@ -90,10 +92,18 @@ class MultiplePipelineInput(PipelineInput):
         """
         Verification shorthand: if a required frameset is not present or empty,
         raise a `cpl.core.DataNotFoundError` with the appropriate message.
+
+        Raises
+        ------
+        cpl.core.DataNotFoundError:
+            If the input is required but the frameset is empty
         """
         if (count := len(self.frameset)) == 0:
             if self.required():
-                raise cpl.core.DataNotFoundError(f"No {self.title():s} frames ({self.tags().pattern:s}) found in the frameset.")
+                raise cpl.core.DataNotFoundError(
+                    f"{self.__class__.__qualname__}: no {self.title():s} frames "
+                    f"({self.tags().pattern:s}) found in the frameset."
+                )
             else:
                 Msg.debug(self.__class__.__qualname__, f"No {self.title():s} frames found but not required.")
         else:
@@ -117,9 +127,18 @@ class MultiplePipelineInput(PipelineInput):
         """
 
     def as_dict(self) -> dict[str, Any]:
+        """
+        Return a dictionary representation of the input.
+        """
         return super().as_dict() | {
             'frame': str(self.frameset),
         }
 
     def valid_frames(self) -> cpl.ui.FrameSet:
+        """
+        Return a list of valid frames.
+
+        # FixMe: currently returns everything, but should only return valid frames.
+        :return:
+        """
         return self.frameset

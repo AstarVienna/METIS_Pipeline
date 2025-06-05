@@ -25,7 +25,7 @@ import cpl
 
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import PipelineInput, SinglePipelineInput
+from pymetis.classes.inputs import PipelineInput
 
 
 class MetisRecipe(cpl.ui.PyRecipe):
@@ -43,14 +43,14 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _name: str = "metis_abstract_base"
     _version: str = "0.0.1"
     _author: str = "METIS PIP team, A*"
-    _email: str = "astar.vienna@univie.ac.at"                        # ToDo is this a sensible default?
-    _copyright: str = "GPL-3.0-or-later"                             # I guess we are using the same copyright everywhere
+    _email: str = "astar.vienna@univie.ac.at"                    # ToDo is this a sensible default?
+    _copyright: str = "GPL-3.0-or-later"                         # I guess we are using the same copyright everywhere
     _synopsis: str = "Abstract-like base class for METIS recipes"
     _description: str = ("This class serves as the base class for all METIS recipes."
                          "Bonus points if it is not visible from pyesorex.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
-    _matched_keywords: {str} = None
+    _matched_keywords: set[str] = set()
     _algorithm: str = None                                      # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
@@ -73,15 +73,23 @@ class MetisRecipe(cpl.ui.PyRecipe):
         self.implementation = self.implementation_class(self, frameset, settings)
         return self.implementation.run()
 
-    def _list_inputs(self) -> [PipelineInput]:
+    def _list_inputs(self) -> list[PipelineInput]:
         return inspect.getmembers(self.implementation_class.InputSet,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
-    def _list_products(self) -> [PipelineProduct]:
+    def _list_products(self) -> list[str, PipelineProduct]:
         return inspect.getmembers(self.implementation_class,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
 
-    def _build_description(self):
+    @staticmethod
+    def _format_spacing(text: str, title: str, offset: int = 4) -> str:
+        fix_spacing = re.compile(r'\n\s*')
+        fix_first_space = re.compile(r'^\s*')
+
+        return fix_spacing.sub('\n' + ' ' * offset, fix_first_space.sub(' ' * offset, text)) \
+            if text is not None else f'<no {title} defined>'
+
+    def _build_description(self) -> str:
         """
         Automatically build the `description` attribute from available attributes.
         This should only depend on the class, never on an instance.
@@ -95,14 +103,11 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
         inputs = '\n'.join(sorted([input_type.description_line() for (_, input_type) in self._list_inputs()]))
         products = '\n'.join(sorted([product_type.description_line() for (_, product_type) in self._list_products()]))
-
-        fix_spacing = re.compile(r'\n\s*')
-        fix_first_space = re.compile(r'^\s*')
-        algorithm = fix_spacing.sub('\n    ', fix_first_space.sub('    ', self.algorithm)) \
-            if self.algorithm is not None else '<no algorithm defined>'
+        description = self._format_spacing(self._description, 'description', 2)
+        algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
 
         return \
-f"""{self.synopsis}
+            f"""{self.synopsis}\n\n{description}
 
   Matched keywords
     {matched_keywords}

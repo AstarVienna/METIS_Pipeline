@@ -62,7 +62,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         """
         Msg.info(cls.__qualname__,
                  f"Combining {len(images)} images using method {method!r}")
-        combined_image = None
+        combined_image: cpl.core.Image = None
         match method:
             case "add":
                 for idx, image in enumerate(images):

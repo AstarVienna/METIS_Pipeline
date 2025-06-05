@@ -50,6 +50,7 @@ You should override class attributes:
     `_required = False` for optional inputs.
 """
 
+
 class OptionalInputMixin(PipelineInput, ABC):
     _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
 
@@ -92,7 +93,7 @@ class PersistenceMapInput(SinglePipelineInput):
     _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Persistence map"
-    _required = False # By default, persistence maps are optional
+    _required = False           # By default, persistence maps are optional
 
 
 class GainMapInput(SinglePipelineInput):
@@ -146,9 +147,11 @@ class LsfKernelInput(SinglePipelineInput):
 
 class AtmProfileInput(SinglePipelineInput):
     _title: str = "atmosphere profile"
-    _tags: Pattern = re.compile(rf"ATM_PROFILE")
+    _tags: Pattern = re.compile(r"ATM_PROFILE")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Atmospheric profile containing height information on temperature, pressure and molecular abundances"
+    _description: str = ("Atmospheric profile containing height information on temperature, "
+                         "pressure and molecular abundances")
+
 
 class AtmLineCatInput(SinglePipelineInput):
     _title: str = "Line catalogue of atmospheric lines"
@@ -156,11 +159,13 @@ class AtmLineCatInput(SinglePipelineInput):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Catalogue containing a line list of atmospheric molecular lines"
 
+
 class LaserTableInput(SinglePipelineInput):
     _title: str = "Laser table"
     _tags: Pattern = re.compile(r"LASER_TAB")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Table with laser lines"
+
 
 class SynthTransInput(SinglePipelineInput):
     _title: str = "Synthetic transmission"

@@ -45,7 +45,7 @@ class TestRecipe(BaseRecipeTest):
 
 class TestInputSet(BaseInputSetTest):
     _impl: type[MetisRecipeImpl] = Impl
-    
+
 
 class TestProduct(BaseProductTest):
     _product: type[PipelineProduct] = Impl.ProductSciCoadd

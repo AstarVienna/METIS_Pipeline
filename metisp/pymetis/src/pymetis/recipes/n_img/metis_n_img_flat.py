@@ -30,7 +30,7 @@ class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
 
     class ProductMasterFlat(MetisBaseImgFlatImpl.ProductMasterFlat):
         _band: str = "N"
-        _oca_keywords: {str} = {'PRO.CATG', 'DRS.FILTER'}
+        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.FILTER'}
 
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         return {
@@ -58,7 +58,7 @@ class MetisNImgFlat(MetisRecipe):
     _synopsis: str = "Create master flat for N band detectors"
     _description: str = "Prototype to create a METIS master flat for N band"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
     _algorithm: str = """For internal flats: call metis_det_dark with LAMP OFF im ages to create dark frame.
     Subtract internal dark or master dark from flat exposures.
     Call metis_n_img_flat to fit slope of pixel values against illumination level.

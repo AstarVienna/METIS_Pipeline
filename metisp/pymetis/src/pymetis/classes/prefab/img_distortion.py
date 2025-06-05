@@ -43,7 +43,6 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
 
         PinholeTableInput = PinholeTableInput
 
-
     class ProductDistortionTable(BandSpecificProduct, PipelineTableProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Table of distortion information"
@@ -71,7 +70,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         def tag(cls) -> str:
             return rf"{cls.band():s}_DIST_REDUCED"
 
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -86,8 +85,8 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         combined_image = self.combine_images(raw_images, "average")
         table = self._create_dummy_table()
 
-        return [
+        return {
             self.ProductDistortionTable(self, self.header, table),
             self.ProductDistortionMap(self, self.header, combined_image),
             self.ProductDistortionReduced(self, self.header, table),
-        ]
+        }

@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from __future__ import annotations
+
 import re
 
 from abc import ABC, abstractmethod
@@ -45,7 +47,7 @@ class PipelineProduct(ABC):
     # If it depends on other attributes, override the corresponding @classmethod.
     # All methods dealing with these should relate to the **class**, not its instances!
     _tag: str = None
-    _oca_keywords: {str} = None
+    _oca_keywords: set[str] = set()
     _description: str = None
 
     # Use this regex to verify that the product tag is correct.
@@ -125,26 +127,27 @@ class PipelineProduct(ABC):
 
     @final
     def save(self) -> None:
-        """ Save Product data to appropriate file(s) """
+        """ Run finalization checks and then save Product data to the appropriate file(s) """
         Msg.info(self.__class__.__qualname__,
                  f"Saving product file as {self.output_file_name!r}:")
         Msg.info(self.__class__.__qualname__,
                  f"All frames ({len(self.recipe.frameset)}): {sorted([frame.tag for frame in self.recipe.frameset])}")
         Msg.info(self.__class__.__qualname__,
-                 f"Loaded frames ({len(self.recipe.valid_frames)}): {sorted([frame.tag for frame in self.recipe.valid_frames])}")
+                 f"Loaded frames ({len(self.recipe.valid_frames)}): "
+                 f"{sorted([frame.tag for frame in self.recipe.valid_frames])}")
 
         # Check that the tag matches the generic regex
         assert self._regex_tag.match(self.tag()) is not None, \
             f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
 
         # At least one frame in the recipe frameset must be tagged as RAW!
-        # Otherwise, PyCPL **will not** save (rite of passage)
+        # Otherwise, PyCPL **will not** save (rite of passage problem)
         self.save_files()
 
     @abstractmethod
     def save_files(self) -> None:
         """
-        Actually save the files. This is a hook for derived classes.
+        Actually save the files. This is only a hook for derived classes.
         """
         pass
 
@@ -178,16 +181,29 @@ class PipelineProduct(ABC):
         """
         Returns
         -------
-            cpl.ui.FrameSet:    List of all frames actually used by the product.
+        cpl.ui.FrameSet
+            List of all frames actually used by the product.
         """
         return self._used_frames
 
     @classmethod
     def tag(cls) -> str:
+        """
+        Returns
+        -------
+        str
+            The tag of this product.
+        """
         return cls._tag
 
     @classmethod
     def description(cls) -> str:
+        """
+        Returns
+        -------
+        str
+            An unformatted description of this product.
+        """
         return cls._description
 
     @classmethod
