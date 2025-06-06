@@ -23,6 +23,8 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.basicreduced import BasicReduced, SkyBasicReduced
+from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
@@ -34,16 +36,12 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
     class InputSet(PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
+            _item: type[DataItem] = BasicReduced
             _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
-            _title = "Detrended exposure"
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Detrended exposure of the LM image mode."
 
         class SkyBasicReducedInput(SinglePipelineInput):
+            _item: type[DataItem] = SkyBasicReduced
             _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title = "Sky basic-reduced exposure"
-            _description: str = "Detrended exposure of the sky."
 
     class ProductBkg(TargetSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL

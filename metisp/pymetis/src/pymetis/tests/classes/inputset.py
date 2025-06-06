@@ -77,7 +77,10 @@ class BaseInputSetTest(ABC):
                 f"Input {inp} has no data item defined"
 
             assert isinstance(inp.item()._title, str), \
-                f"Input {inp} does not have a title defined"
+                f"Data item {inp} does not have a title defined"
+
+            assert inp.item()._description is not None,\
+                f"Input {inp} does not have a description defined"
 
 
 @pytest.mark.inputset

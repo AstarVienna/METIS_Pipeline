@@ -25,19 +25,19 @@ from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class MasterDark(DataItem, ABC):
-    _title: str = r"master dark"
+class MasterFlat(DataItem, ABC):
+    _title: str = r"master flat"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Abstract base class for master darks. Please subclass."
+    _description: str = "Abstract base class for master flats. Please subclass."
 
 
-class MasterDark2rg(Detector2rgMixin, MasterDark):
+class MasterFlat2rg(Detector2rgMixin, MasterFlat):
     pass
 
 
-class MasterDarkGeo(DetectorGeoMixin, MasterDark):
+class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
     pass
 
 
-class MasterDarkIfu(DetectorIfuMixin, MasterDark):
+class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
     pass

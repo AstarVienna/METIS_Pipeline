@@ -29,12 +29,13 @@ from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 
 from ..dataitems.dataitem import DataItem
-from ..dataitems.common import Raw, PersistenceMap, LinearityMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel, \
-    FluxStdCatalog, IfuWavecal
+from ..dataitems.common import (Raw, PersistenceMap, LinearityMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel,
+                                FluxStdCatalog, IfuWavecal)
 from ..dataitems.badpixmap import BadPixMap
 from ..dataitems.distortion import DistortionTable
 from ..dataitems.gainmap import GainMap
-from ..dataitems.masterdark import MasterDarkIfu, MasterDark
+from ..dataitems.masterdark import MasterDark, MasterDark2rg, MasterDarkGeo, MasterDarkIfu
+from ..dataitems.masterflat import MasterFlat, MasterFlat2rg, MasterFlatGeo, MasterFlatIfu
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
@@ -74,6 +75,7 @@ class MasterDarkInput(SinglePipelineInput):
 
 
 class MasterFlatInput(SinglePipelineInput):
+    _item: type[DataItem] = MasterFlat
     _title: str = "master flat"
     _tags: Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB

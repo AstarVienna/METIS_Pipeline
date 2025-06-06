@@ -23,6 +23,8 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterValue
 
+from pymetis.classes.dataitems.common import ScienceCalibrated
+from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
@@ -31,10 +33,8 @@ from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 class MetisNImgRestoreImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class CalibratedInput(SinglePipelineInput):
+            _item: type[DataItem] = ScienceCalibrated
             _tags: re.Pattern = re.compile(r'N_SCI_CALIBRATED')
-            _description: str = "N band image with flux calibration and distortion information"
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title = "N science calibrated"
 
     class ProductRestored(PipelineImageProduct):
         _tag: re.Pattern = r'N_SCI_RESTORED'

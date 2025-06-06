@@ -38,7 +38,11 @@ class DataItem(ABC):
     - either a single file, or a line in the SOF (see SinglePipelineInput)
     - or a set of equivalent files (see MultiplePipelineInput)
     """
+    # Printable title of the data item. Not used internally, only for human-oriented output
     _title: str = None                      # No universal title makes sense
+
+    # Actual ID of the data item. Used internally for identification.
+    _name: str = None                       # No universal name makes sense
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     _description: Optional[str] = None      # Description for man page
@@ -63,8 +67,20 @@ class DataItem(ABC):
         return cls._description
 
     @classmethod
+    @final
     def group(cls):
+        """
+        Return the group of this data item. Should not be overridden.
+        """
         return cls._group
+
+    @classmethod
+    def oca_keywords(cls):
+        """
+        Return the OCA keywords of this data item. By default, it's just the protected attribute,
+        but feel free to override if necessary.
+        """
+        return cls._oca_keywords
 
     def __init__(self):
         # Check if it is defined

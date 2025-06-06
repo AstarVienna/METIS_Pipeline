@@ -24,6 +24,8 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.distortion import NDistortionRaw
 from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct
@@ -36,6 +38,7 @@ class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
             _tags: re.Pattern = re.compile(r"N_WCU_OFF_RAW")
 
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
+            _item: type[DataItem] = NDistortionRaw
             _tags: re.Pattern = re.compile(r"N_DISTORTION_RAW")
 
     class ProductDistortionTable(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionTable):

@@ -25,19 +25,30 @@ from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class MasterDark(DataItem, ABC):
-    _title: str = r"master dark"
+class BasicReduced(DataItem, ABC):
+    _title: str = "basic reduced"
+    _band: str = 'LM'
+    _description: str = None
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Abstract base class for master darks. Please subclass."
+    _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+
+    @classmethod
+    def _pro_catg(cls):
+        return rf"{cls._band}_DISTORTION_TABLE"
 
 
-class MasterDark2rg(Detector2rgMixin, MasterDark):
-    pass
+class StdBasicReduced(Detector2rgMixin, BasicReduced):
+    _description: str = "Standard detrended exposure of the LM image mode."
+    _tag: str = r"LM_STD_BASIC_REDUCED"
 
 
-class MasterDarkGeo(DetectorGeoMixin, MasterDark):
-    pass
+class SciBasicReducedGeo(DetectorGeoMixin, BasicReduced):
+    _description: str = "Science grade detrended exposure of the LM image mode."
+    _tag: str = r"LM_SCI_BASIC_REDUCED"
 
 
-class MasterDarkIfu(DetectorIfuMixin, MasterDark):
-    pass
+class SkyBasicReduced(DataItem, ABC):
+    _title = "Sky basic-reduced exposure"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description: str = "Detrended exposure of the sky."
+    _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe

@@ -24,3 +24,7 @@ class BandLmMixin:
 
 class BandNMixin:
     _band: str = r'N'
+
+
+class BandIfuMixin:
+    _band: str = r'IFU'

@@ -22,6 +22,8 @@ from abc import ABC
 
 import cpl
 
+from pymetis.classes.dataitems.background import BackgroundSubtracted
+from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.products import BandSpecificProduct, PipelineImageProduct
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.products.product import PipelineProduct
@@ -32,9 +34,8 @@ from pymetis.classes.inputs import FluxCalTableInput
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
+            _item: type[DataItem] = BackgroundSubtracted
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_SCI_BKG_SUBTRACTED")
-            _title: str = "science background-subtracted"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
 
             @classmethod
             def description(cls):

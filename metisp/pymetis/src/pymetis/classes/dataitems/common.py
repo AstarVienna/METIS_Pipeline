@@ -93,7 +93,7 @@ class FluxStdCatalog(DataItem):
 
 class SciCubeCalibrated(DataItem):
     _title: str = "rectified spectral cube"
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
 
@@ -120,7 +120,12 @@ class IfuWavecal(DetectorIfuMixin, DataItem):
 
 
 class Combined(DataItem):
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _title: str = "spectral cube of science object"
     _description: str = "Spectral cube of standard star, combining multiple exposures."
 
+
+class ScienceCalibrated(DataItem):
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _title = "N science calibrated"
+    _description: str = "N band image with flux calibration and distortion information"
