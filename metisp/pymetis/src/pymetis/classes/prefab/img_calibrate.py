@@ -22,8 +22,9 @@ from abc import ABC
 
 import cpl
 
-from pymetis.classes.dataitems.background import BackgroundSubtracted
+from pymetis.classes.dataitems.background import BackgroundSubtracted, LmSciBackgroundSubtracted
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.distortion import DistortionTableGeo
 from pymetis.classes.products import BandSpecificProduct, PipelineImageProduct
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.products.product import PipelineProduct
@@ -34,20 +35,16 @@ from pymetis.classes.inputs import FluxCalTableInput
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
-            _item: type[DataItem] = BackgroundSubtracted
+            _item: type[DataItem] = LmSciBackgroundSubtracted
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_SCI_BKG_SUBTRACTED")
-
-            @classmethod
-            def description(cls):
-                return rf"Thermal background subtracted images of science {cls._band} exposures."
 
         FluxcalTableInput = FluxCalTableInput
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
-            _title: str = "distortion table"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Table of distortion information"
+            _item: type[DataItem] = DistortionTableGeo
+            _tags: re.Pattern = re.compile(r"N_DISTORTION_TABLE")
+
 
     class ProductSciCalibrated(BandSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL

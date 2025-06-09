@@ -22,6 +22,8 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.distortion import LmDistortionRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput
@@ -37,9 +39,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
             _description: str = "Raw data for dark subtraction in other recipes."
 
         class DistortionInput(SinglePipelineInput):
-            _title: str = "Distortion map"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Images of grid mask in WCU-FP2 or CFO-FP2."
+            _item: type[DataItem] = LmDistortionRaw
 
         PinholeTableInput = PinholeTableInput
 

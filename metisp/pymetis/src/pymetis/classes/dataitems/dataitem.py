@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import inspect
 import re
 from abc import abstractmethod, ABC
-from typing import Pattern, Any, Optional, Generator, final
+from typing import Pattern, Any, Optional, Generator, final, Literal
 
 import cpl
 
@@ -45,6 +45,7 @@ class DataItem(ABC):
     _name: str = None                       # No universal name makes sense
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
+    _band: Optional[Literal['LM', 'N']] = None
     _description: Optional[str] = None      # Description for man page
     _oca_keywords: set[str] = set()
 
@@ -65,6 +66,10 @@ class DataItem(ABC):
     @classmethod
     def description(cls) -> str:
         return cls._description
+
+    @classmethod
+    def band(cls) -> str:
+        return cls._band
 
     @classmethod
     @final

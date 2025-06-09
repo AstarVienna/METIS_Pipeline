@@ -79,7 +79,7 @@ class BaseInputSetTest(ABC):
             assert isinstance(inp.item()._title, str), \
                 f"Data item {inp} does not have a title defined"
 
-            assert inp.item()._description is not None,\
+            assert inp.item().description() is not None,\
                 f"Input {inp} does not have a description defined"
 
 

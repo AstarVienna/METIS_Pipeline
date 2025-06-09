@@ -61,11 +61,17 @@ class BackgroundSubtracted(DataItem, ABC):
     _band: str = r'LM'
     _detector: str = r'2RG'
     _target: Literal['SCI', 'STD'] = None
+    _group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
     @classmethod
     def name(cls):
         return rf"{cls._band}_{cls._target}_BKG_SUBTRACTED"
+
+    @classmethod
+    def description(cls):
+        return rf"Thermal background subtracted images of science {cls._band} exposures."
+
 
 class LmSciBackgroundSubtracted(BackgroundSubtracted):
     _target: str = 'SCI'

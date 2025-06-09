@@ -40,17 +40,14 @@ class DistortionTable(DataItem, ABC):
 
 class DistortionTable2rg(Detector2rgMixin, DistortionTable):
     _description: str = "Table of distortion coefficients for a 2RG data set"
-    pass
 
 
 class DistortionTableGeo(DetectorGeoMixin, DistortionTable):
     _description: str = "Table of distortion coefficients for a GEO data set"
-    pass
 
 
 class DistortionTableIfu(DetectorIfuMixin, DistortionTable):
     _description: str = "Table of distortion coefficients for an IFU data set"
-    pass
 
 
 class DistortionRaw(DataItem, ABC):

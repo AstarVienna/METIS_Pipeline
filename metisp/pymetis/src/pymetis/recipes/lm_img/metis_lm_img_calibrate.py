@@ -21,6 +21,8 @@ import re
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.distortion import DistortionTable2rg
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisImgCalibrateImpl
@@ -32,6 +34,7 @@ class MetisLmImgCalibrateImpl(MetisImgCalibrateImpl):
             pass
 
         class DistortionTableInput(BandLmMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
+            _item: type[DataItem] = DistortionTable2rg
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_TABLE")
 
     class ProductSciCalibrated(BandLmMixin, MetisImgCalibrateImpl.ProductSciCalibrated):
