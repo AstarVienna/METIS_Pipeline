@@ -23,7 +23,7 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.basicreduced import BasicReduced, SkyBasicReduced
+from pymetis.classes.dataitems.basicreduced import BasicReduced, SkyBasicReduced, SciBasicReduced, StdBasicReduced
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
@@ -109,6 +109,10 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
 
 class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
+    class InputSet(MetisLmImgBackgroundImpl.InputSet):
+        class BasicReducedInput(MetisLmImgBackgroundImpl.InputSet.BasicReducedInput):
+            _item: type[DataItem] = SciBasicReduced
+
     class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg):
         pass
 
@@ -120,6 +124,10 @@ class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
 
 
 class MetisLmImgBackgroundSciImpl(MetisLmImgBackgroundImpl):
+    class InputSet(MetisLmImgBackgroundImpl.InputSet):
+        class BasicReducedInput(MetisLmImgBackgroundImpl.InputSet.BasicReducedInput):
+            _item: type[DataItem] = StdBasicReduced
+
     class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg):
         pass
 

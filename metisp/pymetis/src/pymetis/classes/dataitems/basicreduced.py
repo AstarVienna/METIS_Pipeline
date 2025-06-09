@@ -36,15 +36,19 @@ class BasicReduced(DataItem, ABC):
     def _pro_catg(cls):
         return rf"{cls._band}_DISTORTION_TABLE"
 
+    @classmethod
+    def description(cls):
+        return f"Detrended exposure of the LM image mode."
+
 
 class StdBasicReduced(Detector2rgMixin, BasicReduced):
-    _description: str = "Standard detrended exposure of the LM image mode."
     _tag: str = r"LM_STD_BASIC_REDUCED"
+    _target: str = 'STD'
 
 
-class SciBasicReducedGeo(DetectorGeoMixin, BasicReduced):
-    _description: str = "Science grade detrended exposure of the LM image mode."
+class SciBasicReduced(DetectorGeoMixin, BasicReduced):
     _tag: str = r"LM_SCI_BASIC_REDUCED"
+    _target: str = 'SCI'
 
 
 class SkyBasicReduced(DataItem, ABC):
