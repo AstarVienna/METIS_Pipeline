@@ -136,6 +136,11 @@ class BaseRecipeTest(ABC):
             assert param.name.startswith(self._recipe._name), \
                 f"Parameter name {param.name} does not start with {self._recipe._name}"
 
+    @pytest.mark.metadata
+    def test_can_display_manpage_directly(self):
+        recipe = self._recipe()
+        assert recipe._build_description() is not None
+
 
 class BandParamRecipeTest(BaseRecipeTest):
     """
