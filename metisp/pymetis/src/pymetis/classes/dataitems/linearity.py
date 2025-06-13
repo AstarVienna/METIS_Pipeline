@@ -16,28 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-import cpl
-import pytest
-import inspect
-
-from pymetis.classes.dataitems.dataitem import DataItem
 
 
-class TestDataItem:
-    _item: type[DataItem] = None
-
-    @staticmethod
-    def test_has_description(instance):
-        for inp in instance.inputs:
-            assert inp.description() is not None, \
-                f"Input {inp} does not have a description defined"
-
-    def test_has_group_defined(self):
-        assert isinstance(self._item.group(), cpl.ui.Frame.FrameGroup), \
-            f"Data item {self._item.group()" 
-
-    def test_has_oca_keywords_defined(self):
-        assert isinstance(self._item._oca_keywords, set)
-
-        for kw in self._item._oca_keywords:
-            assert isinstance(kw, str)
+class LinearityRaw(Raw):

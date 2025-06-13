@@ -24,16 +24,12 @@ from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import DetectorIfuMixin
 
 
-class Raw(DataItem, ABC):
-    _title: str = "raw frame"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
-    _description: str = "Abstract base class for all raw inputs. Please subclass."
-
-
 class PersistenceMap(DataItem):
     _title: str = "persistence map"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Persistence map"
+    _oca_keywords: set[str] = {'PRO.CATG'}
+    _pro_catg: str = r'PERSISTENCE_MAP'
 
 
 class LinearityMap(DataItem):

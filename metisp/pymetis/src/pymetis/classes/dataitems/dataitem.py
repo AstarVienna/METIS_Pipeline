@@ -45,7 +45,7 @@ class DataItem(ABC):
     _name: str = None                       # No universal name makes sense
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
-    _band: Optional[Literal['LM', 'N']] = None
+    _band: Optional[Literal['LM', 'N', 'IFU']] = None
     _description: Optional[str] = None      # Description for man page
     _oca_keywords: set[str] = set()
 
@@ -53,36 +53,53 @@ class DataItem(ABC):
 
     @classmethod
     def title(cls) -> str:
+        """
+        Return the human-readable title of this data item, e.g. "2RG linearity raw"
+        """
         return cls._title
 
     @classmethod
-    def tags(cls) -> Pattern:
+    def name(cls) -> str:
         """
-        Return the tags for this pipeline input.
-        Override the method if it should depend on some parameter.
+        Return the machine-oriented name of this data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW"
         """
-        return cls._tags
+        return cls._name
 
     @classmethod
-    def description(cls) -> str:
-        return cls._description
-
-    @classmethod
-    def band(cls) -> str:
-        return cls._band
+    def detector(cls) -> Optional[str]:
+        """
+        Return the detector associated with this data item
+        """
+        return cls._detector
 
     @classmethod
     @final
     def group(cls):
         """
-        Return the group of this data item. Should not be overridden.
+        Return the group of this data item. Should not be overridden (at least Martin does not see any reason now).
         """
         return cls._group
 
     @classmethod
+    def band(cls) -> Optional[Literal['LM', 'N', 'IFU']]:
+        """
+        Return the spectral band of the data item.
+        """
+        return cls._band
+
+    @classmethod
+    def description(cls) -> str:
+        """
+        Return the description of the data item.
+        By default, this just returns the protected internal attribute,
+        but can be overridden to build the description from other data, such as band or target.
+        """
+        return cls._description
+
+    @classmethod
     def oca_keywords(cls):
         """
-        Return the OCA keywords of this data item. By default, it's just the protected attribute,
+        Return the OCA keywords of this data item. By default, it's just the value of the protected attribute,
         but feel free to override if necessary.
         """
         return cls._oca_keywords

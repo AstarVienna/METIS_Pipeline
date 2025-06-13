@@ -70,7 +70,7 @@ class BaseRecipeTest(ABC):
         recipe.run(frameset, {})
         out = pprint.pformat(recipe.implementation.as_dict(), width=200)
         assert isinstance(out, str), \
-            f"Recipe {recipe.name} did not return a valid as_dict"
+            f"Recipe {recipe.name} did not return a valid as_dict: {out}"
 
     @pytest.mark.pyesorex
     @pytest.mark.external
