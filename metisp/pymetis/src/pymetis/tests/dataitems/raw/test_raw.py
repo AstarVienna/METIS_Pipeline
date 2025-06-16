@@ -16,32 +16,26 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from abc import ABC
 
-from pymetis.classes.dataitems.raw import Raw
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
-
-
-class LinearityRaw(Raw, ABC):
-    _name = r'DETLIN_{det}_RAW'
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DRS.FILTER'}
-
-    @classmethod
-    def name(cls):
-        return rf'DETLIN_{cls.detector()}_RAW'
-
-    @classmethod
-    def description(cls):
-        return rf"Raw data for non-linearity determination for {cls.detector()} observations"
+from pymetis.classes.dataitems.raw import LmImageSciRaw, LmImageStdRaw, NImageSciRaw, NImageStdRaw, IfuSciRaw
+from pymetis.tests.classes.dataitem import DataItemTest
 
 
-class Linearity2rgRaw(Detector2rgMixin, LinearityRaw):
-    pass
+class TestLmImageSciRaw(DataItemTest):
+    _item = LmImageSciRaw
 
 
-class LinearityGeoRaw(DetectorGeoMixin, LinearityRaw):
-    pass
+class TestLmImageStdRaw(DataItemTest):
+    _item = LmImageStdRaw
 
 
-class LinearityIfuRaw(DetectorIfuMixin, LinearityRaw):
-    pass
+class TestNImageSciRaw(DataItemTest):
+    _item = NImageSciRaw
+
+
+class TestNImageStdRaw(DataItemTest):
+    _item = NImageStdRaw
+
+
+class TestIfuSciRaw(DataItemTest):
+    _item = IfuSciRaw

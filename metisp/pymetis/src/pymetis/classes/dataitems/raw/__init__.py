@@ -27,6 +27,9 @@ from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
 class Raw(DataItem, ABC):
+    """
+    Abstract intermediate class for all raw items.
+    """
     _title: str = "raw frame"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
     _description: str = "Abstract base class for all raw inputs. Please subclass."
@@ -34,7 +37,9 @@ class Raw(DataItem, ABC):
 
 
 class ImageRaw(TargetSpecificMixin, Raw, ABC):
-    """Abstract intermediate class for image raws."""
+    """
+    Abstract intermediate class for image raws.
+    """
 
     @classmethod
     def name(cls) -> str:
@@ -66,7 +71,7 @@ class NImageSciRaw(BandNMixin, TargetSciMixin, ImageRaw):
 
 
 class IfuSciRaw(BandIfuMixin, TargetSciMixin, ImageRaw):
-    _title = r"IFU raw exposure of a science object"
+    _title = r"IFU science raw"
     _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
                      "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
                      "DRS.IFU"}

@@ -17,27 +17,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems.raw import LmImageSciRaw, LmImageStdRaw, NImageSciRaw, NImageStdRaw, IfuSciRaw
+from pymetis.classes.dataitems.raw.dark import Dark2rgRaw, DarkGeoRaw, DarkIfuRaw
 from pymetis.tests.classes.dataitem import DataItemTest
 
 
-class TestLmImageSciRaw(DataItemTest):
-    _item = LmImageSciRaw
+class TestDark2rgRaw(DataItemTest):
+    _item = Dark2rgRaw
 
 
-class TestLmImageStdRaw(DataItemTest):
-    _item = LmImageStdRaw
+class TestDarkGeoRaw(DataItemTest):
+    _item = DarkGeoRaw
 
 
-class TestNImageSciRaw(DataItemTest):
-    _item = NImageSciRaw
-
-
-class TestNImageStdRaw(DataItemTest):
-    _item = NImageStdRaw
-
-
-class TestIfuSciRaw(DataItemTest):
-    _item = IfuSciRaw
+class TestDarkIfuRaw(DataItemTest):
+    _item = DarkIfuRaw
 
 

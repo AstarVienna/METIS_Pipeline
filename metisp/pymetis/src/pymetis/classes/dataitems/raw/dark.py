@@ -17,5 +17,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from pymetis.classes.dataitems.raw import Raw
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
-class LinearityRaw(Raw):
+
+class DarkRaw(Raw):
+    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT', 'DRS.FILTER'}
+
+    @classmethod
+    def name(cls):
+        return rf'DARK_{cls.detector()}_RAW'
+
+
+class Dark2rgRaw(Detector2rgMixin, DarkRaw):
+    pass
+
+
+class DarkGeoRaw(DetectorGeoMixin, DarkRaw):
+    pass
+
+
+class DarkIfuRaw(DetectorIfuMixin, DarkRaw):
+    pass
