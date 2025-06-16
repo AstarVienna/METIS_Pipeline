@@ -17,6 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from abc import ABC
+
+
+class BandSpecificMixin(ABC):
+    _band: str = None
+
+    @classmethod
+    def band(cls) -> str:
+        return cls._band
+
 
 class BandLmMixin:
     _band: str = r'LM'

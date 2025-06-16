@@ -22,9 +22,9 @@ from abc import ABC
 
 import cpl
 
-from pymetis.classes.dataitems.background import BackgroundSubtracted, LmSciBackgroundSubtracted
+from pymetis.classes.dataitems.background import LmSciBackgroundSubtracted
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.distortion import DistortionTableGeo
+from pymetis.classes.dataitems.distortion.table import DistortionTableGeo
 from pymetis.classes.products import BandSpecificProduct, PipelineImageProduct
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.products.product import PipelineProduct

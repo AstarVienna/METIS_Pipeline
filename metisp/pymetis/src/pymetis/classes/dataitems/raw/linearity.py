@@ -24,6 +24,7 @@ from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorI
 
 class LinearityRaw(Raw, ABC):
     _name: str = r'DETLIN_{det}_RAW'
+    _oca_keywords: set[str] = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DRS.FILTER'}
 
     @classmethod
     def name(cls) -> str:

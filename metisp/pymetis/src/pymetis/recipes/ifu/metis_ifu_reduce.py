@@ -24,7 +24,8 @@ from typing import Literal
 
 from pymetis.classes.dataitems.common import Rsrf
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.distortion import DistortionTableIfu
+from pymetis.classes.dataitems.distortion.table import DistortionTableIfu
+from pymetis.classes.dataitems.raw import IfuSciRaw
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -38,6 +39,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
     class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
+            _item = IfuSciRaw
             _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
             _description: str = "IFU raw exposure of a science object"
 

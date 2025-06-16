@@ -17,27 +17,45 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import cpl
-import pytest
-import inspect
 
 from pymetis.classes.dataitems.dataitem import DataItem
 
 
-class TestDataItem:
+OCA_KEYWORDS: set[str] = {
+    'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
+    'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME',
+    'DRS.FILTER', 'DRS.IFU',
+    'PRO.CATG',
+}
+
+
+class DataItemTest:
     _item: type[DataItem] = None
 
-    @staticmethod
-    def test_has_description(instance):
-        for inp in instance.inputs:
-            assert inp.description() is not None, \
-                f"Input {inp} does not have a description defined"
+    def test_has_title_defined(self):
+        assert isinstance(self._item.title(), str), \
+            f"Data item {self._item} does not define a `title`, or it is not a string"
+
+    def test_has_name_defined(self):
+        assert isinstance(self._item.name(), str), \
+            f"Data item {self._item} does not define a `name`, or it is not a string"
+
+    def test_has_description_defined(self):
+        """
+        Test that every non-abstract data item defines description():
+        by default, it returns the internal `_description` attribute,
+        or it can override the getter classmethod.
+        """
+        assert self._item.description() is not None, \
+            f"Data item {self._item} does not have a description defined!"
 
     def test_has_group_defined(self):
         assert isinstance(self._item.group(), cpl.ui.Frame.FrameGroup), \
-            f"Data item {self._item.group()" 
+            f"Data item {self._item} does not have a frame group defined!"
 
     def test_has_oca_keywords_defined(self):
         assert isinstance(self._item._oca_keywords, set)
 
         for kw in self._item._oca_keywords:
-            assert isinstance(kw, str)
+            assert kw in OCA_KEYWORDS, \
+                f"Data item {self._item} defines an invalid OCA keyword {kw}!"

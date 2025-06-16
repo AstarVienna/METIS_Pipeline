@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.distortion import LmDistortionRaw
+from pymetis.classes.dataitems.distortion.raw import LmDistortionRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput

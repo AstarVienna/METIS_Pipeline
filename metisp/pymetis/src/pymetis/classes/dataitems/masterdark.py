@@ -29,6 +29,11 @@ class MasterDark(DataItem, ABC):
     _title: str = r"master dark"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Abstract base class for master darks. Please subclass."
+    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.FILTER'}
+
+    @classmethod
+    def name(cls) -> str:
+        return rf"MASTER_DARK_{cls.detector()}"
 
 
 class MasterDark2rg(Detector2rgMixin, MasterDark):

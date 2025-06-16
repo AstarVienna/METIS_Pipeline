@@ -21,9 +21,52 @@ from abc import ABC
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.classes.mixins.band import BandLmMixin, BandIfuMixin, BandNMixin
+from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
 class Raw(DataItem, ABC):
     _title: str = "raw frame"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
     _description: str = "Abstract base class for all raw inputs. Please subclass."
+
+
+
+class ImageRaw(TargetSpecificMixin, Raw, ABC):
+    """Abstract intermediate class for image raws."""
+
+    @classmethod
+    def name(cls) -> str:
+        return rf'{cls._band}_IMAGE_{cls.target()}_RAW'
+
+    @classmethod
+    def description(cls) -> str:
+        target = {
+            'SCI': 'science target',
+            'STD': 'standard star',
+        }[cls.target()]
+        return rf"Raw exposure of a {target} in the {cls.band()} image mode."
+
+
+class LmImageStdRaw(BandLmMixin, TargetStdMixin, ImageRaw):
+    pass
+
+
+class LmImageSciRaw(BandLmMixin, TargetSciMixin, ImageRaw):
+    pass
+
+
+class NImageStdRaw(BandNMixin, TargetStdMixin, ImageRaw):
+    pass
+
+
+class NImageSciRaw(BandNMixin, TargetSciMixin, ImageRaw):
+    pass
+
+
+class IfuSciRaw(BandIfuMixin, TargetSciMixin, ImageRaw):
+    _title = r"IFU raw exposure of a science object"
+    _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
+                     "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
+                     "DRS.IFU"}

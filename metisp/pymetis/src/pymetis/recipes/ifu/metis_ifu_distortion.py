@@ -16,14 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
 import re
 
 import cpl
 from cpl.core import Msg
 
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
-
+from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.distortion.raw import IfuDistortionRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 from pymetis.classes.inputs import RawInput, MasterDarkInput
@@ -38,8 +37,8 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         PinholeTableInput = PinholeTableInput
 
         class RawInput(RawInput):
+            _item: type[DataItem] = IfuDistortionRaw
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
-            _description: str = "Images of multi-pinhole mask."
 
     class ProductIfuDistortionTable(PipelineTableProduct):
         _tag = r"IFU_DISTORTION_TABLE"

@@ -33,13 +33,10 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciReducedInput(SinglePipelineInput):
             _item: type[DataItem] = IfuSciReduced
-            _title: str = "science reduced"
-            _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"IFU_SCI_REDUCED")
 
         class TelluricInput(SinglePipelineInput):
             _item: type[DataItem] = TelluricCorrection
-            _group = cpl.ui.Frame.FrameGroup.CALIB
             _tags: re.Pattern = re.compile(r"IFU_TELLURIC")
 
         FluxCalTableInput = FluxCalTableInput

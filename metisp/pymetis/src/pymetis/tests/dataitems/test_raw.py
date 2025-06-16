@@ -17,32 +17,27 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import ABC
-
-import cpl
-
-from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.dataitems.raw import LmImageSciRaw, LmImageStdRaw, NImageSciRaw, NImageStdRaw, IfuSciRaw
+from pymetis.tests.classes.dataitem import DataItemTest
 
 
-class MasterFlat(DataItem, ABC):
-    _title: str = r"master flat"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Abstract base class for master flats. Please subclass."
-    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.FILTER'}
-
-    @classmethod
-    def name(cls) -> str:
-        return rf"MASTER_FLAT_{cls.detector()}"
+class TestLmImageSciRaw(DataItemTest):
+    _item = LmImageSciRaw
 
 
-class MasterFlat2rg(Detector2rgMixin, MasterFlat):
-    pass
+class TestLmImageStdRaw(DataItemTest):
+    _item = LmImageStdRaw
 
 
-class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
-    pass
+class TestNImageSciRaw(DataItemTest):
+    _item = NImageSciRaw
 
 
-class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
-    pass
+class TestNImageStdRaw(DataItemTest):
+    _item = NImageStdRaw
+
+
+class TestIfuSciRaw(DataItemTest):
+    _item = IfuSciRaw
+
+

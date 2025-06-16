@@ -26,6 +26,7 @@ import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.raw.linearity import Linearity2rgRaw
 from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
@@ -113,7 +114,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 class Metis2rgLinGainImpl(MetisDetLinGainImpl):
     class InputSet(MetisDetLinGainImpl.InputSet):
         class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            _item: type[DataItem] = DetLinRaw2rg
+            _item: type[DataItem] = Linearity2rgRaw
 
 
     class ProductGain(Detector2rgMixin, MetisDetLinGainImpl.ProductGain):

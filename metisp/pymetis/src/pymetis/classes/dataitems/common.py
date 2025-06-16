@@ -89,7 +89,9 @@ class FluxStdCatalog(DataItem):
 
 class SciCubeCalibrated(DataItem):
     _title: str = "rectified spectral cube"
+    _name: str = r'IFU_SCI_CUBE_CALIBRATED'
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
     _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
 

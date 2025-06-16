@@ -25,7 +25,7 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.distortion import NDistortionRaw
+from pymetis.classes.dataitems.distortion.raw import NDistortionRaw
 from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct

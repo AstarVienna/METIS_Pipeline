@@ -23,6 +23,8 @@ import cpl
 from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
+from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.raw.chophome import LmChophomeRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadpixMapInput,
                                     PinholeTableInput, LinearityInput)
@@ -35,6 +37,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     class InputSet(RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
+            _item: type[DataItem] = LmChophomeRaw
             _tags: re.Pattern = re.compile(r"LM_CHOPHOME_RAW")
             _description: str = "Raw exposure of the LM image mode."
 

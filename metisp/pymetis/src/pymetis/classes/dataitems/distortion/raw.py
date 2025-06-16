@@ -22,27 +22,27 @@ from abc import ABC
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class MasterFlat(DataItem, ABC):
-    _title: str = r"master flat"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Abstract base class for master flats. Please subclass."
-    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.FILTER'}
+class DistortionRaw(DataItem, ABC):
+    _title: str = "distortion raw"
+    _name: str = None
+    _description: str = "Raw data for dark subtraction in other recipes."
+    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
+    _oca_keywords: set[str] = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
+                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'}
 
     @classmethod
-    def name(cls) -> str:
-        return rf"MASTER_FLAT_{cls.detector()}"
+    def description(cls):
+        return f"Raw data for dark subtraction in other recipes in the {cls.band()} band."
 
 
-class MasterFlat2rg(Detector2rgMixin, MasterFlat):
+class LmDistortionRaw(BandLmMixin, DistortionRaw):
     pass
 
-
-class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
+class NDistortionRaw(BandNMixin, DistortionRaw):
     pass
 
-
-class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
+class IfuDistortionRaw(BandIfuMixin, DistortionRaw):
     pass

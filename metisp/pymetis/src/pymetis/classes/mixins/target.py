@@ -17,22 +17,37 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from abc import ABC
 
-class TargetStdMixin:
+
+class TargetSpecificMixin(ABC):
+    """
+    Mixin class for data items that need to define the `target` attribute.
+
+    Hopefully it does not cause any issues with the MRO.
+    """
+    _target: str = None
+
+    @classmethod
+    def target(cls) -> str:
+        return cls._target
+
+
+class TargetStdMixin(TargetSpecificMixin):
     _target: str = r'STD'
 
 
-class TargetSciMixin:
+class TargetSciMixin(TargetSpecificMixin):
     _target: str = r'SCI'
 
 
-class TargetSkyMixin:
+class TargetSkyMixin(TargetSpecificMixin):
     _target: str = r'SKY'
 
 
-class TargetLampMixin:
+class TargetLampMixin(TargetSpecificMixin):
     _target: str = r'LAMP'
 
 
-class TargetTwilightMixin:
+class TargetTwilightMixin(TargetSpecificMixin):
     _target: str = r'TWILIGHT'
