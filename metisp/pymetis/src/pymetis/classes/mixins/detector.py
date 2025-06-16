@@ -18,13 +18,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 
-class Detector2rgMixin:
+class DetectorSpecificMixin:
+    _detector: str = None
+
+    @classmethod
+    def detector(cls) -> str:
+        return cls._detector
+
+
+class Detector2rgMixin(DetectorSpecificMixin):
     _detector: str = '2RG'
 
 
-class DetectorGeoMixin:
+class DetectorGeoMixin(DetectorSpecificMixin):
     _detector: str = 'GEO'
 
 
-class DetectorIfuMixin:
+class DetectorIfuMixin(DetectorSpecificMixin):
     _detector: str = 'IFU'

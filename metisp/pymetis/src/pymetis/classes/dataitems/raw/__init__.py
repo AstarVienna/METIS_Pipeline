@@ -35,11 +35,13 @@ class Raw(DataItem, ABC):
     _description: str = "Abstract base class for all raw inputs. Please subclass."
 
 
-
 class ImageRaw(TargetSpecificMixin, Raw, ABC):
     """
     Abstract intermediate class for image raws.
     """
+
+    _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
+                     "INS.OPTI9.NAME", "INS.OPTI10.NAME", "DRS.FILTER"}
 
     @classmethod
     def name(cls) -> str:
@@ -47,11 +49,7 @@ class ImageRaw(TargetSpecificMixin, Raw, ABC):
 
     @classmethod
     def description(cls) -> str:
-        target = {
-            'SCI': 'science target',
-            'STD': 'standard star',
-        }[cls.target()]
-        return rf"Raw exposure of a {target} in the {cls.band()} image mode."
+        return rf"Raw exposure of a {cls.get_target_string()} in the {cls.band()} image mode."
 
 
 class LmImageStdRaw(BandLmMixin, TargetStdMixin, ImageRaw):

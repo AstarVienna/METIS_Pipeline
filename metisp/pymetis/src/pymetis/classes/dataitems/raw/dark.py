@@ -18,11 +18,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems.raw import Raw
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class DarkRaw(Raw):
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT', 'DRS.FILTER'}
+class DarkRaw(DetectorSpecificMixin, Raw):
+    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT'}
 
     @classmethod
     def name(cls):
@@ -30,12 +30,15 @@ class DarkRaw(Raw):
 
 
 class Dark2rgRaw(Detector2rgMixin, DarkRaw):
+    _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
     pass
 
 
 class DarkGeoRaw(DetectorGeoMixin, DarkRaw):
+    _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
     pass
 
 
 class DarkIfuRaw(DetectorIfuMixin, DarkRaw):
+    _oca_keywords = DarkRaw._oca_keywords | {'DRS.IFU'}
     pass

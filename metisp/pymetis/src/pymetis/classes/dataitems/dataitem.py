@@ -31,12 +31,8 @@ import pymetis
 
 class DataItem(ABC):
     """
-    The `DataItem` class encapsulates a single data item: something that.
-    Possible derivatives are an `Input` or a `Product`.
-
-    This class encapsulates a single logical input to a recipe:
-    - either a single file, or a line in the SOF (see SinglePipelineInput)
-    - or a set of equivalent files (see MultiplePipelineInput)
+    The `DataItem` class encapsulates a single data item: the smallest standalone unit of detector data
+    or a product of a recipe.
     """
     # Printable title of the data item. Not used internally, only for human-oriented output
     _title: str = None                      # No universal title makes sense
@@ -46,10 +42,11 @@ class DataItem(ABC):
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     _band: Optional[Literal['LM', 'N', 'IFU']] = None
-    _description: Optional[str] = None      # Description for man page
-    _oca_keywords: set[str] = set()
 
-    _multiplicity: str = '<undefined>'      # Multiplicity of the input, '1' or 'N'
+    # Description for man page
+    _description: Optional[str] = None      # A verbose string; should correspond to the DRLD description
+
+    _oca_keywords: set[str] = set()
 
     @classmethod
     def title(cls) -> str:
@@ -108,14 +105,6 @@ class DataItem(ABC):
         # Check if it is defined
         if self.title() is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
-
-        # Check if tags are defined...
-        if not self.tags():
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined tag pattern")
-
-        # ...and that they are a re pattern
-        if not isinstance(self.tags(), re.Pattern):
-            raise TypeError(f"PipelineInput `tags` must be a `re.Pattern`, got '{self.tags()}'")
 
         # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)

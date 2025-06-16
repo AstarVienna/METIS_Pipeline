@@ -59,7 +59,10 @@ class DataItemTest:
             f"Data item {self._item} does not have a frame group defined!"
 
     def test_has_oca_keywords_defined(self):
-        assert isinstance(self._item._oca_keywords, set)
+        assert isinstance(self._item._oca_keywords, set), \
+            f"Data item {self._item} OCA keywords are not a set"
+        assert len(self._item._oca_keywords) > 0, \
+            f"Data item {self._item} does not define any OCA keywords"
 
         for kw in self._item._oca_keywords:
             assert kw in OCA_KEYWORDS, \
