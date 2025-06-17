@@ -23,7 +23,7 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins import Detector2rgMixin
+from pymetis.classes.mixins import DetectorGeoMixin
 
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor

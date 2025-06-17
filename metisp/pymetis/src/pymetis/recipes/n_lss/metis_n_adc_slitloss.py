@@ -16,7 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+# from typing import Any, Dict   # <------ TODO: Check whether necessary, taken from example of pyesorex webpages
 
+
+# TODO: Check the need for WCU_OFF frames!
 
 # Import the required PyCPL modules
 import re
@@ -25,81 +28,67 @@ from cpl.core import Msg
 
 from pymetis.classes.mixins import DetectorGeoMixin
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-
-from pymetis.classes.inputs import (SinglePipelineInput, PipelineInputSet,
-                                    AtmProfileInput, AtmLineCatInput, LsfKernelInput)
+from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.classes.products import PipelineProduct, PipelineTableProduct
 
+from pymetis.classes.recipes.impl import MetisRecipeImpl
+from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
+                                    LinearityInput, OptionalInputMixin)
+from pymetis.classes.products import PipelineTableProduct
 
 # =========================================================================================
 #    Define main class
 # =========================================================================================
-class MetisNLssMfModelImpl(RawImageProcessor):
-    class InputSet(PipelineInputSet):
-        band = "N"
-        detector = "GEO"
+class MetisNAdcSlitlossImpl(RawImageProcessor):
+    class InputSet(RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
+        band = "N"    # <---- TODO: Check why not automatically determined
+        detector = "GEO"   # <---- TODO: Check why not automatically determined
 
-    # ++++++++++++ Main input ++++++++++++
-        # Default (Path #2 in DRLD Section CritAlg)
-        class NLssSciFlux1d(SinglePipelineInput):
+        # Define input classes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        class RawInput(RawInput):
             """
-            Science spectrum
+            Raw image N_LSS_SLITLOSS_RAW
             """
-            _tags: re.Pattern = re.compile(r"N_LSS_SCI_FLUX_1D")
-            # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
-            # For the SKEL this is set to CALIB,although not correct!
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "N LSS sci flux 1D"
-            _description: str = "Flux calibrated 1D N LSS science spectrum"
+            _tags: re.Pattern = re.compile(r"N_ADC_SLITLOSS_RAW")   # <---- TBD
+            _title: str = "N ADC slitloss raw"
+            _description: str = "Raw files for ADC slitloss determination (TBD)."
+        class NAdcSlitlossWcuOffInput(RawInput):
+            """
+            WCU_OFF input illuminated by the WCU up-to and including the
+            integrating sphere, but no source.
+            """
+            _tags: re.Pattern = re.compile(r"N_WCU_OFF_RAW")
+            _title: str = "N LSS WCU off"
+            _description: str = "Raw data for dark subtraction in other recipes."
 
-        # Alternative (Path #3 in DRLD Section CritAlg)
-        class NLssStdFlux1d(SinglePipelineInput):
-            """
-            Standard star spectrum
-            """
-            _tags: re.Pattern = re.compile(r"N_LSS_STD_1D")
-            # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
-            # For the SKEL this is set to CALIB,although not correct!
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "N LSS standard star 1D spectrum"
-            _description: str = "1D N LSS standard star spectrum"
-    # ++++++++++++ Intermediate / QC products ++++++++++++
-    # Currently none foreseen (some for QC?)
-
-        AtmProfileInput = AtmProfileInput
-        AtmLineCatInput = AtmLineCatInput
-        LsfKernelInput = LsfKernelInput
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
-    # TODO: Check whether the new mf writes out the best-fit param file
-    class ProductMfBestFitTab(PipelineTableProduct):
+    class ProductNAdcSlitloss(PipelineTableProduct):
         """
-        Table with best-fit parameters
+        Final Master RSRF
         """
-        _tag = rf"MF_BEST_FIT_TAB"
-        _title: str = "Molecfit best-fit table"
+        _tag: str = r"N_ADC_SLITLOSS"
+        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Table with best-fit parameters for calctrans."
+
+        _description: str = "Table with ADC induced N slitlosses"
+        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+
+        # SKEL: copy product keywords from header
+        def add_properties(self):
+            super().add_properties()
+            self.properties.append(self.header)
+
+        # SKEL: copy product keywords from header
+        def add_properties(self):
+            super().add_properties()
+            self.properties.append(self.header)
 
 
 # =========================================================================================
 #    Methods
 # =========================================================================================
-
-#   Method for processing
-    def process_images(self) -> [PipelineProduct]:
-        """Create dummy file (should do something more fancy in the future)"""
-
-        # TODO: Invoke molecfit here
-        # TODO: Check whether the new mf writes out the best-fit param file
-        header = self._create_dummy_header()
-        table = self._create_dummy_table()
-        return [
-            self.ProductMfBestFitTab(self, header, table),
-        ]
 
 
 #   Method for loading images (stolen from metis_chop_home.py)
@@ -120,44 +109,62 @@ class MetisNLssMfModelImpl(RawImageProcessor):
 
         return output
 
+#   Method for processing
+    def process_images(self) -> [PipelineTableProduct]:
+        """Create dummy file (should do something more fancy in the future)"""
+        header = self._create_dummy_header()
+        table = self._create_dummy_table()
+        return [
+            self.ProductNAdcSlitloss(self, header, table),
+        ]
+
+
 # =========================================================================================
 #    MAIN PART
 # =========================================================================================
 
+
 # Define recipe main function as a class which inherits from
 # the PyCPL class cpl.ui.PyRecipe
-class MetisNLssMfModel(MetisRecipe):
+class MetisNAdcSlitloss(MetisRecipe):
     # The information about the recipe needs to be set. The base class
     # cpl.ui.PyRecipe provides the class variables to be set.
     # The recipe name must be unique, because it is this name which is
     # used to identify a particular recipe among all installed recipes.
     # The name of the python source file where this class is defined
     # is not at all used in this context.
-    _name: str = "metis_n_lss_mf_model"
+    _name: str = "metis_n_adc_slitloss"
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
-    _synopsis: str = "Calculation of molecfit model"
+    _synopsis: str = "Determines ADC slitlosses"
     _description: str = """\
-    Calculation of molecfit model
+    Determines ADC slitlosses
+
+    Remark: Recipe not welldefined as actual algorithm not well defined (cf. DRLD, Calib plan)
 
     Inputs
-        N_LSS_SCI_FLUX_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science object
-        N_LSS_STD_1D: Coadded, wavelength calibrated, collapsed 1D spectrum of the standard star
-        LSF_KERNEL:         LSF Kernel file
-        ATM_LINE_CAT:       Catalogue of atmospheric lines
-        ATMP_PROFILE:       Atmospheric input profile
+        N_ADC_SLITLOSS_RAW: Raw SLITLOSS images [1-n]  ***TBD***
+        N_WCU_OFF_RAW:      Raw WCU OFF background frames [1-n]
+        MASTER_DARK_GEO:     Master dark frame [optional?]  ***TBChecked***
+        BADPIX_MAP_GEO:      Bad-pixel map for GEO detector [optional] ***TBChecked***
+        PERSISTENCE_MAP:     Persistence map [optional] ***TBChecked***
+        GAIN_MAP_GEO:        Gain map for GEO detector ***TBChecked***
+        LINEARITY_GEO:       Linearity map for GEO detector ***TBChecked***
 
      Matched Keywords
-        DRS.SLIT    ***TBChecked***
+        DET.DIT
+        DET.NDIT
+        DRS.SLIT
 
     Outputs
-        MF_BEST_FIT_TAB: Table with best-fit parameters
+        N_ADC_SLITLOSS:     Table with slit losses ***TBD***
     """
+# TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy algorithm description follows ***TBD***"""
+    _algorithm = """Incredible fancy description of algorithm follows... ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -174,4 +181,4 @@ class MetisNLssMfModel(MetisRecipe):
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
-    implementation_class = MetisNLssMfModelImpl
+    implementation_class = MetisNAdcSlitlossImpl
