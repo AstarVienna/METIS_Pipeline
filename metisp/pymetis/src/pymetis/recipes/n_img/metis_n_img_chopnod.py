@@ -24,6 +24,8 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.raw import NImageSciRaw, NImageStdRaw
+from pymetis.classes.dataitems.raw.flat import NFlatLampRaw
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct, TargetSpecificProduct
@@ -62,6 +64,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
+            _item = NFlatLampRaw
             _tags: re.Pattern = re.compile(r"N_IMAGE_(?P<target>SCI|STD)_RAW")
             _description: str = "Raw exposure of a standard star in the N image mode."
 
@@ -157,6 +160,11 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
 
 class MetisNStdImgChopnodImpl(MetisNImgChopnodImpl):
+    class InputSet(MetisNImgChopnodImpl.InputSet):
+        class RawInput(MetisNImgChopnodImpl.InputSet.RawInput):
+            _item = NImageStdRaw
+
+
     class ProductReduced(TargetStdMixin, MetisNImgChopnodImpl.ProductReduced):
         pass
 
@@ -165,6 +173,10 @@ class MetisNStdImgChopnodImpl(MetisNImgChopnodImpl):
 
 
 class MetisNSciImgChopnodImpl(MetisNImgChopnodImpl):
+    class InputSet(MetisNImgChopnodImpl.InputSet):
+        class RawInput(MetisNImgChopnodImpl.InputSet.RawInput):
+            _item = NImageSciRaw
+
     class ProductReduced(TargetSciMixin, MetisNImgChopnodImpl.ProductReduced):
         pass
 

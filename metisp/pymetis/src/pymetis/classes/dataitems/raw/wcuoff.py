@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.classes.dataitems.raw import Raw
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
 
 
 class WcuOffRaw(Raw):
@@ -28,14 +29,18 @@ class WcuOffRaw(Raw):
     def name(cls):
         return rf'{cls.band()}_WCU_OFF_RAW'
 
+    @classmethod
+    def title(cls) -> str:
+        return rf'{cls.band()} WCU OFF raw'
 
-class WcuOff2rgRaw(Detector2rgMixin, WcuOffRaw):
+
+class LmWcuOffRaw(BandLmMixin, WcuOffRaw):
     pass
 
 
-class WcuOffGeoRaw(DetectorGeoMixin, WcuOffRaw):
+class NWcuOffRaw(BandNMixin, WcuOffRaw):
     pass
 
 
-class WcuOffIfuRaw(DetectorIfuMixin, WcuOffRaw):
+class WcuOffIfuRaw(BandIfuMixin, WcuOffRaw):
     _oca_keywords = WcuOffRaw._oca_keywords | {'DRS.IFU'}

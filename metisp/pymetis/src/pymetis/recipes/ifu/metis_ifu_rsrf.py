@@ -27,6 +27,7 @@ from cpl.core import Msg
 # is this legal?
 from astropy.table import QTable
 
+from pymetis.classes.dataitems.raw.rsrf import IfuRsrfRaw
 from pymetis.classes.mixins import DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -44,9 +45,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         detector = "IFU"
 
         class RawInput(RawInput):
+            _item = IfuRsrfRaw
             _tags: re.Pattern = re.compile(r"IFU_RSRF_RAW")
-            _title: str = "IFU rsrf raw"
-            _description: str = "Raw flats taken with black-body calibration lamp."
 
         class MasterDarkInput(MasterDarkInput):
             _tags: re.Pattern = re.compile(r"MASTER_DARK_IFU")

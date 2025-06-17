@@ -37,7 +37,9 @@ class TargetSpecificMixin(ABC):
         return {
             'SCI': 'science target',
             'STD': 'standard star',
-        }[cls.target()]
+            'LAMP': 'lamp',
+            'TWILIGHT': 'twilight',
+        }.get(cls.target(), None)
 
 
 class TargetStdMixin(TargetSpecificMixin):

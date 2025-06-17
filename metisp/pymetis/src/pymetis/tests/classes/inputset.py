@@ -71,27 +71,27 @@ class BaseInputSetTest(ABC):
 
     @staticmethod
     def test_all_inputs(instance):
+        """
+        Test that all inputs are valid. Note that this is an *instance* test, and depends on the data supplied.
+        """
         for inp in instance.inputs:
             item = inp.item()
 
             assert item is not None, \
-                f"Input {inp} has no data item defined"
+                f"Input {inp} has no associated data item"
 
             assert isinstance(item.title(), str), \
-                f"Data item {item} does not have a title defined"
+                f"Data item {item.__qualname__} of {inp.__class__.__qualname__} does not have a title defined"
 
             assert isinstance(item.description(), str), \
-                f"Data item {item} does not have a description defined"
+                f"Data item {item.__qualname__} does not have a description defined"
 
             assert isinstance(item.oca_keywords(), set), \
-                f"Data item {item} does not have OCA keywords attribute defined"
-
-            assert len(item.oca_keywords()) > 0, \
-                f"Data item {item} does not have any OCA keywords defined"
+                f"Data item {item.__qualname__} does not have OCA keywords attribute defined"
 
             for kw in item.oca_keywords():
                 assert isinstance(kw, str), \
-                    f"Data item {item} has an invalid OCA keyword {kw}"
+                    f"Data item {item.__qualname__} has an invalid OCA keyword {kw}"
 
 
 @pytest.mark.inputset

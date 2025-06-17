@@ -23,7 +23,7 @@ from typing import Literal
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, TargetSciMixin
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, TargetSciMixin, TargetStdMixin
 from pymetis.classes.mixins.band import BandNMixin, BandLmMixin
 
 
@@ -74,7 +74,15 @@ class BackgroundSubtracted(DataItem, ABC):
         return rf"Thermal background subtracted images of science {cls._band} exposures."
 
 
+class LmStdBackgroundSubtracted(BandLmMixin, TargetStdMixin, BackgroundSubtracted):
+    pass
+
+
 class LmSciBackgroundSubtracted(BandLmMixin, TargetSciMixin, BackgroundSubtracted):
+    pass
+
+
+class NStdBackgroundSubtracted(BandNMixin, TargetStdMixin, BackgroundSubtracted):
     pass
 
 

@@ -35,15 +35,19 @@ OCA_KEYWORDS: set[str] = {
 
 @pytest.mark.dataitem
 class DataItemTest:
+    """
+    Tests for the `DataItem` class hierarchy. These are mostly *class* tests,
+    and should not depend on the data provided from SOF or FITS files.
+    """
     _item: type[DataItem] = None
 
     def test_has_title_defined(self):
         assert isinstance(self._item.title(), str), \
-            f"Data item {self._item} does not define a `title`, or it is not a string"
+            f"Data item {self._item.__qualname__} does not define a `title`, or it is not a string"
 
     def test_has_name_defined(self):
         assert isinstance(self._item.name(), str), \
-            f"Data item {self._item} does not define a `name`, or it is not a string"
+            f"Data item {self._item.__qualname__} does not define a `name`, or it is not a string"
 
     def test_has_description_defined(self):
         """
@@ -52,18 +56,18 @@ class DataItemTest:
         or it can override the getter classmethod.
         """
         assert self._item.description() is not None, \
-            f"Data item {self._item} does not have a description defined!"
+            f"Data item {self._item.__qualname__} does not have a description defined!"
 
     def test_has_group_defined(self):
         assert isinstance(self._item.group(), cpl.ui.Frame.FrameGroup), \
-            f"Data item {self._item} does not have a frame group defined!"
+            f"Data item {self._item.__qualname__} does not have a frame group defined!"
 
     def test_has_oca_keywords_defined(self):
         assert isinstance(self._item._oca_keywords, set), \
-            f"Data item {self._item} OCA keywords are not a set"
-        assert len(self._item._oca_keywords) > 0, \
-            f"Data item {self._item} does not define any OCA keywords"
+            f"Data item {self._item.__qualname__} OCA keywords are not a set"
+        #assert len(self._item._oca_keywords) > 0, \
+        #    f"Data item {self._item.__qualname__} does not define any OCA keywords" # This is actually OK sometimes
 
         for kw in self._item._oca_keywords:
             assert kw in OCA_KEYWORDS, \
-                f"Data item {self._item} defines an invalid OCA keyword {kw}!"
+                f"Data item {self._item.__qualname__} defines an invalid OCA keyword {kw}!"

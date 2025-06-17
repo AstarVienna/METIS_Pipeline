@@ -22,6 +22,7 @@ import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import DetectorIfuMixin
+from pymetis.classes.mixins.band import BandLmMixin, BandNMixin
 
 
 class PersistenceMap(DataItem):
@@ -82,9 +83,11 @@ class LsfKernel(DataItem):
 
 
 class FluxStdCatalog(DataItem):
+    _name = r'FLUXSTD_CATALOG'
     _title: str = "catalog of standard stars"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Catalog of standard stars"
+    _oca_keywords = set()
 
 
 class SciCubeCalibrated(DataItem):
@@ -120,10 +123,25 @@ class IfuWavecal(DetectorIfuMixin, DataItem):
 class Combined(DataItem):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _title: str = "spectral cube of science object"
-    _description: str = "Spectral cube of standard star, combining multiple exposures."
+    _description: str = "Spectral cube of a standard star, combining multiple exposures."
 
 
-class ScienceCalibrated(DataItem):
+class ScienceCalibrated(DataItem, ABC):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _title = "N science calibrated"
-    _description: str = "N band image with flux calibration and distortion information"
+    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+
+    @classmethod
+    def name(cls):
+        return rf'{cls.band()}_SCI_CALIBRATED'
+
+    @classmethod
+    def title(cls):
+        return f"{cls.band()} science calibrated"
+
+
+class LmScienceCalibrated(BandLmMixin, ScienceCalibrated):
+    _description = "LM band image with flux calibration, WC coordinate system and distorion information"
+
+
+class NScienceCalibrated(BandNMixin, ScienceCalibrated):
+    _description = "N band image with flux calibration and distortion information"

@@ -30,9 +30,8 @@ class Raw(DataItem, ABC):
     """
     Abstract intermediate class for all raw items.
     """
-    _title: str = "raw frame"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
-    _description: str = "Abstract base class for all raw inputs. Please subclass."
+    _group = cpl.ui.Frame.FrameGroup.RAW
+    _description = "Abstract base class for all raw inputs. Please subclass."
 
 
 class ImageRaw(TargetSpecificMixin, Raw, ABC):
@@ -45,11 +44,15 @@ class ImageRaw(TargetSpecificMixin, Raw, ABC):
 
     @classmethod
     def name(cls) -> str:
-        return rf'{cls._band}_IMAGE_{cls.target()}_RAW'
+        return rf'{cls.band():s}_IMAGE_{cls.target():s}_RAW'
+
+    @classmethod
+    def title(cls) -> str:
+        return rf'{cls.band():s} {cls.get_target_string():s} raw'
 
     @classmethod
     def description(cls) -> str:
-        return rf"Raw exposure of a {cls.get_target_string()} in the {cls.band()} image mode."
+        return rf"Raw exposure of a {cls.get_target_string():s} in the {cls.band():s} image mode."
 
 
 class LmImageStdRaw(BandLmMixin, TargetStdMixin, ImageRaw):

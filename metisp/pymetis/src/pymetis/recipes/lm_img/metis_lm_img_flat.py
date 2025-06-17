@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.raw.flat import LmFlatLampRaw, LmFlatTwilightRaw
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.mixins.target import TargetTwilightMixin, TargetLampMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -40,11 +41,19 @@ class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
 
 
 class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):
+    class InputSet(MetisLmImgFlatImpl.InputSet):
+        class RawInput(MetisLmImgFlatImpl.InputSet.RawInput):
+            _item = LmFlatTwilightRaw
+
     class ProductMasterFlat(TargetTwilightMixin, MetisLmImgFlatImpl.ProductMasterFlat):
         pass
 
 
 class MetisLmImgFlatLampImpl(MetisLmImgFlatImpl):
+    class InputSet(MetisLmImgFlatImpl.InputSet):
+        class RawInput(MetisLmImgFlatImpl.InputSet.RawInput):
+            _item = LmFlatLampRaw
+
     class ProductMasterFlat(TargetLampMixin, MetisLmImgFlatImpl.ProductMasterFlat):
         pass
 

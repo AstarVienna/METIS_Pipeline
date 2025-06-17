@@ -16,33 +16,32 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from abc import ABC
 
 from pymetis.classes.dataitems.raw import Raw
-from pymetis.classes.mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins import DetectorIfuMixin, Detector2rgMixin, DetectorGeoMixin
+from pymetis.classes.mixins.band import BandLmMixin, BandIfuMixin, BandNMixin
 
 
-class DarkRaw(DetectorSpecificMixin, Raw):
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT'}
-
+class RsrfRaw(Raw, ABC):
     @classmethod
     def name(cls):
-        return rf'DARK_{cls.detector()}_RAW'
+        return rf'{cls.band()}_LSS_RSRF_RAW'
 
+
+class LmLssRsrfRaw(Detector2rgMixin, BandLmMixin, RsrfRaw):
+    pass
+
+
+class NLssRsrfRaw(DetectorGeoMixin, BandNMixin, RsrfRaw):
+    pass
+
+
+class IfuRsrfRaw(DetectorIfuMixin, BandIfuMixin, RsrfRaw):
+    _title = "IFU RSRF raw image"
     @classmethod
-    def title(cls) -> str:
-        return rf'{cls.detector()} dark raw'
-
-
-class Dark2rgRaw(Detector2rgMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
-    pass
-
-
-class DarkGeoRaw(DetectorGeoMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
-    pass
-
-
-class DarkIfuRaw(DetectorIfuMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | {'DRS.IFU'}
-    pass
+    def name(cls):
+        """
+        Here the name is overridden as it is not LSS.
+        """
+        return r'IFU_RSRF_RAW'

@@ -17,16 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems.raw.wcuoff import WcuOff2rgRaw, WcuOffGeoRaw, WcuOffIfuRaw
+from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw, NWcuOffRaw, WcuOffIfuRaw
 from pymetis.tests.classes.dataitem import DataItemTest
 
 
 class TestWcuOff2rgRaw(DataItemTest):
-    _item = WcuOff2rgRaw
+    _item = LmWcuOffRaw
 
 
 class TestWcuOffGeoRaw(DataItemTest):
-    _item = WcuOffGeoRaw
+    _item = NWcuOffRaw
 
 
 class TestWcuOffIfuRaw(DataItemTest):

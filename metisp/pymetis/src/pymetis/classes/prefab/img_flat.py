@@ -23,6 +23,7 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems.raw.flat import FlatRaw
 from pymetis.classes.inputs import RawInput, MasterDarkInput
 
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -41,6 +42,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             """
             A subclass of RawInput that is handling the flat image raws.
             """
+            _item = FlatRaw
             _tags: re.Pattern = re.compile(r"(?P<band>(LM|N))_FLAT_(?P<target>LAMP|TWILIGHT)_RAW")
             _description: str = "Flat image raw"
 

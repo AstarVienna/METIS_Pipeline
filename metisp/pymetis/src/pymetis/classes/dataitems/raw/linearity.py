@@ -24,11 +24,15 @@ from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorI
 
 class LinearityRaw(Raw, ABC):
     _name = r'DETLIN_{det}_RAW'
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DRS.FILTER'}
+    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
 
     @classmethod
     def name(cls):
         return rf'DETLIN_{cls.detector()}_RAW'
+
+    @classmethod
+    def title(cls) -> str:
+        return rf'{cls.detector()} linearity raw'
 
     @classmethod
     def description(cls):
@@ -36,12 +40,12 @@ class LinearityRaw(Raw, ABC):
 
 
 class Linearity2rgRaw(Detector2rgMixin, LinearityRaw):
-    pass
+    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.FILTER'}
 
 
 class LinearityGeoRaw(DetectorGeoMixin, LinearityRaw):
-    pass
+    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.FILTER'}
 
 
 class LinearityIfuRaw(DetectorIfuMixin, LinearityRaw):
-    pass
+    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.IFU'}

@@ -18,31 +18,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems.raw import Raw
+from pymetis.classes.mixins.band import BandNMixin, BandLmMixin
 from pymetis.classes.mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins.target import TargetLampMixin, TargetTwilightMixin, TargetSpecificMixin
 
 
-class DarkRaw(DetectorSpecificMixin, Raw):
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT'}
+class FlatRaw(DetectorSpecificMixin, TargetSpecificMixin, Raw):
+    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
+                     'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'DRS.FILTER'}
 
     @classmethod
     def name(cls):
-        return rf'DARK_{cls.detector()}_RAW'
+        return rf'{cls.band()}_FLAT_{cls.target()}_RAW'
 
     @classmethod
     def title(cls) -> str:
-        return rf'{cls.detector()} dark raw'
+        return rf'{cls.band()} flat {cls.get_target_string():s} raw'
 
 
-class Dark2rgRaw(Detector2rgMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
+class LmFlatLampRaw(BandLmMixin, TargetLampMixin, FlatRaw):
     pass
 
 
-class DarkGeoRaw(DetectorGeoMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
+class LmFlatTwilightRaw(BandLmMixin, TargetTwilightMixin, FlatRaw):
     pass
 
 
-class DarkIfuRaw(DetectorIfuMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | {'DRS.IFU'}
+class NFlatLampRaw(BandNMixin, TargetLampMixin, FlatRaw):
     pass
+
+
+class NFlatTwilightRaw(BandNMixin, TargetTwilightMixin, FlatRaw):
+    pass
+

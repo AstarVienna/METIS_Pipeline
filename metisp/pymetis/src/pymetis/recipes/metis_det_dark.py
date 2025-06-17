@@ -18,12 +18,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import re
+from abc import ABC
 
 import cpl
 from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.raw.dark import DarkGeoRaw, Dark2rgRaw, DarkIfuRaw, DarkRaw
 from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
@@ -34,7 +36,7 @@ from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.products import DetectorSpecificProduct
 
 
-class MetisDetDarkImpl(RawImageProcessor):
+class MetisDetDarkImpl(RawImageProcessor, ABC):
     """
     Implementation class for `metis_det_dark`.
     """
@@ -53,6 +55,7 @@ class MetisDetDarkImpl(RawImageProcessor):
         # Therefore, we override the `_tags` attribute and also the description,
         # since this is specific to this raw input, not all raw inputs.
         class RawInput(RawInput):
+            _item = DarkRaw
             _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
             _description: str = "Raw data for creating a master dark."
 
@@ -137,7 +140,7 @@ class MetisDetDarkImpl(RawImageProcessor):
 
 
 # Finally, we provide the specialized classes as needed, with mixins or by overriding.
-# In most cases adding mixins is enough, so while it is quite verbose, not much is really happening here.
+# In most cases, adding mixins is enough, so while it is quite verbose, not much is really happening here.
 # Note: in the future this might be reworked to utilize metaclasses or some other dark magic.
 # For now, we have to do it manually. Pay extra attention to name the classes the same way,
 # if you mess up, the resulting bugs are nasty and hard to find.
@@ -146,7 +149,7 @@ class MetisDetDarkImpl(RawImageProcessor):
 class Metis2rgDarkImpl(MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
         class RawInput(Detector2rgMixin, MetisDetDarkImpl.InputSet.RawInput):
-            pass
+            _item = Dark2rgRaw
 
     class GainMapInput(Detector2rgMixin, MetisDetDarkImpl.InputSet.GainMapInput):
         pass
@@ -158,7 +161,7 @@ class Metis2rgDarkImpl(MetisDetDarkImpl):
 class MetisGeoDarkImpl(MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
         class RawInput(DetectorGeoMixin, MetisDetDarkImpl.InputSet.RawInput):
-            pass
+            _item = DarkGeoRaw
 
     class GainMapInput(DetectorGeoMixin, MetisDetDarkImpl.InputSet.GainMapInput):
         pass
@@ -170,7 +173,7 @@ class MetisGeoDarkImpl(MetisDetDarkImpl):
 class MetisIfuDarkImpl(MetisDetDarkImpl):
     class InputSet(MetisDetDarkImpl.InputSet):
         class RawInput(DetectorIfuMixin, MetisDetDarkImpl.InputSet.RawInput):
-            pass
+            _item = DarkIfuRaw
 
         class GainMapInput(DetectorIfuMixin, MetisDetDarkImpl.InputSet.GainMapInput):
             pass
