@@ -46,6 +46,11 @@ class BaseInputSetTest(ABC):
         assert not inspect.isabstract(self._impl.InputSet), \
             f"InputSet is abstract: {self._impl.InputSet}"
 
+    def test_all_inputs_have_items(self, instance):
+        for inp in instance.inputs:
+            assert inp.item() is not None, \
+                f"Input {inp.__class__.__qualname__} has not item defined"
+
     @staticmethod
     def test_has_inputs_and_it_is_a_set(instance):
         assert isinstance(instance.inputs, set), \
@@ -68,30 +73,6 @@ class BaseInputSetTest(ABC):
     def test_can_load_and_verify(instance):
         assert instance.validate() is None, \
             f"InputSet {instance} did not validate"
-
-    @staticmethod
-    def test_all_inputs(instance):
-        """
-        Test that all inputs are valid. Note that this is an *instance* test, and depends on the data supplied.
-        """
-        for inp in instance.inputs:
-            item = inp.item()
-
-            assert item is not None, \
-                f"Input {inp} has no associated data item"
-
-            assert isinstance(item.title(), str), \
-                f"Data item {item.__qualname__} of {inp.__class__.__qualname__} does not have a title defined"
-
-            assert isinstance(item.description(), str), \
-                f"Data item {item.__qualname__} does not have a description defined"
-
-            assert isinstance(item.oca_keywords(), set), \
-                f"Data item {item.__qualname__} does not have OCA keywords attribute defined"
-
-            for kw in item.oca_keywords():
-                assert isinstance(kw, str), \
-                    f"Data item {item.__qualname__} has an invalid OCA keyword {kw}"
 
 
 @pytest.mark.inputset

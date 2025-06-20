@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems.raw.linearity import Linearity2rgRaw, LinearityGeoRaw, LinearityIfuRaw
+from pymetis.classes.dataitems.linearity.raw import Linearity2rgRaw, LinearityGeoRaw, LinearityIfuRaw
 from pymetis.tests.classes.dataitem import DataItemTest
 
 

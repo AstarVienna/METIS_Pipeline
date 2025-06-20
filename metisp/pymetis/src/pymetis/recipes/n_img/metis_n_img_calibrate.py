@@ -17,10 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.background.background import NSciBackgroundSubtracted
+from pymetis.classes.dataitems.distortion.table import NDistortionTable
 from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisImgCalibrateImpl
@@ -29,10 +29,10 @@ from pymetis.classes.prefab import MetisImgCalibrateImpl
 class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):
     class InputSet(MetisImgCalibrateImpl.InputSet):
         class BackgroundInput(BandNMixin, MetisImgCalibrateImpl.InputSet.BackgroundInput):
-            _tags: re.Pattern = re.compile(r"N_SCI_BKG_SUBTRACTED")
+            _item = NSciBackgroundSubtracted
 
         class DistortionTableInput(BandNMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
-            _tags: re.Pattern = re.compile(r"N_DISTORTION_TABLE")
+            _item = NDistortionTable
 
     class ProductSciCalibrated(BandNMixin, MetisImgCalibrateImpl.ProductSciCalibrated):
         pass

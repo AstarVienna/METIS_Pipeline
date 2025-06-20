@@ -22,112 +22,113 @@ import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import DetectorIfuMixin
-from pymetis.classes.mixins.band import BandLmMixin, BandNMixin
+from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
 
 
 class PersistenceMap(DataItem):
-    _title: str = "persistence map"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Persistence map"
-    _oca_keywords: set[str] = {'PRO.CATG'}
-    _pro_catg: str = r'PERSISTENCE_MAP'
+    _title = "persistence map"
+    _name = "PERSISTENCE_MAP"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Persistence map"
+    _oca_keywords = {'PRO.CATG'}
+    _pro_catg = r'PERSISTENCE_MAP'
 
 
 class LinearityMap(DataItem):
-    _title: str = "linearity map"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Coefficients for the pixel non-linearity correction."
-    _oca_keywords: set[str] = {'PRO.CATG'}
+    _title = "linearity map"
+    _name = "LINEARITY_MAP"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Coefficients for the pixel non-linearity correction."
+    _oca_keywords = {'PRO.CATG'}
 
 
 class FluxCalTable(DataItem):
-    _title: str = "flux table"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Conversion between instrumental and physical flux units"
-    _oca_keywords: set[str] = {'PRO.CATG'}
+    _title = "flux table"
+    _name = "FLUXCAL_TABLE"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Conversion between instrumental and physical flux units"
+    _oca_keywords = {'PRO.CATG'}
 
 
 class PinholeTable(DataItem):
-    _title: str = "pinhole table"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Table of pinhole locations"
-    _oca_keywords: set[str] = {'PRO.CATG'}
-    _pro_catg: str = r'PINHOLE_TABLE'
-
-
-class IfuSciReduced(DetectorIfuMixin, DataItem):
-    _title: str = "IFU science reduced"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
-    _description: str = "Reduced 2D detector image of science object."
-    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+    _title = "pinhole table"
+    _name = r'PINHOLE_TABLE'
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _type = cpl.ui.Frame.FrameType.TABLE
+    _description = "Table of pinhole locations"
+    _oca_keywords = {'PRO.CATG'}
+    _pro_catg = r'PINHOLE_TABLE'
 
 
 class TelluricCorrection(DataItem):
-    _title: str = "telluric correction"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Telluric absorption correction."
-    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+    _title = "telluric correction"
+    _name = r'IFU_TELLURIC'
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Telluric absorption correction."
+    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
 class AtmProfile(DataItem):
-    _title: str = "atmosphere profile"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = ("Atmospheric profile containing height information on temperature, "
+    _title = "atmosphere profile"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = ("Atmospheric profile containing height information on temperature, "
                          "pressure and molecular abundances")
 
 
 class LsfKernel(DataItem):
-    _title: str = "line spread function kernel"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Wavelength dependent model of the LSF"
+    _title = "line spread function kernel"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Wavelength dependent model of the LSF"
 
 
 class FluxStdCatalog(DataItem):
     _name = r'FLUXSTD_CATALOG'
-    _title: str = "catalog of standard stars"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Catalog of standard stars"
+    _title = "catalog of standard stars"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Catalog of standard stars"
     _oca_keywords = set()
 
 
 class SciCubeCalibrated(DataItem):
-    _title: str = "rectified spectral cube"
-    _name: str = r'IFU_SCI_CUBE_CALIBRATED'
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _title = "rectified spectral cube"
+    _name = r'IFU_SCI_CUBE_CALIBRATED'
+    _group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-    _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+    _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
 
 
 class IfuSciCoadd(DetectorIfuMixin, DataItem):
-    _title: str = "IFU science coadd"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
+    _name = r'IFU_SCI_COADD'
+    _title = "IFU science coadd"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
                          "covering a different spatial and wavelength ranges.")
-    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
 class Rsrf(DataItem):
-    _title: str = "RSRF"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "2D relative spectral response function"
-    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+    _title = "RSRF"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "2D relative spectral response function"
+    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
 class IfuWavecal(DetectorIfuMixin, DataItem):
-    _title: str = "wavelength calibration"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Image with wavelength at each pixel"
-    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+    _name = r'IFU_WAVECAL'
+    _title = "wavelength calibration"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Image with wavelength at each pixel"
+    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
 class Combined(DataItem):
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _title: str = "spectral cube of science object"
-    _description: str = "Spectral cube of a standard star, combining multiple exposures."
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _title = "spectral cube of science object"
+    _description = "Spectral cube of a standard star, combining multiple exposures."
 
 
 class ScienceCalibrated(DataItem, ABC):
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     @classmethod
@@ -140,8 +141,21 @@ class ScienceCalibrated(DataItem, ABC):
 
 
 class LmScienceCalibrated(BandLmMixin, ScienceCalibrated):
-    _description = "LM band image with flux calibration, WC coordinate system and distorion information"
+    _description = "LM band image with flux calibration, WC coordinate system and distortion information"
 
 
 class NScienceCalibrated(BandNMixin, ScienceCalibrated):
     _description = "N band image with flux calibration and distortion information"
+
+
+class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
+    _name = r'IFU_SCI_CUBE_CALIBRATED'
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _title = "IFU science cube calibrated"
+    _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+
+
+class AtmLineCatalog(DataItem):
+    _name = r'ATM_LINE_CAT'
+    _oca_keywords = {'PRO.CATG'}

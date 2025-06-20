@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.distortion.raw import LmDistortionRaw
+from pymetis.classes.dataitems.distortion.raw import DistortionRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput
@@ -39,7 +39,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
             _description: str = "Raw data for dark subtraction in other recipes."
 
         class DistortionInput(SinglePipelineInput):
-            _item: type[DataItem] = LmDistortionRaw
+            _item: type[DataItem] = DistortionRaw
 
         PinholeTableInput = PinholeTableInput
 
@@ -50,7 +50,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"{cls.band():s}_DISTORTION_TABLE"
+            return rf"{cls.band()}_DISTORTION_TABLE"
 
     class ProductDistortionMap(BandSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -59,7 +59,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"{cls.band():s}_DISTORTION_MAP"
+            return rf"{cls.band()}_DISTORTION_MAP"
 
     class ProductDistortionReduced(BandSpecificProduct, PipelineTableProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -68,7 +68,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"{cls.band():s}_DIST_REDUCED"
+            return rf"{cls.band()}_DIST_REDUCED"
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

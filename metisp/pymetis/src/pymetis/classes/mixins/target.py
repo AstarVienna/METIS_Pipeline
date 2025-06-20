@@ -30,7 +30,7 @@ class TargetSpecificMixin(ABC):
 
     @classmethod
     def target(cls) -> str:
-        return cls._target
+        return cls._target or r'{target}'
 
     @classmethod
     def get_target_string(cls) -> str:
@@ -39,7 +39,7 @@ class TargetSpecificMixin(ABC):
             'STD': 'standard star',
             'LAMP': 'lamp',
             'TWILIGHT': 'twilight',
-        }.get(cls.target(), None)
+        }[cls.target()]
 
 
 class TargetStdMixin(TargetSpecificMixin):

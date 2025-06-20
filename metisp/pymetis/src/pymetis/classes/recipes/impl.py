@@ -62,7 +62,8 @@ class MetisRecipeImpl(ABC):
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
         self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
-        self.__class__ = self._dispatch_child_class()
+
+        self.__class__ = self._dispatch_child_class()   # Promote to the proper derived class
 
     def run(self) -> cpl.ui.FrameSet:
         """

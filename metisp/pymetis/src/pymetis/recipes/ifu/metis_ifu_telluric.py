@@ -89,7 +89,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"IFU_{cls.target():s}_REDUCED_1D"
+            return rf"IFU_{cls.target()}_REDUCED_1D"
 
         @classmethod
         def description(cls) -> str:

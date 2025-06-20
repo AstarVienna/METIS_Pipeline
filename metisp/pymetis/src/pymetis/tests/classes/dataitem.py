@@ -62,12 +62,15 @@ class DataItemTest:
         assert isinstance(self._item.group(), cpl.ui.Frame.FrameGroup), \
             f"Data item {self._item.__qualname__} does not have a frame group defined!"
 
+    @pytest.mark.metadata
     def test_has_oca_keywords_defined(self):
         assert isinstance(self._item._oca_keywords, set), \
             f"Data item {self._item.__qualname__} OCA keywords are not a set"
         #assert len(self._item._oca_keywords) > 0, \
         #    f"Data item {self._item.__qualname__} does not define any OCA keywords" # This is actually OK sometimes
 
+    @pytest.mark.metadata
+    def test_are_oca_keywords_a_set_of_strings(self):
         for kw in self._item._oca_keywords:
             assert kw in OCA_KEYWORDS, \
                 f"Data item {self._item.__qualname__} defines an invalid OCA keyword {kw}!"

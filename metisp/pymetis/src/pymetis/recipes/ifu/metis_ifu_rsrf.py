@@ -22,17 +22,22 @@ import cpl
 import numpy as np
 
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
-from cpl.core import Msg
 
 # is this legal?
 from astropy.table import QTable
 
-from pymetis.classes.dataitems.raw.rsrf import IfuRsrfRaw
+from pymetis.classes.dataitems.badpixmap import BadPixMapIfu
+from pymetis.classes.dataitems.gainmap import GainMapIfu
+from pymetis.classes.dataitems.linearity.linearity import LinearityIfu
+from pymetis.classes.dataitems.masterdark import MasterDarkIfu
+from pymetis.classes.dataitems.masterflat import MasterFlatIfu
+from pymetis.classes.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
+from pymetis.classes.dataitems.raw.wcuoff import WcuOffIfuRaw
 from pymetis.classes.mixins import DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    WavecalInput, DistortionTableInput, LinearityInput)
+                                    WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
 from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct, ProductBadpixMapDet
 
@@ -49,30 +54,29 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"IFU_RSRF_RAW")
 
         class MasterDarkInput(MasterDarkInput):
+            _item = MasterDarkIfu
             _tags: re.Pattern = re.compile(r"MASTER_DARK_IFU")
 
-        class GainMapInput(GainMapInput):
+        class GainMapInput(OptionalInputMixin, GainMapInput):
+            _item = GainMapIfu
             _tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
-            _required = False
 
-        class LinearityInput(LinearityInput):
+        class LinearityInput(OptionalInputMixin, LinearityInput):
+            _item = LinearityIfu
             _tags: re.Pattern = re.compile(r"LINEARITY_IFU")
-            _required = False
 
         class RsrfWcuOffInput(RawInput):
             """
             WCU_OFF input illuminated by the WCU up-to and including the
             integrating sphere, but no source.
             """
+            _item = WcuOffIfuRaw
             _tags: re.Pattern = re.compile(r"IFU_WCU_OFF_RAW")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "IFU WCU off"
-            _description: str = "Raw data for dark subtraction in other recipes."
 
         # TBC: could this be replaced by the MASTER_DARK_IFU input?
-        class BadpixMapInput(BadpixMapInput):
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            _item = BadPixMapIfu
             _tags: re.Pattern = re.compile(r"BADPIX_MAP_IFU")
-            _required = False
 
         DistortionTableInput = DistortionTableInput
         WavecalInput = WavecalInput
@@ -81,10 +85,9 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
+        _item = IfuRsrfBackground
         _tag: str = r"IFU_RSRF_BACKGROUND"
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        _description: str = "Stacked background image."
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from the header
         def add_properties(self) -> None:
@@ -92,11 +95,9 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.properties.append(self.header)
 
     class ProductMasterFlatIfu(PipelineImageProduct):
+        _item = MasterFlatIfu
         _tag: str = r"MASTER_FLAT_IFU"
         level = cpl.ui.Frame.FrameLevel.FINAL
-
-        _description: str = "2D relative spectral response image"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from the header
         def add_properties(self):
@@ -104,6 +105,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.properties.append(self.header)
 
     class ProductRsrfIfu(PipelineTableProduct):
+        _item = RsrfIfu
         _tag: str = r"RSRF_IFU"
         level = cpl.ui.Frame.FrameLevel.FINAL
 
@@ -116,7 +118,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.properties.append(self.header)
 
     class ProductBadpixMapIfu(DetectorIfuMixin, ProductBadpixMapDet):
-        pass
+        _item = BadPixMapIfu
 
     def process_images(self) -> set[PipelineProduct]:
         """

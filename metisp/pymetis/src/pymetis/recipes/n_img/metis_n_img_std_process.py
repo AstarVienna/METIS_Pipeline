@@ -21,7 +21,7 @@ import re
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.background import NStdBackgroundSubtracted
+from pymetis.classes.dataitems.background.background import NStdBackgroundSubtracted
 from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl

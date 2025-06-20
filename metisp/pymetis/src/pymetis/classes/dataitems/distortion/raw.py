@@ -21,21 +21,24 @@ from abc import ABC
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.raw import Raw
 from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionRaw(DataItem, ABC):
+class DistortionRaw(Raw, ABC):
     _title: str = "distortion raw"
-    _name: str = None
-    _description: str = "Raw data for dark subtraction in other recipes."
+    _description: str = "Raw data for distortion determination in other recipes."
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords: set[str] = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                                'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'}
 
     @classmethod
     def description(cls):
-        return f"Raw data for dark subtraction in other recipes in the {cls.band()} band."
+        return f"Raw data for distortion determination in other recipes in the {cls.band()} band."
+
+    @classmethod
+    def name(cls):
+        return f'{cls.band()}_DISTORTION_RAW'
 
 
 class LmDistortionRaw(BandLmMixin, DistortionRaw):

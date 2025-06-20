@@ -102,7 +102,7 @@ class PipelineInput:
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            'item': self._item,
+            'item': self.item(),
             'tags': self.tags(),
             'required': self.required,
         }
@@ -119,9 +119,12 @@ class PipelineInput:
     @final
     def _extended_description_line(cls, name: str = None) -> str:
         """ Produce ae extended description line for man page. """
+        assert cls.item() is not None, f"{cls.__class__.__qualname__} has no item"
+        assert cls.item().description() is not None, f"{cls.__class__.__qualname__} has no item"
+
         return (f"      {name:<24}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
                 f" --- {cls._pretty_tags():<60}\n"
-                f"          {cls._item._description}")
+                f"          {cls.item().description()}")
 #                f"{f'\n{' ' * 84}'.join([x.__name__ for x in set(cls.input_for_recipes())])}")
 
     @abstractmethod

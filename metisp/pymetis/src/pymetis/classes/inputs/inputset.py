@@ -69,6 +69,7 @@ class PipelineInputSet(metaclass=ABCMeta):
             inp = input_type(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
             self.__setattr__(make_snake.sub('_', cut_input.sub('', name)).lower(), inp)
+            # Add to the set of inputs (for easy iteration over all inputs)
             self.inputs |= {inp}
 
     def validate(self) -> None:
@@ -83,7 +84,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         Msg.debug(self.__class__.__qualname__, f"Validating the inputset {self.inputs}")
 
         if len(self.inputs) == 0:
-            raise NotImplementedError("PipelineInput must define at least one input.")
+            raise NotImplementedError("PipelineInputSet must define at least one input.")
 
         for inp in self.inputs:
             inp.validate()
@@ -93,7 +94,7 @@ class PipelineInputSet(metaclass=ABCMeta):
 
         # For every parsed tag parameter, set the corresponding attribute
         for key, value in self.tag_parameters.items():
-            Msg.info(self.__class__.__qualname__, f"Setting InputSet tag parameter '{key}' = '{value}'")
+            Msg.info(self.__class__.__qualname__, f"Setting PipelineInputSet tag parameter '{key}' = '{value}'")
             self.__setattr__(key, value)
 
     def validate_detectors(self) -> None:

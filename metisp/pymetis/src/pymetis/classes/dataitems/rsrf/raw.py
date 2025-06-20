@@ -19,33 +19,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from pymetis.classes.dataitems.raw import Raw
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins import DetectorIfuMixin, Detector2rgMixin, DetectorGeoMixin
+from pymetis.classes.mixins.band import BandLmMixin, BandIfuMixin, BandNMixin
 
 
-class LinearityRaw(Raw, ABC):
-    _name = r'DETLIN_{det}_RAW'
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
+class RsrfRaw(Raw, ABC):
+    @classmethod
+    def name(cls):
+        return rf'{cls.band()}_LSS_RSRF_RAW'
+
+
+class LmLssRsrfRaw(Detector2rgMixin, BandLmMixin, RsrfRaw):
+    pass
+
+
+class NLssRsrfRaw(DetectorGeoMixin, BandNMixin, RsrfRaw):
+    pass
+
+
+class IfuRsrfRaw(DetectorIfuMixin, BandIfuMixin, RsrfRaw):
+    _title = "IFU RSRF raw image"
 
     @classmethod
     def name(cls):
-        return rf'DETLIN_{cls.detector()}_RAW'
-
-    @classmethod
-    def title(cls) -> str:
-        return rf'{cls.detector()} linearity raw'
-
-    @classmethod
-    def description(cls):
-        return rf"Raw data for non-linearity determination for {cls.detector()} observations"
-
-
-class Linearity2rgRaw(Detector2rgMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.FILTER'}
-
-
-class LinearityGeoRaw(DetectorGeoMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.FILTER'}
-
-
-class LinearityIfuRaw(DetectorIfuMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.IFU'}
+        """
+        Here the name is overridden as it is not LSS.
+        """
+        return r'IFU_RSRF_RAW'

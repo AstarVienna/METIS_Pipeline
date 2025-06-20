@@ -16,23 +16,28 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from abc import ABC
 
 
-class DetectorSpecificMixin:
+class DetectorSpecificMixin(ABC):
     _detector: str = None
 
     @classmethod
     def detector(cls) -> str:
-        return cls._detector
+        return cls._detector or r'{detector}'
+
+    def __init_subclass__(cls, *, detector=None, **kwargs):
+        cls._detector = detector
+        super().__init_subclass__(**kwargs)
 
 
-class Detector2rgMixin(DetectorSpecificMixin):
-    _detector: str = '2RG'
+class Detector2rgMixin(DetectorSpecificMixin, detector='2RG'):
+    pass
 
 
-class DetectorGeoMixin(DetectorSpecificMixin):
-    _detector: str = 'GEO'
+class DetectorGeoMixin(DetectorSpecificMixin, detector='GEO'):
+    pass
 
 
-class DetectorIfuMixin(DetectorSpecificMixin):
-    _detector: str = 'IFU'
+class DetectorIfuMixin(DetectorSpecificMixin, detector='IFU'):
+    pass

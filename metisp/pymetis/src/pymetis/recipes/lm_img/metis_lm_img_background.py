@@ -57,7 +57,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         @classmethod
         def tag(cls):
-            return f"LM_{cls.target():s}_BKG"
+            return f"LM_{cls.target()}_BKG"
 
     class ProductBkgSubtracted(TargetSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -74,7 +74,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         @classmethod
         def tag(cls):
-            return f"LM_{cls.target():s}_BKG_SUBTRACTED"
+            return f"LM_{cls.target()}_BKG_SUBTRACTED"
 
     class ProductObjectCat(TargetSpecificProduct, PipelineTableProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL
@@ -86,7 +86,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         @classmethod
         def tag(cls):
-            return rf"LM_{cls.target():s}_OBJECT_CAT"
+            return rf"LM_{cls.target()}_OBJECT_CAT"
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

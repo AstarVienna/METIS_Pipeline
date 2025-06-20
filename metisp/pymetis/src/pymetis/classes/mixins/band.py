@@ -25,7 +25,7 @@ class BandSpecificMixin(ABC):
 
     @classmethod
     def band(cls) -> str:
-        return cls._band
+        return cls._band or r'{band}'
 
 
 class BandLmMixin:

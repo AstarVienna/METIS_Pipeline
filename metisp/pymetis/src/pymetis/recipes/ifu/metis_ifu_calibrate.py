@@ -21,8 +21,9 @@ import re
 
 import cpl
 
-from pymetis.classes.dataitems.common import IfuSciReduced, TelluricCorrection
+from pymetis.classes.dataitems.common import TelluricCorrection, IfuScienceCubeCalibrated
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.ifu.ifu import IfuSciReduced
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.products import PipelineImageProduct, PipelineProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
@@ -42,12 +43,9 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         FluxCalTableInput = FluxCalTableInput
 
     class ProductSciCubeCalibrated(PipelineImageProduct):
-
-        _tag = r"IFU_SCI_CUBE_CALIBRATED"
+        _item = IfuScienceCubeCalibrated
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> set[PipelineProduct]:
         # self.correct_telluric()

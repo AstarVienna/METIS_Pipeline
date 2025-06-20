@@ -22,9 +22,9 @@ from abc import ABC
 
 import cpl
 
-from pymetis.classes.dataitems.background import LmSciBackgroundSubtracted
+from pymetis.classes.dataitems.background.background import LmSciBackgroundSubtracted
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.distortion.table import DistortionTableGeo
+from pymetis.classes.dataitems.distortion.table import DistortionTable
 from pymetis.classes.products import BandSpecificProduct, PipelineImageProduct
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.products.product import PipelineProduct
@@ -42,7 +42,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
-            _item: type[DataItem] = DistortionTableGeo
+            _item: type[DataItem] = DistortionTable
             _tags: re.Pattern = re.compile(r"N_DISTORTION_TABLE")
 
 

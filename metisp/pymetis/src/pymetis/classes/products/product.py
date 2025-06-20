@@ -30,6 +30,7 @@ from cpl.core import Msg
 from pyesorex.parameter import Parameter
 
 import pymetis
+from pymetis.classes.dataitems.dataitem import DataItem
 
 PIPELINE = r'METIS'
 
@@ -39,6 +40,7 @@ class PipelineProduct(ABC):
     The abstract base class for a pipeline product:
     one FITS file with associated headers and a frame
     """
+    _item: type[DataItem] = None
 
     # Global defaults for all Products
     group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -50,13 +52,14 @@ class PipelineProduct(ABC):
     # the default @classmethod with the same name (without the underscore) just returns its value.
     # If it depends on other attributes, override the corresponding @classmethod.
     # All methods dealing with these should relate to the **class**, not its instances!
-    _tag: str = None
-    _oca_keywords: set[str] = set()
-    _description: str = None
 
     # Use this regex to verify that the product tag is correct.
     # This base version only verifies it is ALL_CAPS_WITH_UNDERSCORES, feel free to override
     _regex_tag: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
+
+    @classmethod
+    def item(cls) -> type[DataItem]:
+        return cls._item
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -73,9 +76,6 @@ class PipelineProduct(ABC):
         self._used_frames: cpl.ui.FrameSet | None = None
 
         # Raise a `NotImplementedError` in case a derived class forgot to set a class attribute
-        if self.tag is None:
-            raise NotImplementedError(f"Products must define 'tag', but {self.__class__.__qualname__} does not")
-
         if self.group is None:
             raise NotImplementedError(f"Products must define 'group', but {self.__class__.__qualname__} does not")
 
@@ -165,7 +165,7 @@ class PipelineProduct(ABC):
         By default, the tag is the same as the category.
         Feel free to override if needed.
         """
-        return self.tag()
+        return self.item().name()
 
     @property
     def output_file_name(self) -> str:
@@ -200,17 +200,7 @@ class PipelineProduct(ABC):
         str
             The tag of this product.
         """
-        return cls._tag
-
-    @classmethod
-    def description(cls) -> str:
-        """
-        Returns
-        -------
-        str
-            An unformatted description of this product.
-        """
-        return cls._description
+        return cls.item().name()
 
     @classmethod
     @final
@@ -218,7 +208,7 @@ class PipelineProduct(ABC):
         """
         Generate a description line for 'pyesorex --man-page'.
         """
-        return f"    {cls.tag():<76s}{cls.description() or '<no description defined>'}"
+        return f"    {cls.tag():<76s}{cls.item().description() or '<no description defined>'}"
 
     @classmethod
     @final
@@ -226,7 +216,8 @@ class PipelineProduct(ABC):
         """
         Generate a description line for 'pyesorex --man-page'.
         """
-        return (f"    {name}\n      {cls.tag():<76s}{cls.description() or '<no description defined>'}"
+        assert cls.item() is not None, f"{cls} has no item"
+        return (f"    {name}\n      {'a'}{cls.item().description() or '<no description defined>'}"
                 f"\n{' ' * 84}"
                 f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
 

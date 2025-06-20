@@ -16,38 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
-from abc import ABC
-
-import cpl
-
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins import DetectorIfuMixin
 
 
-class GainMap(DataItem, ABC):
-    _title: str = "gain map"
-    _detector: str = None
-    _description: str = "Gain map"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords: set[str] = {'PRO.CATG'}
-
-    @classmethod
-    def name(cls):
-        return rf"GAIN_MAP_{cls.detector()}"
-
-    @classmethod
-    def pro_catg(cls):
-        return rf"GAIN_MAP_{cls.detector()}"
-
-
-class GainMap2rg(Detector2rgMixin, GainMap):
-    pass
-
-
-class GainMapGeo(DetectorGeoMixin, GainMap):
-    pass
-
-
-class GainMapIfu(DetectorIfuMixin, GainMap):
-    pass
+class IfuRsrfBackground(DetectorIfuMixin, DataItem):
+    _name = r'IFU_RSRF_BACKGROUND'

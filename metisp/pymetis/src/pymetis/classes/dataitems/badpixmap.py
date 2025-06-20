@@ -22,26 +22,25 @@ from abc import ABC
 import cpl
 
 from .dataitem import DataItem
-from ..mixins import Detector2rgMixin, DetectorIfuMixin
+from ..mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class BadPixMap(DataItem, ABC):
+class BadPixMap(DetectorSpecificMixin, DataItem, ABC):
     _title: str = "bad pixel map"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Bad pixel map. Also contains detector masks."
     _oca_keywords: set[str] = {'PRO.CATG'}
-    _detector: str = None
 
     @classmethod
-    def _pro_catg(cls):
-        return rf"BADPIX_MAP_{cls._detector}"
+    def name(cls):
+        return rf"BADPIX_MAP_{cls.detector()}"
 
 
 class BadPixMap2rg(Detector2rgMixin, BadPixMap):
     pass
 
 
-class BadPixMapGeo(Detector2rgMixin, BadPixMap):
+class BadPixMapGeo(DetectorGeoMixin, BadPixMap):
     pass
 
 

@@ -48,24 +48,6 @@ class BaseProductTest(ABC):
         assert self._product.frame_type is not None, \
             f"Product frame type is not defined for {self._product.__qualname__}"
 
-    @pytest.mark.metadata
-    def test_does_it_have_a_description(self):
-        assert self._product.description() is not None, \
-            f"No description defined for {self._product.__qualname__}"
-
-    @pytest.mark.metadata
-    def test_does_it_define_oca_keywords(self):
-        assert self._product._oca_keywords is not None, \
-            f"No OCA keywords defined for {self._product.__qualname__}"
-
-    @pytest.mark.metadata
-    def test_are_oca_keywords_a_set_of_strings(self):
-        assert isinstance(self._product._oca_keywords, set), \
-            f"OCA keywords for {self._product.__qualname__} are not a set of strings"
-        for kw in self._product._oca_keywords:
-            assert isinstance(kw, str), \
-                f"OCA keyword '{kw}' is not a string"
-
 
 class ImageProductTest(BaseProductTest):
     def test_does_product_type_match(self):

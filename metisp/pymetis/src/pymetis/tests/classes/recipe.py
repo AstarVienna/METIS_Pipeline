@@ -141,11 +141,39 @@ class BaseRecipeTest(ABC):
         recipe = self._recipe()
         assert recipe._build_description() is not None
 
+    def test_all_inputs(self, frameset):
+        """
+        Test that all inputs are valid. Note that this is an *instance* test, and depends on the data supplied.
+        """
+        recipe = self._recipe()
+        recipe.run(frameset, {})
+        for inp in recipe.implementation.inputset.inputs:
+            item = inp.item()
+
+            assert item is not None, \
+                f"Input {inp} has no associated data item"
+
+            assert isinstance(item.name(), str), \
+                f"Data item {item.__qualname__} of {inp.__class__.__qualname__} does not have a name defined"
+
+            assert isinstance(item.title(), str), \
+                f"Data item {item.__qualname__} of {inp.__class__.__qualname__} does not have a title defined"
+
+            assert isinstance(item.description(), str), \
+                f"Data item {item.__qualname__} does not have a description defined"
+
+            assert isinstance(item.oca_keywords(), set), \
+                f"Data item {item.__qualname__} does not have OCA keywords attribute defined"
+
+            for kw in item.oca_keywords():
+                assert isinstance(kw, str), \
+                    f"Data item {item.__qualname__} has an invalid OCA keyword {kw}"
+
 
 class BandParamRecipeTest(BaseRecipeTest):
     """
     Tests for recipes whose SOFs also specify band parameters ("LM" | "N" | "IFU")
-    This is just a shorthand to parametrize them.
+    This is just a shorthand to parametrize them for all bands.
     """
     @pytest.mark.parametrize("band", bands)
     @pytest.mark.external

@@ -50,11 +50,11 @@ class MetisImgStdProcessImpl(RawImageProcessor):
 
         @classmethod
         def description(cls) -> str:
-            return f"Stacked {cls.band():s} band exposures."
+            return f"Stacked {cls.band()} band exposures."
 
         @classmethod
         def tag(cls) -> str:
-            return fr"{cls.band():s}_STD_COMBINED"
+            return fr"{cls.band()}_STD_COMBINED"
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

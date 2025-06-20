@@ -93,7 +93,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"N_{cls.target():s}_BKG_SUBTRACTED"
+            return rf"N_{cls.target()}_BKG_SUBTRACTED"
 
     class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
         """
@@ -111,7 +111,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"N_{cls.target():s}_BACKGROUND"
+            return rf"N_{cls.target()}_BACKGROUND"
 
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet) -> cpl.core.ImageList:

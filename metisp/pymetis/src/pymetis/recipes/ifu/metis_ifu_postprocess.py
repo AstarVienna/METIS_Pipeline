@@ -36,11 +36,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
 
     class ProductSciCoadd(PipelineImageProduct):
         _item: type[DataItem] = IfuSciCoadd
-        _tag = r"IFU_SCI_COADD"
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures "
-                             "covering a different spatial and wavelength ranges.")
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def determine_output_grid(self):
         pass

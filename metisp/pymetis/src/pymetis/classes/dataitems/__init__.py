@@ -1,6 +1,10 @@
-from .raw import LmImageStdRaw, IfuSciRaw
+from .raw import Raw, ImageRaw, LmImageStdRaw, LmImageSciRaw, NImageStdRaw, NImageSciRaw, IfuSciRaw
 
 
 __all__ = [
-    LmImageStdRaw, IfuSciRaw
+    Raw,
+    ImageRaw,
+    LmImageStdRaw, LmImageSciRaw,
+    NImageStdRaw, NImageSciRaw,
+    IfuSciRaw
 ]

@@ -24,54 +24,56 @@ import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, TargetSciMixin, TargetStdMixin
-from pymetis.classes.mixins.band import BandNMixin, BandLmMixin
+from pymetis.classes.mixins.band import BandNMixin, BandLmMixin, BandSpecificMixin, BandIfuMixin
+from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
 class BackgroundReduced(DataItem, ABC):
-    _title: str = "background-reduced"
-    _detector: str = None
-    _description: str = None
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+    _title = "background-reduced"
+    _detector = None
+    _description = None
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
     @classmethod
     def _pro_catg(cls):
-        return rf"{cls._detector}_DISTORTION_TABLE"
+        return rf"{cls.detector()}_BACKGROUND_REDUCED"
+
+
+class BasicReduced(DataItem, ABC):
+    @classmethod
+    def name(cls):
+        return rf"{cls.band()}_SCI_BASIC_REDUCED"
 
 
 class StdBasicReduced(Detector2rgMixin, BackgroundReduced):
-    _description: str = "Standard detrended exposure of the LM image mode."
-    _tag: str = r"LM_STD_BASIC_REDUCED"
+    _description = "Standard detrended exposure of the LM image mode."
+    _tag = rf"LM_STD_BASIC_REDUCED"
 
 
 class SciBasicReducedGeo(DetectorGeoMixin, BackgroundReduced):
-    _description: str = "Science grade detrended exposure of the LM image mode."
-    _tag: str = r"LM_SCI_BASIC_REDUCED"
+    _description = "Science grade detrended exposure of the LM image mode."
 
 
 class SkyBasicReduced(DataItem, ABC):
     _title = "sky basic-reduced exposure"
     _group = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Detrended exposure of the sky."
-    _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
+    _description = "Detrended exposure of the sky."
+    _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
 
-
-class BackgroundSubtracted(DataItem, ABC):
+class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, DataItem, ABC):
     _title = "background-subtracted"
-    _band: str = r'LM'
-    _detector: str = r'2RG'
-    _target: Literal['SCI', 'STD'] = None
     _group = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
+    _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
     @classmethod
     def name(cls):
-        return rf"{cls._band}_{cls._target}_BKG_SUBTRACTED"
+        return rf"{cls.band()}_{cls.target()}_BKG_SUBTRACTED"
 
     @classmethod
     def description(cls):
-        return rf"Thermal background subtracted images of science {cls._band} exposures."
+        return rf"Thermal background subtracted images of science {cls.band()} exposures."
 
 
 class LmStdBackgroundSubtracted(BandLmMixin, TargetStdMixin, BackgroundSubtracted):

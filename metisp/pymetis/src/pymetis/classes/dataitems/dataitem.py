@@ -36,11 +36,13 @@ class DataItem(ABC):
     """
     # Printable title of the data item. Not used internally, only for human-oriented output
     _title: str = None                      # No universal title makes sense
-
-    # Actual ID of the data item. Used internally for identification.
+    # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
     _name: str = None                       # No universal name makes sense
+    # CPL frame group
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
+    # Associated detector (maybe this does not make much sense here and should be removed)
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
+    # Associated band
     _band: Optional[Literal['LM', 'N', 'IFU']] = None
 
     # Description for man page
@@ -58,7 +60,8 @@ class DataItem(ABC):
     @classmethod
     def name(cls) -> str:
         """
-        Return the machine-oriented name of this data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW"
+        Return the machine-oriented name of this data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
+        By default, it returns `_name`, but may be overridden to build the actual name from other attributes.
         """
         return cls._name
 
@@ -78,9 +81,10 @@ class DataItem(ABC):
         return cls._group
 
     @classmethod
+    @final
     def band(cls) -> Optional[Literal['LM', 'N', 'IFU']]:
         """
-        Return the spectral band of the data item.
+        Return the spectral band of the data item. Should not be overridden.
         """
         return cls._band
 
@@ -101,12 +105,16 @@ class DataItem(ABC):
         """
         return cls._oca_keywords
 
+    @classmethod
+    def pro_catg(cls):
+        return NotImplemented # ToDo finish
+
     def __init__(self):
         # Check if it is defined
         if self.title() is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
 
-        # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL
+        # Check if frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
         if not self.group:
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined group!")
@@ -170,7 +178,7 @@ class DataItem(ABC):
         else:
             # raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
             Msg.warning(self.__class__.__qualname__,
-                        f"Darks from more than one detector found: {unique}!")
+                        f"Frames from more than one detector found: {unique}!")
 
     @classmethod
     def _pretty_tags(cls) -> str:

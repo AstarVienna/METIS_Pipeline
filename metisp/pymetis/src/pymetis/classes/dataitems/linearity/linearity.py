@@ -16,48 +16,38 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
 from abc import ABC
 
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class DistortionTable(DataItem, ABC):
-    _title: str = "distortion table"
-    _description: str = "Table of distortion coefficients"
+class Linearity(DataItem, ABC):
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
-
-    @classmethod
-    def _pro_catg(cls) -> str:
-        return rf"{cls.band()}_DISTORTION_TABLE"
+    _oca_keywords = {'PRO.CATG'}
 
     @classmethod
     def name(cls):
-        return rf'{cls.band()}_DISTORTION_TABLE'
+        return rf'LINEARITY_{cls.detector()}'
 
     @classmethod
-    def description(cls) -> str:
-        return f"Table of distortion coefficients for a {cls.band()} band data set"
+    def title(cls) -> str:
+        return rf'{cls.detector()} linearity'
+
+    @classmethod
+    def description(cls):
+        return rf"Coefficients for the pixel {cls.detector()} non-linearity correction"
 
 
-class LmDistortionTable(BandLmMixin, DistortionTable):
+class Linearity2rg(Detector2rgMixin, Linearity):
     pass
 
 
-class NDistortionTable(BandNMixin, DistortionTable):
+class LinearityGeo(DetectorGeoMixin, Linearity):
     pass
 
 
-class IfuDistortionTable(BandIfuMixin, DistortionTable):
+class LinearityIfu(DetectorIfuMixin, Linearity):
     pass
-
-
-class IfuDistortionReduced(BandIfuMixin, DataItem):
-    _name = r'IFU_DIST_REDUCED'
-    _title = "IFU distortion reduced"
-    _description = "Table of polynomial coefficients for distortion correction"
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}

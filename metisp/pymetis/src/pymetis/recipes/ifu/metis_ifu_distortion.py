@@ -23,6 +23,7 @@ from cpl.core import Msg
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion.raw import IfuDistortionRaw
+from pymetis.classes.dataitems.distortion.table import IfuDistortionTable, IfuDistortionReduced
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 from pymetis.classes.inputs import RawInput, MasterDarkInput
@@ -41,16 +42,12 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
 
     class ProductIfuDistortionTable(PipelineTableProduct):
-        _tag = r"IFU_DISTORTION_TABLE"
+        _item = IfuDistortionTable
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Table of distortion coefficients for an IFU data set"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     class ProductIfuDistortionReduced(PipelineImageProduct):
-        _tag = r"IFU_DIST_REDUCED"
+        _item = IfuDistortionReduced
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

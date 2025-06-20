@@ -25,6 +25,8 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.gainmap import GainMap2rg, GainMapGeo, GainMapIfu
+from pymetis.classes.dataitems.masterdark import MasterDarkIfu, MasterDark2rg, MasterDarkGeo, MasterDark
 from pymetis.classes.dataitems.raw.dark import DarkGeoRaw, Dark2rgRaw, DarkIfuRaw, DarkRaw
 from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -86,22 +88,8 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         """
 
         # We define the required attributes for CPL.
+        _item = MasterDark
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-        # The actual description depends on the detector, so we need to redefine it.
-        # If it did not, we would just redefine `_description: str = "*describe* *describe*"`,
-        # but here we have to override the wrapping @classmethod too.
-        # Note that this is a @classmethod: it depends on the class and not on the instance,
-        # and we can call it without loading any data. This is useful for `pyesorex --man-page metis_det_dark`.
-        @classmethod
-        def description(cls) -> str:
-            return f"Master dark frame for '{cls.detector()}' detector data"
-
-        # The same goes for `tag`.
-        @classmethod
-        def tag(cls) -> str:
-            return rf"MASTER_DARK_{cls.detector()}"
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -151,11 +139,11 @@ class Metis2rgDarkImpl(MetisDetDarkImpl):
         class RawInput(Detector2rgMixin, MetisDetDarkImpl.InputSet.RawInput):
             _item = Dark2rgRaw
 
-    class GainMapInput(Detector2rgMixin, MetisDetDarkImpl.InputSet.GainMapInput):
-        pass
+        class GainMapInput(Detector2rgMixin, MetisDetDarkImpl.InputSet.GainMapInput):
+            _item = GainMap2rg
 
     class ProductMasterDark(Detector2rgMixin, MetisDetDarkImpl.ProductMasterDark):
-        pass
+        _item = MasterDark2rg
 
 
 class MetisGeoDarkImpl(MetisDetDarkImpl):
@@ -163,11 +151,12 @@ class MetisGeoDarkImpl(MetisDetDarkImpl):
         class RawInput(DetectorGeoMixin, MetisDetDarkImpl.InputSet.RawInput):
             _item = DarkGeoRaw
 
-    class GainMapInput(DetectorGeoMixin, MetisDetDarkImpl.InputSet.GainMapInput):
-        pass
+        class GainMapInput(DetectorGeoMixin, MetisDetDarkImpl.InputSet.GainMapInput):
+            _item = GainMapGeo
 
     class ProductMasterDark(DetectorGeoMixin, MetisDetDarkImpl.ProductMasterDark):
-        pass
+        _item = MasterDarkGeo
+
 
 
 class MetisIfuDarkImpl(MetisDetDarkImpl):
@@ -176,10 +165,10 @@ class MetisIfuDarkImpl(MetisDetDarkImpl):
             _item = DarkIfuRaw
 
         class GainMapInput(DetectorIfuMixin, MetisDetDarkImpl.InputSet.GainMapInput):
-            pass
+            _item = GainMapIfu
 
     class ProductMasterDark(DetectorIfuMixin, MetisDetDarkImpl.ProductMasterDark):
-        pass
+        _item = MasterDarkIfu
 
 
 # This is the actual recipe class that is visible by `pyesorex`.

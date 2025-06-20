@@ -51,11 +51,11 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
         @classmethod
         def tag(cls) -> str:
-            return fr"MASTER_IMG_FLAT_{cls.target():s}_{cls.band():s}"
+            return fr"MASTER_IMG_FLAT_{cls.target()}_{cls.band()}"
 
         @classmethod
         def description(cls) -> str:
-            return fr"Master flat frame for {cls.band():s} image data"
+            return fr"Master flat frame for {cls.band()} image data"
 
     def process_images(self) -> set[PipelineProduct]:
         """

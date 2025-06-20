@@ -26,6 +26,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
+from pymetis.classes.dataitems import LmImageStdRaw
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -104,7 +105,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         @classmethod
         def tag(cls) -> str:
-            return rf"LM_{cls.target():s}_BASIC_REDUCED"
+            return rf"LM_{cls.target()}_BASIC_REDUCED"
 
         @property
         def output_file_name(self) -> str:
@@ -197,6 +198,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
 
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
+    class InputSet(MetisLmImgBasicReduceImpl.InputSet):
+        class RawInput(MetisLmImgBasicReduceImpl.InputSet.RawInput):
+            _item = LmImageStdRaw
+
     class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
         pass
 
