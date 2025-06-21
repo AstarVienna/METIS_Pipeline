@@ -22,10 +22,10 @@ from abc import ABC
 import cpl
 
 from pymetis.classes.dataitems.raw import Raw
-from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionRaw(Raw, ABC):
+class DistortionRaw(BandSpecificMixin, Raw, ABC):
     _title: str = "distortion raw"
     _description: str = "Raw data for distortion determination in other recipes."
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW

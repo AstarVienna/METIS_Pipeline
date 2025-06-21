@@ -35,8 +35,10 @@ class PipelineInput:
     This class encapsulates a single logical input to a recipe:
     - either a single file, or a line in the SOF (see SinglePipelineInput)
     - or a set of equivalent files (see MultiplePipelineInput)
+
+    It is a relatively thin wrapper over the inner `Item`.
     """
-    _item: type[DataItem] = None
+    Item: type[DataItem] = None
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _tags: Pattern = None                   # No universal tags are provided
@@ -47,7 +49,7 @@ class PipelineInput:
 
     @classmethod
     def item(cls) -> type[DataItem]:
-        return cls._item
+        return cls.Item
 
     @classmethod
     def title(cls) -> str:
@@ -69,7 +71,7 @@ class PipelineInput:
 
     @property
     def group(self):
-        return self._item._group
+        return self.Item._group
 
     @property
     def detector(self) -> str:
@@ -80,7 +82,7 @@ class PipelineInput:
         self._detector = value
 
     def __init__(self):
-        if self._item is None:
+        if self.Item is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined data item")
 
         # A list of matched groups from `tags`. Acquisition differs

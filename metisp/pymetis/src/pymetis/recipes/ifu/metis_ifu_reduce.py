@@ -22,13 +22,12 @@ import re
 import cpl
 from typing import Literal
 
-from pymetis.classes.dataitems.common import Rsrf
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion.table import IfuDistortionTable
+from pymetis.classes.dataitems.ifu.raw import IfuSciRaw, IfuSkyRaw, IfuRaw
 from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuStdBackground, IfuStdReducedCube, \
     IfuSciReduced, IfuStdReduced, IfuBackground, IfuReducedCube, IfuStdCombined, IfuSciBackground, IfuSciCombined, \
     IfuSciReducedCube
-from pymetis.classes.dataitems.raw import IfuSciRaw, IfuSkyRaw, IfuRaw
 from pymetis.classes.dataitems.rsrf import RsrfIfu
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -43,11 +42,11 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
     class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            _item = IfuRaw
+            Item = IfuRaw
             _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
 
         class RawSkyInput(RawInput):
-            _item = IfuSkyRaw
+            Item = IfuSkyRaw
             _tags: re.Pattern = re.compile(r"IFU_SKY_RAW")
 
         class MasterDarkInput(MasterDarkInput):
@@ -57,26 +56,26 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
         class DistortionTableInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_TABLE")
-            _item: type[DataItem] = IfuDistortionTable
+            Item: type[DataItem] = IfuDistortionTable
 
         class RsrfInput(SinglePipelineInput):
             _tags: re.Pattern = re.compile(r"RSRF_IFU")
-            _item: type[DataItem] = RsrfIfu
+            Item: type[DataItem] = RsrfIfu
 
     class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
-        _item = IfuReduced
+        Item = IfuReduced
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
-        _item = IfuBackground
+        Item = IfuBackground
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductReducedCube(TargetSpecificProduct, PipelineImageProduct):
-        _item = IfuReducedCube
+        Item = IfuReducedCube
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductCombined(TargetSpecificProduct, PipelineImageProduct):
-        _item = IfuCombined
+        Item = IfuCombined
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
     def process_images(self) -> set[PipelineProduct]:
@@ -102,30 +101,30 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
 class MetisIfuReduceStdImpl(MetisIfuReduceImpl):
     class ProductReduced(TargetStdMixin, MetisIfuReduceImpl.ProductReduced):
-        _item = IfuStdReduced
+        Item = IfuStdReduced
 
     class ProductBackground(TargetStdMixin, MetisIfuReduceImpl.ProductBackground):
-        _item = IfuStdBackground
+        Item = IfuStdBackground
 
     class ProductCombined(TargetStdMixin, MetisIfuReduceImpl.ProductCombined):
-        _item = IfuStdCombined
+        Item = IfuStdCombined
 
     class ProductReducedCube(TargetStdMixin, MetisIfuReduceImpl.ProductReducedCube):
-        _item = IfuStdReducedCube
+        Item = IfuStdReducedCube
 
 
 class MetisIfuReduceSciImpl(MetisIfuReduceImpl):
     class ProductReduced(TargetSciMixin, MetisIfuReduceImpl.ProductReduced):
-        _item = IfuSciReduced
+        Item = IfuSciReduced
 
     class ProductBackground(TargetSciMixin, MetisIfuReduceImpl.ProductBackground):
-        _item = IfuSciBackground
+        Item = IfuSciBackground
 
     class ProductCombined(TargetSciMixin, MetisIfuReduceImpl.ProductCombined):
-        _item = IfuSciCombined
+        Item = IfuSciCombined
 
     class ProductReducedCube(TargetSciMixin, MetisIfuReduceImpl.ProductReducedCube):
-        _item = IfuSciReducedCube
+        Item = IfuSciReducedCube
 
 
 class MetisIfuReduce(MetisRecipe):

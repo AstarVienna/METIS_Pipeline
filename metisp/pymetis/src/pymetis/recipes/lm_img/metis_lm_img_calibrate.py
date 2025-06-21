@@ -34,7 +34,7 @@ class MetisLmImgCalibrateImpl(MetisImgCalibrateImpl):
             pass
 
         class DistortionTableInput(BandLmMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
-            _item: type[DataItem] = LmDistortionTable
+            Item: type[DataItem] = LmDistortionTable
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_TABLE")
 
     class ProductSciCalibrated(BandLmMixin, MetisImgCalibrateImpl.ProductSciCalibrated):

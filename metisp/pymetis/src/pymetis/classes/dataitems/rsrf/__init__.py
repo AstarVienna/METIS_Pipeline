@@ -4,7 +4,7 @@ from .rsrf import RsrfIfu
 
 
 __all__ = [
-    RsrfRaw, LmLssRsrfRaw, NLssRsrfRaw, IfuRsrfRaw,
-    IfuRsrfBackground,
-    RsrfIfu
+    'RsrfRaw', 'LmLssRsrfRaw', 'NLssRsrfRaw', 'IfuRsrfRaw',
+    'IfuRsrfBackground',
+    'RsrfIfu'
 ]

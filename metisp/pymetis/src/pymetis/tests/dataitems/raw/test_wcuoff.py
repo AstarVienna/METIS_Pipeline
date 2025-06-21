@@ -22,12 +22,12 @@ from pymetis.tests.classes.dataitem import DataItemTest
 
 
 class TestWcuOff2rgRaw(DataItemTest):
-    _item = LmWcuOffRaw
+    Item = LmWcuOffRaw
 
 
 class TestWcuOffGeoRaw(DataItemTest):
-    _item = NWcuOffRaw
+    Item = NWcuOffRaw
 
 
 class TestWcuOffIfuRaw(DataItemTest):
-    _item = WcuOffIfuRaw
+    Item = WcuOffIfuRaw

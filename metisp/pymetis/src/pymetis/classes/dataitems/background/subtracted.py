@@ -21,9 +21,11 @@ import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import (TargetSpecificMixin, TargetSciMixin, TargetStdMixin,
-                                    BandNMixin, BandLmMixin, BandSpecificMixin)
+                                    BandSpecificMixin, BandLmMixin, BandNMixin)
 
-class Background(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+
+class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+    _title = "background-subtracted"
     _group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
@@ -32,25 +34,21 @@ class Background(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True
         return rf"{cls.band()}_{cls.target()}_BKG_SUBTRACTED"
 
     @classmethod
-    def title(cls):
-        return rf"{cls.band()} {cls.get_target_string()} background-subtracted"
-
-    @classmethod
     def description(cls):
-        return rf"Thermal background subtracted images of {cls.get_target_string()} {cls.band()} exposures."
+        return rf"Thermal background subtracted images of science {cls.band()} {cls.target()} exposures."
 
 
-class LmStdBackground(BandLmMixin, TargetStdMixin, Background):
+class LmStdBackgroundSubtracted(BandLmMixin, TargetStdMixin, BackgroundSubtracted):
     pass
 
 
-class LmSciBackground(BandLmMixin, TargetSciMixin, Background):
+class LmSciBackgroundSubtracted(BandLmMixin, TargetSciMixin, BackgroundSubtracted):
     pass
 
 
-class NStdBackground(BandNMixin, TargetStdMixin, Background):
+class NStdBackgroundSubtracted(BandNMixin, TargetStdMixin, BackgroundSubtracted):
     pass
 
 
-class NSciBackground(BandNMixin, TargetSciMixin, Background):
+class NSciBackgroundSubtracted(BandNMixin, TargetSciMixin, BackgroundSubtracted):
     pass

@@ -22,5 +22,5 @@ from pymetis.tests.classes.dataitem import DataItemTest
 
 
 class TestMasterFlatIfu(DataItemTest):
-    _item = MasterFlatIfu
+    Item = MasterFlatIfu
 

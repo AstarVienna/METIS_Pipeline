@@ -18,9 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import inspect
-import re
-from abc import abstractmethod, ABC
-from typing import Pattern, Any, Optional, Generator, final, Literal
+from typing import Any, Optional, Generator, final, Literal
 
 import cpl
 
@@ -29,11 +27,13 @@ from cpl.core import Msg
 import pymetis
 
 
-class DataItem(ABC):
+class DataItem:
     """
     The `DataItem` class encapsulates a single data item: the smallest standalone unit of detector data
     or a product of a recipe.
     """
+    _registry: dict[str, type['DataItem']] = {}
+
     # Printable title of the data item. Not used internally, only for human-oriented output
     _title: str = None                      # No universal title makes sense
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
@@ -49,6 +49,16 @@ class DataItem(ABC):
     _description: Optional[str] = None      # A verbose string; should correspond to the DRLD description
 
     _oca_keywords: set[str] = set()
+
+    def __init_subclass__(cls, *, abstract=False, **kwargs):
+        """
+        Register every subclass of DataItem in a global registry
+        """
+        if not abstract:
+            DataItem._registry[cls.name()] = cls
+
+        super().__init_subclass__(**kwargs)
+
 
     @classmethod
     def title(cls) -> str:
@@ -79,14 +89,6 @@ class DataItem(ABC):
         Return the group of this data item. Should not be overridden (at least Martin does not see any reason now).
         """
         return cls._group
-
-    @classmethod
-    @final
-    def band(cls) -> Optional[Literal['LM', 'N', 'IFU']]:
-        """
-        Return the spectral band of the data item. Should not be overridden.
-        """
-        return cls._band
 
     @classmethod
     def description(cls) -> str:
@@ -123,29 +125,12 @@ class DataItem(ABC):
         # between Single and Multiple, so we just declare it here.
         self.tag_parameters: dict[str, str] = {}
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self) -> dict[str, str]:
         return {
-            'title': self.title,
-            'tags': self.tags(),
-            'group': self._group.name,
+            'title': self.title(),
+            'name': self.name(),
+            'group': self.group().name,
         }
-
-    @classmethod
-    @final
-    def _description_line(cls, name: str = None) -> str:
-        """ Produce a description line for man page. """
-        return (f"    {cls._pretty_tags():<60} [{cls._multiplicity}]"
-                f"{' (optional)' if not cls._required else '           '} "
-                f"{cls._description}\n{' ' * 84}")
-
-    @classmethod
-    @final
-    def _extended_description_line(cls, name: str = None) -> str:
-        """ Produce ae extended description line for man page. """
-        return (f"    {name}\n      {cls._pretty_tags():<60} [{cls._multiplicity}]"
-                f"{' (optional)' if not cls._required else '           '} "
-                f"{cls._description}\n{' ' * 84}"
-                f"{f'\n{' ' * 84}'.join([x.__name__ for x in set(cls.input_for_recipes())])}")
 
     def _verify_same_detector_from_header(self) -> None:
         """

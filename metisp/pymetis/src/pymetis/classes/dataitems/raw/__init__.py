@@ -21,21 +21,22 @@ from abc import ABC
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin, BandSpecificMixin
 from pymetis.classes.mixins.band import BandLmMixin, BandIfuMixin, BandNMixin
 from pymetis.classes.mixins.target import TargetSpecificMixin, TargetSkyMixin
 
 
-class Raw(DataItem, ABC):
+class Raw(DataItem, abstract=True):
     """
     Abstract intermediate class for all raw items.
     """
+    _name = r'RAW'
     _title = "abstract raw"
     _group = cpl.ui.Frame.FrameGroup.RAW
     _description = "Abstract base class for all raw inputs. Please subclass."
 
 
-class ImageRaw(TargetSpecificMixin, Raw, ABC):
+class ImageRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
     """
     Abstract intermediate class for image raws.
     """
@@ -70,33 +71,3 @@ class NImageStdRaw(BandNMixin, TargetStdMixin, ImageRaw):
 
 class NImageSciRaw(BandNMixin, TargetSciMixin, ImageRaw):
     pass
-
-
-class IfuRaw(BandIfuMixin, TargetSpecificMixin, Raw, ABC):
-    _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
-                     "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
-                     "DRS.IFU"}
-
-    @classmethod
-    def name(cls) -> str:
-        return rf'{cls.band()}_{cls.target()}_RAW'
-
-    @classmethod
-    def title(cls) -> str:
-        target = {
-            'STD': 'standard',
-            'SCI': 'science',
-            'SKY': 'sky',
-        }.get(cls.target(), cls.target())
-        return rf"{cls.band()} {target} raw"
-
-
-class IfuStdRaw(TargetStdMixin, IfuRaw):
-    _description = "Raw spectra of flux standard star."
-
-
-class IfuSciRaw(TargetSciMixin, IfuRaw):
-    _description = "IFU raw exposure of a science object."
-
-class IfuSkyRaw(TargetSkyMixin, IfuRaw):
-    _description: str = "Blank sky image"

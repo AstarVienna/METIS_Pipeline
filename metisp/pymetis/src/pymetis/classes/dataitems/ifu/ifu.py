@@ -18,17 +18,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 from abc import ABC
 
+import cpl.ui
+
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.band import BandIfuMixin
 from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
-class IfuBase(TargetSpecificMixin, BandIfuMixin, DataItem, ABC):
+class IfuBase(TargetSpecificMixin, BandIfuMixin, DataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
-class IfuBackground(IfuBase, ABC):
+class IfuBackground(IfuBase, abstract=True):
     @classmethod
     def name(cls):
         return rf'IFU_{cls.target():s}_BACKGROUND'
@@ -41,7 +43,13 @@ class IfuSciBackground(TargetSciMixin, IfuBackground):
     _description = "Reduced 2D detector image of background."
 
 
-class IfuReduced(IfuBase, ABC):
+class IfuReduced(IfuBase, abstract=True):
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+
+    @classmethod
+    def title(cls):
+        return f"IFU {cls.get_target_string():s} reduced"
+
     @classmethod
     def name(cls):
         return rf'IFU_{cls.target():s}_REDUCED'
@@ -55,7 +63,7 @@ class IfuSciReduced(TargetSciMixin, IfuReduced):
     _description = "Reduced 2D detector image of a science object."
 
 
-class IfuReducedCube(IfuBase, ABC):
+class IfuReducedCube(IfuBase, abstract=True):
     @classmethod
     def name(cls):
         return rf'IFU_{cls.target():s}_REDUCED_CUBE'
@@ -69,7 +77,7 @@ class IfuSciReducedCube(TargetSciMixin, IfuReducedCube):
     _description = "A rectified spectral cube with a linear wavelength grid."
 
 
-class IfuReduced1d(IfuBase, ABC):
+class IfuReduced1d(IfuBase, abstract=True):
     @classmethod
     def name(cls):
         return rf'IFU_{cls.target():s}_REDUCED_1D'

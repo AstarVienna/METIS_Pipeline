@@ -33,7 +33,7 @@ from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 class MetisNImgRestoreImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class CalibratedInput(SinglePipelineInput):
-            _item: type[DataItem] = NScienceCalibrated
+            Item: type[DataItem] = NScienceCalibrated
             _tags: re.Pattern = re.compile(r'N_SCI_CALIBRATED')
 
     class ProductRestored(PipelineImageProduct):

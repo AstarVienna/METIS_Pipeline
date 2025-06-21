@@ -23,8 +23,11 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.basicreduced import BasicReduced, SkyBasicReduced, SciBasicReduced, StdBasicReduced
+from pymetis.classes.dataitems.background.background import LmStdBackground, Background
+from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
+from pymetis.classes.dataitems.basicreduced import BasicReduced, SkyBasicReduced, LmSciBasicReduced, LmStdBasicReduced
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.object import ObjectCatalog
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
@@ -36,57 +39,24 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
     class InputSet(PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
-            _item: type[DataItem] = BasicReduced
+            Item: type[DataItem] = BasicReduced
             _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
 
         class SkyBasicReducedInput(SinglePipelineInput):
-            _item: type[DataItem] = SkyBasicReduced
+            Item: type[DataItem] = SkyBasicReduced
             _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
 
     class ProductBkg(TargetSpecificProduct, PipelineImageProduct):
+        Item = Background
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
-
-        @classmethod
-        def description(cls):
-            target = {
-                'SCI': 'science',
-                'STD': 'standard',
-            }.get(cls.target(), '{target}')
-            return f"Thermal background of {target} LM exposures."
-
-        @classmethod
-        def tag(cls):
-            return f"LM_{cls.target()}_BKG"
 
     class ProductBkgSubtracted(TargetSpecificProduct, PipelineImageProduct):
+        Item = BackgroundSubtracted
         level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
-
-        @classmethod
-        def description(cls):
-            target = {
-                'SCI': 'science',
-                'STD': 'standard',
-            }.get(cls.target(), '{target}')
-            return f"Thermal background subtracted images of {target} LM exposures."
-
-        @classmethod
-        def tag(cls):
-            return f"LM_{cls.target()}_BKG_SUBTRACTED"
 
     class ProductObjectCat(TargetSpecificProduct, PipelineTableProduct):
+        Item = ObjectCatalog
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-        @classmethod
-        def description(cls):
-            return f"Catalog of masked objects in {cls.verbose()} LM exposures."
-
-        @classmethod
-        def tag(cls):
-            return rf"LM_{cls.target()}_OBJECT_CAT"
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()
@@ -111,7 +81,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
     class InputSet(MetisLmImgBackgroundImpl.InputSet):
         class BasicReducedInput(MetisLmImgBackgroundImpl.InputSet.BasicReducedInput):
-            _item: type[DataItem] = SciBasicReduced
+            Item: type[DataItem] = LmSciBasicReduced
 
     class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg):
         pass
@@ -126,7 +96,7 @@ class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
 class MetisLmImgBackgroundSciImpl(MetisLmImgBackgroundImpl):
     class InputSet(MetisLmImgBackgroundImpl.InputSet):
         class BasicReducedInput(MetisLmImgBackgroundImpl.InputSet.BasicReducedInput):
-            _item: type[DataItem] = StdBasicReduced
+            Item: type[DataItem] = LmStdBasicReduced
 
     class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg):
         pass

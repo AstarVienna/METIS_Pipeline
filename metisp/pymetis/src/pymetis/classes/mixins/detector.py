@@ -16,10 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 from abc import ABC
 
+from pymetis.classes.mixins.base import Mixin
 
-class DetectorSpecificMixin(ABC):
+
+class DetectorSpecificMixin(Mixin, ABC):
     _detector: str = None
 
     @classmethod
@@ -27,7 +30,8 @@ class DetectorSpecificMixin(ABC):
         return cls._detector or r'{detector}'
 
     def __init_subclass__(cls, *, detector=None, **kwargs):
-        cls._detector = detector
+        if detector is not None:
+            cls._detector = detector
         super().__init_subclass__(**kwargs)
 
 

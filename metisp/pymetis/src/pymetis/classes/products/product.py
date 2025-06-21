@@ -31,6 +31,7 @@ from pyesorex.parameter import Parameter
 
 import pymetis
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.mixins.base import Mixin
 
 PIPELINE = r'METIS'
 
@@ -40,7 +41,7 @@ class PipelineProduct(ABC):
     The abstract base class for a pipeline product:
     one FITS file with associated headers and a frame
     """
-    _item: type[DataItem] = None
+    Item: type[DataItem] = None
 
     # Global defaults for all Products
     group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
@@ -59,7 +60,7 @@ class PipelineProduct(ABC):
 
     @classmethod
     def item(cls) -> type[DataItem]:
-        return cls._item
+        return cls.Item
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -235,3 +236,12 @@ class PipelineProduct(ABC):
             for (n, kls) in inspect.getmembers(klass.implementation_class, lambda x: inspect.isclass(x)):
                 if issubclass(kls, cls):
                     yield klass
+
+    #def promote(self, *mixins: type[Mixin]):
+    #    """
+    #    Mix in the mixin classes and promote the item
+    #    """
+    #    promoted = type(rf'{self.Item}', tuple(list(mixins) + [self.Item]), {})
+    #    self.Item.__class__ = promoted
+
+

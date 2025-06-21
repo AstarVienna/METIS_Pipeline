@@ -31,11 +31,11 @@ from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(SinglePipelineInput):
-            _item: type[DataItem] = SciCubeCalibrated
+            Item: type[DataItem] = SciCubeCalibrated
             _tags: re.Pattern = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
 
     class ProductSciCoadd(PipelineImageProduct):
-        _item: type[DataItem] = IfuSciCoadd
+        Item: type[DataItem] = IfuSciCoadd
         level = cpl.ui.Frame.FrameLevel.FINAL
 
     def determine_output_grid(self):

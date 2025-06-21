@@ -22,12 +22,12 @@ from pymetis.tests.classes.dataitem import DataItemTest
 
 
 class TestLinearity2rgRaw(DataItemTest):
-    _item = Linearity2rgRaw
+    Item = Linearity2rgRaw
 
 
 class TestLinearityGeoRaw(DataItemTest):
-    _item = LinearityGeoRaw
+    Item = LinearityGeoRaw
 
 
 class TestLinearityIfuRaw(DataItemTest):
-    _item = LinearityIfuRaw
+    Item = LinearityIfuRaw

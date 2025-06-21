@@ -22,10 +22,10 @@ from abc import ABC
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionTable(DataItem, ABC):
+class DistortionTable(BandSpecificMixin, DataItem, ABC):
     _title: str = "distortion table"
     _description: str = "Table of distortion coefficients"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB

@@ -43,7 +43,7 @@ class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
 class MetisNImgFlatTwilightImpl(MetisNImgFlatImpl):
     class InputSet(MetisNImgFlatImpl.InputSet):
         class RawInput(MetisNImgFlatImpl.InputSet.RawInput):
-            _item = NFlatTwilightRaw
+            Item = NFlatTwilightRaw
 
     class ProductMasterFlat(TargetTwilightMixin, MetisNImgFlatImpl.ProductMasterFlat):
         pass
@@ -52,7 +52,7 @@ class MetisNImgFlatTwilightImpl(MetisNImgFlatImpl):
 class MetisNImgFlatLampImpl(MetisNImgFlatImpl):
     class InputSet(MetisNImgFlatImpl.InputSet):
         class RawInput(MetisNImgFlatImpl.InputSet.RawInput):
-            _item = NFlatLampRaw
+            Item = NFlatLampRaw
 
     class ProductMasterFlat(TargetLampMixin, MetisNImgFlatImpl.ProductMasterFlat):
         pass

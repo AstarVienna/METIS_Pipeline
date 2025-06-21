@@ -22,13 +22,13 @@ from pymetis.tests.classes.dataitem import DataItemTest
 
 
 class TestMasterDark2rg(DataItemTest):
-    _item = MasterDark2rg
+    Item = MasterDark2rg
 
 
 class TestMasterDarkGeo(DataItemTest):
-    _item = MasterDarkGeo
+    Item = MasterDarkGeo
 
 
 class TestMasterDarkIfu(DataItemTest):
-    _item = MasterDarkIfu
+    Item = MasterDarkIfu
 

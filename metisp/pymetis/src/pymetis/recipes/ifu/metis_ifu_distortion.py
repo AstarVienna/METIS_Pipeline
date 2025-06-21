@@ -38,15 +38,15 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         PinholeTableInput = PinholeTableInput
 
         class RawInput(RawInput):
-            _item: type[DataItem] = IfuDistortionRaw
+            Item: type[DataItem] = IfuDistortionRaw
             _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
 
     class ProductIfuDistortionTable(PipelineTableProduct):
-        _item = IfuDistortionTable
+        Item = IfuDistortionTable
         level = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductIfuDistortionReduced(PipelineImageProduct):
-        _item = IfuDistortionReduced
+        Item = IfuDistortionReduced
         level = cpl.ui.Frame.FrameLevel.FINAL
 
     def process_images(self) -> set[PipelineProduct]:

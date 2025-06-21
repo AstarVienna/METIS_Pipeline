@@ -19,11 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from pymetis.classes.dataitems.raw import Raw
-from pymetis.classes.mixins import DetectorIfuMixin, Detector2rgMixin, DetectorGeoMixin
+from pymetis.classes.mixins import DetectorIfuMixin, Detector2rgMixin, DetectorGeoMixin, BandSpecificMixin
 from pymetis.classes.mixins.band import BandLmMixin, BandIfuMixin, BandNMixin
 
 
-class RsrfRaw(Raw, ABC):
+class RsrfRaw(BandSpecificMixin, Raw, abstract=True):
     @classmethod
     def name(cls):
         return rf'{cls.band()}_LSS_RSRF_RAW'

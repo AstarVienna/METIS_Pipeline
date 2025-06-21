@@ -39,18 +39,18 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     class InputSet(RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
-            _item = LmChophomeRaw
+            Item = LmChophomeRaw
             _tags = re.compile(r"LM_CHOPHOME_RAW")
 
         class BackgroundInput(RawInput):
-            _item = LmWcuOffRaw
+            Item = LmWcuOffRaw
             _tags = re.compile(r"LM_WCU_OFF_RAW")
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
-            _item = GainMap2rg
+            Item = GainMap2rg
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
-            _item = Linearity2rg
+            Item = Linearity2rg
             pass
 
         PersistenceMapInput = PersistenceMapInput
@@ -65,7 +65,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """
         Final product: combined, background-subtracted images of the WCU source
         """
-        _item = LmChophomeCombined
+        Item = LmChophomeCombined
         _tag: str = r"LM_CHOPHOME_COMBINED"
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
@@ -73,7 +73,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        _item = LmChophomeBackground
+        Item = LmChophomeBackground
         _tag: str = r"LM_CHOPHOME_BACKGROUND"
         level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
         frame_type = cpl.ui.Frame.FrameType.IMAGE

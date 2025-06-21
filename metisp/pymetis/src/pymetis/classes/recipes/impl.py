@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import inspect
 import os
 from abc import abstractmethod, ABC
 from typing import Dict, Any, final
@@ -25,6 +26,8 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList
 
+from pymetis.classes.mixins import BandSpecificMixin
+from pymetis.classes.mixins.base import Mixin
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.inputs.inputset import PipelineInputSet
 
@@ -63,7 +66,8 @@ class MetisRecipeImpl(ABC):
         self.inputset.print_debug()
         self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
 
-        self.__class__ = self._dispatch_child_class()   # Promote to the proper derived class
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
 
     def run(self) -> cpl.ui.FrameSet:
         """
@@ -221,3 +225,14 @@ class MetisRecipeImpl(ABC):
         or use a proper match ... case ... structure if appropriate.
         """
         return self.__class__
+
+    @classmethod
+    def list_products(cls) -> list[tuple[str, type[PipelineProduct]]]:
+        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
+
+    #def promote(self, *mixins):
+    #    self.inputset.promote(*mixins)
+
+    #    for prod in self.list_products():
+    #        prod.promote(*mixins)
+

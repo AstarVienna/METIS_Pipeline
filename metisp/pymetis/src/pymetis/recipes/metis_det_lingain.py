@@ -27,7 +27,6 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems.badpixmap import BadPixMap, BadPixMap2rg, BadPixMapGeo, BadPixMapIfu
 from pymetis.classes.dataitems.common import LinearityMap
-from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.gainmap import GainMap, GainMap2rg, GainMapGeo, GainMapIfu
 from pymetis.classes.dataitems.linearity.linearity import Linearity2rg, LinearityGeo, LinearityIfu
 from pymetis.classes.dataitems.linearity.raw import Linearity2rgRaw, LinearityRaw, LinearityGeoRaw, LinearityIfuRaw
@@ -48,26 +47,26 @@ class LinGainProduct(DetectorSpecificProduct, PipelineImageProduct, ABC):
 class MetisDetLinGainImpl(RawImageProcessor, ABC):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _item = LinearityRaw
+            Item = LinearityRaw
             _tags: re.Pattern = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
             _description: str = "Raw data for non-linearity determination."
 
         class WcuOffInput(RawInput):
-            _item = WcuOffRaw
+            Item = WcuOffRaw
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
-            _item = BadPixMap
+            Item = BadPixMap
             _required: bool = False
 
     class ProductGain(LinGainProduct):
-        _item = GainMap
+        Item = GainMap
 
     class ProductLinearity(LinGainProduct):
-        _item = LinearityMap
+        Item = LinearityMap
 
     class ProductBadpixMap(LinGainProduct):
-        _item = BadPixMap
+        Item = BadPixMap
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = self.inputset.load_raw_images()
@@ -104,46 +103,46 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 class Metis2rgLinGainImpl(MetisDetLinGainImpl):
     class InputSet(MetisDetLinGainImpl.InputSet):
         class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            _item = Linearity2rgRaw
+            Item = Linearity2rgRaw
 
     class ProductGain(Detector2rgMixin, MetisDetLinGainImpl.ProductGain):
-        _item = GainMap2rg
+        Item = GainMap2rg
 
     class ProductLinearity(Detector2rgMixin, MetisDetLinGainImpl.ProductLinearity):
-        _item = Linearity2rg
+        Item = Linearity2rg
 
     class ProductBadpixMap(Detector2rgMixin, MetisDetLinGainImpl.ProductBadpixMap):
-        _item = BadPixMap2rg
+        Item = BadPixMap2rg
 
 
 class MetisGeoLinGainImpl(MetisDetLinGainImpl):
     class InputSet(MetisDetLinGainImpl.InputSet):
         class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            _item = LinearityGeoRaw
+            Item = LinearityGeoRaw
 
     class ProductGain(DetectorGeoMixin, MetisDetLinGainImpl.ProductGain):
-        _item = GainMapGeo
+        Item = GainMapGeo
 
     class ProductLinearity(DetectorGeoMixin, MetisDetLinGainImpl.ProductLinearity):
-        _item = LinearityGeo
+        Item = LinearityGeo
 
     class ProductBadpixMap(DetectorGeoMixin, MetisDetLinGainImpl.ProductBadpixMap):
-        _item = BadPixMapGeo
+        Item = BadPixMapGeo
 
 
 class MetisIfuLinGainImpl(MetisDetLinGainImpl):
     class InputSet(MetisDetLinGainImpl.InputSet):
         class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            _item = LinearityIfuRaw
+            Item = LinearityIfuRaw
 
     class ProductGain(DetectorIfuMixin, MetisDetLinGainImpl.ProductGain):
-        _item = GainMapIfu
+        Item = GainMapIfu
 
     class ProductLinearity(DetectorIfuMixin, MetisDetLinGainImpl.ProductLinearity):
-        _item = LinearityIfu
+        Item = LinearityIfu
 
     class ProductBadpixMap(DetectorIfuMixin, MetisDetLinGainImpl.ProductBadpixMap):
-        _item = BadPixMapIfu
+        Item = BadPixMapIfu
 
 
 class MetisDetLinGain(MetisRecipe):

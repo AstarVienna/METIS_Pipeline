@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 import cpl
 
+from pymetis.classes.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput
@@ -30,14 +31,14 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 class MetisIfuWavecalImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
+            Item = IfuWavecalRaw
             _tags: re.Pattern = re.compile(r"IFU_WAVE_RAW")
-            _description: str = ("Raw exposure of the WCU laser sources through the IFU to "
-                                 "achieve the first guess of the wavelength calibration.")
 
         MasterDarkInput = MasterDarkInput
         DistortionTableInput = DistortionTableInput
 
     class ProductIfuWavecal(PipelineImageProduct):
+        Item = IfuWavecal
         _tag = r"IFU_WAVECAL"
         level = cpl.ui.Frame.FrameLevel.FINAL
         _description: str = "Image with wavelength at each pixel."

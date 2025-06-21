@@ -36,11 +36,11 @@ from pymetis.classes.prefab import MetisBaseImgDistortionImpl
 class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
     class InputSet(MetisBaseImgDistortionImpl.InputSet):
         class RawInput(MetisBaseImgDistortionImpl.InputSet.RawInput):
-            _item = NWcuOffRaw
+            Item = NWcuOffRaw
             _tags = re.compile(r"N_WCU_OFF_RAW")
 
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
-            _item = NDistortionRaw
+            Item = NDistortionRaw
             _tags = re.compile(r"N_DISTORTION_RAW")
 
     class ProductDistortionTable(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionTable):

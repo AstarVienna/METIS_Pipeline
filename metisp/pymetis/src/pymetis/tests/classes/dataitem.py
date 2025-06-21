@@ -39,15 +39,15 @@ class DataItemTest:
     Tests for the `DataItem` class hierarchy. These are mostly *class* tests,
     and should not depend on the data provided from SOF or FITS files.
     """
-    _item: type[DataItem] = None
+    Item: type[DataItem] = None
 
     def test_has_title_defined(self):
-        assert isinstance(self._item.title(), str), \
-            f"Data item {self._item.__qualname__} does not define a `title`, or it is not a string"
+        assert isinstance(self.Item.title(), str), \
+            f"Data item {self.Item.__qualname__} does not define a `title`, or it is not a string"
 
     def test_has_name_defined(self):
-        assert isinstance(self._item.name(), str), \
-            f"Data item {self._item.__qualname__} does not define a `name`, or it is not a string"
+        assert isinstance(self.Item.name(), str), \
+            f"Data item {self.Item.__qualname__} does not define a `name`, or it is not a string"
 
     def test_has_description_defined(self):
         """
@@ -55,22 +55,22 @@ class DataItemTest:
         by default, it returns the internal `_description` attribute,
         or it can override the getter classmethod.
         """
-        assert self._item.description() is not None, \
-            f"Data item {self._item.__qualname__} does not have a description defined!"
+        assert self.Item.description() is not None, \
+            f"Data item {self.Item.__qualname__} does not have a description defined!"
 
     def test_has_group_defined(self):
-        assert isinstance(self._item.group(), cpl.ui.Frame.FrameGroup), \
-            f"Data item {self._item.__qualname__} does not have a frame group defined!"
+        assert isinstance(self.Item.group(), cpl.ui.Frame.FrameGroup), \
+            f"Data item {self.Item.__qualname__} does not have a frame group defined!"
 
     @pytest.mark.metadata
     def test_has_oca_keywords_defined(self):
-        assert isinstance(self._item._oca_keywords, set), \
-            f"Data item {self._item.__qualname__} OCA keywords are not a set"
-        #assert len(self._item._oca_keywords) > 0, \
-        #    f"Data item {self._item.__qualname__} does not define any OCA keywords" # This is actually OK sometimes
+        assert isinstance(self.Item._oca_keywords, set), \
+            f"Data item {self.Item.__qualname__} OCA keywords are not a set"
+        #assert len(self.Item._oca_keywords) > 0, \
+        #    f"Data item {self.Item.__qualname__} does not define any OCA keywords" # This is actually OK sometimes
 
     @pytest.mark.metadata
     def test_are_oca_keywords_a_set_of_strings(self):
-        for kw in self._item._oca_keywords:
+        for kw in self.Item._oca_keywords:
             assert kw in OCA_KEYWORDS, \
-                f"Data item {self._item.__qualname__} defines an invalid OCA keyword {kw}!"
+                f"Data item {self.Item.__qualname__} defines an invalid OCA keyword {kw}!"

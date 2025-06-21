@@ -21,7 +21,7 @@ import re
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.background.background import NStdBackgroundSubtracted
+from pymetis.classes.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
@@ -30,7 +30,7 @@ from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
 class MetisNImgStdProcessImpl(MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
-            _item = NStdBackgroundSubtracted
+            Item = NStdBackgroundSubtracted
             _tags: re.Pattern = re.compile(r"N_STD_BKG_SUBTRACTED")
             _description: str = "Thermal background subtracted images of standard N exposures."
 

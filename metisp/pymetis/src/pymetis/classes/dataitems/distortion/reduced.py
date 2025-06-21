@@ -16,18 +16,33 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from abc import ABC
 
-from .detector import (DetectorSpecificMixin,
-                       Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin)
-from .target import (TargetSpecificMixin,
-                     TargetStdMixin, TargetSciMixin, TargetSkyMixin,
-                     TargetTwilightMixin, TargetLampMixin)
-from .band import (BandSpecificMixin,
-                   BandLmMixin, BandNMixin, BandIfuMixin)
+import cpl.ui
 
-__all__ = [
-    'DetectorSpecificMixin', 'Detector2rgMixin', 'DetectorGeoMixin', 'DetectorIfuMixin',
-    'TargetSpecificMixin', 'TargetStdMixin', 'TargetSciMixin', 'TargetSkyMixin',
-    'TargetTwilightMixin', 'TargetLampMixin',
-    'BandSpecificMixin', 'BandLmMixin', 'BandNMixin', 'BandIfuMixin',
-]
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+
+
+class DistortionReduced(BandSpecificMixin, DataItem, abstract=True):
+    @classmethod
+    def name(cls) -> str:
+        return rf'{cls.band():s}_DIST_REDUCED'
+
+    @classmethod
+    def title(cls):
+        return f"{cls.band():s} distortion reduced"
+
+    @classmethod
+    def description(cls):
+        return f"Table of polynomial coefficients for distortion correction"
+
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+
+
+class LmDistortionReduced(BandLmMixin, DistortionReduced):
+    pass
+
+
+class NDistortionReduced(BandNMixin, DistortionReduced):
+    pass

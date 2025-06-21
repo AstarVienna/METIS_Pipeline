@@ -31,6 +31,11 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.masterdark import MasterDark2rg, MasterDarkGeo
+from pymetis.classes.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo
+from pymetis.classes.dataitems.pupil import PupilRaw, LmPupilRaw, NPupilRaw
+from pymetis.classes.dataitems.pupil.pupil import PupilImagingReduced, NPupilImagingReduced, LmPupilImagingReduced
+from pymetis.classes.mixins.band import BandLmMixin, BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
@@ -49,12 +54,12 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         """
 
         class RawInput(RawInput):
+            Item = PupilRaw
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
-            _description: str = "Raw exposure of the pupil in LM image mode"    # FixMe N band
 
         MasterDarkInput = MasterDarkInput
 
-        # Also one master flat is required. We use a prefabricated class
+        # Also, one master flat is required. We use a prefabricated class
         class MasterFlatInput(MasterFlatInput):
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)")
 
@@ -62,15 +67,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         """
         Define the output product, here a reduced pupil image.
         """
-        _tag = r"LM_PUPIL_IMAGING_REDUCED"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        band = "LM"
-        _description: str = "Reduced pupil image in LM mode"
-        _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
-
-        @classmethod
-        def tag(cls):
-            return rf"{cls.band}_PUPIL_IMAGING_REDUCED"
+        Item = PupilImagingReduced
+        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
@@ -134,6 +132,42 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         product = self.ProductReduced(self, header, combined_image)     # FixMe Hardcoded band for now
 
         return {product}
+
+    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
+        return {
+            'LM': MetisLmPupilImagingImpl,
+            'N': MetisNPupilImagingImpl,
+        }[self.inputset.band]
+
+
+class MetisLmPupilImagingImpl(MetisPupilImagingImpl):
+    class InputSet(MetisPupilImagingImpl.InputSet):
+        class RawInput(BandLmMixin, MetisPupilImagingImpl.InputSet.RawInput):
+            Item = LmPupilRaw
+
+        class MasterDarkInput(BandLmMixin, MetisPupilImagingImpl.InputSet.MasterFlatInput):
+            Item = MasterDark2rg
+
+        class MasterFlatInput(BandLmMixin, MetisPupilImagingImpl.InputSet.MasterFlatInput):
+            Item = MasterFlat2rg
+
+    class Product(BandLmMixin, MetisPupilImagingImpl.ProductReduced):
+        Item = LmPupilImagingReduced
+
+
+class MetisNPupilImagingImpl(MetisPupilImagingImpl):
+    class InputSet(MetisPupilImagingImpl.InputSet):
+        class RawInput(BandNMixin, MetisPupilImagingImpl.InputSet.RawInput):
+            Item = NPupilRaw
+
+        class MasterDarkInput(BandNMixin, MetisPupilImagingImpl.InputSet.MasterFlatInput):
+            Item = MasterDarkGeo
+
+        class MasterFlatInput(BandNMixin, MetisPupilImagingImpl.InputSet.MasterFlatInput):
+            Item = MasterFlatGeo
+
+    class Product(BandNMixin, MetisPupilImagingImpl.ProductReduced):
+        Item = NPupilImagingReduced
 
 
 class MetisPupilImaging(MetisRecipe):

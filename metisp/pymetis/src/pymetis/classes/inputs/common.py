@@ -30,13 +30,14 @@ from .multiple import MultiplePipelineInput
 
 from ..dataitems.dataitem import DataItem
 from ..dataitems.common import (PersistenceMap, LinearityMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel,
-                                FluxStdCatalog, IfuWavecal)
+                                FluxStdCatalog)
 from ..dataitems.raw import Raw
 from ..dataitems.badpixmap import BadPixMap
 from pymetis.classes.dataitems.distortion.table import DistortionTable
 from ..dataitems.gainmap import GainMap
 from ..dataitems.masterdark import MasterDark
 from ..dataitems.masterflat import MasterFlat
+from ..dataitems.wavecal import IfuWavecal
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
@@ -66,51 +67,48 @@ class OptionalInputMixin(PipelineInput, ABC):
 
 
 class RawInput(MultiplePipelineInput, ABC):
-    _item: type[DataItem] = Raw
+    Item: type[DataItem] = Raw
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
 
 
 class MasterDarkInput(SinglePipelineInput):
-    _item: type[DataItem] = MasterDark
+    Item: type[DataItem] = MasterDark
     _tags: Pattern = re.compile(r"MASTER_DARK_(?P<detector>2RG|GEO|IFU)")
 
 
 class MasterFlatInput(SinglePipelineInput):
-    _item: type[DataItem] = MasterFlat
-    _title: str = "master flat"
+    Item: type[DataItem] = MasterFlat
     _tags: Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Master flat frame for {detector} data"
 
 
 class LinearityInput(SinglePipelineInput):
-    _item: type[DataItem] = LinearityMap
+    Item: type[DataItem] = LinearityMap
     _tags: Pattern = re.compile(r"LINEARITY_(?P<detector>2RG|GEO|IFU)")
 
 
 class BadpixMapInput(SinglePipelineInput):
-    _item: type[DataItem] = BadPixMap
+    Item: type[DataItem] = BadPixMap
     _tags: Pattern = re.compile(r"BADPIX_MAP_(?P<detector>2RG|GEO|IFU)")
 
 
 class PersistenceMapInput(SinglePipelineInput):
-    _item: type[DataItem] = PersistenceMap
+    Item: type[DataItem] = PersistenceMap
     _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _required = False           # By default, persistence maps are optional
 
 
 class GainMapInput(SinglePipelineInput):
-    _item: type[DataItem] = GainMap
+    Item: type[DataItem] = GainMap
     _tags: Pattern = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
 
 
 class DistortionTableInput(SinglePipelineInput):
-    _item: type[DataItem] = DistortionTable
+    Item: type[DataItem] = DistortionTable
     _tags: Pattern = re.compile(r"IFU_DISTORTION_TABLE")
 
 
 class WavecalInput(SinglePipelineInput):
-    _item: type[DataItem] = IfuWavecal
+    Item: type[DataItem] = IfuWavecal
     _title: str = "wavelength calibration"
     _tags: Pattern = re.compile(r"IFU_WAVECAL")
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
@@ -118,25 +116,25 @@ class WavecalInput(SinglePipelineInput):
 
 
 class PinholeTableInput(SinglePipelineInput):
-    _item: type[DataItem] = PinholeTable
+    Item: type[DataItem] = PinholeTable
     _tags: Pattern = re.compile(r"PINHOLE_TABLE")
 
 
 class FluxstdCatalogInput(SinglePipelineInput):
-    _item: type[DataItem] = FluxStdCatalog
+    Item: type[DataItem] = FluxStdCatalog
     _tags: Pattern = re.compile(r"FLUXSTD_CATALOG")
 
 
 class FluxCalTableInput(SinglePipelineInput):
-    _item: type[DataItem] = FluxCalTable
+    Item: type[DataItem] = FluxCalTable
     _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
 
 
 class LsfKernelInput(SinglePipelineInput):
-    _item: type[DataItem] = LsfKernel
+    Item: type[DataItem] = LsfKernel
     _tags: Pattern = re.compile(r"LSF_KERNEL")
 
 
 class AtmProfileInput(SinglePipelineInput):
-    _item: type[DataItem] = AtmProfile
+    Item: type[DataItem] = AtmProfile
     _tags: Pattern = re.compile(r"ATM_PROFILE")

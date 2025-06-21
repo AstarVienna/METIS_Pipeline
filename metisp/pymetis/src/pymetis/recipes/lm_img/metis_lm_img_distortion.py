@@ -24,6 +24,9 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.distortion.map import LmDistortionMap
+from pymetis.classes.dataitems.distortion.reduced import LmDistortionReduced
+from pymetis.classes.dataitems.distortion.table import LmDistortionTable
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct
@@ -39,13 +42,13 @@ class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
             _tags: re.Pattern = re.compile(r"LM_DISTORTION_RAW")
 
     class ProductDistortionTable(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionTable):
-        pass
+        Item = LmDistortionTable
 
     class ProductDistortionMap(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionMap):
-        pass
+        Item = LmDistortionMap
 
     class ProductDistortionReduced(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionReduced):
-        pass
+        Item = LmDistortionReduced
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

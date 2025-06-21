@@ -19,8 +19,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
+from pymetis.classes.mixins.base import Mixin
 
-class TargetSpecificMixin(ABC):
+
+class TargetSpecificMixin(Mixin, ABC):
     """
     Mixin class for data items that need to define the `target` attribute.
 
@@ -34,12 +36,15 @@ class TargetSpecificMixin(ABC):
 
     @classmethod
     def get_target_string(cls) -> str:
+        """
+        Return a pretty formatted target string for human-oriented output.
+        """
         return {
             'SCI': 'science target',
             'STD': 'standard star',
             'LAMP': 'lamp',
             'TWILIGHT': 'twilight',
-        }[cls.target()]
+        }.get(cls.target(), cls.target())
 
 
 class TargetStdMixin(TargetSpecificMixin):

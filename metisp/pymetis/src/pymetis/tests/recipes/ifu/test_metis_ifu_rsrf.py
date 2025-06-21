@@ -43,6 +43,7 @@ def sof(name: str) -> str:
     return f'{name}.sof'
 
 
+@pytest.mark.edps
 class TestRecipe(BaseRecipeTest):
     """A bunch of extremely simple and stupid test cases... just to see if it does something."""
     _recipe: type[MetisRecipe] = Recipe

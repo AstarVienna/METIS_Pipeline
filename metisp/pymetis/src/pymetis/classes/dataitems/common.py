@@ -21,8 +21,9 @@ from abc import ABC
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import DetectorIfuMixin
+from pymetis.classes.mixins import DetectorIfuMixin, BandSpecificMixin, TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
 class PersistenceMap(DataItem):
@@ -60,15 +61,8 @@ class PinholeTable(DataItem):
     _pro_catg = r'PINHOLE_TABLE'
 
 
-class TelluricCorrection(DataItem):
-    _title = "telluric correction"
-    _name = r'IFU_TELLURIC'
-    _group = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Telluric absorption correction."
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-
 class AtmProfile(DataItem):
+    _name = r'ATM_PROFILE'
     _title = "atmosphere profile"
     _group = cpl.ui.Frame.FrameGroup.CALIB
     _description = ("Atmospheric profile containing height information on temperature, "
@@ -76,6 +70,7 @@ class AtmProfile(DataItem):
 
 
 class LsfKernel(DataItem):
+    _name = r'LSF_KERNEL'
     _title = "line spread function kernel"
     _group = cpl.ui.Frame.FrameGroup.CALIB
     _description = "Wavelength dependent model of the LSF"
@@ -107,27 +102,24 @@ class IfuSciCoadd(DetectorIfuMixin, DataItem):
 
 
 class Rsrf(DataItem):
+    _name = r'RSRF'
     _title = "RSRF"
     _group = cpl.ui.Frame.FrameGroup.CALIB
     _description = "2D relative spectral response function"
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
-class IfuWavecal(DetectorIfuMixin, DataItem):
-    _name = r'IFU_WAVECAL'
-    _title = "wavelength calibration"
-    _group = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Image with wavelength at each pixel"
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-
-class Combined(DataItem):
+class Combined(TargetSpecificMixin, DataItem):
     _group = cpl.ui.Frame.FrameGroup.CALIB
     _title = "spectral cube of science object"
     _description = "Spectral cube of a standard star, combining multiple exposures."
 
+    @classmethod
+    def name(cls):
+        return rf'IFU{cls.target():s}_COMBINED'
 
-class ScienceCalibrated(DataItem, ABC):
+
+class ScienceCalibrated(BandSpecificMixin, DataItem, abstract=True):
     _group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
@@ -159,3 +151,11 @@ class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
 class AtmLineCatalog(DataItem):
     _name = r'ATM_LINE_CAT'
     _oca_keywords = {'PRO.CATG'}
+
+
+class IfuTelluric(DataItem):
+    _name = r'IFU_TELLURIC'
+    _title = "Telluric correction"
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "Transmission function for the telluric correction."
+    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}

@@ -17,17 +17,31 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from .detector import (DetectorSpecificMixin,
-                       Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin)
-from .target import (TargetSpecificMixin,
-                     TargetStdMixin, TargetSciMixin, TargetSkyMixin,
-                     TargetTwilightMixin, TargetLampMixin)
-from .band import (BandSpecificMixin,
-                   BandLmMixin, BandNMixin, BandIfuMixin)
+import cpl.ui
 
-__all__ = [
-    'DetectorSpecificMixin', 'Detector2rgMixin', 'DetectorGeoMixin', 'DetectorIfuMixin',
-    'TargetSpecificMixin', 'TargetStdMixin', 'TargetSciMixin', 'TargetSkyMixin',
-    'TargetTwilightMixin', 'TargetLampMixin',
-    'BandSpecificMixin', 'BandLmMixin', 'BandNMixin', 'BandIfuMixin',
-]
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+
+
+class DistortionMap(BandSpecificMixin, DataItem, abstract=True):
+    @classmethod
+    def name(cls) -> str:
+        return rf'{cls.band():s}_DISTORTION_MAP'
+
+    @classmethod
+    def title(cls):
+        return f"{cls.band():s} distortion map"
+
+    @classmethod
+    def description(cls):
+        return f"Map of pixel scale across the {cls.band():s} detector"
+
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+
+
+class LmDistortionMap(BandLmMixin, DistortionMap):
+    pass
+
+
+class NDistortionMap(BandNMixin, DistortionMap):
+    pass

@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.background.background import NSciBackgroundSubtracted
+from pymetis.classes.dataitems.background.subtracted import NSciBackgroundSubtracted
 from pymetis.classes.dataitems.distortion.table import NDistortionTable
 from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -29,10 +29,10 @@ from pymetis.classes.prefab import MetisImgCalibrateImpl
 class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):
     class InputSet(MetisImgCalibrateImpl.InputSet):
         class BackgroundInput(BandNMixin, MetisImgCalibrateImpl.InputSet.BackgroundInput):
-            _item = NSciBackgroundSubtracted
+            Item = NSciBackgroundSubtracted
 
         class DistortionTableInput(BandNMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
-            _item = NDistortionTable
+            Item = NDistortionTable
 
     class ProductSciCalibrated(BandNMixin, MetisImgCalibrateImpl.ProductSciCalibrated):
         pass

@@ -24,14 +24,15 @@ import copy
 import cpl
 from cpl.core import Msg
 
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import LmImageStdRaw
+from pymetis.classes.dataitems.basicreduced import LmStdBasicReduced
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, \
-    PipelineMultipleProduct
+from pymetis.classes.products import (PipelineProduct, TargetSpecificProduct,
+                                      PipelineImageProduct, PipelineMultipleProduct)
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -88,6 +89,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
         But feel free to be more creative with names: it could be `MetisLmImgBasicReduceImpl.ProductBasicReduced`.
         """
+        Item = LmStdBasicReduced
         level = cpl.ui.Frame.FrameLevel.FINAL
         _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
         _description: str = "Science grade detrended exposure of the LM image mode."
@@ -200,7 +202,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
     class InputSet(MetisLmImgBasicReduceImpl.InputSet):
         class RawInput(MetisLmImgBasicReduceImpl.InputSet.RawInput):
-            _item = LmImageStdRaw
+            Item = LmImageStdRaw
 
     class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
         pass

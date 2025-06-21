@@ -17,17 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from .detector import (DetectorSpecificMixin,
-                       Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin)
-from .target import (TargetSpecificMixin,
-                     TargetStdMixin, TargetSciMixin, TargetSkyMixin,
-                     TargetTwilightMixin, TargetLampMixin)
-from .band import (BandSpecificMixin,
-                   BandLmMixin, BandNMixin, BandIfuMixin)
+from abc import ABC
 
-__all__ = [
-    'DetectorSpecificMixin', 'Detector2rgMixin', 'DetectorGeoMixin', 'DetectorIfuMixin',
-    'TargetSpecificMixin', 'TargetStdMixin', 'TargetSciMixin', 'TargetSkyMixin',
-    'TargetTwilightMixin', 'TargetLampMixin',
-    'BandSpecificMixin', 'BandLmMixin', 'BandNMixin', 'BandIfuMixin',
-]
+
+class Mixin:
+    """
+    Base class for all pipeline Mixins.
+    """
+    pass

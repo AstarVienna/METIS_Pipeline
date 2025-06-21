@@ -64,13 +64,16 @@ class PipelineInputSet(metaclass=ABCMeta):
         make_snake = re.compile(r'(?<!^)(?=[A-Z])')
 
         # Now iterate over all defined Inputs, instantiate them and feed them the frameset to filter.
-        for (name, input_type) in inspect.getmembers(self.__class__,
-                                                     lambda x: inspect.isclass(x) and issubclass(x, PipelineInput)):
+        for (name, input_type) in self.get_inputs():
             inp = input_type(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
             self.__setattr__(make_snake.sub('_', cut_input.sub('', name)).lower(), inp)
             # Add to the set of inputs (for easy iteration over all inputs)
             self.inputs |= {inp}
+
+    @classmethod
+    def get_inputs(cls):
+        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
     def validate(self) -> None:
         """

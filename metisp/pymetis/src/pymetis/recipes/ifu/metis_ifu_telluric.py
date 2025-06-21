@@ -21,8 +21,9 @@ import re
 
 import cpl
 
-from pymetis.classes.dataitems.common import Combined
+from pymetis.classes.dataitems.common import Combined, FluxCalTable, IfuTelluric
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.ifu.ifu import IfuReduced1d, IfuStdReduced1d, IfuSciReduced1d
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
@@ -41,8 +42,6 @@ from pymetis.classes.products import TargetSpecificProduct
 class MetisIfuTelluricImpl(MetisRecipeImpl):
     """Implementation class for metis_ifu_telluric"""
 
-    detector = "IFU"
-
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Define molecfit main input class as one 1d spectrum, either Science or Standard spectrum
     class InputSet(PipelineInputSet):
@@ -55,7 +54,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         #     _description: str = "Uncorrected MF input spectrum."
 
         class CombinedInput(SinglePipelineInput):
-            _item: type[DataItem] = Combined
+            Item: type[DataItem] = Combined
             _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_COMBINED")
 
 
@@ -72,38 +71,20 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         """
         Final product: Transmission function for the telluric correction
         """
-        _tag: str = r"IFU_TELLURIC"
-        title: str = "Telluric correction"
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "transmission function for the telluric correction"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        Item = IfuTelluric
+        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
     # Response curve
     class ProductResponseFunction(TargetSpecificProduct, PipelineImageProduct):
         """
         Final product: response curve for the flux calibration
         """
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "response curve for the flux calibration"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"IFU_{cls.target()}_REDUCED_1D"
-
-        @classmethod
-        def description(cls) -> str:
-            target = {
-                'STD': 'reduced telluric standard star',
-                'SCI': 'science object',
-            }.get(cls.target(), '{target}')
-            return f"Spectrum of a {target}."
+        Item = IfuReduced1d
+        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
     class ProductFluxcalTab(PipelineTableProduct):
-        _tag = r"FLUXCAL_TAB"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Conversion between instrumental and physical flux units."
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+        Item = FluxCalTable
+        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
 # TODO: Define input type for the paramfile in common.py
 
@@ -158,12 +139,12 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
 class MetisIfuTelluricStdImpl(MetisIfuTelluricImpl):
     class ProductResponseFunction(TargetStdMixin, MetisIfuTelluricImpl.ProductResponseFunction):
-        pass
+        Item = IfuStdReduced1d
 
 
 class MetisIfuTelluricSciImpl(MetisIfuTelluricImpl):
     class ProductResponseFunction(TargetSciMixin, MetisIfuTelluricImpl.ProductResponseFunction):
-        pass
+        Item = IfuSciReduced1d
 
 
 class MetisIfuTelluric(MetisRecipe):

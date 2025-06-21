@@ -39,7 +39,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
             _description: str = "Raw data for dark subtraction in other recipes."
 
         class DistortionInput(SinglePipelineInput):
-            _item: type[DataItem] = DistortionRaw
+            Item: type[DataItem] = DistortionRaw
 
         PinholeTableInput = PinholeTableInput
 

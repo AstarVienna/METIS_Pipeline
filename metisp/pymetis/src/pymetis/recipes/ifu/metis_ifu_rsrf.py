@@ -50,19 +50,19 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         detector = "IFU"
 
         class RawInput(RawInput):
-            _item = IfuRsrfRaw
+            Item = IfuRsrfRaw
             _tags: re.Pattern = re.compile(r"IFU_RSRF_RAW")
 
         class MasterDarkInput(MasterDarkInput):
-            _item = MasterDarkIfu
+            Item = MasterDarkIfu
             _tags: re.Pattern = re.compile(r"MASTER_DARK_IFU")
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
-            _item = GainMapIfu
+            Item = GainMapIfu
             _tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
-            _item = LinearityIfu
+            Item = LinearityIfu
             _tags: re.Pattern = re.compile(r"LINEARITY_IFU")
 
         class RsrfWcuOffInput(RawInput):
@@ -70,12 +70,12 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             WCU_OFF input illuminated by the WCU up-to and including the
             integrating sphere, but no source.
             """
-            _item = WcuOffIfuRaw
+            Item = WcuOffIfuRaw
             _tags: re.Pattern = re.compile(r"IFU_WCU_OFF_RAW")
 
         # TBC: could this be replaced by the MASTER_DARK_IFU input?
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
-            _item = BadPixMapIfu
+            Item = BadPixMapIfu
             _tags: re.Pattern = re.compile(r"BADPIX_MAP_IFU")
 
         DistortionTableInput = DistortionTableInput
@@ -85,7 +85,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
-        _item = IfuRsrfBackground
+        Item = IfuRsrfBackground
         _tag: str = r"IFU_RSRF_BACKGROUND"
         level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
@@ -95,7 +95,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.properties.append(self.header)
 
     class ProductMasterFlatIfu(PipelineImageProduct):
-        _item = MasterFlatIfu
+        Item = MasterFlatIfu
         _tag: str = r"MASTER_FLAT_IFU"
         level = cpl.ui.Frame.FrameLevel.FINAL
 
@@ -105,7 +105,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.properties.append(self.header)
 
     class ProductRsrfIfu(PipelineTableProduct):
-        _item = RsrfIfu
+        Item = RsrfIfu
         _tag: str = r"RSRF_IFU"
         level = cpl.ui.Frame.FrameLevel.FINAL
 
@@ -118,7 +118,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.properties.append(self.header)
 
     class ProductBadpixMapIfu(DetectorIfuMixin, ProductBadpixMapDet):
-        _item = BadPixMapIfu
+        Item = BadPixMapIfu
 
     def process_images(self) -> set[PipelineProduct]:
         """

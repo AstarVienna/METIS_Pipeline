@@ -22,7 +22,8 @@ from abc import ABC
 
 import cpl
 
-from pymetis.classes.dataitems.background.background import LmSciBackgroundSubtracted
+from pymetis.classes.dataitems.background.subtracted import LmSciBackgroundSubtracted
+from pymetis.classes.dataitems.basicreduced import LmSciCalibrated
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion.table import DistortionTable
 from pymetis.classes.products import BandSpecificProduct, PipelineImageProduct
@@ -35,18 +36,19 @@ from pymetis.classes.inputs import FluxCalTableInput
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
-            _item: type[DataItem] = LmSciBackgroundSubtracted
+            Item: type[DataItem] = LmSciBackgroundSubtracted
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_SCI_BKG_SUBTRACTED")
 
         FluxcalTableInput = FluxCalTableInput
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
-            _item: type[DataItem] = DistortionTable
+            Item: type[DataItem] = DistortionTable
             _tags: re.Pattern = re.compile(r"N_DISTORTION_TABLE")
 
 
     class ProductSciCalibrated(BandSpecificProduct, PipelineImageProduct):
+        Item = LmSciCalibrated
         level = cpl.ui.Frame.FrameLevel.FINAL
         group = cpl.ui.Frame.FrameGroup.CALIB   # ToDO Review if this should not be PRODUCT instead.
         _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}

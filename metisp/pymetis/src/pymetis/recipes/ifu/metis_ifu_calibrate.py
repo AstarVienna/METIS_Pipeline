@@ -21,7 +21,7 @@ import re
 
 import cpl
 
-from pymetis.classes.dataitems.common import TelluricCorrection, IfuScienceCubeCalibrated
+from pymetis.classes.dataitems.common import IfuScienceCubeCalibrated, IfuTelluric
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.ifu.ifu import IfuSciReduced
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
@@ -33,17 +33,17 @@ from pymetis.classes.inputs.common import FluxCalTableInput
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciReducedInput(SinglePipelineInput):
-            _item: type[DataItem] = IfuSciReduced
+            Item: type[DataItem] = IfuSciReduced
             _tags: re.Pattern = re.compile(r"IFU_SCI_REDUCED")
 
         class TelluricInput(SinglePipelineInput):
-            _item: type[DataItem] = TelluricCorrection
+            Item: type[DataItem] = IfuTelluric
             _tags: re.Pattern = re.compile(r"IFU_TELLURIC")
 
         FluxCalTableInput = FluxCalTableInput
 
     class ProductSciCubeCalibrated(PipelineImageProduct):
-        _item = IfuScienceCubeCalibrated
+        Item = IfuScienceCubeCalibrated
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE
 

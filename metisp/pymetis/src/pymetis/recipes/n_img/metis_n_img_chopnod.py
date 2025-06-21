@@ -24,6 +24,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.masterflat import MasterFlatGeo
 from pymetis.classes.dataitems.raw import NImageSciRaw, NImageStdRaw
 from pymetis.classes.dataitems.raw.flat import NFlatLampRaw
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
@@ -64,7 +65,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            _item = NFlatLampRaw
+            Item = NFlatLampRaw
             _tags: re.Pattern = re.compile(r"N_IMAGE_(?P<target>SCI|STD)_RAW")
             _description: str = "Raw exposure of a standard star in the N image mode."
 
@@ -75,8 +76,8 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         # Also one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
+            Item = MasterFlatGeo
             _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>N)")
-            _description: str = "Master flat frame for N image data."
 
     class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
         """
@@ -162,7 +163,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 class MetisNStdImgChopnodImpl(MetisNImgChopnodImpl):
     class InputSet(MetisNImgChopnodImpl.InputSet):
         class RawInput(MetisNImgChopnodImpl.InputSet.RawInput):
-            _item = NImageStdRaw
+            Item = NImageStdRaw
 
 
     class ProductReduced(TargetStdMixin, MetisNImgChopnodImpl.ProductReduced):
@@ -175,7 +176,7 @@ class MetisNStdImgChopnodImpl(MetisNImgChopnodImpl):
 class MetisNSciImgChopnodImpl(MetisNImgChopnodImpl):
     class InputSet(MetisNImgChopnodImpl.InputSet):
         class RawInput(MetisNImgChopnodImpl.InputSet.RawInput):
-            _item = NImageSciRaw
+            Item = NImageSciRaw
 
     class ProductReduced(TargetSciMixin, MetisNImgChopnodImpl.ProductReduced):
         pass
