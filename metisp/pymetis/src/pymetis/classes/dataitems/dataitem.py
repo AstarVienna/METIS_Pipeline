@@ -38,8 +38,9 @@ class DataItem:
     _title: str = None                      # No universal title makes sense
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
     _name: str = None                       # No universal name makes sense
-    # CPL frame group
+    # CPL frame group and level
     _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
+    _level: cpl.ui.Frame.FrameLevel = None  # No sensible default; must be provided explicitly
     # Associated detector (maybe this does not make much sense here and should be removed)
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     # Associated band
@@ -50,15 +51,27 @@ class DataItem:
 
     _oca_keywords: set[str] = set()
 
-    def __init_subclass__(cls, *, abstract=False, **kwargs):
+    def __init_subclass__(cls,
+                          *,
+                          abstract: bool = False,
+                          description: str = None,
+                          **kwargs):
         """
-        Register every subclass of DataItem in a global registry
+        Register every subclass of DataItem in a global registry.
+        Classes marked as abstract are not registered and should never be instantiated.
         """
+        cls.__abstract = abstract
         if not abstract:
             DataItem._registry[cls.name()] = cls
 
+        if description is not None:
+            cls._description = description
+
         super().__init_subclass__(**kwargs)
 
+    def __init__(self):
+        if self.__abstract:
+            raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
     @classmethod
     def title(cls) -> str:

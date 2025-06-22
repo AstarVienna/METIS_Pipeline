@@ -22,6 +22,7 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems.common import FluxCalTable
 from pymetis.classes.products import PipelineProduct, BandSpecificProduct, PipelineTableProduct, PipelineImageProduct
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import FluxstdCatalogInput
@@ -37,11 +38,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         FluxstdCatalogInput = FluxstdCatalogInput
 
     class ProductImgFluxCalTable(PipelineTableProduct):
-        _tag = r"FLUXCAL_TAB"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.TABLE
-        _description: str = "Conversion between instrumental and physical flux units."
-        _oca_keywords = {'PRO.CATG'}
+        Item = FluxCalTable
 
     class ProductImgStdCombined(BandSpecificProduct, PipelineImageProduct):
         level = cpl.ui.Frame.FrameLevel.FINAL

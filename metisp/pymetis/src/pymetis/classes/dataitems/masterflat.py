@@ -22,10 +22,11 @@ from abc import ABC
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
+    TargetSpecificMixin
 
 
-class MasterFlat(DataItem, ABC):
+class MasterFlat(DataItem, abstract=True):
     _title: str = r"master flat"
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _description: str = "Abstract base class for master flats. Please subclass."
@@ -46,3 +47,17 @@ class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
 
 class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
     pass
+
+
+class MasterImgFlat(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+    @classmethod
+    def name(cls):
+        return rf'MASTER_IMG_FLAT_{cls.target()}_{cls.band()}'
+
+    @classmethod
+    def title(cls):
+        return f"{cls.band()} {cls.get_target_string()} master flat"
+
+    @classmethod
+    def description(cls):
+        return f"Master flat frame for {cls.band()} data"

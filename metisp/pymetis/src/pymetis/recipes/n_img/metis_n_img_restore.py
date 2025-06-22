@@ -23,7 +23,7 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterValue
 
-from pymetis.classes.dataitems.common import NScienceCalibrated
+from pymetis.classes.dataitems.img.calibrated import NScienceCalibrated
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput

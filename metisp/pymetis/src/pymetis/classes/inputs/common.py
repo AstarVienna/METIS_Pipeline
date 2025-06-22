@@ -119,7 +119,6 @@ class PinholeTableInput(SinglePipelineInput):
     Item: type[DataItem] = PinholeTable
     _tags: Pattern = re.compile(r"PINHOLE_TABLE")
 
-
 class FluxstdCatalogInput(SinglePipelineInput):
     Item: type[DataItem] = FluxStdCatalog
     _tags: Pattern = re.compile(r"FLUXSTD_CATALOG")

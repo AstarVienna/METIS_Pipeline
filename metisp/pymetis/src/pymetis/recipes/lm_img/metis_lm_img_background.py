@@ -23,9 +23,9 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.background.background import LmStdBackground, Background
+from pymetis.classes.dataitems.background.background import Background
 from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
-from pymetis.classes.dataitems.basicreduced import BasicReduced, SkyBasicReduced, LmSciBasicReduced, LmStdBasicReduced
+from pymetis.classes.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced, LmSciBasicReduced, LmStdBasicReduced
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.object import ObjectCatalog
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
@@ -43,7 +43,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
 
         class SkyBasicReducedInput(SinglePipelineInput):
-            Item: type[DataItem] = SkyBasicReduced
+            Item: type[DataItem] = LmSkyBasicReduced
             _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
 
     class ProductBkg(TargetSpecificProduct, PipelineImageProduct):

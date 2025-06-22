@@ -26,13 +26,13 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import LmImageStdRaw
-from pymetis.classes.dataitems.basicreduced import LmStdBasicReduced
+from pymetis.classes.dataitems.img.raw import LmImageStdRaw
+from pymetis.classes.dataitems.img.basicreduced import LmStdBasicReduced, LmSciBasicReduced, LmSkyBasicReduced
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import (PipelineProduct, TargetSpecificProduct,
-                                      PipelineImageProduct, PipelineMultipleProduct)
+                                      PipelineMultipleProduct)
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -67,6 +67,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
+            Item = LmImageStdRaw
             _tags: re.Pattern = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
             _description: str = "Raw exposure of a standard star in the LM image mode."
             # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
@@ -91,8 +92,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         """
         Item = LmStdBasicReduced
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
-        _description: str = "Science grade detrended exposure of the LM image mode."
 
         def __init__(self,
                      recipe_impl: 'MetisRecipeImpl',
@@ -199,23 +198,25 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         }[self.inputset.target]
 
 
+# ToDo Generate these classes automatically!
+
 class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
     class InputSet(MetisLmImgBasicReduceImpl.InputSet):
         class RawInput(MetisLmImgBasicReduceImpl.InputSet.RawInput):
             Item = LmImageStdRaw
 
     class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        pass
+        Item = LmStdBasicReduced
 
 
 class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
     class ProductBasicReduced(TargetSciMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        pass
+        Item = LmSciBasicReduced
 
 
 class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
     class ProductBasicReduced(TargetSkyMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        pass
+        Item = LmSkyBasicReduced
 
 
 class MetisLmImgBasicReduce(MetisRecipe):

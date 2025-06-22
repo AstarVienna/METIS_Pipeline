@@ -16,14 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from abc import ABC
 
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin, BandSpecificMixin
-from pymetis.classes.mixins.band import BandLmMixin, BandIfuMixin, BandNMixin
-from pymetis.classes.mixins.target import TargetSpecificMixin, TargetSkyMixin
 
 
 class Raw(DataItem, abstract=True):
@@ -34,40 +30,3 @@ class Raw(DataItem, abstract=True):
     _title = "abstract raw"
     _group = cpl.ui.Frame.FrameGroup.RAW
     _description = "Abstract base class for all raw inputs. Please subclass."
-
-
-class ImageRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
-    """
-    Abstract intermediate class for image raws.
-    """
-
-    _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
-                     "INS.OPTI9.NAME", "INS.OPTI10.NAME", "DRS.FILTER"}
-
-    @classmethod
-    def name(cls) -> str:
-        return rf'{cls.band()}_IMAGE_{cls.target()}_RAW'
-
-    @classmethod
-    def title(cls) -> str:
-        return rf'{cls.band()} {cls.get_target_string()} raw'
-
-    @classmethod
-    def description(cls) -> str:
-        return rf"Raw exposure of a {cls.get_target_string()} in the {cls.band()} image mode."
-
-
-class LmImageStdRaw(BandLmMixin, TargetStdMixin, ImageRaw):
-    pass
-
-
-class LmImageSciRaw(BandLmMixin, TargetSciMixin, ImageRaw):
-    pass
-
-
-class NImageStdRaw(BandNMixin, TargetStdMixin, ImageRaw):
-    pass
-
-
-class NImageSciRaw(BandNMixin, TargetSciMixin, ImageRaw):
-    pass

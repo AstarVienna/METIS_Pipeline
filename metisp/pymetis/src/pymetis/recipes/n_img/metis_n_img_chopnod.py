@@ -24,8 +24,9 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.classes.dataitems.masterflat import MasterFlatGeo
-from pymetis.classes.dataitems.raw import NImageSciRaw, NImageStdRaw
+from pymetis.classes.dataitems.img.raw import NImageSciRaw, NImageStdRaw
 from pymetis.classes.dataitems.raw.flat import NFlatLampRaw
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -86,15 +87,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         so its name is `Product` (or fully qualified, `MetisNImgChopnodImpl.Product`).
         But feel free to be more creative with names: it could be `MetisNImgChopnodImpl.ProductBasicReduced`.
         """
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
-        _description: str = "Science grade detrended exposure of the N image mode."
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"N_{cls.target()}_BKG_SUBTRACTED"
+        Item = NStdBackgroundSubtracted
 
     class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
         """

@@ -41,6 +41,7 @@ class MetisLmImgFlatImpl(MetisBaseImgFlatImpl, ABC):
         }[self.inputset.target]
 
 
+# ToDo create these classes automatically
 class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):
     class InputSet(MetisLmImgFlatImpl.InputSet):
         class RawInput(MetisLmImgFlatImpl.InputSet.RawInput):

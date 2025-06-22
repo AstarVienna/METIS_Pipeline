@@ -23,15 +23,22 @@ import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
-    TargetSpecificMixin, BandLmMixin, TargetSciMixin
+    TargetSpecificMixin, BandLmMixin, TargetSciMixin, TargetStdMixin, TargetSkyMixin, BandNMixin
 
 
-class BasicReduced(DataItem, abstract=True):
+class BasicReduced(BandLmMixin, TargetSpecificMixin, DataItem, abstract=True):
     _title: str = "basic reduced"
-    _band: str = 'LM'
     _description: str = None
     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+
+    @classmethod
+    def name(cls) -> str:
+        return rf'{cls.band()}_{cls.target()}_BASIC_REDUCED'
+
+    @classmethod
+    def title(cls):
+        return f"{cls.band()} {cls.get_target_string()} basic reduced"
 
     @classmethod
     def _pro_catg(cls):
@@ -39,37 +46,44 @@ class BasicReduced(DataItem, abstract=True):
 
     @classmethod
     def description(cls):
-        return f"Detrended exposure of the LM image mode."
+        return f"Detrended exposure of the {cls.band():s} image mode."
 
 
-class LmStdBasicReduced(Detector2rgMixin, BasicReduced):
-    _tag: str = r"LM_STD_BASIC_REDUCED"
-    _target: str = 'STD'
+class LmStdBasicReduced(TargetStdMixin, BasicReduced):
+    pass
 
 
-class LmSciBasicReduced(DetectorGeoMixin, BasicReduced):
-    _tag: str = r"LM_SCI_BASIC_REDUCED"
-    _target: str = 'SCI'
+class LmSciBasicReduced(TargetSkyMixin, BasicReduced):
+    pass
 
 
-class SkyBasicReduced(DataItem, ABC):
-    _name = r'LM_SKY_BASIC_REDUCED'
-    _title = "Sky basic-reduced exposure"
-    _group = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Detrended exposure of the sky."
-    _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
+class LmSkyBasicReduced(TargetSciMixin, BasicReduced):
+    @classmethod
+    def description(cls):
+        return "Detrended exposure of the sky."
 
 
-
-class Calibrated(BandSpecificMixin, TargetSpecificMixin, DataItem, ABC):
+class Calibrated(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
     @classmethod
     def name(cls):
         return rf'{cls.band()}_{cls.target()}_CALIBRATED'
 
     @classmethod
     def description(cls):
-        return
+        return f"calibrated {cls.band()} {cls.get_target_string()}"
+
+
+class LmStdCalibrated(BandLmMixin, TargetStdMixin, Calibrated):
+    pass
 
 
 class LmSciCalibrated(BandLmMixin, TargetSciMixin, Calibrated):
+    pass
+
+
+class NStdCalibrated(BandNMixin, TargetStdMixin, Calibrated):
+    pass
+
+
+class NSciCalibrated(BandNMixin, TargetSciMixin, Calibrated):
     pass

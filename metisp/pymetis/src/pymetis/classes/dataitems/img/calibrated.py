@@ -16,35 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
 
 
-class GainMap(DataItem, abstract=True):
-    _title: str = "gain map"
-    _description: str = "Gain map"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords: set[str] = {'PRO.CATG'}
+class ScienceCalibrated(BandSpecificMixin, DataItem, abstract=True):
+    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     @classmethod
     def name(cls):
-        return rf"GAIN_MAP_{cls.detector()}"
+        return rf'{cls.band()}_SCI_CALIBRATED'
 
     @classmethod
-    def pro_catg(cls):
-        return rf"GAIN_MAP_{cls.detector()}"
+    def title(cls):
+        return f"{cls.band()} science calibrated"
 
 
-class GainMap2rg(Detector2rgMixin, GainMap):
+class LmScienceCalibrated(BandLmMixin, ScienceCalibrated,
+                          description="LM band image with flux calibration, WC coordinate system"
+                                      "and distortion information"):
     pass
 
-
-class GainMapGeo(DetectorGeoMixin, GainMap):
-    pass
-
-
-class GainMapIfu(DetectorIfuMixin, GainMap):
+class NScienceCalibrated(BandNMixin, ScienceCalibrated,
+                         description="N band image with flux calibration and distortion information"):
     pass

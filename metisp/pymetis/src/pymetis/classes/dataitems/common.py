@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from abc import ABC
 
 import cpl
 
@@ -47,6 +46,7 @@ class FluxCalTable(DataItem):
     _title = "flux table"
     _name = "FLUXCAL_TABLE"
     _group = cpl.ui.Frame.FrameGroup.CALIB
+    _level = cpl.ui.Frame.FrameLevel.FINAL
     _description = "Conversion between instrumental and physical flux units"
     _oca_keywords = {'PRO.CATG'}
 
@@ -109,7 +109,7 @@ class Rsrf(DataItem):
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
-class Combined(TargetSpecificMixin, DataItem):
+class Combined(TargetSpecificMixin, DataItem, abstract=True):
     _group = cpl.ui.Frame.FrameGroup.CALIB
     _title = "spectral cube of science object"
     _description = "Spectral cube of a standard star, combining multiple exposures."
@@ -117,28 +117,6 @@ class Combined(TargetSpecificMixin, DataItem):
     @classmethod
     def name(cls):
         return rf'IFU{cls.target():s}_COMBINED'
-
-
-class ScienceCalibrated(BandSpecificMixin, DataItem, abstract=True):
-    _group = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-    @classmethod
-    def name(cls):
-        return rf'{cls.band()}_SCI_CALIBRATED'
-
-    @classmethod
-    def title(cls):
-        return f"{cls.band()} science calibrated"
-
-
-class LmScienceCalibrated(BandLmMixin, ScienceCalibrated):
-    _description = "LM band image with flux calibration, WC coordinate system and distortion information"
-
-
-class NScienceCalibrated(BandNMixin, ScienceCalibrated):
-    _description = "N band image with flux calibration and distortion information"
-
 
 class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
     _name = r'IFU_SCI_CUBE_CALIBRATED'

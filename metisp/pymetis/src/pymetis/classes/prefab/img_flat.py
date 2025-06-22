@@ -23,6 +23,7 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems.masterflat import MasterImgFlat
 from pymetis.classes.dataitems.raw.flat import FlatRaw
 from pymetis.classes.inputs import RawInput, MasterDarkInput
 
@@ -47,6 +48,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             _description: str = "Flat image raw"
 
     class ProductMasterFlat(BandSpecificProduct, TargetSpecificProduct, PipelineImageProduct):
+        Item = MasterImgFlat
         level = cpl.ui.Frame.FrameLevel.FINAL
 
         @classmethod

@@ -23,7 +23,7 @@ from abc import ABC
 import cpl
 
 from pymetis.classes.dataitems.background.subtracted import LmSciBackgroundSubtracted
-from pymetis.classes.dataitems.basicreduced import LmSciCalibrated
+from pymetis.classes.dataitems.img.basicreduced import LmSciCalibrated
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion.table import DistortionTable
 from pymetis.classes.products import BandSpecificProduct, PipelineImageProduct

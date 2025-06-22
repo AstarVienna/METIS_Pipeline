@@ -23,7 +23,10 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.distortion.map import DistortionMap
 from pymetis.classes.dataitems.distortion.raw import DistortionRaw
+from pymetis.classes.dataitems.distortion.reduced import DistortionReduced
+from pymetis.classes.dataitems.distortion.table import DistortionTable
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput
@@ -44,27 +47,16 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         PinholeTableInput = PinholeTableInput
 
     class ProductDistortionTable(BandSpecificProduct, PipelineTableProduct):
+        Item = DistortionTable
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Table of distortion information"
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"{cls.band()}_DISTORTION_TABLE"
 
     class ProductDistortionMap(BandSpecificProduct, PipelineImageProduct):
+        Item = DistortionMap
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Map of pixel scale across the detector"
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"{cls.band()}_DISTORTION_MAP"
 
     class ProductDistortionReduced(BandSpecificProduct, PipelineTableProduct):
+        Item = DistortionReduced
         level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
         @classmethod
         def tag(cls) -> str:

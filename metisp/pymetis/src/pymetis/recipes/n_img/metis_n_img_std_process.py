@@ -22,6 +22,7 @@ import re
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems.background.subtracted import NStdBackgroundSubtracted
+from pymetis.classes.dataitems.common import FluxCalTable
 from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
@@ -32,10 +33,9 @@ class MetisNImgStdProcessImpl(MetisImgStdProcessImpl):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             Item = NStdBackgroundSubtracted
             _tags: re.Pattern = re.compile(r"N_STD_BKG_SUBTRACTED")
-            _description: str = "Thermal background subtracted images of standard N exposures."
 
-    class ProductImgStdCombined(BandNMixin, MetisImgStdProcessImpl.ProductImgStdCombined):
-        pass
+    class ProductFluxcalTab(BandNMixin, MetisImgStdProcessImpl.ProductImgStdCombined):
+        Item = FluxCalTable
 
 
 class MetisNImgStdProcess(MetisRecipe):
