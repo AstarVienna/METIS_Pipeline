@@ -29,6 +29,8 @@ The hierarchy is somewhat atypical here by design: no N data item, and only IFU 
 
 class Combined(BandSpecificMixin, DataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _type = cpl.ui.Frame.FrameType.IMAGE
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 

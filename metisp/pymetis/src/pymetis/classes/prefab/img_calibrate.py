@@ -49,17 +49,6 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
 
     class ProductSciCalibrated(BandSpecificProduct, PipelineImageProduct):
         Item = LmSciCalibrated
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        group = cpl.ui.Frame.FrameGroup.CALIB   # ToDO Review if this should not be PRODUCT instead.
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"{cls.band()}_SCI_CALIBRATED"
-
-        @classmethod
-        def description(cls) -> str:
-            return rf"{cls.band()} band image with flux calibration, WC coordinate system and distorion information"
 
     def process_images(self) -> set[PipelineProduct]:
         combined_image = self._create_dummy_image()

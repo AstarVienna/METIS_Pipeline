@@ -21,6 +21,8 @@ import re
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.background.subtracted import LmStdBackgroundSubtracted
+from pymetis.classes.dataitems.combined import LmStdCombined
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
@@ -29,11 +31,10 @@ from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
 class MetisLmImgStdProcessImpl(MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
-            _tags: re.Pattern = re.compile(r"LM_STD_BKG_SUBTRACTED")
-            _description: str = "Thermal background subtracted images of standard LM exposures."
+            Item = LmStdBackgroundSubtracted
 
     class ProductImgStdCombined(BandLmMixin, MetisImgStdProcessImpl.ProductImgStdCombined):
-        pass
+        Item = LmStdCombined
 
 
 class MetisLmImgStdProcess(MetisRecipe):

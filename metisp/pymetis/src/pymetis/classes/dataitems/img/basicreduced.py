@@ -64,6 +64,11 @@ class LmSkyBasicReduced(TargetSciMixin, BasicReduced):
 
 
 class Calibrated(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+
     @classmethod
     def name(cls):
         return rf'{cls.band()}_{cls.target()}_CALIBRATED'

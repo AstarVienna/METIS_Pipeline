@@ -48,15 +48,12 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
     class ProductBkg(TargetSpecificProduct, PipelineImageProduct):
         Item = Background
-        level = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductBkgSubtracted(TargetSpecificProduct, PipelineImageProduct):
         Item = BackgroundSubtracted
-        level = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductObjectCat(TargetSpecificProduct, PipelineTableProduct):
         Item = ObjectCatalog
-        level = cpl.ui.Frame.FrameLevel.FINAL
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

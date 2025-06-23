@@ -24,6 +24,10 @@ from pymetis.classes.mixins import (BandSpecificMixin, BandNMixin, BandLmMixin,
 
 
 class ObjectCatalog(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+
     @classmethod
     def name(cls):
         return rf'{cls.band()}_{cls.target()}_OBJECT_CAT'
@@ -35,8 +39,6 @@ class ObjectCatalog(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=T
     @classmethod
     def description(cls) -> str:
         return f"Catalog of masked objects in {cls.get_target_string()} {cls.band()} exposures"
-
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 
 
 class LmStdObjectCatalog(BandLmMixin, TargetStdMixin, ObjectCatalog):

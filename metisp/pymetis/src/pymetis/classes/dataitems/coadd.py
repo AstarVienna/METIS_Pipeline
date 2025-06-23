@@ -26,6 +26,7 @@ from pymetis.classes.mixins import BandSpecificMixin, BandIfuMixin, BandLmMixin
 class SciCoadd(BandSpecificMixin, DataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     @classmethod

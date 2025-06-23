@@ -49,7 +49,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
     class ProductMasterFlat(BandSpecificProduct, TargetSpecificProduct, PipelineImageProduct):
         Item = MasterImgFlat
-        level = cpl.ui.Frame.FrameLevel.FINAL
 
         @classmethod
         def tag(cls) -> str:

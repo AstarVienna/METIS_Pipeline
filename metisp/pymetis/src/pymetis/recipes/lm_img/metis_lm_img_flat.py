@@ -32,7 +32,7 @@ class MetisLmImgFlatImpl(MetisBaseImgFlatImpl, ABC):
         pass
 
     class ProductMasterFlat(BandLmMixin, MetisBaseImgFlatImpl.ProductMasterFlat):
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        pass
 
     def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
         return {

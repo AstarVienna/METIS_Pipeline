@@ -52,6 +52,10 @@ class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
 
 
 class MasterImgFlat(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+
     @classmethod
     def name(cls):
         return rf'MASTER_IMG_FLAT_{cls.target()}_{cls.band()}'

@@ -18,12 +18,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 from abc import ABC
 
+import cpl
+
 from pymetis.classes.dataitems.raw import Raw
 from pymetis.classes.mixins.band import BandNMixin, BandLmMixin, BandSpecificMixin
 from pymetis.classes.mixins.target import TargetLampMixin, TargetTwilightMixin, TargetSpecificMixin
 
 
 class FlatRaw(BandSpecificMixin, TargetSpecificMixin, Raw, ABC):
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'DRS.FILTER'}
 
