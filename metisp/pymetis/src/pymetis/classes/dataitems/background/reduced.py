@@ -27,7 +27,7 @@ class BackgroundReduced(DataItem, abstract=True):
     _title = "background-reduced"
     _detector = None
     _description = None
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
     @classmethod
@@ -52,6 +52,6 @@ class SciBasicReducedGeo(DetectorGeoMixin, BackgroundReduced):
 
 class SkyBasicReduced(DataItem):
     _title = "sky basic-reduced exposure"
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _description = "Detrended exposure of the sky."
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe

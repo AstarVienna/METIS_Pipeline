@@ -50,7 +50,7 @@ class SinglePipelineInput(PipelineInput):
                     Msg.warning(self.__class__.__qualname__,
                                 f"Found another {self.title} frame: {frame.file}! "
                                 f"Discarding previously loaded {self.frame.file}.")
-                frame.group = self.item().group()
+                frame.group = self.item().frame_group()
                 self.frame = frame
                 self.tag_matches = match.groupdict()
             else:

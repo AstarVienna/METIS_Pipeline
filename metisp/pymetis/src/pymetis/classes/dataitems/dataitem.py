@@ -39,8 +39,9 @@ class DataItem:
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
     _name: str = None                       # No universal name makes sense
     # CPL frame group and level
-    _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
-    _level: cpl.ui.Frame.FrameLevel = None  # No sensible default; must be provided explicitly
+    _frame_group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
+    _frame_level: cpl.ui.Frame.FrameLevel = None  # No sensible default; must be provided explicitly
+    _frame_type: cpl.ui.Frame.FrameType = None
     # Associated detector (maybe this does not make much sense here and should be removed)
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     # Associated band
@@ -97,11 +98,21 @@ class DataItem:
 
     @classmethod
     @final
-    def group(cls):
+    def frame_group(cls):
         """
         Return the group of this data item. Should not be overridden (at least Martin does not see any reason now).
         """
-        return cls._group
+        return cls._frame_group
+
+    @classmethod
+    @final
+    def frame_level(cls):
+        return cls._frame_level
+
+    @classmethod
+    @final
+    def frame_type(cls):
+        return cls._frame_type
 
     @classmethod
     def description(cls) -> str:
@@ -131,7 +142,7 @@ class DataItem:
 
         # Check if frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
-        if not self.group:
+        if not self.frame_group:
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined group!")
 
         # A list of matched groups from `tags`. Acquisition differs
@@ -142,7 +153,7 @@ class DataItem:
         return {
             'title': self.title(),
             'name': self.name(),
-            'group': self.group().name,
+            'group': self.frame_group().name,
         }
 
     def _verify_same_detector_from_header(self) -> None:

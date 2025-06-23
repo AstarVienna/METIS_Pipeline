@@ -59,7 +59,7 @@ class DataItemTest:
             f"Data item {self.Item.__qualname__} does not have a description defined!"
 
     def test_has_group_defined(self):
-        assert isinstance(self.Item.group(), cpl.ui.Frame.FrameGroup), \
+        assert isinstance(self.Item.frame_group(), cpl.ui.Frame.FrameGroup), \
             f"Data item {self.Item.__qualname__} does not have a frame group defined!"
 
     @pytest.mark.metadata

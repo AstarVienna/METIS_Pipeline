@@ -44,7 +44,7 @@ class IfuSciBackground(TargetSciMixin, IfuBackground):
 
 
 class IfuReduced(IfuBase, abstract=True):
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 
     @classmethod
     def title(cls):
@@ -103,4 +103,3 @@ class IfuStdCombined(TargetStdMixin, IfuCombined):
 
 class IfuSciCombined(TargetSciMixin, IfuCombined):
     _description = "Spectral cube of science object, combining multiple exposures."
-

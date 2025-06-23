@@ -66,17 +66,12 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         Final product: combined, background-subtracted images of the WCU source
         """
         Item = LmChophomeCombined
-        _tag: str = r"LM_CHOPHOME_COMBINED"
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductBackground(PipelineImageProduct):
         """
         Intermediate product: the instrumental background (WCU OFF)
         """
         Item = LmChophomeBackground
-        _tag: str = r"LM_CHOPHOME_BACKGROUND"
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def process_images(self) -> set[PipelineProduct]:
         """This function processes the input images

@@ -48,4 +48,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductCoadd(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmImgSciCoadd
+    Product: type[PipelineProduct] = Impl.ProductLmImgSciCoadd

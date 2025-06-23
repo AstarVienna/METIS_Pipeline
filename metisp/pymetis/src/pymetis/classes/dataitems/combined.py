@@ -16,33 +16,42 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from abc import ABC
 
-import cpl.ui
+import cpl
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin, BandIfuMixin,
+                                    TargetSpecificMixin, TargetStdMixin, TargetSciMixin)
 
+"""
+The hierarchy is somewhat atypical here by design: no N data item, and only IFU support STD|SKY target.
+"""
 
-class DistortionReduced(BandSpecificMixin, DataItem, abstract=True):
+class Combined(BandSpecificMixin, DataItem, abstract=True):
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _type = cpl.ui.Frame.FrameType.IMAGE
+    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+
     @classmethod
     def name(cls) -> str:
-        return rf'{cls.band():s}_DIST_REDUCED'
+        return rf'{cls.band()}_STD_COMBINED'
 
     @classmethod
-    def title(cls):
-        return f"{cls.band():s} distortion reduced"
-
-    @classmethod
-    def description(cls):
-        return f"Table of polynomial coefficients for distortion correction"
-
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    def description(cls) -> str:
+        return f"Stacked {cls.band()} band exposures."
 
 
-class LmDistortionReduced(BandLmMixin, DistortionReduced):
+class LmStdCombined(BandLmMixin, Combined):
     pass
 
 
-class NDistortionReduced(BandNMixin, DistortionReduced):
+class IfuCombined(TargetSpecificMixin, BandIfuMixin, Combined, abstract=True):
+    pass
+
+
+class IfuStdCombined(TargetStdMixin, IfuCombined):
+    pass
+
+
+class IfuSciCombined(TargetSciMixin, IfuCombined):
     pass

@@ -28,5 +28,5 @@ class Raw(DataItem, abstract=True):
     """
     _name = r'RAW'
     _title = "abstract raw"
-    _group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _description = "Abstract base class for all raw inputs. Please subclass."

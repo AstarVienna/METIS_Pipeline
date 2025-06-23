@@ -54,19 +54,19 @@ class TestInputSet(RawInputSetTest):
 
 
 class TestProductRsrfBackground(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductRsrfBackground
+    Product: type[PipelineProduct] = Impl.ProductRsrfBackground
 
 
 class TestProductMasterFlatIfu(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductMasterFlatIfu
+    Product: type[PipelineProduct] = Impl.ProductMasterFlatIfu
 
 
 class TestProductRsrfIfu(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductRsrfIfu
+    Product: type[PipelineProduct] = Impl.ProductRsrfIfu
 
 
 class TestProductBadpixMap(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBadpixMapIfu
+    Product: type[PipelineProduct] = Impl.ProductBadpixMapIfu
 
 
 class TestBlackBodyImg:

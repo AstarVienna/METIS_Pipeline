@@ -28,7 +28,7 @@ from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, B
 class DistortionRaw(BandSpecificMixin, Raw, ABC):
     _title: str = "distortion raw"
     _description: str = "Raw data for distortion determination in other recipes."
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
+    _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords: set[str] = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                                'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'}
 

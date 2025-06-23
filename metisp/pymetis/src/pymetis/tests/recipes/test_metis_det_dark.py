@@ -63,6 +63,6 @@ class TestInputSet(RawInputSetTest):
 
 
 class TestProduct(ImageProductTest):
-    _product: type[PipelineProduct] = Impl.ProductMasterDark
+    Product: type[PipelineProduct] = Impl.ProductMasterDark
 
 

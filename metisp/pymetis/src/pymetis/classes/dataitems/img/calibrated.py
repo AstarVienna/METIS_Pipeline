@@ -23,7 +23,7 @@ from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
 
 
 class ScienceCalibrated(BandSpecificMixin, DataItem, abstract=True):
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     @classmethod

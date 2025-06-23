@@ -48,12 +48,12 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductLmDistortionTable(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductDistortionTable
+    Product: type[PipelineProduct] = Impl.ProductDistortionTable
 
 
 class TestProductLmDistortionMap(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductDistortionMap
+    Product: type[PipelineProduct] = Impl.ProductDistortionMap
 
 
 class TestProductLmDistortionReduced(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductDistortionReduced
+    Product: type[PipelineProduct] = Impl.ProductDistortionReduced

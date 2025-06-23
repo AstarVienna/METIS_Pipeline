@@ -32,7 +32,7 @@ class PupilRaw(BandSpecificMixin, DataItem, abstract=True):
     def name(cls):
         return rf'{cls.band():s}_PUPIL_RAW'
 
-    _group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
 
     @classmethod
     def description(cls) -> str:
@@ -56,7 +56,7 @@ class PupilImagingReduced(BandSpecificMixin, DataItem, abstract=True):
     def name(cls):
         return rf'{cls.band()}_PUPIL_REDUCED'
 
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
 
     @classmethod

@@ -22,6 +22,8 @@ import re
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
+from pymetis.classes.dataitems.combined import LmStdCombined
 from pymetis.classes.dataitems.common import FluxCalTable
 from pymetis.classes.products import PipelineProduct, BandSpecificProduct, PipelineTableProduct, PipelineImageProduct
 from pymetis.classes.inputs import RawInput
@@ -32,6 +34,7 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 class MetisImgStdProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
+            Item = BackgroundSubtracted
             _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_STD_BKG_SUBTRACTED")
             _description: str = "Thermal background subtracted images of standard LM/N exposures."
 
@@ -41,17 +44,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         Item = FluxCalTable
 
     class ProductImgStdCombined(BandSpecificProduct, PipelineImageProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-        @classmethod
-        def description(cls) -> str:
-            return f"Stacked {cls.band()} band exposures."
-
-        @classmethod
-        def tag(cls) -> str:
-            return fr"{cls.band()}_STD_COMBINED"
+        Item = LmStdCombined
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

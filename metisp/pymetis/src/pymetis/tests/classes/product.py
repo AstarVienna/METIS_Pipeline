@@ -27,41 +27,41 @@ from pymetis.classes.products import (PipelineProduct,
 
 @pytest.mark.product
 class BaseProductTest(ABC):
-    _product: type[PipelineProduct] = None
+    Product: type[PipelineProduct] = None
 
     @pytest.mark.metadata
     def test_is_it_even_a_product(self):
-        assert issubclass(self._product, PipelineProduct)
+        assert issubclass(self.Product, PipelineProduct)
 
     @pytest.mark.metadata
     def test_does_product_group_match(self):
-        assert self._product.group in [cpl.ui.Frame.FrameGroup.PRODUCT, cpl.ui.Frame.FrameGroup.CALIB], \
-            f"Product group is not PRODUCT or CALIB for {self._product.__qualname__}"
+        assert self.Product.Item.frame_group() in [cpl.ui.Frame.FrameGroup.PRODUCT, cpl.ui.Frame.FrameGroup.CALIB], \
+            f"Product group is not PRODUCT or CALIB for {self.Product.__qualname__}"
 
     @pytest.mark.metadata
     def test_does_it_have_a_level(self):
-        assert self._product.level is not None, \
-            f"Product level is not defined for {self._product.__qualname__}"
+        assert self.Product.Item.frame_level() is not None, \
+            f"Product level is not defined for {self.Product.__qualname__}"
 
     @pytest.mark.metadata
     def test_does_it_have_a_frame_type(self):
-        assert self._product.frame_type is not None, \
-            f"Product frame type is not defined for {self._product.__qualname__}"
+        assert self.Product.Item.frame_type() is not None, \
+            f"Product frame type is not defined for {self.Product.__qualname__}"
 
 
 class ImageProductTest(BaseProductTest):
     def test_does_product_type_match(self):
-        assert issubclass(self._product, PipelineImageProduct)
-        assert self._product.frame_type == cpl.ui.Frame.FrameType.IMAGE
+        assert issubclass(self.Product, PipelineImageProduct)
+        assert self.Product.frame_type == cpl.ui.Frame.FrameType.IMAGE
 
 
 class TableProductTest(BaseProductTest):
     def test_does_product_type_match(self):
-        assert issubclass(self._product, PipelineTableProduct)
-        assert self._product.frame_type == cpl.ui.Frame.FrameType.TABLE
+        assert issubclass(self.Product, PipelineTableProduct)
+        assert self.Product.frame_type == cpl.ui.Frame.FrameType.TABLE
 
 
 class MultipleProductTest(BaseProductTest):
     def test_does_product_type_match(self):
-        assert issubclass(self._product, PipelineMultipleProduct)
-        assert self._product.frame_type == cpl.ui.Frame.FrameType.IMAGE
+        assert issubclass(self.Product, PipelineMultipleProduct)
+        assert self.Product.frame_type == cpl.ui.Frame.FrameType.IMAGE

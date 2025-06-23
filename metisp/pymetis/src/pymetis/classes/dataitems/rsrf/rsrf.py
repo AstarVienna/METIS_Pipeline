@@ -24,6 +24,6 @@ from pymetis.classes.mixins import DetectorIfuMixin
 
 class RsrfIfu(DetectorIfuMixin, DataItem):
     _name = r'RSRF_IFU'
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _description = "2D relative spectral response function"
     _title = "RSRF IFU"

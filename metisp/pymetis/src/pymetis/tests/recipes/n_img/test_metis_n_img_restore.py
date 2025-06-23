@@ -48,4 +48,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductRestored
+    Product: type[PipelineProduct] = Impl.ProductRestored

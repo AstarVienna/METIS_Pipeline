@@ -43,11 +43,6 @@ class PipelineProduct(ABC):
     """
     Item: type[DataItem] = None
 
-    # Global defaults for all Products
-    group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
-    level: cpl.ui.Frame.FrameLevel = None
-    frame_type: cpl.ui.Frame.FrameType = None
-
     # Product metadata.
     # The standard way of defining them is to override the private class attribute;
     # the default @classmethod with the same name (without the underscore) just returns its value.
@@ -77,13 +72,13 @@ class PipelineProduct(ABC):
         self._used_frames: cpl.ui.FrameSet | None = None
 
         # Raise a `NotImplementedError` in case a derived class forgot to set a class attribute
-        if self.group is None:
+        if self.Item.frame_group is None:
             raise NotImplementedError(f"Products must define 'group', but {self.__class__.__qualname__} does not")
 
-        if self.level is None:
+        if self.Item.frame_level is None:
             raise NotImplementedError(f"Products must define 'level', but {self.__class__.__qualname__} does not")
 
-        if self.frame_type is None:
+        if self.Item.frame_type is None:
             raise NotImplementedError(f"Products must define 'frame_type', but {self.__class__.__qualname__} does not")
 
         if self.category is None:
@@ -111,9 +106,9 @@ class PipelineProduct(ABC):
         return cpl.ui.Frame(
             file=self.output_file_name,
             tag=self.tag(),
-            group=self.group,
-            level=self.level,
-            frameType=self.frame_type,
+            group=self.Item.frame_group(),
+            level=self.Item.frame_level(),
+            frameType=self.Item.frame_type(),
         )
 
     def as_dict(self) -> dict[str, Any]:
@@ -122,8 +117,9 @@ class PipelineProduct(ABC):
         """
         return {
             'tag': self.tag(),
-            'group': self.group,
-            'level': self.level,
+            'group': self.Item.frame_group(),
+            'level': self.Item.frame_level(),
+            'type': self.Item.frame_type(),
         }
 
     @final

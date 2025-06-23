@@ -29,7 +29,7 @@ from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorI
 class BasicReduced(BandLmMixin, TargetSpecificMixin, DataItem, abstract=True):
     _title: str = "basic reduced"
     _description: str = None
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
     @classmethod

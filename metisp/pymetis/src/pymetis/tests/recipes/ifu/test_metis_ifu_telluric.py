@@ -49,12 +49,12 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductFluxcalTab(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductFluxcalTab
+    Product: type[PipelineProduct] = Impl.ProductFluxcalTab
 
 
 class TestProductTelluric(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductTelluricTransmission
+    Product: type[PipelineProduct] = Impl.ProductTelluricTransmission
 
 
 class TestProductResponseFunction(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductResponseFunction
+    Product: type[PipelineProduct] = Impl.ProductResponseFunction

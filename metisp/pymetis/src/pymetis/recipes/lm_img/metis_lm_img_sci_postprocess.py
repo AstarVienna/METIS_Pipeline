@@ -24,6 +24,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.coadd import LmSciCoadd
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput
@@ -37,10 +38,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
             _description: str = "LM band image with flux calibration, WC coordinate system and distorion information"
 
     class ProductLmImgSciCoadd(PipelineImageProduct):
-        _tag = r"LM_SCI_COADD"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Coadded, mosaiced LM image."
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        Item = LmSciCoadd
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

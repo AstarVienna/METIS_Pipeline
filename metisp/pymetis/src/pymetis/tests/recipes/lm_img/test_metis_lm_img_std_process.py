@@ -48,8 +48,8 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductLmImgStdCombined(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductImgStdCombined
+    Product: type[PipelineProduct] = Impl.ProductImgStdCombined
 
 
 class TestProductLmImgFluxcalTable(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductImgFluxCalTable
+    Product: type[PipelineProduct] = Impl.ProductImgFluxCalTable

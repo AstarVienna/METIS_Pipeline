@@ -48,16 +48,16 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductReduced(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductReduced
+    Product: type[PipelineProduct] = Impl.ProductReduced
 
 
 class TestProductBackground(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBackground
+    Product: type[PipelineProduct] = Impl.ProductBackground
 
 
 class TestProductReducedCube(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductReducedCube
+    Product: type[PipelineProduct] = Impl.ProductReducedCube
 
 
 class TestProductCombined(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductCombined
+    Product: type[PipelineProduct] = Impl.ProductCombined

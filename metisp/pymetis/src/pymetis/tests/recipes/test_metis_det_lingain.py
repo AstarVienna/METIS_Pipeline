@@ -49,12 +49,12 @@ class TestInputSet(RawInputSetTest):
 
 
 class TestProductGain(ImageProductTest):
-    _product: type[PipelineProduct] = Impl.ProductGain
+    Product: type[PipelineProduct] = Impl.ProductGain
 
 
 class TestProductLinearity(ImageProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLinearity
+    Product: type[PipelineProduct] = Impl.ProductLinearity
 
 
 class TestProductBadpixMap(ImageProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBadpixMap
+    Product: type[PipelineProduct] = Impl.ProductBadpixMap

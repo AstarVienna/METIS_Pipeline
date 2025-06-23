@@ -71,7 +71,7 @@ class PipelineInput:
 
     @property
     def group(self):
-        return self.Item._group
+        return self.Item._frame_group
 
     @property
     def detector(self) -> str:

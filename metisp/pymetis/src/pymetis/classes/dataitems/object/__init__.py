@@ -36,7 +36,7 @@ class ObjectCatalog(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=T
     def description(cls) -> str:
         return f"Catalog of masked objects in {cls.get_target_string()} {cls.band()} exposures"
 
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 
 
 class LmStdObjectCatalog(BandLmMixin, TargetStdMixin, ObjectCatalog):

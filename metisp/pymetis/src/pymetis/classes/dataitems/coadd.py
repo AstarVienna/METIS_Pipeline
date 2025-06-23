@@ -16,38 +16,31 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from abc import ABC
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.mixins import BandSpecificMixin, BandIfuMixin, BandLmMixin
 
 
-class Linearity(DataItem, ABC):
-    _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords = {'PRO.CATG'}
+class SciCoadd(BandSpecificMixin, DataItem, abstract=True):
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     @classmethod
     def name(cls):
-        return rf'LINEARITY_{cls.detector()}'
+        return rf'{cls.band():s}_SCI_COADD'
 
     @classmethod
-    def title(cls) -> str:
-        return rf'{cls.detector()} linearity'
-
-    @classmethod
-    def description(cls):
-        return rf"Coefficients for the pixel {cls.detector()} non-linearity correction"
+    def title(cls):
+        return f"{cls.band():s} science co-added"
 
 
-class Linearity2rg(Detector2rgMixin, Linearity):
-    pass
+class LmSciCoadd(BandLmMixin, SciCoadd):
+    _description = "Coadded, mosaiced LM image"
 
 
-class LinearityGeo(DetectorGeoMixin, Linearity):
-    pass
-
-
-class LinearityIfu(DetectorIfuMixin, Linearity):
-    pass
+class IfuSciCoadd(BandIfuMixin, SciCoadd):
+    _description = ("Spectral cube of science object, a coadd of a number of"
+                    "reduced IFU exposures covering a different spatial and wavelength ranges.")

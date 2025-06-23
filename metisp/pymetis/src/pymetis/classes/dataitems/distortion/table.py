@@ -28,7 +28,7 @@ from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, B
 class DistortionTable(BandSpecificMixin, DataItem, ABC):
     _title: str = "distortion table"
     _description: str = "Table of distortion coefficients"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
 
     @classmethod

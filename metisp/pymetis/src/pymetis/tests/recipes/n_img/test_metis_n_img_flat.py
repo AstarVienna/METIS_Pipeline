@@ -53,4 +53,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductMasterFlat
+    Product: type[PipelineProduct] = Impl.ProductMasterFlat

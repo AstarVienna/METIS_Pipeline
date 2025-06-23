@@ -26,7 +26,7 @@ from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorI
 class GainMap(DataItem, abstract=True):
     _title: str = "gain map"
     _description: str = "Gain map"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords: set[str] = {'PRO.CATG'}
 
     @classmethod

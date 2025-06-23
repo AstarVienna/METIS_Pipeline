@@ -24,7 +24,7 @@ from pymetis.classes.mixins import (TargetSpecificMixin, TargetSciMixin, TargetS
                                     BandNMixin, BandLmMixin, BandSpecificMixin)
 
 class Background(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
-    _group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
     @classmethod

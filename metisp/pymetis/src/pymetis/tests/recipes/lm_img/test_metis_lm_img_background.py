@@ -48,12 +48,12 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductBkg(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBkg
+    Product: type[PipelineProduct] = Impl.ProductBkg
 
 
 class TestProductBkgSubtracted(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBkgSubtracted
+    Product: type[PipelineProduct] = Impl.ProductBkgSubtracted
 
 
 class TestProductObjectCat(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductObjectCat
+    Product: type[PipelineProduct] = Impl.ProductObjectCat

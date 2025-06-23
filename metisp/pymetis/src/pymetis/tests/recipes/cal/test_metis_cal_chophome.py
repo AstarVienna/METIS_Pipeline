@@ -54,11 +54,11 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductCombined(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductCombined
+    Product: type[PipelineProduct] = Impl.ProductCombined
 
 
 class TestProductBackground(ImageProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBackground
+    Product: type[PipelineProduct] = Impl.ProductBackground
 
 
 class TestLocatePinhole():

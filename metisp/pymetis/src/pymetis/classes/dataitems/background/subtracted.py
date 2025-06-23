@@ -26,8 +26,8 @@ from pymetis.classes.mixins import (TargetSpecificMixin, TargetSciMixin, TargetS
 
 class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
     _title = "background-subtracted"
-    _group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
     @classmethod
@@ -37,6 +37,7 @@ class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, DataItem, abs
     @classmethod
     def description(cls):
         return rf"Thermal background subtracted images of science {cls.band()} {cls.target()} exposures."
+
 
 # ToDo: generate this classes automatically
 class LmStdBackgroundSubtracted(BandLmMixin, TargetStdMixin, BackgroundSubtracted):

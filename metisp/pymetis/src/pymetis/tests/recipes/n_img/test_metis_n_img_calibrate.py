@@ -48,4 +48,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductSciCalibrated
+    Product: type[PipelineProduct] = Impl.ProductSciCalibrated
