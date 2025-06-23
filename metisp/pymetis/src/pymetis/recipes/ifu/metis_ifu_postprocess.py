@@ -36,7 +36,6 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
 
     class ProductSciCoadd(PipelineImageProduct):
         Item: type[DataItem] = IfuSciCoadd
-        level = cpl.ui.Frame.FrameLevel.FINAL
 
     def determine_output_grid(self):
         pass

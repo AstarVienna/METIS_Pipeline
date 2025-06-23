@@ -86,8 +86,6 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         Intermediate product: the instrumental background (WCU OFF)
         """
         Item = IfuRsrfBackground
-        _tag: str = r"IFU_RSRF_BACKGROUND"
-        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
         # SKEL: copy product keywords from the header
         def add_properties(self) -> None:
@@ -96,8 +94,6 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
     class ProductMasterFlatIfu(PipelineImageProduct):
         Item = MasterFlatIfu
-        _tag: str = r"MASTER_FLAT_IFU"
-        level = cpl.ui.Frame.FrameLevel.FINAL
 
         # SKEL: copy product keywords from the header
         def add_properties(self):
@@ -106,11 +102,6 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
     class ProductRsrfIfu(PipelineTableProduct):
         Item = RsrfIfu
-        _tag: str = r"RSRF_IFU"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-
-        _description: str = "1D relative spectral response function"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
         # SKEL: copy product keywords from the header
         def add_properties(self):

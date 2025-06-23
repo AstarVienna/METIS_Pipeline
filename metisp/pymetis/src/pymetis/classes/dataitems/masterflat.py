@@ -27,10 +27,12 @@ from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorI
 
 
 class MasterFlat(DataItem, abstract=True):
-    _title: str = r"master flat"
-    _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Abstract base class for master flats. Please subclass."
-    _oca_keywords: set[str] = {'PRO.CATG', 'DRS.FILTER'}
+    _title = r"master flat"
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _description = "Abstract base class for master flats. Please subclass."
+    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     @classmethod
     def name(cls) -> str:

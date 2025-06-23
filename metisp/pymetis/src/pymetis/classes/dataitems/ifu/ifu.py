@@ -27,10 +27,14 @@ from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
 class IfuBase(TargetSpecificMixin, BandIfuMixin, DataItem, abstract=True):
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
 class IfuBackground(IfuBase, abstract=True):
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+
     @classmethod
     def name(cls):
         return rf'IFU_{cls.target():s}_BACKGROUND'
@@ -44,6 +48,7 @@ class IfuSciBackground(TargetSciMixin, IfuBackground):
 
 
 class IfuReduced(IfuBase, abstract=True):
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 
     @classmethod
@@ -64,6 +69,9 @@ class IfuSciReduced(TargetSciMixin, IfuReduced):
 
 
 class IfuReducedCube(IfuBase, abstract=True):
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+
     @classmethod
     def name(cls):
         return rf'IFU_{cls.target():s}_REDUCED_CUBE'
@@ -78,6 +86,10 @@ class IfuSciReducedCube(TargetSciMixin, IfuReducedCube):
 
 
 class IfuReduced1d(IfuBase, abstract=True):
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+
     @classmethod
     def name(cls):
         return rf'IFU_{cls.target():s}_REDUCED_1D'
@@ -92,6 +104,10 @@ class IfuSciReduced1d(TargetSciMixin, IfuReduced1d):
 
 
 class IfuCombined(IfuBase, ABC):
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+
     @classmethod
     def name(cls):
         return rf'IFU_{cls.target():s}_COMBINED'

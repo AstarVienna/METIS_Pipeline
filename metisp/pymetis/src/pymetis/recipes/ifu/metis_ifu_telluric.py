@@ -72,7 +72,6 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         Final product: Transmission function for the telluric correction
         """
         Item = IfuTelluric
-        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
     # Response curve
     class ProductResponseFunction(TargetSpecificProduct, PipelineImageProduct):
@@ -80,11 +79,9 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         Final product: response curve for the flux calibration
         """
         Item = IfuReduced1d
-        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
     class ProductFluxcalTab(PipelineTableProduct):
         Item = FluxCalTable
-        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
 # TODO: Define input type for the paramfile in common.py
 

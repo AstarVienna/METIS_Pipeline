@@ -64,19 +64,15 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
     class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
         Item = IfuReduced
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
         Item = IfuBackground
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductReducedCube(TargetSpecificProduct, PipelineImageProduct):
         Item = IfuReducedCube
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
     class ProductCombined(TargetSpecificProduct, PipelineImageProduct):
         Item = IfuCombined
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
 
     def process_images(self) -> set[PipelineProduct]:
         # do something... a lot of something

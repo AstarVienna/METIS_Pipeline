@@ -103,6 +103,15 @@ class PipelineProduct(ABC):
 
     def as_frame(self) -> cpl.ui.Frame:
         """ Create a CPL Frame from this Product """
+        assert self.Item.frame_level() is not None, \
+            f"Data item {self.Item.__qualname__} does not define a frame level"
+
+        assert self.Item.frame_type() is not None, \
+            f"Data item {self.Item.__qualname__} does not define a frame type"
+
+        assert self.Item.frame_group() is not None, \
+            f"Data item {self.Item.__qualname__} does not define a frame group"
+
         return cpl.ui.Frame(
             file=self.output_file_name,
             tag=self.tag(),

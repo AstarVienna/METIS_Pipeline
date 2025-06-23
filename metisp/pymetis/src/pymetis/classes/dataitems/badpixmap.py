@@ -28,6 +28,8 @@ from ..mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorG
 class BadPixMap(DetectorSpecificMixin, DataItem, ABC):
     _title: str = "bad pixel map"
     _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description: str = "Bad pixel map. Also contains detector masks."
     _oca_keywords: set[str] = {'PRO.CATG'}
 

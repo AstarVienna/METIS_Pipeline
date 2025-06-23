@@ -20,5 +20,6 @@ markers = [
     "recipe: marks tests related to `MetisRecipe` or `MetisRecipeImpl`",
     "config: marks global configuration tests",
     "pyesorex: marks tests that depend on `pyesorex`",
+    "slow: marks tasts with full-size data",
     "metadata: marks tests that verify recipe metadata",
 ]

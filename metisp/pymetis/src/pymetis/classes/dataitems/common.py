@@ -45,6 +45,7 @@ class LinearityMap(DataItem):
 class FluxCalTable(DataItem):
     _title = "flux table"
     _name = "FLUXCAL_TABLE"
+    _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _description = "Conversion between instrumental and physical flux units"
@@ -96,6 +97,8 @@ class IfuSciCoadd(DetectorIfuMixin, DataItem):
     _name = r'IFU_SCI_COADD'
     _title = "IFU science coadd"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _description = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
                          "covering a different spatial and wavelength ranges.")
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
@@ -121,6 +124,8 @@ class Combined(TargetSpecificMixin, DataItem, abstract=True):
 class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
     _name = r'IFU_SCI_CUBE_CALIBRATED'
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _title = "IFU science cube calibrated"
     _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
@@ -135,5 +140,7 @@ class IfuTelluric(DataItem):
     _name = r'IFU_TELLURIC'
     _title = "Telluric correction"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _frame_type = cpl.ui.Frame.FrameType.TABLE
     _description = "Transmission function for the telluric correction."
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}

@@ -47,7 +47,6 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
     class ProductIfuDistortionReduced(PipelineImageProduct):
         Item = IfuDistortionReduced
-        level = cpl.ui.Frame.FrameLevel.FINAL
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

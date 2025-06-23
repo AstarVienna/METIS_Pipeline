@@ -26,6 +26,8 @@ class IfuWavecalRaw(DetectorIfuMixin, DataItem):
     _name = r'IFU_WAVE_RAW'
     _title = 'IFU wavecal raw'
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.NONE
     _description = ("Raw exposure of the WCU laser sources through the IFU to"
                     "achieve the first guess of the wavelength calibration.")
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
@@ -37,5 +39,7 @@ class IfuWavecal(DetectorIfuMixin, DataItem):
     _name = r'IFU_WAVECAL'
     _title = "IFU wave calibration"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description = "Image with wavelength at each pixel."
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
