@@ -17,25 +17,24 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import ABC
-
 import cpl
 
-from pymetis.classes.dataitems import parametrize
-from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.dataitems.ifu.ifu import IfuBase
+from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 
 
-@parametrize('MasterDark{detector}', detector=['2RG', 'GEO', 'IFU'])
-class MasterDark(DataItem, abstract=True):
-    _title = r"master dark"
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+class IfuBackground(IfuBase, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description = "Abstract base class for master darks. Please subclass."
-    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 
     @classmethod
-    def name(cls) -> str:
-        return rf"MASTER_DARK_{cls.detector()}"
+    def name(cls):
+        return rf'IFU_{cls.target():s}_BACKGROUND'
 
+
+class IfuStdBackground(TargetStdMixin, IfuBackground):
+    _description = "Reduced 2D detector image of background."
+
+
+class IfuSciBackground(TargetSciMixin, IfuBackground):
+    _description = "Reduced 2D detector image of background."

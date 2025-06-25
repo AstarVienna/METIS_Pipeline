@@ -25,9 +25,10 @@ from typing import Literal
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion.table import IfuDistortionTable
 from pymetis.classes.dataitems.ifu.raw import IfuSciRaw, IfuSkyRaw, IfuRaw
-from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuStdBackground, IfuStdReducedCube, \
-    IfuSciReduced, IfuStdReduced, IfuBackground, IfuReducedCube, IfuStdCombined, IfuSciBackground, IfuSciCombined, \
+from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuStdReducedCube, \
+    IfuSciReduced, IfuStdReduced, IfuReducedCube, IfuStdCombined, IfuSciCombined, \
     IfuSciReducedCube
+from pymetis.classes.dataitems.ifu.background import IfuBackground, IfuStdBackground, IfuSciBackground
 from pymetis.classes.dataitems.rsrf import RsrfIfu
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe

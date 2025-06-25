@@ -35,21 +35,12 @@ class MultiplePipelineInput(PipelineInput):
     def __init__(self,
                  frameset: cpl.ui.FrameSet):
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
-        super().__init__()
+        super().__init__(frameset)
 
-        tag_matches = []
-        for frame in frameset:
-            if match := self.tags().fullmatch(frame.tag):
-                frame.group = self.group
-                self.frameset.append(frame)
-                Msg.debug(self.__class__.__qualname__,
-                          f"Matched a {self.title} frame '{frame.file}' (with {match.groupdict()}).")
-                tag_matches.append(match.groupdict())
-            else:
-                Msg.debug(self.__class__.__qualname__,
-                          f"Ignoring {frame.file}: tag {frame.tag} does not match.")
-
-        self.extract_tag_parameters(tag_matches)
+    def load(self, frameset: cpl.ui.FrameSet):
+        self.frameset = frameset
+        Msg.debug(self.__class__.__name__,
+              f"Found a {self.Item.__qualname__} frameset")
 
     @classmethod
     def get_target_name(cls, frameset: cpl.ui.FrameSet):
@@ -101,8 +92,8 @@ class MultiplePipelineInput(PipelineInput):
         if (count := len(self.frameset)) == 0:
             if self.required():
                 raise cpl.core.DataNotFoundError(
-                    f"{self.__class__.__qualname__}: no {self.title()} frames "
-                    f"({self.tags().pattern:s}) found in the frameset."
+                    f"{self.__class__.__qualname__}: no {self.Item.title()} frames "
+                    f"({self.Item.name():s}) found in the frameset."
                 )
             else:
                 Msg.debug(self.__class__.__qualname__, f"No {self.title()} frames found but not required.")

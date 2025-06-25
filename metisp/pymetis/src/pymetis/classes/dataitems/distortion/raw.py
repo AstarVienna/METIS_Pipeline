@@ -17,15 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import ABC
-
 import cpl
 
 from pymetis.classes.dataitems.raw import Raw
 from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionRaw(BandSpecificMixin, Raw, ABC):
+class DistortionRaw(BandSpecificMixin, Raw, abstract=True):
     _title: str = "distortion raw"
     _description: str = "Raw data for distortion determination in other recipes."
     _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW

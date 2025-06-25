@@ -23,6 +23,7 @@ import cpl
 
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.base import PipelineInput
 
 
@@ -36,39 +37,17 @@ class SinglePipelineInput(PipelineInput):
                  frameset: cpl.ui.FrameSet):                       # Any other args
 
         self.frame: cpl.ui.Frame | None = None
-        self.tag_matches: dict[str, str] = {}
-        super().__init__()
+        super().__init__(frameset)
 
-        for frame in frameset:
-            if match := self.tags().fullmatch(frame.tag):
-                if self.frame is None:
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Found a {self.title} frame: {frame.file}.")
-                else:
-                    # If a matching frame was already found, this probably is not what we want.
-                    # Warn, and only keep the latest one found.
-                    Msg.warning(self.__class__.__qualname__,
-                                f"Found another {self.title} frame: {frame.file}! "
-                                f"Discarding previously loaded {self.frame.file}.")
-                frame.group = self.item().frame_group()
-                self.frame = frame
-                self.tag_matches = match.groupdict()
-            else:
-                Msg.debug(self.__class__.__qualname__,
-                          f"Ignoring {frame.file}: tag {frame.tag} does not match.")
+    def load(self, frameset: cpl.ui.FrameSet):
+        if len(frameset) > 1:
+            Msg.warning(self.__class__.__name__,
+                        f"Expected {self._multiplicity} frames, but found {len(frameset)}!")
+        else:
+            Msg.debug(self.__class__.__name__,
+                      f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
+            self.frame = frameset[0]
 
-        self.extract_tag_parameters()
-
-    def extract_tag_parameters(self):
-        if self.tag_matches is not None:
-            for key, value in self.tag_matches.items():
-                Msg.debug(self.__class__.__qualname__,
-                          f"Matched a tag parameter: '{key}' = '{value}'.")
-
-        self.tag_parameters = self.tag_matches
-
-        for key, value in self.tag_parameters.items():
-            self.__setattr__(key, value)
 
     def validate(self):
         """

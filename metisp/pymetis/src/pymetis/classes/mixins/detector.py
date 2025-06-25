@@ -27,7 +27,7 @@ class DetectorSpecificMixin(Mixin):
 
     @classmethod
     def detector(cls) -> str:
-        return cls._detector or r'{detector}'
+        return cls._detector
 
     def __init_subclass__(cls, *, detector=None, **kwargs):
         if detector is not None:

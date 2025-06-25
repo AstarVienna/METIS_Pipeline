@@ -106,13 +106,6 @@ class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
-class Rsrf(DataItem):
-    _name = r'RSRF'
-    _title = "RSRF"
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "2D relative spectral response function"
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
 
 class Combined(TargetSpecificMixin, DataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB

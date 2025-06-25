@@ -41,11 +41,27 @@ class PipelineInput:
     Item: type[DataItem] = None
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
-    _tags: Pattern = None                   # No universal tags are provided
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
-    _description: Optional[str] = None      # Description for man page
 
     _multiplicity: str = '<undefined>'      # Multiplicity of the input, '1' or 'N'
+
+    @staticmethod
+    def preprocess_frameset(frameset: cpl.ui.FrameSet) -> dict[str, cpl.ui.FrameSet]:
+        """
+        Convert a SOF (which is a `list[(filename, tag)]`) to a mapping `tag: list[filename]`.
+        """
+        result = {}
+
+        for frame in frameset:
+            if frame.tag in result:
+                result[frame.tag] += [frame]
+            else:
+                result[frame.tag] = [frame]
+
+        return {
+            tag: cpl.ui.FrameSet(frames)
+            for tag, frames in result.items()
+        }
 
     @classmethod
     def item(cls) -> type[DataItem]:
@@ -53,37 +69,44 @@ class PipelineInput:
 
     @classmethod
     def title(cls) -> str:
-        if cls.item() is not None:
-            return cls.item().title()
-        return cls._title
-
-    @classmethod
-    def tags(cls) -> Pattern:
-        """
-        Return the tags for this pipeline input.
-        Override the method if it should depend on some parameter.
-        """
-        return cls._tags
+        return cls.Item.title()
 
     @classmethod
     def required(cls) -> bool:
+        """
+        Marks whether this pipeline input is required. Used during validation.
+        """
         return cls._required
 
     @property
     def group(self):
         return self.Item._frame_group
 
-    @property
-    def detector(self) -> str:
-        return self._detector
-
-    @detector.setter
-    def detector(self, value):
-        self._detector = value
-
-    def __init__(self):
+    def __init__(self, frameset: cpl.ui.FrameSet):
         if self.Item is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined data item")
+
+        for tag, frames in self.preprocess_frameset(frameset).items():
+            cls = DataItem.find(tag)
+
+            if cls is None:
+                Msg.warning(self.__class__.__name__,
+                            f"Found a frame with tag '{tag}', which is not a registered data item. Ignoring.")
+                continue
+            else:
+                if cls == self.Item:
+                    Msg.debug(self.__class__.__name__,
+                              f"Found a specialized class {cls.__qualname__} for {tag}, instantiating directly")
+                elif cls in self.Item.__subclasses__():
+                    Msg.debug(self.__class__.__name__,
+                              f"Found a specialized class {cls.__qualname__} for {tag}, "
+                              f"subclassing this {self.Item.__qualname__} and instantiating")
+                    self.Item = cls
+                    self.load(frames)
+                else:
+                    Msg.debug(self.__class__.__name__,
+                              f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
+                    continue
 
         # A list of matched groups from `tags`. Acquisition differs
         # between Single and Multiple, so we just declare it here.
@@ -100,12 +123,10 @@ class PipelineInput:
         """
         Print a short description of the tags with a small offset (n spaces).
         """
-        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags()}")
 
     def as_dict(self) -> dict[str, Any]:
         return {
             'item': self.item(),
-            'tags': self.tags(),
             'required': self.required,
         }
 
@@ -115,18 +136,17 @@ class PipelineInput:
         """ Produce a description line for man page. """
         return (f"    {cls._pretty_tags():<60} [{cls._multiplicity}]"
                 f"{' (optional)' if not cls._required else '           '} "
-                f"{cls._description}\n{' ' * 84}")
+                f"{cls.Item.description()}\n{' ' * 84}")
 
     @classmethod
     @final
     def _extended_description_line(cls, name: str = None) -> str:
         """ Produce ae extended description line for man page. """
-        assert cls.item() is not None, f"{cls.__class__.__qualname__} has no item"
-        assert cls.item().description() is not None, f"{cls.__class__.__qualname__} has no item"
+        assert cls.Item is not None, f"{cls.__class__.__qualname__} has no item"
+        assert cls.Item.description() is not None, f"{cls.__class__.__qualname__} has no item"
 
         return (f"      {name:<24}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
-                f" --- {cls._pretty_tags():<60}\n"
-                f"          {cls.item().description()}")
+                f"          {cls.Item.description()}")
 #                f"{f'\n{' ' * 84}'.join([x.__name__ for x in set(cls.input_for_recipes())])}")
 
     @abstractmethod
@@ -136,12 +156,6 @@ class PipelineInput:
         This is abstract as it differes significantly for Single and Multiple Inputs.
         """
         pass
-
-    @classmethod
-    def _pretty_tags(cls) -> str:
-        """ Helper method to print `re.Pattern`s in man-page: remove named capture groups' names. """
-        return cls.tags().pattern
-        # return re.sub(r"\?P<\w+>", "", cls.tags().pattern)
 
     @classmethod
     def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:

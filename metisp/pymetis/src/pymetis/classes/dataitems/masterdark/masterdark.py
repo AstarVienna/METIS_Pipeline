@@ -17,35 +17,31 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl.ui
+import cpl
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.dataitems.dataitem import ImageDataItem
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class DistortionReduced(BandSpecificMixin, DataItem, abstract=True):
+class MasterDark(ImageDataItem, abstract=True):
+    _title = r"master dark"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.TABLE
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _description = "Abstract base class for master darks. Please subclass."
+    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     @classmethod
     def name(cls) -> str:
-        return rf'{cls.band():s}_DIST_REDUCED'
-
-    @classmethod
-    def title(cls):
-        return f"{cls.band():s} distortion reduced"
-
-    @classmethod
-    def description(cls):
-        return f"Table of polynomial coefficients for distortion correction"
-
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+        return rf"MASTER_DARK_{cls.detector()}"
 
 
-class LmDistortionReduced(BandLmMixin, DistortionReduced):
+class MasterDark2rg(Detector2rgMixin, MasterDark):
     pass
 
 
-class NDistortionReduced(BandNMixin, DistortionReduced):
+class MasterDarkGeo(DetectorGeoMixin, MasterDark):
+    pass
+
+
+class MasterDarkIfu(DetectorIfuMixin, MasterDark):
     pass

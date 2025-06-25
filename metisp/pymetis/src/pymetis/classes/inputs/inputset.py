@@ -106,10 +106,10 @@ class PipelineInputSet(metaclass=ABCMeta):
         Some Inputs may return `None` if they are not specific to a detector.
         """
         Msg.debug(self.__class__.__qualname__, "--- Validating the detector parameters ---")
-        detectors = list(set([inp.detector for inp in self.inputs]) - {None})
+        detectors = list(set([inp.Item.detector() for inp in self.inputs]) - {None})
 
         for inp in self.inputs:
-            det = "---" if inp.detector is None else inp.detector
+            det = "---" if inp.Item.detector() is None else inp.Item.detector()
             Msg.debug(self.__class__.__qualname__,
                       f"Detector in {inp.__class__.__qualname__:<50} {det}")
 

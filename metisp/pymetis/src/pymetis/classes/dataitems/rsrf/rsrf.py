@@ -24,6 +24,14 @@ from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorI
 from pymetis.classes.mixins.band import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
+class Rsrf(DataItem):
+    _name = r'RSRF'
+    _title = "RSRF"
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _description = "2D relative spectral response function"
+    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+
+
 class RsrfIfu(DetectorIfuMixin, DataItem):
     _name = r'RSRF_IFU'
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
@@ -33,29 +41,7 @@ class RsrfIfu(DetectorIfuMixin, DataItem):
     _title = "RSRF IFU"
 
 
-class RsrfRaw(DetectorSpecificMixin, BandSpecificMixin, Raw, abstract=True):
-    @classmethod
-    def name(cls):
-        return rf'{cls.band()}_LSS_RSRF_RAW'
 
-
-class LmLssRsrfRaw(Detector2rgMixin, BandLmMixin, RsrfRaw):
-    pass
-
-
-class NLssRsrfRaw(DetectorGeoMixin, BandNMixin, RsrfRaw):
-    pass
-
-
-class IfuRsrfRaw(DetectorIfuMixin, BandIfuMixin, RsrfRaw):
-    _title = "IFU RSRF raw image"
-
-    @classmethod
-    def name(cls):
-        """
-        Here the name is overridden as it is not LSS.
-        """
-        return r'IFU_RSRF_RAW'
 
 
 class IfuRsrfBackground(DetectorIfuMixin, DataItem):

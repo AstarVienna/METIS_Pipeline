@@ -29,7 +29,7 @@ from astropy.table import QTable
 from pymetis.classes.dataitems.badpixmap import BadPixMapIfu
 from pymetis.classes.dataitems.gainmap import GainMapIfu
 from pymetis.classes.dataitems.linearity.linearity import LinearityIfu
-from pymetis.classes.dataitems.masterdark import MasterDarkIfu
+from pymetis.classes.dataitems.masterdark.masterdark import MasterDarkIfu
 from pymetis.classes.dataitems.masterflat import MasterFlatIfu
 from pymetis.classes.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
 from pymetis.classes.dataitems.raw.wcuoff import WcuOffIfuRaw

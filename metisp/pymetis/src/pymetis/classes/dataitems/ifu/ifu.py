@@ -16,36 +16,19 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from abc import ABC
 
 import cpl.ui
 
-from pymetis.classes.dataitems import parametrize
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.dataitem import ImageDataItem
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.band import BandIfuMixin
 from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
-class IfuBase(TargetSpecificMixin, BandIfuMixin, DataItem, abstract=True):
+class IfuBase(TargetSpecificMixin, BandIfuMixin, ImageDataItem, abstract=True):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-
-class IfuBackground(IfuBase, abstract=True):
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-
-    @classmethod
-    def name(cls):
-        return rf'IFU_{cls.target():s}_BACKGROUND'
-
-class IfuStdBackground(TargetStdMixin, IfuBackground):
-    _description = "Reduced 2D detector image of background."
-
-
-class IfuSciBackground(TargetSciMixin, IfuBackground):
-    _description = "Reduced 2D detector image of background."
 
 
 class IfuReduced(IfuBase, abstract=True):
@@ -53,19 +36,24 @@ class IfuReduced(IfuBase, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 
     @classmethod
-    def title(cls):
-        return f"IFU {cls.get_target_string():s} reduced"
-
-    @classmethod
     def name(cls):
         return rf'IFU_{cls.target():s}_REDUCED'
+
+    @classmethod
+    def title(cls):
+        return f"IFU {cls.get_target_string():s} reduced"
 
     @classmethod
     def description(cls) -> str:
         return f"Reduced 2D detector image of a {cls.get_target_string()}"
 
 
-parametrize("Ifu{target}Reduced", target=['STD', 'SCI'])(IfuReduced)
+class IfuStdReduced(TargetStdMixin, IfuReduced):
+    pass
+
+
+class IfuSciReduced(TargetSciMixin, IfuReduced):
+    pass
 
 
 class IfuReducedCube(IfuBase, abstract=True):
@@ -87,7 +75,6 @@ class IfuSciReducedCube(TargetSciMixin, IfuReducedCube):
 
 class IfuReduced1d(IfuBase, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
     @classmethod
@@ -106,7 +93,6 @@ class IfuSciReduced1d(TargetSciMixin, IfuReduced1d):
 class IfuCombined(IfuBase, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     @classmethod
     def name(cls):

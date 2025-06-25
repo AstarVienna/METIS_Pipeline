@@ -12,7 +12,9 @@ class PipelineImageProduct(PipelineProduct):
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
                  header: cpl.core.PropertyList,
-                 image: cpl.core.Image):
+                 image: cpl.core.Image,
+                 *,
+                 output_file_name: str = None):
         super().__init__(recipe_impl, header)
         self.image: cpl.core.Image = image
 

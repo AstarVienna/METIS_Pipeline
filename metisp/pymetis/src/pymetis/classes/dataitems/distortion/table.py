@@ -17,15 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import ABC
-
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionTable(BandSpecificMixin, DataItem, ABC):
+class DistortionTable(BandSpecificMixin, DataItem, abstract=True):
     _title = "distortion table"
     _description = "Table of distortion coefficients"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB

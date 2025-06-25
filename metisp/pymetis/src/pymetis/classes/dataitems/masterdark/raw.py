@@ -21,7 +21,7 @@ from pymetis.classes.dataitems.raw import Raw
 from pymetis.classes.mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class DarkRaw(DetectorSpecificMixin, Raw):
+class DarkRaw(DetectorSpecificMixin, Raw, abstract=True):
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT'}
 
     @classmethod
@@ -32,17 +32,18 @@ class DarkRaw(DetectorSpecificMixin, Raw):
     def title(cls) -> str:
         return rf'{cls.detector()} dark raw'
 
+    @classmethod
+    def description(cls) -> str:
+        return f"Raw data for creating a {cls.detector()} master dark."
+
 
 class Dark2rgRaw(Detector2rgMixin, DarkRaw):
     _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
-    pass
 
 
 class DarkGeoRaw(DetectorGeoMixin, DarkRaw):
     _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
-    pass
 
 
 class DarkIfuRaw(DetectorIfuMixin, DarkRaw):
     _oca_keywords = DarkRaw._oca_keywords | {'DRS.IFU'}
-    pass

@@ -35,7 +35,7 @@ from ..dataitems.raw import Raw
 from ..dataitems.badpixmap import BadPixMap
 from pymetis.classes.dataitems.distortion.table import DistortionTable
 from ..dataitems.gainmap import GainMap
-from ..dataitems.masterdark import MasterDark
+from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
 from ..dataitems.masterflat import MasterFlat
 from ..dataitems.wavecal import IfuWavecal
 

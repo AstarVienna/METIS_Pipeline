@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from abc import ABC
 
 import cpl
 
@@ -25,7 +24,7 @@ from pymetis.classes.mixins.band import BandNMixin, BandLmMixin, BandSpecificMix
 from pymetis.classes.mixins.target import TargetLampMixin, TargetTwilightMixin, TargetSpecificMixin
 
 
-class FlatRaw(BandSpecificMixin, TargetSpecificMixin, Raw, ABC):
+class FlatRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE

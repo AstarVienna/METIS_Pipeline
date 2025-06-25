@@ -25,10 +25,8 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.gainmap import GainMap2rg, GainMapGeo, GainMapIfu
-from pymetis.classes.dataitems.masterdark import MasterDarkIfu, MasterDark2rg, MasterDarkGeo, MasterDark
-from pymetis.classes.dataitems.raw.dark import DarkGeoRaw, Dark2rgRaw, DarkIfuRaw, DarkRaw
-from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
+from pymetis.classes.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import (RawInput, BadpixMapInput, PersistenceMapInput,
@@ -58,8 +56,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         # since this is specific to this raw input, not all raw inputs.
         class RawInput(RawInput):
             Item = DarkRaw
-            _tags: re.Pattern = re.compile(r"DARK_(?P<detector>2RG|GEO|IFU)_RAW")
-            _description: str = "Raw data for creating a master dark."
 
         # Next, we define all other input classes using predefined ones.
         # Here we mark them as optional, but if we did not need that, we could have also said
@@ -78,18 +74,12 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
 
-    # Next, we have to define all the product classes for this recipe. Here we only have one, the master dark frame.
-    # Note that master darks might be obtained by different means for different detectors,
-    # so we derive from `DetectorSpecificProduct`, not from `PipelineProduct`.
-    # This provides a mechanism for ensuring the `detector` is defined and parsed.
-    class ProductMasterDark(DetectorSpecificProduct, PipelineImageProduct):
-        """
-        Master dark frame product.
-        """
 
-        # We define the required attributes for CPL.
+    class ProductMasterDark(PipelineImageProduct):
         Item = MasterDark
-        level = cpl.ui.Frame.FrameLevel.FINAL
+
+    class MasterDark(MasterDark):
+        pass
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -108,67 +98,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         product = self.ProductMasterDark(self, header, combined_image)
 
         return {product}
-
-    # For recipes that can further specialize based on the provided data, we need to provide a mechanism
-    # to select the correct derived class.
-    # Here, it depends on the detector.
-    def _dispatch_child_class(self) -> type['MetisDetDarkImpl']:
-        """
-        Find the implementation class based on the detector specified in the inputset tags.
-
-        Raises:
-        KeyError
-            If the detector obtained from the inputset is not found in the mapping.
-        """
-        return {
-            '2RG': Metis2rgDarkImpl,
-            'GEO': MetisGeoDarkImpl,
-            'IFU': MetisIfuDarkImpl,
-        }[self.inputset.detector]
-
-
-# Finally, we provide the specialized classes as needed, with mixins or by overriding.
-# In most cases, adding mixins is enough, so while it is quite verbose, not much is really happening here.
-# Note: in the future this might be reworked to utilize metaclasses or some other dark magic.
-# For now, we have to do it manually. Pay extra attention to name the classes the same way,
-# if you mess up, the resulting bugs are nasty and hard to find.
-# Here, we define subclasses for different specializations based on detectors, and that is all.
-# If needed, we could also override `process_images` or any other attributes here.
-class Metis2rgDarkImpl(MetisDetDarkImpl):
-    class InputSet(MetisDetDarkImpl.InputSet):
-        class RawInput(Detector2rgMixin, MetisDetDarkImpl.InputSet.RawInput):
-            Item = Dark2rgRaw
-
-        class GainMapInput(Detector2rgMixin, MetisDetDarkImpl.InputSet.GainMapInput):
-            Item = GainMap2rg
-
-    class ProductMasterDark(Detector2rgMixin, MetisDetDarkImpl.ProductMasterDark):
-        Item = MasterDark2rg
-
-
-class MetisGeoDarkImpl(MetisDetDarkImpl):
-    class InputSet(MetisDetDarkImpl.InputSet):
-        class RawInput(DetectorGeoMixin, MetisDetDarkImpl.InputSet.RawInput):
-            Item = DarkGeoRaw
-
-        class GainMapInput(DetectorGeoMixin, MetisDetDarkImpl.InputSet.GainMapInput):
-            Item = GainMapGeo
-
-    class ProductMasterDark(DetectorGeoMixin, MetisDetDarkImpl.ProductMasterDark):
-        Item = MasterDarkGeo
-
-
-
-class MetisIfuDarkImpl(MetisDetDarkImpl):
-    class InputSet(MetisDetDarkImpl.InputSet):
-        class RawInput(DetectorIfuMixin, MetisDetDarkImpl.InputSet.RawInput):
-            Item = DarkIfuRaw
-
-        class GainMapInput(DetectorIfuMixin, MetisDetDarkImpl.InputSet.GainMapInput):
-            Item = GainMapIfu
-
-    class ProductMasterDark(DetectorIfuMixin, MetisDetDarkImpl.ProductMasterDark):
-        Item = MasterDarkIfu
 
 
 # This is the actual recipe class that is visible by `pyesorex`.

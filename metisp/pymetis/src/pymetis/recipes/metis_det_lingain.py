@@ -49,7 +49,6 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         class RawInput(RawInput):
             Item = LinearityRaw
             _tags: re.Pattern = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
-            _description: str = "Raw data for non-linearity determination."
 
         class WcuOffInput(RawInput):
             Item = WcuOffRaw
@@ -57,7 +56,6 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             Item = BadPixMap
-            _required: bool = False
 
     class ProductGain(LinGainProduct):
         Item = GainMap

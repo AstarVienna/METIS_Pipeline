@@ -31,7 +31,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.masterdark import MasterDark2rg, MasterDarkGeo
+from pymetis.classes.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo
 from pymetis.classes.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo
 from pymetis.classes.dataitems.pupil import PupilRaw, LmPupilRaw, NPupilRaw
 from pymetis.classes.dataitems.pupil.pupil import PupilImagingReduced, NPupilImagingReduced, LmPupilImagingReduced

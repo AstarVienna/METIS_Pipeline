@@ -32,6 +32,7 @@ class DataItem:
     The `DataItem` class encapsulates a single data item: the smallest standalone unit of detector data
     or a product of a recipe.
     """
+    # Class registry: all derived classes are automatically registered here (unless declared abstract)
     _registry: dict[str, type['DataItem']] = {}
 
     # Printable title of the data item. Not used internally, only for human-oriented output
@@ -41,7 +42,6 @@ class DataItem:
     # CPL frame group and level
     _frame_group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _frame_level: cpl.ui.Frame.FrameLevel = None  # No sensible default; must be provided explicitly
-    _frame_type: cpl.ui.Frame.FrameType = None
     # Associated detector (maybe this does not make much sense here and should be removed)
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     # Associated band
@@ -66,6 +66,7 @@ class DataItem:
             if cls.name() in DataItem._registry:
                 print(f"Class {cls.name()} has already been created: {cls}, {DataItem._registry[cls.name()]}")
             else:
+                print(f"Registered class {cls.name()}: {cls}")
                 DataItem._registry[cls.name()] = cls
 
         if description is not None:
@@ -73,9 +74,12 @@ class DataItem:
 
         super().__init_subclass__(**kwargs)
 
-    def __init__(self):
-        if self.__abstract:
-            raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
+    @classmethod
+    def find(cls, key):
+        if key in DataItem._registry:
+            return DataItem._registry[key]
+        else:
+            return None
 
     @classmethod
     def title(cls) -> str:
@@ -139,9 +143,15 @@ class DataItem:
         return NotImplemented # ToDo finish
 
     def __init__(self):
-        # Check if it is defined
+        if self.__abstract:
+            raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
+
+        # Check if the title is defined
         if self.title() is None:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
+
+        if self.name() is None:
+            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no name")
 
         # Check if frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
@@ -193,12 +203,6 @@ class DataItem:
                         f"Frames from more than one detector found: {unique}!")
 
     @classmethod
-    def _pretty_tags(cls) -> str:
-        """ Helper method to print `re.Pattern`s in man-page: remove named capture groups' names. """
-        return cls.tags().pattern
-        # return re.sub(r"\?P<\w+>", "", cls.tags().pattern)
-
-    @classmethod
     def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:
         """
         List all PipelineRecipe classes that use this Input.
@@ -227,3 +231,63 @@ class DataItem:
             for (n, kls) in inspect.getmembers(klass.implementation_class, lambda x: inspect.isclass(x)):
                 if issubclass(kls, cls):
                     yield klass
+
+
+class ImageDataItem(DataItem, abstract=True):
+    _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
+
+    def __init__(self, frame: cpl.core.PropertyList) -> None:
+        super().__init__(frame)
+        self.image: cpl.core.Image = None
+
+    def save(self,
+             recipe: 'PipelineRecipe',
+             header: cpl.core.PropertyList,
+             parameters: cpl.ui.ParameterList,
+             *,
+             output_file_name: str = None) -> None:
+
+        cpl.dfs.save_image(
+            recipe.frameset,  # All frames for the recipe
+            parameters,  # The list of input parameters
+            recipe.used_frames,  # The list of frames actually used  FixMe currently not working as intended
+            self.image,  # Image to be saved
+            recipe.name,  # Name of the recipe
+            self.properties,  # Properties to be appended
+            PIPELINE,
+            output,
+            output_file_name if output_file_name is not None else rf'{self.name()}.fits',
+            header=header,
+        )
+
+        def __init__(self,
+                     recipe_impl: 'MetisRecipeImpl',
+                     header: cpl.core.PropertyList,
+                     image: cpl.core.Image):
+            super().__init__(recipe_impl, header)
+            self.image: cpl.core.Image = image
+
+
+class TableDataItem(DataItem, abstract=True):
+    _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
+
+    def __init__(self, frame: cpl.core.PropertyList) -> None:
+        super().__init__(frame)
+        self.table: cpl.core.Table = None
+
+    def save(self,
+             recipe: 'PipelineRecipe',
+             header: cpl.core.PropertyList,
+             parameters: cpl.ui.ParameterList) -> None:
+
+        cpl.dfs.save_table(
+            recipe.frameset,  # All frames for the recipe
+            parameters,  # The list of input parameters
+            recipe.used_frames,  # The list of frames actually used  FixMe currently not working as intended
+            self.table,  # Table to be saved
+            self.recipe.name,  # Name of the recipe
+            self.properties,  # Properties to be appended
+            PIPELINE,
+            self.output_file_name,
+            header=self.header,
+        )
