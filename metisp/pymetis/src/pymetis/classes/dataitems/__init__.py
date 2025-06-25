@@ -1,4 +1,3 @@
-import functools
 import itertools
 
 from cpl.core import Msg
@@ -17,7 +16,8 @@ __all__ = [
     'IfuSciRaw'
 ]
 
-from ..mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin
+from ..mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, BandLmMixin, BandNMixin, \
+    BandIfuMixin, TargetStdMixin, TargetSciMixin, TargetSkyMixin
 
 
 def dict_product(**kwargs):
@@ -79,7 +79,6 @@ def parametrize(template: str, **params: list[str]):
 
             print(typename, tuple(bases + [cls]), {})
             print(type(typename, tuple(bases + [cls]), {}))
-            globals()[typename] = type(typename, tuple(bases + [cls]), {})
 
 
         # Make this a Descriptor!

@@ -68,7 +68,6 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         Define the output product, here a reduced pupil image.
         """
         Item = PupilImagingReduced
-        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
         """ Flat field preparation: subtract bias and normalize it to median 1 """

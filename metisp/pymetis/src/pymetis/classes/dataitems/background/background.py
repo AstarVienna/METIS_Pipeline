@@ -31,7 +31,7 @@ class Background(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True
 
     @classmethod
     def name(cls):
-        return rf"{cls.band()}_{cls.target()}_BKG_SUBTRACTED"
+        return rf"{cls.band()}_{cls.target()}_BKG"
 
     @classmethod
     def title(cls):

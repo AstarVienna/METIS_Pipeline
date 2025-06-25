@@ -24,6 +24,10 @@ from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
 
 
 class DistortionMap(BandSpecificMixin, DataItem, abstract=True):
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+
     @classmethod
     def name(cls) -> str:
         return rf'{cls.band():s}_DISTORTION_MAP'

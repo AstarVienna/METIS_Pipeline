@@ -25,7 +25,7 @@ from .dataitem import DataItem
 from ..mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class BadPixMap(DetectorSpecificMixin, DataItem, ABC):
+class BadPixMap(DetectorSpecificMixin, DataItem, abstract=True):
     _title: str = "bad pixel map"
     _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE

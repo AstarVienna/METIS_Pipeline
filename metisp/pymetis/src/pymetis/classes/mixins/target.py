@@ -22,7 +22,7 @@ from abc import ABC
 from pymetis.classes.mixins.base import Mixin
 
 
-class TargetSpecificMixin(Mixin, ABC):
+class TargetSpecificMixin(Mixin):
     """
     Mixin class for data items that need to define the `target` attribute.
 
@@ -40,7 +40,7 @@ class TargetSpecificMixin(Mixin, ABC):
         Return a pretty formatted target string for human-oriented output.
         """
         return {
-            'SCI': 'science target',
+            'SCI': 'science object',
             'STD': 'standard star',
             'LAMP': 'lamp',
             'TWILIGHT': 'twilight',

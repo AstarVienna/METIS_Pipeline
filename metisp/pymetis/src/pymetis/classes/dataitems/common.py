@@ -29,6 +29,8 @@ class PersistenceMap(DataItem):
     _title = "persistence map"
     _name = "PERSISTENCE_MAP"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description = "Persistence map"
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PERSISTENCE_MAP'
@@ -38,6 +40,8 @@ class LinearityMap(DataItem):
     _title = "linearity map"
     _name = "LINEARITY_MAP"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description = "Coefficients for the pixel non-linearity correction."
     _oca_keywords = {'PRO.CATG'}
 
@@ -56,7 +60,8 @@ class PinholeTable(DataItem):
     _title = "pinhole table"
     _name = r'PINHOLE_TABLE'
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _type = cpl.ui.Frame.FrameType.TABLE
+    _frame_type = cpl.ui.Frame.FrameType.TABLE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description = "Table of pinhole locations"
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PINHOLE_TABLE'
@@ -66,14 +71,18 @@ class AtmProfile(DataItem):
     _name = r'ATM_PROFILE'
     _title = "atmosphere profile"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description = ("Atmospheric profile containing height information on temperature, "
-                         "pressure and molecular abundances")
+                    "pressure and molecular abundances")
 
 
 class LsfKernel(DataItem):
     _name = r'LSF_KERNEL'
     _title = "line spread function kernel"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.TABLE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description = "Wavelength dependent model of the LSF"
 
 
@@ -81,26 +90,19 @@ class FluxStdCatalog(DataItem):
     _name = r'FLUXSTD_CATALOG'
     _title = "catalog of standard stars"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.TABLE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description = "Catalog of standard stars"
     _oca_keywords = set()
 
 
-class SciCubeCalibrated(DataItem):
-    _title = "rectified spectral cube"
+class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
     _name = r'IFU_SCI_CUBE_CALIBRATED'
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-    _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
-
-
-class IfuSciCoadd(DetectorIfuMixin, DataItem):
-    _name = r'IFU_SCI_COADD'
-    _title = "IFU science coadd"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
-    _description = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures"
-                         "covering a different spatial and wavelength ranges.")
+    _title = "IFU science cube calibrated"
+    _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
@@ -120,16 +122,6 @@ class Combined(TargetSpecificMixin, DataItem, abstract=True):
     @classmethod
     def name(cls):
         return rf'IFU{cls.target():s}_COMBINED'
-
-class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
-    _name = r'IFU_SCI_CUBE_CALIBRATED'
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
-    _title = "IFU science cube calibrated"
-    _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
 
 class AtmLineCatalog(DataItem):
     _name = r'ATM_LINE_CAT'

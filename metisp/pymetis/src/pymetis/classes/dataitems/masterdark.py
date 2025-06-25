@@ -21,10 +21,12 @@ from abc import ABC
 
 import cpl
 
+from pymetis.classes.dataitems import parametrize
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
+@parametrize('MasterDark{detector}', detector=['2RG', 'GEO', 'IFU'])
 class MasterDark(DataItem, abstract=True):
     _title = r"master dark"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
@@ -37,14 +39,3 @@ class MasterDark(DataItem, abstract=True):
     def name(cls) -> str:
         return rf"MASTER_DARK_{cls.detector()}"
 
-
-class MasterDark2rg(Detector2rgMixin, MasterDark):
-    pass
-
-
-class MasterDarkGeo(DetectorGeoMixin, MasterDark):
-    pass
-
-
-class MasterDarkIfu(DetectorIfuMixin, MasterDark):
-    pass

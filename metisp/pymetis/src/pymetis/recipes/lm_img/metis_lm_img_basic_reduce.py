@@ -91,7 +91,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         But feel free to be more creative with names: it could be `MetisLmImgBasicReduceImpl.ProductBasicReduced`.
         """
         Item = LmStdBasicReduced
-        level = cpl.ui.Frame.FrameLevel.FINAL
 
         def __init__(self,
                      recipe_impl: 'MetisRecipeImpl',

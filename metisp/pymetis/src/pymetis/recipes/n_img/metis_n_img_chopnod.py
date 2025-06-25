@@ -24,6 +24,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.background.background import NStdBackground
 from pymetis.classes.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.classes.dataitems.masterflat import MasterFlatGeo
 from pymetis.classes.dataitems.img.raw import NImageSciRaw, NImageStdRaw
@@ -68,7 +69,6 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         class RawInput(RawInput):
             Item = NFlatLampRaw
             _tags: re.Pattern = re.compile(r"N_IMAGE_(?P<target>SCI|STD)_RAW")
-            _description: str = "Raw exposure of a standard star in the N image mode."
 
         # Now we need a master dark frame.
         # Since nothing is changed and the tag is always the same, # we just point to the provided MasterDarkInput.
@@ -97,15 +97,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         (or fully qualified, `MetisNImgChopnodImpl.Product`).
         But feel free to be more creative with names: it could be `MetisNImgChopnodImpl.ProductBasicReduced`.
         """
-        group = cpl.ui.Frame.FrameGroup.PRODUCT
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
-        _description: str = "Science grade detrended exposure of the N image mode."
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"N_{cls.target()}_BACKGROUND"
+        Item = NStdBackground
 
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet) -> cpl.core.ImageList:

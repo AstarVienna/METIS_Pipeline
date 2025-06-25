@@ -23,8 +23,7 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterValue
 
-from pymetis.classes.dataitems.img.calibrated import NScienceCalibrated
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.img.basicreduced import NSciCalibrated, NSciRestored
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
@@ -33,14 +32,11 @@ from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 class MetisNImgRestoreImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class CalibratedInput(SinglePipelineInput):
-            Item: type[DataItem] = NScienceCalibrated
-            _tags: re.Pattern = re.compile(r'N_SCI_CALIBRATED')
+            Item = NSciCalibrated
+            _tags = re.compile(r'N_SCI_CALIBRATED')
 
     class ProductRestored(PipelineImageProduct):
-        _tag: re.Pattern = r'N_SCI_RESTORED'
-        _description: str = "N band image with a single positive beam restored from chop-nod image"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+        Item = NSciRestored
 
     def process_images(self) -> set[PipelineProduct]:
         header = self._create_dummy_header()
@@ -52,14 +48,14 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
 
 
 class MetisNImgRestore(MetisRecipe):
-    _name: str = "metis_n_img_restore"
-    _version: str = "0.1"
-    _author: str = "Martin Baláž, A*"
-    _email: str = "martin.balaz@univie.ac.at"
-    _synopsis: str = "Restore a single positive beam from chop-nod difference image."
+    _name = "metis_n_img_restore"
+    _version = "0.1"
+    _author = "Martin Baláž, A*"
+    _email = "martin.balaz@univie.ac.at"
+    _synopsis = "Restore a single positive beam from chop-nod difference image."
 
-    _matched_keywords: set[str] = {'DRS.FILTER'}
-    _algorithm: str = """Call metis_cutout_region to cut regions around beams
+    _matched_keywords = {'DRS.FILTER'}
+    _algorithm = """Call metis_cutout_region to cut regions around beams
     Add regions with appropriate signs with `hdrl_imagelist_collapse`"""
 
     parameters = ParameterList([

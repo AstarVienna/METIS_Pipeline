@@ -20,6 +20,7 @@ from abc import ABC
 
 import cpl.ui
 
+from pymetis.classes.dataitems import parametrize
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.band import BandIfuMixin
@@ -59,13 +60,12 @@ class IfuReduced(IfuBase, abstract=True):
     def name(cls):
         return rf'IFU_{cls.target():s}_REDUCED'
 
+    @classmethod
+    def description(cls) -> str:
+        return f"Reduced 2D detector image of a {cls.get_target_string()}"
 
-class IfuStdReduced(TargetStdMixin, IfuReduced):
-    _description = "Reduced 2D detector image of a standard star."
 
-
-class IfuSciReduced(TargetSciMixin, IfuReduced):
-    _description = "Reduced 2D detector image of a science object."
+parametrize("Ifu{target}Reduced", target=['STD', 'SCI'])(IfuReduced)
 
 
 class IfuReducedCube(IfuBase, abstract=True):
@@ -103,7 +103,7 @@ class IfuSciReduced1d(TargetSciMixin, IfuReduced1d):
     _description = "Spectrum of a science object."
 
 
-class IfuCombined(IfuBase, ABC):
+class IfuCombined(IfuBase, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_type = cpl.ui.Frame.FrameType.IMAGE

@@ -57,6 +57,8 @@ class PupilImagingReduced(BandSpecificMixin, DataItem, abstract=True):
         return rf'{cls.band()}_PUPIL_REDUCED'
 
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
 
     @classmethod

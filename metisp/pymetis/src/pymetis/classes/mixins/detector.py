@@ -22,7 +22,7 @@ from abc import ABC
 from pymetis.classes.mixins.base import Mixin
 
 
-class DetectorSpecificMixin(Mixin, ABC):
+class DetectorSpecificMixin(Mixin):
     _detector: str = None
 
     @classmethod

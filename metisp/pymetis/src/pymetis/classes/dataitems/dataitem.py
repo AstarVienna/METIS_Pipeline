@@ -63,7 +63,10 @@ class DataItem:
         """
         cls.__abstract = abstract
         if not abstract:
-            DataItem._registry[cls.name()] = cls
+            if cls.name() in DataItem._registry:
+                print(f"Class {cls.name()} has already been created: {cls}, {DataItem._registry[cls.name()]}")
+            else:
+                DataItem._registry[cls.name()] = cls
 
         if description is not None:
             cls._description = description

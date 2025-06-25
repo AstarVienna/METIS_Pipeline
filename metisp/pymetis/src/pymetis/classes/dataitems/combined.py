@@ -45,15 +45,3 @@ class Combined(BandSpecificMixin, DataItem, abstract=True):
 
 class LmStdCombined(BandLmMixin, Combined):
     pass
-
-
-class IfuCombined(TargetSpecificMixin, BandIfuMixin, Combined, abstract=True):
-    pass
-
-
-class IfuStdCombined(TargetStdMixin, IfuCombined):
-    pass
-
-
-class IfuSciCombined(TargetSciMixin, IfuCombined):
-    pass

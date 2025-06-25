@@ -28,8 +28,9 @@ from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorI
 
 class BasicReduced(BandLmMixin, TargetSpecificMixin, DataItem, abstract=True):
     _title: str = "basic reduced"
-    _description: str = None
     _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
     @classmethod
@@ -82,7 +83,9 @@ class LmStdCalibrated(BandLmMixin, TargetStdMixin, Calibrated):
     pass
 
 
-class LmSciCalibrated(BandLmMixin, TargetSciMixin, Calibrated):
+class LmSciCalibrated(BandLmMixin, TargetSciMixin, Calibrated,
+                      description="LM band image with flux calibration, WC coordinate system"
+                      "and distortion information"):
     pass
 
 
@@ -90,5 +93,14 @@ class NStdCalibrated(BandNMixin, TargetStdMixin, Calibrated):
     pass
 
 
-class NSciCalibrated(BandNMixin, TargetSciMixin, Calibrated):
+class NSciCalibrated(BandNMixin, TargetSciMixin, Calibrated,
+                     description="N band image with flux calibration and distortion information"):
     pass
+
+
+class NSciRestored(BandNMixin, DataItem,
+                       description="N band image with a single positive beam restored from chop-nod image"):
+    _name = r'N_SCI_RESTORED'
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE

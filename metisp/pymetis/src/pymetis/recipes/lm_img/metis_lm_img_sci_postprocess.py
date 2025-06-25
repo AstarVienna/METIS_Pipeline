@@ -35,7 +35,6 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             _tags: re.Pattern = re.compile(r"LM_SCI_CALIBRATED")
-            _description: str = "LM band image with flux calibration, WC coordinate system and distorion information"
 
     class ProductLmImgSciCoadd(PipelineImageProduct):
         Item = LmSciCoadd
