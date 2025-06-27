@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import inspect
+import re
 from typing import Any, Optional, Generator, final, Literal
 
 import cpl
@@ -53,6 +54,9 @@ class DataItem:
 
     _oca_keywords: set[str] = set()
 
+    # [Hacky] A regex to match the tag (mostly to make sure we are not instantiating a partially specialized class)
+    __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
+
     def __init_subclass__(cls,
                           *,
                           abstract: bool = False,
@@ -63,11 +67,17 @@ class DataItem:
         Classes marked as abstract are not registered and should never be instantiated.
         """
         cls.__abstract = abstract
+
         if not abstract:
+            assert cls.__regex_pattern.match(cls.name()) is not None, \
+                (f"Trying to register {cls.__name__} ({cls.name()}) which is not fully specialized "
+                 f"(did you mean to set `abstract=True` in the class declaration?)")
+
             if cls.name() in DataItem._registry:
-                print(f"Class {cls.name()} has already been created: {cls}, {DataItem._registry[cls.name()]}")
+                Msg.warning(cls.__qualname__,
+                            f"Class {cls.name()} has already been created: {DataItem._registry[cls.name()]}")
             else:
-                print(f"Registered class {cls.name()}: {cls}")
+                Msg.debug(cls.__qualname__, f"Registered class {cls.name()}: {cls}")
                 DataItem._registry[cls.name()] = cls
 
         if description is not None:

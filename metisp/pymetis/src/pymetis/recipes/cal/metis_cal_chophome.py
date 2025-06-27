@@ -25,7 +25,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
 from pymetis.classes.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
 from pymetis.classes.dataitems.gainmap import GainMap2rg
-from pymetis.classes.dataitems.linearity.linearity import Linearity2rg
+from pymetis.classes.dataitems.linearity.linearity import LinearityMap2rg
 from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadpixMapInput,
@@ -50,7 +50,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             Item = GainMap2rg
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
-            Item = Linearity2rg
+            Item = LinearityMap2rg
             pass
 
         PersistenceMapInput = PersistenceMapInput

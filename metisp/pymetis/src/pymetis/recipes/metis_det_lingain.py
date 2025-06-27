@@ -26,9 +26,8 @@ import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems.badpixmap import BadPixMap, BadPixMap2rg, BadPixMapGeo, BadPixMapIfu
-from pymetis.classes.dataitems.common import LinearityMap
 from pymetis.classes.dataitems.gainmap import GainMap, GainMap2rg, GainMapGeo, GainMapIfu
-from pymetis.classes.dataitems.linearity.linearity import Linearity2rg, LinearityGeo, LinearityIfu
+from pymetis.classes.dataitems.linearity.linearity import LinearityMap, LinearityMap2rg, LinearityMapGeo, LinearityMapIfu
 from pymetis.classes.dataitems.linearity.raw import Linearity2rgRaw, LinearityRaw, LinearityGeoRaw, LinearityIfuRaw
 from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
@@ -107,7 +106,7 @@ class Metis2rgLinGainImpl(MetisDetLinGainImpl):
         Item = GainMap2rg
 
     class ProductLinearity(Detector2rgMixin, MetisDetLinGainImpl.ProductLinearity):
-        Item = Linearity2rg
+        Item = LinearityMap2rg
 
     class ProductBadpixMap(Detector2rgMixin, MetisDetLinGainImpl.ProductBadpixMap):
         Item = BadPixMap2rg
@@ -122,7 +121,7 @@ class MetisGeoLinGainImpl(MetisDetLinGainImpl):
         Item = GainMapGeo
 
     class ProductLinearity(DetectorGeoMixin, MetisDetLinGainImpl.ProductLinearity):
-        Item = LinearityGeo
+        Item = LinearityMapGeo
 
     class ProductBadpixMap(DetectorGeoMixin, MetisDetLinGainImpl.ProductBadpixMap):
         Item = BadPixMapGeo
@@ -137,7 +136,7 @@ class MetisIfuLinGainImpl(MetisDetLinGainImpl):
         Item = GainMapIfu
 
     class ProductLinearity(DetectorIfuMixin, MetisDetLinGainImpl.ProductLinearity):
-        Item = LinearityIfu
+        Item = LinearityMapIfu
 
     class ProductBadpixMap(DetectorIfuMixin, MetisDetLinGainImpl.ProductBadpixMap):
         Item = BadPixMapIfu

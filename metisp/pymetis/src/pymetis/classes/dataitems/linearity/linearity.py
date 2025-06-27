@@ -19,12 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import parametrize
-from pymetis.classes.dataitems.dataitem import DataItem, ImageDataItem
+from pymetis.classes.dataitems.dataitem import ImageDataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class Linearity(ImageDataItem, abstract=True):
+class LinearityMap(ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
@@ -43,13 +42,13 @@ class Linearity(ImageDataItem, abstract=True):
 
 
 
-class Linearity2rg(Detector2rgMixin, Linearity):
+class LinearityMap2rg(Detector2rgMixin, LinearityMap):
     pass
 
 
-class LinearityGeo(DetectorGeoMixin, Linearity):
+class LinearityMapGeo(DetectorGeoMixin, LinearityMap):
     pass
 
 
-class LinearityIfu(DetectorIfuMixin, Linearity):
+class LinearityMapIfu(DetectorIfuMixin, LinearityMap):
     pass

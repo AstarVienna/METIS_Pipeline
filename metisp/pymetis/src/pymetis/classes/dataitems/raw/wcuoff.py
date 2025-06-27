@@ -18,11 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems.raw import Raw
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin
-from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class WcuOffRaw(BandSpecificMixin, Raw):
+class WcuOffRaw(BandSpecificMixin, Raw, abstract=True):
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
 
     @classmethod

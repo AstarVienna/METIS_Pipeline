@@ -223,7 +223,7 @@ class PipelineProduct(ABC):
         Generate a description line for 'pyesorex --man-page'.
         """
         assert cls.item() is not None, f"{cls} has no item"
-        return (f"    {name}\n      {'a'}{cls.item().description() or '<no description defined>'}"
+        return (f"    {name}\n      {cls.item().description() or '<no description defined>'}"
                 f"\n{' ' * 84}"
                 f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
 

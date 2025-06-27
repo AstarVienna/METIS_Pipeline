@@ -36,19 +36,9 @@ class PersistenceMap(DataItem):
     _pro_catg = r'PERSISTENCE_MAP'
 
 
-class LinearityMap(DataItem):
-    _title = "linearity map"
-    _name = "LINEARITY_MAP"
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description = "Coefficients for the pixel non-linearity correction."
-    _oca_keywords = {'PRO.CATG'}
-
-
 class FluxCalTable(DataItem):
     _title = "flux table"
-    _name = "FLUXCAL_TABLE"
+    _name = "FLUXCAL_TAB"
     _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -106,7 +96,6 @@ class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
-
 class Combined(TargetSpecificMixin, DataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _title = "spectral cube of science object"
@@ -114,7 +103,8 @@ class Combined(TargetSpecificMixin, DataItem, abstract=True):
 
     @classmethod
     def name(cls):
-        return rf'IFU{cls.target():s}_COMBINED'
+        return rf'IFU_{cls.target():s}_COMBINED'
+
 
 class AtmLineCatalog(DataItem):
     _name = r'ATM_LINE_CAT'

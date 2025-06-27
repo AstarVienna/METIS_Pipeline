@@ -29,8 +29,8 @@ from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 
 from ..dataitems.dataitem import DataItem
-from ..dataitems.common import (PersistenceMap, LinearityMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel,
-                                FluxStdCatalog)
+from ..dataitems.common import PersistenceMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel, FluxStdCatalog
+from ..dataitems.linearity.linearity import LinearityMap
 from ..dataitems.raw import Raw
 from ..dataitems.badpixmap import BadPixMap
 from pymetis.classes.dataitems.distortion.table import DistortionTable

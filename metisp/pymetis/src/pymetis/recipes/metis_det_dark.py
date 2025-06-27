@@ -79,9 +79,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     class ProductMasterDark(PipelineImageProduct):
         Item = MasterDark
 
-    class MasterDark(MasterDark):
-        pass
-
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
     # See the documentation of the parent's `process_images` function for more details.

@@ -28,7 +28,7 @@ from astropy.table import QTable
 
 from pymetis.classes.dataitems.badpixmap import BadPixMapIfu
 from pymetis.classes.dataitems.gainmap import GainMapIfu
-from pymetis.classes.dataitems.linearity.linearity import LinearityIfu
+from pymetis.classes.dataitems.linearity.linearity import LinearityMapIfu
 from pymetis.classes.dataitems.masterdark.masterdark import MasterDarkIfu
 from pymetis.classes.dataitems.masterflat import MasterFlatIfu
 from pymetis.classes.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
@@ -62,7 +62,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
-            Item = LinearityIfu
+            Item = LinearityMapIfu
             _tags: re.Pattern = re.compile(r"LINEARITY_IFU")
 
         class RsrfWcuOffInput(RawInput):
