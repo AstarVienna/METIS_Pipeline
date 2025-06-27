@@ -2,7 +2,10 @@
 #
 # Auhor: W. Kausch / University of Innsbruck
 #
-# Version: see Changelog
+# Version: V0.1 (Skeleton level)
+#
+#   TODO: Next steps: Implement telluric correction branches
+#
 #
 
 """METIS LSS LM-Band workflow"""
@@ -124,6 +127,7 @@ sci_reduction_task = (task('metis_lm_lss_sci')
             .with_meta_targets([SCIENCE])
             .build())
 
+# TODO: Implement the different telluric corr branches
 # If the parameter "molecfit"="standard", then the atmospheric transmission is computed on the spectrum
 # of the standard star. This is done in the subworkflow telluric_on_standard.
 # transmission_from_standard = telluric_on_standard(std_reduction_task, sci_reduction_task)

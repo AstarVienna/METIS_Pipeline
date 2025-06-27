@@ -2,7 +2,10 @@
 #
 # Auhor: W. Kausch / University of Innsbruck
 #
-# Version: see Changelog
+# Version: V0.1 (Skeleton level)
+#
+#   TODO: Next steps: Implement telluric correction branches
+#
 #
 
 """METIS LSS N-Band workflow"""
@@ -67,19 +70,6 @@ trace_finding_task = (task("metis_n_lss_trace")
             .with_meta_targets([QC1_CALIB])
             .build())
 
-# wavelength_calibration_task = (task("metis_n_lss_wave")
-#             .with_recipe("metis_n_lss_wave")
-#             .with_main_input(n_raw_wave)
-#             .with_associated_input(n_wcu_off_raw)
-#             .with_associated_input(static_persistence_map, min_ret=0)
-#             .with_associated_input(static_laser_tab)
-#             .with_associated_input(dark_task)
-#             .with_associated_input(linearity_task)
-#             .with_associated_input(flatfield_task)
-#             .with_associated_input(trace_finding_task)
-#             .with_meta_targets([QC1_CALIB])
-#             .build())
-
 std_reduction_task = (task('metis_n_lss_std')
             .with_main_input(n_raw_std)
             # .with_associated_input(linearity_task)
@@ -124,6 +114,7 @@ sci_reduction_task = (task('metis_n_lss_sci')
             .with_meta_targets([SCIENCE])
             .build())
 
+# TODO: Implement the different telluric corr branches
 # If the parameter "molecfit"="standard", then the atmospheric transmission is computed on the spectrum
 # of the standard star. This is done in the subworkflow telluric_on_standard.
 # transmission_from_standard = telluric_on_standard(std_reduction_task, sci_reduction_task)
