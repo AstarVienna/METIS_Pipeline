@@ -75,6 +75,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
             pass
 
 
+    # ToDo Remove this
     class ProductMasterDark(PipelineImageProduct):
         Item = MasterDark
 

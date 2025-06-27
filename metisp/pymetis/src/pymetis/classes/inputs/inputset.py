@@ -126,17 +126,16 @@ class PipelineInputSet(metaclass=ABCMeta):
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}{len(self.inputs)} inputs:")
-        Msg.debug(self.__class__.__qualname__, str(self.inputs))
 
         for inp in self.inputs:
-            inp.print_debug(offset=offset + 4)
+            Msg.debug(self.__class__.__qualname__, f"   {inp.Item.__qualname__}")
 
     def as_dict(self) -> dict[str, Any]:
         """
         Return a dict representation of the input patterns.
         """
         return {
-            inp.tags().pattern: inp.as_dict()
+            inp.Item.name: inp.as_dict()
             for inp in self.inputs
         }
 

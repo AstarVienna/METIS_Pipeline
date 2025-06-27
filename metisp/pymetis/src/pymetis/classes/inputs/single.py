@@ -40,6 +40,7 @@ class SinglePipelineInput(PipelineInput):
         super().__init__(frameset)
 
     def load(self, frameset: cpl.ui.FrameSet):
+        Msg.debug(self.__class__.__qualname__, f"Loading {frameset}")
         if len(frameset) > 1:
             Msg.warning(self.__class__.__name__,
                         f"Expected {self._multiplicity} frames, but found {len(frameset)}!")
@@ -48,6 +49,10 @@ class SinglePipelineInput(PipelineInput):
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
 
+        Msg.debug(self.__class__.__qualname__, f"{self.Item.frame_group()} {self.Item.frame_level()} {self.Item.frame_type()}")
+        self.frame.group = self.Item.frame_group()
+        self.frame.level = self.Item.frame_level()
+        self.frame.type = self.Item.frame_type()
 
     def validate(self):
         """
@@ -68,7 +73,7 @@ class SinglePipelineInput(PipelineInput):
             if self.required():
                 raise cpl.core.DataNotFoundError(
                     f"{self.__class__.__qualname__}: no {self.title()} frame "
-                    f"({self.tags().pattern}) found in the frameset.")
+                    f"({self.Item.name()}) found in the frameset.")
             else:
                 Msg.debug(self.__class__.__qualname__,
                           f"No {self.title()} frame found, but not required.")

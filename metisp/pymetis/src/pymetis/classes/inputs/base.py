@@ -43,7 +43,7 @@ class PipelineInput:
     _required: bool = True                  # By default, inputs are required to be present
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
 
-    _multiplicity: str = '<undefined>'      # Multiplicity of the input, '1' or 'N'
+    _multiplicity: str = None               # Multiplicity of the input, '1' or 'N'
 
     @staticmethod
     def preprocess_frameset(frameset: cpl.ui.FrameSet) -> dict[str, cpl.ui.FrameSet]:
@@ -97,6 +97,7 @@ class PipelineInput:
                 if cls == self.Item:
                     Msg.debug(self.__class__.__name__,
                               f"Found a specialized class {cls.__qualname__} for {tag}, instantiating directly")
+                    self.load(frames)
                 elif cls in self.Item.__subclasses__():
                     Msg.debug(self.__class__.__name__,
                               f"Found a specialized class {cls.__qualname__} for {tag}, "
@@ -108,7 +109,6 @@ class PipelineInput:
                               f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
                     continue
 
-        # A list of matched groups from `tags`. Acquisition differs
         # between Single and Multiple, so we just declare it here.
         self.tag_parameters: dict[str, str] = {}
 
@@ -123,6 +123,8 @@ class PipelineInput:
         """
         Print a short description of the tags with a small offset (n spaces).
         """
+        Msg.debug(self.__class__.__qualname__,
+                  str(self.item()))
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -134,7 +136,7 @@ class PipelineInput:
     @final
     def _description_line(cls, name: str = None) -> str:
         """ Produce a description line for man page. """
-        return (f"    {cls._pretty_tags():<60} [{cls._multiplicity}]"
+        return (f"    {cls.Item.name():<60} [{cls._multiplicity}]"
                 f"{' (optional)' if not cls._required else '           '} "
                 f"{cls.Item.description()}\n{' ' * 84}")
 

@@ -42,6 +42,7 @@ class DataItem:
     # CPL frame group and level
     _frame_group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _frame_level: cpl.ui.Frame.FrameLevel = None  # No sensible default; must be provided explicitly
+    _frame_type: cpl.ui.Frame.FrameType = None
     # Associated detector (maybe this does not make much sense here and should be removed)
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
     # Associated band
