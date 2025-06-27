@@ -63,6 +63,26 @@ class PipelineInput:
             for tag, frames in result.items()
         }
 
+    def load(self, frameset: cpl.ui.FrameSet) -> None:
+        """
+        Load the associated frames
+        """
+        self.load_inner(frameset)
+        self.set_cpl_attributes()
+
+    @abstractmethod
+    def load_inner(self, frameset: cpl.ui.FrameSet) -> None:
+        """
+        Actually load the associated frames. Implementation differs between derived classes.
+        """
+        pass
+
+    @abstractmethod
+    def set_cpl_attributes(self):
+        """
+        Set CPL attributes of loaded frames. ToDO: is this really necessary?
+        """
+
     @classmethod
     def item(cls) -> type[DataItem]:
         return cls.Item
@@ -144,8 +164,8 @@ class PipelineInput:
     @final
     def _extended_description_line(cls, name: str = None) -> str:
         """ Produce ae extended description line for man page. """
-        assert cls.Item is not None, f"{cls.__class__.__qualname__} has no item"
-        assert cls.Item.description() is not None, f"{cls.__class__.__qualname__} has no item"
+        assert cls.Item is not None, f"{cls.__qualname__} has no item"
+        assert cls.Item.description() is not None, f"{cls.__qualname__} has no description defined"
 
         return (f"      {name:<24}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
                 f"          {cls.Item.description()}")

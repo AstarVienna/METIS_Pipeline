@@ -23,7 +23,6 @@ import cpl
 
 from cpl.core import Msg
 
-from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.base import PipelineInput
 
 
@@ -39,7 +38,7 @@ class SinglePipelineInput(PipelineInput):
         self.frame: cpl.ui.Frame | None = None
         super().__init__(frameset)
 
-    def load(self, frameset: cpl.ui.FrameSet):
+    def load_inner(self, frameset: cpl.ui.FrameSet):
         Msg.debug(self.__class__.__qualname__, f"Loading {frameset}")
         if len(frameset) > 1:
             Msg.warning(self.__class__.__name__,
@@ -49,10 +48,12 @@ class SinglePipelineInput(PipelineInput):
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
 
-        Msg.debug(self.__class__.__qualname__, f"{self.Item.frame_group()} {self.Item.frame_level()} {self.Item.frame_type()}")
+    def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()
         self.frame.level = self.Item.frame_level()
         self.frame.type = self.Item.frame_type()
+        Msg.debug(self.__class__.__qualname__,
+                  f"Set CPL attributes: {self.Item.frame_group()} {self.Item.frame_level()} {self.Item.frame_type()}")
 
     def validate(self):
         """

@@ -67,12 +67,16 @@ class LmSkyBasicReduced(TargetSciMixin, BasicReduced):
 class Calibrated(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     @classmethod
     def name(cls):
         return rf'{cls.band()}_{cls.target()}_CALIBRATED'
+
+    @classmethod
+    def title(cls):
+        return f"{cls.band()} {cls.get_target_string()} calibrated"
 
     @classmethod
     def description(cls):
@@ -99,8 +103,9 @@ class NSciCalibrated(BandNMixin, TargetSciMixin, Calibrated,
 
 
 class NSciRestored(BandNMixin, DataItem,
-                       description="N band image with a single positive beam restored from chop-nod image"):
+                   description="N band image with a single positive beam restored from chop-nod image"):
     _name = r'N_SCI_RESTORED'
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}

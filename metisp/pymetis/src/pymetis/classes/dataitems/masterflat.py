@@ -21,7 +21,7 @@ import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
-    TargetSpecificMixin
+    TargetSpecificMixin, BandLmMixin, TargetLampMixin, BandNMixin
 
 
 class MasterFlat(DataItem, abstract=True):
@@ -65,3 +65,11 @@ class MasterImgFlat(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=T
     @classmethod
     def description(cls):
         return f"Master flat frame for {cls.band()} data"
+
+
+class MasterImgFlatLampLm(BandLmMixin, TargetLampMixin, MasterImgFlat):
+    pass
+
+
+class MasterImgFlatLampN(BandNMixin, TargetLampMixin, MasterImgFlat):
+    pass

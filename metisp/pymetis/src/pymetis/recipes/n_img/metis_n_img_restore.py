@@ -17,10 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
-import cpl
-
 from pyesorex.parameter import ParameterList, ParameterValue
 
 from pymetis.classes.dataitems.img.basicreduced import NSciCalibrated, NSciRestored
@@ -33,7 +29,6 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class CalibratedInput(SinglePipelineInput):
             Item = NSciCalibrated
-            _tags = re.compile(r'N_SCI_CALIBRATED')
 
     class ProductRestored(PipelineImageProduct):
         Item = NSciRestored
@@ -41,7 +36,6 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
     def process_images(self) -> set[PipelineProduct]:
         header = self._create_dummy_header()
         image = self._create_dummy_image()
-
         product = self.ProductRestored(self, header, image)
 
         return {product}    # ToDo is just a dummy for now

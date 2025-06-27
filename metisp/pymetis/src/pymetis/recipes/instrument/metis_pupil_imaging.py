@@ -32,7 +32,7 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo
-from pymetis.classes.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo
+from pymetis.classes.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterImgFlat
 from pymetis.classes.dataitems.pupil import PupilRaw, LmPupilRaw, NPupilRaw
 from pymetis.classes.dataitems.pupil.pupil import PupilImagingReduced, NPupilImagingReduced, LmPupilImagingReduced
 from pymetis.classes.mixins.band import BandLmMixin, BandNMixin
@@ -55,13 +55,13 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         class RawInput(RawInput):
             Item = PupilRaw
-            _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_PUPIL_RAW")
 
         MasterDarkInput = MasterDarkInput
 
         # Also, one master flat is required. We use a prefabricated class
         class MasterFlatInput(MasterFlatInput):
-            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<target>LAMP|TWILIGHT)_(?P<band>LM|N)")
+            Item = MasterImgFlat
+
 
     class ProductReduced(PipelineImageProduct):
         """

@@ -37,10 +37,14 @@ class MultiplePipelineInput(PipelineInput):
         self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
         super().__init__(frameset)
 
-    def load(self, frameset: cpl.ui.FrameSet):
+    def load_inner(self, frameset: cpl.ui.FrameSet):
+        """
+        Load the associated frames.
+        A MultiplePipelineInput just assigns all the frames to its attribute.
+        """
         self.frameset = frameset
         Msg.debug(self.__class__.__name__,
-              f"Found a {self.Item.__qualname__} frameset")
+              f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
     @classmethod
     def get_target_name(cls, frameset: cpl.ui.FrameSet):

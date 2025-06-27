@@ -22,8 +22,8 @@ import inspect
 import operator
 import re
 
-from abc import ABCMeta
-from typing import Any
+from abc import ABC
+from typing import Any, Callable, Optional
 
 import cpl
 from cpl.core import Msg
@@ -31,7 +31,7 @@ from cpl.core import Msg
 from pymetis.classes.inputs.base import PipelineInput
 
 
-class PipelineInputSet(metaclass=ABCMeta):
+class PipelineInputSet(ABC):
     """
     The `PipelineInputSet` class is a utility class for a recipe dealing with the input data.
     It reads and filters the input FrameSet, categorizes the frames by their metadata,
@@ -47,6 +47,7 @@ class PipelineInputSet(metaclass=ABCMeta):
     """
 
     detector: str = NotImplemented
+    band: str = NotImplemented
 
     def __init__(self, frameset: cpl.ui.FrameSet):
         """
@@ -93,6 +94,7 @@ class PipelineInputSet(metaclass=ABCMeta):
             inp.validate()
 
         self.validate_detectors()
+        self.validate_bands()
         self.tag_parameters = functools.reduce(operator.or_, [inp.tag_parameters for inp in self.inputs], {})
 
         # For every parsed tag parameter, set the corresponding attribute
@@ -100,28 +102,46 @@ class PipelineInputSet(metaclass=ABCMeta):
             Msg.info(self.__class__.__qualname__, f"Setting PipelineInputSet tag parameter '{key}' = '{value}'")
             self.__setattr__(key, value)
 
+    def _validate_attr(self, func: Callable, attr: str = '<undefined attribute>') -> Optional[str]:
+        """
+        Helper method: validate the input attribute (detector, band or target).
+
+        Return
+            None if the attribute cannot be identified (this might not be an error if it is not defined).
+            The value, if the attribute only attains the same value everywhere.
+        Raise
+            ValueError if the attribute has multiple different values.
+        """
+        Msg.debug(self.__class__.__qualname__, f"--- Validating the {attr} parameters ---")
+        total = list(set([func(inp) for inp in self.inputs]) - {None})
+
+        for inp in self.inputs:
+            value = func(inp)
+            det = "---" if value is None else value
+            Msg.debug(self.__class__.__qualname__,
+                      f"{attr} in {inp.__class__.__qualname__:<50} {det}")
+
+        if (count := len(total)) == 0:
+            Msg.debug(self.__class__.__qualname__,
+                      f"No {attr} could be identified from the SOF")
+            return None
+        elif count == 1:
+            result = total[0]
+            Msg.debug(self.__class__.__qualname__,
+                      f"Correctly identified {attr} from the SOF: {result}")
+            return result
+        else:
+            raise ValueError(f"Data from more than one {attr} found in inputset: {total}!")
+
     def validate_detectors(self) -> None:
         """
         Verify that the provided SOF only contains frames from a single detector.
         Some Inputs may return `None` if they are not specific to a detector.
         """
-        Msg.debug(self.__class__.__qualname__, "--- Validating the detector parameters ---")
-        detectors = list(set([inp.Item.detector() for inp in self.inputs]) - {None})
+        self.detector = self._validate_attr(lambda x: x.Item.detector(), 'detector')
 
-        for inp in self.inputs:
-            det = "---" if inp.Item.detector() is None else inp.Item.detector()
-            Msg.debug(self.__class__.__qualname__,
-                      f"Detector in {inp.__class__.__qualname__:<50} {det}")
-
-        if (detector_count := len(detectors)) == 0:
-            Msg.debug(self.__class__.__qualname__,
-                      "No detector could be identified from the SOF")
-        elif detector_count == 1:
-            self.detector = detectors[0]
-            Msg.debug(self.__class__.__qualname__,
-                      f"Detector correctly identified from the SOF: {self.detector}")
-        else:
-            raise ValueError(f"Data from more than one detector found in inputset: {detectors}!")
+    def validate_bands(self) -> None:
+        self.band = self._validate_attr(lambda x: x.Item.band(), 'band')
 
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")
@@ -135,7 +155,7 @@ class PipelineInputSet(metaclass=ABCMeta):
         Return a dict representation of the input patterns.
         """
         return {
-            inp.Item.name: inp.as_dict()
+            inp.Item.name(): inp.as_dict()
             for inp in self.inputs
         }
 

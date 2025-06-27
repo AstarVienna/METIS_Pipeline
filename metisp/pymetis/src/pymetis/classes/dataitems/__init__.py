@@ -2,6 +2,7 @@ import itertools
 
 from cpl.core import Msg
 
+from .dataitem import TableDataItem
 from .raw import *
 from .background import *
 from .distortion import *
@@ -11,7 +12,7 @@ from .rsrf import *
 
 
 __all__ = [
-    'DataItem',
+    'DataItem', 'ImageDataItem', 'TableDataItem',
     'Raw', 'ImageRaw', 'LmImageStdRaw', 'LmImageSciRaw', 'NImageStdRaw', 'NImageSciRaw',
     'IfuSciRaw'
 ]
