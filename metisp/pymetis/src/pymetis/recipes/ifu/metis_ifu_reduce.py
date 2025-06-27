@@ -44,15 +44,11 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRaw
-            _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
 
         class RawSkyInput(RawInput):
             Item = IfuSkyRaw
-            _tags: re.Pattern = re.compile(r"IFU_SKY_RAW")
 
-        class MasterDarkInput(MasterDarkInput):
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
-
+        MasterDarkInput = MasterDarkInput
         WavecalInput = WavecalInput
 
         class DistortionTableInput(SinglePipelineInput):

@@ -39,10 +39,10 @@ from pymetis.classes.products.common import BandSpecificProduct
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _description: str = "Raw data for dark subtraction in other recipes."
+            Item = DistortionRaw
 
         class DistortionInput(SinglePipelineInput):
-            Item: type[DataItem] = DistortionRaw
+            Item = DistortionRaw
 
         PinholeTableInput = PinholeTableInput
 

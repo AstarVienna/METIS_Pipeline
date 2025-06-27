@@ -37,7 +37,6 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
             Item: type[DataItem] = LmSciBackgroundSubtracted
-            _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_SCI_BKG_SUBTRACTED")
 
         FluxcalTableInput = FluxCalTableInput
 

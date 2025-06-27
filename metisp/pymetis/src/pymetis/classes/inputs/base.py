@@ -105,8 +105,8 @@ class PipelineInput:
                     self.Item = cls
                     self.load(frames)
                 else:
-                    Msg.debug(self.__class__.__name__,
-                              f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
+                    #Msg.debug(self.__class__.__name__,
+                    #          f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
                     continue
 
         # between Single and Multiple, so we just declare it here.

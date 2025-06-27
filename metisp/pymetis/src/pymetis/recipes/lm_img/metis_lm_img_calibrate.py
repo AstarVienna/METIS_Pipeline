@@ -34,25 +34,24 @@ class MetisLmImgCalibrateImpl(MetisImgCalibrateImpl):
             pass
 
         class DistortionTableInput(BandLmMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
-            Item: type[DataItem] = LmDistortionTable
-            _tags: re.Pattern = re.compile(r"LM_DISTORTION_TABLE")
+            Item = LmDistortionTable
 
     class ProductSciCalibrated(BandLmMixin, MetisImgCalibrateImpl.ProductSciCalibrated):
         pass
 
 
 class MetisLmImgCalibrate(MetisRecipe):
-    _name: str = "metis_lm_img_calibrate"
-    _version: str = "0.1"
-    _author: str = "Chi-Hung Yan, A*"
-    _email: str = "chyan@asiaa.sinica.edu.tw"
-    _synopsis: str = "Determine optical distortion coefficients for the LM imager."
-    _description: str = (
+    _name = "metis_lm_img_calibrate"
+    _version = "0.1"
+    _author = "Chi-Hung Yan, A*"
+    _email = "chyan@asiaa.sinica.edu.tw"
+    _synopsis = "Determine optical distortion coefficients for the LM imager."
+    _description = (
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: set[str] = {'DRS.FILTER'}
-    _algorithm: str = """Call metis_lm_scale_image_flux to scale image data to photon / s
+    _matched_keywords = {'DRS.FILTER'}
+    _algorithm = """Call metis_lm_scale_image_flux to scale image data to photon / s
     Add header information (BUNIT, WCS, etc.)"""
 
     parameters = ParameterList([
