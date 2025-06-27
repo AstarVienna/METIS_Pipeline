@@ -24,9 +24,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.distortion.map import LmDistortionMap
-from pymetis.classes.dataitems.distortion.reduced import LmDistortionReduced
-from pymetis.classes.dataitems.distortion.table import LmDistortionTable
+from pymetis.classes.dataitems.distortion import LmDistortionMap, LmDistortionReduced, LmDistortionTable
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct
@@ -36,10 +34,10 @@ from pymetis.classes.prefab import MetisBaseImgDistortionImpl
 class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
     class InputSet(MetisBaseImgDistortionImpl.InputSet):
         class RawInput(MetisBaseImgDistortionImpl.InputSet.RawInput):
-            _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
+            pass
 
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
-            _tags: re.Pattern = re.compile(r"LM_DISTORTION_RAW")
+            pass
 
     class ProductDistortionTable(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionTable):
         Item = LmDistortionTable

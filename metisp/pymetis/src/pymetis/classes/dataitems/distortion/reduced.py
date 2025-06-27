@@ -19,14 +19,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl.ui
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.dataitems.dataitem import TableDataItem
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionReduced(BandSpecificMixin, DataItem, abstract=True):
+class DistortionReduced(BandSpecificMixin, TableDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _oca_keywords = {'PRO.CATG'}
 
     @classmethod
     def name(cls) -> str:
@@ -44,8 +45,12 @@ class DistortionReduced(BandSpecificMixin, DataItem, abstract=True):
 
 
 class LmDistortionReduced(BandLmMixin, DistortionReduced):
-    pass
+    _oca_keywords = DistortionReduced._oca_keywords | {'DRS.FILTER'}
 
 
 class NDistortionReduced(BandNMixin, DistortionReduced):
-    pass
+    _oca_keywords = DistortionReduced._oca_keywords | {'DRS.FILTER'}
+
+
+class IfuDistortionReduced(BandIfuMixin, DistortionReduced):
+    _oca_keywords = DistortionReduced._oca_keywords | {'DRS.IFU'}

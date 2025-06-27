@@ -22,8 +22,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.distortion.raw import IfuDistortionRaw
-from pymetis.classes.dataitems.distortion.table import IfuDistortionTable, IfuDistortionReduced
+from pymetis.classes.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 from pymetis.classes.inputs import RawInput, MasterDarkInput

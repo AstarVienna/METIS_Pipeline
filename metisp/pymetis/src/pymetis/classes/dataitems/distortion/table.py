@@ -54,13 +54,3 @@ class NDistortionTable(BandNMixin, DistortionTable):
 
 class IfuDistortionTable(BandIfuMixin, DistortionTable):
     pass
-
-
-class IfuDistortionReduced(BandIfuMixin, DataItem):
-    _name = r'IFU_DIST_REDUCED'
-    _title = "IFU distortion reduced"
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_type = cpl.ui.Frame.FrameType.TABLE
-    _description = "Table of polynomial coefficients for distortion correction"
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}

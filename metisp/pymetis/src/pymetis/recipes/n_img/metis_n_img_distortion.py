@@ -24,7 +24,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems import NDistortionMap, NDistortionReduced, NDistortionTable
 from pymetis.classes.dataitems.distortion.raw import NDistortionRaw
 from pymetis.classes.dataitems.raw.wcuoff import NWcuOffRaw
 from pymetis.classes.mixins.band import BandNMixin
@@ -37,20 +37,19 @@ class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
     class InputSet(MetisBaseImgDistortionImpl.InputSet):
         class RawInput(MetisBaseImgDistortionImpl.InputSet.RawInput):
             Item = NWcuOffRaw
-            _tags = re.compile(r"N_WCU_OFF_RAW")
 
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
             Item = NDistortionRaw
             _tags = re.compile(r"N_DISTORTION_RAW")
 
     class ProductDistortionTable(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionTable):
-        pass
+        Item = NDistortionTable
 
     class ProductDistortionMap(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionMap):
-        pass
+        Item = NDistortionMap
 
     class ProductDistortionReduced(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionReduced):
-        pass
+        Item = NDistortionReduced
 
     def process_images(self) -> set[PipelineProduct]:
         raw_images = cpl.core.ImageList()

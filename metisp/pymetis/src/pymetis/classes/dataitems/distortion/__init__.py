@@ -16,3 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
+from .raw import DistortionRaw, LmDistortionRaw, NDistortionRaw, IfuDistortionRaw
+from .table import DistortionTable, LmDistortionTable, NDistortionTable, IfuDistortionTable
+from .map import DistortionMap, LmDistortionMap, NDistortionMap
+from .reduced import DistortionReduced, LmDistortionReduced, NDistortionReduced, IfuDistortionReduced
+
+
+__all__ = [
+    'DistortionRaw', 'LmDistortionRaw', 'NDistortionRaw', 'IfuDistortionRaw',
+    'DistortionTable', 'LmDistortionTable', 'NDistortionTable', 'IfuDistortionTable',
+    'DistortionMap', 'LmDistortionMap', 'NDistortionMap',
+    'DistortionReduced', 'LmDistortionReduced', 'NDistortionReduced', 'IfuDistortionReduced',
+]

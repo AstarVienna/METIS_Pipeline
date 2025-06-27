@@ -27,6 +27,7 @@ from pymetis.classes.dataitems.distortion.map import DistortionMap
 from pymetis.classes.dataitems.distortion.raw import DistortionRaw
 from pymetis.classes.dataitems.distortion.reduced import DistortionReduced
 from pymetis.classes.dataitems.distortion.table import DistortionTable
+from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput
@@ -39,7 +40,7 @@ from pymetis.classes.products.common import BandSpecificProduct
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = DistortionRaw
+            Item = WcuOffRaw
 
         class DistortionInput(SinglePipelineInput):
             Item = DistortionRaw
