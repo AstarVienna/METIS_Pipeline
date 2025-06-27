@@ -28,7 +28,7 @@ from pymetis.classes.dataitems.background.background import NStdBackground
 from pymetis.classes.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.classes.dataitems.masterflat import MasterFlatGeo
 from pymetis.classes.dataitems.img.raw import NImageSciRaw, NImageStdRaw
-from pymetis.classes.dataitems.raw.flat import NFlatLampRaw
+from pymetis.classes.dataitems.masterflat.raw import NFlatLampRaw
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct, TargetSpecificProduct

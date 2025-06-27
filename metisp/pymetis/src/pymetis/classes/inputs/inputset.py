@@ -29,6 +29,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.inputs.base import PipelineInput
+from pymetis.classes.mixins import TargetSpecificMixin, SourceSpecificMixin
 
 
 class PipelineInputSet(ABC):
@@ -56,7 +57,6 @@ class PipelineInputSet(ABC):
             This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
         """
         self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
-        self.tag_parameters: dict[str, str] = {}        # A dict of all tunable parameters determined from tags
         self.frameset: cpl.ui.FrameSet = frameset
 
         # Regex: remove final "Input" from the name of the class...
@@ -95,12 +95,8 @@ class PipelineInputSet(ABC):
 
         self.validate_detectors()
         self.validate_bands()
-        self.tag_parameters = functools.reduce(operator.or_, [inp.tag_parameters for inp in self.inputs], {})
-
-        # For every parsed tag parameter, set the corresponding attribute
-        for key, value in self.tag_parameters.items():
-            Msg.info(self.__class__.__qualname__, f"Setting PipelineInputSet tag parameter '{key}' = '{value}'")
-            self.__setattr__(key, value)
+        self.validate_targets()
+        self.validate_sources()
 
     def _validate_attr(self, func: Callable, attr: str = '<undefined attribute>') -> Optional[str]:
         """
@@ -141,14 +137,20 @@ class PipelineInputSet(ABC):
         self.detector = self._validate_attr(lambda x: x.Item.detector(), 'detector')
 
     def validate_bands(self) -> None:
-        self.band = self._validate_attr(lambda x: x.Item.band(), 'band')
+        self.band = self._validate_attr(lambda x: x.Item.band() if issubclass(x.Item, SourceSpecificMixin) else None, 'band')
+
+    def validate_targets(self) -> None:
+        self.target = self._validate_attr(lambda x: x.Item.target() if issubclass(x.Item, TargetSpecificMixin) else None, 'target')
+
+    def validate_sources(self) -> None:
+        self.source = self._validate_attr(lambda x: x.Item.source() if issubclass(x.Item, SourceSpecificMixin) else None, 'source')
 
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}{len(self.inputs)} inputs:")
 
         for inp in self.inputs:
-            Msg.debug(self.__class__.__qualname__, f"   {inp.Item.__qualname__}")
+            Msg.debug(self.__class__.__qualname__, f"   {inp.Item.__qualname__:<30s} {inp.item()}")
 
     def as_dict(self) -> dict[str, Any]:
         """

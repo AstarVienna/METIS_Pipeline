@@ -26,13 +26,13 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.img.raw import LmImageStdRaw
+from pymetis.classes.dataitems.img.raw import LmImageStdRaw, ImageRaw
 from pymetis.classes.dataitems.img.basicreduced import LmStdBasicReduced, LmSciBasicReduced, LmSkyBasicReduced
+from pymetis.classes.dataitems.masterflat import MasterImgFlat
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import (PipelineProduct, TargetSpecificProduct,
-                                      PipelineMultipleProduct)
+from pymetis.classes.products import (PipelineProduct, TargetSpecificProduct, PipelineMultipleProduct)
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -67,9 +67,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            Item = LmImageStdRaw
-            _tags: re.Pattern = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
-            _description: str = "Raw exposure of a standard star in the LM image mode."
+            Item = ImageRaw
             # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
             #    See https://github.com/AstarVienna/METIS_DRLD/issues/321
 
@@ -80,8 +78,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         # Also, one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
-            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_LM")
-            _description: str = "Master flat frame for LM image data."
+            Item = MasterImgFlat
 
     class ProductBasicReduced(TargetSpecificProduct, PipelineMultipleProduct):
         """
@@ -102,10 +99,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
                      original_file_name: str):
             super().__init__(recipe_impl, header, image=image, noise=noise, mask=mask)
             self.original_file_name: str = original_file_name
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"LM_{cls.target()}_BASIC_REDUCED"
 
         @property
         def output_file_name(self) -> str:
@@ -180,8 +173,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
                                             image.get_median(), "[ADU] stddev value of image"))
             header.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] max value of image"))
-
-            self.target = self.inputset.tag_parameters['target']
 
             product = self.ProductBasicReduced(self, header, image=image, noise=noise, mask=bmask,
                                                original_file_name=os.path.basename(frame.file))

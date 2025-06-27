@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import cpl.ui
+
 from pymetis.classes.dataitems import Raw
 from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin, BandNMixin,
                                     TargetSpecificMixin, TargetStdMixin, TargetSciMixin)
@@ -25,7 +27,7 @@ class ImageRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
     """
     Abstract intermediate class for image raws.
     """
-
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
                      "INS.OPTI9.NAME", "INS.OPTI10.NAME", "DRS.FILTER"}
 

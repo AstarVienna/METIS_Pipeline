@@ -20,37 +20,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.classes.mixins.base import Mixin
 
 
-class TargetSpecificMixin(Mixin):
+class SourceSpecificMixin(Mixin):
     """
     Mixin class for data items that need to define the `target` attribute.
 
     Hopefully it does not cause any issues with the MRO.
     """
-    _target: str = None
+    _source: str = None
 
     @classmethod
-    def target(cls) -> str:
-        return cls._target
+    def source(cls) -> str:
+        return cls._source
 
     @classmethod
-    def get_target_string(cls) -> str:
+    def get_source_string(cls) -> str:
         """
         Return a pretty formatted target string for human-oriented output.
         """
         return {
-            'SCI': 'science object',
-            'STD': 'standard star',
-            'SKY': 'sky',
-        }.get(cls.target(), cls.target())
+            'LAMP': 'lamp',
+            'TWILIGHT': 'twilight',
+        }.get(cls.source(), cls.source())
 
 
-class TargetStdMixin(TargetSpecificMixin):
-    _target: str = r'STD'
+class SourceLampMixin(SourceSpecificMixin):
+    _source: str = r'LAMP'
 
 
-class TargetSciMixin(TargetSpecificMixin):
-    _target: str = r'SCI'
-
-
-class TargetSkyMixin(TargetSpecificMixin):
-    _target: str = r'SKY'
+class SourceTwilightMixin(SourceSpecificMixin):
+    _source: str = r'TWILIGHT'

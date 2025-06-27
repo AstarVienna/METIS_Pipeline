@@ -20,9 +20,9 @@ from abc import ABC
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.raw.flat import LmFlatLampRaw, LmFlatTwilightRaw
+from pymetis.classes.dataitems.masterflat.raw import LmFlatLampRaw, LmFlatTwilightRaw
 from pymetis.classes.mixins.band import BandLmMixin
-from pymetis.classes.mixins.target import TargetTwilightMixin, TargetLampMixin
+from pymetis.classes.mixins.source import SourceTwilightMixin, SourceLampMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgFlatImpl
 
@@ -47,7 +47,7 @@ class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):
         class RawInput(MetisLmImgFlatImpl.InputSet.RawInput):
             Item = LmFlatTwilightRaw
 
-    class ProductMasterFlat(TargetTwilightMixin, MetisLmImgFlatImpl.ProductMasterFlat):
+    class ProductMasterFlat(SourceTwilightMixin, MetisLmImgFlatImpl.ProductMasterFlat):
         pass
 
 
@@ -56,7 +56,7 @@ class MetisLmImgFlatLampImpl(MetisLmImgFlatImpl):
         class RawInput(MetisLmImgFlatImpl.InputSet.RawInput):
             Item = LmFlatLampRaw
 
-    class ProductMasterFlat(TargetLampMixin, MetisLmImgFlatImpl.ProductMasterFlat):
+    class ProductMasterFlat(SourceLampMixin, MetisLmImgFlatImpl.ProductMasterFlat):
         pass
 
 

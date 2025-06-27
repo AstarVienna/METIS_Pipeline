@@ -21,10 +21,10 @@ import cpl
 
 from pymetis.classes.dataitems.raw import Raw
 from pymetis.classes.mixins.band import BandNMixin, BandLmMixin, BandSpecificMixin
-from pymetis.classes.mixins.target import TargetLampMixin, TargetTwilightMixin, TargetSpecificMixin
+from pymetis.classes.mixins.source import SourceSpecificMixin, SourceLampMixin, SourceTwilightMixin
 
 
-class FlatRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
+class FlatRaw(BandSpecificMixin, SourceSpecificMixin, Raw, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
@@ -33,25 +33,25 @@ class FlatRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
 
     @classmethod
     def name(cls):
-        return rf'{cls.band()}_FLAT_{cls.target()}_RAW'
+        return rf'{cls.band()}_FLAT_{cls.source()}_RAW'
 
     @classmethod
     def title(cls) -> str:
-        return rf'{cls.band()} flat {cls.get_target_string()} raw'
+        return rf'{cls.band()} flat {cls.get_source_string()} raw'
 
 
-class LmFlatLampRaw(BandLmMixin, TargetLampMixin, FlatRaw):
+class LmFlatLampRaw(BandLmMixin, SourceLampMixin, FlatRaw):
     pass
 
 
-class LmFlatTwilightRaw(BandLmMixin, TargetTwilightMixin, FlatRaw):
+class LmFlatTwilightRaw(BandLmMixin, SourceTwilightMixin, FlatRaw):
     pass
 
 
-class NFlatLampRaw(BandNMixin, TargetLampMixin, FlatRaw):
+class NFlatLampRaw(BandNMixin, SourceLampMixin, FlatRaw):
     pass
 
 
-class NFlatTwilightRaw(BandNMixin, TargetTwilightMixin, FlatRaw):
+class NFlatTwilightRaw(BandNMixin, SourceTwilightMixin, FlatRaw):
     pass
 

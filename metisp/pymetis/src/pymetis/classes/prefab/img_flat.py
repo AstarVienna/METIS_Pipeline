@@ -24,7 +24,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems.masterflat import MasterImgFlat
-from pymetis.classes.dataitems.raw.flat import FlatRaw
+from pymetis.classes.dataitems.masterflat.raw import FlatRaw
 from pymetis.classes.inputs import RawInput, MasterDarkInput
 
 from pymetis.classes.prefab.darkimage import DarkImageProcessor

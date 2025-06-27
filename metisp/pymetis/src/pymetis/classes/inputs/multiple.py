@@ -46,38 +46,19 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-    @classmethod
-    def get_target_name(cls, frameset: cpl.ui.FrameSet):
-        """
-        Extracts the 'target' name from the input string based on the '_tags' regex.
+    def set_cpl_attributes(self):
+        frameset = cpl.ui.FrameSet()
 
-        :return: The target name if a match is found, otherwise None.
-        """
-        for frame in frameset:
-            if match := cls._tags.match(frame.tag):
-                return match.group("target")
-            else:
-                return None
+        for frame in self.frameset:
+            frame.group = self.Item.frame_group()
+            frame.level = self.Item.frame_level()
+            frame.type = self.Item.frame_type()
 
-        return None
+            Msg.debug(self.__class__.__qualname__,
+                      f"Set CPL attributes: {self.Item.frame_group()} {self.Item.frame_level()} {self.Item.frame_type()}")
+            frameset.append(frame)
 
-    def extract_tag_parameters(self, matches: list[dict[str, str]]):
-        """Extract the tag parameters from regex matches."""
-        if len(matches) == 0:
-            return
-
-        Msg.debug(self.__class__.__qualname__, "Verifying that tag parameters are equal for all frames...")
-        # Check if all matches are created equal
-        if matches[:-1] == matches[1:]:
-            self.tag_parameters = matches[0]
-            #   self._detector = matches[0].get('detector', None)
-            Msg.debug(self.__class__.__qualname__, f"Tag parameters are equal for all frames: {self.tag_parameters}")
-        else:
-            raise ValueError(f"Tag parameters are not equal for all frames! Found {matches}")
-
-        for key, value in self.tag_parameters.items():
-            Msg.info(self.__class__.__qualname__, f"Setting tag parameter '{key}' = '{value}'")
-            self.__setattr__(key, value)
+        self.frameset = frameset
 
     def validate(self):
         self._verify_frameset_not_empty()

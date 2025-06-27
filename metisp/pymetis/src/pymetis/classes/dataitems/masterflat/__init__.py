@@ -17,18 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from .detector import (DetectorSpecificMixin,
-                       Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin)
-from .band import (BandSpecificMixin,
-                   BandLmMixin, BandNMixin, BandIfuMixin)
-from .target import (TargetSpecificMixin,
-                     TargetStdMixin, TargetSciMixin, TargetSkyMixin)
-from .source import (SourceSpecificMixin,
-                     SourceLampMixin, SourceTwilightMixin)
+from .raw import FlatRaw, LmFlatLampRaw, LmFlatTwilightRaw, NFlatLampRaw, NFlatTwilightRaw
+from .masterflat import (MasterFlat, MasterFlat2rg, MasterFlatGeo, MasterFlatIfu,
+                         MasterImgFlat, MasterImgFlatLampLm, MasterImgFlatLampN)
 
 __all__ = [
-    'DetectorSpecificMixin', 'Detector2rgMixin', 'DetectorGeoMixin', 'DetectorIfuMixin',
-    'BandSpecificMixin', 'BandLmMixin', 'BandNMixin', 'BandIfuMixin',
-    'TargetSpecificMixin', 'TargetStdMixin', 'TargetSciMixin', 'TargetSkyMixin',
-    'SourceSpecificMixin', 'SourceTwilightMixin', 'SourceLampMixin',
+    'FlatRaw', 'LmFlatLampRaw', 'LmFlatTwilightRaw', 'NFlatLampRaw', 'NFlatTwilightRaw',
+    'MasterFlat', 'MasterFlat2rg', 'MasterFlatGeo', 'MasterFlatIfu',
+    'MasterImgFlat', 'MasterImgFlatLampLm', 'MasterImgFlatLampN',
 ]

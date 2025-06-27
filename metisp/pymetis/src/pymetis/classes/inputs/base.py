@@ -107,30 +107,29 @@ class PipelineInput:
             raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined data item")
 
         for tag, frames in self.preprocess_frameset(frameset).items():
+            Msg.debug(self.__class__.__qualname__,
+                      f"Processing frame {tag}")
             cls = DataItem.find(tag)
 
             if cls is None:
-                Msg.warning(self.__class__.__name__,
+                Msg.warning(self.__class__.__qualname__,
                             f"Found a frame with tag '{tag}', which is not a registered data item. Ignoring.")
                 continue
             else:
                 if cls == self.Item:
-                    Msg.debug(self.__class__.__name__,
+                    Msg.debug(self.__class__.__qualname__,
                               f"Found a specialized class {cls.__qualname__} for {tag}, instantiating directly")
                     self.load(frames)
                 elif cls in self.Item.__subclasses__():
-                    Msg.debug(self.__class__.__name__,
+                    Msg.debug(self.__class__.__qualname__,
                               f"Found a specialized class {cls.__qualname__} for {tag}, "
                               f"subclassing this {self.Item.__qualname__} and instantiating")
                     self.Item = cls
                     self.load(frames)
                 else:
-                    #Msg.debug(self.__class__.__name__,
+                    #Msg.debug(self.__class__.__qualname__,
                     #          f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
                     continue
-
-        # between Single and Multiple, so we just declare it here.
-        self.tag_parameters: dict[str, str] = {}
 
     @abstractmethod
     def validate(self) -> None:
@@ -169,7 +168,7 @@ class PipelineInput:
 
         return (f"      {name:<24}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
                 f"          {cls.Item.description()}")
-#                f"{f'\n{' ' * 84}'.join([x.__name__ for x in set(cls.input_for_recipes())])}")
+#                f"{f'\n{' ' * 84}'.join([x.__qualname__ for x in set(cls.input_for_recipes())])}")
 
     @abstractmethod
     def valid_frames(self) -> cpl.ui.FrameSet:
