@@ -65,12 +65,13 @@ class MetisNLssMfModelImpl(RawImageProcessor):
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "N LSS standard star 1D spectrum"
             _description: str = "1D N LSS standard star spectrum"
-    # ++++++++++++ Intermediate / QC products ++++++++++++
-    # Currently none foreseen (some for QC?)
 
         AtmProfileInput = AtmProfileInput
         AtmLineCatInput = AtmLineCatInput
         LsfKernelInput = LsfKernelInput
+
+    # ++++++++++++ Intermediate / QC products ++++++++++++
+    # Currently none foreseen (some for QC?)
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
     # TODO: Check whether the new mf writes out the best-fit param file

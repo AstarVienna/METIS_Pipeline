@@ -145,8 +145,8 @@ class MetisNAdcSlitloss(MetisRecipe):
     Remark: Recipe not welldefined as actual algorithm not well defined (cf. DRLD, Calib plan)
 
     Inputs
-        N_ADC_SLITLOSS_RAW: Raw SLITLOSS images [1-n]  ***TBD***
-        N_WCU_OFF_RAW:      Raw WCU OFF background frames [1-n]
+        N_ADC_SLITLOSS_RAW:  Raw SLITLOSS images [1-n]  ***TBD***
+        N_WCU_OFF_RAW:       Raw WCU OFF background frames [1-n]
         MASTER_DARK_GEO:     Master dark frame [optional?]  ***TBChecked***
         BADPIX_MAP_GEO:      Bad-pixel map for GEO detector [optional] ***TBChecked***
         PERSISTENCE_MAP:     Persistence map [optional] ***TBChecked***

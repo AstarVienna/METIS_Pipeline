@@ -58,12 +58,11 @@ class MetisNLssStdImpl(RawImageProcessor):
             """
             _tags: re.Pattern = re.compile(r"PERSISTENCE_MAP")
 
-# TODO: Check DARK!
-        # class MasterDarkInput(MasterDarkInput):
-        #     """
-        #     Master dark MASTER_DARK_GEO
-        #     """
-        #     _tags: re.Pattern = re.compile(r"MASTER_DARK_GEO")
+        class MasterDarkInput(MasterDarkInput):
+            """
+            Master dark MASTER_DARK_GEO
+            """
+            _tags: re.Pattern = re.compile(r"MASTER_DARK_GEO")
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             """
@@ -91,6 +90,15 @@ class MetisNLssStdImpl(RawImageProcessor):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "MASTER_RSRF"
             _description: str = "Master 2D RSRF"
+
+        class MasterNLssDistSol(SinglePipelineInput):
+            """
+            Distortion solution
+            """
+            _tags: re.Pattern = re.compile(r"N_LSS_TRACE")
+            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+            _title: str = "Trace location"
+            _description: str = "Table with polynomials describing the location of the traces on the detector"
 
         class MasterNLssDistSol(SinglePipelineInput):
             """

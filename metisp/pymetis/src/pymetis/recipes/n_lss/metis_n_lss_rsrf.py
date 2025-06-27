@@ -83,6 +83,8 @@ class MetisNLssRsrfImpl(RawImageProcessor):
             """
             _tags: re.Pattern = re.compile(r"LINEARITY_GEO")
 
+    # TODO: Check persistence
+
     # # ++++++++++++++++++ Intermediate products ++++++++++++++++++
     class ProductMedianNLssRsrfImg(PipelineImageProduct):
         """

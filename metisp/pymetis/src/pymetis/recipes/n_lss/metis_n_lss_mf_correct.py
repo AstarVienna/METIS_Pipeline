@@ -67,7 +67,7 @@ class MetisNLssMfCorrectImpl(RawImageProcessor):
         """
         Final telluric corrected science spectrum
         """
-        _tag = rf"N_LSS_SCI_FLUX_TELL_1D"
+        _tag = rf"N_LSS_SCI_FLUX_TELLCORR_1D"
         _title: str = "Final science spectrum"
         level = cpl.ui.Frame.FrameLevel.FINAL
         frame_type = cpl.ui.Frame.FrameType.IMAGE

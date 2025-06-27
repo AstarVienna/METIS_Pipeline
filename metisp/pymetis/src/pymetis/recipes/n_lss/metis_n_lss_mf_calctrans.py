@@ -53,7 +53,7 @@ class MetisNLssMfCalctransImpl(RawImageProcessor):
             _tags: re.Pattern = re.compile(r"LSF_KERNEL")
             _group = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "LSF Kernel"
-            _description: str = "Kernel of the Line-Spred-Function."
+            _description: str = "Kernel of the Line-Spread-Function."
 
         class AtmLineCat(SinglePipelineInput):
             """

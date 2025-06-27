@@ -59,12 +59,11 @@ class MetisNLssSciImpl(RawImageProcessor):
             """
             _tags: re.Pattern = re.compile(r"PERSISTENCE_MAP")
 
-# TODO: Check Darks!
-        # class MasterDarkInput(MasterDarkInput):
-        #     """
-        #     Master dark MASTER_DARK_GEO
-        #     """
-        #     _tags: re.Pattern = re.compile(r"MASTER_DARK_GEO")
+        class MasterDarkInput(MasterDarkInput):
+            """
+            Master dark MASTER_DARK_GEO
+            """
+            _tags: re.Pattern = re.compile(r"MASTER_DARK_GEO")
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             """
@@ -92,6 +91,15 @@ class MetisNLssSciImpl(RawImageProcessor):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "MASTER_RSRF"
             _description: str = "Master 2D RSRF"
+
+        class MasterNLssDistSol(SinglePipelineInput):
+            """
+            Distortion solution
+            """
+            _tags: re.Pattern = re.compile(r"N_LSS_TRACE")
+            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+            _title: str = "Trace location"
+            _description: str = "Table with polynomials describing the location of the traces on the detector"
 
         class MasterNLssDistSol(SinglePipelineInput):
             """
@@ -129,20 +137,14 @@ class MetisNLssSciImpl(RawImageProcessor):
             _title: str = "Standard transmission"
             _description: str = "Transmission function derived from standard star"
 
-# --------------------------------------------------------------------
-# TODO:
-# CHECK THE AO PSF MODEL - why not included? forgotten????
-        # """
-        # AO PSF MODEL
-        # """
-        # class MasterAoPsfModel(SinglePipelineInput):
-        #     _tags: re.Pattern = re.compile(r"AO_PSF_MODEL")
-        #     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-        #     _title: str = "AO induced PSF model"
-        #     _description: str = "Model of the PSF induced by the AO"
-# CHECK THE AO PSF MODEL - why not included? forgotten????
-# --------------------------------------------------------------------
-
+        class MasterAoPsfModel(SinglePipelineInput):
+            """
+            AO PSF MODEL
+            """
+            _tags: re.Pattern = re.compile(r"AO_PSF_MODEL")
+            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
+            _title: str = "AO induced PSF model"
+            _description: str = "Model of the PSF induced by the AO"
 
         # STATIC CALIBS ++++++++++++++++++++++++++++++++++++++++++++
         class MasterNAdcSlitloss(SinglePipelineInput):
