@@ -31,11 +31,11 @@ class SciCoadd(BandSpecificMixin, DataItem, abstract=True):
 
     @classmethod
     def name(cls):
-        return rf'{cls.band():s}_SCI_COADD'
+        return rf'{cls.band()}_SCI_COADD'
 
     @classmethod
     def title(cls):
-        return f"{cls.band():s} science co-added"
+        return f"{cls.band()} science co-added"
 
 
 class LmSciCoadd(BandLmMixin, SciCoadd):

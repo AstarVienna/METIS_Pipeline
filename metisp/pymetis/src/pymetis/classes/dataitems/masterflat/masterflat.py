@@ -21,10 +21,10 @@ import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
-    BandLmMixin, SourceLampMixin, BandNMixin, SourceSpecificMixin
+    BandLmMixin, SourceLampMixin, BandNMixin, SourceSpecificMixin, DetectorSpecificMixin
 
 
-class MasterFlat(DataItem, abstract=True):
+class MasterFlat(DetectorSpecificMixin, DataItem, abstract=True):
     _title = r"master flat"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE

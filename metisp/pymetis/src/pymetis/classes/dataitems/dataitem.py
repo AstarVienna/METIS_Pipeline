@@ -44,10 +44,6 @@ class DataItem:
     _frame_group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _frame_level: cpl.ui.Frame.FrameLevel = None  # No sensible default; must be provided explicitly
     _frame_type: cpl.ui.Frame.FrameType = None
-    # Associated detector (maybe this does not make much sense here and should be removed)
-    _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
-    # Associated band
-    _band: Optional[Literal['LM', 'N', 'IFU']] = None
 
     # Description for man page
     _description: Optional[str] = None      # A verbose string; should correspond to the DRLD description
@@ -106,13 +102,6 @@ class DataItem:
         By default, it returns `_name`, but may be overridden to build the actual name from other attributes.
         """
         return cls._name
-
-    @classmethod
-    def detector(cls) -> Optional[str]:
-        """
-        Return the detector associated with this data item
-        """
-        return cls._detector
 
     @classmethod
     @final
@@ -204,7 +193,7 @@ class DataItem:
         if (detector_count := len(unique := list(set(detectors)))) == 1:
             self._detector = unique[0]
             Msg.debug(self.__class__.__qualname__,
-                      f"Detector determined: {self.detector}")
+                      f"Detector determined: {self._detector}")
         elif detector_count == 0:
             Msg.warning(self.__class__.__qualname__,
                         "No detectors specified (this is probably fine in skeleton stage)")

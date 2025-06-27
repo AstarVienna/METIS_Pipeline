@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import DetectorIfuMixin, BandSpecificMixin, TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
 from pymetis.classes.mixins.target import TargetSpecificMixin
 
@@ -94,16 +93,6 @@ class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
     _title = "IFU science cube calibrated"
     _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-
-class Combined(TargetSpecificMixin, DataItem, abstract=True):
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _title = "spectral cube of science object"
-    _description = "Spectral cube of a standard star, combining multiple exposures."
-
-    @classmethod
-    def name(cls):
-        return rf'IFU_{cls.target():s}_COMBINED'
 
 
 class AtmLineCatalog(DataItem):

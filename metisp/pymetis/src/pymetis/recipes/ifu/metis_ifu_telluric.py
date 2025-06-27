@@ -21,9 +21,8 @@ import re
 
 import cpl
 
-from pymetis.classes.dataitems.common import Combined, FluxCalTable, IfuTelluric
-from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.ifu.ifu import IfuReduced1d, IfuStdReduced1d, IfuSciReduced1d
+from pymetis.classes.dataitems.common import FluxCalTable, IfuTelluric
+from pymetis.classes.dataitems.ifu.ifu import IfuReduced1d, IfuStdReduced1d, IfuSciReduced1d, IfuCombined
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
@@ -54,9 +53,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         #     _description: str = "Uncorrected MF input spectrum."
 
         class CombinedInput(SinglePipelineInput):
-            Item: type[DataItem] = Combined
-            _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_COMBINED")
-
+            Item = IfuCombined
 
         FluxstdCatalogInput = FluxstdCatalogInput
         LsfKernelInput = LsfKernelInput

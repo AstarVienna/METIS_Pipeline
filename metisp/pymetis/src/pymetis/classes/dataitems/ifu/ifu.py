@@ -37,11 +37,11 @@ class IfuReduced(IfuBase, abstract=True):
 
     @classmethod
     def name(cls):
-        return rf'IFU_{cls.target():s}_REDUCED'
+        return rf'IFU_{cls.target()}_REDUCED'
 
     @classmethod
     def title(cls):
-        return f"IFU {cls.get_target_string():s} reduced"
+        return f"IFU {cls.get_target_string()} reduced"
 
     @classmethod
     def description(cls) -> str:
@@ -62,7 +62,7 @@ class IfuReducedCube(IfuBase, abstract=True):
 
     @classmethod
     def name(cls):
-        return rf'IFU_{cls.target():s}_REDUCED_CUBE'
+        return rf'IFU_{cls.target()}_REDUCED_CUBE'
 
 
 class IfuStdReducedCube(TargetStdMixin, IfuReducedCube):
@@ -79,7 +79,7 @@ class IfuReduced1d(IfuBase, abstract=True):
 
     @classmethod
     def name(cls):
-        return rf'IFU_{cls.target():s}_REDUCED_1D'
+        return rf'IFU_{cls.target()}_REDUCED_1D'
 
 
 class IfuStdReduced1d(TargetStdMixin, IfuReduced1d):
@@ -93,10 +93,12 @@ class IfuSciReduced1d(TargetSciMixin, IfuReduced1d):
 class IfuCombined(IfuBase, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _title = "spectral cube of science object"
+    _description = "Spectral cube of a standard star, combining multiple exposures."
 
     @classmethod
     def name(cls):
-        return rf'IFU_{cls.target():s}_COMBINED'
+        return rf'IFU_{cls.target()}_COMBINED'
 
 
 class IfuStdCombined(TargetStdMixin, IfuCombined):

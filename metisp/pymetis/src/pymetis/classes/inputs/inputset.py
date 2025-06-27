@@ -29,7 +29,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.inputs.base import PipelineInput
-from pymetis.classes.mixins import TargetSpecificMixin, SourceSpecificMixin
+from pymetis.classes.mixins import TargetSpecificMixin, SourceSpecificMixin, BandSpecificMixin, DetectorSpecificMixin
 
 
 class PipelineInputSet(ABC):
@@ -134,16 +134,28 @@ class PipelineInputSet(ABC):
         Verify that the provided SOF only contains frames from a single detector.
         Some Inputs may return `None` if they are not specific to a detector.
         """
-        self.detector = self._validate_attr(lambda x: x.Item.detector(), 'detector')
+        self.detector = self._validate_attr(
+            lambda x: x.Item.detector() if issubclass(x.Item, DetectorSpecificMixin) else None,
+            'detector'
+        )
 
     def validate_bands(self) -> None:
-        self.band = self._validate_attr(lambda x: x.Item.band() if issubclass(x.Item, SourceSpecificMixin) else None, 'band')
+        self.band = self._validate_attr(
+            lambda x: x.Item.band() if issubclass(x.Item, BandSpecificMixin) else None,
+            'band'
+        )
 
     def validate_targets(self) -> None:
-        self.target = self._validate_attr(lambda x: x.Item.target() if issubclass(x.Item, TargetSpecificMixin) else None, 'target')
+        self.target = self._validate_attr(
+            lambda x: x.Item.target() if issubclass(x.Item, TargetSpecificMixin) else None,
+            'target'
+        )
 
     def validate_sources(self) -> None:
-        self.source = self._validate_attr(lambda x: x.Item.source() if issubclass(x.Item, SourceSpecificMixin) else None, 'source')
+        self.source = self._validate_attr(
+            lambda x: x.Item.source() if issubclass(x.Item, SourceSpecificMixin) else None,
+            'source'
+        )
 
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")

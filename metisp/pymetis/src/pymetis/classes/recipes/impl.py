@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 import inspect
 import os
 from abc import abstractmethod, ABC
@@ -26,8 +27,6 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList
 
-from pymetis.classes.mixins import BandSpecificMixin
-from pymetis.classes.mixins.base import Mixin
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.inputs.inputset import PipelineInputSet
 
@@ -65,9 +64,6 @@ class MetisRecipeImpl(ABC):
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
         self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
-
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
 
     def run(self) -> cpl.ui.FrameSet:
         """
@@ -125,9 +121,8 @@ class MetisRecipeImpl(ABC):
                 - Use CPL functions, if available.
                 - Implement what you need yourself.
         3.  Build the output images as specified in the DRLD.
-            Each product should be an instance of the associated `PipelineProduct` class.
-            There should be exactly one `PipelineProduct` for every file produced (at least for now).
-        4.  Return a list of `PipelineProduct`s.
+            Each product should be a `DataItem` and there should be exactly one for every file produced.
+        4.  Return a set of `DataItem`s.
 
         The resulting products dict is then passed to `save_products()` (see `run`).
         """

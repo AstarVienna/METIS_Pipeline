@@ -103,8 +103,21 @@ class PipelineInput:
         return self.Item._frame_group
 
     def __init__(self, frameset: cpl.ui.FrameSet):
-        if self.Item is None:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined data item")
+        assert self.Item is not None, \
+            f"Pipeline input {self.__class__.__qualname__} has no defined data item"
+
+        assert self.Item.name() is not None, \
+            f"Data item {self.Item.__qualname__} has no defined name"
+
+        assert self.Item.frame_type() is not None, \
+            f"Data item {self.Item.__qualname__} has no defined frame type"
+
+        assert self.Item.frame_level() is not None, \
+            f"Data item {self.Item.__qualname__} has no defined frame level"
+
+        assert self.Item.frame_group() is not None, \
+            f"Data item {self.Item.__qualname__} has no defined frame group"
+
 
         for tag, frames in self.preprocess_frameset(frameset).items():
             Msg.debug(self.__class__.__qualname__,
@@ -166,8 +179,8 @@ class PipelineInput:
         assert cls.Item is not None, f"{cls.__qualname__} has no item"
         assert cls.Item.description() is not None, f"{cls.__qualname__} has no description defined"
 
-        return (f"      {name:<24}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
-                f"          {cls.Item.description()}")
+        return (f"    {cls.Item.name():<24}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
+                f" {cls.Item.description()}")
 #                f"{f'\n{' ' * 84}'.join([x.__qualname__ for x in set(cls.input_for_recipes())])}")
 
     @abstractmethod

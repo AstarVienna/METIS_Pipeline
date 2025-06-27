@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, DetectorSpecificMixin
 
 
-class GainMap(DataItem, abstract=True):
+class GainMap(DetectorSpecificMixin, DataItem, abstract=True):
     _title = "gain map"
     _description = "Gain map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB

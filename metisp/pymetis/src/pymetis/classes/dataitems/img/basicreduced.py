@@ -47,7 +47,7 @@ class BasicReduced(BandLmMixin, TargetSpecificMixin, DataItem, abstract=True):
 
     @classmethod
     def description(cls):
-        return f"Detrended exposure of the {cls.band():s} image mode."
+        return f"Detrended exposure of the {cls.band()} image mode."
 
 
 class LmStdBasicReduced(TargetStdMixin, BasicReduced):

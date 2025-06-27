@@ -25,6 +25,7 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems.coadd import LmSciCoadd
+from pymetis.classes.dataitems.img.basicreduced import LmSciCalibrated
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput
@@ -34,7 +35,7 @@ from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 class MetisLmImgSciPostProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"LM_SCI_CALIBRATED")
+            Item = LmSciCalibrated
 
     class ProductLmImgSciCoadd(PipelineImageProduct):
         Item = LmSciCoadd

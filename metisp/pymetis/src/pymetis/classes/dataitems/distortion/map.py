@@ -30,17 +30,15 @@ class DistortionMap(BandSpecificMixin, DataItem, abstract=True):
 
     @classmethod
     def name(cls) -> str:
-        return rf'{cls.band():s}_DISTORTION_MAP'
+        return rf'{cls.band()}_DISTORTION_MAP'
 
     @classmethod
     def title(cls):
-        return f"{cls.band():s} distortion map"
+        return f"{cls.band()} distortion map"
 
     @classmethod
     def description(cls):
-        return f"Map of pixel scale across the {cls.band():s} detector"
-
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+        return f"Map of pixel scale across the {cls.band()} detector"
 
 
 class LmDistortionMap(BandLmMixin, DistortionMap):

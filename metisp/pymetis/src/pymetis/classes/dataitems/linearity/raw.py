@@ -17,11 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import cpl
+
 from pymetis.classes.dataitems.raw import Raw
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class LinearityRaw(Raw, abstract=True):
+class LinearityRaw(DetectorSpecificMixin, Raw, abstract=True):
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
 
     @classmethod

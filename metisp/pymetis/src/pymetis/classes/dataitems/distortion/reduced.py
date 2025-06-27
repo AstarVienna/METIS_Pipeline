@@ -31,17 +31,15 @@ class DistortionReduced(BandSpecificMixin, TableDataItem, abstract=True):
 
     @classmethod
     def name(cls) -> str:
-        return rf'{cls.band():s}_DIST_REDUCED'
+        return rf'{cls.band()}_DIST_REDUCED'
 
     @classmethod
     def title(cls):
-        return f"{cls.band():s} distortion reduced"
+        return f"{cls.band()} distortion reduced"
 
     @classmethod
     def description(cls):
         return f"Table of polynomial coefficients for distortion correction"
-
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 
 
 class LmDistortionReduced(BandLmMixin, DistortionReduced):

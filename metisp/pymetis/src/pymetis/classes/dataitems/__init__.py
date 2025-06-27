@@ -93,7 +93,7 @@ def parametrize(template: str, **params: list[str]):
 #
 #    @classmethod
 #    def name(cls):
-#        return rf"{cls.band():s}_{cls.target():s}_BKG_SUBTRACTED"
+#        return rf"{cls.band()}_{cls.target()}_BKG_SUBTRACTED"
 #
 #    @classmethod
 #    def title(cls):

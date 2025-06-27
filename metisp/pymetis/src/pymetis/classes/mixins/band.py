@@ -25,7 +25,7 @@ class BandSpecificMixin(Mixin):
 
     @classmethod
     def band(cls) -> str:
-        return cls._band or r'{band}'
+        return cls._band
 
     def __init_subclass__(cls, *, band=None, **kwargs):
         if band is not None:

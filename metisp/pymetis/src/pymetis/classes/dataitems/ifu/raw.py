@@ -16,12 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import cpl
 
 from pymetis.classes.dataitems import Raw
 from pymetis.classes.mixins import BandIfuMixin, TargetSpecificMixin, TargetStdMixin, TargetSciMixin, TargetSkyMixin
 
 
 class IfuRaw(BandIfuMixin, TargetSpecificMixin, Raw, abstract=True):
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
                      "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
                      "DRS.IFU"}
@@ -32,21 +35,20 @@ class IfuRaw(BandIfuMixin, TargetSpecificMixin, Raw, abstract=True):
 
     @classmethod
     def title(cls) -> str:
-        target = {
-            'STD': 'standard',
-            'SCI': 'science',
-            'SKY': 'sky',
-        }.get(cls.target(), cls.target())
-        return rf"{cls.band()} {target} raw"
+        return rf"{cls.band()} {cls.get_target_string()} raw"
 
 
-class IfuStdRaw(TargetStdMixin, IfuRaw):
+class IfuNonSkyRaw(IfuRaw, abstract=True):
+    pass
+
+
+class IfuStdRaw(TargetStdMixin, IfuNonSkyRaw):
     _description = "Raw spectra of flux standard star."
 
 
-class IfuSciRaw(TargetSciMixin, IfuRaw):
+class IfuSciRaw(TargetSciMixin, IfuNonSkyRaw):
     _description = "IFU raw exposure of a science object."
 
 
 class IfuSkyRaw(TargetSkyMixin, IfuRaw):
-    _description = "Blank sky image"
+    _description = "Blank sky image."

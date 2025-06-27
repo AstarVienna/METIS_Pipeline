@@ -17,12 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import cpl
+
 from pymetis.classes.dataitems import Raw
 from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, \
     BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
 class RsrfRaw(DetectorSpecificMixin, BandSpecificMixin, Raw, abstract=True):
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
+
     @classmethod
     def name(cls):
         return rf'{cls.band()}_LSS_RSRF_RAW'

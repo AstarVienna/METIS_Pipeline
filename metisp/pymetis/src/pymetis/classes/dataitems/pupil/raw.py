@@ -19,22 +19,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems.ifu.ifu import IfuBase
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.mixins.band import BandSpecificMixin, BandLmMixin, BandNMixin
 
 
-class IfuBackground(IfuBase, abstract=True):
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+class PupilRaw(BandSpecificMixin, DataItem, abstract=True):
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+    @classmethod
+    def title(cls):
+        return f"{cls.band()} pupil raw"
 
     @classmethod
     def name(cls):
-        return rf'IFU_{cls.target()}_BACKGROUND'
+        return rf'{cls.band()}_PUPIL_RAW'
+
+    @classmethod
+    def description(cls) -> str:
+        return f"Raw exposure of the the pupil in {cls.band()} image mode."
 
 
-class IfuStdBackground(TargetStdMixin, IfuBackground):
-    _description = "Reduced 2D detector image of background."
+class LmPupilRaw(BandLmMixin, PupilRaw):
+    pass
 
 
-class IfuSciBackground(TargetSciMixin, IfuBackground):
-    _description = "Reduced 2D detector image of background."
+class NPupilRaw(BandNMixin, PupilRaw):
+    pass
