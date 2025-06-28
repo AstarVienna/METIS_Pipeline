@@ -43,7 +43,6 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
             Item: type[DataItem] = DistortionTable
-            _tags: re.Pattern = re.compile(r"N_DISTORTION_TABLE")
 
 
     class ProductSciCalibrated(BandSpecificProduct, PipelineImageProduct):

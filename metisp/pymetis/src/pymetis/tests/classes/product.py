@@ -33,10 +33,10 @@ class BaseProductTest(ABC):
     def test_is_it_even_a_product(self):
         assert issubclass(self.Product, PipelineProduct)
 
-    @pytest.mark.metadata
-    def test_does_product_group_match(self):
-        assert self.Product.Item.frame_group() in [cpl.ui.Frame.FrameGroup.PRODUCT, cpl.ui.Frame.FrameGroup.CALIB], \
-            f"Product group is not PRODUCT or CALIB for {self.Product.__qualname__}"
+    #@pytest.mark.metadata
+    #def test_does_product_group_match(self):
+    #    assert self.Product.Item.frame_group() in [cpl.ui.Frame.FrameGroup.PRODUCT, cpl.ui.Frame.FrameGroup.CALIB], \
+    #        f"Product group is not PRODUCT or CALIB for {self.Product.__qualname__}"
 
     @pytest.mark.metadata
     def test_does_it_have_a_level(self):

@@ -67,7 +67,7 @@ class LmSkyBasicReduced(TargetSciMixin, BasicReduced):
 class Calibrated(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _frame_group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW  # This actually has to be raw as it is "primary input" (rite-of-passage)
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     @classmethod

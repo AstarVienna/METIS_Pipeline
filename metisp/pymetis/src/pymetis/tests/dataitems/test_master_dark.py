@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo, MasterDarkIfu
+from pymetis.classes.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterFlatIfu
 from pymetis.tests.classes.dataitem import DataItemTest
 
 
@@ -32,3 +33,14 @@ class TestMasterDarkGeo(DataItemTest):
 class TestMasterDarkIfu(DataItemTest):
     Item = MasterDarkIfu
 
+
+class TestMasterFlat2rg(DataItemTest):
+    Item = MasterFlat2rg
+
+
+class TestMasterFlatGeo(DataItemTest):
+    Item = MasterFlatGeo
+
+
+class TestMasterFlatIfu(DataItemTest):
+    Item = MasterFlatIfu
