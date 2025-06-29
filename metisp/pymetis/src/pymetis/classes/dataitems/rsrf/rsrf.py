@@ -41,9 +41,6 @@ class RsrfIfu(DetectorIfuMixin, DataItem):
     _title = "RSRF IFU"
 
 
-
-
-
 class IfuRsrfBackground(DetectorIfuMixin, DataItem):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE

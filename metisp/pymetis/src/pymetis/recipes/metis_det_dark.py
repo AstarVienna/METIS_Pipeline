@@ -25,7 +25,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
+from pymetis.classes.dataitems.masterdark.masterdark import MasterDark, MasterDark2rg
 from pymetis.classes.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
@@ -77,14 +77,14 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
     # ToDo Remove this
     class ProductMasterDark(PipelineImageProduct):
-        Item = MasterDark
+        Item = MasterDark2rg
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
     # See the documentation of the parent's `process_images` function for more details.
     # Feel free to define other functions to break up the algorithm into more manageable chunks
     # and call them from within `process_images` as needed.
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         method = self.parameters["metis_det_dark.stacking.method"].value
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
@@ -93,7 +93,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         combined_image = self.combine_images(raw_images, method)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.ProductMasterDark(self, header, combined_image)
+        product = self.ProductMasterDark.Item(header, combined_image)
 
         return {product}
 

@@ -47,23 +47,17 @@ EXT = 4  # TODO: update to read multi-extension files
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
-        detector = "IFU"
-
         class RawInput(RawInput):
             Item = IfuRsrfRaw
-            _tags: re.Pattern = re.compile(r"IFU_RSRF_RAW")
 
         class MasterDarkInput(MasterDarkInput):
             Item = MasterDarkIfu
-            _tags: re.Pattern = re.compile(r"MASTER_DARK_IFU")
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
             Item = GainMapIfu
-            _tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
             Item = LinearityMapIfu
-            _tags: re.Pattern = re.compile(r"LINEARITY_IFU")
 
         class RsrfWcuOffInput(RawInput):
             """
@@ -71,12 +65,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             integrating sphere, but no source.
             """
             Item = WcuOffIfuRaw
-            _tags: re.Pattern = re.compile(r"IFU_WCU_OFF_RAW")
 
         # TBC: could this be replaced by the MASTER_DARK_IFU input?
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             Item = BadPixMapIfu
-            _tags: re.Pattern = re.compile(r"BADPIX_MAP_IFU")
 
         DistortionTableInput = DistortionTableInput
         WavecalInput = WavecalInput
@@ -241,6 +233,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             table[f'rsrf_{i}'].description = '1D RSRF curve {i}'
 
         rsrf_table = cpl.core.Table(table)
+
+        product_background = IfuRsrfBackground(background_hdr, background_img)
 
         product_background = self.ProductRsrfBackground(self, background_hdr, background_img)
         product_master_flat_ifu = self.ProductMasterFlatIfu(self, spec_flat_hdr, spec_flat_img)

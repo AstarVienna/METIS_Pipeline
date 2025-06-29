@@ -19,13 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import inspect
 import re
+import os
 from typing import Any, Optional, Generator, final, Literal
 
 import cpl
 
-from cpl.core import Msg
+from cpl.core import Msg, abstractmethod
+from pyesorex.parameter import Parameter
 
 import pymetis
+
+PIPELINE = r'METIS'
 
 
 class DataItem:
@@ -142,7 +146,9 @@ class DataItem:
     def pro_catg(cls):
         return NotImplemented # ToDo finish
 
-    def __init__(self):
+    def __init__(self,
+                 header: cpl.core.PropertyList,
+                 frame: cpl.ui.Frame) -> None:
         if self.__abstract:
             raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
@@ -155,12 +161,30 @@ class DataItem:
 
         # Check if frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
-        if not self.frame_group:
+        if self.frame_group() is None:
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined group!")
+
+        if self.frame_level() is None:
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
 
         # A list of matched groups from `tags`. Acquisition differs
         # between Single and Multiple, so we just declare it here.
         self.tag_parameters: dict[str, str] = {}
+
+        # FIXME: temporary to get QC parameters into the product header [OC]
+        self.header = header
+        if header is not None:
+            self.properties = header
+        else:
+            self.properties = cpl.core.PropertyList()
+
+    @abstractmethod
+    def save(self,
+             recipe: 'PipelineRecipeImpl',
+             parameters: cpl.ui.ParameterList,
+             *,
+             output_file_name: str = None) -> None:
+        pass
 
     def as_dict(self) -> dict[str, str]:
         return {
@@ -236,37 +260,29 @@ class DataItem:
 class ImageDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
 
-    def __init__(self, frame: cpl.core.PropertyList) -> None:
-        super().__init__(frame)
+    def __init__(self,
+                 header: cpl.core.PropertyList,
+                 frame: cpl.ui.Frame):
+        super().__init__(header, frame)
         self.image: cpl.core.Image = None
 
     def save(self,
-             recipe: 'PipelineRecipe',
-             header: cpl.core.PropertyList,
+             recipe: 'PipelineRecipeImpl',
              parameters: cpl.ui.ParameterList,
              *,
              output_file_name: str = None) -> None:
 
         cpl.dfs.save_image(
             recipe.frameset,  # All frames for the recipe
-            parameters,  # The list of input parameters
+            cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters]),
             recipe.used_frames,  # The list of frames actually used  FixMe currently not working as intended
             self.image,  # Image to be saved
             recipe.name,  # Name of the recipe
             self.properties,  # Properties to be appended
             PIPELINE,
-            output,
             output_file_name if output_file_name is not None else rf'{self.name()}.fits',
-            header=header,
+            header=self.header,
         )
-
-        def __init__(self,
-                     recipe_impl: 'MetisRecipeImpl',
-                     header: cpl.core.PropertyList,
-                     image: cpl.core.Image):
-            super().__init__(recipe_impl, header)
-            self.image: cpl.core.Image = image
-
 
 class TableDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
@@ -278,14 +294,16 @@ class TableDataItem(DataItem, abstract=True):
     def save(self,
              recipe: 'PipelineRecipe',
              header: cpl.core.PropertyList,
-             parameters: cpl.ui.ParameterList) -> None:
+             parameters: cpl.ui.ParameterList,
+             *,
+             output_file_name: str = None) -> None:
 
         cpl.dfs.save_table(
             recipe.frameset,  # All frames for the recipe
             parameters,  # The list of input parameters
             recipe.used_frames,  # The list of frames actually used  FixMe currently not working as intended
             self.table,  # Table to be saved
-            self.recipe.name,  # Name of the recipe
+            recipe.name,  # Name of the recipe
             self.properties,  # Properties to be appended
             PIPELINE,
             self.output_file_name,
