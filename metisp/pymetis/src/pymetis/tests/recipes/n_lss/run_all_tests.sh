@@ -1,3 +1,4 @@
+python -m pytest test_metis_n_adc_slitloss.py
 python -m pytest test_metis_n_lss_rsrf.py
 python -m pytest test_metis_n_lss_trace.py
 python -m pytest test_metis_n_lss_std.py
