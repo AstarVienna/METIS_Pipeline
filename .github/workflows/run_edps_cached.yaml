@@ -101,6 +101,7 @@ jobs:
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_restore.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_std_process.py
           
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_adc_slitloss.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_rsrf.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_trace.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_wave.py
@@ -110,6 +111,7 @@ jobs:
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_mf_calctrans.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_mf_correct.py
 
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_adc_slitloss.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_rsrf.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_trace.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_std.py
