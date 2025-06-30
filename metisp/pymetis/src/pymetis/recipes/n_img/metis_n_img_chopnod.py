@@ -31,7 +31,7 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 
 class MetisNImgChopnodImpl(DarkImageProcessor):
-    detector = '2RG'
+    detector = 'GEO'
 
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
