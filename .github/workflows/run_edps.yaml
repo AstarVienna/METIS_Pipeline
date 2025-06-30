@@ -72,7 +72,24 @@ jobs:
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_flat.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_restore.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_std_process.py
-          
+
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_rsrf.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_trace.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_wave.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_std.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_sci.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_mf_model.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_mf_calctrans.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_mf_correct.py
+
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_rsrf.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_trace.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_std.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_sci.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_mf_model.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_mf_calctrans.py
+          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_mf_correct.py
+
       - name: Run pyESOREX test
         run: |
           set +x
@@ -123,7 +140,28 @@ jobs:
           pyesorex metis_ifu_telluric "${SOF_DIR}/metis_ifu_telluric.sci.sof"
           pyesorex metis_ifu_calibrate "${SOF_DIR}/metis_ifu_calibrate.sof"
           pyesorex metis_ifu_postprocess "${SOF_DIR}/metis_ifu_postprocess.sof"
-          
+
+          # LM LSS RECIPES
+          pyesorex metis_lm_adc_slitloss "${SOF_DIR}/metis_lm_adc_slitloss.sof"
+          pyesorex metis_lm_lss_rsrf "${SOF_DIR}/metis_lm_lss_rsrf.sof"
+          pyesorex metis_lm_lss_trace "${SOF_DIR}/metis_lm_lss_trace.sof"
+          pyesorex metis_lm_lss_wave "${SOF_DIR}/metis_lm_lss_wave.sof"
+          pyesorex metis_lm_lss_std "${SOF_DIR}/metis_lm_lss_std.sof"
+          pyesorex metis_lm_lss_sci "${SOF_DIR}/metis_lm_lss_sci.sof"
+          pyesorex metis_lm_lss_mf_model "${SOF_DIR}/metis_lm_lss_mf_model.sof"
+          pyesorex metis_lm_lss_mf_calctrans "${SOF_DIR}/metis_lm_lss_mf_calctrans.sof"
+          pyesorex metis_lm_lss_mf_correct "${SOF_DIR}/metis_lm_lss_mf_correct.sof"
+
+          # N LSS RECIPES
+          pyesorex metis_n_adc_slitloss "${SOF_DIR}/metis_n_adc_slitloss.sof"
+          pyesorex metis_n_lss_rsrf "${SOF_DIR}/metis_n_lss_rsrf.sof"
+          pyesorex metis_n_lss_trace "${SOF_DIR}/metis_n_lss_trace.sof"
+          pyesorex metis_n_lss_std "${SOF_DIR}/metis_n_lss_std.sof"
+          pyesorex metis_n_lss_sci "${SOF_DIR}/metis_n_lss_sci.sof"
+          pyesorex metis_n_lss_mf_model "${SOF_DIR}/metis_n_lss_mf_model.sof"
+          pyesorex metis_n_lss_mf_calctrans "${SOF_DIR}/metis_n_lss_mf_calctrans.sof"
+          pyesorex metis_n_lss_mf_correct "${SOF_DIR}/metis_n_lss_mf_correct.sof"
+
           # CAL RECIPES
           pyesorex metis_cal_chophome "${SOF_DIR}/metis_cal_chophome.sof"
           
