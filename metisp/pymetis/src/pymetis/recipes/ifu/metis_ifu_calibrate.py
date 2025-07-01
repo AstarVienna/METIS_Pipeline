@@ -42,8 +42,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 
         FluxCalTableInput = FluxCalTableInput
 
-    class ProductSciCubeCalibrated(PipelineImageProduct):
-        Item = IfuScienceCubeCalibrated
+    ProductSciCubeCalibrated = IfuScienceCubeCalibrated
 
     def process_images(self) -> set[PipelineProduct]:
         # self.correct_telluric()
@@ -52,7 +51,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         header = self._create_dummy_header()
         image = self._create_dummy_image()
 
-        product_scc = self.ProductSciCubeCalibrated(self, header, image)
+        product_scc = self.ProductSciCubeCalibrated(header, image)
 
         return {product_scc}
 

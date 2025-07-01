@@ -24,8 +24,9 @@ from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, B
 
 
 class DistortionTable(BandSpecificMixin, DataItem, abstract=True):
-    _title = "distortion table"
-    _description = "Table of distortion coefficients"
+    _name_template = r'{band}_DISTORTION_TABLE'
+    _title_template = "distortion table"
+    _description_template = r"Table of distortion coefficients for a {band} band data set"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_type = cpl.ui.Frame.FrameType.TABLE
@@ -34,14 +35,6 @@ class DistortionTable(BandSpecificMixin, DataItem, abstract=True):
     @classmethod
     def _pro_catg(cls) -> str:
         return rf"{cls.band()}_DISTORTION_TABLE"
-
-    @classmethod
-    def name(cls):
-        return rf'{cls.band()}_DISTORTION_TABLE'
-
-    @classmethod
-    def description(cls) -> str:
-        return f"Table of distortion coefficients for a {cls.band()} band data set"
 
 
 class LmDistortionTable(BandLmMixin, DistortionTable):

@@ -94,10 +94,13 @@ class PipelineInputSet(ABC):
         for inp in self.inputs:
             inp.validate()
 
-        self.validate_detectors()
-        self.validate_bands()
-        self.validate_targets()
-        self.validate_sources()
+        for attr, klass in [
+            ('detector', DetectorSpecificMixin),
+            ('band', BandSpecificMixin),
+            ('target', TargetSpecificMixin),
+            ('source', SourceSpecificMixin),
+        ]:
+            self._validate_attr(lambda x: x.Item.tag_parameters()[attr] if issubclass(x.Item, klass) else None, attr)
 
     def _validate_attr(self, func: Callable, attr: str) -> Optional[str]:
         """
@@ -121,7 +124,6 @@ class PipelineInputSet(ABC):
         if (count := len(total)) == 0:
             Msg.debug(self.__class__.__qualname__,
                       f"No {attr} could be identified from the SOF")
-            self.tag_parameters[attr] = None
         elif count == 1:
             result = total[0]
             Msg.debug(self.__class__.__qualname__,
@@ -129,34 +131,6 @@ class PipelineInputSet(ABC):
             self.tag_parameters[attr] = result
         else:
             raise ValueError(f"Data from more than one {attr} found in inputset: {total}!")
-
-    def validate_detectors(self) -> None:
-        """
-        Verify that the provided SOF only contains frames from a single detector.
-        Some Inputs may return `None` if they are not specific to a detector.
-        """
-        self._validate_attr(
-            lambda x: x.Item.tag_parameters()['detector'] if issubclass(x.Item, DetectorSpecificMixin) else None,
-            'detector'
-        )
-
-    def validate_bands(self) -> None:
-        self._validate_attr(
-            lambda x: x.Item.band() if issubclass(x.Item, BandSpecificMixin) else None,
-            'band'
-        )
-
-    def validate_targets(self) -> None:
-        self._validate_attr(
-            lambda x: x.Item.target() if issubclass(x.Item, TargetSpecificMixin) else None,
-            'target'
-        )
-
-    def validate_sources(self) -> None:
-        self._validate_attr(
-            lambda x: x.Item.source() if issubclass(x.Item, SourceSpecificMixin) else None,
-            'source'
-        )
 
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")

@@ -24,22 +24,13 @@ from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, B
 
 
 class DistortionReduced(BandSpecificMixin, TableDataItem, abstract=True):
+    _name_template =  r'{band}_DIST_REDUCED'
+    _title_template = r"{band} distortion reduced"
+    _description_template = r"Table of polynomial coefficients for distortion correction"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
-
-    @classmethod
-    def name(cls) -> str:
-        return rf'{cls.band()}_DIST_REDUCED'
-
-    @classmethod
-    def title(cls):
-        return f"{cls.band()} distortion reduced"
-
-    @classmethod
-    def description(cls):
-        return f"Table of polynomial coefficients for distortion correction"
 
 
 class LmDistortionReduced(BandLmMixin, DistortionReduced):

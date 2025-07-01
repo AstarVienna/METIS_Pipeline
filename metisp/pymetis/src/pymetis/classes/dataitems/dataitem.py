@@ -113,10 +113,7 @@ class DataItem:
         Return the machine-oriented name of this data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
         By default, it returns `_name`, but may be overridden to build the actual name from other attributes.
         """
-        try:
-            return cls._name_template.format(**cls.tag_parameters())
-        except KeyError:
-            return cls._name_template
+        return cls._name_template.format(**cls.tag_parameters())
 
     @classmethod
     @final
@@ -216,7 +213,7 @@ class DataItem:
         )
 
     def as_frame(self, filename: str = None) -> cpl.ui.Frame:
-        """ Create a CPL Frame from this Product """
+        """ Create a CPL Frame from this DataItem """
         assert self.frame_level() is not None, \
             f"Data item {self.__class__.__qualname__} does not define a frame level"
 
@@ -226,8 +223,10 @@ class DataItem:
         assert self.frame_group() is not None, \
             f"Data item {self.__class__.__qualname__} does not define a frame group"
 
+        filename = filename if filename is not None else rf'{self.name()}.fits'
+
         return cpl.ui.Frame(
-            file=filename if filename is not None else rf'{self.name()}.fits',
+            file=filename,
             tag=self.name(),
             group=self.frame_group(),
             level=self.frame_level(),
@@ -328,11 +327,11 @@ class ImageDataItem(DataItem, abstract=True):
              *,
              output_file_name: str = None) -> None:
 
-        par = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+        parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
         cpl.dfs.save_image(
             recipe.frameset,  # All frames for the recipe
-            par,
+            parameters,
             recipe.used_frames,  # The list of frames actually used  FixMe currently not working as intended
             self.image,  # Image to be saved
             recipe.name,  # Name of the recipe
@@ -349,13 +348,15 @@ class TableDataItem(DataItem, abstract=True):
                  header: cpl.core.PropertyList,
                  frame: cpl.ui.Frame):
         super().__init__(header, frame)
-        self.table: cpl.core.Table = None
+        self.table: cpl.core.Table = cpl.core.Table.empty(3)
 
     def save(self,
              recipe: 'PipelineRecipe',
              parameters: cpl.ui.ParameterList,
              *,
              output_file_name: str = None) -> None:
+
+        parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
         cpl.dfs.save_table(
             recipe.frameset,  # All frames for the recipe
@@ -365,7 +366,7 @@ class TableDataItem(DataItem, abstract=True):
             recipe.name,  # Name of the recipe
             self.properties,  # Properties to be appended
             PIPELINE,
-            self.output_file_name,
+            output_file_name if output_file_name is not None else rf'{self.name()}.fits',
             header=self.header,
         )
 

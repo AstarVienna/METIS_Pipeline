@@ -73,18 +73,16 @@ class MetisRecipeImpl(ABC):
         """
 
         Msg.info(self.__class__.__qualname__,
-                 f"Promoting with {parameters}")
+                 f"Promoting the recipe implementation with {parameters}")
 
         for name, item in self.list_product_classes():
-            print("About to promote", item._name_template.format(**parameters), "with", parameters)
             new_class = DataItem.find(item._name_template.format(**parameters))
             if new_class is None:
                 raise TypeError(f"Could not promote class {item}: {item._name_template.format(**parameters)} is not a registered tag")
             else:
                 Msg.info(self.__class__.__qualname__,
-                         f"Promoting {item} to {new_class.__qualname__}")
+                         f"Promoting {item.__qualname__} to {new_class.__qualname__}")
 
-            print(name, new_class)
             self.__class__.__setattr__(self, name, new_class)
 
     def run(self) -> cpl.ui.FrameSet:
