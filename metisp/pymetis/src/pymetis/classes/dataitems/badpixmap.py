@@ -19,11 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from .dataitem import DataItem
+from .dataitem import ImageDataItem
 from ..mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class BadPixMap(DetectorSpecificMixin, DataItem, abstract=True):
+class BadPixMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _title: str = "bad pixel map"
     _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE

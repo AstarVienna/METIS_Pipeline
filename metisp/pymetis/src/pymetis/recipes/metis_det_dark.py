@@ -32,8 +32,7 @@ from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import (RawInput, BadpixMapInput, PersistenceMapInput,
                                     LinearityInput, GainMapInput, OptionalInputMixin)
 from pymetis.classes.inputs import PersistenceInputSetMixin
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
-from pymetis.classes.products import DetectorSpecificProduct
+from pymetis.classes.products import PipelineImageProduct
 
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):
@@ -74,10 +73,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
 
-
-    # ToDo Remove this
-    class ProductMasterDark(PipelineImageProduct):
-        Item = MasterDark2rg
+    ProductMasterDark = MasterDark2rg
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -93,7 +89,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         combined_image = self.combine_images(raw_images, method)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.ProductMasterDark.Item(header, combined_image)
+        product = self.ProductMasterDark(header, combined_image)
 
         return {product}
 

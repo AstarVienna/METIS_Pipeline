@@ -148,7 +148,7 @@ class DataItem:
 
     def __init__(self,
                  header: cpl.core.PropertyList,
-                 frame: cpl.ui.Frame) -> None:
+                 frame: cpl.ui.Frame):
         if self.__abstract:
             raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
@@ -167,10 +167,6 @@ class DataItem:
         if self.frame_level() is None:
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
 
-        # A list of matched groups from `tags`. Acquisition differs
-        # between Single and Multiple, so we just declare it here.
-        self.tag_parameters: dict[str, str] = {}
-
         # FIXME: temporary to get QC parameters into the product header [OC]
         self.header = header
         if header is not None:
@@ -178,13 +174,49 @@ class DataItem:
         else:
             self.properties = cpl.core.PropertyList()
 
+        self.add_properties()
+
+    def add_properties(self) -> None:
+        """
+        Hook for adding custom properties.
+        Currently only adds ESO PRO CATG to every product,
+        but derived classes are more than welcome to add their own stuff.
+        Do not forget to call super().add_properties() then.
+        """
+        self.properties.append(
+            cpl.core.Property(
+                "ESO PRO CATG",  # Martin suspects this means ESO product category
+                cpl.core.Type.STRING,
+                self.name(),
+            )
+        )
+
+    def as_frame(self, filename: str = None) -> cpl.ui.Frame:
+        """ Create a CPL Frame from this Product """
+        assert self.frame_level() is not None, \
+            f"Data item {self.__class__.__qualname__} does not define a frame level"
+
+        assert self.frame_type() is not None, \
+            f"Data item {self.__class__.__qualname__} does not define a frame type"
+
+        assert self.frame_group() is not None, \
+            f"Data item {self.__class__.__qualname__} does not define a frame group"
+
+        return cpl.ui.Frame(
+            file=filename if filename is not None else rf'{self.name()}.fits',
+            tag=self.name(),
+            group=self.frame_group(),
+            level=self.frame_level(),
+            frameType=self.frame_type(),
+        )
+
     @abstractmethod
     def save(self,
              recipe: 'PipelineRecipeImpl',
              parameters: cpl.ui.ParameterList,
              *,
              output_file_name: str = None) -> None:
-        pass
+        """ Save the data item to file. Implementation depends on the type of the data. """
 
     def as_dict(self) -> dict[str, str]:
         return {
@@ -204,10 +236,10 @@ class DataItem:
                 det = header['ESO DPR TECH'].value
                 try:
                     detectors.append({
-                                         'IMAGE,LM': '2RG',
-                                         'IMAGE,N': 'GEO',
-                                         'IFU': 'IFU',
-                                     }[det])
+                        'IMAGE,LM': '2RG',
+                        'IMAGE,N': 'GEO',
+                        'IFU': 'IFU',
+                    }[det])
                 except KeyError as e:
                     raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
             except KeyError:
@@ -264,7 +296,7 @@ class ImageDataItem(DataItem, abstract=True):
                  header: cpl.core.PropertyList,
                  frame: cpl.ui.Frame):
         super().__init__(header, frame)
-        self.image: cpl.core.Image = None
+        self.image: cpl.core.Image = cpl.core.Image.load(os.path.expandvars("$SOF_DATA/LINEARITY_2RG.fits"))
 
     def save(self,
              recipe: 'PipelineRecipeImpl',
@@ -272,9 +304,11 @@ class ImageDataItem(DataItem, abstract=True):
              *,
              output_file_name: str = None) -> None:
 
+        par = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+
         cpl.dfs.save_image(
             recipe.frameset,  # All frames for the recipe
-            cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters]),
+            par,
             recipe.used_frames,  # The list of frames actually used  FixMe currently not working as intended
             self.image,  # Image to be saved
             recipe.name,  # Name of the recipe
@@ -287,13 +321,14 @@ class ImageDataItem(DataItem, abstract=True):
 class TableDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
 
-    def __init__(self, frame: cpl.core.PropertyList) -> None:
-        super().__init__(frame)
+    def __init__(self,
+                 header: cpl.core.PropertyList,
+                 frame: cpl.ui.Frame):
+        super().__init__(header, frame)
         self.table: cpl.core.Table = None
 
     def save(self,
              recipe: 'PipelineRecipe',
-             header: cpl.core.PropertyList,
              parameters: cpl.ui.ParameterList,
              *,
              output_file_name: str = None) -> None:

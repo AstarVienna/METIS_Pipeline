@@ -56,16 +56,11 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             Item = BadPixMap
 
-    class ProductGain(LinGainProduct):
-        Item = GainMap
+    ProductGainMap = GainMap2rg
+    ProductLinearity = LinearityMap2rg
+    ProductBadpixMap = BadPixMap2rg
 
-    class ProductLinearity(LinGainProduct):
-        Item = LinearityMap
-
-    class ProductBadpixMap(LinGainProduct):
-        Item = BadPixMap
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         raw_images = self.inputset.load_raw_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)
@@ -83,63 +78,11 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         linearity_image = combined_image    # TODO Actual implementation missing
         badpix_map = combined_image         # TODO Actual implementation missing
 
-        product_gain_map = self.ProductGain(self, header, gain_image)
-        product_linearity = self.ProductLinearity(self, header, linearity_image)
-        product_badpix_map = self.ProductBadpixMap(self, header, badpix_map)
+        product_gain_map = self.ProductGainMap(header, gain_image)
+        product_linearity = self.ProductLinearity(header, linearity_image)
+        product_badpix_map = self.ProductBadpixMap(header, badpix_map)
 
         return {product_gain_map, product_linearity, product_badpix_map}
-
-    def _dispatch_child_class(self) -> type["MetisDetLinGainImpl"]:
-        return {
-            '2RG': Metis2rgLinGainImpl,
-            'GEO': MetisGeoLinGainImpl,
-            'IFU': MetisIfuLinGainImpl,
-        }[self.inputset.detector]
-
-
-class Metis2rgLinGainImpl(MetisDetLinGainImpl):
-    class InputSet(MetisDetLinGainImpl.InputSet):
-        class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            Item = Linearity2rgRaw
-
-    class ProductGain(Detector2rgMixin, MetisDetLinGainImpl.ProductGain):
-        Item = GainMap2rg
-
-    class ProductLinearity(Detector2rgMixin, MetisDetLinGainImpl.ProductLinearity):
-        Item = LinearityMap2rg
-
-    class ProductBadpixMap(Detector2rgMixin, MetisDetLinGainImpl.ProductBadpixMap):
-        Item = BadPixMap2rg
-
-
-class MetisGeoLinGainImpl(MetisDetLinGainImpl):
-    class InputSet(MetisDetLinGainImpl.InputSet):
-        class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            Item = LinearityGeoRaw
-
-    class ProductGain(DetectorGeoMixin, MetisDetLinGainImpl.ProductGain):
-        Item = GainMapGeo
-
-    class ProductLinearity(DetectorGeoMixin, MetisDetLinGainImpl.ProductLinearity):
-        Item = LinearityMapGeo
-
-    class ProductBadpixMap(DetectorGeoMixin, MetisDetLinGainImpl.ProductBadpixMap):
-        Item = BadPixMapGeo
-
-
-class MetisIfuLinGainImpl(MetisDetLinGainImpl):
-    class InputSet(MetisDetLinGainImpl.InputSet):
-        class RawInput(MetisDetLinGainImpl.InputSet.RawInput):
-            Item = LinearityIfuRaw
-
-    class ProductGain(DetectorIfuMixin, MetisDetLinGainImpl.ProductGain):
-        Item = GainMapIfu
-
-    class ProductLinearity(DetectorIfuMixin, MetisDetLinGainImpl.ProductLinearity):
-        Item = LinearityMapIfu
-
-    class ProductBadpixMap(DetectorIfuMixin, MetisDetLinGainImpl.ProductBadpixMap):
-        Item = BadPixMapIfu
 
 
 class MetisDetLinGain(MetisRecipe):

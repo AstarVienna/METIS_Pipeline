@@ -19,15 +19,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.dataitem import ImageDataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, DetectorSpecificMixin
 
 
-class GainMap(DetectorSpecificMixin, DataItem, abstract=True):
+class GainMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _title = "gain map"
     _description = "Gain map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
 

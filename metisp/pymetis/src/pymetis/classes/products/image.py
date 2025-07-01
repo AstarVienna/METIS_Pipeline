@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import cpl
-from cpl.core import Msg
 
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.products.product import PIPELINE
