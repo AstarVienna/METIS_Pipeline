@@ -104,7 +104,7 @@ class NSciCalibrated(BandNMixin, TargetSciMixin, Calibrated,
 
 class NSciRestored(BandNMixin, DataItem,
                    description="N band image with a single positive beam restored from chop-nod image"):
-    _name = r'N_SCI_RESTORED'
+    _name_template = r'N_SCI_RESTORED'
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE

@@ -25,19 +25,14 @@ from pymetis.classes.mixins.source import SourceSpecificMixin, SourceLampMixin, 
 
 
 class FlatRaw(BandSpecificMixin, SourceSpecificMixin, Raw, abstract=True):
+    _name_template = r'{band}_FLAT_{source}_RAW'
+    _title_template = r'{band} flat {source} raw'
+    _description_template = r'Flat raw'
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'DRS.FILTER'}
-
-    @classmethod
-    def name(cls):
-        return rf'{cls.band()}_FLAT_{cls.source()}_RAW'
-
-    @classmethod
-    def title(cls) -> str:
-        return rf'{cls.band()} flat {cls.get_source_string()} raw'
 
 
 class LmFlatLampRaw(BandLmMixin, SourceLampMixin, FlatRaw):

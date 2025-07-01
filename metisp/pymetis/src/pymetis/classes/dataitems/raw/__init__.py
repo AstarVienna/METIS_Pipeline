@@ -26,7 +26,7 @@ class Raw(ImageDataItem, abstract=True):
     """
     Abstract intermediate class for all raw items.
     """
-    _name = r'RAW'
+    _name_template = r'RAW'
     _title = "abstract raw"
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _description = "Abstract base class for all raw inputs. Please subclass."

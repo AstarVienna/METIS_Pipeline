@@ -25,7 +25,7 @@ from pymetis.classes.mixins.band import BandSpecificMixin, BandLmMixin, BandNMix
 
 
 class Rsrf(DataItem):
-    _name = r'RSRF'
+    _name_template = r'RSRF'
     _title = "RSRF"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _description = "2D relative spectral response function"
@@ -33,7 +33,7 @@ class Rsrf(DataItem):
 
 
 class RsrfIfu(DetectorIfuMixin, DataItem):
-    _name = r'RSRF_IFU'
+    _name_template = r'RSRF_IFU'
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
@@ -45,4 +45,4 @@ class IfuRsrfBackground(DetectorIfuMixin, DataItem):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _name = r'IFU_RSRF_BACKGROUND'
+    _name_template = r'IFU_RSRF_BACKGROUND'

@@ -23,8 +23,9 @@ from pymetis.classes.dataitems.raw import Raw
 
 
 class LmChophomeRaw(Raw):
-    _name = r'LM_CHOPHOME_RAW'
-    _title = "LM chop-home raw"
+    _name_template = r'LM_CHOPHOME_RAW'
+    _title_template = "LM chop-home raw"
+    _description_template = ""
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords: set[str] = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',

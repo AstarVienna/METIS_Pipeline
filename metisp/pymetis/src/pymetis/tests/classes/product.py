@@ -21,17 +21,18 @@ import pytest
 
 from abc import ABC
 
+from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem
 from pymetis.classes.products import (PipelineProduct,
                                       PipelineImageProduct, PipelineTableProduct, PipelineMultipleProduct)
 
 
 @pytest.mark.product
 class BaseProductTest(ABC):
-    Product: type[PipelineProduct] = None
+    Product: type[DataItem] = None
 
     @pytest.mark.metadata
     def test_is_it_even_a_product(self):
-        assert issubclass(self.Product, PipelineProduct)
+        assert issubclass(self.Product, DataItem)
 
     #@pytest.mark.metadata
     #def test_does_product_group_match(self):
@@ -40,28 +41,32 @@ class BaseProductTest(ABC):
 
     @pytest.mark.metadata
     def test_does_it_have_a_level(self):
-        assert self.Product.Item.frame_level() is not None, \
+        assert self.Product.frame_level() is not None, \
             f"Product level is not defined for {self.Product.__qualname__}"
 
     @pytest.mark.metadata
     def test_does_it_have_a_frame_type(self):
-        assert self.Product.Item.frame_type() is not None, \
+        assert self.Product.frame_type() is not None, \
             f"Product frame type is not defined for {self.Product.__qualname__}"
 
 
 class ImageProductTest(BaseProductTest):
     def test_does_product_type_match(self):
-        assert issubclass(self.Product, PipelineImageProduct)
-        assert self.Product.frame_type == cpl.ui.Frame.FrameType.IMAGE
+        assert issubclass(self.Product, ImageDataItem), \
+            f"{self.Product} is not an ImageDataItem"
+        assert self.Product.frame_type() == cpl.ui.Frame.FrameType.IMAGE, \
+            f"{self.Product} frame type is not a IMAGE, but {self.Product.frame_type()}"
 
 
 class TableProductTest(BaseProductTest):
     def test_does_product_type_match(self):
-        assert issubclass(self.Product, PipelineTableProduct)
-        assert self.Product.frame_type == cpl.ui.Frame.FrameType.TABLE
+        assert issubclass(self.Product, TableDataItem), \
+            f"{self.Product} is not an TableDataItem"
+        assert self.Product.frame_type() == cpl.ui.Frame.FrameType.TABLE, \
+            f"{self.Product} frame type is not a TABLE, but {self.Product.frame_type()}"
 
 
 class MultipleProductTest(BaseProductTest):
     def test_does_product_type_match(self):
-        assert issubclass(self.Product, PipelineMultipleProduct)
+        assert issubclass(self.Product, MultipleDataItem)
         assert self.Product.frame_type == cpl.ui.Frame.FrameType.IMAGE

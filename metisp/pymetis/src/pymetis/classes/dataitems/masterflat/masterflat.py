@@ -19,22 +19,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.dataitem import ImageDataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
     BandLmMixin, SourceLampMixin, BandNMixin, SourceSpecificMixin, DetectorSpecificMixin
 
 
-class MasterFlat(DetectorSpecificMixin, DataItem, abstract=True):
-    _title = r"master flat"
+class MasterFlat(DetectorSpecificMixin, ImageDataItem, abstract=True):
+    _name_template = r'MASTER_FLAT_{detector}'
+    _title_template = r'{detector} master flat'
+    _description_template = "Abstract base class for master flats. Please subclass."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description = "Abstract base class for master flats. Please subclass."
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-    @classmethod
-    def name(cls) -> str:
-        return rf"MASTER_FLAT_{cls.detector()}"
 
 
 class MasterFlat2rg(Detector2rgMixin, MasterFlat):
@@ -49,18 +45,12 @@ class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
     pass
 
 
-class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, DataItem, abstract=True):
+class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstract=True):
+    _name_template = r'MASTER_IMG_FLAT_{source}_{band}'
+    _title_template = r'{band} {source} master flat'
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-
-    @classmethod
-    def name(cls):
-        return rf'MASTER_IMG_FLAT_{cls.source()}_{cls.band()}'
-
-    @classmethod
-    def title(cls):
-        return f"{cls.band()} {cls.get_source_string()} master flat"
 
     @classmethod
     def description(cls):

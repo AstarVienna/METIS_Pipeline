@@ -40,11 +40,9 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
             Item = LmChophomeRaw
-            _tags = re.compile(r"LM_CHOPHOME_RAW")
 
         class BackgroundInput(RawInput):
             Item = LmWcuOffRaw
-            _tags = re.compile(r"LM_WCU_OFF_RAW")
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
             Item = GainMap2rg
@@ -55,23 +53,14 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
         PersistenceMapInput = PersistenceMapInput
 
-        class BadpixMapInput(BadpixMapInput):
-            _required = False     # CHECK Optional for functional development
+        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+            pass
 
         class PinholeTableInput(PinholeTableInput):
             _required = False     # CHECK Is this needed for single pinhole?
 
-    class ProductCombined(PipelineImageProduct):
-        """
-        Final product: combined, background-subtracted images of the WCU source
-        """
-        Item = LmChophomeCombined
-
-    class ProductBackground(PipelineImageProduct):
-        """
-        Intermediate product: the instrumental background (WCU OFF)
-        """
-        Item = LmChophomeBackground
+    ProductCombined = LmChophomeCombined
+    ProductBackground = LmChophomeBackground
 
     def process_images(self) -> set[PipelineProduct]:
         """This function processes the input images

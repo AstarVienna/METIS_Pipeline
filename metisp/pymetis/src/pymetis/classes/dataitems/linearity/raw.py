@@ -24,21 +24,12 @@ from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, Dete
 
 
 class LinearityRaw(DetectorSpecificMixin, Raw, abstract=True):
+    _name_template = r'DETLIN_{detector}_RAW'
+    _title_template = r'{detector} linearity raw'
+    _description_template = r"Raw data for non-linearity determination for {detector} observations"
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
-
-    @classmethod
-    def name(cls):
-        return rf'DETLIN_{cls.detector()}_RAW'
-
-    @classmethod
-    def title(cls) -> str:
-        return rf'{cls.detector()} linearity raw'
-
-    @classmethod
-    def description(cls):
-        return rf"Raw data for non-linearity determination for {cls.detector()} observations"
 
 
 class Linearity2rgRaw(Detector2rgMixin, LinearityRaw):

@@ -24,32 +24,27 @@ from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, Dete
 
 
 class BackgroundReduced(DetectorSpecificMixin, DataItem, abstract=True):
+    _name_template = r'{detector}_BACKGROUND_REDUCED'
     _title = "background-reduced"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
-    @classmethod
-    def _pro_catg(cls):
-        return rf'{cls.detector()}_BACKGROUND_REDUCED'
-
 
 class BasicReduced(DetectorSpecificMixin, DataItem, abstract=True):
-    @classmethod
-    def name(cls):
-        return rf'{cls.band()}_SCI_BASIC_REDUCED'
+    _name_template = r'{band}_SCI_BASIC_REDUCED'
 
 
 class StdBasicReduced(Detector2rgMixin, BackgroundReduced):
-    _description = "Standard detrended exposure of the LM image mode."
+    _description_template = "Standard detrended exposure of the LM image mode."
     _tag = rf"LM_STD_BASIC_REDUCED"
 
 
 class SciBasicReducedGeo(DetectorGeoMixin, BackgroundReduced):
-    _description = "Science grade detrended exposure of the LM image mode."
+    _description_template = "Science grade detrended exposure of the LM image mode."
 
 
 class SkyBasicReduced(DataItem):
-    _title = "sky basic-reduced exposure"
+    _title_template = "sky basic-reduced exposure"
+    _description_template = "Detrended exposure of the sky."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "Detrended exposure of the sky."
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe

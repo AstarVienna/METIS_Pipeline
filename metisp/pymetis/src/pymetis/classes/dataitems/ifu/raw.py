@@ -23,19 +23,14 @@ from pymetis.classes.mixins import BandIfuMixin, TargetSpecificMixin, TargetStdM
 
 
 class IfuRaw(BandIfuMixin, TargetSpecificMixin, Raw, abstract=True):
+    _name_template = r'{band}_{target}_RAW'
+    _title_template = r"{band} {target} raw"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
                      "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
                      "DRS.IFU"}
 
-    @classmethod
-    def name(cls) -> str:
-        return rf'{cls.band()}_{cls.target()}_RAW'
-
-    @classmethod
-    def title(cls) -> str:
-        return rf"{cls.band()} {cls.get_target_string()} raw"
 
 
 class IfuNonSkyRaw(IfuRaw, abstract=True):
@@ -43,12 +38,12 @@ class IfuNonSkyRaw(IfuRaw, abstract=True):
 
 
 class IfuStdRaw(TargetStdMixin, IfuNonSkyRaw):
-    _description = "Raw spectra of flux standard star."
+    _description_template = "Raw spectra of flux standard star."
 
 
 class IfuSciRaw(TargetSciMixin, IfuNonSkyRaw):
-    _description = "IFU raw exposure of a science object."
+    _description_template = "IFU raw exposure of a science object."
 
 
 class IfuSkyRaw(TargetSkyMixin, IfuRaw):
-    _description = "Blank sky image."
+    _description_template = "Blank sky image."

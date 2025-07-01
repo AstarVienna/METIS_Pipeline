@@ -25,12 +25,11 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
-from pymetis.classes.dataitems.badpixmap import BadPixMap, BadPixMap2rg, BadPixMapGeo, BadPixMapIfu
-from pymetis.classes.dataitems.gainmap import GainMap, GainMap2rg, GainMapGeo, GainMapIfu
-from pymetis.classes.dataitems.linearity.linearity import LinearityMap, LinearityMap2rg, LinearityMapGeo, LinearityMapIfu
+from pymetis.classes.dataitems.badpixmap import BadPixMap, BadPixMap2rg
+from pymetis.classes.dataitems.gainmap import GainMap, GainMap2rg
+from pymetis.classes.dataitems.linearity.linearity import LinearityMap, LinearityMap2rg
 from pymetis.classes.dataitems.linearity.raw import Linearity2rgRaw, LinearityRaw, LinearityGeoRaw, LinearityIfuRaw
 from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
-from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput, BadpixMapInput, OptionalInputMixin

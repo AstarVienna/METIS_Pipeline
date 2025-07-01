@@ -24,15 +24,12 @@ from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, Dete
 
 
 class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
-    _title = r"master dark"
+    _name_template = r'MASTER_DARK_{detector}'
+    _title_template = r"{detector} master dark"
+    _description_template = "Abstract base class for master darks. Please subclass."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _description = "Abstract base class for master darks. Please subclass."
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-    @classmethod
-    def name(cls) -> str:
-        return rf"MASTER_DARK_{cls.detector()}"
 
 
 class MasterDark2rg(Detector2rgMixin, MasterDark):

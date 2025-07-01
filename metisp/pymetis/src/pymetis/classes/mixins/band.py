@@ -32,6 +32,10 @@ class BandSpecificMixin(Mixin):
             cls._band = band
         super().__init_subclass__(**kwargs)
 
+    @classmethod
+    def tag_parameters(cls):
+        return super().tag_parameters() | {'band': cls._band}
+
 
 class BandLmMixin(BandSpecificMixin, band='LM'):
     pass

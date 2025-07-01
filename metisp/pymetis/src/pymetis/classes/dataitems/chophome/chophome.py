@@ -24,7 +24,7 @@ from pymetis.classes.mixins.band import BandLmMixin
 
 
 class LmChophomeCombined(BandLmMixin, DataItem):
-    _name = r'LM_CHOPHOME_COMBINED'
+    _name_template = r'LM_CHOPHOME_COMBINED'
     _description = "Stacked LM band exposures."
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
@@ -33,7 +33,7 @@ class LmChophomeCombined(BandLmMixin, DataItem):
 
 
 class LmChophomeBackground(BandLmMixin, DataItem):
-    _name = r'LM_CHOPHOME_BACKGROUND'
+    _name_template = r'LM_CHOPHOME_BACKGROUND'
     _description = "Stacked WCU background images."
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE

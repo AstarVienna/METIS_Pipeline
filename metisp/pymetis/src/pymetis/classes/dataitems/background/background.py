@@ -24,22 +24,13 @@ from pymetis.classes.mixins import (TargetSpecificMixin, TargetSciMixin, TargetS
                                     BandNMixin, BandLmMixin, BandSpecificMixin)
 
 class Background(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+    _name_template = r'{band}_{target}_BKG'
+    _title_template = r'{band}_{target} background, subtracted'
+    _description_template = r"Thermal background subtracted images of {target} {band} exposures."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
-
-    @classmethod
-    def name(cls):
-        return rf"{cls.band()}_{cls.target()}_BKG"
-
-    @classmethod
-    def title(cls):
-        return rf"{cls.band()} {cls.get_target_string()} background-subtracted"
-
-    @classmethod
-    def description(cls):
-        return rf"Thermal background subtracted images of {cls.get_target_string()} {cls.band()} exposures."
 
 
 class LmStdBackground(BandLmMixin, TargetStdMixin, Background):

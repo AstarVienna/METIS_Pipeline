@@ -23,7 +23,7 @@ from pymetis.classes.mixins import DetectorIfuMixin
 
 
 class IfuWavecalRaw(DetectorIfuMixin, DataItem):
-    _name = r'IFU_WAVE_RAW'
+    _name_template = r'IFU_WAVE_RAW'
     _title = 'IFU wavecal raw'
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
@@ -36,7 +36,7 @@ class IfuWavecalRaw(DetectorIfuMixin, DataItem):
 
 
 class IfuWavecal(DetectorIfuMixin, DataItem):
-    _name = r'IFU_WAVECAL'
+    _name_template = r'IFU_WAVECAL'
     _title = "IFU wave calibration"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE

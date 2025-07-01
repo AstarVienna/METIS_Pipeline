@@ -17,22 +17,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import ABC
-
 from pymetis.classes.mixins.base import Mixin
 
 
 class DetectorSpecificMixin(Mixin):
-    _detector: str = None
-
-    @classmethod
-    def detector(cls) -> str:
-        return cls._detector
+    _detector = None
 
     def __init_subclass__(cls, *, detector=None, **kwargs):
         if detector is not None:
             cls._detector = detector
         super().__init_subclass__(**kwargs)
+
+    @classmethod
+    def tag_parameters(cls):
+        return super().tag_parameters() | {'detector': cls._detector}
 
 
 class Detector2rgMixin(DetectorSpecificMixin, detector='2RG'):

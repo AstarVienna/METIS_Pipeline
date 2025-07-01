@@ -21,90 +21,89 @@ import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.mixins.band import BandLmMixin, BandNMixin, BandIfuMixin
-from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
 class PersistenceMap(DataItem):
-    _title = "persistence map"
-    _name = "PERSISTENCE_MAP"
+    _name_template = r'PERSISTENCE_MAP'
+    _title_template = "persistence map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description = "Persistence map"
+    _description_template = "Persistence map"
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PERSISTENCE_MAP'
 
 
 class FluxCalTable(DataItem):
-    _title = "flux table"
-    _name = "FLUXCAL_TAB"
+    _name_template = r'FLUXCAL_TAB'
+    _title_template = "flux table"
+    _description_template = "Conversion between instrumental and physical flux units"
     _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _description = "Conversion between instrumental and physical flux units"
     _oca_keywords = {'PRO.CATG'}
 
 
 class PinholeTable(DataItem):
-    _title = "pinhole table"
-    _name = r'PINHOLE_TABLE'
+    _title_template = "pinhole table"
+    _name_template = r'PINHOLE_TABLE'
+    _description_template = "Table of pinhole locations"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description = "Table of pinhole locations"
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PINHOLE_TABLE'
 
 
 class AtmProfile(DataItem):
-    _name = r'ATM_PROFILE'
-    _title = "atmosphere profile"
+    _name_template = r'ATM_PROFILE'
+    _title_template = "atmosphere profile"
+    _description_template = ("Atmospheric profile containing height information on temperature, "
+                             "pressure and molecular abundances")
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description = ("Atmospheric profile containing height information on temperature, "
-                    "pressure and molecular abundances")
 
 
 class LsfKernel(DataItem):
-    _name = r'LSF_KERNEL'
-    _title = "line spread function kernel"
+    _name_template = r'LSF_KERNEL'
+    _title_template = "line spread function kernel"
+    _description_template = "Wavelength dependent model of the LSF"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description = "Wavelength dependent model of the LSF"
 
 
 class FluxStdCatalog(DataItem):
-    _name = r'FLUXSTD_CATALOG'
-    _title = "catalog of standard stars"
+    _name_template = r'FLUXSTD_CATALOG'
+    _title_template = "catalog of standard stars"
+    _description_template = "Catalog of standard stars"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description = "Catalog of standard stars"
     _oca_keywords = set()
 
 
 class IfuScienceCubeCalibrated(BandIfuMixin, DataItem):
-    _name = r'IFU_SCI_CUBE_CALIBRATED'
+    _name_template = r'IFU_SCI_CUBE_CALIBRATED'
+    _title_template = "IFU science cube calibrated"
+    _description_template = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
-    _title = "IFU science cube calibrated"
-    _description = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
 class AtmLineCatalog(DataItem):
-    _name = r'ATM_LINE_CAT'
+    _name_template = r'ATM_LINE_CAT'
     _oca_keywords = {'PRO.CATG'}
 
 
 class IfuTelluric(DataItem):
-    _name = r'IFU_TELLURIC'
-    _title = "Telluric correction"
+    _name_template = r'IFU_TELLURIC'
+    _title_template = "Telluric correction"
+    _description_template = "Transmission function for the telluric correction."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_type = cpl.ui.Frame.FrameType.TABLE
-    _description = "Transmission function for the telluric correction."
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}

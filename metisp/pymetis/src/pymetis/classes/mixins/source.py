@@ -28,6 +28,11 @@ class SourceSpecificMixin(Mixin):
     """
     _source: str = None
 
+    def __init_subclass__(cls, *, source=None, **kwargs):
+        if source is not None:
+            cls._source = source
+        super().__init_subclass__(**kwargs)
+
     @classmethod
     def source(cls) -> str:
         return cls._source
@@ -42,10 +47,14 @@ class SourceSpecificMixin(Mixin):
             'TWILIGHT': 'twilight',
         }.get(cls.source(), cls.source())
 
+    @classmethod
+    def tag_parameters(cls):
+        return super().tag_parameters() | {'source': cls._source}
 
-class SourceLampMixin(SourceSpecificMixin):
-    _source: str = r'LAMP'
+
+class SourceLampMixin(SourceSpecificMixin, source='LAMP'):
+    pass
 
 
-class SourceTwilightMixin(SourceSpecificMixin):
-    _source: str = r'TWILIGHT'
+class SourceTwilightMixin(SourceSpecificMixin, source='TWILIGHT'):
+    pass

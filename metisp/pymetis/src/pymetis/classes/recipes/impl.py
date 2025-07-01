@@ -62,9 +62,30 @@ class MetisRecipeImpl(ABC):
 
         self.frameset: cpl.ui.FrameSet = frameset
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
+        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
+        self.promote(**self.inputset.tag_parameters)
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
-        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
+
+    def promote(self, **parameters) -> None:
+        """
+        Promote the products of this class according to what was determined from the input data.
+        """
+
+        Msg.info(self.__class__.__qualname__,
+                 f"Promoting with {parameters}")
+
+        for name, item in self.list_product_classes():
+            print("About to promote", item._name_template.format(**parameters), "with", parameters)
+            new_class = DataItem.find(item._name_template.format(**parameters))
+            if new_class is None:
+                raise TypeError(f"Could not promote class {item}: {item._name_template.format(**parameters)} is not a registered tag")
+            else:
+                Msg.info(self.__class__.__qualname__,
+                         f"Promoting {item} to {new_class.__qualname__}")
+
+            print(name, new_class)
+            self.__class__.__setattr__(self, name, new_class)
 
     def run(self) -> cpl.ui.FrameSet:
         """
@@ -163,7 +184,7 @@ class MetisRecipeImpl(ABC):
             'title': self.name,
             'inputset': self.inputset.as_dict(),
             'products': {
-                str(product.category): product.as_dict() for product in self.products
+                str(product.name()): product.as_dict() for product in self.products
             }
         }
 
@@ -223,8 +244,8 @@ class MetisRecipeImpl(ABC):
         return self.__class__
 
     @classmethod
-    def list_products(cls) -> list[tuple[str, type[PipelineProduct]]]:
-        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
+    def list_product_classes(cls) -> list[tuple[str, type[PipelineProduct]]]:
+        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, DataItem))
 
     #def promote(self, *mixins):
     #    self.inputset.promote(*mixins)

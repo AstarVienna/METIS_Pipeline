@@ -28,6 +28,11 @@ class TargetSpecificMixin(Mixin):
     """
     _target: str = None
 
+    def __init_subclass__(cls, *, target=None, **kwargs):
+        if target is not None:
+            cls._target = target
+        super().__init_subclass__(**kwargs)
+
     @classmethod
     def target(cls) -> str:
         return cls._target
@@ -43,14 +48,18 @@ class TargetSpecificMixin(Mixin):
             'SKY': 'sky',
         }.get(cls.target(), cls.target())
 
-
-class TargetStdMixin(TargetSpecificMixin):
-    _target: str = r'STD'
-
-
-class TargetSciMixin(TargetSpecificMixin):
-    _target: str = r'SCI'
+    @classmethod
+    def tag_parameters(cls):
+        return super().tag_parameters() | {'target': cls._target}
 
 
-class TargetSkyMixin(TargetSpecificMixin):
-    _target: str = r'SKY'
+class TargetStdMixin(TargetSpecificMixin, target='STD'):
+    pass
+
+
+class TargetSciMixin(TargetSpecificMixin, target='SCI'):
+    pass
+
+
+class TargetSkyMixin(TargetSpecificMixin, target='SKY'):
+    pass

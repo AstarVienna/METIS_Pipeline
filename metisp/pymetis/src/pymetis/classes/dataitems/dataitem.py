@@ -41,16 +41,16 @@ class DataItem:
     _registry: dict[str, type['DataItem']] = {}
 
     # Printable title of the data item. Not used internally, only for human-oriented output
-    _title: str = None                      # No universal title makes sense
+    _title_template: str = None                      # No universal title makes sense
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
-    _name: str = None                       # No universal name makes sense
+    _name_template: str = None                       # No universal name makes sense
     # CPL frame group and level
     _frame_group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _frame_level: cpl.ui.Frame.FrameLevel = None  # No sensible default; must be provided explicitly
     _frame_type: cpl.ui.Frame.FrameType = None
 
     # Description for man page
-    _description: Optional[str] = None      # A verbose string; should correspond to the DRLD description
+    _description_template: Optional[str] = None      # A verbose string; should correspond to the DRLD description
 
     _oca_keywords: set[str] = set()
 
@@ -70,34 +70,42 @@ class DataItem:
 
         if not abstract:
             assert cls.__regex_pattern.match(cls.name()) is not None, \
-                (f"Trying to register {cls.__name__} ({cls.name()}) which is not fully specialized "
+                (f"Tried to register {cls.__name__} ({cls.name()}) which is not fully specialized "
                  f"(did you mean to set `abstract=True` in the class declaration?)")
 
-            if cls.name() in DataItem._registry:
+            if cls.name().format in DataItem._registry:
                 Msg.warning(cls.__qualname__,
-                            f"Class {cls.name()} has already been created: {DataItem._registry[cls.name()]}")
+                            f"A class with tag {cls.name()} is already registered: {DataItem._registry[cls.name()]}")
             else:
-                Msg.debug(cls.__qualname__, f"Registered class {cls.name()}: {cls}")
+                Msg.debug(cls.__qualname__, f"Registered a new class {cls.name()}: {cls}")
                 DataItem._registry[cls.name()] = cls
 
         if description is not None:
-            cls._description = description
+            cls._description_template = description
 
         super().__init_subclass__(**kwargs)
 
     @classmethod
     def find(cls, key):
+        """
+        Try to retrieve the DataItem subclass with tag `key` from the global registry.
+        If not found, return None instead.
+        """
         if key in DataItem._registry:
             return DataItem._registry[key]
         else:
             return None
 
     @classmethod
+    def tag_parameters(cls) -> dict[str, str]:
+        return {}
+
+    @classmethod
     def title(cls) -> str:
         """
-        Return the human-readable title of this data item, e.g. "2RG linearity raw"
+        Return a human-readable title of this data item, e.g. "2RG linearity raw"
         """
-        return cls._title
+        return cls._title_template
 
     @classmethod
     def name(cls) -> str:
@@ -105,7 +113,10 @@ class DataItem:
         Return the machine-oriented name of this data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
         By default, it returns `_name`, but may be overridden to build the actual name from other attributes.
         """
-        return cls._name
+        try:
+            return cls._name_template.format(**cls.tag_parameters())
+        except KeyError:
+            return cls._name_template
 
     @classmethod
     @final
@@ -118,11 +129,17 @@ class DataItem:
     @classmethod
     @final
     def frame_level(cls):
+        """
+        Return the level of this data item. Should not be overridden (at least Martin does not see any reason now).
+        """
         return cls._frame_level
 
     @classmethod
     @final
     def frame_type(cls):
+        """
+        Return the type of this data item. Should not be overridden (at least Martin does not see any reason now).
+        """
         return cls._frame_type
 
     @classmethod
@@ -132,19 +149,26 @@ class DataItem:
         By default, this just returns the protected internal attribute,
         but can be overridden to build the description from other data, such as band or target.
         """
-        return cls._description
+        if cls._description_template is None:
+            return None
+        try:
+            return cls._description_template.format(**cls.tag_parameters())
+        except KeyError:
+            return cls._description_template
 
     @classmethod
     def oca_keywords(cls):
         """
-        Return the OCA keywords of this data item. By default, it's just the value of the protected attribute,
-        but feel free to override if necessary.
+        Return the OCA keywords of this data item.
+        By default, it's just the value of the protected attribute, but feel free to override if necessary.
         """
         return cls._oca_keywords
 
     @classmethod
     def pro_catg(cls):
-        return NotImplemented # ToDo finish
+        """ Return the PRO CATG attribute
+        Currently same as _name, and will probably stay like that (and if that is the case it will be removed). """
+        return cls.name()
 
     def __init__(self,
                  header: cpl.core.PropertyList,
@@ -344,3 +368,7 @@ class TableDataItem(DataItem, abstract=True):
             self.output_file_name,
             header=self.header,
         )
+
+
+class MultipleDataItem(DataItem, abstract=True):
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE

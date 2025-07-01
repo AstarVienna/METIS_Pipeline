@@ -24,16 +24,12 @@ from ..mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorG
 
 
 class BadPixMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
-    _title: str = "bad pixel map"
-    _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _title_template = "bad pixel map"
+    _name_template = r'BADPIX_MAP_{detector}'
+    _description_template = "Bad pixel map. Warning: may contain detector masks."
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description: str = "Bad pixel map. Also contains detector masks."
-    _oca_keywords: set[str] = {'PRO.CATG'}
-
-    @classmethod
-    def name(cls):
-        return rf"BADPIX_MAP_{cls.detector()}"
+    _oca_keywords = {'PRO.CATG'}
 
 
 class BadPixMap2rg(Detector2rgMixin, BadPixMap):
