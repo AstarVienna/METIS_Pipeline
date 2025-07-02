@@ -25,7 +25,6 @@ from cpl.core import Msg
 from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.classes.dataitems.combined import LmStdCombined
 from pymetis.classes.dataitems.common import FluxCalTable
-from pymetis.classes.products import PipelineProduct, BandSpecificProduct, PipelineTableProduct, PipelineImageProduct
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import FluxstdCatalogInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
@@ -35,18 +34,13 @@ class MetisImgStdProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = BackgroundSubtracted
-            _tags: re.Pattern = re.compile(r"(?P<band>LM|N)_STD_BKG_SUBTRACTED")
-            _description: str = "Thermal background subtracted images of standard LM/N exposures."
 
         FluxstdCatalogInput = FluxstdCatalogInput
 
-    class ProductImgFluxCalTable(PipelineTableProduct):
-        Item = FluxCalTable
+    ProductImgFluxCalTable = FluxCalTable
+    ProductImgStdCombined = LmStdCombined
 
-    class ProductImgStdCombined(BandSpecificProduct, PipelineImageProduct):
-        Item = LmStdCombined
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -61,7 +55,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         combined_image = self.combine_images(raw_images, "average")
         table = self._create_dummy_table()
 
-        product_fluxcal = self.ProductImgFluxCalTable(self, self.header, table)
-        product_combined = self.ProductImgStdCombined(self, self.header, combined_image)
+        product_fluxcal = self.ProductImgFluxCalTable(self.header, table)
+        product_combined = self.ProductImgStdCombined(self.header, combined_image)
 
         return {product_fluxcal, product_combined}

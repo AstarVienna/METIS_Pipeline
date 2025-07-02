@@ -62,23 +62,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     # ++++++++++++++ Defining ouput +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Recipe is foreseen to do both, create transmission and response functions
     # We therefore need to define transmission spectrum and response curve class
+    # Note that these should not be used directly if there is any chance of promotion.
 
-    # Tranmission spectrum
-    class ProductTelluricTransmission(PipelineImageProduct):
-        """
-        Final product: Transmission function for the telluric correction
-        """
-        Item = IfuTelluric
-
-    # Response curve
-    class ProductResponseFunction(TargetSpecificProduct, PipelineImageProduct):
-        """
-        Final product: response curve for the flux calibration
-        """
-        Item = IfuReduced1d
-
-    class ProductFluxcalTab(PipelineTableProduct):
-        Item = FluxCalTable
+    ProductTelluricTransmission = IfuTelluric
+    ProductResponseFunction = IfuReduced1d
+    ProductFluxcalTab = FluxCalTable
 
 # TODO: Define input type for the paramfile in common.py
 
@@ -118,27 +106,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         image = self._create_dummy_image()
         table = self._create_dummy_table()
 
-        product_telluric_transmission = self.ProductTelluricTransmission(self, header, image)
-        product_reduced_1d = self.ProductResponseFunction(self, header, image)
-        product_fluxcal_tab = self.ProductFluxcalTab(self, header, table)
+        product_telluric_transmission = self.ProductTelluricTransmission(header, image)
+        product_reduced_1d = self.ProductResponseFunction(header, image)
+        product_fluxcal_tab = self.ProductFluxcalTab(header, table)
 
         return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}
-
-    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
-        return {
-            'STD': MetisIfuTelluricStdImpl,
-            'SCI': MetisIfuTelluricSciImpl,
-        }[self.inputset.target]
-
-
-class MetisIfuTelluricStdImpl(MetisIfuTelluricImpl):
-    class ProductResponseFunction(TargetStdMixin, MetisIfuTelluricImpl.ProductResponseFunction):
-        Item = IfuStdReduced1d
-
-
-class MetisIfuTelluricSciImpl(MetisIfuTelluricImpl):
-    class ProductResponseFunction(TargetSciMixin, MetisIfuTelluricImpl.ProductResponseFunction):
-        Item = IfuSciReduced1d
 
 
 class MetisIfuTelluric(MetisRecipe):

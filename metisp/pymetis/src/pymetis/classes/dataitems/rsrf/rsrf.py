@@ -16,33 +16,33 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.raw import Raw
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, DetectorSpecificMixin
-from pymetis.classes.mixins.band import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import DetectorIfuMixin
 
 
 class Rsrf(DataItem):
     _name_template = r'RSRF'
-    _title = "RSRF"
+    _title_template = "RSRF"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _description = "2D relative spectral response function"
+    _description_template = "2D relative spectral response function"
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
 class RsrfIfu(DetectorIfuMixin, DataItem):
     _name_template = r'RSRF_IFU'
+    _title_template = "RSRF IFU"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _description = "2D relative spectral response function"
-    _title = "RSRF IFU"
+    _description_template = "2D relative spectral response function"
 
 
 class IfuRsrfBackground(DetectorIfuMixin, DataItem):
+    _name_template = r'IFU_RSRF_BACKGROUND'
+    _title_template = "IFU RSRF background"
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _name_template = r'IFU_RSRF_BACKGROUND'

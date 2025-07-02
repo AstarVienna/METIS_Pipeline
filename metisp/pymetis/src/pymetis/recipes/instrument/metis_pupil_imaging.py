@@ -62,12 +62,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
 
-
-    class ProductReduced(PipelineImageProduct):
-        """
-        Define the output product, here a reduced pupil image.
-        """
-        Item = PupilImagingReduced
+    ProductReduced = PupilImagingReduced
 
     def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
@@ -128,7 +123,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product = self.ProductReduced(self, header, combined_image)     # FixMe Hardcoded band for now
+        product = self.ProductReduced(header, combined_image)
 
         return {product}
 

@@ -19,22 +19,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.dataitem import ImageDataItem
 from pymetis.classes.mixins.band import BandLmMixin
 
 
-class LmChophomeCombined(BandLmMixin, DataItem):
+class LmChophomeCombined(BandLmMixin, ImageDataItem):
     _name_template = r'LM_CHOPHOME_COMBINED'
-    _description = "Stacked LM band exposures."
+    _title_template = "LM chop-home combined"
+    _description_template = "Stacked LM band exposures."
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI20.NAME'}
 
 
-class LmChophomeBackground(BandLmMixin, DataItem):
+class LmChophomeBackground(BandLmMixin, ImageDataItem):
     _name_template = r'LM_CHOPHOME_BACKGROUND'
-    _description = "Stacked WCU background images."
+    _title_template = "LM chop-home background"
+    _description_template = "Stacked WCU background images."
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT

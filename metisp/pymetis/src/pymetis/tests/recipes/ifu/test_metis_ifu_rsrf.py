@@ -58,7 +58,7 @@ class TestProductRsrfBackground(BaseProductTest):
 
 
 class TestProductMasterFlatIfu(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductMasterFlatIfu
+    Product: type[PipelineProduct] = Impl.ProductMasterFlat
 
 
 class TestProductRsrfIfu(BaseProductTest):
@@ -66,7 +66,7 @@ class TestProductRsrfIfu(BaseProductTest):
 
 
 class TestProductBadpixMap(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductBadpixMapIfu
+    Product: type[PipelineProduct] = Impl.ProductBadpixMap
 
 
 class TestBlackBodyImg:

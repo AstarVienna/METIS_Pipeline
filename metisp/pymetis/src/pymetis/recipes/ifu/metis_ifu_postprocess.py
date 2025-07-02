@@ -35,8 +35,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
             Item: type[DataItem] = IfuScienceCubeCalibrated
             _tags: re.Pattern = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
 
-    class ProductSciCoadd(PipelineImageProduct):
-        Item: type[DataItem] = IfuSciCoadd
+    ProductSciCoadd = IfuSciCoadd
 
     def determine_output_grid(self):
         pass
@@ -55,7 +54,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         header = self._create_dummy_header()
         image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file)  # ToDo actual processing
 
-        product = self.ProductSciCoadd(self, header, image)
+        product = self.ProductSciCoadd(header, image)
 
         return {product}  # ToDo is just a dummy for now
 

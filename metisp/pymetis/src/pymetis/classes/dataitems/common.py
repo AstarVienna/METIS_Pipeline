@@ -38,8 +38,8 @@ class FluxCalTable(DataItem):
     _name_template = r'FLUXCAL_TAB'
     _title_template = "flux table"
     _description_template = "Conversion between instrumental and physical flux units"
-    _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG'}
 

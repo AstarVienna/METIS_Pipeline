@@ -21,7 +21,7 @@ import cpl
 
 from pymetis.classes.dataitems.dataitem import ImageDataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
-    BandLmMixin, SourceLampMixin, BandNMixin, SourceSpecificMixin, DetectorSpecificMixin
+    BandLmMixin, SourceLampMixin, BandNMixin, SourceSpecificMixin, DetectorSpecificMixin, SourceTwilightMixin
 
 
 class MasterFlat(DetectorSpecificMixin, ImageDataItem, abstract=True):
@@ -48,13 +48,9 @@ class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
 class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'MASTER_IMG_FLAT_{source}_{band}'
     _title_template = r'{band} {source} master flat'
+    _description_template = "Master flat frame for {band} data"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-
-    @classmethod
-    def description(cls):
-        return f"Master flat frame for {cls.band()} data"
 
 
 class MasterImgFlatLampLm(BandLmMixin, SourceLampMixin, MasterImgFlat):
@@ -62,4 +58,8 @@ class MasterImgFlatLampLm(BandLmMixin, SourceLampMixin, MasterImgFlat):
 
 
 class MasterImgFlatLampN(BandNMixin, SourceLampMixin, MasterImgFlat):
+    pass
+
+
+class MasterImgFlatTwilightN(BandNMixin, SourceTwilightMixin, MasterImgFlat):
     pass

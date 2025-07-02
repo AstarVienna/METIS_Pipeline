@@ -17,11 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion.table import LmDistortionTable
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -35,9 +32,6 @@ class MetisLmImgCalibrateImpl(MetisImgCalibrateImpl):
 
         class DistortionTableInput(BandLmMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
             Item = LmDistortionTable
-
-    class ProductSciCalibrated(BandLmMixin, MetisImgCalibrateImpl.ProductSciCalibrated):
-        pass
 
 
 class MetisLmImgCalibrate(MetisRecipe):

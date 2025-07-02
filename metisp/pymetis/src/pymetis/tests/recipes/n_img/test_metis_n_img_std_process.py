@@ -40,16 +40,16 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProductNImgStdCombined(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductImgStdCombined
+    Product = Impl.ProductImgStdCombined
 
 
 class TestProductNImgFluxcalTable(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductImgFluxCalTable
+    Product = Impl.ProductImgFluxCalTable

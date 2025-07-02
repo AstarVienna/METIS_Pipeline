@@ -27,21 +27,12 @@ class ImageRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
     """
     Abstract intermediate class for image raws.
     """
+    _name_template = r'{band}_IMAGE_{target}_RAW'
+    _title_template = "{band} image {target} raw"
+    _description_template = "Raw exposure of a {target} in the {band} image mode."
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
                      "INS.OPTI9.NAME", "INS.OPTI10.NAME", "DRS.FILTER"}
-
-    @classmethod
-    def name(cls) -> str:
-        return rf'{cls.band()}_IMAGE_{cls.target()}_RAW'
-
-    @classmethod
-    def title(cls) -> str:
-        return rf'{cls.band()} {cls.get_target_string()} raw'
-
-    @classmethod
-    def description(cls) -> str:
-        return rf"Raw exposure of a {cls.get_target_string()} in the {cls.band()} image mode."
 
 
 class LmImageStdRaw(BandLmMixin, TargetStdMixin, ImageRaw):

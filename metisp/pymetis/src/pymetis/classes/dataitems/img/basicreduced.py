@@ -21,33 +21,18 @@ from abc import ABC
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.dataitem import ImageDataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
     TargetSpecificMixin, BandLmMixin, TargetSciMixin, TargetStdMixin, TargetSkyMixin, BandNMixin
 
 
-class BasicReduced(BandLmMixin, TargetSpecificMixin, DataItem, abstract=True):
-    _title: str = "basic reduced"
-    _frame_group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+class BasicReduced(BandLmMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
+    _name_template = r'{band}_{target}_BASIC_REDUCED'
+    _title_template = "{band} {target} basic reduced"
+    _description_template = "Detrended exposure of the {band} image mode."
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords: set[str] = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
-
-    @classmethod
-    def name(cls) -> str:
-        return rf'{cls.band()}_{cls.target()}_BASIC_REDUCED'
-
-    @classmethod
-    def title(cls):
-        return f"{cls.band()} {cls.get_target_string()} basic reduced"
-
-    @classmethod
-    def _pro_catg(cls):
-        return rf"{cls._band}_BASIC_REDUCED"
-
-    @classmethod
-    def description(cls):
-        return f"Detrended exposure of the {cls.band()} image mode."
+    _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
 
 class LmStdBasicReduced(TargetStdMixin, BasicReduced):
@@ -64,47 +49,35 @@ class LmSkyBasicReduced(TargetSciMixin, BasicReduced):
         return "Detrended exposure of the sky."
 
 
-class Calibrated(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+class Calibrated(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
+    _name_template = r'{band}_{target}_CALIBRATED'
+    _title_template = '{band} {target} calibrated'
+    _description_template = 'Calibrated {band} {target}'
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW  # This actually has to be raw as it is "primary input" (rite-of-passage)
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-    @classmethod
-    def name(cls):
-        return rf'{cls.band()}_{cls.target()}_CALIBRATED'
-
-    @classmethod
-    def title(cls):
-        return f"{cls.band()} {cls.get_target_string()} calibrated"
-
-    @classmethod
-    def description(cls):
-        return f"calibrated {cls.band()} {cls.get_target_string()}"
 
 
 class LmStdCalibrated(BandLmMixin, TargetStdMixin, Calibrated):
     pass
 
 
-class LmSciCalibrated(BandLmMixin, TargetSciMixin, Calibrated,
-                      description="LM band image with flux calibration, WC coordinate system"
-                      "and distortion information"):
-    pass
+class LmSciCalibrated(BandLmMixin, TargetSciMixin, Calibrated):
+    _description_template = "LM band image with flux calibration, WC coordinate system and distortion information"
 
 
 class NStdCalibrated(BandNMixin, TargetStdMixin, Calibrated):
     pass
 
 
-class NSciCalibrated(BandNMixin, TargetSciMixin, Calibrated,
-                     description="N band image with flux calibration and distortion information"):
-    pass
+class NSciCalibrated(BandNMixin, TargetSciMixin, Calibrated):
+    _description_template = "N band image with flux calibration and distortion information"
 
 
-class NSciRestored(BandNMixin, DataItem,
-                   description="N band image with a single positive beam restored from chop-nod image"):
+class NSciRestored(BandNMixin, ImageDataItem):
     _name_template = r'N_SCI_RESTORED'
+    _description_template = "N band image with a single positive beam restored from chop-nod image"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE

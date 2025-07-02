@@ -46,11 +46,9 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LinearityRaw
-            _tags: re.Pattern = re.compile(r"DETLIN_(?P<detector>2RG|GEO|IFU)_RAW")
 
         class WcuOffInput(RawInput):
             Item = WcuOffRaw
-            _tags: re.Pattern = re.compile(r"(?P<band>LM|N|IFU)_WCU_OFF_RAW")
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             Item = BadPixMap
@@ -86,16 +84,15 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
 class MetisDetLinGain(MetisRecipe):
     # Fill in recipe information
-    _name: str = "metis_det_lingain"
-    _version: str = "0.1"
-    _author: str = "A*"
-    _email: str = "hugo@buddelmeijer.nl"
-    _synopsis: str = "Measure detector non-linearity and gain"
-    _description: str = (
+    _name = "metis_det_lingain"
+    _version = "0.1"
+    _author = "A*"
+    _email = "hugo@buddelmeijer.nl"
+    _synopsis = "Measure detector non-linearity and gain"
+    _description = (
         "Prototype to create a METIS linear gain map."
     )
 
-    _matched_keywords: set[str] = set()
     _algorithm = """Subtract instrument dark (hdrl_imagelist_sub_image).
     Compute mean and variance for each frame.
     Gain is determined as the slope of variance against mean (metis_derive_gain).

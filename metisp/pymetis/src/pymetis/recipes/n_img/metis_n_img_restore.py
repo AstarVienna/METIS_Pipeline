@@ -30,13 +30,12 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
         class CalibratedInput(SinglePipelineInput):
             Item = NSciCalibrated
 
-    class ProductRestored(PipelineImageProduct):
-        Item = NSciRestored
+    ProductRestored = NSciRestored
 
     def process_images(self) -> set[PipelineProduct]:
         header = self._create_dummy_header()
         image = self._create_dummy_image()
-        product = self.ProductRestored(self, header, image)
+        product = self.ProductRestored(header, image)
 
         return {product}    # ToDo is just a dummy for now
 

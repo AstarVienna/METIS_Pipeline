@@ -62,7 +62,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     ProductCombined = LmChophomeCombined
     ProductBackground = LmChophomeBackground
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         """This function processes the input images
 
         - stack the wcu_off images into background_img
@@ -115,8 +115,8 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
                                               "signal-to-noise ratio of pinhole image"))
 
         return {
-            self.ProductCombined(self, header=combined_hdr, image=combined_img),
-            self.ProductBackground(self, header=background_hdr, image=background_img),
+            self.ProductCombined(combined_hdr, combined_img),
+            self.ProductBackground(background_hdr, background_img),
         }
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:

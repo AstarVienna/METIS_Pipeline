@@ -22,9 +22,8 @@ import re
 import cpl
 from typing import Literal
 
-from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion.table import IfuDistortionTable
-from pymetis.classes.dataitems.ifu.raw import IfuSciRaw, IfuSkyRaw, IfuRaw
+from pymetis.classes.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
 from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuStdReducedCube, \
     IfuSciReduced, IfuStdReduced, IfuReducedCube, IfuStdCombined, IfuSciCombined, \
     IfuSciReducedCube
@@ -52,24 +51,15 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         WavecalInput = WavecalInput
 
         class DistortionTableInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"IFU_DISTORTION_TABLE")
-            Item: type[DataItem] = IfuDistortionTable
+            Item = IfuDistortionTable
 
         class RsrfInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"RSRF_IFU")
-            Item: type[DataItem] = RsrfIfu
+            Item = RsrfIfu
 
-    class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
-        Item = IfuReduced
-
-    class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
-        Item = IfuBackground
-
-    class ProductReducedCube(TargetSpecificProduct, PipelineImageProduct):
-        Item = IfuReducedCube
-
-    class ProductCombined(TargetSpecificProduct, PipelineImageProduct):
-        Item = IfuCombined
+    ProductReduced = IfuReduced
+    ProductBackground = IfuBackground
+    ProductReducedCube = IfuReducedCube
+    ProductCombined = IfuCombined
 
     def process_images(self) -> set[PipelineProduct]:
         # do something... a lot of something
@@ -79,10 +69,10 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         image = self.combine_images(images, "add")
 
         return {
-            self.ProductReduced(self, header, image),
-            self.ProductBackground(self, header, image),
-            self.ProductReducedCube(self, header, image),
-            self.ProductCombined(self, header, image),
+            self.ProductReduced(header, image),
+            self.ProductBackground(header, image),
+            self.ProductReducedCube(header, image),
+            self.ProductCombined(header, image),
         }
 
     def _dispatch_child_class(self):

@@ -17,18 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
 from abc import ABC
-
-import cpl
 
 from pymetis.classes.dataitems.background.subtracted import LmSciBackgroundSubtracted
 from pymetis.classes.dataitems.img.basicreduced import LmSciCalibrated
-from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion.table import DistortionTable
-from pymetis.classes.products import BandSpecificProduct, PipelineImageProduct
 from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.classes.products.product import PipelineProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs import FluxCalTableInput
 
@@ -36,20 +30,18 @@ from pymetis.classes.inputs import FluxCalTableInput
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
-            Item: type[DataItem] = LmSciBackgroundSubtracted
+            Item = LmSciBackgroundSubtracted
 
         FluxcalTableInput = FluxCalTableInput
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
-            Item: type[DataItem] = DistortionTable
+            Item = DistortionTable
 
+    ProductSciCalibrated = LmSciCalibrated
 
-    class ProductSciCalibrated(BandSpecificProduct, PipelineImageProduct):
-        Item = LmSciCalibrated
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         combined_image = self._create_dummy_image()
-        product_calibrated: PipelineProduct = self.ProductSciCalibrated(self, self.header, combined_image)
+        product_calibrated = self.ProductSciCalibrated(self.header, combined_image)
 
         return {product_calibrated}

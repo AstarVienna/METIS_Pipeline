@@ -25,7 +25,7 @@ from pymetis.classes.mixins import BandSpecificMixin, BandIfuMixin, BandLmMixin
 
 class SciCoadd(BandSpecificMixin, DataItem, abstract=True):
     _name_template = r'{band}_SCI_COADD'
-    _title_template = r"{cls.band()} science co-added"
+    _title_template = r"{band} science co-added"
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_type = cpl.ui.Frame.FrameType.IMAGE

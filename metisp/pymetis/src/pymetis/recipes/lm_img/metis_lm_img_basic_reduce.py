@@ -27,7 +27,8 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems.img.raw import LmImageStdRaw, ImageRaw
-from pymetis.classes.dataitems.img.basicreduced import LmStdBasicReduced, LmSciBasicReduced, LmSkyBasicReduced
+from pymetis.classes.dataitems.img.basicreduced import LmStdBasicReduced, LmSciBasicReduced, LmSkyBasicReduced, \
+    BasicReduced
 from pymetis.classes.dataitems.masterflat import MasterImgFlat
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.target import TargetSkyMixin
@@ -79,6 +80,8 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # Also, one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
+
+    ProductBasicReduced = BasicReduced
 
     class ProductBasicReduced(TargetSpecificProduct, PipelineMultipleProduct):
         """

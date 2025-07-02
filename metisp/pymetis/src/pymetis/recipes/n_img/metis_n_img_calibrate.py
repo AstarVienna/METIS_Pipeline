@@ -34,9 +34,6 @@ class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):
         class DistortionTableInput(BandNMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
             Item = NDistortionTable
 
-    class ProductSciCalibrated(BandNMixin, MetisImgCalibrateImpl.ProductSciCalibrated):
-        pass
-
 
 class MetisNImgCalibrate(MetisRecipe):
     _name: str = "metis_n_img_calibrate"

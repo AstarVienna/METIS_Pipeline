@@ -33,17 +33,20 @@ class IfuRaw(BandIfuMixin, TargetSpecificMixin, Raw, abstract=True):
 
 
 
-class IfuNonSkyRaw(IfuRaw, abstract=True):
-    pass
-
-
-class IfuStdRaw(TargetStdMixin, IfuNonSkyRaw):
+class IfuStdRaw(TargetStdMixin, IfuRaw):
     _description_template = "Raw spectra of flux standard star."
 
 
-class IfuSciRaw(TargetSciMixin, IfuNonSkyRaw):
+class IfuSciRaw(TargetSciMixin, IfuRaw):
     _description_template = "IFU raw exposure of a science object."
 
 
-class IfuSkyRaw(TargetSkyMixin, IfuRaw):
+class IfuSkyRaw(BandIfuMixin, Raw):
+    _name_template = r'IFU_SKY_RAW'
+    _title_template = r"IFU sky raw"
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
+    _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
+                     "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
+                     "DRS.IFU"}
     _description_template = "Blank sky image."

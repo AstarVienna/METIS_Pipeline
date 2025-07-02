@@ -105,7 +105,10 @@ class DataItem:
         """
         Return a human-readable title of this data item, e.g. "2RG linearity raw"
         """
-        return cls._title_template
+        assert cls._title_template is not None, \
+            f"{cls.__name__} title template is None"
+
+        return cls._title_template.format(**cls.tag_parameters())
 
     @classmethod
     def name(cls) -> str:
@@ -113,6 +116,8 @@ class DataItem:
         Return the machine-oriented name of this data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
         By default, it returns `_name`, but may be overridden to build the actual name from other attributes.
         """
+        assert cls._name_template is not None, \
+            f"{cls.__name__} name template is None"
         return cls._name_template.format(**cls.tag_parameters())
 
     @classmethod

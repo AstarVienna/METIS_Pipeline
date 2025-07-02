@@ -73,35 +73,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         DistortionTableInput = DistortionTableInput
         WavecalInput = WavecalInput
 
-    class ProductRsrfBackground(PipelineImageProduct):
-        """
-        Intermediate product: the instrumental background (WCU OFF)
-        """
-        Item = IfuRsrfBackground
-
-        # SKEL: copy product keywords from the header
-        def add_properties(self) -> None:
-            super().add_properties()
-            self.properties.append(self.header)
-
-    class ProductMasterFlatIfu(PipelineImageProduct):
-        Item = MasterFlatIfu
-
-        # SKEL: copy product keywords from the header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
-    class ProductRsrfIfu(PipelineTableProduct):
-        Item = RsrfIfu
-
-        # SKEL: copy product keywords from the header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
-    class ProductBadpixMapIfu(DetectorIfuMixin, ProductBadpixMapDet):
-        Item = BadPixMapIfu
+    ProductRsrfBackground = IfuRsrfBackground
+    ProductMasterFlat = MasterFlatIfu
+    ProductRsrfIfu = RsrfIfu
+    ProductBadpixMap = BadPixMapIfu
 
     def process_images(self) -> set[PipelineProduct]:
         """
@@ -236,10 +211,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         product_background = IfuRsrfBackground(background_hdr, background_img)
 
-        product_background = self.ProductRsrfBackground(self, background_hdr, background_img)
-        product_master_flat_ifu = self.ProductMasterFlatIfu(self, spec_flat_hdr, spec_flat_img)
-        product_rsrf_ifu = self.ProductRsrfIfu(self, rsrf_hdr, rsrf_table)
-        product_badpix_map_ifu = self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img)
+        product_background = self.ProductRsrfBackground(background_hdr, background_img)
+        product_master_flat_ifu = self.ProductMasterFlat(spec_flat_hdr, spec_flat_img)
+        product_rsrf_ifu = self.ProductRsrfIfu(rsrf_hdr, rsrf_table)
+        product_badpix_map_ifu = self.ProductBadpixMap(badpix_hdr, badpix_img)
 
         return {product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu}
 

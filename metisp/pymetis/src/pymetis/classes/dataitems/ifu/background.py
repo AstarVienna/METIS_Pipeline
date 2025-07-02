@@ -24,17 +24,15 @@ from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 
 
 class IfuBackground(IfuBase, abstract=True):
+    _name_template = r'IFU_{target}_BACKGROUND'
+    _title_template = "IFU {target} background"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 
-    @classmethod
-    def name(cls):
-        return rf'IFU_{cls.target()}_BACKGROUND'
-
 
 class IfuStdBackground(TargetStdMixin, IfuBackground):
-    _description = "Reduced 2D detector image of background."
+    _description_template = "Reduced 2D detector image of background."
 
 
 class IfuSciBackground(TargetSciMixin, IfuBackground):
-    _description = "Reduced 2D detector image of background."
+    _description_template = "Reduced 2D detector image of background."

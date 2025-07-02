@@ -32,20 +32,11 @@ class IfuBase(TargetSpecificMixin, BandIfuMixin, ImageDataItem, abstract=True):
 
 
 class IfuReduced(IfuBase, abstract=True):
+    _name_template = r'IFU_{target}_REDUCED'
+    _title_template = "IFU {target} reduced"
+    _description_template = "Reduced 2D detector image of a {target}"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-
-    @classmethod
-    def name(cls):
-        return rf'IFU_{cls.target()}_REDUCED'
-
-    @classmethod
-    def title(cls):
-        return f"IFU {cls.get_target_string()} reduced"
-
-    @classmethod
-    def description(cls) -> str:
-        return f"Reduced 2D detector image of a {cls.get_target_string()}"
 
 
 class IfuStdReduced(TargetStdMixin, IfuReduced):
@@ -57,53 +48,46 @@ class IfuSciReduced(TargetSciMixin, IfuReduced):
 
 
 class IfuReducedCube(IfuBase, abstract=True):
+    _name_template = r'IFU_{target}_REDUCED_CUBE'
+    _title_template = "IFU {target} reduced cube"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-
-    @classmethod
-    def name(cls):
-        return rf'IFU_{cls.target()}_REDUCED_CUBE'
 
 
 class IfuStdReducedCube(TargetStdMixin, IfuReducedCube):
-    _description = "Reduced 2D detector image of spectroscopic flux standard star."
+    _description_template = "Reduced 2D detector image of spectroscopic flux standard star."
 
 
 class IfuSciReducedCube(TargetSciMixin, IfuReducedCube):
-    _description = "A rectified spectral cube with a linear wavelength grid."
+    _description_template = "A rectified spectral cube with a linear wavelength grid."
 
 
 class IfuReduced1d(IfuBase, abstract=True):
+    _name_template = r'IFU_{target}_REDUCED_1D'
+    _title_template = r'IFU {target} reduced 1D spectrum'
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
-    @classmethod
-    def name(cls):
-        return rf'IFU_{cls.target()}_REDUCED_1D'
-
 
 class IfuStdReduced1d(TargetStdMixin, IfuReduced1d):
-    _description = "Spectrum of a reduced telluric standard star."
+    _description_template = "Spectrum of a reduced telluric standard star."
 
 
 class IfuSciReduced1d(TargetSciMixin, IfuReduced1d):
-    _description = "Spectrum of a science object."
+    _description_template = "Spectrum of a science object."
 
 
 class IfuCombined(IfuBase, abstract=True):
+    _name_template = r'IFU_{target}_COMBINED'
+    _title_template = "spectral cube of science object"
+    _description_template = "Spectral cube of a standard star, combining multiple exposures."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _title = "spectral cube of science object"
-    _description = "Spectral cube of a standard star, combining multiple exposures."
-
-    @classmethod
-    def name(cls):
-        return rf'IFU_{cls.target()}_COMBINED'
 
 
 class IfuStdCombined(TargetStdMixin, IfuCombined):
-    _description = "Spectral cube of a standard star, combining multiple exposures."
+    _description_template = "Spectral cube of a standard star, combining multiple exposures."
 
 
 class IfuSciCombined(TargetSciMixin, IfuCombined):
-    _description = "Spectral cube of science object, combining multiple exposures."
+    _description_template = "Spectral cube of science object, combining multiple exposures."

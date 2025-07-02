@@ -26,20 +26,15 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems.background.background import NStdBackground
 from pymetis.classes.dataitems.background.subtracted import NStdBackgroundSubtracted
-from pymetis.classes.dataitems.masterflat import MasterFlatGeo
-from pymetis.classes.dataitems.img.raw import NImageSciRaw, NImageStdRaw
-from pymetis.classes.dataitems.masterflat.raw import NFlatLampRaw
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.classes.dataitems.masterflat import MasterFlatGeo, MasterImgFlatLampN, MasterImgFlat
+from pymetis.classes.dataitems.img.raw import ImageRaw
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct, TargetSpecificProduct
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 
 class MetisNImgChopnodImpl(DarkImageProcessor):
-    detector = '2RG'
-
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet:
@@ -67,8 +62,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            Item = NFlatLampRaw
-            _tags: re.Pattern = re.compile(r"N_IMAGE_(?P<target>SCI|STD)_RAW")
+            Item = ImageRaw
 
         # Now we need a master dark frame.
         # Since nothing is changed and the tag is always the same, # we just point to the provided MasterDarkInput.
@@ -77,27 +71,10 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         # Also one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
-            Item = MasterFlatGeo
-            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_(?P<band>N)")
+            Item = MasterImgFlat
 
-    class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
-        """
-        The second big part is defining the products. For every product, we create a separate class
-        which defines the tag, group, level and frame type. Here we only have one kind of product,
-        so its name is `Product` (or fully qualified, `MetisNImgChopnodImpl.Product`).
-        But feel free to be more creative with names: it could be `MetisNImgChopnodImpl.ProductBasicReduced`.
-        """
-        Item = NStdBackgroundSubtracted
-
-    class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
-        """
-        The second big part is defining the products.
-        For every product, we create a separate class which defines the tag, group, level and frame type.
-        Here we only have one kind of product, so its name is `Product`
-        (or fully qualified, `MetisNImgChopnodImpl.Product`).
-        But feel free to be more creative with names: it could be `MetisNImgChopnodImpl.ProductBasicReduced`.
-        """
-        Item = NStdBackground
+    ProductReduced = NStdBackgroundSubtracted
+    ProductBackground = NStdBackground
 
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet) -> cpl.core.ImageList:
@@ -113,7 +90,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions or use functions from the parent classes:
@@ -133,41 +110,10 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         self.target = self.inputset.tag_parameters['target']
 
-        product_reduced = self.ProductReduced(self, header, combined_image)
-        product_background = self.ProductBackground(self, header, combined_image)
+        product_reduced = self.ProductReduced(header, combined_image)
+        product_background = self.ProductBackground(header, combined_image)
 
         return {product_reduced, product_background}
-
-    def _dispatch_child_class(self) -> type["MetisNImgChopnodImpl"]:
-        return {
-            'STD': MetisNStdImgChopnodImpl,
-            'SCI': MetisNSciImgChopnodImpl,
-        }[self.inputset.target]
-
-
-class MetisNStdImgChopnodImpl(MetisNImgChopnodImpl):
-    class InputSet(MetisNImgChopnodImpl.InputSet):
-        class RawInput(MetisNImgChopnodImpl.InputSet.RawInput):
-            Item = NImageStdRaw
-
-
-    class ProductReduced(TargetStdMixin, MetisNImgChopnodImpl.ProductReduced):
-        pass
-
-    class ProductBackground(TargetStdMixin, MetisNImgChopnodImpl.ProductBackground):
-        pass
-
-
-class MetisNSciImgChopnodImpl(MetisNImgChopnodImpl):
-    class InputSet(MetisNImgChopnodImpl.InputSet):
-        class RawInput(MetisNImgChopnodImpl.InputSet.RawInput):
-            Item = NImageSciRaw
-
-    class ProductReduced(TargetSciMixin, MetisNImgChopnodImpl.ProductReduced):
-        pass
-
-    class ProductBackground(TargetSciMixin, MetisNImgChopnodImpl.ProductBackground):
-        pass
 
 
 class MetisNImgChopnod(MetisRecipe):

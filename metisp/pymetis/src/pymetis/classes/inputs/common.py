@@ -126,14 +126,11 @@ class FluxstdCatalogInput(SinglePipelineInput):
 
 class FluxCalTableInput(SinglePipelineInput):
     Item: type[DataItem] = FluxCalTable
-    _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
 
 
 class LsfKernelInput(SinglePipelineInput):
     Item: type[DataItem] = LsfKernel
-    _tags: Pattern = re.compile(r"LSF_KERNEL")
 
 
 class AtmProfileInput(SinglePipelineInput):
     Item: type[DataItem] = AtmProfile
-    _tags: Pattern = re.compile(r"ATM_PROFILE")

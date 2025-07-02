@@ -17,13 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.classes.dataitems.common import FluxCalTable
-from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
 
@@ -32,10 +29,8 @@ class MetisNImgStdProcessImpl(MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             Item = NStdBackgroundSubtracted
-            _tags: re.Pattern = re.compile(r"N_STD_BKG_SUBTRACTED")
 
-    class ProductFluxcalTab(BandNMixin, MetisImgStdProcessImpl.ProductImgStdCombined):
-        Item = FluxCalTable
+    ProductFluxcalTab = FluxCalTable
 
 
 class MetisNImgStdProcess(MetisRecipe):
