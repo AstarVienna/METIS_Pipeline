@@ -32,9 +32,7 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.classes.products import PipelineTableProduct, PipelineImageProduct
 from pymetis.classes.products.product import PipelineProduct
-from pymetis.classes.products.common import BandSpecificProduct
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
@@ -47,23 +45,11 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
 
         PinholeTableInput = PinholeTableInput
 
-    class ProductDistortionTable(BandSpecificProduct, PipelineTableProduct):
-        Item = DistortionTable
-        level = cpl.ui.Frame.FrameLevel.FINAL
+    ProductDistortionTable = DistortionTable
+    ProductDistortionMap = DistortionMap
+    ProductDistortionReduced = DistortionReduced
 
-    class ProductDistortionMap(BandSpecificProduct, PipelineImageProduct):
-        Item = DistortionMap
-        level = cpl.ui.Frame.FrameLevel.FINAL
-
-    class ProductDistortionReduced(BandSpecificProduct, PipelineTableProduct):
-        Item = DistortionReduced
-        level = cpl.ui.Frame.FrameLevel.FINAL
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"{cls.band()}_DIST_REDUCED"
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -79,7 +65,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         table = self._create_dummy_table()
 
         return {
-            self.ProductDistortionTable(self, self.header, table),
-            self.ProductDistortionMap(self, self.header, combined_image),
-            self.ProductDistortionReduced(self, self.header, table),
+            self.ProductDistortionTable(self.header, table),
+            self.ProductDistortionMap(self.header, combined_image),
+            self.ProductDistortionReduced(self.header, table),
         }

@@ -40,23 +40,9 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         MasterDarkInput = MasterDarkInput
 
         class RawInput(RawInput):
-            """
-            A subclass of RawInput that is handling the flat image raws.
-            """
             Item = FlatRaw
-            _tags: re.Pattern = re.compile(r"(?P<band>(LM|N))_FLAT_(?P<target>LAMP|TWILIGHT)_RAW")
-            _description: str = "Flat image raw"
 
-    class ProductMasterFlat(BandSpecificProduct, TargetSpecificProduct, PipelineImageProduct):
-        Item = MasterImgFlat
-
-        @classmethod
-        def tag(cls) -> str:
-            return fr"MASTER_IMG_FLAT_{cls.target()}_{cls.band()}"
-
-        @classmethod
-        def description(cls) -> str:
-            return fr"Master flat frame for {cls.band()} image data"
+    ProductMasterFlat = MasterImgFlat
 
     def process_images(self) -> set[PipelineProduct]:
         """
@@ -85,6 +71,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         combined_image = self.combine_images(self.inputset.load_raw_images(), method)
 
-        product = self.ProductMasterFlat(self, header, combined_image)
+        product = self.ProductMasterFlat(header, combined_image)
 
         return {product}

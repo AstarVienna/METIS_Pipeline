@@ -107,7 +107,6 @@ class DataItem:
         """
         assert cls._title_template is not None, \
             f"{cls.__name__} title template is None"
-
         return cls._title_template.format(**cls.tag_parameters())
 
     @classmethod

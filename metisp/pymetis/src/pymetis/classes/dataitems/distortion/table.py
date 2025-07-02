@@ -32,10 +32,6 @@ class DistortionTable(BandSpecificMixin, DataItem, abstract=True):
     _frame_type = cpl.ui.Frame.FrameType.TABLE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    @classmethod
-    def _pro_catg(cls) -> str:
-        return rf"{cls.band()}_DISTORTION_TABLE"
-
 
 class LmDistortionTable(BandLmMixin, DistortionTable):
     pass

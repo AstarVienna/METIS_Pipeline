@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin)
+from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin, BandNMixin)
 
 """
-The hierarchy is somewhat atypical here by design: no N data item, and only IFU support STD|SKY target.
+The hierarchy is somewhat atypical here by design: no N data item, and only IFU supports STD|SKY target.
 """
 
 class Combined(BandSpecificMixin, DataItem, abstract=True):
@@ -37,4 +37,8 @@ class Combined(BandSpecificMixin, DataItem, abstract=True):
 
 
 class LmStdCombined(BandLmMixin, Combined):
+    pass
+
+
+class NStdCombined(BandNMixin, Combined):
     pass

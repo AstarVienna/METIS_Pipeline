@@ -24,10 +24,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.distortion import LmDistortionMap, LmDistortionReduced, LmDistortionTable
-from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
 
 
@@ -39,16 +36,7 @@ class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
             pass
 
-    class ProductDistortionTable(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionTable):
-        Item = LmDistortionTable
-
-    class ProductDistortionMap(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionMap):
-        Item = LmDistortionMap
-
-    class ProductDistortionReduced(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionReduced):
-        Item = LmDistortionReduced
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -64,9 +52,9 @@ class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
         table = self._create_dummy_table()
 
         return {
-            self.ProductDistortionTable(self, self.header, table),
-            self.ProductDistortionMap(self, self.header, combined_image),
-            self.ProductDistortionReduced(self, self.header, table),
+            self.ProductDistortionTable(self.header, table),
+            self.ProductDistortionMap(self.header, combined_image),
+            self.ProductDistortionReduced(self.header, table),
         }
 
 

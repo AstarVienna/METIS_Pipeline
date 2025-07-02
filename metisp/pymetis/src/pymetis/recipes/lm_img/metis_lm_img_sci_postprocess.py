@@ -17,8 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 from cpl.core import Msg
 
@@ -29,7 +27,6 @@ from pymetis.classes.dataitems.img.basicreduced import LmSciCalibrated
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor):
@@ -37,10 +34,9 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
         class RawInput(RawInput):
             Item = LmSciCalibrated
 
-    class ProductLmImgSciCoadd(PipelineImageProduct):
-        Item = LmSciCoadd
+    ProductLmImgSciCoadd = LmSciCoadd
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -54,7 +50,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        product_coadd = self.ProductLmImgSciCoadd(self, self.header, combined_image)
+        product_coadd = self.ProductLmImgSciCoadd(self.header, combined_image)
 
         return {product_coadd}
 

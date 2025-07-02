@@ -17,19 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import NDistortionMap, NDistortionReduced, NDistortionTable
 from pymetis.classes.dataitems.distortion.raw import NDistortionRaw
 from pymetis.classes.dataitems.raw.wcuoff import NWcuOffRaw
-from pymetis.classes.mixins.band import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
 
 
@@ -40,18 +35,8 @@ class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
 
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
             Item = NDistortionRaw
-            _tags = re.compile(r"N_DISTORTION_RAW")
 
-    class ProductDistortionTable(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionTable):
-        Item = NDistortionTable
-
-    class ProductDistortionMap(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionMap):
-        Item = NDistortionMap
-
-    class ProductDistortionReduced(BandNMixin, MetisBaseImgDistortionImpl.ProductDistortionReduced):
-        Item = NDistortionReduced
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -67,9 +52,9 @@ class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
         table = self._create_dummy_table()
 
         return {
-            self.ProductDistortionTable(self, self.header, table),
-            self.ProductDistortionMap(self, self.header, combined_image),
-            self.ProductDistortionReduced(self, self.header, table),
+            self.ProductDistortionTable(self.header, table),
+            self.ProductDistortionMap(self.header, combined_image),
+            self.ProductDistortionReduced(self.header, table),
         }
 
 

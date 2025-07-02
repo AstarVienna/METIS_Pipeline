@@ -17,13 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
-from pymetis.classes.dataitems.combined import LmStdCombined
+from pymetis.classes.dataitems.combined import Combined
 from pymetis.classes.dataitems.common import FluxCalTable
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import FluxstdCatalogInput
@@ -38,7 +36,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         FluxstdCatalogInput = FluxstdCatalogInput
 
     ProductImgFluxCalTable = FluxCalTable
-    ProductImgStdCombined = LmStdCombined
+    ProductImgStdCombined = Combined
 
     def process_images(self):
         raw_images = cpl.core.ImageList()
