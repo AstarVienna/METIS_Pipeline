@@ -32,7 +32,7 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
 
     ProductRestored = NSciRestored
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         header = self._create_dummy_header()
         image = self._create_dummy_image()
         product = self.ProductRestored(header, image)

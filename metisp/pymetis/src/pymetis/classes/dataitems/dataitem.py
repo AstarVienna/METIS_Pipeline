@@ -150,8 +150,8 @@ class DataItem:
         By default, this just returns the protected internal attribute,
         but can be overridden to build the description from other data, such as band or target.
         """
-        if cls._description_template is None:
-            return None
+        assert cls._description_template is not None, \
+            f"{cls.__name__} description template is None"
         try:
             return cls._description_template.format(**cls.tag_parameters())
         except KeyError:
