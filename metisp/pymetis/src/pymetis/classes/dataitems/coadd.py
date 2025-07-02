@@ -19,16 +19,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandIfuMixin, BandLmMixin
 
 
-class SciCoadd(BandSpecificMixin, DataItem, abstract=True):
+class SciCoadd(BandSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_SCI_COADD'
     _title_template = r"{band} science co-added"
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
 

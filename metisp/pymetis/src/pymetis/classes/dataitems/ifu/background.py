@@ -26,6 +26,7 @@ from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 class IfuBackground(IfuBase, abstract=True):
     _name_template = r'IFU_{target}_BACKGROUND'
     _title_template = "IFU {target} background"
+    _description_template = "IFU {target} template"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 

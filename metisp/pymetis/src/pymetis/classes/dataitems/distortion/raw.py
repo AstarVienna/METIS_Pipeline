@@ -27,7 +27,6 @@ class DistortionRaw(BandSpecificMixin, Raw, abstract=True):
     _name_template = r'{band}_DISTORTION_RAW'
     _title_template = "distortion raw"
     _description_template = "Raw data for distortion determination in other recipes in the {band} band."
-    _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.TEMPORARY
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'}
@@ -36,8 +35,10 @@ class DistortionRaw(BandSpecificMixin, Raw, abstract=True):
 class LmDistortionRaw(BandLmMixin, DistortionRaw):
     pass
 
+
 class NDistortionRaw(BandNMixin, DistortionRaw):
     pass
+
 
 class IfuDistortionRaw(BandIfuMixin, DistortionRaw):
     pass

@@ -19,17 +19,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.dataitem import TableDataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionTable(BandSpecificMixin, DataItem, abstract=True):
+class DistortionTable(BandSpecificMixin, TableDataItem, abstract=True):
     _name_template = r'{band}_DISTORTION_TABLE'
     _title_template = "distortion table"
     _description_template = r"Table of distortion coefficients for a {band} band data set"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_type = cpl.ui.Frame.FrameType.TABLE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 

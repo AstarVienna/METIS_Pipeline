@@ -24,17 +24,14 @@ from typing import Literal
 
 from pymetis.classes.dataitems.distortion.table import IfuDistortionTable
 from pymetis.classes.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
-from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuStdReducedCube, \
-    IfuSciReduced, IfuStdReduced, IfuReducedCube, IfuStdCombined, IfuSciCombined, \
-    IfuSciReducedCube
-from pymetis.classes.dataitems.ifu.background import IfuBackground, IfuStdBackground, IfuSciBackground
+from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube, IfuSciReducedCube
+from pymetis.classes.dataitems.ifu.background import IfuBackground
 from pymetis.classes.dataitems.rsrf import RsrfIfu
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput, WavecalInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct
+from pymetis.classes.products import PipelineProduct
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):
@@ -61,7 +58,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     ProductReducedCube = IfuReducedCube
     ProductCombined = IfuCombined
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         # do something... a lot of something
 
         header = cpl.core.PropertyList()
@@ -74,40 +71,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
             self.ProductReducedCube(header, image),
             self.ProductCombined(header, image),
         }
-
-    def _dispatch_child_class(self):
-        return {
-            'STD': MetisIfuReduceStdImpl,
-            'SCI': MetisIfuReduceSciImpl,
-        }[self.inputset.target]
-
-
-class MetisIfuReduceStdImpl(MetisIfuReduceImpl):
-    class ProductReduced(TargetStdMixin, MetisIfuReduceImpl.ProductReduced):
-        Item = IfuStdReduced
-
-    class ProductBackground(TargetStdMixin, MetisIfuReduceImpl.ProductBackground):
-        Item = IfuStdBackground
-
-    class ProductCombined(TargetStdMixin, MetisIfuReduceImpl.ProductCombined):
-        Item = IfuStdCombined
-
-    class ProductReducedCube(TargetStdMixin, MetisIfuReduceImpl.ProductReducedCube):
-        Item = IfuStdReducedCube
-
-
-class MetisIfuReduceSciImpl(MetisIfuReduceImpl):
-    class ProductReduced(TargetSciMixin, MetisIfuReduceImpl.ProductReduced):
-        Item = IfuSciReduced
-
-    class ProductBackground(TargetSciMixin, MetisIfuReduceImpl.ProductBackground):
-        Item = IfuSciBackground
-
-    class ProductCombined(TargetSciMixin, MetisIfuReduceImpl.ProductCombined):
-        Item = IfuSciCombined
-
-    class ProductReducedCube(TargetSciMixin, MetisIfuReduceImpl.ProductReducedCube):
-        Item = IfuSciReducedCube
 
 
 class MetisIfuReduce(MetisRecipe):

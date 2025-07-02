@@ -127,42 +127,6 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         return {product}
 
-    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
-        return {
-            'LM': MetisLmPupilImagingImpl,
-            'N': MetisNPupilImagingImpl,
-        }[self.inputset.band]
-
-
-class MetisLmPupilImagingImpl(MetisPupilImagingImpl):
-    class InputSet(MetisPupilImagingImpl.InputSet):
-        class RawInput(BandLmMixin, MetisPupilImagingImpl.InputSet.RawInput):
-            Item = LmPupilRaw
-
-        class MasterDarkInput(BandLmMixin, MetisPupilImagingImpl.InputSet.MasterFlatInput):
-            Item = MasterDark2rg
-
-        class MasterFlatInput(BandLmMixin, MetisPupilImagingImpl.InputSet.MasterFlatInput):
-            Item = MasterFlat2rg
-
-    class Product(BandLmMixin, MetisPupilImagingImpl.ProductReduced):
-        Item = LmPupilImagingReduced
-
-
-class MetisNPupilImagingImpl(MetisPupilImagingImpl):
-    class InputSet(MetisPupilImagingImpl.InputSet):
-        class RawInput(BandNMixin, MetisPupilImagingImpl.InputSet.RawInput):
-            Item = NPupilRaw
-
-        class MasterDarkInput(BandNMixin, MetisPupilImagingImpl.InputSet.MasterFlatInput):
-            Item = MasterDarkGeo
-
-        class MasterFlatInput(BandNMixin, MetisPupilImagingImpl.InputSet.MasterFlatInput):
-            Item = MasterFlatGeo
-
-    class Product(BandNMixin, MetisPupilImagingImpl.ProductReduced):
-        Item = NPupilImagingReduced
-
 
 class MetisPupilImaging(MetisRecipe):
     """

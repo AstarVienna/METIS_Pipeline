@@ -2,7 +2,7 @@ import itertools
 
 from cpl.core import Msg
 
-from .dataitem import TableDataItem
+from .dataitem import *
 from .raw import *
 from .background import *
 from .distortion import *

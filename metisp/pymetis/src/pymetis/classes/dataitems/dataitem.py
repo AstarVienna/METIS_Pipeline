@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import inspect
 import re
 import os
+from abc import ABC
 from typing import Any, Optional, Generator, final, Literal
 
 import cpl
@@ -32,7 +33,7 @@ import pymetis
 PIPELINE = r'METIS'
 
 
-class DataItem:
+class DataItem(ABC):
     """
     The `DataItem` class encapsulates a single data item: the smallest standalone unit of detector data
     or a product of a recipe.
@@ -315,6 +316,15 @@ class DataItem:
                 if issubclass(kls, cls):
                     yield klass
 
+    @classmethod
+    @final
+    def _extended_description_line(cls, name: str = None) -> str:
+        """
+        Generate a description line for 'pyesorex --man-page'.
+        """
+        return (f"    {name}\n      {cls.description() or '<no description defined>'}"
+                f"\n{' ' * 84}"
+                f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
 
 class ImageDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE

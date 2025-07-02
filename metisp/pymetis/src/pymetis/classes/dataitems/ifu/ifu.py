@@ -26,9 +26,7 @@ from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
 class IfuBase(TargetSpecificMixin, BandIfuMixin, ImageDataItem, abstract=True):
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
 
 
 class IfuReduced(IfuBase, abstract=True):
@@ -50,6 +48,7 @@ class IfuSciReduced(TargetSciMixin, IfuReduced):
 class IfuReducedCube(IfuBase, abstract=True):
     _name_template = r'IFU_{target}_REDUCED_CUBE'
     _title_template = "IFU {target} reduced cube"
+    _description_template = "Reduced cube"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
 
@@ -65,6 +64,7 @@ class IfuSciReducedCube(TargetSciMixin, IfuReducedCube):
 class IfuReduced1d(IfuBase, abstract=True):
     _name_template = r'IFU_{target}_REDUCED_1D'
     _title_template = r'IFU {target} reduced 1D spectrum'
+    _description_template = "Reduced 1D spectrum"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 

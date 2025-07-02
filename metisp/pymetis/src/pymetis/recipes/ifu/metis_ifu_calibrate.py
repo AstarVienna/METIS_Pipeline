@@ -17,34 +17,26 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
-import cpl
-
 from pymetis.classes.dataitems.common import IfuScienceCubeCalibrated, IfuTelluric
-from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.classes.dataitems.ifu.ifu import IfuSciReduced
+from pymetis.classes.dataitems.ifu.ifu import IfuReduced, IfuSciReduced
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-from pymetis.classes.products import PipelineImageProduct, PipelineProduct
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs.common import FluxCalTableInput
 
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class SciReducedInput(SinglePipelineInput):
-            Item: type[DataItem] = IfuSciReduced
-            _tags: re.Pattern = re.compile(r"IFU_SCI_REDUCED")
+        class ReducedInput(SinglePipelineInput):
+            Item = IfuSciReduced
 
         class TelluricInput(SinglePipelineInput):
-            Item: type[DataItem] = IfuTelluric
-            _tags: re.Pattern = re.compile(r"IFU_TELLURIC")
+            Item = IfuTelluric
 
         FluxCalTableInput = FluxCalTableInput
 
     ProductSciCubeCalibrated = IfuScienceCubeCalibrated
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         # self.correct_telluric()
         # self.apply_fluxcal()
 
@@ -57,17 +49,17 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 
 
 class MetisIfuCalibrate(MetisRecipe):
-    _name: str = "metis_ifu_calibrate"
-    _version: str = "0.1"
-    _author: str = "Martin Baláž, A*"
-    _email: str = "martin.balaz@univie.ac.at"
-    _synopsis: str = "Calibrate IFU science data"
-    _description: str = (
+    _name = "metis_ifu_calibrate"
+    _version = "0.1"
+    _author = "Martin Baláž, A*"
+    _email = "martin.balaz@univie.ac.at"
+    _synopsis = "Calibrate IFU science data"
+    _description = (
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: set[str] = {'DRS.IFU'}
+    _matched_keywords = {'DRS.IFU'}
     _algorithm = """Correct for telluric absorption.
     Apply flux calibration."""
 
-    implementation_class: type[MetisRecipeImpl] = MetisIfuCalibrateImpl
+    implementation_class = MetisIfuCalibrateImpl

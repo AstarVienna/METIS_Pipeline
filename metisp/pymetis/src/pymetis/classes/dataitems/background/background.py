@@ -19,18 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.dataitem import ImageDataItem
 from pymetis.classes.mixins import (TargetSpecificMixin, TargetSciMixin, TargetStdMixin,
                                     BandNMixin, BandLmMixin, BandSpecificMixin)
 
-class Background(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+class Background(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_{target}_BKG'
     _title_template = r'{band}_{target} background, subtracted'
     _description_template = r"Thermal background subtracted images of {target} {band} exposures."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
-    _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
+    _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
 
 class LmStdBackground(BandLmMixin, TargetStdMixin, Background):

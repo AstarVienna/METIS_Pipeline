@@ -17,12 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import ABC
-
 import cpl
 
 from pymetis.classes.dataitems.dataitem import ImageDataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
+from pymetis.classes.mixins import BandSpecificMixin, \
     TargetSpecificMixin, BandLmMixin, TargetSciMixin, TargetStdMixin, TargetSkyMixin, BandNMixin
 
 
@@ -39,14 +37,17 @@ class LmStdBasicReduced(TargetStdMixin, BasicReduced):
     pass
 
 
-class LmSciBasicReduced(TargetSkyMixin, BasicReduced):
+class LmSciBasicReduced(TargetSciMixin, BasicReduced):
     pass
 
 
-class LmSkyBasicReduced(TargetSciMixin, BasicReduced):
-    @classmethod
-    def description(cls):
-        return "Detrended exposure of the sky."
+class LmSkyBasicReduced(ImageDataItem):
+    _name_template = r'LM_SKY_BASIC_REDUCED'
+    _title_template = "LM SKY basic reduced"
+    _description_template = "Detrended exposure of the sky."
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
 
 class Calibrated(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):

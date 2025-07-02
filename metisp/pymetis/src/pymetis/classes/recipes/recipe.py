@@ -25,6 +25,7 @@ import cpl
 
 from pyesorex.parameter import ParameterList
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.products import PipelineProduct
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInput
@@ -81,7 +82,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
     def _list_products(self) -> list[tuple[str, PipelineProduct]]:
         return inspect.getmembers(self.implementation_class,
-                                  lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
+                                  lambda x: inspect.isclass(x) and issubclass(x, DataItem))
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:

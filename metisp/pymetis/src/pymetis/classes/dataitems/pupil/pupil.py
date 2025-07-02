@@ -19,17 +19,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins.band import BandSpecificMixin, BandLmMixin, BandNMixin
 
 
-class PupilImagingReduced(BandSpecificMixin, DataItem, abstract=True):
+class PupilImagingReduced(BandSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_PUPIL_REDUCED'
     _title_template = r"{band} pupil reduced"
     _description_template = "Reduced pupil image in {band} mode."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
 
 

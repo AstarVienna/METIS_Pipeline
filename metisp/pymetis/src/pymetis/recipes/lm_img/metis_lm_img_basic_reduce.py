@@ -26,14 +26,10 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.img.raw import LmImageStdRaw, ImageRaw
-from pymetis.classes.dataitems.img.basicreduced import LmStdBasicReduced, LmSciBasicReduced, LmSkyBasicReduced, \
-    BasicReduced
+from pymetis.classes.dataitems.img.raw import ImageRaw
+from pymetis.classes.dataitems.img.basicreduced import BasicReduced
 from pymetis.classes.dataitems.masterflat import MasterImgFlat
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
-from pymetis.classes.mixins.target import TargetSkyMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import (PipelineProduct, TargetSpecificProduct, PipelineMultipleProduct)
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -81,7 +77,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
     ProductBasicReduced = BasicReduced
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions or use functions from the parent classes:

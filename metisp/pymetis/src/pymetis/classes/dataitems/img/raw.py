@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import cpl.ui
 
-from pymetis.classes.dataitems import Raw
+from pymetis.classes.dataitems import Raw, ImageDataItem
 from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin, BandNMixin,
                                     TargetSpecificMixin, TargetStdMixin, TargetSciMixin, TargetSkyMixin)
 
@@ -43,8 +43,11 @@ class LmImageSciRaw(BandLmMixin, TargetSciMixin, ImageRaw):
     pass
 
 
-class LmImageSkyRaw(BandLmMixin, TargetSkyMixin, ImageRaw):
-    pass
+class LmImageSkyRaw(BandLmMixin, TargetSkyMixin, ImageDataItem):
+    _name_template = r'LM_IMG_SKY_RAW'
+    _title_template = "LM image sky raw"
+    _description_template = "LM image sky raw"
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
 
 class NImageStdRaw(BandNMixin, TargetStdMixin, ImageRaw):

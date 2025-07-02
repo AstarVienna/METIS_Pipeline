@@ -19,30 +19,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.dataitem import ImageDataItem, DataItem
 from pymetis.classes.mixins import DetectorIfuMixin
 
 
 class Rsrf(DataItem):
     _name_template = r'RSRF'
     _title_template = "RSRF"
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _description_template = "2D relative spectral response function"
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
-class RsrfIfu(DetectorIfuMixin, DataItem):
+class RsrfIfu(DetectorIfuMixin, ImageDataItem):
     _name_template = r'RSRF_IFU'
     _title_template = "RSRF IFU"
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description_template = "2D relative spectral response function"
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
 
-class IfuRsrfBackground(DetectorIfuMixin, DataItem):
+class IfuRsrfBackground(DetectorIfuMixin, ImageDataItem):
     _name_template = r'IFU_RSRF_BACKGROUND'
     _title_template = "IFU RSRF background"
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
+    _description_template = "2D relative spectral response function background"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB

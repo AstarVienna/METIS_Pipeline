@@ -68,60 +68,47 @@ class OptionalInputMixin(PipelineInput, ABC):
 
 class RawInput(MultiplePipelineInput, ABC):
     Item: type[DataItem] = Raw
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
 
 
 class MasterDarkInput(SinglePipelineInput):
     Item: type[DataItem] = MasterDark
-    _tags: Pattern = re.compile(r"MASTER_DARK_(?P<detector>2RG|GEO|IFU)")
 
 
 class MasterFlatInput(SinglePipelineInput):
     Item: type[DataItem] = MasterFlat
-    _tags: Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
 
 
 class LinearityInput(SinglePipelineInput):
     Item: type[DataItem] = LinearityMap
-    _tags: Pattern = re.compile(r"LINEARITY_(?P<detector>2RG|GEO|IFU)")
 
 
 class BadpixMapInput(SinglePipelineInput):
     Item: type[DataItem] = BadPixMap
-    _tags: Pattern = re.compile(r"BADPIX_MAP_(?P<detector>2RG|GEO|IFU)")
 
 
 class PersistenceMapInput(SinglePipelineInput):
     Item: type[DataItem] = PersistenceMap
-    _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
     _required = False           # By default, persistence maps are optional
 
 
 class GainMapInput(SinglePipelineInput):
     Item: type[DataItem] = GainMap
-    _tags: Pattern = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
 
 
 class DistortionTableInput(SinglePipelineInput):
     Item: type[DataItem] = DistortionTable
-    _tags: Pattern = re.compile(r"IFU_DISTORTION_TABLE")
 
 
 class WavecalInput(SinglePipelineInput):
     Item: type[DataItem] = IfuWavecal
-    _title: str = "wavelength calibration"
-    _tags: Pattern = re.compile(r"IFU_WAVECAL")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Image with wavelength at each pixel"
 
 
 class PinholeTableInput(SinglePipelineInput):
     Item: type[DataItem] = PinholeTable
-    _tags: Pattern = re.compile(r"PINHOLE_TABLE")
+
 
 class FluxstdCatalogInput(SinglePipelineInput):
     Item: type[DataItem] = FluxStdCatalog
-    _tags: Pattern = re.compile(r"FLUXSTD_CATALOG")
 
 
 class FluxCalTableInput(SinglePipelineInput):

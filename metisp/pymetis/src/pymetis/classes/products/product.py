@@ -216,16 +216,6 @@ class PipelineProduct(ABC):
         """
         return f"    {cls.tag():<76s}{cls.item().description() or '<no description defined>'}"
 
-    @classmethod
-    @final
-    def _extended_description_line(cls, name: str = None) -> str:
-        """
-        Generate a description line for 'pyesorex --man-page'.
-        """
-        assert cls.item() is not None, f"{cls} has no item"
-        return (f"    {name}\n      {cls.item().description() or '<no description defined>'}"
-                f"\n{' ' * 84}"
-                f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
 
     @classmethod
     def product_of_recipes(cls) -> Generator['PipelineRecipe', None, None]:

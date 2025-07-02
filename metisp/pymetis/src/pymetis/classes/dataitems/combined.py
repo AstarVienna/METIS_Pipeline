@@ -19,19 +19,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin, BandNMixin)
 
 """
 The hierarchy is somewhat atypical here by design: no N data item, and only IFU supports STD|SKY target.
 """
 
-class Combined(BandSpecificMixin, DataItem, abstract=True):
+class Combined(BandSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_STD_COMBINED'
     _title_template = r'band standard combined'
     _description_template = r"Stacked {band} band exposures."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
