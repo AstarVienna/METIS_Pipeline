@@ -24,14 +24,13 @@ from typing import Literal
 
 from pymetis.classes.dataitems.distortion.table import IfuDistortionTable
 from pymetis.classes.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
-from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube, IfuSciReducedCube
+from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
 from pymetis.classes.dataitems.ifu.background import IfuBackground
 from pymetis.classes.dataitems.rsrf import RsrfIfu
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput, WavecalInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
-from pymetis.classes.products import PipelineProduct
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):

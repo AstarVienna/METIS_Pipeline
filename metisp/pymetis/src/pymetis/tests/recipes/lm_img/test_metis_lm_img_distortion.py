@@ -40,20 +40,20 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProductLmDistortionTable(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductDistortionTable
+    Product = Impl.ProductDistortionTable
 
 
 class TestProductLmDistortionMap(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductDistortionMap
+    Product = Impl.ProductDistortionMap
 
 
 class TestProductLmDistortionReduced(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductDistortionReduced
+    Product = Impl.ProductDistortionReduced

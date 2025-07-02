@@ -43,11 +43,8 @@ class LmImageSciRaw(BandLmMixin, TargetSciMixin, ImageRaw):
     pass
 
 
-class LmImageSkyRaw(BandLmMixin, TargetSkyMixin, ImageDataItem):
-    _name_template = r'LM_IMG_SKY_RAW'
-    _title_template = "LM image sky raw"
-    _description_template = "LM image sky raw"
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+class LmImageSkyRaw(BandLmMixin, TargetSkyMixin, ImageRaw):
+    pass
 
 
 class NImageStdRaw(BandNMixin, TargetStdMixin, ImageRaw):

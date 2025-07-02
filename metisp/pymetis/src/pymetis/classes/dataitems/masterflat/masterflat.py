@@ -57,6 +57,10 @@ class MasterImgFlatLampLm(BandLmMixin, SourceLampMixin, MasterImgFlat):
     pass
 
 
+class MasterImgFlatTwilightLm(BandLmMixin, SourceTwilightMixin, MasterImgFlat):
+    pass
+
+
 class MasterImgFlatLampN(BandNMixin, SourceLampMixin, MasterImgFlat):
     pass
 
