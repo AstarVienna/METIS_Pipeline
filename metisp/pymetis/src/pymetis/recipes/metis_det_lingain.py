@@ -26,20 +26,14 @@ import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems.badpixmap import BadPixMap, BadPixMap2rg
-from pymetis.classes.dataitems.gainmap import GainMap, GainMap2rg
+from pymetis.classes.dataitems.gainmap import GainMap
 from pymetis.classes.dataitems.linearity.linearity import LinearityMap, LinearityMap2rg
 from pymetis.classes.dataitems.linearity.raw import Linearity2rgRaw, LinearityRaw, LinearityGeoRaw, LinearityIfuRaw
 from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput, BadpixMapInput, OptionalInputMixin
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
-from pymetis.classes.products import DetectorSpecificProduct
 
-
-class LinGainProduct(DetectorSpecificProduct, PipelineImageProduct, ABC):
-    """ Common base class for all linearity and gain products. It just sets `level`. """
-    level = cpl.ui.Frame.FrameLevel.FINAL
 
 
 class MetisDetLinGainImpl(RawImageProcessor, ABC):
@@ -53,9 +47,9 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             Item = BadPixMap
 
-    ProductGainMap = GainMap2rg
-    ProductLinearity = LinearityMap2rg
-    ProductBadpixMap = BadPixMap2rg
+    ProductGainMap = GainMap
+    ProductLinearity = LinearityMap
+    ProductBadpixMap = BadPixMap
 
     def process_images(self):
         raw_images = self.inputset.load_raw_images()

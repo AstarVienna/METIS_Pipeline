@@ -24,21 +24,12 @@ from pymetis.classes.mixins.band import BandSpecificMixin, BandLmMixin, BandNMix
 
 
 class PupilRaw(BandSpecificMixin, DataItem, abstract=True):
+    _name_template = r'{band}_PUPIL_RAW'
+    _title_template = "{band} pupil raw"
+    _description_template = "Raw exposure of the pupil in {band} image mode."
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-    @classmethod
-    def title(cls):
-        return f"{cls.band()} pupil raw"
-
-    @classmethod
-    def name(cls):
-        return rf'{cls.band()}_PUPIL_RAW'
-
-    @classmethod
-    def description(cls) -> str:
-        return f"Raw exposure of the the pupil in {cls.band()} image mode."
 
 
 class LmPupilRaw(BandLmMixin, PupilRaw):

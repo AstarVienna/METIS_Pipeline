@@ -25,12 +25,9 @@ from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, Dete
 
 
 class RsrfRaw(DetectorSpecificMixin, BandSpecificMixin, Raw, abstract=True):
+    _name_template = r'{band}_LSS_RSRF_RAW'
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
-
-    @classmethod
-    def name(cls):
-        return rf'{cls.band()}_LSS_RSRF_RAW'
 
 
 class LmLssRsrfRaw(Detector2rgMixin, BandLmMixin, RsrfRaw):
@@ -42,11 +39,5 @@ class NLssRsrfRaw(DetectorGeoMixin, BandNMixin, RsrfRaw):
 
 
 class IfuRsrfRaw(DetectorIfuMixin, BandIfuMixin, RsrfRaw):
-    _title = "IFU RSRF raw image"
-
-    @classmethod
-    def name(cls):
-        """
-        Here the name is overridden as it is not LSS.
-        """
-        return r'IFU_RSRF_RAW'
+    _name_template = r'IFU_RSRF_RAW'
+    _title_template = "IFU RSRF raw image"

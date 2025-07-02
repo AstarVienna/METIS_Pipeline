@@ -40,8 +40,6 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
-    detector = '2RG'
-
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class
@@ -82,34 +80,6 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             Item = MasterImgFlat
 
     ProductBasicReduced = BasicReduced
-
-    class ProductBasicReduced(TargetSpecificProduct, PipelineMultipleProduct):
-        """
-        The second big part is defining the products. For every product, we create a separate class
-        which defines the tag, group, level and frame type. Here we only have one kind of product,
-        so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
-        But feel free to be more creative with names: it could be `MetisLmImgBasicReduceImpl.ProductBasicReduced`.
-        """
-        Item = LmStdBasicReduced
-
-        def __init__(self,
-                     recipe_impl: 'MetisRecipeImpl',
-                     header: cpl.core.PropertyList,
-                     *,
-                     image: cpl.core.Image,
-                     noise: cpl.core.Image,
-                     mask: cpl.core.Image,
-                     original_file_name: str):
-            super().__init__(recipe_impl, header, image=image, noise=noise, mask=mask)
-            self.original_file_name: str = original_file_name
-
-        @property
-        def output_file_name(self) -> str:
-            """
-            Form the output file name.
-            By default, this should be just the category with ".fits" appended. Feel free to override if needed.
-            """
-            return f"{self.category}_{self.original_file_name}"
 
     def process_images(self) -> set[PipelineProduct]:
         """
@@ -177,39 +147,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             header.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] max value of image"))
 
-            product = self.ProductBasicReduced(self, header, image=image, noise=noise, mask=bmask,
-                                               original_file_name=os.path.basename(frame.file))
+            product = self.ProductBasicReduced(header, image)
             product_set |= {product}
 
         return product_set
-
-    def _dispatch_child_class(self) -> type["MetisLmImgBasicReduceImpl"]:
-        return {
-            'STD': MetisLmStdBasicReduceImpl,
-            'SCI': MetisLmSciBasicReduceImpl,
-            'SKY': MetisLmSkyBasicReduceImpl,
-        }[self.inputset.target]
-
-
-# ToDo Generate these classes automatically!
-
-class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class InputSet(MetisLmImgBasicReduceImpl.InputSet):
-        class RawInput(MetisLmImgBasicReduceImpl.InputSet.RawInput):
-            Item = LmImageStdRaw
-
-    class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        Item = LmStdBasicReduced
-
-
-class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetSciMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        Item = LmSciBasicReduced
-
-
-class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetSkyMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        Item = LmSkyBasicReduced
 
 
 class MetisLmImgBasicReduce(MetisRecipe):

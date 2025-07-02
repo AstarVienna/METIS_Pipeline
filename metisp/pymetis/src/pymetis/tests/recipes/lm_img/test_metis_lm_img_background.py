@@ -56,4 +56,4 @@ class TestProductBkgSubtracted(BaseProductTest):
 
 
 class TestProductObjectCat(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductObjectCat
+    Product: type[PipelineProduct] = Impl.ProductObjectCatalog

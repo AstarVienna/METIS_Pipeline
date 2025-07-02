@@ -17,13 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 
 from pymetis.classes.dataitems.coadd import IfuSciCoadd
 from pymetis.classes.dataitems.common import IfuScienceCubeCalibrated
-from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.products import PipelineProduct, PipelineImageProduct
@@ -32,8 +29,7 @@ from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(SinglePipelineInput):
-            Item: type[DataItem] = IfuScienceCubeCalibrated
-            _tags: re.Pattern = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
+            Item = IfuScienceCubeCalibrated
 
     ProductSciCoadd = IfuSciCoadd
 

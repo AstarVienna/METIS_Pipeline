@@ -81,8 +81,6 @@ def parametrize(template: str, **params: list[str]):
             print(typename, tuple(bases + [cls]), {})
             print(type(typename, tuple(bases + [cls]), {}))
 
-
-        # Make this a Descriptor!
     return decorator
 
 

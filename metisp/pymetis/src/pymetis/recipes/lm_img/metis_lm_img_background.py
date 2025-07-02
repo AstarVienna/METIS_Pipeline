@@ -25,94 +25,45 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems.background.background import Background
 from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
-from pymetis.classes.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced, LmSciBasicReduced, LmStdBasicReduced
-from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced
 from pymetis.classes.dataitems.object import ObjectCatalog
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, PipelineTableProduct
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
-    detector = '2RG'
-
     class InputSet(PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
-            Item: type[DataItem] = BasicReduced
-            _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
+            Item = BasicReduced
 
         class SkyBasicReducedInput(SinglePipelineInput):
-            Item: type[DataItem] = LmSkyBasicReduced
-            _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
+            Item = LmSkyBasicReduced
 
-    class ProductBkg(TargetSpecificProduct, PipelineImageProduct):
-        Item = Background
+    ProductBkg = Background
+    ProductBkgSubtracted = BackgroundSubtracted
+    ProductObjectCatalog = ObjectCatalog
 
-    class ProductBkgSubtracted(TargetSpecificProduct, PipelineImageProduct):
-        Item = BackgroundSubtracted
-
-    class ProductObjectCat(TargetSpecificProduct, PipelineTableProduct):
-        Item = ObjectCatalog
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         raw_images = cpl.core.ImageList()
-
         target = self.inputset.tag_parameters['target']
         image = self._create_dummy_image()
         table = self._create_dummy_table()
 
-        product_bkg = self.ProductBkg(self, self.header, image)
-        product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image)
-        product_object_cat = self.ProductObjectCat(self, self.header, table)
+        product_bkg = self.ProductBkg(self.header, image)
+        product_bkg_subtracted = self.ProductBkgSubtracted(self.header, image)
+        product_object_cat = self.ProductObjectCatalog(self.header, table)
 
         return {product_bkg, product_bkg_subtracted, product_object_cat}
 
-    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
-        return {
-            'STD': MetisLmImgBackgroundStdImpl,
-            'SCI': MetisLmImgBackgroundSciImpl,
-        }[self.inputset.target]
-
-
-class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
-    class InputSet(MetisLmImgBackgroundImpl.InputSet):
-        class BasicReducedInput(MetisLmImgBackgroundImpl.InputSet.BasicReducedInput):
-            Item: type[DataItem] = LmSciBasicReduced
-
-    class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg):
-        pass
-
-    class ProductObjectCat(TargetStdMixin, MetisLmImgBackgroundImpl.ProductObjectCat):
-        pass
-
-    class ProductBkgSubtracted(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted):
-        pass
-
-
-class MetisLmImgBackgroundSciImpl(MetisLmImgBackgroundImpl):
-    class InputSet(MetisLmImgBackgroundImpl.InputSet):
-        class BasicReducedInput(MetisLmImgBackgroundImpl.InputSet.BasicReducedInput):
-            Item: type[DataItem] = LmStdBasicReduced
-
-    class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg):
-        pass
-
-    class ProductObjectCat(TargetSciMixin, MetisLmImgBackgroundImpl.ProductObjectCat):
-        pass
-
-    class ProductBkgSubtracted(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted):
-        pass
-
 
 class MetisLmImgBackground(MetisRecipe):
-    _name: str = "metis_lm_img_background"
-    _version: str = "0.1"
-    _author: str = "Chi-Hung Yan, A*"
-    _email: str = "chyan@asiaa.sinica.edu.tw"
+    _name = "metis_lm_img_background"
+    _version = "0.1"
+    _author = "Chi-Hung Yan, A*"
+    _email = "chyan@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
-    _synopsis: str = "Basic reduction of raw exposures from the LM-band imager"
-    _description: str = ""
+    _synopsis = "Basic reduction of raw exposures from the LM-band imager"
+    _description = ""
 
     parameters = ParameterList([
         ParameterEnum(
@@ -124,7 +75,7 @@ class MetisLmImgBackground(MetisRecipe):
         )
     ])
 
-    _matched_keywords: set[str] = {'DRS.FILTER'}
+    _matched_keywords = {'DRS.FILTER'}
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 

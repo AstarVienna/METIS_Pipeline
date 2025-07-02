@@ -20,7 +20,7 @@ import cpl.ui
 
 from pymetis.classes.dataitems import Raw
 from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin, BandNMixin,
-                                    TargetSpecificMixin, TargetStdMixin, TargetSciMixin)
+                                    TargetSpecificMixin, TargetStdMixin, TargetSciMixin, TargetSkyMixin)
 
 
 class ImageRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
@@ -40,6 +40,10 @@ class LmImageStdRaw(BandLmMixin, TargetStdMixin, ImageRaw):
 
 
 class LmImageSciRaw(BandLmMixin, TargetSciMixin, ImageRaw):
+    pass
+
+
+class LmImageSkyRaw(BandLmMixin, TargetSkyMixin, ImageRaw):
     pass
 
 

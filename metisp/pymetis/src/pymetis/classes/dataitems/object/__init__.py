@@ -24,21 +24,12 @@ from pymetis.classes.mixins import (BandSpecificMixin, BandNMixin, BandLmMixin,
 
 
 class ObjectCatalog(BandSpecificMixin, TargetSpecificMixin, DataItem, abstract=True):
+    _name_template = r'{band}_{target}_OBJECT_CAT'
+    _title_template = "{band} {target} object catalog"
+    _description_template = "Catalog of masked objects in {target} {band} exposures"
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-
-    @classmethod
-    def name(cls):
-        return rf'{cls.band()}_{cls.target()}_OBJECT_CAT'
-
-    @classmethod
-    def title(cls):
-        return f"{cls.band()} {cls.get_target_string()} object catalog"
-
-    @classmethod
-    def description(cls) -> str:
-        return f"Catalog of masked objects in {cls.get_target_string()} {cls.band()} exposures"
 
 
 class LmStdObjectCatalog(BandLmMixin, TargetStdMixin, ObjectCatalog):

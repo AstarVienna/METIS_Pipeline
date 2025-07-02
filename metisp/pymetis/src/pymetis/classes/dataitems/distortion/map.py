@@ -17,28 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl.ui
+import cpl
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
 
 
-class DistortionMap(BandSpecificMixin, DataItem, abstract=True):
+class DistortionMap(BandSpecificMixin, ImageDataItem, abstract=True):
+    _name_template = r'{band}_DISTORTION_MAP'
+    _title_template = "{band} distortion map"
+    _description_template = "Map of pixel scale across the {band} detector"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-
-    @classmethod
-    def name(cls) -> str:
-        return rf'{cls.band()}_DISTORTION_MAP'
-
-    @classmethod
-    def title(cls):
-        return f"{cls.band()} distortion map"
-
-    @classmethod
-    def description(cls):
-        return f"Map of pixel scale across the {cls.band()} detector"
 
 
 class LmDistortionMap(BandLmMixin, DistortionMap):
