@@ -29,7 +29,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 
 from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadpixMapInput, MasterDarkInput, RawInput,
+from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput,
                                     GainMapInput, LinearityInput, OptionalInputMixin, LaserTableInput,
                                     PersistenceInputSetMixin)
 
@@ -67,7 +67,7 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
             _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
         MasterDarkInput = MasterDarkInput
 
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             """
             Bad pixel BADPIX_MAP_2RG
             """

@@ -23,15 +23,11 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins import Detector2rgMixin
-
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 
-from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
+from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin, PersistenceInputSetMixin)
-from pymetis.classes.products import PipelineImageProduct
 
 # =========================================================================================
 #    Define main class
@@ -65,7 +61,7 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
             """
             _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
 
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             """
             Bad pixel BADPIX_MAP_2RG
             """
@@ -82,6 +78,12 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
             Linearity
             """
             _tags: re.Pattern = re.compile(r"LINEARITY_2RG")
+
+    ProductMedianLssRsrfImg = MedianLssRsrfImg
+    ProductMeanLssRsrfImg = MeanLssRsrfImg
+    ProductMasterLssRsrfImg = MasterLssRsrfImg
+
+
 
     # # ++++++++++++++++++ Intermediate products ++++++++++++++++++
     class ProductMedianLmLssRsrfImg(PipelineImageProduct):
@@ -138,7 +140,7 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
 # =========================================================================================
 
 #   Method for processing
-    def process_images(self) -> [PipelineImageProduct]:
+    def process_images(self):
         """do something more fancy in the future"""
         # Load raw image
         spec_flat_hdr = \
@@ -156,29 +158,11 @@ class MetisLmLssRsrfImpl(RawImageProcessor):
         # Median combine
         combined_median_hdr = cpl.core.PropertyList()
         combined_median_img = self.combine_images(raw_images, "median")
-        return [
-            self.ProductMasterLmLssRsrf(self, combined_master_hdr, combined_master_img),
-            self.ProductMeanLmLssRsrfImg(self, combined_mean_hdr, combined_mean_img),
-            self.ProductMedianLmLssRsrfImg(self, combined_median_hdr, combined_median_img),
-        ]
-
-#   Method for loading images (stolen from metis_chop_home.py)
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
+        return {
+            self.ProductMasterLmLssRsrf(combined_master_hdr, combined_master_img),
+            self.ProductMeanLmLssRsrfImg(combined_mean_hdr, combined_mean_img),
+            self.ProductMedianLmLssRsrfImg(combined_median_hdr, combined_median_img),
+        }
 
 
 # =========================================================================================

@@ -17,28 +17,3 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
-
-from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
-
-
-class WcuOffRaw(BandSpecificMixin, ImageDataItem, abstract=True):
-    _name_template = r'{band}_WCU_OFF_RAW'
-    _title_template = r"{band} WCU OFF raw"
-    _description_template = "Raw data for dark subtraction in other recipes."
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
-
-
-class LmWcuOffRaw(BandLmMixin, WcuOffRaw):
-    pass
-
-
-class NWcuOffRaw(BandNMixin, WcuOffRaw):
-    pass
-
-
-class IfuWcuOffRaw(BandIfuMixin, WcuOffRaw):
-    _oca_keywords = WcuOffRaw._oca_keywords | {'DRS.IFU'}

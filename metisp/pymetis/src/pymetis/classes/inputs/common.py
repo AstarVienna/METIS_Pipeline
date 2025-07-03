@@ -17,19 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 from abc import ABC
-from typing import Pattern
-
-import cpl
 
 from . import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 
-from ..dataitems.dataitem import DataItem
-from ..dataitems.common import PersistenceMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel, FluxStdCatalog
+from ..dataitems.common import PersistenceMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel, FluxStdCatalog, \
+    AtmLineCatalog, LaserTable
 from ..dataitems.linearity.linearity import LinearityMap
 from ..dataitems.raw import Raw
 from ..dataitems.badpixmap import BadPixMap
@@ -37,6 +32,7 @@ from pymetis.classes.dataitems.distortion.table import DistortionTable
 from ..dataitems.gainmap import GainMap
 from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
 from ..dataitems.masterflat import MasterFlat
+from ..dataitems.synth import SynthTrans
 from ..dataitems.wavecal import IfuWavecal
 
 """
@@ -63,83 +59,74 @@ You should override class attributes:
 
 
 class OptionalInputMixin(PipelineInput, ABC):
-    _required: bool = False     # Many inputs are by default optional, this mixin provides that
+    _required = False     # Many inputs are by default optional, this mixin provides that
 
 
 class RawInput(MultiplePipelineInput, ABC):
-    Item: type[DataItem] = Raw
+    Item = Raw
 
 
 class MasterDarkInput(SinglePipelineInput):
-    Item: type[DataItem] = MasterDark
+    Item = MasterDark
 
 
 class MasterFlatInput(SinglePipelineInput):
-    Item: type[DataItem] = MasterFlat
+    Item = MasterFlat
 
 
 class LinearityInput(SinglePipelineInput):
-    Item: type[DataItem] = LinearityMap
+    Item = LinearityMap
 
 
-class BadpixMapInput(SinglePipelineInput):
-    Item: type[DataItem] = BadPixMap
+class BadPixMapInput(SinglePipelineInput):
+    Item = BadPixMap
 
 
 class PersistenceMapInput(SinglePipelineInput):
-    Item: type[DataItem] = PersistenceMap
+    Item = PersistenceMap
     _required = False           # By default, persistence maps are optional
 
 
 class GainMapInput(SinglePipelineInput):
-    Item: type[DataItem] = GainMap
+    Item = GainMap
 
 
 class DistortionTableInput(SinglePipelineInput):
-    Item: type[DataItem] = DistortionTable
+    Item = DistortionTable
 
 
 class WavecalInput(SinglePipelineInput):
-    Item: type[DataItem] = IfuWavecal
+    Item = IfuWavecal
 
 
 class PinholeTableInput(SinglePipelineInput):
-    Item: type[DataItem] = PinholeTable
+    Item = PinholeTable
 
 
 class FluxstdCatalogInput(SinglePipelineInput):
-    Item: type[DataItem] = FluxStdCatalog
+    Item = FluxStdCatalog
 
 
 class FluxCalTableInput(SinglePipelineInput):
-    Item: type[DataItem] = FluxCalTable
+    Item = FluxCalTable
 
 
 class LsfKernelInput(SinglePipelineInput):
-    Item: type[DataItem] = LsfKernel
+    Item = LsfKernel
 
 
 class AtmProfileInput(SinglePipelineInput):
-    Item: type[DataItem] = AtmProfile
+    Item = AtmProfile
 
 
 class AtmLineCatInput(SinglePipelineInput):
-    _title: str = "Line catalogue of atmospheric lines"
-    _tags: Pattern = re.compile(rf"ATM_LINE_CAT")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Catalogue containing a line list of atmospheric molecular lines"
+    Item = AtmLineCatalog
 
 
 class LaserTableInput(SinglePipelineInput):
-    _title: str = "Laser table"
-    _tags: Pattern = re.compile(r"LASER_TAB")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Table with laser lines"
+    Item = LaserTable
 
 
 class SynthTransInput(SinglePipelineInput):
-    _title: str = "Synthetic transmission"
-    _tags: Pattern = re.compile(r"SYNTH_TRANS")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Synthetic transmission used for default telluric correction of STD stars"
+    Item = SynthTrans
 

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw, NWcuOffRaw, WcuOffIfuRaw
+from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw, NWcuOffRaw, IfuWcuOffRaw
 from pymetis.tests.classes.dataitem import DataItemTest
 
 
@@ -30,4 +30,4 @@ class TestWcuOffGeoRaw(DataItemTest):
 
 
 class TestWcuOffIfuRaw(DataItemTest):
-    Item = WcuOffIfuRaw
+    Item = IfuWcuOffRaw

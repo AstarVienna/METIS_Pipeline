@@ -24,7 +24,7 @@ from cpl.core import Msg
 from pymetis.classes.dataitems.lm_lss.trace import LmLssTrace
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import (SinglePipelineInput, BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
+from pymetis.classes.inputs import (SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin, PersistenceInputSetMixin)
 
 # =========================================================================================
@@ -58,7 +58,7 @@ class MetisLmLssTraceImpl(DarkImageProcessor):
             """
             _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
 
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             """
             Bad pixel BADPIX_MAP_2RG
             """

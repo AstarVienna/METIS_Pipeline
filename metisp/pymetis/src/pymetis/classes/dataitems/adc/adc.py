@@ -19,25 +19,37 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import ImageDataItem
+from pymetis.classes.dataitems import Raw, TableDataItem
 from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 
-class LssTrace(ImageDataItem, abstract=True):
-    """
-    Final trace table
-    """
-    _name_template = r'{band}_LSS_TRACE'
-    _title_template = r"{band} LSS trace"
-    _description_template = "Table with polynomials describing the location of the traces on the detector"
+class AdcSlitloss(TableDataItem, abstract=True):
+    _name_template = r'{band}_ADC_SLITLOSS'
+    _title_template = "{band} ADC slit loss"
+    _description_template = "Table with ADC induced {band} slitlosses"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
 
-class LmLssTrace(BandLmMixin, LssTrace):
+class LmAdcSlitloss(BandLmMixin, AdcSlitloss):
     pass
 
 
-class NLssTrace(BandNMixin, LssTrace):
+class NAdcSlitloss(BandNMixin, AdcSlitloss):
+    pass
+
+
+class AdcSlitlossRaw(Raw, abstract=True):
+    _name_template = r'{band}_ADC_SLITLOSSES_RAW'
+    _title_template = r'{band} ADC slit loss raw'
+    _description_template = "Raw files for ADC slitloss determination (TBD)."
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+
+
+class LmAdcSlitlossRaw(BandLmMixin, AdcSlitlossRaw):
+    pass
+
+
+class NAdcSlitlossRaw(BandNMixin, AdcSlitlossRaw):
     pass

@@ -32,7 +32,7 @@ from pymetis.classes.dataitems.linearity.raw import Linearity2rgRaw, LinearityRa
 from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
-from pymetis.classes.inputs import RawInput, BadpixMapInput, OptionalInputMixin
+from pymetis.classes.inputs import RawInput, BadPixMapInput, OptionalInputMixin
 
 
 
@@ -44,12 +44,12 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         class WcuOffInput(RawInput):
             Item = WcuOffRaw
 
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             Item = BadPixMap
 
     ProductGainMap = GainMap
     ProductLinearity = LinearityMap
-    ProductBadpixMap = BadPixMap
+    ProductBadPixMap = BadPixMap
 
     def process_images(self):
         raw_images = self.inputset.load_raw_images()
@@ -71,7 +71,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
         product_gain_map = self.ProductGainMap(header, gain_image)
         product_linearity = self.ProductLinearity(header, linearity_image)
-        product_badpix_map = self.ProductBadpixMap(header, badpix_map)
+        product_badpix_map = self.ProductBadPixMap(header, badpix_map)
 
         return {product_gain_map, product_linearity, product_badpix_map}
 

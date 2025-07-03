@@ -32,10 +32,10 @@ from pymetis.classes.dataitems.linearity.linearity import LinearityMapIfu
 from pymetis.classes.dataitems.masterdark.masterdark import MasterDarkIfu
 from pymetis.classes.dataitems.masterflat import MasterFlatIfu
 from pymetis.classes.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
-from pymetis.classes.dataitems.raw.wcuoff import WcuOffIfuRaw
+from pymetis.classes.dataitems.raw.wcuoff import IfuWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
+from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
 
@@ -62,10 +62,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             WCU_OFF input illuminated by the WCU up-to and including the
             integrating sphere, but no source.
             """
-            Item = WcuOffIfuRaw
+            Item = IfuWcuOffRaw
 
         # TBC: could this be replaced by the MASTER_DARK_IFU input?
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             Item = BadPixMapIfu
 
         DistortionTableInput = DistortionTableInput
@@ -74,7 +74,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
     ProductRsrfBackground = IfuRsrfBackground
     ProductMasterFlat = MasterFlatIfu
     ProductRsrfIfu = RsrfIfu
-    ProductBadpixMap = BadPixMapIfu
+    ProductBadPixMap = BadPixMapIfu
 
     def process_images(self):
         """
@@ -212,7 +212,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         product_background = self.ProductRsrfBackground(background_hdr, background_img)
         product_master_flat_ifu = self.ProductMasterFlat(spec_flat_hdr, spec_flat_img)
         product_rsrf_ifu = self.ProductRsrfIfu(rsrf_hdr, rsrf_table)
-        product_badpix_map_ifu = self.ProductBadpixMap(badpix_hdr, badpix_img)
+        product_badpix_map_ifu = self.ProductBadPixMap(badpix_hdr, badpix_img)
 
         return {product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu}
 

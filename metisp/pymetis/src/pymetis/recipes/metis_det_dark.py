@@ -29,7 +29,7 @@ from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
 from pymetis.classes.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
-from pymetis.classes.inputs import (RawInput, BadpixMapInput, PersistenceMapInput,
+from pymetis.classes.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
                                     LinearityInput, GainMapInput, OptionalInputMixin)
 
 
@@ -61,7 +61,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             pass
 
         # FixMe: these two should **not** be optional, but the current EDPS workflow does not supply them

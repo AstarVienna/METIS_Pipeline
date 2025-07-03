@@ -91,3 +91,12 @@ class IfuStdCombined(TargetStdMixin, IfuCombined):
 
 class IfuSciCombined(TargetSciMixin, IfuCombined):
     _description_template = "Spectral cube of science object, combining multiple exposures."
+
+
+class IfuScienceCubeCalibrated(BandIfuMixin, ImageDataItem):
+    _name_template = r'IFU_SCI_CUBE_CALIBRATED'
+    _title_template = "IFU science cube calibrated"
+    _description_template = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}

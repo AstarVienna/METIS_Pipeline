@@ -22,13 +22,13 @@ from .inputset import PipelineInputSet
 from .base import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
-from .mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin
+from .mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin, BadPixMapInputSetMixin
 
 from .common import (RawInput,
                      MasterDarkInput,
                      MasterFlatInput,
                      LinearityInput,
-                     BadpixMapInput,
+                     BadPixMapInput,
                      PersistenceMapInput,
                      GainMapInput,
                      FluxCalTableInput,
@@ -46,10 +46,10 @@ from .common import (RawInput,
 __all__ = [
     'PipelineInputSet',
     'PipelineInput', 'SinglePipelineInput', 'MultiplePipelineInput',
-    'RawInput', 'MasterDarkInput', 'MasterFlatInput', 'LinearityInput', 'BadpixMapInput',
+    'RawInput', 'MasterDarkInput', 'MasterFlatInput', 'LinearityInput', 'BadPixMapInput',
     'PersistenceMapInput', 'GainMapInput', 'FluxCalTableInput', 'FluxstdCatalogInput',
     'PinholeTableInput', 'DistortionTableInput', 'LsfKernelInput', 'AtmProfileInput',
     'WavecalInput', 'OptionalInputMixin',
     'LsfKernelInput', 'AtmLineCatInput', 'LaserTableInput', 'SynthTransInput',
-    'PersistenceInputSetMixin', 'GainMapInputSetMixin', 'LinearityInputSetMixin',
+    'PersistenceInputSetMixin', 'GainMapInputSetMixin', 'LinearityInputSetMixin', 'BadPixMapInputSetMixin',
 ]

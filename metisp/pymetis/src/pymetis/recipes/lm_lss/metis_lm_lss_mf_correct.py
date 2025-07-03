@@ -21,13 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 # Import the required PyCPL modules
 import re
 import cpl
-from cpl.core import Msg
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-from pymetis.classes.inputs import RawInput
+from pymetis.classes.dataitems.synth import LmLssSynthTrans
+from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.classes.products import PipelineProduct,PipelineTableProduct
 
 # TODO: Check 2D input spectra - correct all row with same trans?
 
@@ -37,9 +35,6 @@ from pymetis.classes.products import PipelineProduct,PipelineTableProduct
 # =========================================================================================
 class MetisLmLssMfCorrectImpl(RawImageProcessor):
     class InputSet(PipelineInputSet):
-        band = "LM"
-        detector = "2RG"
-
     # ++++++++++++ Main input++++++++++++
         class LmLssSciFlux1d(SinglePipelineInput):
             """
@@ -53,13 +48,9 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
             _description: str = "Flux calibrated 1D LM LSS science spectrum"
 
         class Transmission(SinglePipelineInput):
-            """
-            Transmission spectrum
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_SYNTH_TRANS")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Transmission spectrum"
-            _description: str = "Transmission spectrum to be used for the telluric correction."
+            Item = LmLssSynthTrans
+
+    ProductTellCorrFinalSpectrum = LmLssSciFluxTell1d
 
     # ++++++++++++++++++ Final products ++++++++++++++++++
     # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
@@ -87,7 +78,7 @@ class MetisLmLssMfCorrectImpl(RawImageProcessor):
         header = self._create_dummy_header()
         table = self._create_dummy_table()
         return [
-            self.ProductTellCorrFinalSpectrum(self, header, table),
+            self.ProductTellCorrFinalSpectrum(header, table),
         ]
 
 # =========================================================================================

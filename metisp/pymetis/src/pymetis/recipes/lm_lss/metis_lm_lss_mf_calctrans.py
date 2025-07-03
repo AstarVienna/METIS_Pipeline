@@ -21,13 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 # Import the required PyCPL modules
 import re
 import cpl
-from cpl.core import Msg
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-from pymetis.classes.inputs import RawInput
+from pymetis.classes.dataitems.synth import SynthTrans, LmLssSynthTrans
+from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.classes.products import PipelineProduct, PipelineTableProduct
 
 # =========================================================================================
 #    Define main class
@@ -73,26 +71,13 @@ class MetisLmLssMfCalctransImpl(RawImageProcessor):
             _title: str = "Table with best-fit parameters"
             _description: str = "Atmospheric profile."
 
-    # ++++++++++++ Intermediate / QC products ++++++++++++
-
-    # ++++++++++++++++++ Final products ++++++++++++++++++
-    # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
-    class ProductTransmission(PipelineTableProduct):
-        """
-        Final transmission
-        """
-        _tag = rf"LM_LSS_SYNTH_TRANS"
-        _title: str = "Transmission spectrum"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Transmission spectrum to be used for the telluric correction."
-
+    ProductTransmission = LmLssSynthTrans
 # =========================================================================================
 #    Methods
 # =========================================================================================
 
 #   Method for processing
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self):
         """Create dummy file (should do something more fancy in the future)"""
 
         # TODO: Invoke mf_calctrans here
@@ -102,7 +87,7 @@ class MetisLmLssMfCalctransImpl(RawImageProcessor):
         header = self._create_dummy_header()
         table = self._create_dummy_table()
         return [
-            self.ProductTransmission(self, header, table),
+            self.ProductTransmission(header, table),
         ]
 
 

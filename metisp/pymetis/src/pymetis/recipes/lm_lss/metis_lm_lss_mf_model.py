@@ -23,14 +23,11 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins import Detector2rgMixin
-
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 
 from pymetis.classes.inputs import (SinglePipelineInput, PipelineInputSet,
                                     AtmProfileInput, AtmLineCatInput, LsfKernelInput)
 from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.classes.products import PipelineProduct, PipelineTableProduct
 
 
 # =========================================================================================
@@ -38,9 +35,6 @@ from pymetis.classes.products import PipelineProduct, PipelineTableProduct
 # =========================================================================================
 class MetisLmLssMfModelImpl(RawImageProcessor):
     class InputSet(PipelineInputSet):
-        band = "LM"
-        detector = "2RG"
-
     # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
         class LmLssSciFlux1d(SinglePipelineInput):
@@ -72,17 +66,8 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
         AtmLineCatInput = AtmLineCatInput
         LsfKernelInput = LsfKernelInput
 
-    # ++++++++++++++++++ Final products ++++++++++++++++++
-    # TODO: Check whether the new mf writes out the best-fit param file
-    class ProductMfBestFitTab(PipelineTableProduct):
-        """
-        Table with best-fit parameters
-        """
-        _tag = rf"MF_BEST_FIT_TAB"
-        _title: str = "Molecfit best-fit table"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Table with best-fit parameters for calctrans."
+    ProductMfBestFitTable = MfBestFitTable
+
 
 
 # =========================================================================================
@@ -90,16 +75,16 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
 # =========================================================================================
 
 #   Method for processing
-    def process_images(self) -> [PipelineProduct]:
+    def process_images(self):
         """Create dummy file (should do something more fancy in the future)"""
 
         # TODO: Invoke molecfit here
         # TODO: Check whether the new mf writes out the best-fit param file
         header = self._create_dummy_header()
         table = self._create_dummy_table()
-        return [
-            self.ProductMfBestFitTab(self, header, table),
-        ]
+        return {
+            self.ProductMfBestFitTab(header, table),
+        }
 
 
 #   Method for loading images (stolen from metis_chop_home.py)

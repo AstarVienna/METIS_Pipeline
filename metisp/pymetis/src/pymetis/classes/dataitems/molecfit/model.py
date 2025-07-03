@@ -19,26 +19,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.dataitems import TableDataItem
 
 
-class WcuOffRaw(BandSpecificMixin, ImageDataItem, abstract=True):
-    _name_template = r'{band}_WCU_OFF_RAW'
-    _title_template = r"{band} WCU OFF raw"
-    _description_template = "Raw data for dark subtraction in other recipes."
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
-
-
-class LmWcuOffRaw(BandLmMixin, WcuOffRaw):
-    pass
-
-
-class NWcuOffRaw(BandNMixin, WcuOffRaw):
-    pass
-
-
-class IfuWcuOffRaw(BandIfuMixin, WcuOffRaw):
-    _oca_keywords = WcuOffRaw._oca_keywords | {'DRS.IFU'}
+class MfBestFitTable(TableDataItem):
+    """
+    Table with best-fit parameters
+    """
+    _name_template = r'MF_BEST_FIT_TAB'
+    _title_template = 'Molecfit best-fit table'
+    _description_template = "Table with best-fit parameters for calctrans."
+    # TODO: Check whether the new mf writes out the best-fit param file
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL

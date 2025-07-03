@@ -19,26 +19,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.dataitems import Raw
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 
-class WcuOffRaw(BandSpecificMixin, ImageDataItem, abstract=True):
-    _name_template = r'{band}_WCU_OFF_RAW'
-    _title_template = r"{band} WCU OFF raw"
-    _description_template = "Raw data for dark subtraction in other recipes."
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
+class LssRsrfRaw(Raw, abstract=True):
+    _name_template = r'{band}_LSS_RSRF_RAW'
+    _title_template = "{band} LSS RSRF raw"
+    _description_template = "Raw exposure of the WCU flat field lamp through the LSS to achieve the RSRF."
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
+                     'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME',
+                     'DRS.SLIT'}
 
 
-class LmWcuOffRaw(BandLmMixin, WcuOffRaw):
+class LmLssStdRaw(BandLmMixin, LssRsrfRaw):
     pass
 
 
-class NWcuOffRaw(BandNMixin, WcuOffRaw):
+class NLssStdRaw(BandNMixin, LssRsrfRaw):
     pass
-
-
-class IfuWcuOffRaw(BandIfuMixin, WcuOffRaw):
-    _oca_keywords = WcuOffRaw._oca_keywords | {'DRS.IFU'}

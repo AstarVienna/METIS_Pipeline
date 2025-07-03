@@ -21,20 +21,20 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins.detector import DetectorGeoMixin
-
+from pymetis.classes.dataitems.lss.trace import LssTrace
 from pymetis.classes.prefab import DarkImageProcessor
 
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import (SinglePipelineInput, BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    LinearityInput, OptionalInputMixin, PersistenceInputSetMixin)
-from pymetis.classes.products import PipelineTableProduct
+from pymetis.classes.inputs import (SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
+                                    LinearityInput, OptionalInputMixin, PersistenceInputSetMixin,
+                                    BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
 
 # =========================================================================================
 #    Define main class
 # =========================================================================================
 class MetisNLssTraceImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
+                   DarkImageProcessor.InputSet):
         band = "N"
         detector = "GEO"
 
@@ -56,31 +56,6 @@ class MetisNLssTraceImpl(DarkImageProcessor):
             _description: str = "Raw data for dark subtraction in other recipes."
 
 # TODO: Check DARK!
-
-        class MasterDarkInput(MasterDarkInput):
-            """
-            Master dark MASTER_DARK_GEO
-            """
-            _tags: re.Pattern = re.compile(r"MASTER_DARK_GEO")
-
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
-            """
-            Bad pixel BADPIX_MAP_GEO
-            """
-            _tags: re.Pattern = re.compile(r"BADPIX_MAP_GEO")
-
-        class GainMapInput(GainMapInput):
-            """
-            Gain map
-            """
-            _tags: re.Pattern = re.compile(r"GAIN_MAP_GEO")
-
-        class LinearityInput(LinearityInput):
-            """
-            Linearity
-            """
-            _tags: re.Pattern = re.compile(r"LINEARITY_GEO")
-
         class MasterRsrfInput(SinglePipelineInput):
             """
             MASTER N LSS RSRF
@@ -90,19 +65,7 @@ class MetisNLssTraceImpl(DarkImageProcessor):
             _title: str = "MASTER_RSRF"
             _description: str = "Master 2D RSRF"
 
-
-    # ++++++++++++++++++ Final products ++++++++++++++++++
-    class ProductTraceTab(PipelineTableProduct):
-        """
-        Final trace table
-        """
-        _tag: str = r"N_LSS_TRACE"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        _description: str = "Table with polynomials describing the location of the traces on the detector"
-        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+    ProductTraceTable = LssTrace
 
 
 # =========================================================================================
@@ -128,13 +91,13 @@ class MetisNLssTraceImpl(DarkImageProcessor):
         return output
 
 #   Method for processing
-    def process_images(self) -> [PipelineTableProduct]:
+    def process_images(self):
         """Create dummy file (should do something more fancy in the future)"""
         # trace_tab_hdr = self._create_dummy_header()
         trace_tab_hdr = self._create_dummy_header()
         trace_tab_data = self._create_dummy_table()
         return [
-            self.ProductTraceTab(self, trace_tab_hdr, trace_tab_data)
+            self.ProductTraceTable( trace_tab_hdr, trace_tab_data)
         ]
 
 # =========================================================================================

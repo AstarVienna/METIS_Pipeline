@@ -16,107 +16,42 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-# from typing import Any, Dict   # <------ TODO: Check whether necessary, taken from example of pyesorex webpages
 
-
-# TODO: Check the need for WCU_OFF frames!
-
-# Import the required PyCPL modules
-import re
 import cpl
-from cpl.core import Msg
 
-from pymetis.classes.mixins import Detector2rgMixin
-
+from pymetis.classes.dataitems.adc.adc import LmAdcSlitloss, LmAdcSlitlossRaw
+from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 
-from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    LinearityInput, OptionalInputMixin)
-from pymetis.classes.products import PipelineTableProduct
+from pymetis.classes.inputs import (RawInput,
+                                    PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin,
+                                    BadPixMapInputSetMixin)
 
 # =========================================================================================
 #    Define main class
 # =========================================================================================
 class MetisLmAdcSlitlossImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
-        band = "LM"    # <---- TODO: Check why not automatically determined
-        detector = "2RG"   # <---- TODO: Check why not automatically determined
-
-        # Define input classes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, BadPixMapInputSetMixin, RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
         class RawInput(RawInput):
-            """
-            Raw image LM_LSS_SLITLOSS_RAW
-            """
-            _tags: re.Pattern = re.compile(r"LM_ADC_SLITLOSS_RAW")   # <---- TBD
-            _title: str = "LM ADC slitloss raw"
-            _description: str = "Raw files for ADC slitloss determination (TBD)."
-        class LmAdcSlitlossWcuOffInput(RawInput):
-            """
-            WCU_OFF input illuminated by the WCU up-to and including the
-            integrating sphere, but no source.
-            """
-            _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
-            _title: str = "LM LSS WCU off"
-            _description: str = "Raw data for dark subtraction in other recipes."
+            Item = LmAdcSlitlossRaw
 
+        class WcuOffInput(RawInput):
+            Item = LmWcuOffRaw
 
-    # ++++++++++++++++++ Final products ++++++++++++++++++
-    class ProductLmAdcSlitloss(PipelineTableProduct):
-        """
-        Final Master RSRF
-        """
-        _tag: str = r"LM_ADC_SLITLOSS"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        _description: str = "Table with ADC induced LM slitlosses"
-        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
-
-        # SKEL: copy product keywords from header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
-        # SKEL: copy product keywords from header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
+    ProductLmAdcSlitloss = LmAdcSlitloss
 
 # =========================================================================================
 #    Methods
 # =========================================================================================
 
-
-#   Method for loading images (stolen from metis_chop_home.py)
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
-
-#   Method for processing
-    def process_images(self) -> [PipelineTableProduct]:
-        """Create dummy file (should do something more fancy in the future)"""
+    def process_images(self):
+        """Create a dummy file (should do something more fancy in the future)"""
         header = self._create_dummy_header()
         table = self._create_dummy_table()
-        return [
-            self.ProductLmAdcSlitloss(self, header, table),
-        ]
+        return {
+            self.ProductLmAdcSlitloss(header, table),
+        }
 
 
 # =========================================================================================

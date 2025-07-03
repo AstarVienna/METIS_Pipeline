@@ -29,7 +29,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 
 from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
+from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin, PersistenceInputSetMixin)
 from pymetis.classes.products import PipelineImageProduct
 
@@ -65,7 +65,7 @@ class MetisNLssRsrfImpl(RawImageProcessor):
             """
             _tags: re.Pattern = re.compile(r"MASTER_DARK_GEO")
 
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             """
             Bad pixel BADPIX_MAP_GEO
             """

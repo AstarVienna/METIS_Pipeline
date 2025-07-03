@@ -55,5 +55,5 @@ class TestProductLinearity(ImageProductTest):
     Product = Impl.ProductLinearity
 
 
-class TestProductBadpixMap(ImageProductTest):
-    Product = Impl.ProductBadpixMap
+class TestProductBadPixMap(ImageProductTest):
+    Product = Impl.ProductBadPixMap

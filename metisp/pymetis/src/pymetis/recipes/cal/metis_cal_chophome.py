@@ -28,7 +28,7 @@ from pymetis.classes.dataitems.gainmap import GainMap2rg
 from pymetis.classes.dataitems.linearity.linearity import LinearityMap2rg
 from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadpixMapInput,
+from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
                                     PinholeTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.prefab import RawImageProcessor
 
@@ -51,7 +51,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
         PersistenceMapInput = PersistenceMapInput
 
-        class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             pass
 
         class PinholeTableInput(OptionalInputMixin, PinholeTableInput):

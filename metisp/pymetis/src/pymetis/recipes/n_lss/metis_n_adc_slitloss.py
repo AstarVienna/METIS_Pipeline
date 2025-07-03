@@ -16,34 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-# from typing import Any, Dict   # <------ TODO: Check whether necessary, taken from example of pyesorex webpages
-
 
 # TODO: Check the need for WCU_OFF frames!
 
-# Import the required PyCPL modules
 import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins import DetectorGeoMixin
-
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
-
-from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    LinearityInput, OptionalInputMixin)
-from pymetis.classes.products import PipelineTableProduct
+from pymetis.classes.inputs import RawInput
+from pymetis.classes.dataitems.adc.adc import NAdcSlitloss
 
 # =========================================================================================
 #    Define main class
 # =========================================================================================
 class MetisNAdcSlitlossImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
-        band = "N"    # <---- TODO: Check why not automatically determined
-        detector = "GEO"   # <---- TODO: Check why not automatically determined
-
         # Define input classes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         class RawInput(RawInput):
             """
@@ -61,29 +50,7 @@ class MetisNAdcSlitlossImpl(RawImageProcessor):
             _title: str = "N LSS WCU off"
             _description: str = "Raw data for dark subtraction in other recipes."
 
-
-    # ++++++++++++++++++ Final products ++++++++++++++++++
-    class ProductNAdcSlitloss(PipelineTableProduct):
-        """
-        Final Master RSRF
-        """
-        _tag: str = r"N_ADC_SLITLOSS"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        _description: str = "Table with ADC induced N slitlosses"
-        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
-
-        # SKEL: copy product keywords from header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
-        # SKEL: copy product keywords from header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
+    ProductNAdcSlitloss = NAdcSlitloss
 
 
 # =========================================================================================
@@ -110,13 +77,13 @@ class MetisNAdcSlitlossImpl(RawImageProcessor):
         return output
 
 #   Method for processing
-    def process_images(self) -> [PipelineTableProduct]:
+    def process_images(self):
         """Create dummy file (should do something more fancy in the future)"""
         header = self._create_dummy_header()
         table = self._create_dummy_table()
-        return [
-            self.ProductNAdcSlitloss(self, header, table),
-        ]
+        return {
+            self.ProductNAdcSlitloss(header, table),
+        }
 
 
 # =========================================================================================

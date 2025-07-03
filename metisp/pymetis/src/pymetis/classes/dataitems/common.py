@@ -78,19 +78,22 @@ class FluxStdCatalog(TableDataItem):
     _oca_keywords = set()
 
 
-class IfuScienceCubeCalibrated(BandIfuMixin, ImageDataItem):
-    _name_template = r'IFU_SCI_CUBE_CALIBRATED'
-    _title_template = "IFU science cube calibrated"
-    _description_template = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+
+class AtmLineCatalog(TableDataItem):
+    _name_template = r'ATM_LINE_CAT'
+    _title_template = "Line catalogue of atmospheric lines"
+    _description_template = "Catalogue containing a line list of atmospheric molecular lines"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-
-class AtmLineCatalog(DataItem):
-    _name_template = r'ATM_LINE_CAT'
     _oca_keywords = {'PRO.CATG'}
 
+
+class LaserTable(TableDataItem):
+    _name_template = r'LASER_TAB'
+    _title_template = "Laser table"
+    _description_template = "Table with laser lines"
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
 
 class IfuTelluric(TableDataItem):
     _name_template = r'IFU_TELLURIC'

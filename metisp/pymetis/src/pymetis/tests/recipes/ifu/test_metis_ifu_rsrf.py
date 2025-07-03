@@ -63,8 +63,8 @@ class TestProductRsrfIfu(BaseProductTest):
     Product = Impl.ProductRsrfIfu
 
 
-class TestProductBadpixMap(BaseProductTest):
-    Product = Impl.ProductBadpixMap
+class TestProductBadPixMap(BaseProductTest):
+    Product = Impl.ProductBadPixMap
 
 
 class TestBlackBodyImg:
