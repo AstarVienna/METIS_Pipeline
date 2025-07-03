@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe,
                                                       MetisIfuDistortionImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -40,16 +39,16 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProductDistortionTable(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductDistortionTable
+    Product = Impl.ProductDistortionTable
 
 
 class TestProductDistortionReduced(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductDistortionReduced
+    Product = Impl.ProductDistortionReduced

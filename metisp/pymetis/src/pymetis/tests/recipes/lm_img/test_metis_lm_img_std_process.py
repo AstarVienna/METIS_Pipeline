@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.lm_img.metis_lm_img_std_process import (MetisLmImgStdProcess as Recipe,
                                                              MetisLmImgStdProcessImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -40,16 +39,16 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProductLmImgStdCombined(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductImgStdCombined
+    Product = Impl.ProductImgStdCombined
 
 
 class TestProductLmImgFluxcalTable(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductImgFluxCalTable
+    Product = Impl.ProductImgFluxCalTable

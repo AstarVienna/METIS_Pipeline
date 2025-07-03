@@ -24,20 +24,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo
 from pymetis.classes.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterImgFlat
 from pymetis.classes.dataitems.pupil import PupilRaw, LmPupilRaw, NPupilRaw
 from pymetis.classes.dataitems.pupil.pupil import PupilImagingReduced, NPupilImagingReduced, LmPupilImagingReduced
-from pymetis.classes.mixins.band import BandLmMixin, BandNMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -80,8 +75,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet,
-                       bias: cpl.core.Image | None = None,
-                       flat: cpl.core.Image | None = None) -> cpl.core.ImageList:
+                       bias = None,
+                       flat = None) -> cpl.core.ImageList:
         prepared_images = cpl.core.ImageList()
 
         """Prepare the images; bias subtracting and flat fielding"""
@@ -134,19 +129,19 @@ class MetisPupilImaging(MetisRecipe):
     plus the implementation class.
     """
     # Fill in recipe information
-    _name: str = "metis_pupil_imaging"
-    _version: str = "0.1"
-    _author: str = "Jennifer Karr, A*"
-    _email: str = "jkarr@asiaa.sinica.edu.tw"
+    _name = "metis_pupil_imaging"
+    _version = "0.1"
+    _author = "Jennifer Karr, A*"
+    _email = "jkarr@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
-    _synopsis: str = "Basic processing of pupil images"
-    _description: str = """
+    _synopsis = "Basic processing of pupil images"
+    _description = """
         This recipe performs basic reduction (dark current subtraction, flat fielding,
         optional bias subtraction, persistence and linearity corrections) on engineering
         images of the pupil masks. This recipe is not expected to be used by observers
         during regular use."""  # FixMe this is not shown anywhere now
 
-    _matched_keywords: set[str] = {'DRS.PUPIL'}
+    _matched_keywords = {'DRS.PUPIL'}
     _algorithm = """Apply dark current and flat field corrections."""
 
     parameters = ParameterList([
