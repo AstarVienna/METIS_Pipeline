@@ -27,7 +27,6 @@ from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
                                                     MetisCalChophomeImpl as Impl)
 from pymetis.recipes.cal.metis_cal_chophome import locate_pinhole
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 from pymetis.tests.classes.product import ImageProductTest
 
@@ -46,19 +45,19 @@ def sof(name: str) -> str:
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple test cases... just to see if it does something """
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProductCombined(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductCombined
+    Product = Impl.ProductCombined
 
 
 class TestProductBackground(ImageProductTest):
-    Product: type[PipelineProduct] = Impl.ProductBackground
+    Product = Impl.ProductBackground
 
 
 class TestLocatePinhole():

@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as Recipe,
                                                             MetisPupilImagingImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 

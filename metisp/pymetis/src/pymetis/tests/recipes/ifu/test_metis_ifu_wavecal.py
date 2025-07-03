@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.ifu.metis_ifu_wavecal import (MetisIfuWavecal as Recipe,
                                                    MetisIfuWavecalImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -40,12 +39,12 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProduct(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductIfuWavecal
+    Product = Impl.ProductIfuWavecal

@@ -28,7 +28,6 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.products import PipelineProduct
 from pymetis.classes.inputs.inputset import PipelineInputSet
 
 
@@ -244,7 +243,7 @@ class MetisRecipeImpl(ABC):
         return self.__class__
 
     @classmethod
-    def list_product_classes(cls) -> list[tuple[str, type[PipelineProduct]]]:
+    def list_product_classes(cls) -> list[tuple[str, type[DataItem]]]:
         return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, DataItem))
 
     #def promote(self, *mixins):

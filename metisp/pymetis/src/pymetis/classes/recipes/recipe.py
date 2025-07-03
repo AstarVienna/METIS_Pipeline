@@ -26,7 +26,6 @@ import cpl
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.products import PipelineProduct
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInput
 
@@ -80,7 +79,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         return inspect.getmembers(self.implementation_class.InputSet,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
-    def _list_products(self) -> list[tuple[str, PipelineProduct]]:
+    def _list_products(self) -> list[tuple[str, DataItem]]:
         return inspect.getmembers(self.implementation_class,
                                   lambda x: inspect.isclass(x) and issubclass(x, DataItem))
 

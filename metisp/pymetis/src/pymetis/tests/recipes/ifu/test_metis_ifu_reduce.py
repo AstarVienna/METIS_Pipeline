@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe,
                                                   MetisIfuReduceImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseInputSetTest, TargetParamRecipeTest, BaseProductTest
 
 
@@ -40,24 +39,24 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(TargetParamRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProductReduced(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductReduced
+    Product = Impl.ProductReduced
 
 
 class TestProductBackground(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductBackground
+    Product = Impl.ProductBackground
 
 
 class TestProductReducedCube(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductReducedCube
+    Product = Impl.ProductReducedCube
 
 
 class TestProductCombined(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductCombined
+    Product = Impl.ProductCombined

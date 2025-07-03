@@ -41,7 +41,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
     def coadd_cubes(self):
         pass
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         self.determine_output_grid()
         self.resample_cubes()
         self.coadd_cubes()

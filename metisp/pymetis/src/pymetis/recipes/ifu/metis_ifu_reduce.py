@@ -17,17 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 from typing import Literal
 
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.classes.dataitems.distortion.table import IfuDistortionTable
+from pymetis.classes.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
+from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
+from pymetis.classes.dataitems.ifu.background import IfuBackground
+from pymetis.classes.dataitems.rsrf import RsrfIfu
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput,
+from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput, WavecalInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):
@@ -35,72 +36,26 @@ class MetisIfuReduceImpl(DarkImageProcessor):
 
     class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_RAW")
-            _description: str = "IFU raw exposure of a science object"
+            Item = IfuRaw
 
         class RawSkyInput(RawInput):
-            _tags: re.Pattern = re.compile(r"IFU_SKY_RAW")
-            _title: str = "blank sky image"
-            _description: str = "Blank sky image"
+            Item = IfuSkyRaw
 
-        class MasterDarkInput(MasterDarkInput):
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
-
-        class WavecalInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"IFU_WAVECAL")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Wavelength calibration"
-            _description: str = "Image with wavelength at each pixel"
+        MasterDarkInput = MasterDarkInput
+        WavecalInput = WavecalInput
 
         class DistortionTableInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"IFU_DISTORTION_TABLE")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Distortion table"
-            _description: str = "Table of distortion coefficients for an IFU data set"
+            Item = IfuDistortionTable
 
         class RsrfInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"RSRF_IFU")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "RSRF"
-            _description: str = "2D relative spectral response function"
+            Item = RsrfIfu
 
-    class ProductReduced(TargetSpecificProduct, PipelineImageProduct):
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
+    ProductReduced = IfuReduced
+    ProductBackground = IfuBackground
+    ProductReducedCube = IfuReducedCube
+    ProductCombined = IfuCombined
 
-        @classmethod
-        def tag(cls) -> str:
-            return rf"IFU_{cls.target():s}_REDUCED"
-
-    class ProductBackground(TargetSpecificProduct, PipelineImageProduct):
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Reduced 2D detector image of background."
-        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"IFU_{cls.target():s}_BACKGROUND"
-
-    class ProductReducedCube(TargetSpecificProduct, PipelineImageProduct):
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Reduced 2D detector image of spectroscopic flux standard star."
-        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"IFU_{cls.target():s}_REDUCED_CUBE"
-
-    class ProductCombined(TargetSpecificProduct, PipelineImageProduct):
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Spectral cube of standard star, combining multiple exposures."
-        _oca_keywords: set[str] = {'PRO.CATG', 'DRS.IFU'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"IFU_{cls.target():s}_COMBINED"
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         # do something... a lot of something
 
         header = cpl.core.PropertyList()
@@ -108,45 +63,11 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         image = self.combine_images(images, "add")
 
         return {
-            self.ProductReduced(self, header, image),
-            self.ProductBackground(self, header, image),
-            self.ProductReducedCube(self, header, image),
-            self.ProductCombined(self, header, image),
+            self.ProductReduced(header, image),
+            self.ProductBackground(header, image),
+            self.ProductReducedCube(header, image),
+            self.ProductCombined(header, image),
         }
-
-    def _dispatch_child_class(self):
-        return {
-            'STD': MetisIfuReduceStdImpl,
-            'SCI': MetisIfuReduceSciImpl,
-        }[self.inputset.target]
-
-
-class MetisIfuReduceStdImpl(MetisIfuReduceImpl):
-    class ProductReduced(TargetStdMixin, MetisIfuReduceImpl.ProductReduced):
-        pass
-
-    class ProductBackground(TargetStdMixin, MetisIfuReduceImpl.ProductBackground):
-        pass
-
-    class ProductCombined(TargetStdMixin, MetisIfuReduceImpl.ProductCombined):
-        pass
-
-    class ProductReducedCube(TargetStdMixin, MetisIfuReduceImpl.ProductReducedCube):
-        pass
-
-
-class MetisIfuReduceSciImpl(MetisIfuReduceImpl):
-    class ProductReduced(TargetSciMixin, MetisIfuReduceImpl.ProductReduced):
-        pass
-
-    class ProductBackground(TargetSciMixin, MetisIfuReduceImpl.ProductBackground):
-        pass
-
-    class ProductCombined(TargetSciMixin, MetisIfuReduceImpl.ProductCombined):
-        pass
-
-    class ProductReducedCube(TargetSciMixin, MetisIfuReduceImpl.ProductReducedCube):
-        pass
 
 
 class MetisIfuReduce(MetisRecipe):

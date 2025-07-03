@@ -113,7 +113,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # combined_image = self.combine_images(images,
         #                                      self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
 
-        product_set: set[PipelineProduct] = set()
+        product_set: set[DataItem] = set()
         for i, image in enumerate(images):
             frame = self.inputset.raw.frameset[i]
 
