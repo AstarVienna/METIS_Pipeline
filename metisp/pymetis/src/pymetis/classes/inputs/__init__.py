@@ -37,8 +37,11 @@ from .common import (RawInput,
                      DistortionTableInput,
                      LsfKernelInput,
                      AtmProfileInput,
+                     AtmLineCatInput,
                      WavecalInput,
-                     OptionalInputMixin)
+                     OptionalInputMixin,
+                     LaserTableInput,
+                     SynthTransInput)
 
 __all__ = [
     'PipelineInputSet',
@@ -47,5 +50,6 @@ __all__ = [
     'PersistenceMapInput', 'GainMapInput', 'FluxCalTableInput', 'FluxstdCatalogInput',
     'PinholeTableInput', 'DistortionTableInput', 'LsfKernelInput', 'AtmProfileInput',
     'WavecalInput', 'OptionalInputMixin',
-    'PersistenceInputSetMixin', 'GainMapInputSetMixin', 'LinearityInputSetMixin'
+    'LsfKernelInput', 'AtmLineCatInput', 'LaserTableInput', 'SynthTransInput',
+    'PersistenceInputSetMixin', 'GainMapInputSetMixin', 'LinearityInputSetMixin',
 ]

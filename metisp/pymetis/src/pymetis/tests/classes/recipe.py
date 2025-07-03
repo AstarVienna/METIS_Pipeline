@@ -31,8 +31,8 @@ from pymetis.classes.recipes import MetisRecipe
 
 root = Path(os.path.expandvars("$SOF_DIR"))
 
-bands = ['lm', 'n', 'ifu']
-targets = ['std', 'sci']
+BANDS = ['lm', 'n', 'ifu']
+TARGETS = ['std', 'sci']
 
 
 @pytest.mark.recipe
@@ -98,7 +98,7 @@ class BaseRecipeTest(ABC):
 
     @pytest.mark.metadata
     def test_does_author_name_conform_to_standard(self) -> None:
-        """Test whether the recipe author's name is in the standard format. TBD what that means."""
+        """Test whether the recipe author's name is in the standard format. TBD what that actually means."""
         recipe = self._recipe()
         assert re.match(r"^([\w\- ]+, )?A\*$", recipe._author), \
             "Author name is not in the standard format"
@@ -175,7 +175,7 @@ class BandParamRecipeTest(BaseRecipeTest):
     Tests for recipes whose SOFs also specify band parameters ("LM" | "N" | "IFU")
     This is just a shorthand to parametrize them for all bands.
     """
-    @pytest.mark.parametrize("band", bands)
+    @pytest.mark.parametrize("band", BANDS)
     @pytest.mark.external
     def test_recipe_can_be_run_directly(self, load_frameset, band):
         sof = f"{self._recipe._name}.{band}.sof"
@@ -183,7 +183,7 @@ class BandParamRecipeTest(BaseRecipeTest):
         super().test_recipe_can_be_run_directly(frameset)
 
     @pytest.mark.pyesorex
-    @pytest.mark.parametrize("band", bands)
+    @pytest.mark.parametrize("band", BANDS)
     @pytest.mark.external
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, band, create_pyesorex):
         sof = f"{self._recipe._name}.{band}.sof"
@@ -196,7 +196,7 @@ class TargetParamRecipeTest(BaseRecipeTest):
     This is just a shorthand to parametrize them.
     """
     @pytest.mark.external
-    @pytest.mark.parametrize("target", targets)
+    @pytest.mark.parametrize("target", TARGETS)
     def test_recipe_can_be_run_directly(self, load_frameset, target):
         sof = f"{self._recipe._name}.{target}.sof"
         frameset = load_frameset(sof)
@@ -204,7 +204,7 @@ class TargetParamRecipeTest(BaseRecipeTest):
 
     @pytest.mark.pyesorex
     @pytest.mark.external
-    @pytest.mark.parametrize("target", targets)
+    @pytest.mark.parametrize("target", TARGETS)
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, target, create_pyesorex):
         sof = f"{self._recipe._name}.{target}.sof"
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
