@@ -23,7 +23,6 @@ from pymetis.classes.dataitems.coadd import IfuSciCoadd
 from pymetis.classes.dataitems.common import IfuScienceCubeCalibrated
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):

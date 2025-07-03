@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
 from abc import ABC
 
 import cpl
@@ -29,7 +28,6 @@ from pymetis.classes.inputs import RawInput, MasterDarkInput
 
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.classes.products import PipelineProduct, BandSpecificProduct, TargetSpecificProduct, PipelineImageProduct
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
@@ -44,7 +42,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
     ProductMasterFlat = MasterImgFlat
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         """
         Do the actual processing of the images.
         Here, it means loading the input images and a master dark,

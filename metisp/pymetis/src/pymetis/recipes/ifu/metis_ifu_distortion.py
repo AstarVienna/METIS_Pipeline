@@ -24,7 +24,6 @@ from cpl.core import Msg
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 from pymetis.classes.inputs import RawInput, MasterDarkInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
@@ -37,13 +36,12 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         PinholeTableInput = PinholeTableInput
 
         class RawInput(RawInput):
-            Item: type[DataItem] = IfuDistortionRaw
-            _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
+            Item = IfuDistortionRaw
 
     ProductDistortionTable = IfuDistortionTable
     ProductDistortionReduced = IfuDistortionReduced
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -65,16 +63,16 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
 
 class MetisIfuDistortion(MetisRecipe):
-    _name: str = "metis_ifu_distortion"
-    _version: str = "0.1"
-    _author: str = "Martin Baláž, A*"
-    _email: str = "martin.balaz@univie.ac.at"
-    _synopsis: str = "Reduce raw science exposures of the IFU."
-    _description: str = (
+    _name = "metis_ifu_distortion"
+    _version = "0.1"
+    _author = "Martin Baláž, A*"
+    _email = "martin.balaz@univie.ac.at"
+    _synopsis = "Reduce raw science exposures of the IFU."
+    _description = (
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: set[str] = {'DRS.IFU'}
+    _matched_keywords = {'DRS.IFU'}
     _algorithm = """Calculate table mapping pixel position to position on sky."""
 
     implementation_class = MetisIfuDistortionImpl

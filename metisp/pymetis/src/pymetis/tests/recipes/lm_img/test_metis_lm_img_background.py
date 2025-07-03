@@ -41,7 +41,7 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
     @pytest.mark.pyesorex
     @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
@@ -50,16 +50,16 @@ class TestRecipe(BaseRecipeTest):
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProductBkg(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductBkg
+    Product = Impl.ProductBkg
 
 
 class TestProductBkgSubtracted(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductBkgSubtracted
+    Product = Impl.ProductBkgSubtracted
 
 
 class TestProductObjectCat(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductObjectCatalog
+    Product = Impl.ProductObjectCatalog

@@ -25,14 +25,12 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.masterdark.masterdark import MasterDark, MasterDark2rg
+from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
 from pymetis.classes.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import (RawInput, BadpixMapInput, PersistenceMapInput,
                                     LinearityInput, GainMapInput, OptionalInputMixin)
-from pymetis.classes.inputs import PersistenceInputSetMixin
-from pymetis.classes.products import PipelineImageProduct
 
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):
@@ -97,19 +95,19 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 # This is the actual recipe class that is visible by `pyesorex`.
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information for `pyesorex`. These are required and checked by `pyesorex`.
-    _name: str = "metis_det_dark"
-    _version: str = "0.1"
-    _author: str = "Hugo Buddelmeijer, A*"
-    _email: str = "hugo@buddelmeijer.nl"
-    _synopsis: str = "Create master dark"
-    _description: str = (
+    _name = "metis_det_dark"
+    _version = "0.1"
+    _author = "Hugo Buddelmeijer, A*"
+    _email = "hugo@buddelmeijer.nl"
+    _synopsis = "Create master dark"
+    _description = (
         "Prototype to create a METIS masterdark."
     )
 
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
     # for the man page. Later, we would like to be able to compare them directly to DRLD and test for that.
-    _matched_keywords: set[str] = set()
-    _algorithm: str = """
+    _matched_keywords = set()
+    _algorithm = """
         - Group files by detector and DIT, based on header keywords
         - Call function metis_determine_dark for each set of files
         - Call metis_update_dark_mask to flag deviant pixels

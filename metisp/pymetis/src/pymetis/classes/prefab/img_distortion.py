@@ -22,7 +22,6 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.distortion.map import DistortionMap
 from pymetis.classes.dataitems.distortion.raw import DistortionRaw
 from pymetis.classes.dataitems.distortion.reduced import DistortionReduced
@@ -32,7 +31,6 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.classes.products.product import PipelineProduct
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):

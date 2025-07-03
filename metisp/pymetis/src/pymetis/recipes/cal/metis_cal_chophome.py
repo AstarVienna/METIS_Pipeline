@@ -30,7 +30,6 @@ from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadpixMapInput,
                                     PinholeTableInput, LinearityInput, OptionalInputMixin)
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.prefab import RawImageProcessor
 
 
@@ -49,15 +48,14 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
             Item = LinearityMap2rg
-            pass
 
         PersistenceMapInput = PersistenceMapInput
 
         class BadpixMapInput(OptionalInputMixin, BadpixMapInput):
             pass
 
-        class PinholeTableInput(PinholeTableInput):
-            _required = False     # CHECK Is this needed for single pinhole?
+        class PinholeTableInput(OptionalInputMixin, PinholeTableInput):
+            pass
 
     ProductCombined = LmChophomeCombined
     ProductBackground = LmChophomeBackground

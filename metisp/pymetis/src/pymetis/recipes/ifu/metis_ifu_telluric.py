@@ -17,18 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
-import cpl
-
 from pymetis.classes.dataitems.common import FluxCalTable, IfuTelluric
-from pymetis.classes.dataitems.ifu.ifu import IfuReduced1d, IfuStdReduced1d, IfuSciReduced1d, IfuCombined
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.classes.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
-from pymetis.classes.products import TargetSpecificProduct
 
 
 # The aim of this recipe is twofold:
@@ -95,7 +88,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         pass    # do nothing in the meantime
 
     # Function to process everything?
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         # self.correct_telluric()
         # self.apply_fluxcal()
         self.mf_model()

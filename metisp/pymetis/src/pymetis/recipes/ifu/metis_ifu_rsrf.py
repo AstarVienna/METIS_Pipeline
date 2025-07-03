@@ -33,13 +33,11 @@ from pymetis.classes.dataitems.masterdark.masterdark import MasterDarkIfu
 from pymetis.classes.dataitems.masterflat import MasterFlatIfu
 from pymetis.classes.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
 from pymetis.classes.dataitems.raw.wcuoff import WcuOffIfuRaw
-from pymetis.classes.mixins import DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
-from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct, ProductBadpixMapDet
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files
@@ -78,7 +76,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
     ProductRsrfIfu = RsrfIfu
     ProductBadpixMap = BadPixMapIfu
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process_images(self):
         """
         This function processes the input images:
         - stack the wcu_off images into background_img

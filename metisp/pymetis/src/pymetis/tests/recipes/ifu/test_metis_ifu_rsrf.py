@@ -19,10 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe,
                                                 MetisIfuRsrfImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseProductTest, RawInputSetTest
 from pymetis.recipes.ifu.metis_ifu_rsrf import create_ifu_blackbody_image, extract_ifu_1d_spectra
 
@@ -46,27 +44,27 @@ def sof(name: str) -> str:
 @pytest.mark.slow
 class TestRecipe(BaseRecipeTest):
     """A bunch of extremely simple and stupid test cases... just to see if it does something."""
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
 
 class TestInputSet(RawInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProductRsrfBackground(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductRsrfBackground
+    Product = Impl.ProductRsrfBackground
 
 
 class TestProductMasterFlatIfu(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductMasterFlat
+    Product = Impl.ProductMasterFlat
 
 
 class TestProductRsrfIfu(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductRsrfIfu
+    Product = Impl.ProductRsrfIfu
 
 
 class TestProductBadpixMap(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductBadpixMap
+    Product = Impl.ProductBadpixMap
 
 
 class TestBlackBodyImg:

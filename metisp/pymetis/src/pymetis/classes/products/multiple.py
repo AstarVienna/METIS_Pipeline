@@ -19,10 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from __future__ import annotations
 import cpl
-from cpl.core import Msg
-
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.products.product import PIPELINE
 
 
 class PipelineMultipleProduct(PipelineProduct):

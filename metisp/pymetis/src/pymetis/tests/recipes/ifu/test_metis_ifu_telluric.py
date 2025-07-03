@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluric as Recipe,
                                                     MetisIfuTelluricImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import TargetParamRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -41,20 +40,20 @@ def sof(name: str) -> str:
 
 class TestRecipe(TargetParamRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProductFluxcalTab(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductFluxcalTab
+    Product = Impl.ProductFluxcalTab
 
 
 class TestProductTelluric(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductTelluricTransmission
+    Product = Impl.ProductTelluricTransmission
 
 
 class TestProductResponseFunction(BaseProductTest):
-    Product: type[PipelineProduct] = Impl.ProductResponseFunction
+    Product = Impl.ProductResponseFunction

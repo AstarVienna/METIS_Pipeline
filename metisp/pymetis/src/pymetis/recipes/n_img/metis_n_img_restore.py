@@ -22,7 +22,6 @@ from pyesorex.parameter import ParameterList, ParameterValue
 from pymetis.classes.dataitems.img.basicreduced import NSciCalibrated, NSciRestored
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 
 
 class MetisNImgRestoreImpl(MetisRecipeImpl):
