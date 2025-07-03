@@ -55,7 +55,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     ProductReducedCube = IfuReducedCube
     ProductCombined = IfuCombined
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         # do something... a lot of something
 
         header = cpl.core.PropertyList()

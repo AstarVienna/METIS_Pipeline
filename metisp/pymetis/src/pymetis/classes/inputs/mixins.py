@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from .inputset import PipelineInputSet
-from .common import PersistenceMapInput, GainMapInput, LinearityInput, BadPixMapInput
+from .common import PersistenceMapInput, GainMapInput, LinearityInput, BadPixMapInput, AtmLineCatInput
 
 
 class PersistenceInputSetMixin(PipelineInputSet):
@@ -35,3 +35,7 @@ class LinearityInputSetMixin(PipelineInputSet):
 
 class BadPixMapInputSetMixin(PipelineInputSet):
     BadPixMapInput = BadPixMapInput
+
+
+class AtmLineCatInputSetMixin(PipelineInputSet):
+    AtmLineCatInput = AtmLineCatInput

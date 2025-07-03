@@ -16,171 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-# from typing import Any, Dict   # <------ TODO: Check whether necessary, taken from example of pyesorex webpages
 
-# Import the required PyCPL modules
-import re
 import cpl
-from cpl.core import Msg
 
-from pymetis.classes.mixins import DetectorGeoMixin
-
+from pymetis.classes.mixins import BandNMixin
+from pymetis.classes.prefab.lss.rsrf import MetisLssRsrfImpl
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.rawimage import RawImageProcessor
-
-from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    LinearityInput, OptionalInputMixin, PersistenceInputSetMixin)
-from pymetis.classes.products import PipelineImageProduct
-
-# =========================================================================================
-#    Define main class
-# =========================================================================================
-class MetisNLssRsrfImpl(RawImageProcessor):
-    class InputSet(PersistenceInputSetMixin, RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
-        band = "N"
-        detector = "GEO"
-
-        # Define input classes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        class RawInput(RawInput):
-            """
-            Raw image N_LSS_RSRF_RAW
-            """
-            _tags: re.Pattern = re.compile(r"N_LSS_RSRF_RAW")
-            _title: str = "N LSS rsrf raw"
-            _description: str = "Raw LSS flats taken with black-body calibration lamp."
-
-        class NRsrfWcuOffInput(RawInput):
-            """
-            WCU_OFF input illuminated by the WCU up-to and including the
-            integrating sphere, but no source.
-            """
-            _tags: re.Pattern = re.compile(r"N_WCU_OFF_RAW")
-            _title: str = "N LSS WCU off"
-            _description: str = "Raw data for dark subtraction in other recipes."
-
-        class MasterDarkInput(MasterDarkInput):
-            """
-            Master dark MASTER_DARK_GEO
-            """
-            _tags: re.Pattern = re.compile(r"MASTER_DARK_GEO")
-
-        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
-            """
-            Bad pixel BADPIX_MAP_GEO
-            """
-            _tags: re.Pattern = re.compile(r"BADPIX_MAP_GEO")
-
-        class GainMapInput(GainMapInput):
-            """
-            Gain map
-            """
-            _tags: re.Pattern = re.compile(r"GAIN_MAP_GEO")
-
-        class LinearityInput(LinearityInput):
-            """
-            Linearity
-            """
-            _tags: re.Pattern = re.compile(r"LINEARITY_GEO")
-
-    # TODO: Check persistence
-
-    # # ++++++++++++++++++ Intermediate products ++++++++++++++++++
-    class ProductMedianNLssRsrfImg(PipelineImageProduct):
-        """
-        Median RSRF (QC)
-        """
-        _tag: str = r"MEDIAN_N_LSS_RSRF_IMG"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        _description: str = "Median RSRF pixel map"
-        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
-
-        # # SKEL: copy product keywords from header
-        # def add_properties(self):
-        #     super().add_properties()
-        #     self.properties.append(self.header)
-
-    class ProductMeanNLssRsrfImg(PipelineImageProduct):
-        """
-        Mean RSRF (QC)
-        """
-        _tag: str = r"MEAN_N_LSS_RSRF_IMG"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-
-        _description: str = "Mean RSRF pixel map"
-        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
 
-    # ++++++++++++++++++ Final products ++++++++++++++++++
-    class ProductMasterNLssRsrf(PipelineImageProduct):
-        """
-        Final Master RSRF
-        """
-        _tag: str = r"MASTER_N_LSS_RSRF"
-        group = cpl.ui.Frame.FrameGroup.CALIB # TBC
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
+class MetisNLssRsrfImpl(MetisLssRsrfImpl):
+    class InputSet(BandNMixin, MetisLssRsrfImpl.InputSet):
+        pass
 
-        _description: str = "Master 2D RSRF"
-        _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
-
-        # SKEL: copy product keywords from header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
-
-# =========================================================================================
-#    Methods
-# =========================================================================================
-
-#   Method for processing
-    def process_images(self) -> [PipelineImageProduct]:
-        """do something more fancy in the future"""
-        # Load raw image
-        spec_flat_hdr = \
-            cpl.core.PropertyList()
-        raw_images = self.load_images(self.inputset.raw.frameset)
-
-        # Final RSRF
-        combined_master_hdr = cpl.core.PropertyList()
-        combined_master_img = self.combine_images(raw_images, "median")
-
-        # Mean combine
-        combined_mean_hdr = cpl.core.PropertyList()
-        combined_mean_img = self.combine_images(raw_images, "average")
-
-        # Median combine
-        combined_median_hdr = cpl.core.PropertyList()
-        combined_median_img = self.combine_images(raw_images, "median")
-        return [
-            self.ProductMasterNLssRsrf(self, combined_master_hdr, combined_master_img),
-            self.ProductMeanNLssRsrfImg(self, combined_mean_hdr, combined_mean_img),
-            self.ProductMedianNLssRsrfImg(self, combined_median_hdr, combined_median_img),
-        ]
-
-#   Method for loading images (stolen from metis_chop_home.py)
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
 
 
 # =========================================================================================

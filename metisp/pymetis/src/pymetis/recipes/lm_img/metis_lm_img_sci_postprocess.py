@@ -36,7 +36,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 
     ProductLmImgSciCoadd = LmSciCoadd
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):

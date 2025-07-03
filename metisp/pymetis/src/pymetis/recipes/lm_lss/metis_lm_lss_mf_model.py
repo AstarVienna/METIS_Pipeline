@@ -75,7 +75,7 @@ class MetisLmLssMfModelImpl(RawImageProcessor):
 # =========================================================================================
 
 #   Method for processing
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         """Create dummy file (should do something more fancy in the future)"""
 
         # TODO: Invoke molecfit here

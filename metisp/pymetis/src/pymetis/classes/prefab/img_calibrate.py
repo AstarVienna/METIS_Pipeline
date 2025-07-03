@@ -40,7 +40,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
 
     ProductSciCalibrated = LmSciCalibrated
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         combined_image = self._create_dummy_image()
         product_calibrated = self.ProductSciCalibrated(self.header, combined_image)
 

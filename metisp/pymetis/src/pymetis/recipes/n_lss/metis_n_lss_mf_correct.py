@@ -77,7 +77,7 @@ class MetisNLssMfCorrectImpl(RawImageProcessor):
 # =========================================================================================
 
 #   Method for processing
-    def process_images(self) -> [PipelineProduct]:
+    def process(self) -> set[DataItem] -> [PipelineProduct]:
         """Create dummy file (should do something more fancy in the future)"""
 
         # TODO: Invoke mf_correct here
@@ -87,7 +87,7 @@ class MetisNLssMfCorrectImpl(RawImageProcessor):
         header = self._create_dummy_header()
         table = self._create_dummy_table()
         return [
-            self.ProductTellCorrFinalSpectrum(self, header, table),
+            self.ProductTellCorrFinalSpectrum(header, table),
         ]
 
 # =========================================================================================

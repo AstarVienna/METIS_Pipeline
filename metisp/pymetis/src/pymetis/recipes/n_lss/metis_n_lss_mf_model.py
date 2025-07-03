@@ -91,7 +91,7 @@ class MetisNLssMfModelImpl(RawImageProcessor):
 # =========================================================================================
 
 #   Method for processing
-    def process_images(self) -> [PipelineProduct]:
+    def process(self) -> set[DataItem] -> [PipelineProduct]:
         """Create dummy file (should do something more fancy in the future)"""
 
         # TODO: Invoke molecfit here
@@ -99,7 +99,7 @@ class MetisNLssMfModelImpl(RawImageProcessor):
         header = self._create_dummy_header()
         table = self._create_dummy_table()
         return [
-            self.ProductMfBestFitTab(self, header, table),
+            self.ProductMfBestFitTab(header, table),
         ]
 
 

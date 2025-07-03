@@ -34,7 +34,7 @@ class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
             pass
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):

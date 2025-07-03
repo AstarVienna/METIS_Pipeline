@@ -22,67 +22,29 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins import Detector2rgMixin
-
+from pymetis.classes.dataitems.lss.lss import LssRaw
+from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
+from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.rawimage import RawImageProcessor
 
-from pymetis.classes.recipes.impl import MetisRecipeImpl
 
-from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
+from pymetis.classes.inputs import (SinglePipelineInput, RawInput,
                                     LinearityInput, OptionalInputMixin, FluxstdCatalogInput, AtmLineCatInput,
-                                    PersistenceMapInput)
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
+                                    PersistenceMapInput, PersistenceInputSetMixin, BadPixMapInputSetMixin,
+                                    GainMapInputSetMixin, LinearityInputSetMixin)
 
 # =========================================================================================
 #    Define main class
 # =========================================================================================
-class MetisLmLssStdImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):
-        band = "LM"
-        detector = "2RG"
-
-        # RAW FILES ++++++++++++++++++++++++++++++++++++++++++++++++
+class MetisLmLssStdImpl(DarkImageProcessor):
+    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
+                   AtmLineCatInputSetMixin,
+                   DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            """
-            Raw standard star observations
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_STD_RAW")
-            _title: str = "LM LSS std raw"
-            _description: str = "Raw spectra of standard stars."
-
-        # MASTER CALIBS ++++++++++++++++++++++++++++++++++++++++++++
-        class MasterPersistenceMap(PersistenceMapInput):
-            """
-            Persistence map
-            """
-            _tags: re.Pattern = re.compile(r"PERSISTENCE_MAP")
-
-        class MasterDarkInput(MasterDarkInput):
-            """
-            Master dark MASTER_DARK_2RG
-            """
-            _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
-
-        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
-            """
-            Bad pixel BADPIX_MAP_2RG
-            """
-            _tags: re.Pattern = re.compile(r"BADPIX_MAP_2RG")
-
-        class GainMapInput(GainMapInput):
-            """
-            Gain map
-            """
-            _tags: re.Pattern = re.compile(r"GAIN_MAP_2RG")
-
-        class LinearityInput(LinearityInput):
-            """
-            Linearity
-            """
-            _tags: re.Pattern = re.compile(r"LINEARITY_2RG")
+            Item = LssRaw
 
         class MasterRsrfInput(SinglePipelineInput):
+            Item = MasterLssRsrf
             """
             MASTER LM LSS RSRF
             """
@@ -154,6 +116,8 @@ class MetisLmLssStdImpl(RawImageProcessor):
             _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
             _title: str = "Reference catalogue of standard stars"
             _description: str = "Catalogue with spectra of standard reference stars"
+
+    ProductLssStdObjMap = LssStdObjMap
 
 
     # ++++++++++++ Intermediate / QC products ++++++++++++
@@ -291,36 +255,11 @@ class MetisLmLssStdImpl(RawImageProcessor):
             super().add_properties()
             self.properties.append(self.header)
 
-
-
-# =========================================================================================
-#    Methods
-# =========================================================================================
-
-
-#   Method for loading images
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
-
 #   Method for data processing
 
 # CAVEAT: Dummy routine only! Will be replaced with functionality -------
 # Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++
-    def process_images(self) -> [PipelineProduct]:
+    def process(self) -> set[DataItem]:
         # Load raw image
         std_raw_hdr = \
             cpl.core.PropertyList()
@@ -340,13 +279,13 @@ class MetisLmLssStdImpl(RawImageProcessor):
         table = self._create_dummy_table()
 
         # Write files
-        return [
-            self.ProductMasterLmResponse(self, ProductMasterLmResponseHdr, image),
-            self.ProductStdTransmission(self, ProductStdTransmissionHdr, image),
-            self.ProductLmLssStd1d(self, ProductLmLssStd1dHdr, image),
-            self.ProductLmLssStdObjMap(self, ProductLmLssStdObjMapHdr, image),
-            self.ProductLmLssStdSkyMap(self, ProductLmLssStdSkyMapHdr, image),
-        ]
+        return {
+            self.ProductMasterLmResponse(ProductMasterLmResponseHdr, image),
+            self.ProductStdTransmission(ProductStdTransmissionHdr, image),
+            self.ProductLmLssStd1d(ProductLmLssStd1dHdr, image),
+            self.ProductLmLssStdObjMap(ProductLmLssStdObjMapHdr, image),
+            self.ProductLmLssStdSkyMap(ProductLmLssStdSkyMapHdr, image),
+        }
 # Dummy routine end +++++++++++++++++++++++++++++++++++++++++++++++++++
 
 

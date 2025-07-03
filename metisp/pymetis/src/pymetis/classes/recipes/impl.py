@@ -120,7 +120,7 @@ class MetisRecipeImpl(ABC):
                             f"has no parameter named {key}.")
 
     @abstractmethod
-    def process_images(self) -> set[DataItem]:
+    def process(self) -> set[DataItem] -> set[DataItem]:
         """
         The core method of the recipe implementation. It should contain all the processing logic.
         At its entry point, the `InputSet` class must be already loaded and validated.

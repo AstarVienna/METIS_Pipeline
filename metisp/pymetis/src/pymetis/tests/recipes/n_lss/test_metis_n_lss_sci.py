@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.n_lss.metis_n_lss_sci import (MetisNLssSci as Recipe,
                                                       MetisNLssSciImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 

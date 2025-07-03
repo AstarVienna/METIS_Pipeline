@@ -76,7 +76,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
     ProductRsrfIfu = RsrfIfu
     ProductBadPixMap = BadPixMapIfu
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         """
         This function processes the input images:
         - stack the wcu_off images into background_img

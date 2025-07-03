@@ -51,7 +51,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
     ProductLinearity = LinearityMap
     ProductBadPixMap = BadPixMap
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         raw_images = self.inputset.load_raw_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)

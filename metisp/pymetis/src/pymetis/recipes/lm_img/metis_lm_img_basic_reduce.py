@@ -77,7 +77,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
     ProductBasicReduced = BasicReduced
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions or use functions from the parent classes:

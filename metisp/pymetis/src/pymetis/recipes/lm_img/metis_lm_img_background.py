@@ -41,7 +41,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     ProductBkgSubtracted = BackgroundSubtracted
     ProductObjectCatalog = ObjectCatalog
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
         target = self.inputset.tag_parameters['target']
         image = self._create_dummy_image()

@@ -16,109 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-# Import the required PyCPL modules
-import re
+
 import cpl
-from cpl.core import Msg
 
-from pymetis.classes.dataitems.lm_lss.trace import LmLssTrace
-from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.classes.mixins import BandNMixin
+from pymetis.classes.prefab.lss.trace import MetisLssTraceImpl
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import (SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    LinearityInput, OptionalInputMixin, PersistenceInputSetMixin)
-
-# =========================================================================================
-#    Define main class
-# =========================================================================================
-class MetisLmLssTraceImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
-        band = "LM"
-        detector = "2RG"
-
-        class RawInput(RawInput):
-            """
-            Raw pinhole frames LM_LSS_RSRF_PINH_RAW
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_RSRF_PINH_RAW")
-            _title: str = "LM LSS rsrf pinhole raw"
-            _description: str = "Raw flats taken with black-body calibration lamp through the pinhole mask."
-
-        class LmRsrfWcuOffInput(RawInput):
-            """
-            WCU_OFF input illuminated by the WCU up-to and including the
-            integrating sphere, but no source.
-            """
-            _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
-            _title: str = "LM LSS WCU off"
-            _description: str = "Raw data for dark subtraction in other recipes."
-
-        class MasterDarkInput(MasterDarkInput):
-            """
-            Master dark MASTER_DARK_2RG
-            """
-            _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
-
-        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
-            """
-            Bad pixel BADPIX_MAP_2RG
-            """
-            _tags: re.Pattern = re.compile(r"BADPIX_MAP_2RG")
-
-        class GainMapInput(GainMapInput):
-            """
-            Gain map
-            """
-            _tags: re.Pattern = re.compile(r"GAIN_MAP_2RG")
-
-        class LinearityInput(LinearityInput):
-            """
-            Linearity
-            """
-            _tags: re.Pattern = re.compile(r"LINEARITY_2RG")
-
-        class MasterRsrfInput(SinglePipelineInput):
-            """
-            MASTER LM LSS RSRF
-            """
-            _tags: re.Pattern = re.compile(r"MASTER_LM_LSS_RSRF")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "MASTER_RSRF"
-            _description: str = "Master 2D RSRF"
-
-    ProductTraceTable = LmLssTrace
 
 
-# =========================================================================================
-#    Methods
-# =========================================================================================
-
-#   Method for loading images
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
-
-#   Method for processing
-    def process_images(self) -> [PipelineTableProduct]:
-        """Create dummy file (should do something more fancy in the future)"""
-        # trace_tab_hdr = self._create_dummy_header()
-        trace_tab_hdr = self._create_dummy_header()
-        trace_tab_data = self._create_dummy_table()
-        return [
-            self.ProductTraceTab(self, trace_tab_hdr, trace_tab_data)
-        ]
+class MetisLmLssTraceImpl(MetisLssTraceImpl):
+    class InputSet(BandNMixin, MetisLssTraceImpl.InputSet):
+        pass
 
 # =========================================================================================
 #    MAIN PART

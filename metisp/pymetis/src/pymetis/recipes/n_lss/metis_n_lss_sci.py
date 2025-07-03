@@ -20,19 +20,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 # Import the required PyCPL modules
 import re
 import cpl
-from cpl.core import Msg
 
-from pymetis.classes.mixins import DetectorGeoMixin
-
+from pymetis.classes.dataitems.lss.lss import LssRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 
-from pymetis.classes.recipes.impl import MetisRecipeImpl
-
-from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
+from pymetis.classes.inputs import (SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin, AtmLineCatInput,
                                     PersistenceMapInput)
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 
 
 # =========================================================================================
@@ -40,17 +35,9 @@ from pymetis.classes.products import PipelineProduct, PipelineImageProduct, Pipe
 # =========================================================================================
 class MetisNLssSciImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
-        band = "N"
-        detector = "GEO"
-
         # RAW FILES ++++++++++++++++++++++++++++++++++++++++++++++++
         class RawInput(RawInput):
-            """
-            Raw standard star observations
-            """
-            _tags: re.Pattern = re.compile(r"N_LSS_SCI_RAW")
-            _title: str = "N LSS sci raw"
-            _description: str = "Raw spectra of science targets"
+            Item = LssRaw
 
         # MASTER CALIBS ++++++++++++++++++++++++++++++++++++++++++++
         class MasterPersistenceMap(PersistenceMapInput):
@@ -314,41 +301,13 @@ class MetisNLssSciImpl(RawImageProcessor):
         _description: str = "1D flux-calibrated, telluric corrected spectrum of science target"
         _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
-        # SKEL: copy product keywords from header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
-        # SKEL: copy product keywords from header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
 # =========================================================================================
 #    Methods
 # =========================================================================================
 
-#   Method for loading images
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
-
 # CAVEAT: Dummy routine only! Will be replaced with functionality -------
 # Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++
-    def process_images(self) -> [PipelineProduct]:
+    def process(self) -> set[DataItem]:
         """do something more fancy in the future"""
         # Load raw image
         sci_raw_hdr = \
@@ -361,16 +320,15 @@ class MetisNLssSciImpl(RawImageProcessor):
         table = self._create_dummy_table()
 
         # Write files
-        return [
-
-            self.ProductNLssSci1d(self, header, table),
-            self.ProductNLssSci2d(self, header, image),
-            self.ProductNLssSciFlux1d(self, header, table),
-            self.ProductNLssSciFluxTell1d(self, header, table),
-            self.ProductNLssSciFlux2d(self, header, image),
-            self.ProductNLssSciObjMap(self, header, image),
-            self.ProductNLssSciSkyMap(self, header, image),
-        ]
+        return {
+            self.ProductNLssSci1d(header, table),
+            self.ProductNLssSci2d(header, image),
+            self.ProductNLssSciFlux1d(header, table),
+            self.ProductNLssSciFluxTell1d(header, table),
+            self.ProductNLssSciFlux2d(header, image),
+            self.ProductNLssSciObjMap(header, image),
+            self.ProductNLssSciSkyMap(header, image),
+        }
 # Dummy routine end +++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # =========================================================================================

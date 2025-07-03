@@ -99,7 +99,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         return prepared_images
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         """
         Runner for processing images. Currently setup to do dark/bias/flat/gain plus combining images.
         TODO No actual processing is performed.

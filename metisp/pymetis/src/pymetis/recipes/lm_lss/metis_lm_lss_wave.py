@@ -144,7 +144,7 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
         return output
 
 #   Method for processing
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         """Create dummy file (should do something more fancy in the future)"""
         # header = self._create_dummy_header()
         table = self._create_dummy_table()

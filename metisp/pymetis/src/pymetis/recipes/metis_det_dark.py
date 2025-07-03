@@ -78,7 +78,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     # See the documentation of the parent's `process_images` function for more details.
     # Feel free to define other functions to break up the algorithm into more manageable chunks
     # and call them from within `process_images` as needed.
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         method = self.parameters["metis_det_dark.stacking.method"].value
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 

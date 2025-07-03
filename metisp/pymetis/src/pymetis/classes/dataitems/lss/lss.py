@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import Raw
-from pymetis.classes.mixins import BandLmMixin, TargetStdMixin, BandNMixin, TargetSciMixin
+from pymetis.classes.mixins import BandLmMixin, TargetStdMixin, BandNMixin, TargetSciMixin, BandSpecificMixin
 
 
-class LssRaw(Raw, abstract=True):
+class LssRaw(BandSpecificMixin, Raw, abstract=True):
     _name_template = r'{band}_LSS_{target}_RAW'
     _title_template = "{band} LSS {target} raw"
     _description_template = "{band}-band long-slit spectroscopy raw exposure of a {target}"
@@ -33,17 +33,25 @@ class LssRaw(Raw, abstract=True):
                      'DRS.SLIT'}
 
 
-class LmLssStdRaw(BandLmMixin, TargetStdMixin, LssRaw):
+class LssStdRaw(TargetStdMixin, LssRaw, abstract=True):
     pass
 
 
-class NLssStdRaw(BandNMixin, TargetStdMixin, LssRaw):
+class LmLssStdRaw(BandLmMixin, LssStdRaw):
     pass
 
 
-class LmLssSciRaw(BandLmMixin, TargetSciMixin, LssRaw):
+class NLssStdRaw(BandNMixin, LssStdRaw):
     pass
 
 
-class NLssSciRaw(BandNMixin, TargetSciMixin, LssRaw):
+class LssSciRaw(TargetSciMixin, LssRaw, abstract=True):
+    pass
+
+
+class LmLssSciRaw(BandLmMixin, LssSciRaw):
+    pass
+
+
+class NLssSciRaw(BandNMixin, LssSciRaw):
     pass

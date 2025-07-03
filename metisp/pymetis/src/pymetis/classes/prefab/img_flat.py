@@ -42,7 +42,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
     ProductMasterFlat = MasterImgFlat
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         """
         Do the actual processing of the images.
         Here, it means loading the input images and a master dark,

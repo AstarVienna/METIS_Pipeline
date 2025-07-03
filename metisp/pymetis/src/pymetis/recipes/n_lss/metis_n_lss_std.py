@@ -329,7 +329,7 @@ class MetisNLssStdImpl(RawImageProcessor):
 
 # CAVEAT: Dummy routine only! Will be replaced with functionality -------
 # Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++
-    def process_images(self) -> [PipelineProduct]:
+    def process(self) -> set[DataItem] -> [PipelineProduct]:
         # Load raw image
         std_raw_hdr = \
             cpl.core.PropertyList()

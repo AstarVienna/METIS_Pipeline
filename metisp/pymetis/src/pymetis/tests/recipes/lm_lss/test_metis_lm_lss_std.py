@@ -19,10 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.lm_lss.metis_lm_lss_std import (MetisLmLssStd as Recipe,
                                                       MetisLmLssStdImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -40,26 +38,30 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
-
-    # @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
-    # def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-    #     super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmLssStdObjMap
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmLssStdSkyMap
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductMasterLmResponse
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductStdTransmission
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLmLssStd1d
+class TestProductLmLssStdObjMap(BaseProductTest):
+    _product = Impl.ProductLmLssStdObjMap
+
+
+class TestProductLmLssStdSkyMap(BaseProductTest):
+    _product = Impl.ProductLmLssStdSkyMap
+
+
+class TestProductLmResponse(BaseProductTest):
+    _product = Impl.ProductMasterLmResponse
+
+
+class TestProductStdTransmission(BaseProductTest):
+    _product = Impl.ProductStdTransmission
+
+
+class TestProductLmLssStd1d(BaseProductTest):
+    _product = Impl.ProductLmLssStd1d
 
 

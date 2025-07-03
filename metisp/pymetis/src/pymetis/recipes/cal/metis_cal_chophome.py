@@ -60,7 +60,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     ProductCombined = LmChophomeCombined
     ProductBackground = LmChophomeBackground
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         """This function processes the input images
 
         - stack the wcu_off images into background_img

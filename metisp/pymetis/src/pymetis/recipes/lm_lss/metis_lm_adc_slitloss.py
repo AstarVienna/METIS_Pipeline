@@ -45,7 +45,7 @@ class MetisLmAdcSlitlossImpl(RawImageProcessor):
 #    Methods
 # =========================================================================================
 
-    def process_images(self):
+    def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
         header = self._create_dummy_header()
         table = self._create_dummy_table()
