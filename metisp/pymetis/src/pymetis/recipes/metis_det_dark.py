@@ -74,9 +74,9 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
-    # See the documentation of the parent's `process_images` function for more details.
+    # See the documentation of the parent's `process` function for more details.
     # Feel free to define other functions to break up the algorithm into more manageable chunks
-    # and call them from within `process_images` as needed.
+    # and call them from within `process` as needed.
     def process(self) -> set[DataItem]:
         method = self.parameters["metis_det_dark.stacking.method"].value
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")

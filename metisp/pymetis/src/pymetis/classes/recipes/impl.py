@@ -97,7 +97,7 @@ class MetisRecipeImpl(ABC):
         """
 
         try:
-            self.products = self.process_images()           # Do all the actual processing
+            self.products = self.process()           # Do all the actual processing
             self._save_products()                           # Save the output products
 
             return self.build_product_frameset()            # Return the output as a pycpl FrameSet
@@ -127,8 +127,8 @@ class MetisRecipeImpl(ABC):
 
         All pixel manipulation should happen inside this function (or something it calls from within).
         Put explicitly, this means
-            - no pixel manipulation *before* entering `process_images`,
-            - and no pixel manipulation *after* exiting `process_images`.
+            - no pixel manipulation *before* entering `process`,
+            - and no pixel manipulation *after* exiting `process`.
 
         The basic workflow inside this function should be as follows:
 

@@ -23,7 +23,7 @@ from pymetis.classes.dataitems import Raw, ImageDataItem
 from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandSpecificMixin
 
 
-class LssRsrfRaw(Raw, abstract=True):
+class LssRsrfRaw(BandSpecificMixin, Raw, abstract=True):
     _name_template = r'{band}_LSS_RSRF_RAW'
     _title_template = "{band} LSS RSRF raw"
     _description_template = "Raw exposure of the WCU flat field lamp through the LSS to achieve the RSRF."

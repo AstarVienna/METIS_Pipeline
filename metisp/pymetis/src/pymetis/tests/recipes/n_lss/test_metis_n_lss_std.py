@@ -46,15 +46,15 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductNLssStdObjMap(BaseProductTest):
-    _product = Impl.ProductNLssStdObjMap
+    _product = Impl.ProductLssStdObjMap
 
 
 class TestProductNLssStdSkyMap(BaseProductTest):
-    _product = Impl.ProductNLssStdSkyMap
+    _product = Impl.ProductLssStdSkyMap
 
 
 class TestProductMasterNResponse(BaseProductTest):
-    _product = Impl.ProductMasterNResponse
+    _product = Impl.ProductMasterResponse
 
 
 class TestProductStdTransmission(BaseProductTest):
@@ -62,6 +62,6 @@ class TestProductStdTransmission(BaseProductTest):
 
 
 class TestProductNLssStd1d(BaseProductTest):
-    _product = Impl.ProductNLssStd1d
+    _product = Impl.ProductLssStd1d
 
 

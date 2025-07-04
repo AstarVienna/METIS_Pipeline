@@ -78,7 +78,6 @@ class FluxStdCatalog(TableDataItem):
     _oca_keywords = set()
 
 
-
 class AtmLineCatalog(TableDataItem):
     _name_template = r'ATM_LINE_CAT'
     _title_template = "Line catalogue of atmospheric lines"

@@ -20,10 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import ImageDataItem, parametrize
-from pymetis.classes.mixins import BandSpecificMixin
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
 
 
-@parametrize(r'{band}LssCurve', band=['LM', 'N'])
 class LssCurve(BandSpecificMixin, ImageDataItem, abstract=True):
     """
     Trace curvature
@@ -36,7 +35,14 @@ class LssCurve(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
 
-@parametrize(r'{band}DistSol', band=['LM', 'N'])
+class LmLssCurve(BandLmMixin, LssCurve):
+    pass
+
+
+class NLssCurve(BandNMixin, LssCurve):
+    pass
+
+
 class LssDistSol(BandSpecificMixin, ImageDataItem, abstract=True):
     """
     Distortion solution
@@ -49,7 +55,14 @@ class LssDistSol(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
 
-@parametrize(r'{band}WaveGuess', band=['LM', 'N'])
+class LmLssDistSol(BandLmMixin, LssDistSol):
+    pass
+
+
+class NLssDistSol(BandNMixin, LssDistSol):
+    pass
+
+
 class LssWaveGuess(BandSpecificMixin, ImageDataItem, abstract=True):
     """
     First guess of the wavelength solution
@@ -60,3 +73,11 @@ class LssWaveGuess(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB # TBC
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+
+
+class LmLssWaveGuess(BandLmMixin, LssWaveGuess):
+    pass
+
+
+class NLssWaveGuess(BandNMixin, LssWaveGuess):
+    pass

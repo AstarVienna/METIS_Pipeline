@@ -19,15 +19,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import Raw, parametrize
-from pymetis.classes.mixins import BandSpecificMixin
+from pymetis.classes.dataitems import Raw
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
 
 
-@parametrize(r'{band}LssWaveRaw', band=['LM', 'N', 'IFU'])
 class LssWaveRaw(BandSpecificMixin, Raw, abstract=True):
     _name_template = r'{band}_LSS_WAVE_RAW'
     _title_template = "{band} LSS wave raw"
-    _description_template = "Raw LSS spectra of the WCU lasers in {band} band}"
+    _description_template = "Raw LSS spectra of the WCU lasers in {band} band"
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
+
+
+class LmLssWaveRaw(BandLmMixin, LssWaveRaw):
+    pass
+
+
+class NLssWaveRaw(BandNMixin, LssWaveRaw):
+    pass

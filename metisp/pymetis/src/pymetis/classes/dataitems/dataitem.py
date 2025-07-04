@@ -118,7 +118,10 @@ class DataItem(ABC):
         """
         assert cls._name_template is not None, \
             f"{cls.__name__} name template is None"
-        return cls._name_template.format(**cls.tag_parameters())
+        try:
+            return cls._name_template.format(**cls.tag_parameters())
+        except:
+            print(cls._name_template)
 
     @classmethod
     @final

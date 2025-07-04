@@ -25,7 +25,7 @@ from pymetis.classes.dataitems.lss.curve import LssDistSol, LssWaveGuess
 from pymetis.classes.dataitems.lss.raw import LssSciRaw
 from pymetis.classes.dataitems.lss.response import MasterResponse, StdTransmission
 from pymetis.classes.dataitems.lss.rsrf import MasterLssRsrf
-from pymetis.classes.dataitems.lss.science import LssSciObjMap, LssSciSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, \
+from pymetis.classes.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, \
     LssSciFlux2d, LssSciFluxTellCorr1d
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
     LinearityInputSetMixin, SinglePipelineInput
@@ -43,19 +43,19 @@ class MetisLssSciImpl(DarkImageProcessor):
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
 
-        class MasterLssDistSol(SinglePipelineInput):
+        class MasterLssDistSolInput(SinglePipelineInput):
             Item = LssDistSol
 
-        class MasterLssWaveGuess(SinglePipelineInput):
+        class MasterLssWaveGuessInput(SinglePipelineInput):
             Item = LssWaveGuess
 
-        class MasterLssResponse(SinglePipelineInput):
+        class MasterLssResponseInput(SinglePipelineInput):
             Item = MasterResponse
 
-        class MasterStdTransmission(SinglePipelineInput):
+        class MasterStdTransmissionInput(SinglePipelineInput):
             Item = StdTransmission
 
-        class MasterAdcSlitloss(SinglePipelineInput):
+        class MasterAdcSlitlossInput(SinglePipelineInput):
             Item = AdcSlitloss
 
         # --------------------------------------------------------------------
@@ -73,8 +73,8 @@ class MetisLssSciImpl(DarkImageProcessor):
         # --------------------------------------------------------------------
 
 
-    ProductLssSciObjMap = LssSciObjMap
-    ProductLssSciSkyMap = LssSciSkyMap
+    ProductLssSciObjMap = LssObjMap
+    ProductLssSciSkyMap = LssSkyMap
     ProductLssSci1d = LssSci1d
     ProductLssSci2d = LssSci2d
     ProductLssSciFlux1d = LssSciFlux1d

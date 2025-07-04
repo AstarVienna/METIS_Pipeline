@@ -30,11 +30,11 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
     class InputSet(AtmProfileInputSetMixin, AtmLineCatInputSetMixin, LsfKernelInputSetMixin, PipelineInputSet):
         # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
-        class LmLssSciFlux1d(SinglePipelineInput):
+        class LmLssSciFlux1dInput(SinglePipelineInput):
             Item = LssSciFlux1d
 
         # Alternative (Path #3 in DRLD Section CritAlg)
-        class LmLssStd1d(SinglePipelineInput):
+        class LmLssStd1dInput(SinglePipelineInput):
             Item = LssStd1d
 
     ProductMfBestFitTable = MfBestFitTable

@@ -25,10 +25,10 @@ from pymetis.classes.recipes import MetisRecipeImpl
 
 class MetisLssMfCorrectImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class LssSciFlux1d(SinglePipelineInput):
+        class LssSciFlux1dInput(SinglePipelineInput):
             Item = LssSciFlux1d
 
-        class Transmission(SinglePipelineInput):
+        class TransmissionInput(SinglePipelineInput):
             Item = LssSynthTrans
 
     ProductTellCorrFinal = LssSciFluxTellCorr1d

@@ -17,85 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-
-# Import the required PyCPL modules
-import re
 import cpl
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.synth import SynthTrans, LmLssSynthTrans
+from pymetis.classes.mixins import BandLmMixin
+from pymetis.classes.prefab.lss.mf_calctrans import MetisLssMfCalctransImpl
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
-
-# =========================================================================================
-#    Define main class
-# =========================================================================================
-class MetisLmLssMfCalctransImpl(RawImageProcessor):
-    class InputSet(PipelineInputSet):
-        class MfBestFitTab(SinglePipelineInput):
-            """
-            Table with best-fit parameters
-            """
-            _tags: re.Pattern = re.compile(r"MF_BEST_FIT_TAB")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Table with best-fit parameters"
-            _description: str = "Calculation of transmission function."
-
-        class LsfKernel(SinglePipelineInput):
-            """
-            Table with LSF Kernel (if external kernel is used)
-            """
-            _tags: re.Pattern = re.compile(r"LSF_KERNEL")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "LSF Kernel"
-            _description: str = "Kernel of the Line-Spred-Function."
-
-        class AtmLineCat(SinglePipelineInput):
-            """
-            Atmospheric line catalogue
-            """
-            _tags: re.Pattern = re.compile(r"ATM_LINE_CAT")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Table with best-fit parameters"
-            _description: str = "Line catalogue of atmopsheric lines."
-
-        class AtmProfile(SinglePipelineInput):
-            """
-            Atmospheric input profile
-            """
-            _tags: re.Pattern = re.compile(r"ATM_PROFILE")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Table with best-fit parameters"
-            _description: str = "Atmospheric profile."
-
-    ProductTransmission = LmLssSynthTrans
-# =========================================================================================
-#    Methods
-# =========================================================================================
-
-#   Method for processing
-    def process(self) -> set[DataItem]:
-        """Create dummy file (should do something more fancy in the future)"""
-
-        # TODO: Invoke mf_calctrans here
-
-        # TODO: Check whether calctrans creates the Transmission file - if so, no need to
-        # write it out here again
-        header = self._create_dummy_header()
-        table = self._create_dummy_table()
-        return {
-            self.ProductTransmission(header, table),
-        }
 
 
-# =========================================================================================
-#    MAIN PART
-# =========================================================================================
+class MetisLmLssMfCalctransImpl(MetisLssMfCalctransImpl):
+    class InputSet(BandLmMixin, MetisLssMfCalctransImpl.InputSet):
+        pass
 
 
-# Define recipe main function as a class which inherits from
-# the PyCPL class cpl.ui.PyRecipe
 class MetisLmLssMfCalctrans(MetisRecipe):
     # The information about the recipe needs to be set. The base class
     # cpl.ui.PyRecipe provides the class variables to be set.

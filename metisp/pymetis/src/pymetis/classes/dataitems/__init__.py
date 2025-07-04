@@ -14,7 +14,7 @@ from .rsrf import *
 __all__ = [
     'DataItem', 'ImageDataItem', 'TableDataItem',
     'Raw', 'ImageRaw', 'LmImageStdRaw', 'LmImageSciRaw', 'NImageStdRaw', 'NImageSciRaw',
-    'IfuSciRaw'
+    'IfuSciRaw',
     'parametrize',
 ]
 

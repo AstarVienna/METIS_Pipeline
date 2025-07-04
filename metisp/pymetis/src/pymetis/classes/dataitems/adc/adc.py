@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import Raw, TableDataItem
-from pymetis.classes.mixins import BandLmMixin, BandNMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandSpecificMixin
 
 
-class AdcSlitloss(TableDataItem, abstract=True):
+class AdcSlitloss(BandSpecificMixin, TableDataItem, abstract=True):
     _name_template = r'{band}_ADC_SLITLOSS'
     _title_template = "{band} ADC slit loss"
     _description_template = "Table with ADC induced {band} slitlosses"

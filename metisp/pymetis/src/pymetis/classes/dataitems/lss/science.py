@@ -16,46 +16,32 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from abc import abstractmethod
 
 import cpl
 
 from pymetis.classes.dataitems import ImageDataItem, TableDataItem, parametrize
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.mixins import BandSpecificMixin, TargetSpecificMixin, BandLmMixin, BandNMixin, TargetSciMixin, \
+    TargetStdMixin
 
 
-class LssSciObjMap(BandSpecificMixin, ImageDataItem, abstract=True):
-    _name_template = r'{band}_LSS_SCI_OBJ_MAP'
-    _title_template = "{band} LSS science object map"
+@parametrize('{band}Lss{target}ObjMap', band=['LM', 'N'], target=['STD', 'SCI'])
+class LssObjMap(BandSpecificMixin, ImageDataItem, abstract=True):
+    _name_template = r'{band}_LSS_{target}_OBJ_MAP'
+    _title_template = "{band} LSS {target} object map"
     _description_template = "Pixel map of object pixels (QC)"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
 
-class LmLssSciObjMap(BandLmMixin, LssSciObjMap):
-    pass
-
-
-class NLssSciObjMap(BandNMixin, LssSciObjMap):
-    pass
-
-
-class LssSciSkyMap(BandSpecificMixin, ImageDataItem, abstract=True):
-    _name_template = r'{band}_LSS_SCI_SKY_MAP'
-    _title_template = "{band} LSS science sky map"
-    _description_template = "Image with detected plain sky pixels of the science observation."
+@parametrize('{band}Lss{target}SkyMap', band=['LM', 'N'], target=['STD', 'SCI'])
+class LssSkyMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
+    _name_template = r'{band}_LSS_{target}_SKY_MAP'
+    _title_template = "{band} LSS {target} sky map"
+    _description_template = "Image with detected plain sky pixels of the {target} observation."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
-
-
-class LmLssSciSkyMap(BandLmMixin, LssSciSkyMap):
-    pass
-
-
-class NLssSciSkyMap(BandNMixin, LssSciSkyMap):
-    pass
 
 
 class LssSci1d(BandSpecificMixin, TableDataItem, abstract=True):
@@ -67,7 +53,13 @@ class LssSci1d(BandSpecificMixin, TableDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
 
-parametrize("{band}LssSci1d", band=['LM', 'N'])(LssSci1d)
+class LmLssSci1d(BandLmMixin, LssSci1d):
+    pass
+
+
+class NLssSci1d(BandNMixin, LssSci1d):
+    pass
+
 
 
 @parametrize("{band}LssSci2d", band=['LM', 'N'])
@@ -80,17 +72,24 @@ class LssSci2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
 
-@parametrize("{band}LssSciFlux1d", band=['LM', 'N'])
 class LssSciFlux1d(BandSpecificMixin, TableDataItem, abstract=True):
     """
     Final flux calibrated 1D spectrum of standard star
     """
     _name_template = r'{band}_LSS_SCI_FLUX_1D'
-    _title_template = "{band} LSS_SCI_FLUX_1D"
+    _title_template = "{band} LSS SCI 1D flux"
     _description_template = "Extracted, flux-calibrated 1D science spectrum"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
+
+
+class LmLssSciFlux1d(BandLmMixin, LssSciFlux1d):
+    pass
+
+
+class NLssSciFlux1d(BandNMixin, LssSciFlux1d):
+    pass
 
 
 @parametrize("{band}LssSciFlux2d", band=['LM', 'N'])
@@ -99,13 +98,11 @@ class LssSciFlux2d(BandSpecificMixin, ImageDataItem, abstract=True):
     Final flux calibrated 1D spectrum of standard star
     """
     _name_template = r'{band}_LSS_SCI_FLUX_2D'
-    _title_template = "{band} LSS_SCI_FLUX_2D"
+    _title_template = "{band} LSS SCI 2D flux"
     _description_template = "Rectified, flux-calibrated 2D {band}-band spectrum of the science object."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
-
-
 
 
 @parametrize("{band}LssSciFluxTellCorr1d", band=['LM', 'N'])

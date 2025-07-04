@@ -24,7 +24,7 @@ from pymetis.classes.prefab.lss.mf_correct import MetisLssMfCorrectImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-# TODO: Check 2D input spectra - correct all row with same trans?
+# TODO: Check 2D input spectra -- correct all row with same trans?
 class MetisLmLssMfCorrectImpl(MetisLssMfCorrectImpl):
     class InputSet(BandLmMixin, MetisLssMfCorrectImpl.InputSet):
         pass
