@@ -17,85 +17,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-
-# Import the required PyCPL modules
-import re
 import cpl
-from cpl.core import Msg
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-from pymetis.classes.inputs import RawInput
-from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.classes.products import PipelineProduct,PipelineTableProduct
+from pymetis.classes.mixins import BandNMixin
+from pymetis.classes.prefab.lss.mf_correct import MetisLssMfCorrectImpl
+from pymetis.classes.recipes import MetisRecipe
+
 
 # TODO: Check 2D input spectra - correct all row with same trans?
+class MetisNLssMfCorrectImpl(MetisLssMfCorrectImpl):
+    class InputSet(BandNMixin, MetisLssMfCorrectImpl.InputSet):
+        pass
 
 
-# =========================================================================================
-#    Define main class
-# =========================================================================================
-class MetisNLssMfCorrectImpl(RawImageProcessor):
-    class InputSet(PipelineInputSet):
-        band = "N"
-        detector = "GEO"
-
-    # ++++++++++++ Main input++++++++++++
-        class NLssSciFlux1d(SinglePipelineInput):
-            """
-            Science spectrum
-            """
-            _tags: re.Pattern = re.compile(r"N_LSS_SCI_FLUX_1D")
-            # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
-            # For the SKEL this is set to CALIB,although not correct!
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "N LSS sci flux 1D"
-            _description: str = "Flux calibrated 1D N LSS science spectrum"
-
-        class Transmission(SinglePipelineInput):
-            """
-            Transmission spectrum
-            """
-            _tags: re.Pattern = re.compile(r"N_LSS_SYNTH_TRANS")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Transmission spectrum"
-            _description: str = "Transmission spectrum to be used for the telluric correction."
-
-    # ++++++++++++++++++ Final products ++++++++++++++++++
-    # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
-    class ProductTellCorrFinalSpectrum(PipelineTableProduct):
-        """
-        Final telluric corrected science spectrum
-        """
-        _tag = rf"N_LSS_SCI_FLUX_TELLCORR_1D"
-        _title: str = "Final science spectrum"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Final telluric corrected, flux + wavelength calibrated 1d science spectrum"
-# =========================================================================================
-#    Methods
-# =========================================================================================
-
-#   Method for processing
-    def process(self) -> set[DataItem] -> [PipelineProduct]:
-        """Create dummy file (should do something more fancy in the future)"""
-
-        # TODO: Invoke mf_correct here
-
-        # TODO: Check whether calctrans creates the Transmission file - if so, no need to
-        # write it out here again
-        header = self._create_dummy_header()
-        table = self._create_dummy_table()
-        return [
-            self.ProductTellCorrFinalSpectrum(header, table),
-        ]
-
-# =========================================================================================
-#    MAIN PART
-# =========================================================================================
-
-# Define recipe main function as a class which inherits from
-# the PyCPL class cpl.ui.PyRecipe
 class MetisNLssMfCorrect(MetisRecipe):
     # The information about the recipe needs to be set. The base class
     # cpl.ui.PyRecipe provides the class variables to be set.

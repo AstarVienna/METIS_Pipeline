@@ -19,10 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.n_lss.metis_n_lss_std import (MetisNLssStd as Recipe,
-                                                      MetisNLssStdImpl as Impl)
-from pymetis.classes.products import PipelineProduct
+                                                   MetisNLssStdImpl as Impl)
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -40,26 +38,30 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
-
-    # @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
-    # def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-    #     super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssStdObjMap
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssStdSkyMap
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductMasterNResponse
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductStdTransmission
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssStd1d
+class TestProductNLssStdObjMap(BaseProductTest):
+    _product = Impl.ProductNLssStdObjMap
+
+
+class TestProductNLssStdSkyMap(BaseProductTest):
+    _product = Impl.ProductNLssStdSkyMap
+
+
+class TestProductMasterNResponse(BaseProductTest):
+    _product = Impl.ProductMasterNResponse
+
+
+class TestProductStdTransmission(BaseProductTest):
+    _product = Impl.ProductStdTransmission
+
+
+class TestProductNLssStd1d(BaseProductTest):
+    _product = Impl.ProductNLssStd1d
 
 

@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.common import IfuTelluric
 from pymetis.classes.dataitems.ifu.ifu import IfuScienceCubeCalibrated, IfuSciReduced
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl

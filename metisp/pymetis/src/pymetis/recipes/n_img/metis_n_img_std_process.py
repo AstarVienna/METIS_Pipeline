@@ -19,16 +19,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.classes.dataitems.common import FluxCalTable
+from pymetis.classes.mixins import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
 
 
 class MetisNImgStdProcessImpl(MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
-        class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
-            Item = NStdBackgroundSubtracted
+        class RawInput(BandNMixin, MetisImgStdProcessImpl.InputSet.RawInput):
+            pass
 
     ProductFluxcalTab = FluxCalTable
 

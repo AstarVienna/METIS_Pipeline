@@ -46,12 +46,12 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProduct(BaseProductTest):
-    _product = Impl.ProductMedianLmLssRsrfImg
+    _product = Impl.ProductMedianLssRsrf
 
 
 class TestProductMeanLmLss(BaseProductTest):
-    _product = Impl.ProductMeanLmLssRsrfImg
+    _product = Impl.ProductMeanLssRsrf
 
 
 class TestProductMasterLmLssRsrf(BaseProductTest):
-    _product = Impl.ProductMasterLmLssRsrf
+    _product = Impl.ProductMasterLssRsrf

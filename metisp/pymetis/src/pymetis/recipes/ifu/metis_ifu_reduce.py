@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 from typing import Literal
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.distortion.table import IfuDistortionTable
 from pymetis.classes.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
 from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
@@ -32,8 +33,6 @@ from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInp
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):
-    target: Literal["SCI"] | Literal["STD"] = None
-
     class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRaw

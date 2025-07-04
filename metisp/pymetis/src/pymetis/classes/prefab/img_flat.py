@@ -22,6 +22,7 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.masterflat import MasterImgFlat
 from pymetis.classes.dataitems.masterflat.raw import FlatRaw
 from pymetis.classes.inputs import RawInput, MasterDarkInput

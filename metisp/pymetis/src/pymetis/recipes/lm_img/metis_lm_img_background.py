@@ -21,6 +21,7 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.background.background import Background
 from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.classes.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced

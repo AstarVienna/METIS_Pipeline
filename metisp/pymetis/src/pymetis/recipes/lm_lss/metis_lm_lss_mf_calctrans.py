@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import re
 import cpl
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.synth import SynthTrans, LmLssSynthTrans
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
@@ -32,9 +33,6 @@ from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 # =========================================================================================
 class MetisLmLssMfCalctransImpl(RawImageProcessor):
     class InputSet(PipelineInputSet):
-        band = "LM"
-        detector = "2RG"
-
         class MfBestFitTab(SinglePipelineInput):
             """
             Table with best-fit parameters
@@ -86,9 +84,9 @@ class MetisLmLssMfCalctransImpl(RawImageProcessor):
         # write it out here again
         header = self._create_dummy_header()
         table = self._create_dummy_table()
-        return [
+        return {
             self.ProductTransmission(header, table),
-        ]
+        }
 
 
 # =========================================================================================

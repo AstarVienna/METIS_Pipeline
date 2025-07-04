@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.coadd import IfuSciCoadd
 from pymetis.classes.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl

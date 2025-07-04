@@ -21,7 +21,7 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.dataitems.lm_lss.curve import LmLssCurve, LmLssDistSol, LmLssWaveGuess
+from pymetis.classes.dataitems.lss.curve import LmLssCurve, LmLssDistSol, LmLssWaveGuess
 from pymetis.classes.mixins import Detector2rgMixin
 from pymetis.classes.prefab import DarkImageProcessor
 

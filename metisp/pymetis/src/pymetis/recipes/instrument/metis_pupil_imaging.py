@@ -29,6 +29,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterImgFlat
 from pymetis.classes.dataitems.pupil import PupilRaw, LmPupilRaw, NPupilRaw
 from pymetis.classes.dataitems.pupil.pupil import PupilImagingReduced, NPupilImagingReduced, LmPupilImagingReduced

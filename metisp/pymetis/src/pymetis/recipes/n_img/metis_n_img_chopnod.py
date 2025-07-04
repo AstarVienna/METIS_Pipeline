@@ -24,6 +24,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.background.background import NStdBackground
 from pymetis.classes.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.classes.dataitems.masterflat import MasterFlatGeo, MasterImgFlatLampN, MasterImgFlat

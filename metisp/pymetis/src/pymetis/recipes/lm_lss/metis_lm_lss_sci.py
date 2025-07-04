@@ -17,34 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-# Import the required PyCPL modules
-import re
 import cpl
-from cpl.core import Msg
 
-from pymetis.classes.mixins import Detector2rgMixin
-
+from pymetis.classes.mixins import BandLmMixin
+from pymetis.classes.prefab.lss.sci import MetisLssSciImpl
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.rawimage import RawImageProcessor
-
-from pymetis.classes.recipes.impl import MetisRecipeImpl
-
-from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    LinearityInput, OptionalInputMixin, AtmLineCatInput,
-                                    PersistenceMapInput)
 
 
-# =========================================================================================
-#    Define main class
-# =========================================================================================
+class MetisLmLssSciImpl(MetisLssSciImpl):
+    class InputSet(BandLmMixin, MetisLssSciImpl.InputSet):
+        pass
 
-
-# =========================================================================================
-#    MAIN PART
-# =========================================================================================
-
-# Define recipe main function as a class which inherits from
-# the PyCPL class cpl.ui.PyRecipe
 
 class MetisLmLssSci(MetisRecipe):
     # The information about the recipe needs to be set. The base class

@@ -22,6 +22,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.coadd import LmSciCoadd
 from pymetis.classes.dataitems.img.basicreduced import LmSciCalibrated
 from pymetis.classes.recipes import MetisRecipe

@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.lss.rsrf import LssRsrfPinholeRaw, MasterLssRsrf
 from pymetis.classes.dataitems.lss.trace import LssTrace
 from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
@@ -47,7 +49,7 @@ class MetisLssTraceImpl(DarkImageProcessor):
         # trace_tab_hdr = self._create_dummy_header()
         trace_tab_hdr = self._create_dummy_header()
         trace_tab_data = self._create_dummy_table()
-        return [
+        return {
             self.ProductTraceTable(trace_tab_hdr, trace_tab_data)
-        ]
+        }
 

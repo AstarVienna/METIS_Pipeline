@@ -17,14 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 from abc import ABC
 
 import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.badpixmap import BadPixMap, BadPixMap2rg
 from pymetis.classes.dataitems.gainmap import GainMap
 from pymetis.classes.dataitems.linearity.linearity import LinearityMap, LinearityMap2rg

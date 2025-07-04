@@ -53,6 +53,8 @@ class TestInputSet(BaseInputSetTest):
 
 class TestProduct(BaseProductTest):
     _product: type[PipelineProduct] = Impl.ProductLmLssCurve
+
+    tig
 class TestProduct(BaseProductTest):
     _product: type[PipelineProduct] = Impl.ProductLmLssDistSol
 class TestProduct(BaseProductTest):

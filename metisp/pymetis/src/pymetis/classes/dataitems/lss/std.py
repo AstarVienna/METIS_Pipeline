@@ -1,6 +1,6 @@
 """
 This file is part of the METIS Pipeline.
-Copyright (C) 2025 European Southern Observatory
+Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,34 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
+import cpl
 
-from pymetis.recipes.lm_lss.metis_lm_adc_slitloss import (MetisLmAdcSlitloss as Recipe,
-                                                      MetisLmAdcSlitlossImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
-
-
-recipe_name = r'metis_lm_adc_slitloss'
+from pymetis.classes.dataitems import TableDataItem, parametrize
+from pymetis.classes.mixins import BandSpecificMixin
 
 
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.sof'
-
-
-class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
-
-
-class TestInputSet(BaseInputSetTest):
-    _impl = Impl
-
-
-class TestProduct(BaseProductTest):
-    _product = Impl.ProductAdcSlitloss
-
+@parametrize("{band}LssStd1d", band=['LM', 'N'])
+class LssStd1d(BandSpecificMixin, TableDataItem, abstract=True):
+    _name_template = r'{band}_LSS_STD_1D'
+    _title_template = "{band} LSS 1D standard star spectrum"
+    _description_template = "Extracted {band} 1D standard star spectrum."
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}

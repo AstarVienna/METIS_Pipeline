@@ -95,6 +95,7 @@ class LaserTable(TableDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
 
+
 class IfuTelluric(TableDataItem):
     _name_template = r'IFU_TELLURIC'
     _title_template = "Telluric correction"

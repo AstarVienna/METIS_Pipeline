@@ -19,10 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.n_lss.metis_n_lss_trace import (MetisNLssTrace as Recipe,
                                                       MetisNLssTraceImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -40,7 +38,7 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    _recipe = Recipe
 
     # @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
     # def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
@@ -48,9 +46,9 @@ class TestRecipe(BaseRecipeTest):
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
 class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductTraceTab
+    _product = Impl.ProductTraceTable
 

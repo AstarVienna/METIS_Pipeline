@@ -19,80 +19,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 # TODO: Check the need for WCU_OFF frames!
 
-import re
 import cpl
-from cpl.core import Msg
 
+from pymetis.classes.mixins import BandNMixin
+from pymetis.classes.prefab.lss.adc import MetisAdcSlitlossImpl
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.classes.inputs import RawInput
-from pymetis.classes.dataitems.adc.adc import NAdcSlitloss
-
-# =========================================================================================
-#    Define main class
-# =========================================================================================
-class MetisNAdcSlitlossImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
-        # Define input classes ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        class RawInput(RawInput):
-            """
-            Raw image N_LSS_SLITLOSS_RAW
-            """
-            _tags: re.Pattern = re.compile(r"N_ADC_SLITLOSS_RAW")   # <---- TBD
-            _title: str = "N ADC slitloss raw"
-            _description: str = "Raw files for ADC slitloss determination (TBD)."
-        class NAdcSlitlossWcuOffInput(RawInput):
-            """
-            WCU_OFF input illuminated by the WCU up-to and including the
-            integrating sphere, but no source.
-            """
-            _tags: re.Pattern = re.compile(r"N_WCU_OFF_RAW")
-            _title: str = "N LSS WCU off"
-            _description: str = "Raw data for dark subtraction in other recipes."
-
-    ProductNAdcSlitloss = NAdcSlitloss
 
 
-# =========================================================================================
-#    Methods
-# =========================================================================================
+class MetisNAdcSlitlossImpl(MetisAdcSlitlossImpl):
+    class InputSet(BandNMixin, MetisAdcSlitlossImpl):
+        pass
 
 
-#   Method for loading images (stolen from metis_chop_home.py)
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
-
-#   Method for processing
-    def process(self) -> set[DataItem]:
-        """Create dummy file (should do something more fancy in the future)"""
-        header = self._create_dummy_header()
-        table = self._create_dummy_table()
-        return {
-            self.ProductNAdcSlitloss(header, table),
-        }
-
-
-# =========================================================================================
-#    MAIN PART
-# =========================================================================================
-
-
-# Define recipe main function as a class which inherits from
-# the PyCPL class cpl.ui.PyRecipe
 class MetisNAdcSlitloss(MetisRecipe):
     # The information about the recipe needs to be set. The base class
     # cpl.ui.PyRecipe provides the class variables to be set.

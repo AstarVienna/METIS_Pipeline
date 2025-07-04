@@ -17,20 +17,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
 from abc import ABC
 
 import cpl
 from cpl.core import Msg
-
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
 from pymetis.classes.dataitems.masterdark.raw import DarkRaw
-from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
                                     LinearityInput, GainMapInput, OptionalInputMixin)
+from pymetis.classes.prefab import RawImageProcessor
+from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):

@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.classes.dataitems.combined import Combined
 from pymetis.classes.dataitems.common import FluxCalTable

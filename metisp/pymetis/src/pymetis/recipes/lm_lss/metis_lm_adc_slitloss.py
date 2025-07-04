@@ -19,55 +19,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems.adc.adc import LmAdcSlitloss, LmAdcSlitlossRaw
-from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw
+from pymetis.classes.mixins import BandLmMixin
+from pymetis.classes.prefab.lss.adc import MetisAdcSlitlossImpl
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.rawimage import RawImageProcessor
-
-from pymetis.classes.inputs import (RawInput,
-                                    PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin,
-                                    BadPixMapInputSetMixin)
-
-# =========================================================================================
-#    Define main class
-# =========================================================================================
-class MetisLmAdcSlitlossImpl(RawImageProcessor):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, BadPixMapInputSetMixin, RawImageProcessor.InputSet):   # <---- TODO: need to give more here?
-        class RawInput(RawInput):
-            Item = LmAdcSlitlossRaw
-
-        class WcuOffInput(RawInput):
-            Item = LmWcuOffRaw
-
-    ProductLmAdcSlitloss = LmAdcSlitloss
-
-# =========================================================================================
-#    Methods
-# =========================================================================================
-
-    def process(self) -> set[DataItem]:
-        """Create a dummy file (should do something more fancy in the future)"""
-        header = self._create_dummy_header()
-        table = self._create_dummy_table()
-        return {
-            self.ProductLmAdcSlitloss(header, table),
-        }
 
 
-# =========================================================================================
-#    MAIN PART
-# =========================================================================================
+class MetisLmAdcSlitlossImpl(MetisAdcSlitlossImpl):
+    class InputSet(BandLmMixin, MetisAdcSlitlossImpl):
+        pass
 
 
 # Define recipe main function as a class which inherits from
 # the PyCPL class cpl.ui.PyRecipe
 class MetisLmAdcSlitloss(MetisRecipe):
-    # The information about the recipe needs to be set. The base class
-    # cpl.ui.PyRecipe provides the class variables to be set.
-    # The recipe name must be unique, because it is this name which is
-    # used to identify a particular recipe among all installed recipes.
-    # The name of the python source file where this class is defined
-    # is not at all used in this context.
     _name: str = "metis_lm_adc_slitloss"
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"

@@ -22,7 +22,8 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.dataitems.lss.lss import LssRaw
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.lss.raw import LssRaw
 from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe

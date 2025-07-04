@@ -17,22 +17,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import os
-import re
-
 import copy
+
 import cpl
 from cpl.core import Msg
-
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.img.raw import ImageRaw
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.img.basicreduced import BasicReduced
+from pymetis.classes.dataitems.img.raw import ImageRaw
 from pymetis.classes.dataitems.masterflat import MasterImgFlat
-from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):

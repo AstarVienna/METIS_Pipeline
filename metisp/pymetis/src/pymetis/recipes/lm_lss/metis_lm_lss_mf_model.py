@@ -17,93 +17,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-
-# Import the required PyCPL modules
-import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-
-from pymetis.classes.inputs import (SinglePipelineInput, PipelineInputSet,
-                                    AtmProfileInput, AtmLineCatInput, LsfKernelInput)
-from pymetis.classes.prefab.rawimage import RawImageProcessor
-
-
-# =========================================================================================
-#    Define main class
-# =========================================================================================
-class MetisLmLssMfModelImpl(RawImageProcessor):
-    class InputSet(PipelineInputSet):
-    # ++++++++++++ Main input ++++++++++++
-        # Default (Path #2 in DRLD Section CritAlg)
-        class LmLssSciFlux1d(SinglePipelineInput):
-            """
-            Science spectrum
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_SCI_FLUX_1D")
-            # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
-            # For the SKEL this is set to CALIB,although not correct!
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "LM LSS sci flux 1D"
-            _description: str = "Flux calibrated 1D LM LSS science spectrum"
-
-        # Alternative (Path #3 in DRLD Section CritAlg)
-        class LmLssStdFlux1d(SinglePipelineInput):
-            """
-            Standard star spectrum
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_STD_1D")
-            # TODO: Check the FrameGroup! Should probably PRODUCT, but a CPL error "Data not found error: Data not found" occurs if set (cf. https://www.eso.org/sci/software/pycpl/pycpl-site/api/ui.html#cpl.ui.Frame.group)
-            # For the SKEL this is set to CALIB,although not correct!
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "LM LSS standard star 1D spectrum"
-            _description: str = "1D LM LSS standard star spectrum"
-    # ++++++++++++ Intermediate / QC products ++++++++++++
-    # Currently none foreseen (some for QC?)
-
-        AtmProfileInput = AtmProfileInput
-        AtmLineCatInput = AtmLineCatInput
-        LsfKernelInput = LsfKernelInput
-
-    ProductMfBestFitTable = MfBestFitTable
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.mixins import BandLmMixin
+from pymetis.classes.prefab.lss.mf_model import MetisLssMfModelImpl
+from pymetis.classes.recipes import MetisRecipe
 
 
+class MetisLmLssMfModelImpl(MetisLssMfModelImpl):
+    class InputSet(BandLmMixin, MetisLssMfModelImpl.InputSet):
+        pass
 
-# =========================================================================================
-#    Methods
-# =========================================================================================
-
-#   Method for processing
-    def process(self) -> set[DataItem]:
-        """Create dummy file (should do something more fancy in the future)"""
-
-        # TODO: Invoke molecfit here
-        # TODO: Check whether the new mf writes out the best-fit param file
-        header = self._create_dummy_header()
-        table = self._create_dummy_table()
-        return {
-            self.ProductMfBestFitTab(header, table),
-        }
-
-
-#   Method for loading images (stolen from metis_chop_home.py)
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
 
 # =========================================================================================
 #    MAIN PART

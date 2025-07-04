@@ -22,6 +22,7 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.distortion.map import DistortionMap
 from pymetis.classes.dataitems.distortion.raw import DistortionRaw
 from pymetis.classes.dataitems.distortion.reduced import DistortionReduced

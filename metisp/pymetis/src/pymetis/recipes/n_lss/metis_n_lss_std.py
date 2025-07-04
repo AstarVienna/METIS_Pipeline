@@ -22,25 +22,19 @@ import re
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins import DetectorGeoMixin
-
+from pymetis.classes.mixins import BandNMixin
+from pymetis.classes.prefab.lss.std import MetisLssStdImpl
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 
-from pymetis.classes.recipes.impl import MetisRecipeImpl
-
-from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
+from pymetis.classes.inputs import (SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     LinearityInput, OptionalInputMixin, FluxstdCatalogInput, AtmLineCatInput,
                                     PersistenceMapInput)
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 
-# =========================================================================================
-#    Define main class
-# =========================================================================================
-class MetisNLssStdImpl(RawImageProcessor):
-    class InputSet(RawImageProcessor.InputSet):
-        band = "N"
-        detector = "GEO"
+
+class MetisNLssStdImpl(MetisLssStdImpl):
+    class InputSet(BandNMixin, RawImageProcessor.InputSet):
+        pass
 
         # RAW FILES ++++++++++++++++++++++++++++++++++++++++++++++++
         class RawInput(RawInput):
@@ -329,7 +323,7 @@ class MetisNLssStdImpl(RawImageProcessor):
 
 # CAVEAT: Dummy routine only! Will be replaced with functionality -------
 # Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++
-    def process(self) -> set[DataItem] -> [PipelineProduct]:
+    def process(self) -> set[DataItem]:
         # Load raw image
         std_raw_hdr = \
             cpl.core.PropertyList()

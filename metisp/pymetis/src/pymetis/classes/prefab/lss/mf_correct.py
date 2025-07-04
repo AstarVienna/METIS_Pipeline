@@ -16,33 +16,37 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
-from abc import ABC
-
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.background.subtracted import LmSciBackgroundSubtracted
-from pymetis.classes.dataitems.img.basicreduced import LmSciCalibrated
-from pymetis.classes.dataitems.distortion.table import DistortionTable
+from pymetis.classes.dataitems.lss.science import LssSciFlux1d, LssSciFluxTellCorr1d
+from pymetis.classes.dataitems.synth import LssSynthTrans
+from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.classes.inputs import FluxCalTableInput
 
 
-class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
+class MetisLssMfCorrectImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class BackgroundInput(SinglePipelineInput):
-            Item = LmSciBackgroundSubtracted
+        class LssSciFlux1d(SinglePipelineInput):
+            Item = LssSciFlux1d
 
-        FluxcalTableInput = FluxCalTableInput
+        class Transmission(SinglePipelineInput):
+            Item = LssSynthTrans
 
-        # ToDo let's make TAB / TABLE consistent one day
-        class DistortionTableInput(SinglePipelineInput):
-            Item = DistortionTable
+    ProductTellCorrFinal = LssSciFluxTellCorr1d
 
-    ProductSciCalibrated = LmSciCalibrated
+    def mf_correct(self):
+        pass
 
     def process(self) -> set[DataItem]:
-        combined_image = self._create_dummy_image()
-        product_calibrated = self.ProductSciCalibrated(self.header, combined_image)
+        """Create dummy file (should do something more fancy in the future)"""
 
-        return {product_calibrated}
+        self.mf_correct()
+
+        # TODO: Check whether calctrans creates the Transmission file - if so, no need to
+        # write it out here again
+        header = self._create_dummy_header()
+        table = self._create_dummy_table()
+
+        return {
+            self.ProductTellCorrFinal(header, table),
+        }
+

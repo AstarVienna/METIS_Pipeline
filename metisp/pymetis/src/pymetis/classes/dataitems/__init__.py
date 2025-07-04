@@ -15,6 +15,7 @@ __all__ = [
     'DataItem', 'ImageDataItem', 'TableDataItem',
     'Raw', 'ImageRaw', 'LmImageStdRaw', 'LmImageSciRaw', 'NImageStdRaw', 'NImageSciRaw',
     'IfuSciRaw'
+    'parametrize',
 ]
 
 from ..mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, BandLmMixin, BandNMixin, \
