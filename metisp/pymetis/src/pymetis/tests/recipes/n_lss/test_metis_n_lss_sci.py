@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.n_lss.metis_n_lss_sci import (MetisNLssSci as Recipe,
                                                       MetisNLssSciImpl as Impl)
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
@@ -39,30 +38,38 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
-
-    # @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
-    # def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-    #     super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
+    _recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    _impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssSciObjMap
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssSciSkyMap
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssSci1d
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssSci2d
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssSciFlux1d
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssSciFlux2d
-class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductNLssSciFluxTell1d   # TODO: What about the 2d version?
+class TestProductLssSciObjMap(BaseProductTest):
+    _product = Impl.ProductLssSciObjMap
+
+
+class TestProductLssSciSkyMap(BaseProductTest):
+    _product = Impl.ProductLssSciSkyMap
+
+
+class TestProductLssSci1d(BaseProductTest):
+    _product = Impl.ProductLssSci1d
+
+
+class TestProductLssSci2d(BaseProductTest):
+    _product = Impl.ProductLssSci2d
+
+
+class TestProductLssSciFlux1d(BaseProductTest):
+    _product = Impl.ProductLssSciFlux1d
+
+
+class TestProductLssSciFlux2d(BaseProductTest):
+    _product = Impl.ProductLssSciFlux2d
+
+
+class TestProductSciFluxTellCorr1d(BaseProductTest):
+    _product = Impl.ProductLssSciFluxTellCorr1d   # TODO: What about the 2d version?
 
 

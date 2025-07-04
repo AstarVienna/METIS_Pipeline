@@ -20,19 +20,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 import cpl
-
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.badpixmap import BadPixMap, BadPixMap2rg
+from pymetis.classes.dataitems.badpixmap import BadPixMap
 from pymetis.classes.dataitems.gainmap import GainMap
-from pymetis.classes.dataitems.linearity.linearity import LinearityMap, LinearityMap2rg
-from pymetis.classes.dataitems.linearity.raw import Linearity2rgRaw, LinearityRaw, LinearityGeoRaw, LinearityIfuRaw
-from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
-from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab import RawImageProcessor
+from pymetis.classes.dataitems.linearity.linearity import LinearityMap
+from pymetis.classes.dataitems.linearity.raw import LinearityRaw
 from pymetis.classes.inputs import RawInput, BadPixMapInput, OptionalInputMixin
-
+from pymetis.classes.inputs.common import WcuOffInput
+from pymetis.classes.prefab import RawImageProcessor
+from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisDetLinGainImpl(RawImageProcessor, ABC):
@@ -40,8 +38,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         class RawInput(RawInput):
             Item = LinearityRaw
 
-        class WcuOffInput(RawInput):
-            Item = WcuOffRaw
+        WcuOffInput = WcuOffInput
 
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             Item = BadPixMap

@@ -18,130 +18,43 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 # Import the required PyCPL modules
 import re
+
 import cpl
-from cpl.core import Msg
 
-from pymetis.classes.dataitems.lss.curve import LmLssCurve, LmLssDistSol, LmLssWaveGuess
-from pymetis.classes.mixins import Detector2rgMixin
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
+from pymetis.classes.dataitems.lss.rsrf import MasterLssRsrf
+from pymetis.classes.dataitems.lss.trace import LssTrace
+from pymetis.classes.dataitems.lss.wave import LssWaveRaw
+from pymetis.classes.inputs import (SinglePipelineInput, RawInput,
+                                    LaserTableInput,
+                                    PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin,
+                                    LinearityInputSetMixin)
+from pymetis.classes.inputs.common import WcuOffInput
 from pymetis.classes.prefab import DarkImageProcessor
-
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.rawimage import RawImageProcessor
-
-from pymetis.classes.recipes.impl import MetisRecipeImpl
-from pymetis.classes.inputs import (RawInput, SinglePipelineInput, BadPixMapInput, MasterDarkInput, RawInput,
-                                    GainMapInput, LinearityInput, OptionalInputMixin, LaserTableInput,
-                                    PersistenceInputSetMixin)
 
 
-
-# =========================================================================================
-#    Define main class
-# =========================================================================================
 class MetisLmLssWaveImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
+                   DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            """
-            Raw frames with laser lines
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_WAVE_RAW")
-            _title: str = "LM LSS wave raw"
-            _description: str = "Raw LSS spectra of the WCU lasers."
-
-        class LmRsrfWcuOffInput(RawInput):
-            """
-            WCU_OFF input illuminated by the WCU up-to and including the
-            integrating sphere, but no source.
-            """
-            _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
-            _title: str = "LM LSS WCU off"
-            _description: str = "Raw data for dark subtraction in other recipes."
-
-       # Persistence map
-       # TODO: add persistence map ***TBD***
-
-        class MasterDarkInput(MasterDarkInput):
-            """
-            Master dark MASTER_DARK_2RG
-            """
-            _tags: re.Pattern = re.compile(r"MASTER_DARK_2RG")
-        MasterDarkInput = MasterDarkInput
-
-        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
-            """
-            Bad pixel BADPIX_MAP_2RG
-            """
-            _tags: re.Pattern = re.compile(r"BADPIX_MAP_2RG")
-
-        class GainMapInput(GainMapInput):
-            """
-            Gain map
-            """
-            _tags: re.Pattern = re.compile(r"GAIN_MAP_2RG")
-
-        class LinearityInput(LinearityInput):
-            """
-            Linearity
-            """
-            _tags: re.Pattern = re.compile(r"LINEARITY_2RG")
+            Item = LssWaveRaw
 
         class MasterRsrfInput(SinglePipelineInput):
-            """
-            MASTER LM LSS RSRF
-            """
-            _tags: re.Pattern = re.compile(r"MASTER_LM_LSS_RSRF")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "MASTER_RSRF"
-            _description: str = "Master 2D RSRF"
+            Item = MasterLssRsrf
 
-        class LmLssTrace(SinglePipelineInput):
-            """
-            LM LSS TRACE
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_TRACE")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Trace table"
-            _description: str = "LM LSS polynomial trace table"
+        class LssTraceInput(SinglePipelineInput):
+            Item = LssTrace
 
-        class LaserTable(LaserTableInput):   # TODO: Own input class in common.py? DONE!
-            """
-            LASER_TAB
-            """
-            _tags: re.Pattern = re.compile(r"LASER_TAB")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Laser line table"
-            _description: str = "Table with WCU laser lines"
-
+        WcuOffInput = WcuOffInput
+        LaserTableInput = LaserTableInput
 
     # ++++++++++++ Intermediate / QC products ++++++++++++
-    ProductLmLssCurve = LmLssCurve
-
+    ProductLssCurve = LssCurve
     # ++++++++++++++++++ Final products ++++++++++++++++++
-    ProductLmLssDistSol = LmLssDistSol
-    ProductLmLssWaveGuess = LmLssWaveGuess
-
-
-# =========================================================================================
-#    Methods
-# =========================================================================================
-
-#   Method for loading images
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
+    ProductLssDistSol = LssDistSol
+    ProductLssWaveGuess = LssWaveGuess
 
 #   Method for processing
     def process(self) -> set[DataItem]:
@@ -153,9 +66,9 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
         LmLssWaveGuessHdr = cpl.core.PropertyList()
 
         return {
-            self.ProductLmLssCurve(LmLssCurveHdr, table),
-            self.ProductLmLssDistSol(LmLssDistSolHdr, table),
-            self.ProductLmLssWaveGuess(LmLssWaveGuessHdr, table),
+            self.ProductLssCurve(LmLssCurveHdr, table),
+            self.ProductLssDistSol(LmLssDistSolHdr, table),
+            self.ProductLssWaveGuess(LmLssWaveGuessHdr, table),
         }
 
 

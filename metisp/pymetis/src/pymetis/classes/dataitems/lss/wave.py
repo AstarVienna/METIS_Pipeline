@@ -1,6 +1,6 @@
 """
 This file is part of the METIS Pipeline.
-Copyright (C) 2025 European Southern Observatory
+Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,33 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
+import cpl
 
-from pymetis.recipes.lm_lss.metis_lm_lss_mf_model import (MetisLmLssMfModel as Recipe,
-                                                          MetisLmLssMfModelImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
-
-
-recipe_name = r'metis_lm_lss_mf_model'
+from pymetis.classes.dataitems import Raw, parametrize
+from pymetis.classes.mixins import BandSpecificMixin
 
 
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.sof'
-
-
-class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
-
-
-class TestInputSet(BaseInputSetTest):
-    _impl = Impl
-
-
-class TestProduct(BaseProductTest):
-    _product = Impl.ProductMfBestFitTable
+@parametrize(r'{band}LssWaveRaw', band=['LM', 'N', 'IFU'])
+class LssWaveRaw(BandSpecificMixin, Raw, abstract=True):
+    _name_template = r'{band}_LSS_WAVE_RAW'
+    _title_template = "{band} LSS wave raw"
+    _description_template = "Raw LSS spectra of the WCU lasers in {band} band}"
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}

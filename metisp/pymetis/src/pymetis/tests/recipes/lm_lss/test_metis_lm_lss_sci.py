@@ -45,22 +45,29 @@ class TestInputSet(BaseInputSetTest):
     _impl = Impl
 
 
-class TestProductLmLssStdObjMap(BaseProductTest):
-    _product = Impl.ProductLmLssStdObjMap
+class TestProductLssSciObjMap(BaseProductTest):
+    _product = Impl.ProductLssSciObjMap
 
 
-class TestProductLmLssStdSkyMap(BaseProductTest):
-    _product = Impl.ProductLmLssStdSkyMap
+class TestProductLssSciSkyMap(BaseProductTest):
+    _product = Impl.ProductLssSciSkyMap
 
 
-class TestProductMasterLmResponse(BaseProductTest):
-    _product = Impl.ProductMasterLmResponse
+class TestProductLssSci1d(BaseProductTest):
+    _product = Impl.ProductLssSci1d
 
 
-class TestProductStdTransmission(BaseProductTest):
-    _product = Impl.ProductStdTransmission
+class TestProductLssSci2d(BaseProductTest):
+    _product = Impl.ProductLssSci2d
 
 
-class TestProductLmLssStd1d(BaseProductTest):
-    _product = Impl.ProductLmLssStd1d
+class TestProductLssSciFlux1d(BaseProductTest):
+    _product = Impl.ProductLssSciFlux1d
 
+
+class TestProductLssSciFlux2d(BaseProductTest):
+    _product = Impl.ProductLssSciFlux2d
+
+
+class TestProductSciFluxTellCorr1d(BaseProductTest):
+    _product = Impl.ProductLssSciFluxTellCorr1d   # TODO: What about the 2d version?

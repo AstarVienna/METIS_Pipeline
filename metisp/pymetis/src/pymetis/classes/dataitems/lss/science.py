@@ -70,6 +70,7 @@ class LssSci1d(BandSpecificMixin, TableDataItem, abstract=True):
 parametrize("{band}LssSci1d", band=['LM', 'N'])(LssSci1d)
 
 
+@parametrize("{band}LssSci2d", band=['LM', 'N'])
 class LssSci2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_LSS_SCI_2D'
     _title_template = "{band} LSS 2D science spectrum"
@@ -79,9 +80,7 @@ class LssSci2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
 
-parametrize("{band}LssSci2d", band=['LM', 'N'])(LssSci2d)
-
-
+@parametrize("{band}LssSciFlux1d", band=['LM', 'N'])
 class LssSciFlux1d(BandSpecificMixin, TableDataItem, abstract=True):
     """
     Final flux calibrated 1D spectrum of standard star
@@ -94,9 +93,7 @@ class LssSciFlux1d(BandSpecificMixin, TableDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
 
-parametrize("{band}LssSciFlux1d", band=['LM', 'N'])(LssSciFlux1d)
-
-
+@parametrize("{band}LssSciFlux2d", band=['LM', 'N'])
 class LssSciFlux2d(BandSpecificMixin, ImageDataItem, abstract=True):
     """
     Final flux calibrated 1D spectrum of standard star
@@ -109,7 +106,6 @@ class LssSciFlux2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
 
-parametrize("{band}LssSciFlux2d", band=['LM', 'N'])(LssSciFlux2d)
 
 
 @parametrize("{band}LssSciFluxTellCorr1d", band=['LM', 'N'])

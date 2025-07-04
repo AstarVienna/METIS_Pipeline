@@ -30,9 +30,6 @@ class MetisAdcSlitlossImpl(RawImageProcessor):
         class RawInput(RawInput):
             Item = AdcSlitlossRaw
 
-        class WcuOffInput(RawInput):
-            Item = WcuOffRaw
-
     ProductAdcSlitloss = AdcSlitloss
 
     # =========================================================================================

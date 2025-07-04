@@ -32,6 +32,7 @@ from pymetis.classes.dataitems.distortion.table import DistortionTable
 from ..dataitems.gainmap import GainMap
 from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
 from ..dataitems.masterflat import MasterFlat
+from ..dataitems.raw.wcuoff import WcuOffRaw
 from ..dataitems.synth import SynthTrans
 from ..dataitems.wavecal import IfuWavecal
 
@@ -123,4 +124,8 @@ class LaserTableInput(SinglePipelineInput):
 
 class SynthTransInput(SinglePipelineInput):
     Item = SynthTrans
+
+
+class WcuOffInput(RawInput):
+    Item = WcuOffRaw
 

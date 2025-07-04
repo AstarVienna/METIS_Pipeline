@@ -23,7 +23,10 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.lss.curve import LssWaveGuess
 from pymetis.classes.dataitems.lss.raw import LssRaw
+from pymetis.classes.dataitems.lss.rsrf import MasterLssRsrf
+from pymetis.classes.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
@@ -64,13 +67,7 @@ class MetisLmLssStdImpl(DarkImageProcessor):
             _description: str = "Distortion solution for rectifying"
 
         class MasterLmLssWaveGuess(SinglePipelineInput):
-            """
-            Wavelength solution first guess
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_WAVE_GUESS")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "First guess of the wavelength solution"
-            _description: str = "First guess of the wavelength solution"
+            Item = LssWaveGuess
 
         class MasterAoPsfModel(SinglePipelineInput):
             """
@@ -92,22 +89,7 @@ class MetisLmLssStdImpl(DarkImageProcessor):
             _description: str = "Slitlosses induced by the ADC"
 
         class MasterLmLssSynthTrans(SinglePipelineInput):
-            """
-            Synthetic Transmission
-            """
-            _tags: re.Pattern = re.compile(r"LM_LSS_SYNTH_TRANS")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Transmission model"
-            _description: str = "Transmission of the Earth's atmosphere for a quick telluric correction"
-
-        class MasterAtmLineCat(AtmLineCatInput):
-            """
-            Catalogue of atmospheric lines
-            """
-            _tags: re.Pattern = re.compile(r"ATM_LINE_CAT")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "Line catalogue of atmospheric lines"
-            _description: str = "Catalogue containing a line list of atmospheric molecular lines"
+            Item = LssSynthTrans
 
         class MasterRefStdCat(FluxstdCatalogInput):
             """

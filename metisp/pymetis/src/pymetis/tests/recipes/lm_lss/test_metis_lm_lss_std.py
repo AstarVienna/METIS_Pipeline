@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.recipes.lm_lss.metis_lm_lss_std import (MetisLmLssStd as Recipe,
-                                                      MetisLmLssStdImpl as Impl)
+                                                     MetisLmLssStdImpl as Impl)
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
