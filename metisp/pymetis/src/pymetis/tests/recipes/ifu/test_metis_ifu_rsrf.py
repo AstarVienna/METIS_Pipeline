@@ -44,11 +44,11 @@ def sof(name: str) -> str:
 @pytest.mark.slow
 class TestRecipe(BaseRecipeTest):
     """A bunch of extremely simple and stupid test cases... just to see if it does something."""
-    _recipe = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(RawInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProductRsrfBackground(BaseProductTest):

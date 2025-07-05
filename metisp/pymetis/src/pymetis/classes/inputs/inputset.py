@@ -104,11 +104,11 @@ class PipelineInputSet(ABC):
 
     def _validate_attr(self, func: Callable, attr: str) -> Optional[str]:
         """
-        Helper method: validate the input attribute (detector, band or target).
+        Helper method: validate the input attribute (detector, band, source or target).
 
         Return
-            None if the attribute cannot be identified (this might not be an error if it is not defined).
-            The value, if the attribute only attains the same value everywhere.
+            None, if the attribute cannot be identified (this usually is not an error if it is not defined).
+            The attribute value, if the attribute only has the same value everywhere.
         Raise
             ValueError if the attribute has multiple different values.
         """

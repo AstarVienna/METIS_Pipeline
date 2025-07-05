@@ -79,8 +79,8 @@ def parametrize(template: str, **params: list[str]):
                 except KeyError as e:
                     Msg.error(cls.__qualname__, f"Cannot parametrize DataItem by {param}: {e}")
 
-            print(typename, tuple(bases + [cls]), {})
-            print(type(typename, tuple(bases + [cls]), {}))
+            #print(typename, tuple(bases + [cls]), {})
+            #print(type(typename, tuple(bases + [cls]), {}))
 
     return decorator
 

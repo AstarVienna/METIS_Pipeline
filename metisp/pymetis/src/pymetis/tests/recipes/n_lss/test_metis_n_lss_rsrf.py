@@ -38,20 +38,20 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProductMedian(BaseProductTest):
-    _product = Impl.ProductMedianLssRsrf
+    Product = Impl.ProductMedianLssRsrf
 
 
 class TestProductMean(BaseProductTest):
-    _product = Impl.ProductMeanLssRsrf
+    Product = Impl.ProductMeanLssRsrf
 
 
 class TestProductMaster(BaseProductTest):
-    _product = Impl.ProductMasterLssRsrf
+    Product = Impl.ProductMasterLssRsrf

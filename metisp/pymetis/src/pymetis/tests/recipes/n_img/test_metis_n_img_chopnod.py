@@ -40,7 +40,7 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
+    Recipe = Recipe
 
     @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
@@ -48,7 +48,7 @@ class TestRecipe(BaseRecipeTest):
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProductMasterFlat(BaseProductTest):

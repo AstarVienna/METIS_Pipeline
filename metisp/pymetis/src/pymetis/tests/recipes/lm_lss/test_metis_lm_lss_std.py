@@ -38,30 +38,30 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProductLmLssStdObjMap(BaseProductTest):
-    _product = Impl.ProductLssStdObjMap
+    Product = Impl.ProductLssStdObjMap
 
 
 class TestProductLmLssStdSkyMap(BaseProductTest):
-    _product = Impl.ProductLssStdSkyMap
+    Product = Impl.ProductLssStdSkyMap
 
 
 class TestProductLmResponse(BaseProductTest):
-    _product = Impl.ProductMasterResponse
+    Product = Impl.ProductMasterResponse
 
 
 class TestProductStdTransmission(BaseProductTest):
-    _product = Impl.ProductStdTransmission
+    Product = Impl.ProductStdTransmission
 
 
 class TestProductLmLssStd1d(BaseProductTest):
-    _product = Impl.ProductLssStd1d
+    Product = Impl.ProductLssStd1d
 
 

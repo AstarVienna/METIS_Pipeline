@@ -23,7 +23,6 @@ from pytest import approx
 import numpy as np
 import cpl
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
                                                     MetisCalChophomeImpl as Impl)
 from pymetis.recipes.cal.metis_cal_chophome import locate_pinhole
@@ -45,11 +44,11 @@ def sof(name: str) -> str:
 
 class TestRecipe(BaseRecipeTest):
     """ A bunch of extremely simple test cases... just to see if it does something """
-    _recipe = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProductCombined(BaseProductTest):

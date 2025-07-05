@@ -39,11 +39,11 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(TargetParamRecipeTest):
-    _recipe = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProductReduced(BaseProductTest):

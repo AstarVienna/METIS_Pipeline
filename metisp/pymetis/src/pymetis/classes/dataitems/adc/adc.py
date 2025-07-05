@@ -40,8 +40,9 @@ class NAdcSlitloss(BandNMixin, AdcSlitloss):
     pass
 
 
-class AdcSlitlossRaw(Raw, abstract=True):
-    _name_template = r'{band}_ADC_SLITLOSSES_RAW'
+class AdcSlitlossRaw(BandSpecificMixin, Raw, abstract=True):
+    #_name_template = r'{band}_ADC_SLITLOSSES_RAW'
+    _name_template = r'{band}_ADC_SLITLOSS_RAW'
     _title_template = r'{band} ADC slit loss raw'
     _description_template = "Raw files for ADC slitloss determination (TBD)."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL

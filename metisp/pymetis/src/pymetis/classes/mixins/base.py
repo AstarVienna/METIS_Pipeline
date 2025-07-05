@@ -24,4 +24,4 @@ class Mixin:
 
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
-        return {}
+        return super().tag_parameters()

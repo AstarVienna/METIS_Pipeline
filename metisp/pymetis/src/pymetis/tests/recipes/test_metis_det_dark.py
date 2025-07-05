@@ -41,24 +41,24 @@ def sof(name: str) -> str:
 
 class TestRecipe(BandParamRecipeTest):
     """ A bunch of simple and stupid test cases... just to see if it does something """
-    _recipe = Recipe
+    Recipe = Recipe
 
     @pytest.mark.skip
     def test_fails_with_files_from_multiple_detectors(self, load_frameset):
         with pytest.raises(ValueError):
-            instance = self._recipe()
+            instance = self.Recipe()
             frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_raw_detectors.sof"))
             instance.run(frameset, {})
 
     def test_fails_with_files_from_mismatched_detectors(self, load_frameset):
         with pytest.raises(ValueError):
-            instance = self._recipe()
+            instance = self.Recipe()
             frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mismatched_detectors.sof"))
             instance.run(frameset, {})
 
 
 class TestInputSet(RawInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProduct(ImageProductTest):

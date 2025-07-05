@@ -24,8 +24,7 @@ from pymetis.classes.mixins import BandSpecificMixin, TargetSpecificMixin, BandL
     TargetStdMixin
 
 
-@parametrize('{band}Lss{target}ObjMap', band=['LM', 'N'], target=['STD', 'SCI'])
-class LssObjMap(BandSpecificMixin, ImageDataItem, abstract=True):
+class LssObjMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_LSS_{target}_OBJ_MAP'
     _title_template = "{band} LSS {target} object map"
     _description_template = "Pixel map of object pixels (QC)"
@@ -34,7 +33,22 @@ class LssObjMap(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
 
-@parametrize('{band}Lss{target}SkyMap', band=['LM', 'N'], target=['STD', 'SCI'])
+class LmLssStdObjMap(BandLmMixin, TargetStdMixin, LssObjMap):
+    pass
+
+
+class NLssStdObjMap(BandNMixin, TargetStdMixin, LssObjMap):
+    pass
+
+
+class LmLssSciObjMap(BandLmMixin, TargetSciMixin, LssObjMap):
+    pass
+
+
+class NLssSciObjMap(BandNMixin, TargetSciMixin, LssObjMap):
+    pass
+
+
 class LssSkyMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_LSS_{target}_SKY_MAP'
     _title_template = "{band} LSS {target} sky map"
@@ -42,6 +56,22 @@ class LssSkyMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
+
+
+class LmLssStdSkyMap(BandLmMixin, TargetStdMixin, LssSkyMap):
+    pass
+
+
+class NLssStdSkyMap(BandNMixin, TargetStdMixin, LssSkyMap):
+    pass
+
+
+class LmLssSciSkyMap(BandLmMixin, TargetSciMixin, LssSkyMap):
+    pass
+
+
+class NLssSciSkyMap(BandNMixin, TargetSciMixin, LssSkyMap):
+    pass
 
 
 class LssSci1d(BandSpecificMixin, TableDataItem, abstract=True):
@@ -61,8 +91,6 @@ class NLssSci1d(BandNMixin, LssSci1d):
     pass
 
 
-
-@parametrize("{band}LssSci2d", band=['LM', 'N'])
 class LssSci2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_LSS_SCI_2D'
     _title_template = "{band} LSS 2D science spectrum"
@@ -70,6 +98,14 @@ class LssSci2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
+
+
+class LmLssSci2d(BandLmMixin, LssSci2d):
+    pass
+
+
+class NLssSci2d(BandNMixin, LssSci2d):
+    pass
 
 
 class LssSciFlux1d(BandSpecificMixin, TableDataItem, abstract=True):
@@ -92,7 +128,6 @@ class NLssSciFlux1d(BandNMixin, LssSciFlux1d):
     pass
 
 
-@parametrize("{band}LssSciFlux2d", band=['LM', 'N'])
 class LssSciFlux2d(BandSpecificMixin, ImageDataItem, abstract=True):
     """
     Final flux calibrated 1D spectrum of standard star
@@ -105,7 +140,14 @@ class LssSciFlux2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
 
-@parametrize("{band}LssSciFluxTellCorr1d", band=['LM', 'N'])
+class LmLssSciFlux2d(BandLmMixin, LssSciFlux2d):
+    pass
+
+
+class NLssSciFlux2d(BandNMixin, LssSciFlux2d):
+    pass
+
+
 class LssSciFluxTellCorr1d(BandSpecificMixin, TableDataItem, abstract=True):
     """
     Final flux calibrated, telluric corrected 1D spectrum of standard star
@@ -116,4 +158,12 @@ class LssSciFluxTellCorr1d(BandSpecificMixin, TableDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'DRS.SLIT'}
+
+
+class LmLssSciFluxTellCorr1d(BandLmMixin, LssSciFluxTellCorr1d):
+    pass
+
+
+class NLssSciFluxTellCorr1d(BandNMixin, LssSciFluxTellCorr1d):
+    pass
 

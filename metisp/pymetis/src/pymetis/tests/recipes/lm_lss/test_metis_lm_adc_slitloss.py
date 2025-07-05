@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.recipes.lm_lss.metis_lm_adc_slitloss import (MetisLmAdcSlitloss as Recipe,
-                                                      MetisLmAdcSlitlossImpl as Impl)
+                                                          MetisLmAdcSlitlossImpl as Impl)
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -38,13 +38,13 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProduct(BaseProductTest):
-    _product = Impl.ProductAdcSlitloss
+    Product = Impl.ProductAdcSlitloss
 

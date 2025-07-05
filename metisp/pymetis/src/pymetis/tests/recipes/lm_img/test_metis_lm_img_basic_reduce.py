@@ -40,7 +40,7 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
+    Recipe = Recipe
 
     @pytest.mark.pyesorex
     @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
@@ -49,7 +49,7 @@ class TestRecipe(BaseRecipeTest):
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProduct(BaseProductTest):

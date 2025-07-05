@@ -26,7 +26,7 @@ from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
 class SynthTrans(BandSpecificMixin, TableDataItem, abstract=True):
     _name_template = r'{band}_SYNTH_TRANS'
     _title_template = "{band} synthetic transmission"
-    _description_template = "Synthetic transmission used for default telluric correction of STD stars"
+    _description_template = "Synthetic {band} transmission used for default telluric correction of STD stars"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
 
@@ -45,7 +45,8 @@ class LssSynthTrans(BandSpecificMixin, TableDataItem, abstract=True):
     """
     _name_template = r'{band}_LSS_SYNTH_TRANS'
     _title_template = "{band} LSS synthetic transmision curve"
-    _description_template = "Synthetic transmission curve to be used for telluric correction of flux standard stars."
+    _description_template = ("Synthetic {band} transmission curve to be used"
+                             "for telluric correction of flux standard stars.")
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
 

@@ -27,7 +27,7 @@ from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisNAdcSlitlossImpl(MetisAdcSlitlossImpl):
-    class InputSet(BandNMixin, MetisAdcSlitlossImpl):
+    class InputSet(BandNMixin, MetisAdcSlitlossImpl.InputSet):
         pass
 
 

@@ -91,7 +91,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
-        Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
+        Msg.info(self.__class__.__qualname__, f"Detector name = {self.inputset.detector}")
 
         Msg.info(self.__class__.__qualname__, "Loading raw images")
         images = self.inputset.load_raw_images()

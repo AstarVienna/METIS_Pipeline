@@ -177,8 +177,8 @@ class PipelineInput:
     def _extended_description_line(cls, name: str = None) -> str:
         """ Produce ae extended description line for man page. """
         assert cls.Item is not None, f"{cls.__qualname__} has no item"
-        assert cls.Item.name() is not None, f"{cls.__qualname__} has no name"
-        assert cls.Item.description() is not None, f"{cls.__qualname__} has no description defined"
+        assert cls.Item.name() is not None, f"{cls.Item.__qualname__} has no name"
+        assert cls.Item.description() is not None, f"{cls.Item.__qualname__} has no description defined"
 
         return (f"    {cls.Item.name():<24}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
                 f" {cls.Item.description()}")

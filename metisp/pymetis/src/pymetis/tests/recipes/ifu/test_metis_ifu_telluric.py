@@ -40,11 +40,11 @@ def sof(name: str) -> str:
 
 class TestRecipe(TargetParamRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    _recipe = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProductFluxcalTab(BaseProductTest):

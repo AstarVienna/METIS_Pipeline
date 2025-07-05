@@ -38,21 +38,21 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProductLssCurve(BaseProductTest):
-    _product = Impl.ProductLssCurve
+    Product = Impl.ProductLssCurve
 
 
 class TestProductLssDistSol(BaseProductTest):
-    _product = Impl.ProductLssDistSol
+    Product = Impl.ProductLssDistSol
 
 
 class TestProductLssWaveGuess(BaseProductTest):
-    _product = Impl.ProductLssWaveGuess
+    Product = Impl.ProductLssWaveGuess
 

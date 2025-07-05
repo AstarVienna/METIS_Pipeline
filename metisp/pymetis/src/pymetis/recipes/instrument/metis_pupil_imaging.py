@@ -112,8 +112,6 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
-        Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
-
         flat = self.prepare_flat(flat, bias)
         images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)

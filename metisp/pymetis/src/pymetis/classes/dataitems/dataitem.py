@@ -69,19 +69,26 @@ class DataItem(ABC):
         """
         cls.__abstract = abstract
 
-        if not abstract:
+        if abstract:
+            Msg.debug(cls.__qualname__,
+                      f"Class is abstract, skipping registration")
+        else:
+            # If the class is fully specialized, add it to the registry
             assert cls.__regex_pattern.match(cls.name()) is not None, \
                 (f"Tried to register {cls.__name__} ({cls.name()}) which is not fully specialized "
                  f"(did you mean to set `abstract=True` in the class declaration?)")
 
             if cls.name().format in DataItem._registry:
+                # If the class is already registered, warn about it and do nothing
                 Msg.warning(cls.__qualname__,
                             f"A class with tag {cls.name()} is already registered: {DataItem._registry[cls.name()]}")
             else:
+                # Otherwise add it to the registry
                 Msg.debug(cls.__qualname__, f"Registered a new class {cls.name()}: {cls}")
                 DataItem._registry[cls.name()] = cls
 
         if description is not None:
+            # Override the description if available
             cls._description_template = description
 
         super().__init_subclass__(**kwargs)
@@ -99,6 +106,10 @@ class DataItem(ABC):
 
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
+        """
+        Return the tag parameters for this class.
+        By default, there are none, but mixins may add their own.
+        """
         return {}
 
     @classmethod
@@ -114,14 +125,10 @@ class DataItem(ABC):
     def name(cls) -> str:
         """
         Return the machine-oriented name of this data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
-        By default, it returns `_name`, but may be overridden to build the actual name from other attributes.
         """
         assert cls._name_template is not None, \
             f"{cls.__name__} name template is None"
-        try:
-            return cls._name_template.format(**cls.tag_parameters())
-        except:
-            print(cls._name_template)
+        return cls._name_template.format(**cls.tag_parameters())
 
     @classmethod
     @final

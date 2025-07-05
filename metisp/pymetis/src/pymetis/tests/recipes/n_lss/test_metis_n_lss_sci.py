@@ -38,38 +38,38 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl = Impl
+    Impl = Impl
 
 
 class TestProductLssSciObjMap(BaseProductTest):
-    _product = Impl.ProductLssSciObjMap
+    Product = Impl.ProductLssSciObjMap
 
 
 class TestProductLssSciSkyMap(BaseProductTest):
-    _product = Impl.ProductLssSciSkyMap
+    Product = Impl.ProductLssSciSkyMap
 
 
 class TestProductLssSci1d(BaseProductTest):
-    _product = Impl.ProductLssSci1d
+    Product = Impl.ProductLssSci1d
 
 
 class TestProductLssSci2d(BaseProductTest):
-    _product = Impl.ProductLssSci2d
+    Product = Impl.ProductLssSci2d
 
 
 class TestProductLssSciFlux1d(BaseProductTest):
-    _product = Impl.ProductLssSciFlux1d
+    Product = Impl.ProductLssSciFlux1d
 
 
 class TestProductLssSciFlux2d(BaseProductTest):
-    _product = Impl.ProductLssSciFlux2d
+    Product = Impl.ProductLssSciFlux2d
 
 
 class TestProductSciFluxTellCorr1d(BaseProductTest):
-    _product = Impl.ProductLssSciFluxTellCorr1d   # TODO: What about the 2d version?
+    Product = Impl.ProductLssSciFluxTellCorr1d   # TODO: What about the 2d version?
 
 
