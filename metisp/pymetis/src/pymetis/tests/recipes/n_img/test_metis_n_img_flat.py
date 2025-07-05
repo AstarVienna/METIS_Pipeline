@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.n_img.metis_n_img_flat import (MetisNImgFlat as Recipe,
                                                     MetisNImgFlatImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -41,7 +40,7 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    Recipe = Recipe
 
     @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
@@ -49,8 +48,8 @@ class TestRecipe(BaseRecipeTest):
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    Impl = Impl
 
 
 class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductMasterFlat
+    Product = Impl.ProductMasterFlat

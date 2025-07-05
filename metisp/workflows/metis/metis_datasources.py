@@ -45,17 +45,17 @@ lm_wcu_off_raw = (data_source()
             .build())
 
 lm_raw_science = (data_source()
-            .with_classification_rule(lm_raw_science_class)        
+            .with_classification_rule(lm_raw_science_class)
             .with_match_keywords(["instrume"])
             .build())
 
 lm_raw_sky = (data_source()
-            .with_classification_rule(lm_raw_sky_class)        
+            .with_classification_rule(lm_raw_sky_class)
             .with_match_keywords(["instrume"])
             .build())
 
 lm_raw_std = (data_source()
-            .with_classification_rule(lm_raw_std_class)        
+            .with_classification_rule(lm_raw_std_class)
             .with_match_keywords(["instrume"])
             .build())
 # ------- N BAND DATA SOURCES ---------

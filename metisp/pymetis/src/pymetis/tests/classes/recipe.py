@@ -40,7 +40,7 @@ class BaseRecipeTest(ABC):
     """
     Integration / regression tests for verifying that the recipe can be run
     """
-    _recipe: type[MetisRecipe] = None
+    Recipe: type[MetisRecipe] = None
 
     @pytest.fixture(autouse=True)
     def frameset(self, load_frameset, sof) -> cpl.ui.FrameSet:
@@ -53,29 +53,29 @@ class BaseRecipeTest(ABC):
 
     @pytest.mark.external
     def test_recipe_can_be_instantiated(self) -> None:
-        recipe = self._recipe()
+        recipe = self.Recipe()
         assert isinstance(recipe, cpl.ui.PyRecipe), \
             "Recipe is not a PyRecipe"
 
     @pytest.mark.external
     def test_recipe_can_be_run_directly(self, frameset) -> None:
-        recipe = self._recipe()
+        recipe = self.Recipe()
         assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet), \
             f"Recipe {recipe} did not return a FrameSet"
 
     @pytest.mark.metadata
     @pytest.mark.external
     def test_recipe_has_a_valid_as_dict(self, frameset) -> None:
-        recipe = self._recipe()
+        recipe = self.Recipe()
         recipe.run(frameset, {})
         out = pprint.pformat(recipe.implementation.as_dict(), width=200)
         assert isinstance(out, str), \
-            f"Recipe {recipe.name} did not return a valid as_dict"
+            f"Recipe {recipe.name} did not return a valid as_dict: {out}"
 
     @pytest.mark.pyesorex
     @pytest.mark.external
     def test_recipe_can_be_run_with_pyesorex(self, name, create_pyesorex) -> None:
-        pyesorex = create_pyesorex(self._recipe)
+        pyesorex = create_pyesorex(self.Recipe)
         assert isinstance(pyesorex.recipe, cpl.ui.PyRecipe), \
             "Recipe is not a cpl.ui.PyRecipe"
         assert pyesorex.recipe.name == name, \
@@ -99,7 +99,7 @@ class BaseRecipeTest(ABC):
     @pytest.mark.metadata
     def test_does_author_name_conform_to_standard(self) -> None:
         """Test whether the recipe author's name is in the standard format. TBD what that actually means."""
-        recipe = self._recipe()
+        recipe = self.Recipe()
         assert re.match(r"^([\w\- ]+, )?A\*$", recipe._author), \
             "Author name is not in the standard format"
 
@@ -107,7 +107,7 @@ class BaseRecipeTest(ABC):
     def test_uses_all_input_frames(self, frameset):
         """Test that the recipe uses all input frames."""
         # FixMe this currently does not actually track usage, just loading
-        instance = self._recipe()
+        instance = self.Recipe()
         instance.run(frameset, {})
         all_frames = set([frame.file for frame in instance.implementation.inputset.frameset])
         loaded_frames = set([frame.file for frame in instance.implementation.inputset.valid_frames])
@@ -116,36 +116,69 @@ class BaseRecipeTest(ABC):
 
     @pytest.mark.metadata
     def test_are_matched_keywords_defined(self):
-        assert self._recipe._matched_keywords is not None, \
-            f"Recipe {self._recipe._name} does not have matched keywords defined"
+        assert self.Recipe._matched_keywords is not None, \
+            f"Recipe {self.Recipe._name} does not have matched keywords defined"
 
     @pytest.mark.metadata
     def test_is_algorithm_described(self, create_pyesorex):
-        assert self._recipe._algorithm is not None, \
-            f"Recipe {self._recipe} does not have an algorithm description"
+        assert self.Recipe._algorithm is not None, \
+            f"Recipe {self.Recipe} does not have an algorithm description"
 
     @pytest.mark.metadata
     def test_all_parameters_have_correct_context(self):
-        for param in self._recipe.parameters:
-            assert param.context == self._recipe._name, \
-                f"Parameter context of {param.name} differs from recipe name {self._recipe._name}"
+        for param in self.Recipe.parameters:
+            assert param.context == self.Recipe._name, \
+                f"Parameter context of {param.name} differs from recipe name {self.Recipe._name}"
 
     @pytest.mark.metadata
     def test_all_parameters_name_starts_with_context(self):
-        for param in self._recipe.parameters:
-            assert param.name.startswith(self._recipe._name), \
-                f"Parameter name {param.name} does not start with {self._recipe._name}"
+        for param in self.Recipe.parameters:
+            assert param.name.startswith(self.Recipe._name), \
+                f"Parameter name {param.name} does not start with {self.Recipe._name}"
+
+    @pytest.mark.metadata
+    def test_can_display_manpage_directly(self):
+        recipe = self.Recipe()
+        assert recipe._build_description() is not None
+
+    def test_all_inputs(self, frameset):
+        """
+        Test that all inputs are valid. Note that this is an *instance* test, and depends on the data supplied.
+        """
+        recipe = self.Recipe()
+        recipe.run(frameset, {})
+        for inp in recipe.implementation.inputset.inputs:
+            item = inp.item()
+
+            assert item is not None, \
+                f"Input {inp} has no associated data item"
+
+            assert isinstance(item.name(), str), \
+                f"Data item {item.__qualname__} of {inp.__class__.__qualname__} does not have a name defined"
+
+            assert isinstance(item.title(), str), \
+                f"Data item {item.__qualname__} of {inp.__class__.__qualname__} does not have a title defined"
+
+            assert isinstance(item.description(), str), \
+                f"Data item {item.__qualname__} does not have a description defined"
+
+            assert isinstance(item.oca_keywords(), set), \
+                f"Data item {item.__qualname__} does not have OCA keywords attribute defined"
+
+            for kw in item.oca_keywords():
+                assert isinstance(kw, str), \
+                    f"Data item {item.__qualname__} has an invalid OCA keyword {kw}"
 
 
 class BandParamRecipeTest(BaseRecipeTest):
     """
     Tests for recipes whose SOFs also specify band parameters ("LM" | "N" | "IFU")
-    This is just a shorthand to parametrize them.
+    This is just a shorthand to parametrize them for all bands.
     """
     @pytest.mark.parametrize("band", BANDS)
     @pytest.mark.external
     def test_recipe_can_be_run_directly(self, load_frameset, band):
-        sof = f"{self._recipe._name}.{band}.sof"
+        sof = f"{self.Recipe._name}.{band}.sof"
         frameset = load_frameset(sof)
         super().test_recipe_can_be_run_directly(frameset)
 
@@ -153,7 +186,7 @@ class BandParamRecipeTest(BaseRecipeTest):
     @pytest.mark.parametrize("band", BANDS)
     @pytest.mark.external
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, band, create_pyesorex):
-        sof = f"{self._recipe._name}.{band}.sof"
+        sof = f"{self.Recipe._name}.{band}.sof"
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
 
 
@@ -165,7 +198,7 @@ class TargetParamRecipeTest(BaseRecipeTest):
     @pytest.mark.external
     @pytest.mark.parametrize("target", TARGETS)
     def test_recipe_can_be_run_directly(self, load_frameset, target):
-        sof = f"{self._recipe._name}.{target}.sof"
+        sof = f"{self.Recipe._name}.{target}.sof"
         frameset = load_frameset(sof)
         super().test_recipe_can_be_run_directly(frameset)
 
@@ -173,5 +206,5 @@ class TargetParamRecipeTest(BaseRecipeTest):
     @pytest.mark.external
     @pytest.mark.parametrize("target", TARGETS)
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, target, create_pyesorex):
-        sof = f"{self._recipe._name}.{target}.sof"
+        sof = f"{self.Recipe._name}.{target}.sof"
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)

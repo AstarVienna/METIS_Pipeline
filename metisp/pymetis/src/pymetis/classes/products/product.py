@@ -19,13 +19,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from __future__ import annotations
 
+import inspect
 import re
 
 from abc import ABC, abstractmethod
-from typing import Any, final
+from typing import Any, final, Generator
 
 import cpl
 from cpl.core import Msg
+from pyesorex.parameter import Parameter
+
+import pymetis
+from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.mixins.base import Mixin
 
 PIPELINE = r'METIS'
 
@@ -35,24 +41,21 @@ class PipelineProduct(ABC):
     The abstract base class for a pipeline product:
     one FITS file with associated headers and a frame
     """
-
-    # Global defaults for all Products
-    group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.PRODUCT
-    level: cpl.ui.Frame.FrameLevel = None
-    frame_type: cpl.ui.Frame.FrameType = None
+    Item: type[DataItem] = None
 
     # Product metadata.
     # The standard way of defining them is to override the private class attribute;
     # the default @classmethod with the same name (without the underscore) just returns its value.
     # If it depends on other attributes, override the corresponding @classmethod.
     # All methods dealing with these should relate to the **class**, not its instances!
-    _tag: str = None
-    _oca_keywords: set[str] = set()
-    _description: str = None
 
     # Use this regex to verify that the product tag is correct.
     # This base version only verifies it is ALL_CAPS_WITH_UNDERSCORES, feel free to override
     _regex_tag: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
+
+    @classmethod
+    def item(cls) -> type[DataItem]:
+        return cls.Item
 
     def __init__(self,
                  recipe_impl: 'MetisRecipeImpl',
@@ -69,16 +72,13 @@ class PipelineProduct(ABC):
         self._used_frames: cpl.ui.FrameSet | None = None
 
         # Raise a `NotImplementedError` in case a derived class forgot to set a class attribute
-        if self.tag is None:
-            raise NotImplementedError(f"Products must define 'tag', but {self.__class__.__qualname__} does not")
-
-        if self.group is None:
+        if self.Item.frame_group is None:
             raise NotImplementedError(f"Products must define 'group', but {self.__class__.__qualname__} does not")
 
-        if self.level is None:
+        if self.Item.frame_level is None:
             raise NotImplementedError(f"Products must define 'level', but {self.__class__.__qualname__} does not")
 
-        if self.frame_type is None:
+        if self.Item.frame_type is None:
             raise NotImplementedError(f"Products must define 'frame_type', but {self.__class__.__qualname__} does not")
 
         if self.category is None:
@@ -103,12 +103,21 @@ class PipelineProduct(ABC):
 
     def as_frame(self) -> cpl.ui.Frame:
         """ Create a CPL Frame from this Product """
+        assert self.Item.frame_level() is not None, \
+            f"Data item {self.Item.__qualname__} does not define a frame level"
+
+        assert self.Item.frame_type() is not None, \
+            f"Data item {self.Item.__qualname__} does not define a frame type"
+
+        assert self.Item.frame_group() is not None, \
+            f"Data item {self.Item.__qualname__} does not define a frame group"
+
         return cpl.ui.Frame(
             file=self.output_file_name,
             tag=self.tag(),
-            group=self.group,
-            level=self.level,
-            frameType=self.frame_type,
+            group=self.Item.frame_group(),
+            level=self.Item.frame_level(),
+            frameType=self.Item.frame_type(),
         )
 
     def as_dict(self) -> dict[str, Any]:
@@ -117,8 +126,9 @@ class PipelineProduct(ABC):
         """
         return {
             'tag': self.tag(),
-            'group': self.group,
-            'level': self.level,
+            'group': self.Item.frame_group(),
+            'level': self.Item.frame_level(),
+            'type': self.Item.frame_type(),
         }
 
     @final
@@ -141,13 +151,15 @@ class PipelineProduct(ABC):
             f"Invalid {self.__class__.__qualname__} product tag '{self.tag()}'"
 
         # At least one frame in the recipe frameset must be tagged as RAW!
-        # Otherwise, PyCPL **will not** save (rite of passage problem)
-        self.save_files()
+        # Otherwise, PyCPL **will not** save (rite-of-passage problem)
+
+        parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in self.recipe.parameters])
+        self.save_files(parameters)
 
     @abstractmethod
-    def save_files(self) -> None:
+    def save_files(self, parameters: cpl.ui.ParameterList) -> None:
         """
-        Actually save the files. This is only a hook for derived classes.
+        Actually save the files. This is only a hook for derived classes and must be implemented.
         """
         pass
 
@@ -159,7 +171,7 @@ class PipelineProduct(ABC):
         By default, the tag is the same as the category.
         Feel free to override if needed.
         """
-        return self.tag()
+        return self.item().name()
 
     @property
     def output_file_name(self) -> str:
@@ -194,22 +206,37 @@ class PipelineProduct(ABC):
         str
             The tag of this product.
         """
-        return cls._tag
-
-    @classmethod
-    def description(cls) -> str:
-        """
-        Returns
-        -------
-        str
-            An unformatted description of this product.
-        """
-        return cls._description
+        return cls.item().name()
 
     @classmethod
     @final
-    def description_line(cls) -> str:
+    def _description_line(cls, name: str = None) -> str:
         """
-        Generate a line for 'pyesorex --man-page' with the description of the recipe.
+        Generate a description line for 'pyesorex --man-page'.
         """
-        return f"    {cls.tag():<76s}{cls.description() or '<no description defined>'}"
+        return f"    {cls.tag():<76s}{cls.item().description() or '<no description defined>'}"
+
+
+    @classmethod
+    def product_of_recipes(cls) -> Generator['PipelineRecipe', None, None]:
+        """
+        List all PipelineRecipe classes that use this Product.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in inspect.getmembers(
+            pymetis.recipes,
+            lambda x: inspect.isclass(x) and x.implementation_class is not None
+        ):
+            for (n, kls) in inspect.getmembers(klass.implementation_class, lambda x: inspect.isclass(x)):
+                if issubclass(kls, cls):
+                    yield klass
+
+    #def promote(self, *mixins: type[Mixin]):
+    #    """
+    #    Mix in the mixin classes and promote the item
+    #    """
+    #    promoted = type(rf'{self.Item}', tuple(list(mixins) + [self.Item]), {})
+    #    self.Item.__class__ = promoted
+
+

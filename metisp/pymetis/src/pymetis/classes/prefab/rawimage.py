@@ -80,7 +80,3 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
                 raise ValueError(f"Unknown stacking method {method!r}")
 
         return combined_image
-
-    @property
-    def detector(self) -> str:
-        return self.inputset.detector
