@@ -38,7 +38,7 @@ class PipelineMultipleProduct(PipelineProduct):
         for key, ext in self.extensions.items():
             self.__setattr__(key, ext)
 
-    def save_files(self, parameters: cpl.ui.ParameterList) -> None:
+    def save_files(self, parameters: ParameterList) -> None:
         cpl.dfs.save_propertylist(
             self.recipe.frameset,
             parameters,

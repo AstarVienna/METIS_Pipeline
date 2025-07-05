@@ -222,8 +222,6 @@ def locate_pinhole(cimg: cpl.core.Image, hwidth: int):
     # over the image
     flux = cimg.get_flux(win)
     noise = cimg.get_stdev() * 2 * hwidth
-    print("FLUX:", flux)
-    print("NOISE:", noise)
 
     result = {"xcen": xcen, "ycen": ycen, "fwhm_x": fwhm_x, "fwhm_y": fwhm_y,
               "snr": flux / noise}

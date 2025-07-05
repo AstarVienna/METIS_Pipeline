@@ -27,6 +27,7 @@ from pymetis.classes.dataitems.lss.response import MasterResponse, StdTransmissi
 from pymetis.classes.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.classes.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, \
     LssSciFlux2d, LssSciFluxTellCorr1d
+from pymetis.classes.dataitems.lss.std import AoPsfModel
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
     LinearityInputSetMixin, SinglePipelineInput
 from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin, LsfKernelInputSetMixin
@@ -35,7 +36,7 @@ from pymetis.classes.prefab import DarkImageProcessor
 
 class MetisLssSciImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-                   AtmLineCatInputSetMixin, LsfKernelInputSetMixin,
+                   AtmLineCatInputSetMixin,
                    DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssSciRaw
@@ -57,6 +58,10 @@ class MetisLssSciImpl(DarkImageProcessor):
 
         class MasterAdcSlitlossInput(SinglePipelineInput):
             Item = AdcSlitloss
+
+        class MasterAoPsfModel(SinglePipelineInput):
+            Item = AoPsfModel
+
 
         # --------------------------------------------------------------------
         # TODO:
@@ -87,7 +92,7 @@ class MetisLssSciImpl(DarkImageProcessor):
         """do something more fancy in the future"""
         # Load raw image
         sci_raw_hdr = cpl.core.PropertyList()
-        sci_raw_images = self.inputset.load_raw_images(self.inputset.raw.frameset)
+        sci_raw_images = self.inputset.load_raw_images()
 
         """Create dummy file (should do something more fancy in the future)"""
         header = self._create_dummy_header()

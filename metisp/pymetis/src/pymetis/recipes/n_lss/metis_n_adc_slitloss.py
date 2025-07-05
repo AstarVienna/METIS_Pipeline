@@ -18,8 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 # TODO: Check the need for WCU_OFF frames!
-
-import cpl
+from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.mixins import BandNMixin
 from pymetis.classes.prefab.lss.adc import MetisAdcSlitlossImpl
@@ -32,12 +31,6 @@ class MetisNAdcSlitlossImpl(MetisAdcSlitlossImpl):
 
 
 class MetisNAdcSlitloss(MetisRecipe):
-    # The information about the recipe needs to be set. The base class
-    # cpl.ui.PyRecipe provides the class variables to be set.
-    # The recipe name must be unique, because it is this name which is
-    # used to identify a particular recipe among all installed recipes.
-    # The name of the python source file where this class is defined
-    # is not at all used in this context.
     _name: str = "metis_n_adc_slitloss"
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"
@@ -74,8 +67,8 @@ class MetisNAdcSlitloss(MetisRecipe):
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # TODO: Implement real parameters
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}parameter1",
             context=_name,
             description="Description of parameter 1",

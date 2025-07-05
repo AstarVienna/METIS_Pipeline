@@ -26,7 +26,7 @@ from typing import Optional, Generator, final
 import cpl
 
 from cpl.core import Msg, abstractmethod
-from pyesorex.parameter import Parameter
+from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
 
@@ -251,7 +251,7 @@ class DataItem(ABC):
     @abstractmethod
     def save(self,
              recipe: 'PipelineRecipeImpl',
-             parameters: cpl.ui.ParameterList,
+             parameters: ParameterList,
              *,
              output_file_name: str = None) -> None:
         """ Save the data item to file. Implementation depends on the type of the data. """
@@ -347,11 +347,14 @@ class ImageDataItem(DataItem, abstract=True):
 
     def save(self,
              recipe: 'PipelineRecipeImpl',
-             parameters: cpl.ui.ParameterList,
+             parameters: ParameterList,
              *,
              output_file_name: str = None) -> None:
 
         parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+
+        assert isinstance(self.image, cpl.core.Image), \
+            f"Attribute `{self}.image` is not an image, but {type(self.image)}"
 
         cpl.dfs.save_image(
             recipe.frameset,  # All frames for the recipe
@@ -372,15 +375,18 @@ class TableDataItem(DataItem, abstract=True):
                  header: cpl.core.PropertyList,
                  frame: cpl.ui.Frame):
         super().__init__(header, frame)
-        self.table: cpl.core.Table = cpl.core.Table.empty(3)
+        self.table: cpl.core.Table = cpl.core.Table.empty(3) # ToDo Change this
 
     def save(self,
              recipe: 'PipelineRecipe',
-             parameters: cpl.ui.ParameterList,
+             parameters: ParameterList,
              *,
              output_file_name: str = None) -> None:
 
         parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+
+        assert isinstance(self.table, cpl.core.Table), \
+            f"Attribute `{self}.table` is not a table, but {type(self.table)}"
 
         cpl.dfs.save_table(
             recipe.frameset,  # All frames for the recipe

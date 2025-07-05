@@ -30,15 +30,14 @@ from pymetis.classes.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
 from pymetis.classes.dataitems.lss.trace import LssTrace
 from pymetis.classes.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, MasterDarkInput, BadPixMapInputSetMixin, \
-    GainMapInputSetMixin, SinglePipelineInput, FluxstdCatalogInput
+    GainMapInputSetMixin, SinglePipelineInput, FluxstdCatalogInput, LinearityInputSetMixin
 from pymetis.classes.inputs.mixins import LsfKernelInputSetMixin, AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
 
 
 class MetisLssStdImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LsfKernelInputSetMixin,
-                   AtmLineCatInputSetMixin,
-                   DarkImageProcessor.InputSet):
+    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
+                   AtmLineCatInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssStdRaw
 
@@ -85,26 +84,26 @@ class MetisLssStdImpl(DarkImageProcessor):
     def process(self) -> set[DataItem]:
         # Load raw image
         std_raw_hdr = cpl.core.PropertyList()
-        raw_images = self.load_images(self.inputset.raw.frameset)
+        raw_images = self.inputset.load_raw_images()
 
         """Create dummy file (should do something more fancy in the future)"""
         # header = self._create_dummy_header()
         # PipelineImageProducts
-        ProductLmLssStdObjMapHdr = self._create_dummy_header()
-        ProductLmLssStdSkyMapHdr = self._create_dummy_header()
+        ProductLssStdObjMapHdr = self._create_dummy_header()
+        ProductLssStdSkyMapHdr = self._create_dummy_header()
         image = self._create_dummy_image()
 
         # PipelineTableProducts
-        ProductMasterLmResponseHdr = self._create_dummy_header()
+        ProductMasterResponseHdr = self._create_dummy_header()
         ProductStdTransmissionHdr = self._create_dummy_header()
-        ProductLmLssStd1dHdr = self._create_dummy_header()
+        ProductLssStd1dHdr = self._create_dummy_header()
         table = self._create_dummy_table()
 
         # Write files
         return {
-            self.ProductMasterLmResponse(ProductMasterLmResponseHdr, image),
-            self.ProductStdTransmission(ProductStdTransmissionHdr, image),
-            self.ProductLmLssStd1d(ProductLmLssStd1dHdr, image),
-            self.ProductLmLssStdObjMap(ProductLmLssStdObjMapHdr, image),
-            self.ProductLmLssStdSkyMap(ProductLmLssStdSkyMapHdr, image),
+            self.ProductMasterResponse(ProductMasterResponseHdr, table),
+            self.ProductStdTransmission(ProductStdTransmissionHdr, table),
+            self.ProductLssStd1d(ProductLssStd1dHdr, table),
+            self.ProductLssStdObjMap(ProductLssStdObjMapHdr, image),
+            self.ProductLssStdSkyMap(ProductLssStdSkyMapHdr, image),
         }

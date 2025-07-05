@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+# TODO: Check the need for WCU_OFF frames!
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.mixins import BandLmMixin
@@ -29,8 +30,6 @@ class MetisLmAdcSlitlossImpl(MetisAdcSlitlossImpl):
         pass
 
 
-# Define recipe main function as a class which inherits from
-# the PyCPL class cpl.ui.PyRecipe
 class MetisLmAdcSlitloss(MetisRecipe):
     _name: str = "metis_lm_adc_slitloss"
     _version: str = "0.1"
@@ -41,7 +40,7 @@ class MetisLmAdcSlitloss(MetisRecipe):
     _description: str = """\
     Determines ADC slitlosses
 
-    Remark: Recipe not welldefined as actual algorithm not well defined (cf. DRLD, Calib plan)
+    Remark: Recipe not well-defined as actual algorithm not well defined (cf. DRLD, Calib plan)
 
     Inputs
         LM_ADC_SLITLOSS_RAW: Raw SLITLOSS images [1-n]  ***TBD***

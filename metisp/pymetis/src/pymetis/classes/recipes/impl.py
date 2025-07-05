@@ -76,7 +76,6 @@ class MetisRecipeImpl(ABC):
 
         for name, item in self.list_product_classes():
             # Try to find a promoted class in the registry
-            print(item, item._name_template, parameters)
             if (new_class := DataItem.find(tag := item._name_template.format(**parameters))) is None:
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:

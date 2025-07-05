@@ -153,11 +153,11 @@ class PipelineProduct(ABC):
         # At least one frame in the recipe frameset must be tagged as RAW!
         # Otherwise, PyCPL **will not** save (rite-of-passage problem)
 
-        parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in self.recipe.parameters])
+        parameters = ParameterList([Parameter.to_cplui(p) for p in self.recipe.parameters])
         self.save_files(parameters)
 
     @abstractmethod
-    def save_files(self, parameters: cpl.ui.ParameterList) -> None:
+    def save_files(self, parameters: ParameterList) -> None:
         """
         Actually save the files. This is only a hook for derived classes and must be implemented.
         """

@@ -31,3 +31,4 @@ class MfBestFitTable(TableDataItem):
     _description_template = "Table with best-fit parameters for calctrans."
     # TODO: Check whether the new mf writes out the best-fit param file
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB

@@ -20,12 +20,14 @@ from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.adc.adc import AdcSlitloss, AdcSlitlossRaw
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, \
     BadPixMapInputSetMixin, RawInput
-from pymetis.classes.prefab import RawImageProcessor
+from pymetis.classes.inputs.mixins import WcuOffInputSetMixin
+from pymetis.classes.prefab import DarkImageProcessor
 
 
-class MetisAdcSlitlossImpl(RawImageProcessor):
+class MetisAdcSlitlossImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, BadPixMapInputSetMixin,
-                   RawImageProcessor.InputSet):
+                   WcuOffInputSetMixin,
+                   DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = AdcSlitlossRaw
 

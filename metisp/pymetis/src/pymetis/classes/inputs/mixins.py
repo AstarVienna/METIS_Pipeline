@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from .inputset import PipelineInputSet
 from .common import (PersistenceMapInput, GainMapInput, LinearityInput, BadPixMapInput,
-                     AtmLineCatInput, AtmProfileInput, LsfKernelInput)
+                     AtmLineCatInput, AtmProfileInput, LsfKernelInput, WcuOffInput)
 
 
 class PersistenceInputSetMixin(PipelineInputSet):
@@ -48,3 +48,7 @@ class AtmProfileInputSetMixin(PipelineInputSet):
 
 class LsfKernelInputSetMixin(PipelineInputSet):
     LsfKernelInput = LsfKernelInput
+
+
+class WcuOffInputSetMixin(PipelineInputSet):
+    WcuOffInput = WcuOffInput
