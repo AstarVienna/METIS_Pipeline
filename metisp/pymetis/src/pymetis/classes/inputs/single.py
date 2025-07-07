@@ -34,15 +34,18 @@ class SinglePipelineInput(PipelineInput):
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):                       # Any other args
-
         self.frame: cpl.ui.Frame | None = None
         super().__init__(frameset)
 
     def load_inner(self, frameset: cpl.ui.FrameSet):
+        """
+        Load the associated frames.
+        A SinglePipelineInput verifies there is exactly one matched frame.
+        """
         Msg.debug(self.__class__.__qualname__, f"Loading {frameset}")
         if len(frameset) > 1:
             Msg.warning(self.__class__.__name__,
-                        f"Expected {self._multiplicity} frames, but found {len(frameset)}!")
+                        f"Expected a single frame, but found {len(frameset)} of them!")
         else:
             Msg.debug(self.__class__.__name__,
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")

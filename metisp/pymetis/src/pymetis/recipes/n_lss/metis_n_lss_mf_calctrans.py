@@ -76,4 +76,4 @@ class MetisNLssMfCalctrans(MetisRecipe):
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
-    implementation_class = MetisNLssMfCalctransImpl
+    Impl = MetisNLssMfCalctransImpl

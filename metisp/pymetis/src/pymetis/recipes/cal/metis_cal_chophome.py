@@ -177,7 +177,7 @@ class MetisCalChophome(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisCalChophomeImpl
+    Impl = MetisCalChophomeImpl
 
 
 def locate_pinhole(cimg: cpl.core.Image, hwidth: int):

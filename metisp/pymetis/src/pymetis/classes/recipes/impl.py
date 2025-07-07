@@ -62,7 +62,7 @@ class MetisRecipeImpl(ABC):
         self.frameset: cpl.ui.FrameSet = frameset
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
         self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
-        self.promote(**self.inputset.tag_parameters)
+        self.promote(**self.inputset.tag_matches)
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
 
@@ -80,7 +80,8 @@ class MetisRecipeImpl(ABC):
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:
                 Msg.info(self.__class__.__qualname__,
-                         f"Promoting {item.__qualname__} to {new_class.__qualname__}")
+                         f"Promoting {item.__qualname__} ({item.name()}) "
+                         f"to {new_class.__qualname__} ({new_class.name()})")
 
             # Replace the product attribute with the new class
             self.__class__.__setattr__(self, name, new_class)
@@ -218,36 +219,6 @@ class MetisRecipeImpl(ABC):
     def used_frames(self) -> cpl.ui.FrameSet:
         return self.inputset.used_frames
 
-    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
-        """
-        Return the actual implementation class **when the frameset is already available**, e.g. at runtime.
-        The base implementation just returns its own class, so nothing happens,
-        but more complex recipes may need to select the appropriate derived class based on the input data.
-
-        Typical use is to accomodate for different implementations for
-            - multiple detectors (2RG|GEO|IFU)
-            - different targets (STD|SCI)
-            - different bands (LM|N)
-        or similar.
-
-        It should be something along these lines:
-        ```
-        return {
-            'STD': ChildClassStd,
-            'SCI': ChildClassSci,
-        }[self.inputset.target]
-        ```
-        or use a proper match ... case ... structure if appropriate.
-        """
-        return self.__class__
-
     @classmethod
     def list_product_classes(cls) -> list[tuple[str, type[DataItem]]]:
         return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, DataItem))
-
-    #def promote(self, *mixins):
-    #    self.inputset.promote(*mixins)
-
-    #    for prod in self.list_products():
-    #        prod.promote(*mixins)
-

@@ -18,12 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import inspect
-import re
 from abc import abstractmethod
-from typing import Pattern, Any, Optional, Generator, final
+from typing import Any, Optional, Generator, final
 
 import cpl
-
 from cpl.core import Msg
 
 import pymetis
@@ -201,8 +199,8 @@ class PipelineInput:
         """
         for (name, klass) in inspect.getmembers(
             pymetis.recipes,
-            lambda x: inspect.isclass(x) and x.implementation_class.InputSet is not None
+            lambda x: inspect.isclass(x) and x.Impl.InputSet is not None
         ):
-            for (n, kls) in inspect.getmembers(klass.implementation_class.InputSet, lambda x: inspect.isclass(x)):
+            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
                 if issubclass(kls, cls):
                     yield klass

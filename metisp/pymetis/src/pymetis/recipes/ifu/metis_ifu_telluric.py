@@ -118,4 +118,4 @@ class MetisIfuTelluric(MetisRecipe):
     Compute conversion to physical units as function of wave-length."""
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
-    implementation_class = MetisIfuTelluricImpl
+    Impl = MetisIfuTelluricImpl

@@ -17,11 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-class Mixin:
+class Parametrizable:
     """
     Base class for all pipeline Mixins.
     """
 
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
-        return super().tag_parameters()
+        return {}
+
+

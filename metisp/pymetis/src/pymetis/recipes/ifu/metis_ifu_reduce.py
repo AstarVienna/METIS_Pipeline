@@ -87,4 +87,4 @@ class MetisIfuReduce(MetisRecipe):
     Rectify spectra and assemble cube
     Extract 1D object spectrum"""
 
-    implementation_class = MetisIfuReduceImpl
+    Impl = MetisIfuReduceImpl

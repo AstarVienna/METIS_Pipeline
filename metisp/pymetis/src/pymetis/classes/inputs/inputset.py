@@ -17,9 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import functools
 import inspect
-import operator
 import re
 
 from abc import ABC
@@ -30,9 +28,10 @@ from cpl.core import Msg
 
 from pymetis.classes.inputs.base import PipelineInput
 from pymetis.classes.mixins import TargetSpecificMixin, SourceSpecificMixin, BandSpecificMixin, DetectorSpecificMixin
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class PipelineInputSet(ABC):
+class PipelineInputSet(Parametrizable, ABC):
     """
     The `PipelineInputSet` class is a utility class for a recipe dealing with the input data.
     It reads and filters the input FrameSet, categorizes the frames by their metadata,
@@ -47,9 +46,6 @@ class PipelineInputSet(ABC):
     between the classes -- it is just a namespacing convention.
     """
 
-    detector: str = NotImplemented
-    band: str = NotImplemented
-
     def __init__(self, frameset: cpl.ui.FrameSet):
         """
             Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
@@ -58,7 +54,9 @@ class PipelineInputSet(ABC):
         """
         self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
         self.frameset: cpl.ui.FrameSet = frameset
-        self.tag_parameters: dict[str, str] = {}
+
+        # Tag parameter matching this instance of InputSet. Might come from DataItem matches or hard-coded from mixins.
+        self.tag_matches: dict[str, str] = {}
 
         # Regex: remove final "Input" from the name of the class...
         cut_input = re.compile(r'Input$')
@@ -86,7 +84,8 @@ class PipelineInputSet(ABC):
             - parse the tag parameters
                 - and assign their values as attributes of the inputset
         """
-        Msg.debug(self.__class__.__qualname__, f"Validating the inputset {self.inputs}")
+        Msg.debug(self.__class__.__qualname__,
+                  f"Validating the inputset {self.inputs}")
 
         if len(self.inputs) == 0:
             raise NotImplementedError("PipelineInputSet must define at least one input.")
@@ -102,7 +101,7 @@ class PipelineInputSet(ABC):
         ]:
             self._validate_attr(lambda x: x.Item.tag_parameters()[attr] if issubclass(x.Item, klass) else None, attr)
 
-    def _validate_attr(self, func: Callable, attr: str) -> Optional[str]:
+    def _validate_attr(self, _func: Callable, attr: str) -> Optional[str]:
         """
         Helper method: validate the input attribute (detector, band, source or target).
 
@@ -113,23 +112,29 @@ class PipelineInputSet(ABC):
             ValueError if the attribute has multiple different values.
         """
         Msg.debug(self.__class__.__qualname__, f"--- Validating the {attr} parameters ---")
-        total = list(set([func(inp) for inp in self.inputs]) - {None})
+
+        self.tag_matches[attr] = self.tag_parameters()[attr] if attr in self.tag_parameters() else None
+
+        total = list(set([_func(inp) for inp in self.inputs]) - {None})
 
         for inp in self.inputs:
-            value = func(inp)
+            value = _func(inp)
             det = "---" if value is None else value
             Msg.debug(self.__class__.__qualname__,
-                      f"{attr} in {inp.__class__.__qualname__:<50} {det}")
+                      f"{attr:<15s} in {inp.__class__.__qualname__:<30} {det}")
 
         if (count := len(total)) == 0:
+            # If there are no identifiable tag parameters, just emit a message
             Msg.debug(self.__class__.__qualname__,
                       f"No {attr} could be identified from the SOF")
         elif count == 1:
+            # If there is exactly one unique value, the input is consistent, so set it as an InputSet tag parameter
             result = total[0]
             Msg.debug(self.__class__.__qualname__,
                       f"Correctly identified {attr} from the SOF: {result}")
-            self.tag_parameters[attr] = result
+            self.tag_matches[attr] = result
         else:
+            # If there is more than one unique value, the input is inconsistent, raise an exception
             raise ValueError(f"Data from more than one {attr} found in inputset: {total}!")
 
     def print_debug(self, *, offset: int = 0) -> None:

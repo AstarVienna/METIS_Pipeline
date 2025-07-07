@@ -81,4 +81,4 @@ class MetisNImgDistortion(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisNImgDistortionImpl
+    Impl = MetisNImgDistortionImpl

@@ -70,4 +70,4 @@ class MetisIfuPostprocess(MetisRecipe):
     Call metis_ifu_resampling to resample input cubes to output grid
     Call metis_ifu_coadd to stack the images"""
 
-    implementation_class = MetisIfuPostprocessImpl
+    Impl = MetisIfuPostprocessImpl

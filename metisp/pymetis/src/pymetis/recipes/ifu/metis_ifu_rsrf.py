@@ -389,4 +389,4 @@ class MetisIfuRsrf(MetisRecipe):
         ),
     ])
 
-    implementation_class: type[MetisRecipeImpl] = MetisIfuRsrfImpl
+    Impl: type[MetisRecipeImpl] = MetisIfuRsrfImpl

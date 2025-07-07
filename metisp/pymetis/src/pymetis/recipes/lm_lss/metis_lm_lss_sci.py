@@ -93,4 +93,4 @@ class MetisLmLssSci(MetisRecipe):
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
-    implementation_class = MetisLmLssSciImpl
+    Impl = MetisLmLssSciImpl

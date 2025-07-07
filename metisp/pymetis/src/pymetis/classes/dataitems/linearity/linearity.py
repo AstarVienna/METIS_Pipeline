@@ -26,13 +26,10 @@ from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, Dete
 class LinearityMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'LINEARITY_{detector}'
     _title_template = r'{detector} linearity'
+    _description_template = "Coefficients for the pixel {detector} non-linearity correction"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
-
-    @classmethod
-    def description(cls):
-        return r"Coefficients for the pixel {detector} non-linearity correction"
 
 
 class LinearityMap2rg(Detector2rgMixin, LinearityMap):

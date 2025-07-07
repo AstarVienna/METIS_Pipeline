@@ -112,6 +112,17 @@ class DataItem(ABC):
         """
         return {}
 
+    @staticmethod
+    def __replace_empty_tags(**parameters):
+        """
+        Replace all `None` parameters with placeholders.
+        Intended for human-readable output in not-fully-specialized recipes, such as man pages.
+        For instance, `MASTER_DARK_{detector}` gets rendered literally as "MASTER_DARK_{detector}".
+
+        ToDo: Change to proper t-strings when Python 3.14 is supported.
+        """
+        return {key: (f'{{{key}}}' if value is None else value) for key, value in parameters.items()}
+
     @classmethod
     def title(cls) -> str:
         """
@@ -119,7 +130,7 @@ class DataItem(ABC):
         """
         assert cls._title_template is not None, \
             f"{cls.__name__} title template is None"
-        return cls._title_template.format(**cls.tag_parameters())
+        return cls._title_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
 
     @classmethod
     def name(cls) -> str:
@@ -128,7 +139,7 @@ class DataItem(ABC):
         """
         assert cls._name_template is not None, \
             f"{cls.__name__} name template is None"
-        return cls._name_template.format(**cls.tag_parameters())
+        return cls._name_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
 
     @classmethod
     @final
@@ -163,10 +174,7 @@ class DataItem(ABC):
         """
         assert cls._description_template is not None, \
             f"{cls.__name__} description template is None"
-        try:
-            return cls._description_template.format(**cls.tag_parameters())
-        except KeyError:
-            return cls._description_template
+        return cls._description_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
 
     @classmethod
     def oca_keywords(cls):
@@ -305,9 +313,9 @@ class DataItem(ABC):
         """
         for (name, klass) in inspect.getmembers(
                 pymetis.recipes,
-                lambda x: inspect.isclass(x) and x.implementation_class.InputSet is not None
+                lambda x: inspect.isclass(x) and x.Impl.InputSet is not None
         ):
-            for (n, kls) in inspect.getmembers(klass.implementation_class.InputSet, lambda x: inspect.isclass(x)):
+            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
                 if issubclass(kls, cls):
                     yield klass
 
@@ -320,9 +328,9 @@ class DataItem(ABC):
         """
         for (name, klass) in inspect.getmembers(
                 pymetis.recipes,
-                lambda x: inspect.isclass(x) and x.implementation_class is not None
+                lambda x: inspect.isclass(x) and x.Impl is not None
         ):
-            for (n, kls) in inspect.getmembers(klass.implementation_class, lambda x: inspect.isclass(x)):
+            for (n, kls) in inspect.getmembers(klass.Impl, lambda x: inspect.isclass(x)):
                 if issubclass(kls, cls):
                     yield klass
 
@@ -332,7 +340,7 @@ class DataItem(ABC):
         """
         Generate a description line for 'pyesorex --man-page'.
         """
-        return (f"    {name}\n      {cls.description() or '<no description defined>'}"
+        return (f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
                 f"\n{' ' * 84}"
                 f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
 

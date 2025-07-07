@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Any
+from typing import Any, Optional
 
 import cpl
 
@@ -34,7 +34,7 @@ class MultiplePipelineInput(PipelineInput):
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):
-        self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
+        self.frameset: Optional[cpl.ui.FrameSet] = cpl.ui.FrameSet()
         super().__init__(frameset)
 
     def load_inner(self, frameset: cpl.ui.FrameSet):
@@ -61,16 +61,17 @@ class MultiplePipelineInput(PipelineInput):
         self.frameset = frameset
 
     def validate(self):
-        self._verify_frameset_not_empty()
+        self._verify_frameset_is_not_empty()
         self._verify_same_detector()
 
-    def _verify_frameset_not_empty(self) -> None:
+    def _verify_frameset_is_not_empty(self) -> None:
         """
-        Verification shorthand: if a required frameset is not present or empty,
+        Verification shorthand.
+
+        If a required frameset is not present or empty,
         raise a `cpl.core.DataNotFoundError` with the appropriate message.
 
-        Raises
-        ------
+        :raises:
         cpl.core.DataNotFoundError:
             If the input is required but the frameset is empty
         """
@@ -95,11 +96,6 @@ class MultiplePipelineInput(PipelineInput):
             If the found detector name is not a valid detector name
         ValueError
             If dark frames from more than one detector are found
-
-        Returns
-        -------
-        None:
-            None on success
         """
 
     def as_dict(self) -> dict[str, Any]:
@@ -116,5 +112,6 @@ class MultiplePipelineInput(PipelineInput):
 
         # FixMe: currently returns everything, but should only return valid frames.
         :return:
+            cpl.ui.FrameSet : a list of valid frames
         """
         return self.frameset

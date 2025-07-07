@@ -75,4 +75,4 @@ class MetisIfuDistortion(MetisRecipe):
     _matched_keywords = {'DRS.IFU'}
     _algorithm = """Calculate table mapping pixel position to position on sky."""
 
-    implementation_class = MetisIfuDistortionImpl
+    Impl = MetisIfuDistortionImpl

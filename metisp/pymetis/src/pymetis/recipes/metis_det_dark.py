@@ -41,7 +41,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     # namely `RawImageProcessor, as this recipe processes raw images and we would like to reuse the functionality.
 
     # First of all, we need to define the input set. Since we are deriving from `RawImageProcessor`,
-    # we need to reuse the `InputSet` class from it too. This automatically adds a `RawInput` for us.
+    # we mayreuse the `InputSet` class from it too. This automatically adds a `RawInput` for us.
     class InputSet(RawImageProcessor.InputSet):
         """
         InputSet class for `metis_det_dark`.
@@ -107,9 +107,9 @@ class MetisDetDark(MetisRecipe):
     # for the man page. Later, we would like to be able to compare them directly to DRLD and test for that.
     _matched_keywords = set()
     _algorithm = """
-        - Group files by detector and DIT, based on header keywords
-        - Call function metis_determine_dark for each set of files
-        - Call metis_update_dark_mask to flag deviant pixels
+        - Group files by detector and `DIT`, based on header keywords
+        - Call function `metis_determine_dark` for each set of files
+        - Call `metis_update_dark_mask` to flag deviant pixels
     """
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
@@ -125,4 +125,4 @@ class MetisDetDark(MetisRecipe):
 
     # Point the `implementation_class` to the *top* class of your recipe hierarchy.
     # All promotions should happen at instantiation time.
-    implementation_class = MetisDetDarkImpl
+    Impl = MetisDetDarkImpl

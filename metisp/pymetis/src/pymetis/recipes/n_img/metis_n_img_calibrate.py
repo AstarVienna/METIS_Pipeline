@@ -59,4 +59,4 @@ class MetisNImgCalibrate(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisNImgCalibrateImpl
+    Impl = MetisNImgCalibrateImpl

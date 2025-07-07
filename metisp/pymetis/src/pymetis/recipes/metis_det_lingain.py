@@ -111,4 +111,4 @@ class MetisDetLinGain(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisDetLinGainImpl
+    Impl = MetisDetLinGainImpl

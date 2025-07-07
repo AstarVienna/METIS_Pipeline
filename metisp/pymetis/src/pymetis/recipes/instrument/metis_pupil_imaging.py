@@ -153,4 +153,4 @@ class MetisPupilImaging(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisPupilImagingImpl
+    Impl = MetisPupilImagingImpl

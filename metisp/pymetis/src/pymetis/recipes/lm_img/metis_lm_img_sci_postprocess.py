@@ -79,4 +79,4 @@ class MetisLmImgSciPostProcess(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisLmImgSciPostProcessImpl
+    Impl = MetisLmImgSciPostProcessImpl

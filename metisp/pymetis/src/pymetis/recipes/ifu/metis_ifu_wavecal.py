@@ -66,4 +66,4 @@ class MetisIfuWavecal(MetisRecipe):
         Compute wavelength map."""
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
-    implementation_class = MetisIfuWavecalImpl
+    Impl = MetisIfuWavecalImpl

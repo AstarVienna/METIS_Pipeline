@@ -55,4 +55,4 @@ class MetisNImgFlat(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisNImgFlatImpl
+    Impl = MetisNImgFlatImpl

@@ -107,7 +107,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
 
         combined_image = self.combine_images(images, self.parameters["metis_n_img_chopnod.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
-        self.target = self.inputset.tag_parameters['target']
+        self.target = self.inputset.tag_matches['target']
 
         product_reduced = self.ProductReduced(header, combined_image)
         product_background = self.ProductBackground(header, combined_image)
@@ -153,4 +153,4 @@ class MetisNImgChopnod(MetisRecipe):
         )
     ])
 
-    implementation_class = MetisNImgChopnodImpl
+    Impl = MetisNImgChopnodImpl

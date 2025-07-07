@@ -135,5 +135,5 @@ class MetisLmLssWave(MetisRecipe):
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
-    implementation_class = MetisLmLssWaveImpl
+    Impl = MetisLmLssWaveImpl
 

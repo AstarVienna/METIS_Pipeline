@@ -74,4 +74,4 @@ class MetisNLssMfCorrect(MetisRecipe):
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
-    implementation_class = MetisNLssMfCorrectImpl
+    Impl = MetisNLssMfCorrectImpl

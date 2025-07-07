@@ -58,7 +58,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
     # By default, a recipe does not have any parameters.
     parameters: ParameterList = ParameterList([])
     # Default implementation class. This will not work, because it is abstract, but this is an abstract class too.
-    implementation_class: type[MetisRecipeImpl] = MetisRecipeImpl
+    Impl: type[MetisRecipeImpl] = MetisRecipeImpl
 
     def __init__(self):
         super().__init__()
@@ -66,21 +66,21 @@ class MetisRecipe(cpl.ui.PyRecipe):
         self._description: str = self._build_description()
         self.implementation: MetisRecipeImpl | None = None
 
-    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
+    def run(self, frameset: cpl.ui.FrameSet, settings: dict[str, Any]) -> cpl.ui.FrameSet:
         """
         The main method, as required by PyCPL.
         Instantiates the decoupled implementation, fills it with supplied frameset,
         optionally promotes the class to the proper child class and then runs it.
         """
-        self.implementation = self.implementation_class(self, frameset, settings)
+        self.implementation = self.Impl(self, frameset, settings)
         return self.implementation.run()
 
     def _list_inputs(self) -> list[tuple[str, PipelineInput]]:
-        return inspect.getmembers(self.implementation_class.InputSet,
+        return inspect.getmembers(self.Impl.InputSet,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
     def _list_products(self) -> list[tuple[str, DataItem]]:
-        return inspect.getmembers(self.implementation_class,
+        return inspect.getmembers(self.Impl,
                                   lambda x: inspect.isclass(x) and issubclass(x, DataItem))
 
     @staticmethod

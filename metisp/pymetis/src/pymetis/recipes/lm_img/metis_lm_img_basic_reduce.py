@@ -185,4 +185,4 @@ class MetisLmImgBasicReduce(MetisRecipe):
         )
     ])
 
-    implementation_class = MetisLmImgBasicReduceImpl
+    Impl = MetisLmImgBasicReduceImpl

@@ -63,4 +63,4 @@ class MetisIfuCalibrate(MetisRecipe):
     _algorithm = """Correct for telluric absorption.
     Apply flux calibration."""
 
-    implementation_class = MetisIfuCalibrateImpl
+    Impl = MetisIfuCalibrateImpl

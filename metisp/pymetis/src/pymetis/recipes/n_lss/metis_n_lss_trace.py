@@ -84,4 +84,4 @@ class MetisNLssTrace(MetisRecipe):
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
-    implementation_class = MetisNLssTraceImpl
+    Impl = MetisNLssTraceImpl

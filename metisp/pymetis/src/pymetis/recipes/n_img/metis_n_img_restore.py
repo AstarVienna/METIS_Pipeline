@@ -60,4 +60,4 @@ class MetisNImgRestore(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisNImgRestoreImpl
+    Impl = MetisNImgRestoreImpl

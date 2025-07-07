@@ -44,7 +44,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
     def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
-        target = self.inputset.tag_parameters['target']
+        target = self.inputset.tag_matches['target']
         image = self._create_dummy_image()
         table = self._create_dummy_table()
 
@@ -78,4 +78,4 @@ class MetisLmImgBackground(MetisRecipe):
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 
-    implementation_class = MetisLmImgBackgroundImpl
+    Impl = MetisLmImgBackgroundImpl

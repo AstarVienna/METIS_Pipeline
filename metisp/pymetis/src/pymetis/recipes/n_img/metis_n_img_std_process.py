@@ -63,4 +63,4 @@ class MetisNImgStdProcess(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisNImgStdProcessImpl
+    Impl = MetisNImgStdProcessImpl
