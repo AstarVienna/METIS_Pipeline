@@ -34,7 +34,7 @@ class DarkImageProcessor(RawImageProcessor, ABC):
     It also provides methods for loading and verification of the dark frame,
     warns if multiple master darks are provided, etc.
     """
-    class InputSet(RawImageProcessor.InputSet):
+    class InputSet(RawImageProcessor.InputSet, abstract=True):
         """
         A DarkImageProcessor's Input is just a raw image processor input with a master dark frame.
         The exact class is not specified at this point -- it must be set by the subclass.

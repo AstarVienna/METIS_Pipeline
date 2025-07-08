@@ -19,11 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Parametrizable:
     """
-    Base class for all pipeline Mixins.
+    Base class for all types parametrizable by tags, such as
+        - band: (LM|N|IFU)
+        - target: (STD|SCI)
+        - detector: (2RG|GEO|IFU)
+        - source: (LAMP|TWILIGHT)
+
+    Other parameters might be useful for different pipelines.
+
+    Currently applies to DataItems, PipelineInputSets and their Mixins.
     """
 
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
         return {}
-
-

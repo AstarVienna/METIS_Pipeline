@@ -29,9 +29,9 @@ from pymetis.classes.inputs import FluxCalTableInput
 
 
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
-    class InputSet(PipelineInputSet):
+    class InputSet(PipelineInputSet, abstract=True):
         class BackgroundInput(SinglePipelineInput):
-            Item = LmSciBackgroundSubtracted
+            Item = SciBackgroundSubtracted
 
         FluxcalTableInput = FluxCalTableInput
 
@@ -39,7 +39,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
         class DistortionTableInput(SinglePipelineInput):
             Item = DistortionTable
 
-    ProductSciCalibrated = LmSciCalibrated
+    ProductSciCalibrated = SciCalibrated
 
     def process(self) -> set[DataItem]:
         combined_image = self._create_dummy_image()

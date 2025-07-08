@@ -26,12 +26,13 @@ from pymetis.classes.dataitems.background.background import Background
 from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.classes.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced
 from pymetis.classes.dataitems.object import ObjectCatalog
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
-    class InputSet(PipelineInputSet):
+    class InputSet(BandLmMixin, Detector2rgMixin, PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
             Item = BasicReduced
 

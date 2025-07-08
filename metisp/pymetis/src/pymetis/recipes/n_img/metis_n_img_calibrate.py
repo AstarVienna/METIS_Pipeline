@@ -19,20 +19,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.background.subtracted import NSciBackgroundSubtracted
-from pymetis.classes.dataitems.distortion.table import NDistortionTable
+from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
+from pymetis.classes.dataitems.distortion.table import DistortionTable
+from pymetis.classes.mixins import DetectorGeoMixin
 from pymetis.classes.mixins.band import BandNMixin
-from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisImgCalibrateImpl
+from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):
-    class InputSet(MetisImgCalibrateImpl.InputSet):
-        class BackgroundInput(BandNMixin, MetisImgCalibrateImpl.InputSet.BackgroundInput):
-            Item = NSciBackgroundSubtracted
+    class InputSet(BandNMixin, DetectorGeoMixin, MetisImgCalibrateImpl.InputSet):
+        class BackgroundInput(MetisImgCalibrateImpl.InputSet.BackgroundInput):
+            Item = BackgroundSubtracted
 
-        class DistortionTableInput(BandNMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
-            Item = NDistortionTable
+        class DistortionTableInput(MetisImgCalibrateImpl.InputSet.DistortionTableInput):
+            Item = DistortionTable
 
 
 class MetisNImgCalibrate(MetisRecipe):

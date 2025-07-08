@@ -66,25 +66,34 @@ class MetisRecipeImpl(ABC):
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
 
-    def promote(self, **parameters) -> None:
+    @classmethod
+    def specialize(cls, **parameters) -> None:
+        Msg.info(cls.__qualname__,
+                 f"Specializing {cls.__qualname__} with parameters: {parameters}")
+
+
+
+    @classmethod
+    def promote(cls, **parameters) -> None:
         """
         Promote the products of this class to appropriate subclasses, as determined from the input data.
+        This may be only called after the recipe is initialized.
         """
 
-        Msg.info(self.__class__.__qualname__,
-                 f"Promoting the recipe implementation with {parameters}")
+        Msg.info(cls.__qualname__,
+                 f"Promoting the recipe implementation {cls.__qualname__} with {parameters}")
 
-        for name, item in self.list_product_classes():
+        for name, item in cls.list_product_classes():
             # Try to find a promoted class in the registry
-            if (new_class := DataItem.find(tag := item._name_template.format(**parameters))) is None:
+            if (new_class := DataItem.find(tag := item.specialize(**parameters))) is None:
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:
-                Msg.info(self.__class__.__qualname__,
+                Msg.info(cls.__class__.__qualname__,
                          f"Promoting {item.__qualname__} ({item.name()}) "
                          f"to {new_class.__qualname__} ({new_class.name()})")
 
             # Replace the product attribute with the new class
-            self.__class__.__setattr__(self, name, new_class)
+            cls.__class__.__setattr__(cls, name, new_class)
 
     def run(self) -> cpl.ui.FrameSet:
         """

@@ -31,33 +31,15 @@ class MetisLmLssMfCorrectImpl(MetisLssMfCorrectImpl):
 
 
 class MetisLmLssMfCorrect(MetisRecipe):
-    # The information about the recipe needs to be set. The base class
-    # cpl.ui.PyRecipe provides the class variables to be set.
-    # The recipe name must be unique, because it is this name which is
-    # used to identify a particular recipe among all installed recipes.
-    # The name of the python source file where this class is defined
-    # is not at all used in this context.
     _name: str = "metis_lm_lss_mf_correct"
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Application of the telluric correction"
-    _description: str = """\
-    Application of the telluric correction
 
-    Inputs
-        LM_LSS_SCI_FLUX_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science
-        LM_LSS_SYNTH_TRANS: Synthetic transmission of the Earth's atmosphere'
-
-     Matched Keywords
-        DRS.SLIT
-
-    Outputs
-        LM_LSS_SCI_FLUX_TELL_1D: Coadded, wavelength + flux calibrated, telluric corrected 1D spectrum of the science object
-    """
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
-    _algorithm = """Fancy algorithm description follows ***TBD***"""
+    _matched_keywords: {str} = {'DRS.SLIT'}
+    _algorithm = """Apply telluric correction, i.e. divide the input science spectrum by the synthetic transmission."""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -30,12 +30,14 @@ from pymetis.classes.inputs import (SinglePipelineInput, RawInput,
                                     PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin,
                                     LinearityInputSetMixin)
 from pymetis.classes.inputs.common import WcuOffInput
+from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisLmLssWaveImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
+                   BandLmMixin,
                    DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssWaveRaw

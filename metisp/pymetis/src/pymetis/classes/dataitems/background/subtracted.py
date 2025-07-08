@@ -33,17 +33,27 @@ class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, ImageDataItem
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
 
-class LmStdBackgroundSubtracted(BandLmMixin, TargetStdMixin, BackgroundSubtracted):
+class StdBackgroundSubtracted(TargetStdMixin, BackgroundSubtracted, abstract=True):
     pass
 
 
-class LmSciBackgroundSubtracted(BandLmMixin, TargetSciMixin, BackgroundSubtracted):
+class LmStdBackgroundSubtracted(BandLmMixin, StdBackgroundSubtracted):
     pass
 
 
-class NStdBackgroundSubtracted(BandNMixin, TargetStdMixin, BackgroundSubtracted):
+class NStdBackgroundSubtracted(BandNMixin, StdBackgroundSubtracted):
     pass
 
 
-class NSciBackgroundSubtracted(BandNMixin, TargetSciMixin, BackgroundSubtracted):
+class SciBackgroundSubtracted(TargetSciMixin, BackgroundSubtracted, abstract=True):
     pass
+
+
+class LmSciBackgroundSubtracted(BandLmMixin, SciBackgroundSubtracted):
+    pass
+
+
+class NSciBackgroundSubtracted(BandNMixin, SciBackgroundSubtracted):
+    pass
+
+

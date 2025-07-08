@@ -33,6 +33,26 @@ import pymetis
 PIPELINE = r'METIS'
 
 
+
+class FormatPlaceholder:
+    def __init__(self, key):
+        self.key = key
+
+    def __format__(self, spec):
+        value = f'{self.key}{f':{spec}' if spec else ''}'
+        return f"{{{value}}}"
+
+
+class FormatDict(dict):
+    def __missing__(self, key):
+        return FormatPlaceholder(key)
+
+
+def partial_format(template: str, **kwargs) -> str:
+    return template.format_map(FormatDict(**kwargs))
+
+
+
 class DataItem(ABC):
     """
     The `DataItem` class encapsulates a single data item: the smallest standalone unit of detector data
@@ -61,7 +81,6 @@ class DataItem(ABC):
     def __init_subclass__(cls,
                           *,
                           abstract: bool = False,
-                          description: str = None,
                           **kwargs):
         """
         Register every subclass of DataItem in a global registry.
@@ -69,11 +88,12 @@ class DataItem(ABC):
         """
         cls.__abstract = abstract
 
-        if abstract:
+        if cls.__abstract:
+            # If the class is not fully specialized, skip it
             Msg.debug(cls.__qualname__,
                       f"Class is abstract, skipping registration")
         else:
-            # If the class is fully specialized, add it to the registry
+            # Otherwise, add it to the global registry
             assert cls.__regex_pattern.match(cls.name()) is not None, \
                 (f"Tried to register {cls.__name__} ({cls.name()}) which is not fully specialized "
                  f"(did you mean to set `abstract=True` in the class declaration?)")
@@ -87,10 +107,6 @@ class DataItem(ABC):
                 Msg.debug(cls.__qualname__, f"Registered a new class {cls.name()}: {cls}")
                 DataItem._registry[cls.name()] = cls
 
-        if description is not None:
-            # Override the description if available
-            cls._description_template = description
-
         super().__init_subclass__(**kwargs)
 
     @classmethod
@@ -103,6 +119,15 @@ class DataItem(ABC):
             return DataItem._registry[key]
         else:
             return None
+
+    @classmethod
+    def name_template(cls) -> str:
+        return cls._name_template
+
+    @classmethod
+    def specialize(cls, **parameters) -> str:
+        cls._name_template = partial_format(cls._name_template, **parameters)
+        return cls._name_template
 
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
@@ -300,7 +325,7 @@ class DataItem(ABC):
             Msg.warning(self.__class__.__qualname__,
                         "No detectors specified (this is probably fine in skeleton stage)")
         else:
-            # raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
+            # raise ValueError(f"Frames from more than one detector found: {set(detectors)}!")
             Msg.warning(self.__class__.__qualname__,
                         f"Frames from more than one detector found: {unique}!")
 

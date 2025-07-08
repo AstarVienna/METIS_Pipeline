@@ -24,13 +24,12 @@ from pymetis.classes.dataitems.lss.trace import LssTrace
 from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, PersistenceInputSetMixin,
                                     BadPixMapInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
-from pymetis.classes.mixins import BandLmMixin
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.prefab import DarkImageProcessor
 
 
 class MetisLssTraceImpl(DarkImageProcessor):
-    class InputSet(BandLmMixin,
-                   PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
+    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
                    DarkImageProcessor.InputSet):
 
         class RawInput(RawInput):
@@ -46,7 +45,6 @@ class MetisLssTraceImpl(DarkImageProcessor):
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        # trace_tab_hdr = self._create_dummy_header()
         trace_tab_hdr = self._create_dummy_header()
         trace_tab_data = self._create_dummy_table()
         return {

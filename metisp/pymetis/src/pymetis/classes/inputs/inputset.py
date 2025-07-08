@@ -46,11 +46,28 @@ class PipelineInputSet(Parametrizable, ABC):
     between the classes -- it is just a namespacing convention.
     """
 
+    # Helper regex: remove final "Input" from the name of the class...
+    cut_input = re.compile(r'Input$')
+    # Helper regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
+    make_snake = re.compile(r'(?<!^)(?=[A-Z])')
+    # I.e. `MonsterCrunchInput` class instance will be named `monster_crunch`.
+
+    def __init_subclass__(cls, abstract=False, **params):
+        cls.__abstract = abstract
+
+        if cls.__abstract:
+            pass
+        else:
+            for name, input_class in cls.get_inputs():
+                print(f"Found input class {cls.__qualname__} {input_class.__name__} "
+                      f"({input_class.Item._name_template}), "
+                      f"params are {cls.tag_parameters()}")
+
     def __init__(self, frameset: cpl.ui.FrameSet):
         """
-            Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
-            By default, there is nothing: no inputs, no tag_parameters.
-            This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
+        Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
+        By default, there is nothing: no inputs, no tag_parameters.
+        This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
         """
         self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
         self.frameset: cpl.ui.FrameSet = frameset
@@ -58,16 +75,11 @@ class PipelineInputSet(Parametrizable, ABC):
         # Tag parameter matching this instance of InputSet. Might come from DataItem matches or hard-coded from mixins.
         self.tag_matches: dict[str, str] = {}
 
-        # Regex: remove final "Input" from the name of the class...
-        cut_input = re.compile(r'Input$')
-        # Regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
-        make_snake = re.compile(r'(?<!^)(?=[A-Z])')
-
         # Now iterate over all defined Inputs, instantiate them and feed them the frameset to filter.
-        for (name, input_type) in self.get_inputs():
-            inp = input_type(frameset)
+        for (name, input_class) in self.get_inputs():
+            inp = input_class(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
-            self.__setattr__(make_snake.sub('_', cut_input.sub('', name)).lower(), inp)
+            self.__setattr__(self.make_snake.sub('_', self.cut_input.sub('', name)).lower(), inp)
             # Add to the set of inputs (for easy iteration over all inputs)
             self.inputs |= {inp}
 
@@ -121,7 +133,7 @@ class PipelineInputSet(Parametrizable, ABC):
             value = _func(inp)
             det = "---" if value is None else value
             Msg.debug(self.__class__.__qualname__,
-                      f"{attr:<15s} in {inp.__class__.__qualname__:<30} {det}")
+                      f"{attr:<15s} in {inp.__class__.__qualname__:<40} {det}")
 
         if (count := len(total)) == 0:
             # If there are no identifiable tag parameters, just emit a message
