@@ -19,10 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.lm_img.metis_lm_img_distortion import (MetisLmImgDistortion as Recipe,
                                                             MetisLmImgDistortionImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -40,20 +38,20 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    Impl = Impl
 
 
 class TestProductLmDistortionTable(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductDistortionTable
+    Product = Impl.ProductDistortionTable
 
 
 class TestProductLmDistortionMap(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductDistortionMap
+    Product = Impl.ProductDistortionMap
 
 
 class TestProductLmDistortionReduced(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductDistortionReduced
+    Product = Impl.ProductDistortionReduced

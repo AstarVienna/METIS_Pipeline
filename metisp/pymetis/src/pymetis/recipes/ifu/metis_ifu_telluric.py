@@ -16,17 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
-import re
-
-import cpl
-
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.common import FluxCalTable, IfuTelluric
+from pymetis.classes.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
-from pymetis.classes.products import TargetSpecificProduct
 
 
 # The aim of this recipe is twofold:
@@ -38,8 +33,6 @@ from pymetis.classes.products import TargetSpecificProduct
 
 class MetisIfuTelluricImpl(MetisRecipeImpl):
     """Implementation class for metis_ifu_telluric"""
-
-    detector = "IFU"
 
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Define molecfit main input class as one 1d spectrum, either Science or Standard spectrum
@@ -53,10 +46,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         #     _description: str = "Uncorrected MF input spectrum."
 
         class CombinedInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"IFU_(?P<target>SCI|STD)_COMBINED")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "spectral cube of science object"
-            _description: str = "Spectral cube of standard star, combining multiple exposures."
+            Item = IfuCombined
 
         FluxstdCatalogInput = FluxstdCatalogInput
         LsfKernelInput = LsfKernelInput
@@ -65,44 +55,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
     # ++++++++++++++ Defining ouput +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Recipe is foreseen to do both, create transmission and response functions
     # We therefore need to define transmission spectrum and response curve class
+    # Note that these should not be used directly if there is any chance of promotion.
 
-    # Tranmission spectrum
-    class ProductTelluricTransmission(PipelineImageProduct):
-        """
-        Final product: Transmission function for the telluric correction
-        """
-        _tag: str = r"IFU_TELLURIC"
-        title: str = "Telluric correction"
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "transmission function for the telluric correction"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-    # Response curve
-    class ProductResponseFunction(TargetSpecificProduct, PipelineImageProduct):
-        """
-        Final product: response curve for the flux calibration
-        """
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "response curve for the flux calibration"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"IFU_{cls.target():s}_REDUCED_1D"
-
-        @classmethod
-        def description(cls) -> str:
-            target = {
-                'STD': 'reduced telluric standard star',
-                'SCI': 'science object',
-            }.get(cls.target(), '{target}')
-            return f"Spectrum of a {target}."
-
-    class ProductFluxcalTab(PipelineTableProduct):
-        _tag = r"FLUXCAL_TAB"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Conversion between instrumental and physical flux units."
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    ProductTelluricTransmission = IfuTelluric
+    ProductResponseFunction = IfuReduced1d
+    ProductFluxcalTab = FluxCalTable
 
 # TODO: Define input type for the paramfile in common.py
 
@@ -131,7 +88,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         pass    # do nothing in the meantime
 
     # Function to process everything?
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         # self.correct_telluric()
         # self.apply_fluxcal()
         self.mf_model()
@@ -142,27 +99,11 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         image = self._create_dummy_image()
         table = self._create_dummy_table()
 
-        product_telluric_transmission = self.ProductTelluricTransmission(self, header, image)
-        product_reduced_1d = self.ProductResponseFunction(self, header, image)
-        product_fluxcal_tab = self.ProductFluxcalTab(self, header, table)
+        product_telluric_transmission = self.ProductTelluricTransmission(header, image)
+        product_reduced_1d = self.ProductResponseFunction(header, image)
+        product_fluxcal_tab = self.ProductFluxcalTab(header, table)
 
         return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}
-
-    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
-        return {
-            'STD': MetisIfuTelluricStdImpl,
-            'SCI': MetisIfuTelluricSciImpl,
-        }[self.inputset.target]
-
-
-class MetisIfuTelluricStdImpl(MetisIfuTelluricImpl):
-    class ProductResponseFunction(TargetStdMixin, MetisIfuTelluricImpl.ProductResponseFunction):
-        pass
-
-
-class MetisIfuTelluricSciImpl(MetisIfuTelluricImpl):
-    class ProductResponseFunction(TargetSciMixin, MetisIfuTelluricImpl.ProductResponseFunction):
-        pass
 
 
 class MetisIfuTelluric(MetisRecipe):
@@ -177,4 +118,4 @@ class MetisIfuTelluric(MetisRecipe):
     Compute conversion to physical units as function of wave-length."""
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
-    implementation_class = MetisIfuTelluricImpl
+    Impl = MetisIfuTelluricImpl

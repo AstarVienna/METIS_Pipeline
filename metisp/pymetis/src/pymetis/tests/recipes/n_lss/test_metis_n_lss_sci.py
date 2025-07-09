@@ -1,0 +1,75 @@
+"""
+This file is part of the METIS Pipeline.
+Copyright (C) 2025 European Southern Observatory
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+"""
+
+import pytest
+
+from pymetis.recipes.n_lss.metis_n_lss_sci import (MetisNLssSci as Recipe,
+                                                      MetisNLssSciImpl as Impl)
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+
+
+recipe_name = r'metis_n_lss_sci'
+
+
+@pytest.fixture
+def name() -> str:
+    return recipe_name
+
+
+@pytest.fixture
+def sof(name: str) -> str:
+    return rf'{name}.sof'
+
+
+class TestRecipe(BaseRecipeTest):
+    Recipe = Recipe
+
+
+class TestInputSet(BaseInputSetTest):
+    Impl = Impl
+
+
+class TestProductLssSciObjMap(BaseProductTest):
+    Product = Impl.ProductLssSciObjMap
+
+
+class TestProductLssSciSkyMap(BaseProductTest):
+    Product = Impl.ProductLssSciSkyMap
+
+
+class TestProductLssSci1d(BaseProductTest):
+    Product = Impl.ProductLssSci1d
+
+
+class TestProductLssSci2d(BaseProductTest):
+    Product = Impl.ProductLssSci2d
+
+
+class TestProductLssSciFlux1d(BaseProductTest):
+    Product = Impl.ProductLssSciFlux1d
+
+
+class TestProductLssSciFlux2d(BaseProductTest):
+    Product = Impl.ProductLssSciFlux2d
+
+
+class TestProductSciFluxTellCorr1d(BaseProductTest):
+    Product = Impl.ProductLssSciFluxTellCorr1d   # TODO: What about the 2d version?
+
+

@@ -34,48 +34,34 @@ class SinglePipelineInput(PipelineInput):
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):                       # Any other args
-
         self.frame: cpl.ui.Frame | None = None
-        self.tag_matches: dict[str, str] = {}
-        super().__init__()
+        super().__init__(frameset)
 
-        for frame in frameset:
-            if match := self.tags().fullmatch(frame.tag):
-                if self.frame is None:
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Found a {self.title} frame: {frame.file}.")
-                else:
-                    # If a matching frame was already found, this probably is not what we want.
-                    # Warn, and only keep the latest one found.
-                    Msg.warning(self.__class__.__qualname__,
-                                f"Found another {self.title} frame: {frame.file}! "
-                                f"Discarding previously loaded {self.frame.file}.")
-                frame.group = self.group
-                self.frame = frame
-                self.tag_matches = match.groupdict()
-            else:
-                Msg.debug(self.__class__.__qualname__,
-                          f"Ignoring {frame.file}: tag {frame.tag} does not match.")
+    def load_inner(self, frameset: cpl.ui.FrameSet):
+        """
+        Load the associated frames.
+        A SinglePipelineInput verifies there is exactly one matched frame.
+        """
+        Msg.debug(self.__class__.__qualname__, f"Loading {frameset}")
+        if len(frameset) > 1:
+            Msg.warning(self.__class__.__name__,
+                        f"Expected a single frame, but found {len(frameset)} of them!")
+        else:
+            Msg.debug(self.__class__.__name__,
+                      f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
+            self.frame = frameset[0]
 
-        self.extract_tag_parameters()
-
-    def extract_tag_parameters(self):
-        if self.tag_matches is not None:
-            for key, value in self.tag_matches.items():
-                Msg.debug(self.__class__.__qualname__,
-                          f"Matched a tag parameter: '{key}' = '{value}'.")
-
-        self.tag_parameters = self.tag_matches
-
-        for key, value in self.tag_parameters.items():
-            self.__setattr__(key, value)
+    def set_cpl_attributes(self):
+        self.frame.group = self.Item.frame_group()
+        self.frame.level = self.Item.frame_level()
+        self.frame.type = self.Item.frame_type()
+        Msg.debug(self.__class__.__qualname__,
+                  f"Set CPL attributes: {self.Item.frame_group()} {self.Item.frame_level()} {self.Item.frame_type()}")
 
     def validate(self):
         """
         Run all the required instantiation time checks
         """
-        Msg.debug(self.__class__.__qualname__,
-                  f"Input tag parameters: {self.tag_parameters}")
         self._verify_frame_present(self.frame)
 
     def _verify_frame_present(self,
@@ -89,7 +75,7 @@ class SinglePipelineInput(PipelineInput):
             if self.required():
                 raise cpl.core.DataNotFoundError(
                     f"{self.__class__.__qualname__}: no {self.title()} frame "
-                    f"({self.tags().pattern}) found in the frameset.")
+                    f"({self.Item.name()}) found in the frameset.")
             else:
                 Msg.debug(self.__class__.__qualname__,
                           f"No {self.title()} frame found, but not required.")

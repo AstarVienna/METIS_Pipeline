@@ -17,22 +17,49 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-
-class TargetStdMixin:
-    _target: str = r'STD'
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class TargetSciMixin:
-    _target: str = r'SCI'
+class TargetSpecificMixin(Parametrizable):
+    """
+    Mixin class for data items that need to define the `target` attribute.
+
+    Hopefully it does not cause any issues with the MRO.
+    """
+    _target: str = None
+
+    def __init_subclass__(cls, *, target=None, **kwargs):
+        if target is not None:
+            cls._target = target
+        super().__init_subclass__(**kwargs)
+
+    @classmethod
+    def target(cls) -> str:
+        return cls._target
+
+    @classmethod
+    def get_target_string(cls) -> str:
+        """
+        Return a pretty formatted target string for human-oriented output.
+        """
+        return {
+            'SCI': 'science object',
+            'STD': 'standard star',
+            'SKY': 'sky',
+        }.get(cls.target(), cls.target())
+
+    @classmethod
+    def tag_parameters(cls):
+        return super().tag_parameters() | {'target': cls._target}
 
 
-class TargetSkyMixin:
-    _target: str = r'SKY'
+class TargetStdMixin(TargetSpecificMixin, target='STD'):
+    pass
 
 
-class TargetLampMixin:
-    _target: str = r'LAMP'
+class TargetSciMixin(TargetSpecificMixin, target='SCI'):
+    pass
 
 
-class TargetTwilightMixin:
-    _target: str = r'TWILIGHT'
+class TargetSkyMixin(TargetSpecificMixin, target='SKY'):
+    pass

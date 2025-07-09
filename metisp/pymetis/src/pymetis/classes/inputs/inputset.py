@@ -17,21 +17,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import functools
 import inspect
-import operator
 import re
 
-from abc import ABCMeta
-from typing import Any
+from abc import ABC
+from typing import Any, Callable, Optional
 
 import cpl
 from cpl.core import Msg
 
 from pymetis.classes.inputs.base import PipelineInput
+from pymetis.classes.mixins import TargetSpecificMixin, SourceSpecificMixin, BandSpecificMixin, DetectorSpecificMixin
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class PipelineInputSet(metaclass=ABCMeta):
+class PipelineInputSet(Parametrizable, ABC):
     """
     The `PipelineInputSet` class is a utility class for a recipe dealing with the input data.
     It reads and filters the input FrameSet, categorizes the frames by their metadata,
@@ -46,30 +46,46 @@ class PipelineInputSet(metaclass=ABCMeta):
     between the classes -- it is just a namespacing convention.
     """
 
-    detector: str = NotImplemented
+    # Helper regex: remove final "Input" from the name of the class...
+    cut_input = re.compile(r'Input$')
+    # Helper regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
+    make_snake = re.compile(r'(?<!^)(?=[A-Z])')
+    # I.e. `MonsterCrunchInput` class instance will be named `monster_crunch`.
+
+    def __init_subclass__(cls, abstract=False, **params):
+        cls.__abstract = abstract
+
+        #if cls.__abstract:
+        #    pass
+        #else:
+        #    for name, input_class in cls.get_inputs():
+        #        print(f"Found input class {cls.__qualname__} {input_class.__name__} "
+        #              f"({input_class.Item._name_template}), "
+        #              f"params are {cls.tag_parameters()}")
 
     def __init__(self, frameset: cpl.ui.FrameSet):
         """
-            Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
-            By default, there is nothing: no inputs, no tag_parameters.
-            This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
+        Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
+        By default, there is nothing: no inputs, no tag_parameters.
+        This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
         """
         self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
-        self.tag_parameters: dict[str, str] = {}        # A dict of all tunable parameters determined from tags
         self.frameset: cpl.ui.FrameSet = frameset
 
-        # Regex: remove final "Input" from the name of the class...
-        cut_input = re.compile(r'Input$')
-        # Regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
-        make_snake = re.compile(r'(?<!^)(?=[A-Z])')
+        # Tag parameter matching this instance of InputSet. Might come from DataItem matches or hard-coded from mixins.
+        self.tag_matches: dict[str, str] = {}
 
         # Now iterate over all defined Inputs, instantiate them and feed them the frameset to filter.
-        for (name, input_type) in inspect.getmembers(self.__class__,
-                                                     lambda x: inspect.isclass(x) and issubclass(x, PipelineInput)):
-            inp = input_type(frameset)
+        for (name, input_class) in self.get_inputs():
+            inp = input_class(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
-            self.__setattr__(make_snake.sub('_', cut_input.sub('', name)).lower(), inp)
+            self.__setattr__(self.make_snake.sub('_', self.cut_input.sub('', name)).lower(), inp)
+            # Add to the set of inputs (for easy iteration over all inputs)
             self.inputs |= {inp}
+
+    @classmethod
+    def get_inputs(cls):
+        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
     def validate(self) -> None:
         """
@@ -80,59 +96,72 @@ class PipelineInputSet(metaclass=ABCMeta):
             - parse the tag parameters
                 - and assign their values as attributes of the inputset
         """
-        Msg.debug(self.__class__.__qualname__, f"Validating the inputset {self.inputs}")
+        Msg.debug(self.__class__.__qualname__,
+                  f"Validating the inputset {self.inputs}")
 
         if len(self.inputs) == 0:
-            raise NotImplementedError("PipelineInput must define at least one input.")
+            raise NotImplementedError("PipelineInputSet must define at least one input.")
 
         for inp in self.inputs:
             inp.validate()
 
-        self.validate_detectors()
-        self.tag_parameters = functools.reduce(operator.or_, [inp.tag_parameters for inp in self.inputs], {})
+        for attr, klass in [
+            ('detector', DetectorSpecificMixin),
+            ('band', BandSpecificMixin),
+            ('target', TargetSpecificMixin),
+            ('source', SourceSpecificMixin),
+        ]:
+            self._validate_attr(lambda x: x.Item.tag_parameters()[attr] if issubclass(x.Item, klass) else None, attr)
 
-        # For every parsed tag parameter, set the corresponding attribute
-        for key, value in self.tag_parameters.items():
-            Msg.info(self.__class__.__qualname__, f"Setting InputSet tag parameter '{key}' = '{value}'")
-            self.__setattr__(key, value)
+    def _validate_attr(self, _func: Callable, attr: str) -> Optional[str]:
+        """
+        Helper method: validate the input attribute (detector, band, source or target).
 
-    def validate_detectors(self) -> None:
+        Return
+            None, if the attribute cannot be identified (this usually is not an error if it is not defined).
+            The attribute value, if the attribute only has the same value everywhere.
+        Raise
+            ValueError if the attribute has multiple different values.
         """
-        Verify that the provided SOF only contains frames from a single detector.
-        Some Inputs may return `None` if they are not specific to a detector.
-        """
-        Msg.debug(self.__class__.__qualname__, "--- Validating the detector parameters ---")
-        detectors = list(set([inp.detector for inp in self.inputs]) - {None})
+        Msg.debug(self.__class__.__qualname__, f"--- Validating the {attr} parameters ---")
+
+        self.tag_matches[attr] = self.tag_parameters()[attr] if attr in self.tag_parameters() else None
+
+        total = list(set([_func(inp) for inp in self.inputs]) - {None})
 
         for inp in self.inputs:
-            det = "---" if inp.detector is None else inp.detector
+            value = _func(inp)
+            det = "---" if value is None else value
             Msg.debug(self.__class__.__qualname__,
-                      f"Detector in {inp.__class__.__qualname__:<50} {det}")
+                      f"{attr:<15s} in {inp.__class__.__qualname__:<40} {det}")
 
-        if (detector_count := len(detectors)) == 0:
+        if (count := len(total)) == 0:
+            # If there are no identifiable tag parameters, just emit a message
             Msg.debug(self.__class__.__qualname__,
-                      "No detector could be identified from the SOF")
-        elif detector_count == 1:
-            self.detector = detectors[0]
+                      f"No {attr} could be identified from the SOF")
+        elif count == 1:
+            # If there is exactly one unique value, the input is consistent, so set it as an InputSet tag parameter
+            result = total[0]
             Msg.debug(self.__class__.__qualname__,
-                      f"Detector correctly identified from the SOF: {self.detector}")
+                      f"Correctly identified {attr} from the SOF: {result}")
+            self.tag_matches[attr] = result
         else:
-            raise ValueError(f"Data from more than one detector found in inputset: {detectors}!")
+            # If there is more than one unique value, the input is inconsistent, raise an exception
+            raise ValueError(f"Data from more than one {attr} found in inputset: {total}!")
 
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}{len(self.inputs)} inputs:")
-        Msg.debug(self.__class__.__qualname__, str(self.inputs))
 
         for inp in self.inputs:
-            inp.print_debug(offset=offset + 4)
+            Msg.debug(self.__class__.__qualname__, f"   {inp.Item.__qualname__:<30s} {inp.item()}")
 
     def as_dict(self) -> dict[str, Any]:
         """
         Return a dict representation of the input patterns.
         """
         return {
-            inp.tags().pattern: inp.as_dict()
+            inp.Item.name(): inp.as_dict()
             for inp in self.inputs
         }
 

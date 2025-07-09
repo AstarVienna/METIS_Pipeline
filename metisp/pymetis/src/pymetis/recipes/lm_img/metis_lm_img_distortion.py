@@ -17,35 +17,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.mixins.band import BandLmMixin
+from pyesorex.parameter import ParameterList, ParameterEnum
+
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
 
 
 class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
     class InputSet(MetisBaseImgDistortionImpl.InputSet):
         class RawInput(MetisBaseImgDistortionImpl.InputSet.RawInput):
-            _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
+            pass
 
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
-            _tags: re.Pattern = re.compile(r"LM_DISTORTION_RAW")
+            pass
 
-    class ProductDistortionTable(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionTable):
-        pass
-
-    class ProductDistortionMap(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionMap):
-        pass
-
-    class ProductDistortionReduced(BandLmMixin, MetisBaseImgDistortionImpl.ProductDistortionReduced):
-        pass
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -61,9 +51,9 @@ class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
         table = self._create_dummy_table()
 
         return {
-            self.ProductDistortionTable(self, self.header, table),
-            self.ProductDistortionMap(self, self.header, combined_image),
-            self.ProductDistortionReduced(self, self.header, table),
+            self.ProductDistortionTable(self.header, table),
+            self.ProductDistortionMap(self.header, combined_image),
+            self.ProductDistortionReduced(self.header, table),
         }
 
 
@@ -79,8 +69,8 @@ class MetisLmImgDistortion(MetisRecipe):
     Measure location of point source images in frames with `hdrl_catalogue_create`.
     Call metis_fit_distortion to fit polynomial coefficients to deviations from grid positions."""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
@@ -89,4 +79,4 @@ class MetisLmImgDistortion(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisLmImgDistortionImpl
+    Impl = MetisLmImgDistortionImpl

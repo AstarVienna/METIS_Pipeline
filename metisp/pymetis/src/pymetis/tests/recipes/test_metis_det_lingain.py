@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.metis_det_lingain import (MetisDetLinGain as Recipe,
                                                MetisDetLinGainImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import RawInputSetTest, BandParamRecipeTest
 from pymetis.tests.classes.product import ImageProductTest
 
@@ -41,20 +40,20 @@ def sof(name: str) -> str:
 
 class TestRecipe(BandParamRecipeTest):
     """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    _recipe: type[MetisRecipe] = Recipe
+    Recipe = Recipe
 
 
 class TestInputSet(RawInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    Impl = Impl
 
 
 class TestProductGain(ImageProductTest):
-    _product: type[PipelineProduct] = Impl.ProductGain
+    Product = Impl.ProductGainMap
 
 
 class TestProductLinearity(ImageProductTest):
-    _product: type[PipelineProduct] = Impl.ProductLinearity
+    Product = Impl.ProductLinearity
 
 
-class TestProductBadpixMap(ImageProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBadpixMap
+class TestProductBadPixMap(ImageProductTest):
+    Product = Impl.ProductBadPixMap

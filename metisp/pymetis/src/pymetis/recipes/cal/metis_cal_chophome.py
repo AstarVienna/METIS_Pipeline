@@ -21,11 +21,16 @@ import re
 
 import cpl
 from cpl.core import Msg
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
+from pymetis.classes.dataitems.gainmap import GainMap2rg
+from pymetis.classes.dataitems.linearity.linearity import LinearityMap2rg
+from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadpixMapInput,
-                                    PinholeTableInput, LinearityInput)
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
+from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
+                                    PinholeTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.prefab import RawImageProcessor
 
 
@@ -34,49 +39,29 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
     class InputSet(RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"LM_CHOPHOME_RAW")
-            _description: str = "Raw exposure of the LM image mode."
+            Item = LmChophomeRaw
 
         class BackgroundInput(RawInput):
-            _tags: re.Pattern = re.compile(r"LM_WCU_OFF_RAW")
-            _description: str = "Raw data for dark subtraction in other recipes."
+            Item = LmWcuOffRaw
 
-        class GainMapInput(GainMapInput):
-            _required = False     # CHECK Optional for functional development
+        class GainMapInput(OptionalInputMixin, GainMapInput):
+            Item = GainMap2rg
 
-        class LinearityInput(LinearityInput):
-            _required = False     # CHECK Optional for functional development
+        class LinearityInput(OptionalInputMixin, LinearityInput):
+            Item = LinearityMap2rg
 
         PersistenceMapInput = PersistenceMapInput
 
-        class BadpixMapInput(BadpixMapInput):
-            _required = False     # CHECK Optional for functional development
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
+            pass
 
-        class PinholeTableInput(PinholeTableInput):
-            _required = False     # CHECK Is this needed for single pinhole?
+        class PinholeTableInput(OptionalInputMixin, PinholeTableInput):
+            pass
 
-    class ProductCombined(PipelineImageProduct):
-        """
-        Final product: combined, background-subtracted images of the WCU source
-        """
-        _tag: str = r"LM_CHOPHOME_COMBINED"
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = ("Combined, background-subtracted images of the WCU pinhole mask. "
-                             "The chopper offset is in the header.")
-        _oca_keywords: set[str] = {'PRO.CATG'}
+    ProductCombined = LmChophomeCombined
+    ProductBackground = LmChophomeBackground
 
-    class ProductBackground(PipelineImageProduct):
-        """
-        Intermediate product: the instrumental background (WCU OFF)
-        """
-        _tag: str = r"LM_CHOPHOME_BACKGROUND"
-        level: cpl.ui.Frame.FrameLevel = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _description: str = "Stacked background image."
-        _oca_keywords: set[str] = {'PRO.CATG'}
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         """This function processes the input images
 
         - stack the wcu_off images into background_img
@@ -102,7 +87,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
         if pinhole_loc["fwhm_x"] is None or pinhole_loc["fwhm_y"] is None:
             Msg.warning(self.__class__.__qualname__,
-                        ": detection of pinhole failed")
+                        "detection of pinhole failed")
             pinhole_loc["fwhm_x"] = 999
             pinhole_loc["fwhm_y"] = 999
 
@@ -129,8 +114,8 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
                                               "signal-to-noise ratio of pinhole image"))
 
         return {
-            self.ProductCombined(self, header=combined_hdr, image=combined_img),
-            self.ProductBackground(self, header=background_hdr, image=background_img),
+            self.ProductCombined(combined_hdr, combined_img),
+            self.ProductBackground(background_hdr, background_img),
         }
 
     def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
@@ -161,7 +146,8 @@ class MetisCalChophome(MetisRecipe):
     _email: str = "oliver.czoske@univie.ac.at"
     _copyright = "GPL-3.0-or-later"
     _synopsis: str = "Determine the chopper home position from LM-imaging of the WCU pinhole mask."
-    _description: str = """\
+    _description: str = """
+        (nothing yet)
     """
 
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT'}
@@ -171,31 +157,27 @@ class MetisCalChophome(MetisRecipe):
     to the WFS metrology to give the chopper home position.
     """
 
-    parameters = cpl.ui.ParameterList()
-    # --stacking.method
-    p = cpl.ui.ParameterEnum(
-        name=f"{_name}.stacking.method",
-        context=_name,
-        description="Name of the method used to combine the input images",
-        default="average",
-        alternatives=("add", "average", "median"),
-    )
-    p.cli_alias = "stacking.method"
-    parameters.append(p)
+    parameters = ParameterList([
+        ParameterEnum(
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            cli_alias="stacking.method",
+            default="average",
+            alternatives=("add", "average", "median"),
+        ),
+        ParameterRange(
+            name=f"{_name}.halfwindow",
+            context=_name,
+            description="Half size of window for centroid determination [pix]",
+            cli_alias="halfwindow",
+            default=15,
+            min=1,
+            max=1024
+        ),
+    ])
 
-    # --halfwindow
-    p = cpl.ui.ParameterRange(
-        name=f"{_name}.halfwindow",
-        context=_name,
-        description="Half size of window for centroid determination [pix]",
-        default=15,
-        min=1,
-        max=1024
-    )
-    p.cli_alias = "halfwindow"
-    parameters.append(p)
-
-    implementation_class = MetisCalChophomeImpl
+    Impl = MetisCalChophomeImpl
 
 
 def locate_pinhole(cimg: cpl.core.Image, hwidth: int):
@@ -240,8 +222,6 @@ def locate_pinhole(cimg: cpl.core.Image, hwidth: int):
     # over the image
     flux = cimg.get_flux(win)
     noise = cimg.get_stdev() * 2 * hwidth
-    print("FLUX:", flux)
-    print("NOISE:", noise)
 
     result = {"xcen": xcen, "ycen": ycen, "fwhm_x": fwhm_x, "fwhm_y": fwhm_y,
               "snr": flux / noise}

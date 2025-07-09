@@ -17,16 +17,24 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 from abc import ABC
-from typing import Pattern
-
-import cpl
 
 from . import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
+
+from ..dataitems.common import PersistenceMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel, FluxStdCatalog, \
+    AtmLineCatalog, LaserTable
+from ..dataitems.linearity.linearity import LinearityMap
+from ..dataitems.raw import Raw
+from ..dataitems.badpixmap import BadPixMap
+from pymetis.classes.dataitems.distortion.table import DistortionTable
+from ..dataitems.gainmap import GainMap
+from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
+from ..dataitems.masterflat import MasterFlat
+from ..dataitems.raw.wcuoff import WcuOffRaw
+from ..dataitems.synth import SynthTrans
+from ..dataitems.wavecal import IfuWavecal
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
@@ -37,117 +45,87 @@ You should never derive directly from `PipelineInput`, but rather from
 
 You should override class attributes:
 
- -  `_title`
-    The short description of an `Input` class (this is only used for log output).
- -  `_group`
-    The `cpl.ui.Frame.FrameGroup` property that is required by PyEsoRex and also by CPL.
- -  `_tags`
-    The list of tags that are accepted by this input. Note that in some classes it is not defined yet, but definition
-    is deferred to further children (but has to be defined *somewhere*). Tags can contain format template placeholders,
-    which will be filled from **kwargs in the __init__ method, to allow various detectors or bands.
+ -  `Item`
+    points to the data item inside this `Input`
  -  `_required`
     A boolean telling the recipe if this input is required or not. Default is True, so it is enough to say
-    `_required = False` for optional inputs.
+    `_required = False` for optional inputs, or even better, derive from `OptionalInputMixin` first
 """
 
 
 class OptionalInputMixin(PipelineInput, ABC):
-    _required: bool = False     # Persistence maps are usually optional (but this can be overridden)
+    _required = False     # Many inputs are by default optional, this mixin provides that
 
 
-class RawInput(MultiplePipelineInput):
-    _title: str = "raw"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.RAW
+class RawInput(MultiplePipelineInput, ABC):
+    Item = Raw
 
 
 class MasterDarkInput(SinglePipelineInput):
-    _title: str = "master dark"
-    _tags: Pattern = re.compile(r"MASTER_DARK_(?P<detector>2RG|GEO|IFU)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Master dark frame for {detector} data"
+    Item = MasterDark
 
 
 class MasterFlatInput(SinglePipelineInput):
-    _title: str = "master flat"
-    _tags: Pattern = re.compile(r"MASTER_IMG_FLAT_LAMP_(?P<band>LM|N)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Master flat frame for {detector} data"
+    Item = MasterFlat
 
 
 class LinearityInput(SinglePipelineInput):
-    _title: str = "linearity map"
-    _tags: Pattern = re.compile(r"LINEARITY_(?P<detector>2RG|GEO|IFU)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Coefficients for the pixel non-linearity correction."
+    Item = LinearityMap
 
 
-class BadpixMapInput(SinglePipelineInput):
-    _title: str = "bad pixel map"
-    _tags: Pattern = re.compile(r"BADPIX_MAP_(?P<detector>2RG|GEO|IFU)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Bad pixel map. Also contains detector masks."
+class BadPixMapInput(SinglePipelineInput):
+    Item = BadPixMap
 
 
 class PersistenceMapInput(SinglePipelineInput):
-    _title: str = "persistence map"
-    _tags: Pattern = re.compile(r"PERSISTENCE_MAP")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Persistence map"
+    Item = PersistenceMap
     _required = False           # By default, persistence maps are optional
 
 
 class GainMapInput(SinglePipelineInput):
-    _title: str = "gain map"
-    _tags: Pattern = re.compile(r"GAIN_MAP_(?P<detector>2RG|GEO|IFU)")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Gain map."
+    Item = GainMap
 
 
 class DistortionTableInput(SinglePipelineInput):
-    _title: str = "distortion table"
-    _tags: Pattern = re.compile(r"IFU_DISTORTION_TABLE")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Table of distortion coefficients for an IFU data set"
+    Item = DistortionTable
 
 
 class WavecalInput(SinglePipelineInput):
-    _title: str = "wavelength calibration"
-    _tags: Pattern = re.compile(r"IFU_WAVECAL")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Image with wavelength at each pixel"
+    Item = IfuWavecal
 
 
 class PinholeTableInput(SinglePipelineInput):
-    _title: str = "pinhole table"
-    _tags: Pattern = re.compile(r"PINHOLE_TABLE")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Table of pinhole locations"
+    Item = PinholeTable
 
 
 class FluxstdCatalogInput(SinglePipelineInput):
-    _title: str = "catalog of standard stars"
-    _tags: Pattern = re.compile(r"FLUXSTD_CATALOG")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Catalog of standard stars"
+    Item = FluxStdCatalog
 
 
-class FluxcalTableInput(SinglePipelineInput):
-    _tags: re.Pattern = re.compile(r"FLUXCAL_TAB")
-    _title: str = "flux table"
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Conversion between instrumental and physical flux units"
+class FluxCalTableInput(SinglePipelineInput):
+    Item = FluxCalTable
 
 
 class LsfKernelInput(SinglePipelineInput):
-    _title: str = "line spread function kernel"
-    _tags: Pattern = re.compile(r"LSF_KERNEL")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = "Wavelength dependent model of the LSF"
+    Item = LsfKernel
 
 
 class AtmProfileInput(SinglePipelineInput):
-    _title: str = "atmosphere profile"
-    _tags: Pattern = re.compile(r"ATM_PROFILE")
-    _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-    _description: str = ("Atmospheric profile containing height information on temperature, "
-                         "pressure and molecular abundances")
+    Item = AtmProfile
+
+
+class AtmLineCatInput(SinglePipelineInput):
+    Item = AtmLineCatalog
+
+
+class LaserTableInput(SinglePipelineInput):
+    Item = LaserTable
+
+
+class SynthTransInput(SinglePipelineInput):
+    Item = SynthTrans
+
+
+class WcuOffInput(RawInput):
+    Item = WcuOffRaw
+

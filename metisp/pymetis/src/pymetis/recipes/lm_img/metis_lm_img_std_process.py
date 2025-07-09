@@ -17,23 +17,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
+from pyesorex.parameter import ParameterList, ParameterEnum
 
-import cpl
-
-from pymetis.classes.mixins.band import BandLmMixin
-from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.dataitems.background.subtracted import StdBackgroundSubtracted
+from pymetis.classes.dataitems.combined import LmStdCombined
+from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
+from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisLmImgStdProcessImpl(MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
-        class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
-            _tags: re.Pattern = re.compile(r"LM_STD_BKG_SUBTRACTED")
-            _description: str = "Thermal background subtracted images of standard LM exposures."
+        class RawInput(BandLmMixin, MetisImgStdProcessImpl.InputSet.RawInput):
+            pass
 
-    class ProductImgStdCombined(BandLmMixin, MetisImgStdProcessImpl.ProductImgStdCombined):
-        pass
+    ProductImgStdCombined = LmStdCombined
 
 
 class MetisLmImgStdProcess(MetisRecipe):
@@ -56,8 +54,8 @@ class MetisLmImgStdProcess(MetisRecipe):
         call metis_calculate_detection_limits to compute background noise (std, rms) and compute detection limits
     """
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
@@ -66,4 +64,4 @@ class MetisLmImgStdProcess(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisLmImgStdProcessImpl
+    Impl = MetisLmImgStdProcessImpl

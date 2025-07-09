@@ -17,30 +17,27 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 from cpl.core import Msg
 
+from pyesorex.parameter import ParameterList, ParameterEnum
+
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.coadd import LmSciCoadd
+from pymetis.classes.dataitems.img.basicreduced import LmSciCalibrated
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"LM_SCI_CALIBRATED")
-            _description: str = "LM band image with flux calibration, WC coordinate system and distorion information"
+            Item = LmSciCalibrated
 
-    class ProductLmImgSciCoadd(PipelineImageProduct):
-        _tag = r"LM_SCI_COADD"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Coadded, mosaiced LM image."
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    ProductLmImgSciCoadd = LmSciCoadd
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -54,7 +51,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
 
         combined_image = self.combine_images(raw_images, "average")
 
-        product_coadd = self.ProductLmImgSciCoadd(self, self.header, combined_image)
+        product_coadd = self.ProductLmImgSciCoadd(self.header, combined_image)
 
         return {product_coadd}
 
@@ -72,8 +69,8 @@ class MetisLmImgSciPostProcess(MetisRecipe):
     Call hdrl_resample_compute to recenter the images.
     Call hdrl_imagelist_collapse to stack the images."""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name="metis_lm_img_sci_postprocess.stacking.method",
             context="metis_lm_img_sci_postprocess",
             description="Name of the method used to combine the input images",
@@ -82,4 +79,4 @@ class MetisLmImgSciPostProcess(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisLmImgSciPostProcessImpl
+    Impl = MetisLmImgSciPostProcessImpl

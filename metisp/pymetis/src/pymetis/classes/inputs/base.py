@@ -17,13 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
+import inspect
 from abc import abstractmethod
-from typing import Pattern, Any, Optional
+from typing import Any, Optional, Generator, final
 
 import cpl
-
 from cpl.core import Msg
+
+import pymetis
+from pymetis.classes.dataitems.dataitem import DataItem
 
 
 class PipelineInput:
@@ -31,69 +33,114 @@ class PipelineInput:
     This class encapsulates a single logical input to a recipe:
     - either a single file, or a line in the SOF (see SinglePipelineInput)
     - or a set of equivalent files (see MultiplePipelineInput)
+
+    It is a relatively thin wrapper over the inner `Item`.
     """
+    Item: type[DataItem] = None
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
-    _tags: Pattern = None                   # No universal tags are provided
-    _group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
-    _description: Optional[str] = None      # Description for man page
 
-    _multiplicity: str = '<undefined>'
+    _multiplicity: str = None               # Multiplicity of the input, '1' or 'N'
+
+    @staticmethod
+    def preprocess_frameset(frameset: cpl.ui.FrameSet) -> dict[str, cpl.ui.FrameSet]:
+        """
+        Convert a SOF (which is a `list[(filename, tag)]`) to a mapping `tag: list[filename]`.
+        """
+        result = {}
+
+        for frame in frameset:
+            if frame.tag in result:
+                result[frame.tag] += [frame]
+            else:
+                result[frame.tag] = [frame]
+
+        return {
+            tag: cpl.ui.FrameSet(frames)
+            for tag, frames in result.items()
+        }
+
+    def load(self, frameset: cpl.ui.FrameSet) -> None:
+        """
+        Load the associated frames
+        """
+        self.load_inner(frameset)
+        self.set_cpl_attributes()
+
+    @abstractmethod
+    def load_inner(self, frameset: cpl.ui.FrameSet) -> None:
+        """
+        Actually load the associated frames. Implementation differs between derived classes.
+        """
+        pass
+
+    @abstractmethod
+    def set_cpl_attributes(self):
+        """
+        Set CPL attributes of loaded frames. ToDO: is this really necessary?
+        """
+
+    @classmethod
+    def item(cls) -> type[DataItem]:
+        return cls.Item
 
     @classmethod
     def title(cls) -> str:
-        return cls._title
-
-    @classmethod
-    def tags(cls) -> Pattern:
-        """
-        Return the tags for this pipeline input.
-        Override the method if it should depend on some parameter.
-        """
-        return cls._tags
+        return cls.Item.title()
 
     @classmethod
     def required(cls) -> bool:
+        """
+        Marks whether this pipeline input is required. Used during validation.
+        """
         return cls._required
-
-    @classmethod
-    def description(cls) -> str:
-        return cls._description
 
     @property
     def group(self):
-        return self._group
+        return self.Item._frame_group
 
-    @property
-    def detector(self) -> str:
-        return self._detector
+    def __init__(self, frameset: cpl.ui.FrameSet):
+        assert self.Item is not None, \
+            f"Pipeline input {self.__class__.__qualname__} has no defined data item"
 
-    @detector.setter
-    def detector(self, value):
-        self._detector = value
+        assert self.Item.name() is not None, \
+            f"Data item {self.Item.__qualname__} has no defined name"
 
-    def __init__(self):
-        # Check if it is defined
-        if self.title() is None:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
+        assert self.Item.frame_type() is not None, \
+            f"Data item {self.Item.__qualname__} has no defined frame type"
 
-        # Check if tags are defined...
-        if not self.tags():
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined tag pattern")
+        assert self.Item.frame_level() is not None, \
+            f"Data item {self.Item.__qualname__} has no defined frame level"
 
-        # ...and that they are a `re` pattern
-        if not isinstance(self.tags(), re.Pattern):
-            raise TypeError(f"PipelineInput `tags` must be a `re.Pattern`, got '{self.tags()}'")
+        assert self.Item.frame_group() is not None, \
+            f"Data item {self.Item.__qualname__} has no defined frame group"
 
-        # Check is frame_group is defined (if not, this gives rise to strange errors deep within CPL
-        # that you really do not want to deal with)
-        if not self.group:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no defined group!")
 
-        # A list of matched groups from `tags`. Acquisition differs
-        # between Single and Multiple, so we just declare it here.
-        self.tag_parameters: dict[str, str] = {}
+        for tag, frames in self.preprocess_frameset(frameset).items():
+            Msg.debug(self.__class__.__qualname__,
+                      f"Processing frame {tag}")
+            cls = DataItem.find(tag)
+
+            if cls is None:
+                Msg.warning(self.__class__.__qualname__,
+                            f"Found a frame with tag '{tag}', which is not a registered data item. Ignoring.")
+                continue
+            else:
+                if cls == self.Item:
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Found a specialized class {cls.__qualname__} for {tag}, instantiating directly")
+                    self.load(frames)
+                elif cls in self.Item.__subclasses__():
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Found a specialized class {cls.__qualname__} for {tag}, "
+                              f"subclassing this {self.Item.__qualname__} and instantiating")
+                    self.Item = cls
+                    self.load(frames)
+                else:
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
+                    continue
 
     @abstractmethod
     def validate(self) -> None:
@@ -106,54 +153,34 @@ class PipelineInput:
         """
         Print a short description of the tags with a small offset (n spaces).
         """
-        Msg.debug(self.__class__.__qualname__, f"{' ' * offset}Tag: {self.tags()}")
+        Msg.debug(self.__class__.__qualname__,
+                  str(self.item()))
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            'title': self.title,
-            'tags': self.tags(),
+            'item': self.item(),
             'required': self.required,
-            'group': self._group.name,
         }
 
     @classmethod
-    def description_line(cls) -> str:
-        return (f"    {cls._pretty_tags():<60} [{cls._multiplicity}]"
+    @final
+    def _description_line(cls, name: str = None) -> str:
+        """ Produce a description line for man page. """
+        return (f"    {cls.Item.name():<60} [{cls._multiplicity}]"
                 f"{' (optional)' if not cls._required else '           '} "
-                f"{cls._description}")
+                f"{cls.Item.description()}\n{' ' * 84}")
 
-    def _verify_same_detector_from_header(self) -> None:
-        """
-        Verification for headers, currently disabled
-        """
-        detectors = []
-        for frame in self.frameset:
-            header = cpl.core.PropertyList.load(frame.file, 0)
-            try:
-                det = header['ESO DPR TECH'].value
-                try:
-                    detectors.append({
-                                         'IMAGE,LM': '2RG',
-                                         'IMAGE,N': 'GEO',
-                                         'IFU': 'IFU',
-                                     }[det])
-                except KeyError as e:
-                    raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
-            except KeyError:
-                Msg.warning(self.__class__.__qualname__, "No detector (ESO DPR TECH) set!")
+    @classmethod
+    @final
+    def _extended_description_line(cls, name: str = None) -> str:
+        """ Produce ae extended description line for man page. """
+        assert cls.Item is not None, f"{cls.__qualname__} has no item"
+        assert cls.Item.name() is not None, f"{cls.Item.__qualname__} has no name"
+        assert cls.Item.description() is not None, f"{cls.Item.__qualname__} has no description defined"
 
-        # Check if all the raws have the same detector, if not, we have a problem
-        if (detector_count := len(unique := list(set(detectors)))) == 1:
-            self._detector = unique[0]
-            Msg.debug(self.__class__.__qualname__,
-                      f"Detector determined: {self.detector}")
-        elif detector_count == 0:
-            Msg.warning(self.__class__.__qualname__,
-                        "No detectors specified (this is probably fine in skeleton stage)")
-        else:
-            # raise ValueError(f"Darks from more than one detector found: {set(detectors)}!")
-            Msg.warning(self.__class__.__qualname__,
-                        f"Darks from more than one detector found: {unique}!")
+        return (f"    {cls.Item.name():<24}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
+                f" {cls.Item.description()}")
+#                f"{f'\n{' ' * 84}'.join([x.__qualname__ for x in set(cls.input_for_recipes())])}")
 
     @abstractmethod
     def valid_frames(self) -> cpl.ui.FrameSet:
@@ -164,7 +191,16 @@ class PipelineInput:
         pass
 
     @classmethod
-    def _pretty_tags(cls) -> str:
-        """ Helper method to print `re.Pattern`s in man-page: remove named capture groups' names. """
-        return cls.tags().pattern
-        # return re.sub(r"\?P<\w+>", "", cls.tags().pattern)
+    def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:
+        """
+        List all PipelineRecipe classes that use this Input.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in inspect.getmembers(
+            pymetis.recipes,
+            lambda x: inspect.isclass(x) and x.Impl.InputSet is not None
+        ):
+            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
+                if issubclass(kls, cls):
+                    yield klass
