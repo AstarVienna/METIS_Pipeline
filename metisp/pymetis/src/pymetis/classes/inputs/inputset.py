@@ -55,13 +55,13 @@ class PipelineInputSet(Parametrizable, ABC):
     def __init_subclass__(cls, abstract=False, **params):
         cls.__abstract = abstract
 
-        if cls.__abstract:
-            pass
-        else:
-            for name, input_class in cls.get_inputs():
-                print(f"Found input class {cls.__qualname__} {input_class.__name__} "
-                      f"({input_class.Item._name_template}), "
-                      f"params are {cls.tag_parameters()}")
+        #if cls.__abstract:
+        #    pass
+        #else:
+        #    for name, input_class in cls.get_inputs():
+        #        print(f"Found input class {cls.__qualname__} {input_class.__name__} "
+        #              f"({input_class.Item._name_template}), "
+        #              f"params are {cls.tag_parameters()}")
 
     def __init__(self, frameset: cpl.ui.FrameSet):
         """

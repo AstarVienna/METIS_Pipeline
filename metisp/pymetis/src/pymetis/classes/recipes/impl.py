@@ -88,9 +88,9 @@ class MetisRecipeImpl(ABC):
             if (new_class := DataItem.find(tag := item.specialize(**parameters))) is None:
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:
-                Msg.info(cls.__class__.__qualname__,
-                         f"Promoting {item.__qualname__} ({item.name()}) "
-                         f"to {new_class.__qualname__} ({new_class.name()})")
+                Msg.debug(cls.__class__.__qualname__,
+                          f"Promoting {item.__qualname__} ({item.name()}) "
+                          f"to {new_class.__qualname__} ({new_class.name()})")
 
             # Replace the product attribute with the new class
             cls.__class__.__setattr__(cls, name, new_class)

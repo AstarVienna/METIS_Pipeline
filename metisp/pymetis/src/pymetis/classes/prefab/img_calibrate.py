@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.background.subtracted import LmSciBackgroundSubtracted
-from pymetis.classes.dataitems.img.basicreduced import LmSciCalibrated
+from pymetis.classes.dataitems.background.subtracted import SciBackgroundSubtracted
 from pymetis.classes.dataitems.distortion.table import DistortionTable
-from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.classes.dataitems.img.basicreduced import Calibrated
 from pymetis.classes.inputs import FluxCalTableInput
+from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.classes.recipes import MetisRecipeImpl
 
 
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
@@ -39,7 +39,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
         class DistortionTableInput(SinglePipelineInput):
             Item = DistortionTable
 
-    ProductSciCalibrated = SciCalibrated
+    ProductSciCalibrated = Calibrated
 
     def process(self) -> set[DataItem]:
         combined_image = self._create_dummy_image()

@@ -19,16 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.background.subtracted import LmStdBackgroundSubtracted
+from pymetis.classes.dataitems.background.subtracted import StdBackgroundSubtracted
 from pymetis.classes.dataitems.combined import LmStdCombined
-from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
+from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisLmImgStdProcessImpl(MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
-        class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
-            Item = LmStdBackgroundSubtracted
+        class RawInput(BandLmMixin, MetisImgStdProcessImpl.InputSet.RawInput):
+            pass
 
     ProductImgStdCombined = LmStdCombined
 

@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
+from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted, StdBackgroundSubtracted
 from pymetis.classes.dataitems.combined import Combined
 from pymetis.classes.dataitems.common import FluxCalTable
 from pymetis.classes.inputs import RawInput
@@ -32,7 +32,7 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 class MetisImgStdProcessImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = BackgroundSubtracted
+            Item = StdBackgroundSubtracted
 
         FluxstdCatalogInput = FluxstdCatalogInput
 
