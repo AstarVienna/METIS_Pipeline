@@ -1,5 +1,6 @@
 # HEADER KEYWORDS USED FOR CLASSIFICATION, GROUPING, AND ASSOCIATION.
 instrume = "instrume"
+simple = "simple"
 pro_catg = "pro.catg"
 dpr_type = "dpr.type"
 dpr_catg = "dpr.catg"
