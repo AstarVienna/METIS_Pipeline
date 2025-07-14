@@ -32,4 +32,8 @@ class Parametrizable:
 
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
+        """
+        Return the tag parameters for this class.
+        By default, there are none, but mixins may add their own.
+        """
         return {}

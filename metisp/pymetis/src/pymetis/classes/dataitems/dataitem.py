@@ -29,6 +29,7 @@ from cpl.core import Msg, abstractmethod
 from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
+from pymetis.classes.mixins.base import Parametrizable
 
 PIPELINE = r'METIS'
 
@@ -53,7 +54,7 @@ def partial_format(template: str, **kwargs) -> str:
 
 
 
-class DataItem(ABC):
+class DataItem(Parametrizable, ABC):
     """
     The `DataItem` class encapsulates a single data item: the smallest standalone unit of detector data
     or a product of a recipe.
@@ -129,20 +130,13 @@ class DataItem(ABC):
         cls._name_template = partial_format(cls._name_template, **parameters)
         return cls._name_template
 
-    @classmethod
-    def tag_parameters(cls) -> dict[str, str]:
-        """
-        Return the tag parameters for this class.
-        By default, there are none, but mixins may add their own.
-        """
-        return {}
-
     @staticmethod
     def __replace_empty_tags(**parameters):
         """
         Replace all `None` parameters with placeholders.
         Intended for human-readable output in not-fully-specialized recipes, such as man pages.
-        For instance, `MASTER_DARK_{detector}` gets rendered literally as "MASTER_DARK_{detector}".
+        For instance, `MASTER_DARK_{detector}` with parameters `{'detector': None}`
+        gets rendered literally as "MASTER_DARK_{detector}".
 
         ToDo: Change to proper t-strings when Python 3.14 is supported.
         """
@@ -367,7 +361,7 @@ class DataItem(ABC):
         """
         return (f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
                 #f"\n{' ' * 84}"
-                f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
+                f"{f'\n{' ' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
 
 class ImageDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
