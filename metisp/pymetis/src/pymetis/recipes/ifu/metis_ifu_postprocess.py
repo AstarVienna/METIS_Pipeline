@@ -17,29 +17,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.coadd import IfuSciCoadd
+from pymetis.classes.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"IFU_SCI_CUBE_CALIBRATED")
-            _title: str = "rectified spectral cube"
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
+            Item = IfuScienceCubeCalibrated
 
-    class ProductSciCoadd(PipelineImageProduct):
-        _tag = r"IFU_SCI_COADD"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = ("Spectral cube of science object, a coadd of a number of reduced IFU exposures "
-                             "covering a different spatial and wavelength ranges.")
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    ProductSciCoadd = IfuSciCoadd
 
     def determine_output_grid(self):
         pass
@@ -50,7 +42,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
     def coadd_cubes(self):
         pass
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         self.determine_output_grid()
         self.resample_cubes()
         self.coadd_cubes()
@@ -58,7 +50,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         header = self._create_dummy_header()
         image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file)  # ToDo actual processing
 
-        product = self.ProductSciCoadd(self, header, image)
+        product = self.ProductSciCoadd(header, image)
 
         return {product}  # ToDo is just a dummy for now
 
@@ -78,4 +70,4 @@ class MetisIfuPostprocess(MetisRecipe):
     Call metis_ifu_resampling to resample input cubes to output grid
     Call metis_ifu_coadd to stack the images"""
 
-    implementation_class = MetisIfuPostprocessImpl
+    Impl = MetisIfuPostprocessImpl

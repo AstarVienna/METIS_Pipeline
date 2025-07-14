@@ -19,10 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from __future__ import annotations
 import cpl
-from cpl.core import Msg
-
-from pymetis.classes.products import PipelineProduct
-from pymetis.classes.products.product import PIPELINE
 
 
 class PipelineMultipleProduct(PipelineProduct):
@@ -42,10 +38,10 @@ class PipelineMultipleProduct(PipelineProduct):
         for key, ext in self.extensions.items():
             self.__setattr__(key, ext)
 
-    def save_files(self):
+    def save_files(self, parameters: ParameterList) -> None:
         cpl.dfs.save_propertylist(
             self.recipe.frameset,
-            self.recipe.parameters,
+            parameters,
             self.recipe.used_frames,
             self.recipe.name,
             self.properties,

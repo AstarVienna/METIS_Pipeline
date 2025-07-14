@@ -12,7 +12,7 @@ class TestPipelineInput:
             """
             pass
 
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(AssertionError):
             NoTitleInput(cpl.ui.FrameSet())
 
     def test_fails_if_no_group_defined(self):
@@ -21,5 +21,5 @@ class TestPipelineInput:
             Incorrect testing Input class with no group defined.
             """
 
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(AssertionError):
             NoGroupInput(cpl.ui.FrameSet())

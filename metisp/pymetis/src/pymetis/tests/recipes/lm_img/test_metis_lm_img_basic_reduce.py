@@ -22,7 +22,6 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.lm_img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
                                                               MetisLmImgBasicReduceImpl as Impl)
-from pymetis.classes.products import PipelineProduct
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
 
 
@@ -41,7 +40,7 @@ def sof(name: str) -> str:
 
 
 class TestRecipe(BaseRecipeTest):
-    _recipe: type[MetisRecipe] = Recipe
+    Recipe = Recipe
 
     @pytest.mark.pyesorex
     @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
@@ -50,8 +49,8 @@ class TestRecipe(BaseRecipeTest):
 
 
 class TestInputSet(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl] = Impl
+    Impl = Impl
 
 
 class TestProduct(BaseProductTest):
-    _product: type[PipelineProduct] = Impl.ProductBasicReduced
+    Product = Impl.ProductBasicReduced

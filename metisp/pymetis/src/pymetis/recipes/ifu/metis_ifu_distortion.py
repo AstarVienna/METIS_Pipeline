@@ -16,14 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
 import re
 
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct, PipelineTableProduct
 from pymetis.classes.inputs import RawInput, MasterDarkInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
@@ -36,22 +36,12 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         PinholeTableInput = PinholeTableInput
 
         class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"IFU_DISTORTION_RAW")
-            _description: str = "Images of multi-pinhole mask."
+            Item = IfuDistortionRaw
 
-    class ProductIfuDistortionTable(PipelineTableProduct):
-        _tag = r"IFU_DISTORTION_TABLE"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Table of distortion coefficients for an IFU data set"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    ProductDistortionTable = IfuDistortionTable
+    ProductDistortionReduced = IfuDistortionReduced
 
-    class ProductIfuDistortionReduced(PipelineImageProduct):
-        _tag = r"IFU_DIST_REDUCED"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -66,23 +56,23 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         combined_image = self.combine_images(raw_images, "average")
         table = self._create_dummy_table()
 
-        product_distortion = self.ProductIfuDistortionTable(self, self.header, table)
-        product_distortion_reduced = self.ProductIfuDistortionReduced(self, self.header, combined_image)
+        product_distortion = self.ProductDistortionTable(self.header, table)
+        product_distortion_reduced = self.ProductDistortionReduced(self.header, combined_image)
 
         return {product_distortion, product_distortion_reduced}
 
 
 class MetisIfuDistortion(MetisRecipe):
-    _name: str = "metis_ifu_distortion"
-    _version: str = "0.1"
-    _author: str = "Martin Baláž, A*"
-    _email: str = "martin.balaz@univie.ac.at"
-    _synopsis: str = "Reduce raw science exposures of the IFU."
-    _description: str = (
+    _name = "metis_ifu_distortion"
+    _version = "0.1"
+    _author = "Martin Baláž, A*"
+    _email = "martin.balaz@univie.ac.at"
+    _synopsis = "Reduce raw science exposures of the IFU."
+    _description = (
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: set[str] = {'DRS.IFU'}
+    _matched_keywords = {'DRS.IFU'}
     _algorithm = """Calculate table mapping pixel position to position on sky."""
 
-    implementation_class = MetisIfuDistortionImpl
+    Impl = MetisIfuDistortionImpl

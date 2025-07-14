@@ -23,7 +23,9 @@ from typing import Dict, Any
 
 import cpl
 
-from pymetis.classes.products import PipelineProduct
+from pyesorex.parameter import ParameterList
+
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInput
 
@@ -46,7 +48,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _email: str = "astar.vienna@univie.ac.at"                    # ToDo is this a sensible default?
     _copyright: str = "GPL-3.0-or-later"                         # I guess we are using the same copyright everywhere
     _synopsis: str = "Abstract-like base class for METIS recipes"
-    _description: str = ("This class serves as the base class for all METIS recipes."
+    _description: str = ("This class serves as the base class for all METIS recipes. "
                          "Bonus points if it is not visible from pyesorex.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
@@ -54,9 +56,9 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _algorithm: str = None                                      # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
-    parameters: cpl.ui.ParameterList = cpl.ui.ParameterList([])
+    parameters: ParameterList = ParameterList([])
     # Default implementation class. This will not work, because it is abstract, but this is an abstract class too.
-    implementation_class: type[MetisRecipeImpl] = MetisRecipeImpl
+    Impl: type[MetisRecipeImpl] = MetisRecipeImpl
 
     def __init__(self):
         super().__init__()
@@ -64,27 +66,33 @@ class MetisRecipe(cpl.ui.PyRecipe):
         self._description: str = self._build_description()
         self.implementation: MetisRecipeImpl | None = None
 
-    def run(self, frameset: cpl.ui.FrameSet, settings: Dict[str, Any]) -> cpl.ui.FrameSet:
+    def run(self, frameset: cpl.ui.FrameSet, settings: dict[str, Any]) -> cpl.ui.FrameSet:
         """
         The main method, as required by PyCPL.
         Instantiates the decoupled implementation, fills it with supplied frameset,
         optionally promotes the class to the proper child class and then runs it.
         """
-        self.implementation = self.implementation_class(self, frameset, settings)
+        self.implementation = self.Impl(self, frameset, settings)
         return self.implementation.run()
 
-    def _list_inputs(self) -> list[PipelineInput]:
-        return inspect.getmembers(self.implementation_class.InputSet,
+    def _list_inputs(self) -> list[tuple[str, PipelineInput]]:
+        return inspect.getmembers(self.Impl.InputSet,
                                   lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
-    def _list_products(self) -> list[str, PipelineProduct]:
-        return inspect.getmembers(self.implementation_class,
-                                  lambda x: inspect.isclass(x) and issubclass(x, PipelineProduct))
+    def _list_products(self) -> list[tuple[str, DataItem]]:
+        return inspect.getmembers(self.Impl,
+                                  lambda x: inspect.isclass(x) and issubclass(x, DataItem))
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:
-        fix_spacing = re.compile(r'\n\s*')
+        """
+        A kludgy attempt to format the algorithm description to have nice indentation.
+        """
+
+        # First, remove all spaces from the beginning of the string.
         fix_first_space = re.compile(r'^\s*')
+        # Second, remove all spaces from the beginning of each line and a fixed number of spaces.
+        fix_spacing = re.compile(r'\n\s*')
 
         return fix_spacing.sub('\n' + ' ' * offset, fix_first_space.sub(' ' * offset, text)) \
             if text is not None else f'<no {title} defined>'
@@ -101,8 +109,10 @@ class MetisRecipe(cpl.ui.PyRecipe):
         else:
             matched_keywords = '\n    '.join(self._matched_keywords)
 
-        inputs = '\n'.join(sorted([input_type.description_line() for (_, input_type) in self._list_inputs()]))
-        products = '\n'.join(sorted([product_type.description_line() for (_, product_type) in self._list_products()]))
+        inputs = '\n'.join(sorted([input_type._extended_description_line(name)
+                                   for (name, input_type) in self._list_inputs()]))
+        products = '\n'.join(sorted([product_type._extended_description_line(name)
+                                     for (name, product_type) in self._list_products()]))
         description = self._format_spacing(self._description, 'description', 2)
         algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
 

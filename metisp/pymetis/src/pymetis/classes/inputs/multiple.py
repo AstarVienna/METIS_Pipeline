@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Any
+from typing import Any, Optional
 
 import cpl
 
@@ -34,78 +34,55 @@ class MultiplePipelineInput(PipelineInput):
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):
-        self.frameset: cpl.ui.FrameSet | None = cpl.ui.FrameSet()
-        super().__init__()
+        self.frameset: Optional[cpl.ui.FrameSet] = cpl.ui.FrameSet()
+        super().__init__(frameset)
 
-        tag_matches = []
-        for frame in frameset:
-            if match := self.tags().fullmatch(frame.tag):
-                frame.group = self.group
-                self.frameset.append(frame)
-                Msg.debug(self.__class__.__qualname__,
-                          f"Matched a {self.title} frame '{frame.file}' (with {match.groupdict()}).")
-                tag_matches.append(match.groupdict())
-            else:
-                Msg.debug(self.__class__.__qualname__,
-                          f"Ignoring {frame.file}: tag {frame.tag} does not match.")
-
-        self.extract_tag_parameters(tag_matches)
-
-    @classmethod
-    def get_target_name(cls, frameset: cpl.ui.FrameSet):
+    def load_inner(self, frameset: cpl.ui.FrameSet):
         """
-        Extracts the 'target' name from the input string based on the '_tags' regex.
-
-        :return: The target name if a match is found, otherwise None.
+        Load the associated frames.
+        A MultiplePipelineInput just assigns all the frames to its attribute.
         """
-        for frame in frameset:
-            if match := cls._tags.match(frame.tag):
-                return match.group("target")
-            else:
-                return None
+        self.frameset = frameset
+        Msg.debug(self.__class__.__name__,
+              f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-        return None
+    def set_cpl_attributes(self):
+        frameset = cpl.ui.FrameSet()
 
-    def extract_tag_parameters(self, matches: list[dict[str, str]]):
-        """Extract the tag parameters from regex matches."""
-        if len(matches) == 0:
-            return
+        for frame in self.frameset:
+            frame.group = self.Item.frame_group()
+            frame.level = self.Item.frame_level()
+            frame.type = self.Item.frame_type()
 
-        Msg.debug(self.__class__.__qualname__, "Verifying that tag parameters are equal for all frames...")
-        # Check if all matches are created equal
-        if matches[:-1] == matches[1:]:
-            self.tag_parameters = matches[0]
-            #   self._detector = matches[0].get('detector', None)
-            Msg.debug(self.__class__.__qualname__, f"Tag parameters are equal for all frames: {self.tag_parameters}")
-        else:
-            raise ValueError(f"Tag parameters are not equal for all frames! Found {matches}")
+            Msg.debug(self.__class__.__qualname__,
+                      f"Set CPL attributes: {self.Item.frame_group()} {self.Item.frame_level()} {self.Item.frame_type()}")
+            frameset.append(frame)
 
-        for key, value in self.tag_parameters.items():
-            Msg.info(self.__class__.__qualname__, f"Setting tag parameter '{key}' = '{value}'")
-            self.__setattr__(key, value)
+        self.frameset = frameset
 
     def validate(self):
-        self._verify_frameset_not_empty()
+        self._verify_frameset_is_not_empty()
         self._verify_same_detector()
 
-    def _verify_frameset_not_empty(self) -> None:
+    def _verify_frameset_is_not_empty(self) -> None:
         """
-        Verification shorthand: if a required frameset is not present or empty,
+        Verification shorthand.
+
+        If a required frameset is not present or empty,
         raise a `cpl.core.DataNotFoundError` with the appropriate message.
 
-        Raises
-        ------
+        :raises:
         cpl.core.DataNotFoundError:
             If the input is required but the frameset is empty
         """
         if (count := len(self.frameset)) == 0:
             if self.required():
                 raise cpl.core.DataNotFoundError(
-                    f"{self.__class__.__qualname__}: no {self.title():s} frames "
-                    f"({self.tags().pattern:s}) found in the frameset."
+                    f"{self.__class__.__qualname__}: no {self.Item.title()} frames "
+                    f"({self.Item.name():s}) found in the frameset."
                 )
             else:
-                Msg.debug(self.__class__.__qualname__, f"No {self.title():s} frames found but not required.")
+                Msg.debug(self.__class__.__qualname__, f"No {self.title()} frames found but not required.")
         else:
             Msg.debug(self.__class__.__qualname__, f"Frameset OK: {count} frame{'s' if count > 1 else ''} found")
 
@@ -119,11 +96,6 @@ class MultiplePipelineInput(PipelineInput):
             If the found detector name is not a valid detector name
         ValueError
             If dark frames from more than one detector are found
-
-        Returns
-        -------
-        None:
-            None on success
         """
 
     def as_dict(self) -> dict[str, Any]:
@@ -140,5 +112,6 @@ class MultiplePipelineInput(PipelineInput):
 
         # FixMe: currently returns everything, but should only return valid frames.
         :return:
+            cpl.ui.FrameSet : a list of valid frames
         """
         return self.frameset

@@ -1,0 +1,67 @@
+"""
+This file is part of the METIS Pipeline.
+Copyright (C) 2025 European Southern Observatory
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+"""
+
+import pytest
+
+from pymetis.recipes.n_lss.metis_n_lss_std import (MetisNLssStd as Recipe,
+                                                   MetisNLssStdImpl as Impl)
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+
+
+recipe_name = r'metis_n_lss_std'
+
+
+@pytest.fixture
+def name() -> str:
+    return recipe_name
+
+
+@pytest.fixture
+def sof(name: str) -> str:
+    return rf'{name}.sof'
+
+
+class TestRecipe(BaseRecipeTest):
+    Recipe = Recipe
+
+
+class TestInputSet(BaseInputSetTest):
+    Impl = Impl
+
+
+class TestProductNLssStdObjMap(BaseProductTest):
+    Product = Impl.ProductLssStdObjMap
+
+
+class TestProductNLssStdSkyMap(BaseProductTest):
+    Product = Impl.ProductLssStdSkyMap
+
+
+class TestProductMasterNResponse(BaseProductTest):
+    Product = Impl.ProductMasterResponse
+
+
+class TestProductStdTransmission(BaseProductTest):
+    Product = Impl.ProductStdTransmission
+
+
+class TestProductNLssStd1d(BaseProductTest):
+    Product = Impl.ProductLssStd1d
+
+

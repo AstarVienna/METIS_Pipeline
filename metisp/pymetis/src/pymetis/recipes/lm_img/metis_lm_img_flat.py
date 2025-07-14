@@ -17,48 +17,30 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
+from abc import ABC
+
+from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.mixins.band import BandLmMixin
-from pymetis.classes.mixins.target import TargetTwilightMixin, TargetLampMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgFlatImpl
 
 
-class MetisLmImgFlatImpl(MetisBaseImgFlatImpl):
+class MetisLmImgFlatImpl(MetisBaseImgFlatImpl, ABC):
     class InputSet(BandLmMixin, MetisBaseImgFlatImpl.InputSet):
-        pass
-
-    class ProductMasterFlat(BandLmMixin, MetisBaseImgFlatImpl.ProductMasterFlat):
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
-        return {
-            'LAMP': MetisLmImgFlatLampImpl,
-            'TWILIGHT': MetisLmImgFlatTwilightImpl,
-        }[self.inputset.target]
-
-
-class MetisLmImgFlatTwilightImpl(MetisLmImgFlatImpl):
-    class ProductMasterFlat(TargetTwilightMixin, MetisLmImgFlatImpl.ProductMasterFlat):
-        pass
-
-
-class MetisLmImgFlatLampImpl(MetisLmImgFlatImpl):
-    class ProductMasterFlat(TargetLampMixin, MetisLmImgFlatImpl.ProductMasterFlat):
         pass
 
 
 class MetisLmImgFlat(MetisRecipe):
     # Fill in recipe information
-    _name: str = "metis_lm_img_flat"
-    _version: str = "0.1"
-    _author: str = "A*"
-    _email: str = "hugo@buddelmeijer.nl"
-    _synopsis: str = "Create master flat for L/M band detectors"
-    _description: str = "Prototype to create a METIS Masterflat for L/M band"
+    _name = "metis_lm_img_flat"
+    _version = "0.1"
+    _author = "A*"
+    _email = "hugo@buddelmeijer.nl"
+    _synopsis = "Create master flat for L/M band detectors"
+    _description = "Prototype to create a METIS Masterflat for L/M band"
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
     Subtract internal dark or master dark from flat exposures.
     Call `metis_lm_img_flat` to fit slope of pixel values against illumination level.
@@ -66,8 +48,8 @@ class MetisLmImgFlat(MetisRecipe):
     Compute median or average of input frames to improve statistics.
     Call `metis_update_lm_flat_mask` to flag deviant pixels."""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
@@ -76,4 +58,4 @@ class MetisLmImgFlat(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisLmImgFlatImpl
+    Impl = MetisLmImgFlatImpl

@@ -17,17 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
 from abc import ABC
 
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.masterflat import MasterImgFlat
+from pymetis.classes.dataitems.masterflat.raw import FlatRaw
 from pymetis.classes.inputs import RawInput, MasterDarkInput
 
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.classes.products import PipelineProduct, BandSpecificProduct, TargetSpecificProduct, PipelineImageProduct
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
@@ -38,24 +39,11 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         MasterDarkInput = MasterDarkInput
 
         class RawInput(RawInput):
-            """
-            A subclass of RawInput that is handling the flat image raws.
-            """
-            _tags: re.Pattern = re.compile(r"(?P<band>(LM|N))_FLAT_(?P<target>LAMP|TWILIGHT)_RAW")
-            _description: str = "Flat image raw"
+            Item = FlatRaw
 
-    class ProductMasterFlat(BandSpecificProduct, TargetSpecificProduct, PipelineImageProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
+    ProductMasterFlat = MasterImgFlat
 
-        @classmethod
-        def tag(cls) -> str:
-            return fr"MASTER_IMG_FLAT_{cls.target():s}_{cls.band():s}"
-
-        @classmethod
-        def description(cls) -> str:
-            return fr"Master flat frame for {cls.band():s} image data"
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         """
         Do the actual processing of the images.
         Here, it means loading the input images and a master dark,
@@ -82,6 +70,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         combined_image = self.combine_images(self.inputset.load_raw_images(), method)
 
-        product = self.ProductMasterFlat(self, header, combined_image)
+        product = self.ProductMasterFlat(header, combined_image)
 
         return {product}

@@ -17,21 +17,27 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
 import cpl
 import numpy as np
-from cpl.core import Msg
+
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
 # is this legal?
 from astropy.table import QTable
 
-from pymetis.classes.mixins import DetectorIfuMixin
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.badpixmap import BadPixMapIfu
+from pymetis.classes.dataitems.gainmap import GainMapIfu
+from pymetis.classes.dataitems.linearity.linearity import LinearityMapIfu
+from pymetis.classes.dataitems.masterdark.masterdark import MasterDarkIfu
+from pymetis.classes.dataitems.masterflat import MasterFlatIfu
+from pymetis.classes.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
+from pymetis.classes.dataitems.raw.wcuoff import IfuWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.inputs import (BadpixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    WavecalInput, DistortionTableInput, LinearityInput)
+from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
+                                    WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
-from pymetis.classes.products import PipelineProduct, PipelineTableProduct, PipelineImageProduct, ProductBadpixMapDet
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files
@@ -39,84 +45,38 @@ EXT = 4  # TODO: update to read multi-extension files
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
-        detector = "IFU"
-
         class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"IFU_RSRF_RAW")
-            _title: str = "IFU rsrf raw"
-            _description: str = "Raw flats taken with black-body calibration lamp."
+            Item = IfuRsrfRaw
 
         class MasterDarkInput(MasterDarkInput):
-            _tags: re.Pattern = re.compile(r"MASTER_DARK_IFU")
+            Item = MasterDarkIfu
 
-        class GainMapInput(GainMapInput):
-            _tags: re.Pattern = re.compile(r"GAIN_MAP_IFU")
-            _required = False
+        class GainMapInput(OptionalInputMixin, GainMapInput):
+            Item = GainMapIfu
 
-        class LinearityInput(LinearityInput):
-            _tags: re.Pattern = re.compile(r"LINEARITY_IFU")
-            _required = False
+        class LinearityInput(OptionalInputMixin, LinearityInput):
+            Item = LinearityMapIfu
 
         class RsrfWcuOffInput(RawInput):
             """
             WCU_OFF input illuminated by the WCU up-to and including the
             integrating sphere, but no source.
             """
-            _tags: re.Pattern = re.compile(r"IFU_WCU_OFF_RAW")
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _title: str = "IFU WCU off"
-            _description: str = "Raw data for dark subtraction in other recipes."
+            Item = IfuWcuOffRaw
 
         # TBC: could this be replaced by the MASTER_DARK_IFU input?
-        class BadpixMapInput(BadpixMapInput):
-            _tags: re.Pattern = re.compile(r"BADPIX_MAP_IFU")
-            _required = False
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
+            Item = BadPixMapIfu
 
         DistortionTableInput = DistortionTableInput
         WavecalInput = WavecalInput
 
-    class ProductRsrfBackground(PipelineImageProduct):
-        """
-        Intermediate product: the instrumental background (WCU OFF)
-        """
-        _tag: str = r"IFU_RSRF_BACKGROUND"
-        level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-        _description: str = "Stacked background image."
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    ProductRsrfBackground = IfuRsrfBackground
+    ProductMasterFlat = MasterFlatIfu
+    ProductRsrfIfu = RsrfIfu
+    ProductBadPixMap = BadPixMapIfu
 
-        # SKEL: copy product keywords from the header
-        def add_properties(self) -> None:
-            super().add_properties()
-            self.properties.append(self.header)
-
-    class ProductMasterFlatIfu(PipelineImageProduct):
-        _tag: str = r"MASTER_FLAT_IFU"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-
-        _description: str = "2D relative spectral response image"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-        # SKEL: copy product keywords from the header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
-    class ProductRsrfIfu(PipelineTableProduct):
-        _tag: str = r"RSRF_IFU"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-
-        _description: str = "1D relative spectral response function"
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-        # SKEL: copy product keywords from the header
-        def add_properties(self):
-            super().add_properties()
-            self.properties.append(self.header)
-
-    class ProductBadpixMapIfu(DetectorIfuMixin, ProductBadpixMapDet):
-        pass
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         """
         This function processes the input images:
         - stack the wcu_off images into background_img
@@ -247,10 +207,12 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         rsrf_table = cpl.core.Table(table)
 
-        product_background = self.ProductRsrfBackground(self, background_hdr, background_img)
-        product_master_flat_ifu = self.ProductMasterFlatIfu(self, spec_flat_hdr, spec_flat_img)
-        product_rsrf_ifu = self.ProductRsrfIfu(self, rsrf_hdr, rsrf_table)
-        product_badpix_map_ifu = self.ProductBadpixMapIfu(self, badpix_hdr, badpix_img)
+        product_background = IfuRsrfBackground(background_hdr, background_img)
+
+        product_background = self.ProductRsrfBackground(background_hdr, background_img)
+        product_master_flat_ifu = self.ProductMasterFlat(spec_flat_hdr, spec_flat_img)
+        product_rsrf_ifu = self.ProductRsrfIfu(rsrf_hdr, rsrf_table)
+        product_badpix_map_ifu = self.ProductBadPixMap(badpix_hdr, badpix_img)
 
         return {product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu}
 
@@ -405,28 +367,26 @@ class MetisIfuRsrf(MetisRecipe):
         Create bad pixel map from the master flat and update with locations
             of zero values in the continuum image - save as BADPIX_MAP_IFU"""
 
-    parameters = cpl.ui.ParameterList()
-    # --stacking.method
-    p = cpl.ui.ParameterEnum(
-        name=f"{_name}.stacking.method",
-        context=_name,
-        description="Name of the method used to combine the input images",
-        default="median",
-        alternatives=("average", "median"),
-    )
-    p.cli_alias = "stacking.method"
-    parameters.append(p)
+    parameters = ParameterList([
+        # --stacking.method
+        ParameterEnum(
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            default="median",
+            alternatives=("average", "median"),
+            cli_alias="stacking.method",
+        ),
+        # --extract.hwidth
+        ParameterRange(
+            name=f"{_name}.extract.hwidth",
+            context=_name,
+            description="Half width of trace for 1D RSRF extraction [pix]",
+            cli_alias="extract.hwidth",
+            default=20,
+            min=1,
+            max=30,
+        ),
+    ])
 
-    # --extract.hwidth
-    p = cpl.ui.ParameterRange(
-        name=f"{_name}.extract.hwidth",
-        context=_name,
-        description="Half width of trace for 1D RSRF extraction [pix]",
-        default=20,
-        min=1,
-        max=30
-    )
-    p.cli_alias = "extract.hwidth"
-    parameters.append(p)
-
-    implementation_class: type[MetisRecipeImpl] = MetisIfuRsrfImpl
+    Impl: type[MetisRecipeImpl] = MetisIfuRsrfImpl

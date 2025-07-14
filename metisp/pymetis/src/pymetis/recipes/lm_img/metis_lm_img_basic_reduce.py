@@ -17,26 +17,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import copy
+
 import cpl
 from cpl.core import Msg
-import os
+from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
-from pymetis.classes.mixins.target import TargetSkyMixin
-from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, \
-    PipelineMultipleProduct
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.img.basicreduced import BasicReduced
+from pymetis.classes.dataitems.img.raw import ImageRaw
+from pymetis.classes.dataitems.masterflat import MasterImgFlat
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
-    detector = '2RG'
-
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class
@@ -63,8 +60,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"LM_IMAGE_(?P<target>SCI|SKY|STD)_RAW")
-            _description: str = "Raw exposure of a standard star in the LM image mode."
+            Item = ImageRaw
             # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
             #    See https://github.com/AstarVienna/METIS_DRLD/issues/321
 
@@ -75,44 +71,11 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         # Also, one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
-            _tags: re.Pattern = re.compile(r"MASTER_IMG_FLAT_(?P<source>LAMP|TWILIGHT)_LM")
-            _description: str = "Master flat frame for LM image data."
+            Item = MasterImgFlat
 
-    class ProductBasicReduced(TargetSpecificProduct, PipelineMultipleProduct):
-        """
-        The second big part is defining the products. For every product, we create a separate class
-        which defines the tag, group, level and frame type. Here we only have one kind of product,
-        so its name is `Product` (or fully qualified, `MetisLmImgBasicReduceImpl.Product`).
-        But feel free to be more creative with names: it could be `MetisLmImgBasicReduceImpl.ProductBasicReduced`.
-        """
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
-        _description: str = "Science grade detrended exposure of the LM image mode."
+    ProductBasicReduced = BasicReduced
 
-        def __init__(self,
-                     recipe_impl: 'MetisRecipeImpl',
-                     header: cpl.core.PropertyList,
-                     *,
-                     image: cpl.core.Image,
-                     noise: cpl.core.Image,
-                     mask: cpl.core.Image,
-                     original_file_name: str):
-            super().__init__(recipe_impl, header, image=image, noise=noise, mask=mask)
-            self.original_file_name: str = original_file_name
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"LM_{cls.target():s}_BASIC_REDUCED"
-
-        @property
-        def output_file_name(self) -> str:
-            """
-            Form the output file name.
-            By default, this should be just the category with ".fits" appended. Feel free to override if needed.
-            """
-            return f"{self.category}_{self.original_file_name}"
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
         You can define extra private functions or use functions from the parent classes:
@@ -128,7 +91,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
 
-        Msg.info(self.__class__.__qualname__, f"Detector name = {self.detector}")
+        Msg.info(self.__class__.__qualname__, f"Detector name = {self.inputset.detector}")
 
         Msg.info(self.__class__.__qualname__, "Loading raw images")
         images = self.inputset.load_raw_images()
@@ -148,7 +111,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # combined_image = self.combine_images(images,
         #                                      self.parameters["metis_lm_img_basic_reduce.stacking.method"].value)
 
-        product_set: set[PipelineProduct] = set()
+        product_set: set[DataItem] = set()
         for i, image in enumerate(images):
             frame = self.inputset.raw.frameset[i]
 
@@ -178,35 +141,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             header.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] max value of image"))
 
-            self.target = self.inputset.tag_parameters['target']
-
-            product = self.ProductBasicReduced(self, header, image=image, noise=noise, mask=bmask,
-                                               original_file_name=os.path.basename(frame.file))
+            product = self.ProductBasicReduced(header, image)
             product_set |= {product}
 
         return product_set
-
-    def _dispatch_child_class(self) -> type["MetisLmImgBasicReduceImpl"]:
-        return {
-            'STD': MetisLmStdBasicReduceImpl,
-            'SCI': MetisLmSciBasicReduceImpl,
-            'SKY': MetisLmSkyBasicReduceImpl,
-        }[self.inputset.target]
-
-
-class MetisLmStdBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetStdMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        pass
-
-
-class MetisLmSciBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetSciMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        pass
-
-
-class MetisLmSkyBasicReduceImpl(MetisLmImgBasicReduceImpl):
-    class ProductBasicReduced(TargetSkyMixin, MetisLmImgBasicReduceImpl.ProductBasicReduced):
-        pass
 
 
 class MetisLmImgBasicReduce(MetisRecipe):
@@ -237,8 +175,8 @@ class MetisLmImgBasicReduce(MetisRecipe):
     Subtract dark, divide by flat
     Remove blank sky pattern"""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=rf"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
@@ -247,4 +185,4 @@ class MetisLmImgBasicReduce(MetisRecipe):
         )
     ])
 
-    implementation_class = MetisLmImgBasicReduceImpl
+    Impl = MetisLmImgBasicReduceImpl

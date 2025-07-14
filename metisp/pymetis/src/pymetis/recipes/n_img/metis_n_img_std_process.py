@@ -17,23 +17,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
+from pyesorex.parameter import ParameterList, ParameterEnum
 
-import cpl
-
-from pymetis.classes.mixins.band import BandNMixin
+from pymetis.classes.dataitems.common import FluxCalTable
+from pymetis.classes.mixins import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
 
 
 class MetisNImgStdProcessImpl(MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
-        class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
-            _tags: re.Pattern = re.compile(r"N_STD_BKG_SUBTRACTED")
-            _description: str = "Thermal background subtracted images of standard N exposures."
+        class RawInput(BandNMixin, MetisImgStdProcessImpl.InputSet.RawInput):
+            pass
 
-    class ProductImgStdCombined(BandNMixin, MetisImgStdProcessImpl.ProductImgStdCombined):
-        pass
+    ProductFluxcalTab = FluxCalTable
 
 
 class MetisNImgStdProcess(MetisRecipe):
@@ -56,8 +53,8 @@ class MetisNImgStdProcess(MetisRecipe):
         call metis_calculate_detection_limits to compute background noise (std, rms) and compute detection limits
     """
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
@@ -66,4 +63,4 @@ class MetisNImgStdProcess(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisNImgStdProcessImpl
+    Impl = MetisNImgStdProcessImpl

@@ -17,24 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
+from pyesorex.parameter import ParameterList, ParameterEnum
 
-import cpl
-
+from pymetis.classes.mixins import DetectorGeoMixin
 from pymetis.classes.mixins.band import BandNMixin
-from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisImgCalibrateImpl
+from pymetis.classes.recipes import MetisRecipe
 
 
 class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):
-    class InputSet(MetisImgCalibrateImpl.InputSet):
-        class BackgroundInput(BandNMixin, MetisImgCalibrateImpl.InputSet.BackgroundInput):
-            _tags: re.Pattern = re.compile(r"N_SCI_BKG_SUBTRACTED")
-
-        class DistortionTableInput(BandNMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
-            _tags: re.Pattern = re.compile(r"N_DISTORTION_TABLE")
-
-    class ProductSciCalibrated(BandNMixin, MetisImgCalibrateImpl.ProductSciCalibrated):
+    class InputSet(BandNMixin, DetectorGeoMixin, MetisImgCalibrateImpl.InputSet):
         pass
 
 
@@ -52,8 +44,8 @@ class MetisNImgCalibrate(MetisRecipe):
     _algorithm: str = """Call metis_n_scale_image_flux to scale image data to photon / s
     Add header information (BUNIT, WCS, etc.)"""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name=f"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
@@ -62,4 +54,4 @@ class MetisNImgCalibrate(MetisRecipe):
         ),
     ])
 
-    implementation_class = MetisNImgCalibrateImpl
+    Impl = MetisNImgCalibrateImpl

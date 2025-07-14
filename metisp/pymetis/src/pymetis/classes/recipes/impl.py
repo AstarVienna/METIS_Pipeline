@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
+import inspect
 import os
 from abc import abstractmethod, ABC
 from typing import Dict, Any, final
@@ -23,7 +25,9 @@ from typing import Dict, Any, final
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.products import PipelineProduct
+from pyesorex.parameter import ParameterList
+
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.inputset import PipelineInputSet
 
 
@@ -36,7 +40,7 @@ class MetisRecipeImpl(ABC):
     InputSet: type[PipelineInputSet] = None
 
     # Available parameters are a class variable. This must be present, even if empty.
-    parameters = cpl.ui.ParameterList([])
+    parameters = ParameterList([])
 
     def __init__(self,
                  recipe: 'MetisRecipe',
@@ -52,15 +56,42 @@ class MetisRecipeImpl(ABC):
         self.parameters = recipe.parameters
 
         self.header: cpl.core.PropertyList | None = None
-        self.products: set[PipelineProduct] = set()
+        self.products: set[DataItem] = set()
         self.product_frames = cpl.ui.FrameSet()
 
         self.frameset: cpl.ui.FrameSet = frameset
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
+        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
+        self.promote(**self.inputset.tag_matches)
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
-        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
-        self.__class__ = self._dispatch_child_class()
+
+    @classmethod
+    def specialize(cls, **parameters) -> None:
+        Msg.info(cls.__qualname__,
+                 f"Specializing {cls.__qualname__} with parameters: {parameters}")
+
+    @classmethod
+    def promote(cls, **parameters) -> None:
+        """
+        Promote the products of this class to appropriate subclasses, as determined from the input data.
+        This may be only called after the recipe is initialized.
+        """
+
+        Msg.info(cls.__qualname__,
+                 f"Promoting the recipe implementation {cls.__qualname__} with {parameters}")
+
+        for name, item in cls.list_product_classes():
+            # Try to find a promoted class in the registry
+            if (new_class := DataItem.find(tag := item.specialize(**parameters))) is None:
+                raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
+            else:
+                Msg.debug(cls.__class__.__qualname__,
+                          f"Promoting {item.__qualname__} ({item.name()}) "
+                          f"to {new_class.__qualname__} ({new_class.name()})")
+
+            # Replace the product attribute with the new class
+            cls.__class__.__setattr__(cls, name, new_class)
 
     def run(self) -> cpl.ui.FrameSet:
         """
@@ -73,7 +104,7 @@ class MetisRecipeImpl(ABC):
         """
 
         try:
-            self.products = self.process_images()           # Do all the actual processing
+            self.products = self.process()           # Do all the actual processing
             self._save_products()                           # Save the output products
 
             return self.build_product_frameset()            # Return the output as a pycpl FrameSet
@@ -96,15 +127,15 @@ class MetisRecipeImpl(ABC):
                             f"has no parameter named {key}.")
 
     @abstractmethod
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         """
         The core method of the recipe implementation. It should contain all the processing logic.
-        At its entry point the `InputSet` class must be already loaded and validated.
+        At its entry point, the `InputSet` class must be already loaded and validated.
 
         All pixel manipulation should happen inside this function (or something it calls from within).
         Put explicitly, this means
-            - no pixel manipulation *before* entering `process_images`,
-            - and no pixel manipulation *after* exiting `process_images`.
+            - no pixel manipulation *before* entering `process`,
+            - and no pixel manipulation *after* exiting `process`.
 
         The basic workflow inside this function should be as follows:
 
@@ -118,9 +149,8 @@ class MetisRecipeImpl(ABC):
                 - Use CPL functions, if available.
                 - Implement what you need yourself.
         3.  Build the output images as specified in the DRLD.
-            Each product should be an instance of the associated `PipelineProduct` class.
-            There should be exactly one `PipelineProduct` for every file produced (at least for now).
-        4.  Return a list of `PipelineProduct`s.
+            Each product should be a `DataItem` and there should be exactly one for every file produced.
+        4.  Return a set of `DataItem`s.
 
         The resulting products dict is then passed to `save_products()` (see `run`).
         """
@@ -136,7 +166,7 @@ class MetisRecipeImpl(ABC):
         Msg.debug(self.__class__.__qualname__,
                   f"Saving {len(self.products)} products: {self.products}")
         for product in self.products:
-            product.save()
+            product.save(recipe=self, parameters=self.parameters)
 
     @final
     def build_product_frameset(self) -> cpl.ui.FrameSet:
@@ -160,7 +190,7 @@ class MetisRecipeImpl(ABC):
             'title': self.name,
             'inputset': self.inputset.as_dict(),
             'products': {
-                str(product.category): product.as_dict() for product in self.products
+                str(product.name()): product.as_dict() for product in self.products
             }
         }
 
@@ -196,25 +226,6 @@ class MetisRecipeImpl(ABC):
     def used_frames(self) -> cpl.ui.FrameSet:
         return self.inputset.used_frames
 
-    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
-        """
-        Return the actual implementation class **when the frameset is already available**, e.g. at runtime.
-        The base implementation just returns its own class, so nothing happens,
-        but more complex recipes may need to select the appropriate derived class based on the input data.
-
-        Typical use is to accomodate for different implementations for
-            - multiple detectors (2RG|GEO|IFU)
-            - different targets (STD|SCI)
-            - different bands (LM|N)
-        or similar.
-
-        It should be something along these lines:
-        ```
-        return {
-            'STD': ChildClassStd,
-            'SCI': ChildClassSci,
-        }[self.inputset.target]
-        ```
-        or use a proper match ... case ... structure if appropriate.
-        """
-        return self.__class__
+    @classmethod
+    def list_product_classes(cls) -> list[tuple[str, type[DataItem]]]:
+        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, DataItem))

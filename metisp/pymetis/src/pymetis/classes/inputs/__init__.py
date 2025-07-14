@@ -22,30 +22,34 @@ from .inputset import PipelineInputSet
 from .base import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
-from .mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin
+from .mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin, BadPixMapInputSetMixin
 
 from .common import (RawInput,
                      MasterDarkInput,
                      MasterFlatInput,
                      LinearityInput,
-                     BadpixMapInput,
+                     BadPixMapInput,
                      PersistenceMapInput,
                      GainMapInput,
-                     FluxcalTableInput,
+                     FluxCalTableInput,
                      FluxstdCatalogInput,
                      PinholeTableInput,
                      DistortionTableInput,
                      LsfKernelInput,
                      AtmProfileInput,
+                     AtmLineCatInput,
                      WavecalInput,
-                     OptionalInputMixin)
+                     OptionalInputMixin,
+                     LaserTableInput,
+                     SynthTransInput)
 
 __all__ = [
     'PipelineInputSet',
     'PipelineInput', 'SinglePipelineInput', 'MultiplePipelineInput',
-    'RawInput', 'MasterDarkInput', 'MasterFlatInput', 'LinearityInput', 'BadpixMapInput',
-    'PersistenceMapInput', 'GainMapInput', 'FluxcalTableInput', 'FluxstdCatalogInput',
+    'RawInput', 'MasterDarkInput', 'MasterFlatInput', 'LinearityInput', 'BadPixMapInput',
+    'PersistenceMapInput', 'GainMapInput', 'FluxCalTableInput', 'FluxstdCatalogInput',
     'PinholeTableInput', 'DistortionTableInput', 'LsfKernelInput', 'AtmProfileInput',
     'WavecalInput', 'OptionalInputMixin',
-    'PersistenceInputSetMixin', 'GainMapInputSetMixin', 'LinearityInputSetMixin'
+    'LsfKernelInput', 'AtmLineCatInput', 'LaserTableInput', 'SynthTransInput',
+    'PersistenceInputSetMixin', 'GainMapInputSetMixin', 'LinearityInputSetMixin', 'BadPixMapInputSetMixin',
 ]

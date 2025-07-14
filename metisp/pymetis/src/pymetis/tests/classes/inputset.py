@@ -32,19 +32,24 @@ class BaseInputSetTest(ABC):
     """
     A set of basic tests common for all InputSets
     """
-    _impl: Optional[type[MetisRecipeImpl]] = None
+    Impl: Optional[type[MetisRecipeImpl]] = None
 
     @pytest.fixture(autouse=True)
     def instance(self, load_frameset, sof):
-        return self._impl.InputSet(load_frameset(sof))
+        return self.Impl.InputSet(load_frameset(sof))
 
     def test_is_an_inputset(self):
-        assert issubclass(self._impl.InputSet, PipelineInputSet), \
-            f"Class is not an InputSet: {self._impl.InputSet}"
+        assert issubclass(self.Impl.InputSet, PipelineInputSet), \
+            f"Class is not derived from InputSet: {self.Impl.InputSet}"
 
     def test_is_not_abstract(self):
-        assert not inspect.isabstract(self._impl.InputSet), \
-            f"InputSet is abstract: {self._impl.InputSet}"
+        assert not inspect.isabstract(self.Impl.InputSet), \
+            f"InputSet is abstract: {self.Impl.InputSet}"
+
+    def test_all_inputs_have_items(self, instance):
+        for inp in instance.inputs:
+            assert inp.item() is not None, \
+                f"Input {inp.__class__.__qualname__} has not item defined"
 
     @staticmethod
     def test_has_inputs_and_it_is_a_set(instance):
@@ -69,25 +74,10 @@ class BaseInputSetTest(ABC):
         assert instance.validate() is None, \
             f"InputSet {instance} did not validate"
 
-    @staticmethod
-    def test_all_inputs(instance):
-        # We should really be testing a class here, not an instance
-        for inp in instance.inputs:
-            assert inp._group is not None, \
-                f"Input {inp} does not have a group defined"
-            assert isinstance(inp._title, str), \
-                f"Input {inp} does not have a title defined"
-
-    @staticmethod
-    def test_input_has_description(instance):
-        for inp in instance.inputs:
-            assert inp.description() is not None, \
-                f"Input {inp} does not have a description defined"
-
 
 @pytest.mark.inputset
 class RawInputSetTest(BaseInputSetTest):
-    _impl: type[MetisRecipeImpl]
+    Impl: type[MetisRecipeImpl]
 
     @staticmethod
     def test_inputset_has_raw_and_it_is_multiple_input(instance):

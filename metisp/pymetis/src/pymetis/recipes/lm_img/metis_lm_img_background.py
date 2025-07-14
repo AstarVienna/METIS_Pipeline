@@ -17,130 +17,55 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pyesorex.parameter import ParameterList, ParameterEnum
+
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.background.background import Background
+from pymetis.classes.dataitems.background.subtracted import BackgroundSubtracted
+from pymetis.classes.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced
+from pymetis.classes.dataitems.object import ObjectCatalog
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.products import PipelineProduct, TargetSpecificProduct, PipelineImageProduct, PipelineTableProduct
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
-    detector = '2RG'
-
-    class InputSet(PipelineInputSet):
+    class InputSet(BandLmMixin, Detector2rgMixin, PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_(?P<target>SCI|STD)_BASIC_REDUCED")
-            _title = "Detrended exposure"
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Detrended exposure of the LM image mode."
+            Item = BasicReduced
 
         class SkyBasicReducedInput(SinglePipelineInput):
-            _tags: re.Pattern = re.compile(r"LM_SKY_BASIC_REDUCED")
-            _group = cpl.ui.Frame.FrameGroup.CALIB
-            _title = "Sky basic-reduced exposure"
-            _description: str = "Detrended exposure of the sky."
+            Item = LmSkyBasicReduced
 
-    class ProductBkg(TargetSpecificProduct, PipelineImageProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+    ProductBkg = Background
+    ProductBkgSubtracted = BackgroundSubtracted
+    ProductObjectCatalog = ObjectCatalog
 
-        @classmethod
-        def description(cls):
-            target = {
-                'SCI': 'science',
-                'STD': 'standard',
-            }.get(cls.target(), '{target}')
-            return f"Thermal background of {target} LM exposures."
-
-        @classmethod
-        def tag(cls):
-            return f"LM_{cls.target():s}_BKG"
-
-    class ProductBkgSubtracted(TargetSpecificProduct, PipelineImageProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        frame_type = cpl.ui.Frame.FrameType.IMAGE
-        _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
-
-        @classmethod
-        def description(cls):
-            target = {
-                'SCI': 'science',
-                'STD': 'standard',
-            }.get(cls.target(), '{target}')
-            return f"Thermal background subtracted images of {target} LM exposures."
-
-        @classmethod
-        def tag(cls):
-            return f"LM_{cls.target():s}_BKG_SUBTRACTED"
-
-    class ProductObjectCat(TargetSpecificProduct, PipelineTableProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-        @classmethod
-        def description(cls):
-            return f"Catalog of masked objects in {cls.verbose()} LM exposures."
-
-        @classmethod
-        def tag(cls):
-            return rf"LM_{cls.target():s}_OBJECT_CAT"
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
-
-        target = self.inputset.tag_parameters['target']
         image = self._create_dummy_image()
         table = self._create_dummy_table()
 
-        product_bkg = self.ProductBkg(self, self.header, image)
-        product_bkg_subtracted = self.ProductBkgSubtracted(self, self.header, image)
-        product_object_cat = self.ProductObjectCat(self, self.header, table)
+        product_bkg = self.ProductBkg(self.header, image)
+        product_bkg_subtracted = self.ProductBkgSubtracted(self.header, image)
+        product_object_cat = self.ProductObjectCatalog(self.header, table)
 
         return {product_bkg, product_bkg_subtracted, product_object_cat}
 
-    def _dispatch_child_class(self) -> type["MetisRecipeImpl"]:
-        return {
-            'STD': MetisLmImgBackgroundStdImpl,
-            'SCI': MetisLmImgBackgroundSciImpl,
-        }[self.inputset.target]
-
-
-class MetisLmImgBackgroundStdImpl(MetisLmImgBackgroundImpl):
-    class ProductBkg(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkg):
-        pass
-
-    class ProductObjectCat(TargetStdMixin, MetisLmImgBackgroundImpl.ProductObjectCat):
-        pass
-
-    class ProductBkgSubtracted(TargetStdMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted):
-        pass
-
-
-class MetisLmImgBackgroundSciImpl(MetisLmImgBackgroundImpl):
-    class ProductBkg(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkg):
-        pass
-
-    class ProductObjectCat(TargetSciMixin, MetisLmImgBackgroundImpl.ProductObjectCat):
-        pass
-
-    class ProductBkgSubtracted(TargetSciMixin, MetisLmImgBackgroundImpl.ProductBkgSubtracted):
-        pass
-
 
 class MetisLmImgBackground(MetisRecipe):
-    _name: str = "metis_lm_img_background"
-    _version: str = "0.1"
-    _author: str = "Chi-Hung Yan, A*"
-    _email: str = "chyan@asiaa.sinica.edu.tw"
+    _name = "metis_lm_img_background"
+    _version = "0.1"
+    _author = "Chi-Hung Yan, A*"
+    _email = "chyan@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
-    _synopsis: str = "Basic reduction of raw exposures from the LM-band imager"
-    _description: str = ""
+    _synopsis = "Basic reduction of raw exposures from the LM-band imager"
+    _description = ""
 
-    parameters = cpl.ui.ParameterList([
-        cpl.ui.ParameterEnum(
+    parameters = ParameterList([
+        ParameterEnum(
             name="metis_lm_img_background.stacking.method",
             context="metis_lm_img_background",
             description="Name of the method used to combine the input images",
@@ -149,8 +74,8 @@ class MetisLmImgBackground(MetisRecipe):
         )
     ])
 
-    _matched_keywords: set[str] = {'DRS.FILTER'}
+    _matched_keywords = {'DRS.FILTER'}
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 
-    implementation_class = MetisLmImgBackgroundImpl
+    Impl = MetisLmImgBackgroundImpl

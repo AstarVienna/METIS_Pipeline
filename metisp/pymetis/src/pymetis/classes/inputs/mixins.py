@@ -18,7 +18,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from .inputset import PipelineInputSet
-from .common import PersistenceMapInput, GainMapInput, LinearityInput
+from .common import (PersistenceMapInput, GainMapInput, LinearityInput, BadPixMapInput,
+                     AtmLineCatInput, AtmProfileInput, LsfKernelInput, WcuOffInput)
 
 
 class PersistenceInputSetMixin(PipelineInputSet):
@@ -31,3 +32,23 @@ class GainMapInputSetMixin(PipelineInputSet):
 
 class LinearityInputSetMixin(PipelineInputSet):
     LinearityInput = LinearityInput
+
+
+class BadPixMapInputSetMixin(PipelineInputSet):
+    BadPixMapInput = BadPixMapInput
+
+
+class AtmLineCatInputSetMixin(PipelineInputSet):
+    AtmLineCatInput = AtmLineCatInput
+
+
+class AtmProfileInputSetMixin(PipelineInputSet):
+    AtmProfileInput = AtmProfileInput
+
+
+class LsfKernelInputSetMixin(PipelineInputSet):
+    LsfKernelInput = LsfKernelInput
+
+
+class WcuOffInputSetMixin(PipelineInputSet):
+    WcuOffInput = WcuOffInput

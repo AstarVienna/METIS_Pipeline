@@ -22,55 +22,33 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.distortion.map import DistortionMap
+from pymetis.classes.dataitems.distortion.raw import DistortionRaw
+from pymetis.classes.dataitems.distortion.reduced import DistortionReduced
+from pymetis.classes.dataitems.distortion.table import DistortionTable
+from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.classes.products import PipelineTableProduct, PipelineImageProduct
-from pymetis.classes.products.product import PipelineProduct
-from pymetis.classes.products.common import BandSpecificProduct
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            _description: str = "Raw data for dark subtraction in other recipes."
+            Item = WcuOffRaw
 
         class DistortionInput(SinglePipelineInput):
-            _title: str = "Distortion map"
-            _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-            _description: str = "Images of grid mask in WCU-FP2 or CFO-FP2."
+            Item = DistortionRaw
 
         PinholeTableInput = PinholeTableInput
 
-    class ProductDistortionTable(BandSpecificProduct, PipelineTableProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Table of distortion information"
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    ProductDistortionTable = DistortionTable
+    ProductDistortionMap = DistortionMap
+    ProductDistortionReduced = DistortionReduced
 
-        @classmethod
-        def tag(cls) -> str:
-            return rf"{cls.band():s}_DISTORTION_TABLE"
-
-    class ProductDistortionMap(BandSpecificProduct, PipelineImageProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Map of pixel scale across the detector"
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"{cls.band():s}_DISTORTION_MAP"
-
-    class ProductDistortionReduced(BandSpecificProduct, PipelineTableProduct):
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Table of polynomial coefficients for distortion correction"
-        _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-
-        @classmethod
-        def tag(cls) -> str:
-            return rf"{cls.band():s}_DIST_REDUCED"
-
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.inputset.raw.frameset):
@@ -86,7 +64,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         table = self._create_dummy_table()
 
         return {
-            self.ProductDistortionTable(self, self.header, table),
-            self.ProductDistortionMap(self, self.header, combined_image),
-            self.ProductDistortionReduced(self, self.header, table),
+            self.ProductDistortionTable(self.header, table),
+            self.ProductDistortionMap(self.header, combined_image),
+            self.ProductDistortionReduced(self.header, table),
         }

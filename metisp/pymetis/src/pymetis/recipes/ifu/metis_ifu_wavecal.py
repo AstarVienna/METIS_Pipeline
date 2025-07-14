@@ -17,33 +17,30 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
 import cpl
 
+from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
+from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.products import PipelineProduct, PipelineImageProduct
 from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 
 
 class MetisIfuWavecalImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(BandIfuMixin, DetectorIfuMixin,
+                   PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin,
+                   DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            _tags: re.Pattern = re.compile(r"IFU_WAVE_RAW")
-            _description: str = ("Raw exposure of the WCU laser sources through the IFU to "
-                                 "achieve the first guess of the wavelength calibration.")
+            Item = IfuWavecalRaw
 
         MasterDarkInput = MasterDarkInput
         DistortionTableInput = DistortionTableInput
 
-    class ProductIfuWavecal(PipelineImageProduct):
-        _tag = r"IFU_WAVECAL"
-        level = cpl.ui.Frame.FrameLevel.FINAL
-        _description: str = "Image with wavelength at each pixel."
-        _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    ProductIfuWavecal = IfuWavecal
 
-    def process_images(self) -> set[PipelineProduct]:
+    def process(self) -> set[DataItem]:
         # self.correct_telluric()
         # self.apply_fluxcal()
 
@@ -51,7 +48,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         images = self.inputset.load_raw_images()
         image = self.combine_images(images, "add")
 
-        product_wavecal = self.ProductIfuWavecal(self, header, image)
+        product_wavecal = self.ProductIfuWavecal(header, image)
 
         return {product_wavecal}
 
@@ -72,4 +69,4 @@ class MetisIfuWavecal(MetisRecipe):
         Compute wavelength map."""
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
-    implementation_class = MetisIfuWavecalImpl
+    Impl = MetisIfuWavecalImpl
