@@ -366,7 +366,7 @@ class DataItem(ABC):
         Generate a description line for 'pyesorex --man-page'.
         """
         return (f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
-                f"\n{' ' * 84}"
+                #f"\n{' ' * 84}"
                 f"{f'\n{'a' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
 
 class ImageDataItem(DataItem, abstract=True):

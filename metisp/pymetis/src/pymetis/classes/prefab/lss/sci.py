@@ -30,7 +30,7 @@ from pymetis.classes.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d
 from pymetis.classes.dataitems.lss.std import AoPsfModel
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
     LinearityInputSetMixin, SinglePipelineInput
-from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin, LsfKernelInputSetMixin
+from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
 
 

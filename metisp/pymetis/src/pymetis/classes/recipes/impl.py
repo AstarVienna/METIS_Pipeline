@@ -71,8 +71,6 @@ class MetisRecipeImpl(ABC):
         Msg.info(cls.__qualname__,
                  f"Specializing {cls.__qualname__} with parameters: {parameters}")
 
-
-
     @classmethod
     def promote(cls, **parameters) -> None:
         """

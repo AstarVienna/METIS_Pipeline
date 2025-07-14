@@ -45,7 +45,6 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
     def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
-        target = self.inputset.tag_matches['target']
         image = self._create_dummy_image()
         table = self._create_dummy_table()
 
