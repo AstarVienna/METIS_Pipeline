@@ -384,7 +384,9 @@ class ImageDataItem(DataItem, abstract=True):
              *,
              output_file_name: str = None) -> None:
 
-        parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+        # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back.
+        parameters = cpl.ui.ParameterList([p for p in parameters])
+        # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
         assert isinstance(self.image, cpl.core.Image), \
             f"Attribute `{self}.image` is not an image, but {type(self.image)}"
@@ -416,7 +418,9 @@ class TableDataItem(DataItem, abstract=True):
              *,
              output_file_name: str = None) -> None:
 
-        parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+        # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back.
+        parameters = cpl.ui.ParameterList([p for p in parameters])
+        # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
         assert isinstance(self.table, cpl.core.Table), \
             f"Attribute `{self}.table` is not a table, but {type(self.table)}"
