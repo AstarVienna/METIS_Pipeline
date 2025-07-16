@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.lm_img.metis_lm_img_background import (MetisLmImgBackground as Recipe,
                                                             MetisLmImgBackgroundImpl as Impl)
 from pymetis.tests.classes import BaseInputSetTest, BaseProductTest, TargetParamRecipeTest, BaseRecipeTest

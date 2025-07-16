@@ -21,7 +21,7 @@ import pytest
 
 import cpl
 
-from pymetis.dataitems.dataitem import DataItem
+from pymetis.classes.dataitem import DataItem
 
 
 OCA_KEYWORDS: set[str] = {

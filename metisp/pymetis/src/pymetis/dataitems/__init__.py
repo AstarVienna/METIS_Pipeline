@@ -1,8 +1,4 @@
-import itertools
-
-from cpl.core import Msg
-
-from .dataitem import *
+from pymetis.classes.dataitem import *
 from . import raw
 from .background import *
 from .distortion import *
@@ -12,5 +8,5 @@ from .rsrf import *
 
 
 __all__ = [
-    'DataItem', 'ImageDataItem', 'TableDataItem',
+    'DataItem', 'ImageDataItem', 'TableDataItem', 'MultipleDataItem',
 ]

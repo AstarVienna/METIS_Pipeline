@@ -26,7 +26,7 @@ from typing import Any, Callable, Optional
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.inputs.base import PipelineInput
+from pymetis.classes.inputs.input import PipelineInput
 from pymetis.classes.mixins import TargetSpecificMixin, SourceSpecificMixin, BandSpecificMixin, DetectorSpecificMixin
 from pymetis.classes.mixins.base import Parametrizable
 

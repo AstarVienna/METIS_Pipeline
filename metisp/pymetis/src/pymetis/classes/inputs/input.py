@@ -25,7 +25,7 @@ import cpl
 from cpl.core import Msg
 
 import pymetis
-from pymetis.dataitems.dataitem import DataItem
+from pymetis.classes.dataitem import DataItem
 
 
 class PipelineInput:
@@ -95,10 +95,6 @@ class PipelineInput:
         Marks whether this pipeline input is required. Used during validation.
         """
         return cls._required
-
-    @property
-    def group(self):
-        return self.Item._frame_group
 
     def __init__(self, frameset: cpl.ui.FrameSet):
         assert self.Item is not None, \

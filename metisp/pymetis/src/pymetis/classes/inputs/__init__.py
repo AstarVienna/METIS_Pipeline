@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from .inputset import PipelineInputSet
 
-from .base import PipelineInput
+from .input import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 from .mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin, BadPixMapInputSetMixin

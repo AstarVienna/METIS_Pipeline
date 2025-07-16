@@ -63,16 +63,17 @@ class DataItem(Parametrizable, ABC):
     _registry: dict[str, type['DataItem']] = {}
 
     # Printable title of the data item. Not used internally, only for human-oriented output
-    _title_template: str = None                      # No universal title makes sense
+    _title_template: str = None                     # No universal title makes sense
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
-    _name_template: str = None                       # No universal name makes sense
-    # CPL frame group and level
-    _frame_group: cpl.ui.Frame.FrameGroup = None  # No sensible default; must be provided explicitly
-    _frame_level: cpl.ui.Frame.FrameLevel = None  # No sensible default; must be provided explicitly
-    _frame_type: cpl.ui.Frame.FrameType = None
-
+    _name_template: str = None                      # No universal name makes sense
     # Description for man page
-    _description_template: Optional[str] = None      # A verbose string; should correspond to the DRLD description
+    _description_template: Optional[str] = None     # A verbose string; should correspond to the DRLD description
+
+    # CPL frame group and level
+    _frame_group: cpl.ui.Frame.FrameGroup = None    # No sensible default; must be provided explicitly
+    _frame_level: cpl.ui.Frame.FrameLevel = None    # No sensible default; must be provided explicitly
+    _frame_type: cpl.ui.Frame.FrameType = None      # Specialised for image / table / multi-extension data
+
 
     _oca_keywords: set[str] = set()
 
@@ -138,7 +139,7 @@ class DataItem(Parametrizable, ABC):
         For instance, `MASTER_DARK_{detector}` with parameters `{'detector': None}`
         gets rendered literally as "MASTER_DARK_{detector}".
 
-        ToDo: Change to proper t-strings when Python 3.14 is supported.
+        ToDo: Change to proper t-strings once Python 3.14 is supported.
         """
         return {key: (f'{{{key}}}' if value is None else value) for key, value in parameters.items()}
 
@@ -164,7 +165,7 @@ class DataItem(Parametrizable, ABC):
     @final
     def frame_group(cls):
         """
-        Return the group of this data item. Should not be overridden (at least Martin does not see any reason now).
+        Return the group of this data item. Should not be overridden.
         """
         return cls._frame_group
 
@@ -172,7 +173,7 @@ class DataItem(Parametrizable, ABC):
     @final
     def frame_level(cls):
         """
-        Return the level of this data item. Should not be overridden (at least Martin does not see any reason now).
+        Return the level of this data item. Should not be overridden.
         """
         return cls._frame_level
 
@@ -180,7 +181,7 @@ class DataItem(Parametrizable, ABC):
     @final
     def frame_type(cls):
         """
-        Return the type of this data item. Should not be overridden (at least Martin does not see any reason now).
+        Return the type of this data item. Should not be overridden.
         """
         return cls._frame_type
 
@@ -363,6 +364,7 @@ class DataItem(Parametrizable, ABC):
                 #f"\n{' ' * 84}"
                 f"{f'\n{' ' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
 
+
 class ImageDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
 
@@ -396,6 +398,7 @@ class ImageDataItem(DataItem, abstract=True):
             output_file_name if output_file_name is not None else rf'{self.name()}.fits',
             header=self.header,
         )
+
 
 class TableDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
@@ -434,3 +437,38 @@ class TableDataItem(DataItem, abstract=True):
 
 class MultipleDataItem(DataItem, abstract=True):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
+
+    def __init__(self,
+                 header: cpl.core.PropertyList,
+                 frame: cpl.ui.Frame,
+                 **extensions):
+        super().__init__(header, frame)
+
+        self.extensions = extensions
+        for key, ext in self.extensions.items():
+            self.__setattr__(key, ext)
+
+    def save_files(self,
+                   recipe: 'PipelineRecipe',
+                   parameters: ParameterList,
+                   *,
+                   output_file_name: str = None) -> None:
+
+        # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back.
+        parameters = cpl.ui.ParameterList([p for p in parameters])
+        # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+
+        output = output_file_name if output_file_name is not None else rf'{self.name()}.fits'
+        cpl.dfs.save_propertylist(
+            recipe.frameset,
+            parameters,
+            recipe.used_frames,
+            self.table,
+            self.properties,
+            PIPELINE,
+            output,
+            header=self.header,
+        )
+
+        for key, ext in self.extensions.items():
+            ext.save(output, cpl.core.PropertyList(), cpl.core.io.EXTEND)
