@@ -18,14 +18,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from typing import Literal
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.distortion.table import IfuDistortionTable
-from pymetis.classes.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
-from pymetis.classes.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
-from pymetis.classes.dataitems.ifu.background import IfuBackground
-from pymetis.classes.dataitems.rsrf import RsrfIfu
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.distortion.table import IfuDistortionTable
+from pymetis.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
+from pymetis.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
+from pymetis.dataitems.ifu.background import IfuBackground
+from pymetis.dataitems.rsrf import RsrfIfu
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput, WavecalInput,

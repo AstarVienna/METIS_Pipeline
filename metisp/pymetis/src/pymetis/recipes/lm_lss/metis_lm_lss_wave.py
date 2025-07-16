@@ -21,11 +21,11 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
-from pymetis.classes.dataitems.lss.rsrf import MasterLssRsrf
-from pymetis.classes.dataitems.lss.trace import LssTrace
-from pymetis.classes.dataitems.lss.wave import LssWaveRaw
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
+from pymetis.dataitems.lss.rsrf import MasterLssRsrf
+from pymetis.dataitems.lss.trace import LssTrace
+from pymetis.dataitems.lss.wave import LssWaveRaw
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput,
                                     LaserTableInput,
                                     PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin,

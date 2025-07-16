@@ -16,9 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.common import FluxCalTable, IfuTelluric
-from pymetis.classes.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.common import FluxCalTable, IfuTelluric
+from pymetis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput

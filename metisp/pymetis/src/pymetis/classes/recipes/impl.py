@@ -27,7 +27,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.dataitems import DataItem
 from pymetis.classes.inputs.inputset import PipelineInputSet
 
 

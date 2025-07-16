@@ -17,17 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import re
-
 import cpl
 from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
-from pymetis.classes.dataitems.gainmap import GainMap2rg
-from pymetis.classes.dataitems.linearity.linearity import LinearityMap2rg
-from pymetis.classes.dataitems.raw.wcuoff import LmWcuOffRaw
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
+from pymetis.dataitems.gainmap import GainMap2rg
+from pymetis.dataitems.linearity.linearity import LinearityMap2rg
+from pymetis.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
                                     PinholeTableInput, LinearityInput, OptionalInputMixin)

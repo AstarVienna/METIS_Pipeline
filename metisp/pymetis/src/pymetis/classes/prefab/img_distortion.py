@@ -22,12 +22,12 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.distortion.map import DistortionMap
-from pymetis.classes.dataitems.distortion.raw import DistortionRaw
-from pymetis.classes.dataitems.distortion.reduced import DistortionReduced
-from pymetis.classes.dataitems.distortion.table import DistortionTable
-from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.distortion.map import DistortionMap
+from pymetis.dataitems.distortion.raw import DistortionRaw
+from pymetis.dataitems.distortion.reduced import DistortionReduced
+from pymetis.dataitems.distortion.table import DistortionTable
+from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput

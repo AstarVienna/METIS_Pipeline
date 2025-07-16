@@ -17,17 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems.linearity.raw import Linearity2rgRaw, LinearityGeoRaw, LinearityIfuRaw
+from pymetis.dataitems.linearity.raw import LinearityRaw2rg, LinearityRawGeo, LinearityRawIfu
 from pymetis.tests.classes.dataitem import DataItemTest
 
 
 class TestLinearity2rgRaw(DataItemTest):
-    Item = Linearity2rgRaw
+    Item = LinearityRaw2rg
 
 
 class TestLinearityGeoRaw(DataItemTest):
-    Item = LinearityGeoRaw
+    Item = LinearityRawGeo
 
 
 class TestLinearityIfuRaw(DataItemTest):
-    Item = LinearityIfuRaw
+    Item = LinearityRawIfu

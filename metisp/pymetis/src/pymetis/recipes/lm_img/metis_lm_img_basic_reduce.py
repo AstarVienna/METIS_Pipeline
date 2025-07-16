@@ -23,10 +23,10 @@ import cpl
 from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.img.basicreduced import BasicReduced
-from pymetis.classes.dataitems.img.raw import ImageRaw
-from pymetis.classes.dataitems.masterflat import MasterImgFlat
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.img.basicreduced import BasicReduced
+from pymetis.dataitems.img.raw import ImageRaw
+from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor

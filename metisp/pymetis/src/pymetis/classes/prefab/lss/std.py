@@ -19,19 +19,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.adc.adc import AdcSlitloss
-from pymetis.classes.dataitems.lss.curve import LssDistSol, LssWaveGuess
-from pymetis.classes.dataitems.lss.raw import LssStdRaw
-from pymetis.classes.dataitems.lss.response import MasterResponse, StdTransmission
-from pymetis.classes.dataitems.lss.rsrf import MasterLssRsrf
-from pymetis.classes.dataitems.lss.science import LssSkyMap, LssObjMap
-from pymetis.classes.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
-from pymetis.classes.dataitems.lss.trace import LssTrace
-from pymetis.classes.dataitems.synth import LssSynthTrans
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.adc.adc import AdcSlitloss
+from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
+from pymetis.dataitems.lss.raw import LssStdRaw
+from pymetis.dataitems.lss.response import MasterResponse, StdTransmission
+from pymetis.dataitems.lss.rsrf import MasterLssRsrf
+from pymetis.dataitems.lss.science import LssSkyMap, LssObjMap
+from pymetis.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
+from pymetis.dataitems.lss.trace import LssTrace
+from pymetis.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, MasterDarkInput, BadPixMapInputSetMixin, \
     GainMapInputSetMixin, SinglePipelineInput, FluxstdCatalogInput, LinearityInputSetMixin
-from pymetis.classes.inputs.mixins import LsfKernelInputSetMixin, AtmLineCatInputSetMixin
+from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
 
 

@@ -25,14 +25,14 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 # is this legal?
 from astropy.table import QTable
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.badpixmap import BadPixMapIfu
-from pymetis.classes.dataitems.gainmap import GainMapIfu
-from pymetis.classes.dataitems.linearity.linearity import LinearityMapIfu
-from pymetis.classes.dataitems.masterdark.masterdark import MasterDarkIfu
-from pymetis.classes.dataitems.masterflat import MasterFlatIfu
-from pymetis.classes.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
-from pymetis.classes.dataitems.raw.wcuoff import IfuWcuOffRaw
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.badpixmap import BadPixMapIfu
+from pymetis.dataitems.gainmap import GainMapIfu
+from pymetis.dataitems.linearity.linearity import LinearityMapIfu
+from pymetis.dataitems.masterdark.masterdark import MasterDarkIfu
+from pymetis.dataitems.masterflat import MasterFlatIfu
+from pymetis.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
+from pymetis.dataitems.raw.wcuoff import IfuWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,

@@ -17,10 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.lss.science import LssSciFlux1d
-from pymetis.classes.dataitems.lss.std import LssStd1d
-from pymetis.classes.dataitems.molecfit.model import MfBestFitTable
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.lss.science import LssSciFlux1d
+from pymetis.dataitems.lss.std import LssStd1d
+from pymetis.dataitems.molecfit.model import MfBestFitTable
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.inputs.mixins import AtmProfileInputSetMixin, AtmLineCatInputSetMixin, LsfKernelInputSetMixin
 from pymetis.classes.recipes import MetisRecipeImpl

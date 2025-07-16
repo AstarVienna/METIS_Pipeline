@@ -19,8 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
 from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput

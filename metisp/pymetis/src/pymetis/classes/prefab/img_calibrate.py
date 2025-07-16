@@ -19,10 +19,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.background.subtracted import SciBackgroundSubtracted
-from pymetis.classes.dataitems.distortion.table import DistortionTable
-from pymetis.classes.dataitems.img.basicreduced import Calibrated
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.background.subtracted import SciBackgroundSubtracted
+from pymetis.dataitems.distortion.table import DistortionTable
+from pymetis.dataitems.img.basicreduced import Calibrated
 from pymetis.classes.inputs import FluxCalTableInput
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.recipes import MetisRecipeImpl

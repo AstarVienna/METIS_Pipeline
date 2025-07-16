@@ -22,9 +22,9 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.coadd import LmSciCoadd
-from pymetis.classes.dataitems.img.basicreduced import LmSciCalibrated
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.coadd import LmSciCoadd
+from pymetis.dataitems.img.basicreduced import LmSciCalibrated
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput

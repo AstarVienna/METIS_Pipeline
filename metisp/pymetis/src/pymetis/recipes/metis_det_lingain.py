@@ -22,11 +22,11 @@ from abc import ABC
 import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.badpixmap import BadPixMap
-from pymetis.classes.dataitems.gainmap import GainMap
-from pymetis.classes.dataitems.linearity.linearity import LinearityMap
-from pymetis.classes.dataitems.linearity.raw import LinearityRaw
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.badpixmap import BadPixMap
+from pymetis.dataitems.gainmap import GainMap
+from pymetis.dataitems.linearity.linearity import LinearityMap
+from pymetis.dataitems.linearity.raw import LinearityRaw
 from pymetis.classes.inputs import RawInput, BadPixMapInput, OptionalInputMixin
 from pymetis.classes.inputs.common import WcuOffInput
 from pymetis.classes.prefab import RawImageProcessor

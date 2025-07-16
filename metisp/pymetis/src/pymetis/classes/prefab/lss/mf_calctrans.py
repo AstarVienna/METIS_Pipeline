@@ -17,9 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.molecfit.model import MfBestFitTable
-from pymetis.classes.dataitems.synth import LssSynthTrans
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.molecfit.model import MfBestFitTable
+from pymetis.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.inputs.mixins import LsfKernelInputSetMixin, AtmLineCatInputSetMixin, AtmProfileInputSetMixin
 from pymetis.classes.recipes import MetisRecipeImpl

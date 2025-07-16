@@ -19,15 +19,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.adc.adc import AdcSlitloss
-from pymetis.classes.dataitems.lss.curve import LssDistSol, LssWaveGuess
-from pymetis.classes.dataitems.lss.raw import LssSciRaw
-from pymetis.classes.dataitems.lss.response import MasterResponse, StdTransmission
-from pymetis.classes.dataitems.lss.rsrf import MasterLssRsrf
-from pymetis.classes.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, \
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.adc.adc import AdcSlitloss
+from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
+from pymetis.dataitems.lss.raw import LssSciRaw
+from pymetis.dataitems.lss.response import MasterResponse, StdTransmission
+from pymetis.dataitems.lss.rsrf import MasterLssRsrf
+from pymetis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, \
     LssSciFlux2d, LssSciFluxTellCorr1d
-from pymetis.classes.dataitems.lss.std import AoPsfModel
+from pymetis.dataitems.lss.std import AoPsfModel
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
     LinearityInputSetMixin, SinglePipelineInput
 from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin

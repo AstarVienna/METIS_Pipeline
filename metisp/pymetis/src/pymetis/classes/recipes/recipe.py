@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import inspect
 import re
-from typing import Dict, Any
+from typing import Any
 
 import cpl
 
 from pyesorex.parameter import ParameterList
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.dataitems import DataItem
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInput
 

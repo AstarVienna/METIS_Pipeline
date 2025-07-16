@@ -18,13 +18,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.lss.rsrf import LssRsrfPinholeRaw, MasterLssRsrf
-from pymetis.classes.dataitems.lss.trace import LssTrace
-from pymetis.classes.dataitems.raw.wcuoff import WcuOffRaw
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.lss.rsrf import LssRsrfPinholeRaw, MasterLssRsrf
+from pymetis.dataitems.lss.trace import LssTrace
+from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, PersistenceInputSetMixin,
                                     BadPixMapInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
-from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.prefab import DarkImageProcessor
 
 

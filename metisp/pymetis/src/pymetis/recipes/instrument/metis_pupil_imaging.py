@@ -29,10 +29,10 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterImgFlat
-from pymetis.classes.dataitems.pupil import PupilRaw, LmPupilRaw, NPupilRaw
-from pymetis.classes.dataitems.pupil.pupil import PupilImagingReduced, NPupilImagingReduced, LmPupilImagingReduced
+from pymetis.dataitems import DataItem
+from pymetis.dataitems.masterflat import MasterImgFlat
+from pymetis.dataitems.pupil import PupilRaw
+from pymetis.dataitems.pupil.pupil import PupilImagingReduced
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     LinearityInputSetMixin, GainMapInputSetMixin)

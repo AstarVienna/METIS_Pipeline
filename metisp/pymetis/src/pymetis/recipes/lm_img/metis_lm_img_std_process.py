@@ -19,8 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.background.subtracted import StdBackgroundSubtracted
-from pymetis.classes.dataitems.combined import LmStdCombined
+from pymetis.dataitems.combined import LmStdCombined
 from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
 from pymetis.classes.recipes import MetisRecipe

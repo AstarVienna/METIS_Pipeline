@@ -23,18 +23,17 @@ from . import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 
-from ..dataitems.common import PersistenceMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel, FluxStdCatalog, \
-    AtmLineCatalog, LaserTable
-from ..dataitems.linearity.linearity import LinearityMap
-from ..dataitems.raw import Raw
-from ..dataitems.badpixmap import BadPixMap
-from pymetis.classes.dataitems.distortion.table import DistortionTable
-from ..dataitems.gainmap import GainMap
-from pymetis.classes.dataitems.masterdark.masterdark import MasterDark
-from ..dataitems.masterflat import MasterFlat
-from ..dataitems.raw.wcuoff import WcuOffRaw
-from ..dataitems.synth import SynthTrans
-from ..dataitems.wavecal import IfuWavecal
+from pymetis.dataitems.common import (PersistenceMap, FluxCalTable, PinholeTable, AtmProfile, LsfKernel,
+                                      FluxStdCatalog, AtmLineCatalog, LaserTable)
+from pymetis.dataitems.linearity import LinearityMap
+from pymetis.dataitems.raw import Raw, WcuOffRaw
+from pymetis.dataitems.badpixmap import BadPixMap
+from pymetis.dataitems.distortion.table import DistortionTable
+from pymetis.dataitems.gainmap import GainMap
+from pymetis.dataitems.masterdark.masterdark import MasterDark
+from pymetis.dataitems.masterflat import MasterFlat
+from pymetis.dataitems.synth import SynthTrans
+from pymetis.dataitems.wavecal import IfuWavecal
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
