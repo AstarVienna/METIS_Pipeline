@@ -22,7 +22,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 from pymetis.dataitems.common import FluxCalTable
 from pymetis.classes.mixins import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
+from pymetis.classes.prefab.img.std_process import MetisImgStdProcessImpl
 
 
 class MetisNImgStdProcessImpl(MetisImgStdProcessImpl):

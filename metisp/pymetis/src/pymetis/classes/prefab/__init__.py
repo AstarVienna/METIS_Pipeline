@@ -19,9 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from .rawimage import RawImageProcessor
 from .darkimage import DarkImageProcessor
-from .img_calibrate import MetisImgCalibrateImpl
-from .img_distortion import MetisBaseImgDistortionImpl
-from .img_flat import MetisBaseImgFlatImpl
+from pymetis.classes.prefab.img.calibrate import MetisImgCalibrateImpl
+from pymetis.classes.prefab.img.distortion import MetisBaseImgDistortionImpl
+from pymetis.classes.prefab.img.flat import MetisBaseImgFlatImpl
 
 
 __all__ = ['RawImageProcessor', 'DarkImageProcessor',

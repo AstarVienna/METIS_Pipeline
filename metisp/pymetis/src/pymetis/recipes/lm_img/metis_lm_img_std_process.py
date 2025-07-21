@@ -21,7 +21,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.dataitems.combined import LmStdCombined
 from pymetis.classes.mixins import BandLmMixin
-from pymetis.classes.prefab.img_std_process import MetisImgStdProcessImpl
+from pymetis.classes.prefab.img.std_process import MetisImgStdProcessImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
