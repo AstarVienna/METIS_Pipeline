@@ -17,10 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
-from cpl.core import Msg
-
-from pymetis.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem
 from pymetis.dataitems.background.subtracted import StdBackgroundSubtracted
 from pymetis.dataitems.combined import Combined
 from pymetis.dataitems.common import FluxCalTable

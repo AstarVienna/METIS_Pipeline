@@ -27,7 +27,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList
 
-from pymetis.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.inputset import PipelineInputSet
 
 
@@ -208,7 +208,7 @@ class MetisRecipeImpl(ABC):
         Create a dummy image (absolutely no assumptions, just to have something to work with).
         # ToDo This function should not survive in the future.
         """
-        return cpl.core.Image.load(os.path.expandvars("$SOF_DATA/LINEARITY_2RG.fits"))
+        return cpl.core.Image.zeros(32, 32, cpl.core.Type.FLOAT)
 
     @staticmethod
     def _create_dummy_table() -> cpl.core.Table:

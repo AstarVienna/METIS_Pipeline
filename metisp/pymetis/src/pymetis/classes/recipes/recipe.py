@@ -25,7 +25,7 @@ import cpl
 
 from pyesorex.parameter import ParameterList
 
-from pymetis.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInput
 

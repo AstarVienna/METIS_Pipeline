@@ -17,28 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
 
-from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
-
-
-class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
-    _name_template = r'MASTER_DARK_{detector}'
-    _title_template = r"{detector} master dark"
-    _description_template = "Master dark frame for {detector} data"
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+from .dataitem import DataItem
+from .image import ImageDataItem
+from .table import TableDataItem
+from .multiple import MultipleDataItem
 
 
-class MasterDark2rg(Detector2rgMixin, MasterDark):
-    pass
-
-
-class MasterDarkGeo(DetectorGeoMixin, MasterDark):
-    pass
-
-
-class MasterDarkIfu(DetectorIfuMixin, MasterDark):
-    pass
+__all__ = [
+    'DataItem', 'ImageDataItem', 'TableDataItem', 'MultipleDataItem',
+]

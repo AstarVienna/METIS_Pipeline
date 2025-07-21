@@ -22,7 +22,7 @@ from abc import ABC
 import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
-from pymetis.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem
 from pymetis.dataitems.badpixmap import BadPixMap
 from pymetis.dataitems.gainmap import GainMap
 from pymetis.dataitems.linearity.linearity import LinearityMap

@@ -22,7 +22,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem
 from pymetis.dataitems.background.background import NStdBackground
 from pymetis.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.dataitems.masterflat import MasterImgFlat

@@ -25,7 +25,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 # is this legal?
 from astropy.table import QTable
 
-from pymetis.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem
 from pymetis.dataitems.badpixmap import BadPixMapIfu
 from pymetis.dataitems.gainmap import GainMapIfu
 from pymetis.dataitems.linearity.linearity import LinearityMapIfu

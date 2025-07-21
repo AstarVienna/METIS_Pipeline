@@ -25,7 +25,7 @@ import cpl
 from cpl.core import Msg
 
 import pymetis
-from pymetis.classes.dataitem import DataItem
+from pymetis.classes.dataitems.dataitem import DataItem
 
 
 class PipelineInput:

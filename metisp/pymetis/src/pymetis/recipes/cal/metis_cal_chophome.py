@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
-from pymetis.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem
 from pymetis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
 from pymetis.dataitems.gainmap import GainMap2rg
 from pymetis.dataitems.linearity.linearity import LinearityMap2rg
