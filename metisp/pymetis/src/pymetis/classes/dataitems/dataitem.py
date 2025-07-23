@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import datetime
 import inspect
 import re
 import os
@@ -209,6 +209,11 @@ class DataItem(Parametrizable, ABC):
         """ Return the PRO CATG attribute
         Currently same as _name, and will probably stay like that (and if that is the case it will be removed). """
         return cls.name()
+
+    @classmethod
+    def file_name(cls, override: Optional[str] = None):
+        return f"{cls.name}_{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.f")}.fits" \
+            if override is None else override
 
     def __init__(self,
                  header: cpl.core.PropertyList,

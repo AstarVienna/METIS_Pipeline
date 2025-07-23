@@ -56,7 +56,7 @@ class ImageDataItem(DataItem, abstract=True):
             recipe.name,  # Name of the recipe
             self.properties,  # Properties to be appended
             PIPELINE,
-            output_file_name if output_file_name is not None else rf'{self.name()}.fits',
+            self.file_name(output_file_name),
             header=self.header,
         )
 

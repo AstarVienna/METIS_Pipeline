@@ -37,7 +37,7 @@ class MultipleDataItem(DataItem, abstract=True):
         for key, ext in self.extensions.items():
             self.__setattr__(key, ext)
 
-    def save_files(self,
+    def save(self,
                    recipe: 'PipelineRecipe',
                    parameters: ParameterList,
                    *,
@@ -47,7 +47,6 @@ class MultipleDataItem(DataItem, abstract=True):
         parameters = cpl.ui.ParameterList([p for p in parameters])
         # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
-        output = output_file_name if output_file_name is not None else rf'{self.name()}.fits'
         cpl.dfs.save_propertylist(
             recipe.frameset,
             parameters,
@@ -55,7 +54,7 @@ class MultipleDataItem(DataItem, abstract=True):
             self.table,
             self.properties,
             PIPELINE,
-            output,
+            self.file_name(output_file_name),
             header=self.header,
         )
 
