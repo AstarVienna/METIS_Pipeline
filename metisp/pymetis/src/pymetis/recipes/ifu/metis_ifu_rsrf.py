@@ -40,7 +40,7 @@ from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, G
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
 
 ma = np.ma
-EXT = 4  # TODO: update to read multi-extension files
+EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
@@ -207,8 +207,6 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         rsrf_table = cpl.core.Table(table)
 
-        product_background = IfuRsrfBackground(background_hdr, background_img)
-
         product_background = self.ProductRsrfBackground(background_hdr, background_img)
         product_master_flat_ifu = self.ProductMasterFlat(spec_flat_hdr, spec_flat_img)
         product_rsrf_ifu = self.ProductRsrfIfu(rsrf_hdr, rsrf_table)
@@ -279,6 +277,7 @@ def read_ifu_distortion_table(fits_file, ext: int = 1) -> list:
 
     Parameters:
     fits_file (str): Path to the FITS file containing the distortion table.
+    ext (int): Extension number to read from the FITS file.
 
     Returns:
     list: A list of tuples containing the x- and y-coordinates of the traces.

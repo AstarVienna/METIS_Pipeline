@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import ImageDataItem, DataItem
+from pymetis.classes.dataitems.dataitem import ImageDataItem, TableDataItem, DataItem
 from pymetis.classes.mixins import DetectorIfuMixin
 
 
@@ -31,10 +31,10 @@ class Rsrf(DataItem):
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
 
-class RsrfIfu(DetectorIfuMixin, ImageDataItem):
+class RsrfIfu(DetectorIfuMixin, TableDataItem):
     _name_template = r'RSRF_IFU'
     _title_template = "RSRF IFU"
-    _description_template = "2D relative spectral response function"
+    _description_template = "1D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
