@@ -207,8 +207,6 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         rsrf_table = cpl.core.Table(table)
 
-        product_background = IfuRsrfBackground(background_hdr, background_img)
-
         product_background = self.ProductRsrfBackground(background_hdr, background_img)
         product_master_flat_ifu = self.ProductMasterFlat(spec_flat_hdr, spec_flat_img)
         product_rsrf_ifu = self.ProductRsrfIfu(rsrf_hdr, rsrf_table)

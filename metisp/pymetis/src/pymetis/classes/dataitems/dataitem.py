@@ -212,7 +212,8 @@ class DataItem(Parametrizable, ABC):
 
     @classmethod
     def file_name(cls, override: Optional[str] = None):
-        return f"{cls.name}_{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.f")}.fits" \
+        return f"{cls.name()}.fits"
+        return f"{cls.name()}_{datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
             if override is None else override
 
     def __init__(self,
