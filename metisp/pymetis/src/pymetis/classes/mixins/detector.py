@@ -17,10 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.mixins.base import Parametrizable
+from pymetis.classes.mixins.base import KeywordMixin
 
 
-class DetectorSpecificMixin(Parametrizable):
+class DetectorSpecificMixin(KeywordMixin, keyword='detector'):
     _detector = None
 
     def __init_subclass__(cls, *, detector=None, **kwargs):

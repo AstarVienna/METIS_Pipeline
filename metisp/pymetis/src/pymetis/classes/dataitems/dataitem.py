@@ -20,18 +20,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import datetime
 import inspect
 import re
-from abc import ABC
+import os
+from abc import ABC, abstractmethod
 from typing import Optional, Generator, final
 
 import cpl
-from cpl.core import Msg, abstractmethod
-from pyesorex.parameter import ParameterList
+
+from cpl.core import Msg
+from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
 from pymetis.classes.mixins.base import Parametrizable
 
 PIPELINE = r'METIS'
-
 
 
 class FormatPlaceholder:

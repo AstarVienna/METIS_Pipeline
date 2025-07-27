@@ -17,6 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from abc import ABC
+from typing import Self
+
+
 class Parametrizable:
     """
     Base class for all types parametrizable by tags, such as
@@ -37,3 +41,22 @@ class Parametrizable:
         By default, there are none, but mixins may add their own.
         """
         return {}
+
+
+class KeywordMixin(Parametrizable, ABC):
+    """
+    Base class for keyword-parametrizable mixins.
+
+    Contains a global registry of such classes, with placeholders as keys
+    """
+
+    # Global registry of parametrizable tags in the form {keyword: class},
+    # e.g. {'detector': DetectorSpecificMixin, ...}
+    # Filled automatically with __init_subclass__.
+    _registry: dict[str, type[Self]] = {}
+
+    def __init_subclass__(cls, *, keyword: str = None, **kwargs):
+        if keyword is not None:
+            cls._registry[keyword] = cls
+        super().__init_subclass__(**kwargs)
+
