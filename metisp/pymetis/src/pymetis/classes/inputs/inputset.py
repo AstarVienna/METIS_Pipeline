@@ -133,7 +133,7 @@ class PipelineInputSet(Parametrizable, ABC):
             value = _func(inp)
             det = "---" if value is None else value
             Msg.debug(self.__class__.__qualname__,
-                      f"{attr:<15s} in {inp.__class__.__qualname__:<40} {det}")
+                      f"{attr:<15s} in {inp.__class__.__qualname__:<45} {det}")
 
         if (count := len(total)) == 0:
             # If there are no identifiable tag parameters, just emit a message

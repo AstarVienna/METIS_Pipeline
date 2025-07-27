@@ -16,17 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 import datetime
 import inspect
 import re
-import os
 from abc import ABC
 from typing import Optional, Generator, final
 
 import cpl
-
 from cpl.core import Msg, abstractmethod
-from pyesorex.parameter import Parameter, ParameterList
+from pyesorex.parameter import ParameterList
 
 import pymetis
 from pymetis.classes.mixins.base import Parametrizable
@@ -51,7 +50,6 @@ class FormatDict(dict):
 
 def partial_format(template: str, **kwargs) -> str:
     return template.format_map(FormatDict(**kwargs))
-
 
 
 class DataItem(Parametrizable, ABC):
@@ -200,19 +198,27 @@ class DataItem(Parametrizable, ABC):
     def oca_keywords(cls):
         """
         Return the OCA keywords of this data item.
+
         By default, it's just the value of the protected attribute, but feel free to override if necessary.
         """
         return cls._oca_keywords
 
     @classmethod
     def pro_catg(cls):
-        """ Return the PRO CATG attribute
+        """
+        Return the PRO CATG attribute
+
         Currently same as _name, and will probably stay like that (and if that is the case it will be removed). """
         return cls.name()
 
     @classmethod
     def file_name(cls, override: Optional[str] = None):
-        return f"{cls.name()}.fits"
+        """
+        Get the file name of this data item if used as a product.
+
+        :param: override
+        If provided, override the file name. Otherwise, name with formatted timestamp is used.
+        """
         return f"{cls.name()}_{datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
             if override is None else override
 
