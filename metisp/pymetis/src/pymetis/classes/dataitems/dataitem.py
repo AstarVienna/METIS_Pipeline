@@ -278,10 +278,8 @@ class DataItem(Parametrizable, ABC):
         assert self.frame_group() is not None, \
             f"Data item {self.__class__.__qualname__} does not define a frame group"
 
-        filename = filename if filename is not None else rf'{self.name()}.fits'
-
         return cpl.ui.Frame(
-            file=filename,
+            file=self.file_name(filename),
             tag=self.name(),
             group=self.frame_group(),
             level=self.frame_level(),
