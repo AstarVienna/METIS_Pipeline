@@ -371,7 +371,7 @@ class ImageDataItem(DataItem, abstract=True):
                  frame: cpl.ui.Frame):
         super().__init__(header, frame)
         # TODO: hard-coded image loading to be removed
-        self.image: cpl.core.Image = cpl.core.Image.load(os.path.expandvars(f"$SOF_DATA/LINEARITY_{self._detector}.fits"))
+        self.image: cpl.core.Image = cpl.core.Image.zeros(32, 32, cpl.core.Type.FLOAT)
 
     def save(self,
              recipe: 'PipelineRecipeImpl',
