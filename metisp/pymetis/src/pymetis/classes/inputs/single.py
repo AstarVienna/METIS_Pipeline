@@ -37,7 +37,7 @@ class SinglePipelineInput(PipelineInput):
         self.frame: cpl.ui.Frame | None = None
         super().__init__(frameset)
 
-    def _load_inner(self, frameset: cpl.ui.FrameSet):
+    def _load_frameset_inner(self, frameset: cpl.ui.FrameSet):
         """
         Load the associated frames.
         A SinglePipelineInput verifies there is exactly one matched frame.

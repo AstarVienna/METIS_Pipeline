@@ -55,7 +55,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
         # target = self.inputset.tag_parameters['target']
 
-        raw_images = self.inputset.raw.load_images()
+        raw_images = self.inputset.raw.load_data()
         master_dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
 
         for raw_image in raw_images:
@@ -68,7 +68,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
-        combined_image = self.combine_images(self.inputset.raw.load_images(), method)
+        combined_image = self.combine_images(self.inputset.raw.load_data(), method)
 
         product = self.ProductMasterFlat(header, combined_image)
 

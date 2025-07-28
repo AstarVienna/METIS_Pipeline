@@ -61,15 +61,17 @@ class PipelineInput:
             for tag, frames in result.items()
         }
 
-    def load(self, frameset: cpl.ui.FrameSet) -> None:
+    def load_frameset(self, frameset: cpl.ui.FrameSet) -> None:
         """
-        Load the associated frames
+        Load the associated frames.
+
+        Fills the internal buffer with the contents of the frames (not the actual data yet).
         """
-        self._load_inner(frameset)
+        self._load_frameset_inner(frameset)
         self.set_cpl_attributes()
 
     @abstractmethod
-    def _load_inner(self, frameset: cpl.ui.FrameSet) -> None:
+    def _load_frameset_inner(self, frameset: cpl.ui.FrameSet) -> None:
         """
         Actually load the associated frames. Implementation differs between derived classes.
         """
@@ -122,13 +124,13 @@ class PipelineInput:
                 if cls == self.Item:
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a fully specialized class {cls.__qualname__} for {tag}, instantiating directly")
-                    self.load(frames)
+                    self.load_frameset(frames)
                 elif cls in self.Item.__subclasses__():
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a specialized class {cls.__qualname__} for {tag}, "
                               f"subclassing this {self.Item.__qualname__} and instantiating")
                     self.Item = cls
-                    self.load(frames)
+                    self.load_frameset(frames)
                 else:
                     #Msg.debug(self.__class__.__qualname__,
                     #          f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")

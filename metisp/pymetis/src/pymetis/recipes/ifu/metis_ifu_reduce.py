@@ -57,7 +57,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         # do something... a lot of something
 
         header = cpl.core.PropertyList()
-        images = self.inputset.raw.load_images()
+        images = self.inputset.raw.load_data()
         image = self.combine_images(images, "add")
 
         return {

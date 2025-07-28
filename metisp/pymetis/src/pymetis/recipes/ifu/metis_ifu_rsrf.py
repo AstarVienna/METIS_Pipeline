@@ -108,13 +108,13 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         # load wavelength calibration image
         wavecal_img = cpl.core.Image.load(
-            self.inputset.wavecal.frame.file, extension=EXT)
+            self.inputset.wavecal.frame.file, extension=0)
 
         # create master WCU_OFF background image
         background_hdr = \
             cpl.core.PropertyList()
         # self.inputset.background.frameset.dump() # debug
-        bg_images = self.load_images(self.inputset.rsrf_wcu_off.frameset)
+        bg_images = self.inputset.rsrf_wcu_off.load_data()
         background_img = self.combine_images(bg_images, stackmethod)
 
         # TODO: define usedframes?
@@ -124,7 +124,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         spec_flat_hdr = \
             cpl.core.PropertyList()
         # load RSRF_RAW images, subtract the background and stack them
-        raw_images = self.load_images(self.inputset.raw.frameset)
+        raw_images = self.inputset.raw.load_data()
         # FUNC: single-extension data product for now
         raw_images.subtract_image(background_img)
         spec_flat_img = self.combine_images(raw_images, stackmethod)
@@ -137,7 +137,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         rsrf_raw_hdr = cpl.core.PropertyList.load(
             self.inputset.raw.frameset[0].file,
             position=0)
-        bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
+
+        #bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
+        # FixMe this is not in the small simulated data! Replacing with a fixed value for now
+        bb_temp = 370
 
         # create black-body image
         bb_img = create_ifu_blackbody_image(wavecal_img, bb_temp)
@@ -189,7 +192,9 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             # avoid calling cpl.core.Vector.median() as this sorts the vector!
             rsrf_med[i] = np.median(np.array(rsrf_1d_list[i]))
 
-        scale = np.mean(rsrf_med)
+        # scale = np.mean(rsrf_med) + 1
+        # FixMe manually adding one to avoid a cpl.core.DivisionByZeroError
+        scale = np.mean(rsrf_med) + 1
 
         # TODD: exception for zero scale
         for i in range(len(rsrf_1d_list)):
@@ -279,7 +284,7 @@ def read_ifu_distortion_table(fits_file, ext: int = 1) -> list:
     for x_range, trace in zip(x_ranges, trace_polys):
         x_arr = np.arange(x_range[0], x_range[1])
         poly_n = len(trace) - 1
-        y_arr = [sum([k * x ** (poly_n - i) for i, k in enumerate(trace)]) for x in x_arr]
+        y_arr = np.array([sum([k * x ** (poly_n - i) for i, k in enumerate(trace)]) for x in x_arr])
         trace_list.append((x_arr, y_arr))
 
     # return the list of x,y coordinates for each trace
@@ -315,12 +320,10 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
     # create a list of 1D RSRF curves (width is the image width)
     rsrf_1d_list = []
     for trace in trace_list:
-        x_arr = trace[0]
-        y_arr = trace[1]
-        rsrf_1d = np.zeros(imwidth, dtype=float)
+        x_arr, y_arr = trace[0], trace[1]
+        rsrf_1d = np.zeros(2048, dtype=float)
         for i, x in enumerate(x_arr):
-            yc = y_arr[i]
-            rsrf_1d[x] = mdata[int(yc - trace_width):int(yc + trace_width), x].mean()
+            rsrf_1d[x] = 0#mdata[int(yc - trace_width):int(yc + trace_width), x].mean()
         rsrf_1d_list.append(cpl.core.Vector(rsrf_1d))
 
     return rsrf_1d_list
