@@ -323,7 +323,10 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
         x_arr, y_arr = trace[0], trace[1]
         rsrf_1d = np.zeros(2048, dtype=float)
         for i, x in enumerate(x_arr):
-            rsrf_1d[x] = 0#mdata[int(yc - trace_width):int(yc + trace_width), x].mean()
+            yc = y_arr[i]
+            # rsrf_1d[x] = mdata[int(yc - trace_width):int(yc + trace_width), x].mean()
+            # FixMe replaced this by one for now. Also, numpy definitely has a clever method for rolling median
+            rsrf_1d[x] = 1
         rsrf_1d_list.append(cpl.core.Vector(rsrf_1d))
 
     return rsrf_1d_list
