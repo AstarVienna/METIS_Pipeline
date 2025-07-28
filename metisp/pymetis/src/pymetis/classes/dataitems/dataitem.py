@@ -219,7 +219,7 @@ class DataItem(Parametrizable, ABC):
         :param: override
         If provided, override the file name. Otherwise, name with formatted timestamp is used.
         """
-        return f"{self.name()}_{self.created_at.strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
+        return f"{self.name()}_{self._created_at.strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
             if override is None else override
 
     def __init__(self,
@@ -244,8 +244,6 @@ class DataItem(Parametrizable, ABC):
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
 
         # FIXME: temporary to get QC parameters into the product header [OC]
-        self.created_at: datetime.datetime = datetime.datetime.now()
-
         self.header = header
         if header is not None:
             self.properties = header
@@ -253,6 +251,10 @@ class DataItem(Parametrizable, ABC):
             self.properties = cpl.core.PropertyList()
 
         self.add_properties()
+
+        # Instance creation time (read-only, for file name)
+        self._created_at: datetime.datetime = datetime.datetime.now()
+
 
     def add_properties(self) -> None:
         """
