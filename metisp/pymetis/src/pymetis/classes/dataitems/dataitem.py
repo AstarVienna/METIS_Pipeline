@@ -212,15 +212,14 @@ class DataItem(Parametrizable, ABC):
         Currently same as _name, and will probably stay like that (and if that is the case it will be removed). """
         return cls.name()
 
-    @classmethod
-    def file_name(cls, override: Optional[str] = None):
+    def file_name(self, override: Optional[str] = None):
         """
         Get the file name of this data item if used as a product.
 
         :param: override
         If provided, override the file name. Otherwise, name with formatted timestamp is used.
         """
-        return f"{cls.name()}_{datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
+        return f"{self.name()}_{self.created_at.strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
             if override is None else override
 
     def __init__(self,
@@ -245,6 +244,8 @@ class DataItem(Parametrizable, ABC):
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
 
         # FIXME: temporary to get QC parameters into the product header [OC]
+        self.created_at: datetime.datetime = datetime.datetime.now()
+
         self.header = header
         if header is not None:
             self.properties = header
@@ -343,9 +344,8 @@ class DataItem(Parametrizable, ABC):
         Useful for reconstruction of DRLD input/product cards.
         """
         for (name, klass) in inspect.getmembers(
-                pymetis.recipes,
-                lambda x: inspect.isclass(x) and x.Impl.InputSet is not None
-        ):
+            pymetis.recipes,
+            lambda x: inspect.isclass(x) and x.Impl.InputSet is not None):
             for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
                 if issubclass(kls, cls):
                     yield klass
