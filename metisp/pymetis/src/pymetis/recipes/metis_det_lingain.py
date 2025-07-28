@@ -48,7 +48,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
     ProductBadPixMap = BadPixMap
 
     def process(self) -> set[DataItem]:
-        raw_images = self.inputset.load_raw_images()
+        raw_images = self.inputset.raw.load_images()
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)
 

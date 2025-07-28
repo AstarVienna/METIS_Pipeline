@@ -44,6 +44,9 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
             Load a set of raw images, as determined by the tags.
             Chi-Hung has warned Martin that this is unnecessary and fills the memory quickly,
             but if we are to use CPL functions, Martin does not see a way around it.
+
+            :param: extension
+                the extension of the images to load, default 1
             """
             output = cpl.core.ImageList()
 

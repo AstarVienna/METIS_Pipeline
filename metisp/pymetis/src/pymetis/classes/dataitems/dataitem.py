@@ -73,7 +73,6 @@ class DataItem(Parametrizable, ABC):
     _frame_level: cpl.ui.Frame.FrameLevel = None    # No sensible default; must be provided explicitly
     _frame_type: cpl.ui.Frame.FrameType = None      # Specialised for image / table / multi-extension data
 
-
     _oca_keywords: set[str] = set()
 
     # [Hacky] A regex to match the tag (mostly to make sure we are not instantiating a partially specialized class)
@@ -212,16 +211,6 @@ class DataItem(Parametrizable, ABC):
         Currently same as _name, and will probably stay like that (and if that is the case it will be removed). """
         return cls.name()
 
-    def file_name(self, override: Optional[str] = None):
-        """
-        Get the file name of this data item if used as a product.
-
-        :param: override
-        If provided, override the file name. Otherwise, name with formatted timestamp is used.
-        """
-        return f"{self.name()}_{self._created_at.strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
-            if override is None else override
-
     def __init__(self,
                  header: cpl.core.PropertyList,
                  frame: cpl.ui.Frame):
@@ -230,10 +219,10 @@ class DataItem(Parametrizable, ABC):
 
         # Check if the title is defined
         if self.title() is None:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no title")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no title")
 
         if self.name() is None:
-            raise NotImplementedError(f"Pipeline input {self.__class__.__qualname__} has no name")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no name")
 
         # Check if frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
@@ -252,8 +241,20 @@ class DataItem(Parametrizable, ABC):
 
         self.add_properties()
 
-        # Instance creation time (read-only, for file name)
+        # Instance creation timestamp (read-only, used in file name)
         self._created_at: datetime.datetime = datetime.datetime.now()
+
+    def file_name(self, override: Optional[str] = None):
+        """
+        Get the file name of this data item if used as a product.
+
+        :param: override
+        If provided, override the file name. Otherwise, name with formatted timestamp is used.
+        """
+        # ToDo determine how this should be really formed: timestamp, hash, combination?
+        # ToDo Hugo says there is a 56 char limit for file names
+        return f"{self.name()}_{self._created_at.strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
+            if override is None else override
 
 
     def add_properties(self) -> None:

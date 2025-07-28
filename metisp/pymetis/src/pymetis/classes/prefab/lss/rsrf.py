@@ -45,7 +45,7 @@ class MetisLssRsrfImpl(DarkImageProcessor):
         """do something more fancy in the future"""
         # Load raw image
         spec_flat_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.load_raw_images()
+        raw_images = self.inputset.raw.load_images()
 
         # Final RSRF
         combined_master_hdr = cpl.core.PropertyList()

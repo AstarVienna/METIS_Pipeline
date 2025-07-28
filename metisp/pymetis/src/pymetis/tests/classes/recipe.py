@@ -148,7 +148,7 @@ class BaseRecipeTest(ABC):
         recipe = self.Recipe()
         recipe.run(frameset, {})
         for inp in recipe.implementation.inputset.inputs:
-            item = inp.item()
+            item = inp.Item
 
             assert item is not None, \
                 f"Input {inp} has no associated data item"

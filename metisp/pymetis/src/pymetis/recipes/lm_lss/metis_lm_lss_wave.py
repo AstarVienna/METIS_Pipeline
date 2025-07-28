@@ -63,6 +63,7 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
         """Create dummy file (should do something more fancy in the future)"""
         # header = self._create_dummy_header()
         table = self._create_dummy_table()
+
         LmLssCurveHdr = cpl.core.PropertyList()
         LmLssDistSolHdr = cpl.core.PropertyList()
         LmLssWaveGuessHdr = cpl.core.PropertyList()

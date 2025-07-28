@@ -214,23 +214,6 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         return {product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu}
 
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalised to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            cpl.core.Msg.info(self.__class__.__qualname__,
-                              f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=EXT))
-
-        return output
-
 
 def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
     """

@@ -37,7 +37,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
     ProductImgStdCombined = Combined
 
     def process(self) -> set[DataItem]:
-        raw_images = self.inputset.load_raw_images(extension=0)
+        raw_images = self.inputset.raw.load_images(extension=0)
 
         combined_image = self.combine_images(raw_images, "average")
         table = self._create_dummy_table()

@@ -164,8 +164,10 @@ class MetisRecipeImpl(ABC):
         assert self.products is not None, "Products have not been created yet!"
 
         Msg.debug(self.__class__.__qualname__,
-                  f"Saving {len(self.products)} products: {self.products}")
+                  f"Saving {len(self.products)} products:")
         for product in self.products:
+            Msg.debug(self.__class__.__qualname__,
+                      f"   {product.name():<40} {product.file_name()}")
             product.save(recipe=self, parameters=self.parameters)
 
     @final

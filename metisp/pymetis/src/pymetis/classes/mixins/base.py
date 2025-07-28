@@ -60,3 +60,7 @@ class KeywordMixin(Parametrizable, ABC):
             cls._registry[keyword] = cls
         super().__init_subclass__(**kwargs)
 
+    @classmethod
+    def registry(cls) -> dict[str, type[Self]]:
+        """ Class property to access the global registry """
+        return cls._registry

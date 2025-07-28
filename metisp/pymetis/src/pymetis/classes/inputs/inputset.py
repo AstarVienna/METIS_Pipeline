@@ -28,7 +28,7 @@ from cpl.core import Msg
 
 from pymetis.classes.inputs.input import PipelineInput
 from pymetis.classes.mixins import TargetSpecificMixin, SourceSpecificMixin, BandSpecificMixin, DetectorSpecificMixin
-from pymetis.classes.mixins.base import Parametrizable
+from pymetis.classes.mixins.base import Parametrizable, KeywordMixin
 
 
 class PipelineInputSet(Parametrizable, ABC):
@@ -105,12 +105,8 @@ class PipelineInputSet(Parametrizable, ABC):
         for inp in self.inputs:
             inp.validate()
 
-        for attr, klass in [
-            ('detector', DetectorSpecificMixin),
-            ('band', BandSpecificMixin),
-            ('target', TargetSpecificMixin),
-            ('source', SourceSpecificMixin),
-        ]:
+        # Validate that tag parameters match the keyword mixin from which the data items are derived
+        for attr, klass in KeywordMixin.registry().items():
             self._validate_attr(lambda x: x.Item.tag_parameters()[attr] if issubclass(x.Item, klass) else None, attr)
 
     def _validate_attr(self, _func: Callable, attr: str) -> Optional[str]:
@@ -154,7 +150,7 @@ class PipelineInputSet(Parametrizable, ABC):
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}{len(self.inputs)} inputs:")
 
         for inp in self.inputs:
-            Msg.debug(self.__class__.__qualname__, f"   {inp.Item.__qualname__:<30s} {inp.item()}")
+            Msg.debug(self.__class__.__qualname__, f"   {inp.Item.__qualname__:<30s} {inp.Item.name()}")
 
     def as_dict(self) -> dict[str, Any]:
         """

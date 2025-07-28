@@ -71,12 +71,12 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         hwidth = self.parameters[f"{self.name}.halfwindow"].value
 
         background_hdr = cpl.core.PropertyList()
-        bg_images = self.load_images(self.inputset.background.frameset)
+        bg_images = self.inputset.background.load_images()
         background_img = self.combine_images(bg_images, stackmethod)
         # TODO: define usedframes
 
         combined_hdr = cpl.core.PropertyList()
-        raw_images = self.load_images(self.inputset.raw.frameset)
+        raw_images = self.inputset.raw.load_images()
         raw_images.subtract_image(background_img)
         combined_img = self.combine_images(raw_images, stackmethod)
 
@@ -115,23 +115,6 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             self.ProductCombined(combined_hdr, combined_img),
             self.ProductBackground(background_hdr, background_img),
         }
-
-    def load_images(self, frameset: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
-        This is a temporary implementation that should be generalized to the
-        entire pipeline package. It uses cpl functions - these should be
-        replaced with hdrl functions once they become available, in order
-        to use uncertainties and masks.
-        """
-        output = cpl.core.ImageList()
-
-        for idx, frame in enumerate(frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=1))
-
-        return output
 
 
 class MetisCalChophome(MetisRecipe):

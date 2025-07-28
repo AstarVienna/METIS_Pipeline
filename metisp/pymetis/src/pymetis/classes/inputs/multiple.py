@@ -37,7 +37,7 @@ class MultiplePipelineInput(PipelineInput):
         self.frameset: Optional[cpl.ui.FrameSet] = cpl.ui.FrameSet()
         super().__init__(frameset)
 
-    def load_inner(self, frameset: cpl.ui.FrameSet):
+    def _load_inner(self, frameset: cpl.ui.FrameSet):
         """
         Load the associated frames.
         A MultiplePipelineInput just assigns all the frames to its attribute.
@@ -45,6 +45,19 @@ class MultiplePipelineInput(PipelineInput):
         self.frameset = frameset
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
+
+    def load_images(self, *, extension: int = 1) -> cpl.core.ImageList:
+        """Load an imagelist from a FrameSet
+
+        """
+        output = cpl.core.ImageList()
+
+        for idx, frame in enumerate(self.frameset):
+            Msg.info(self.__class__.__qualname__,
+                     f"Processing input frame #{idx}: {frame.file!r}...")
+            output.append(cpl.core.Image.load(frame.file, extension=extension))
+
+        return output
 
     def set_cpl_attributes(self):
         frameset = cpl.ui.FrameSet()

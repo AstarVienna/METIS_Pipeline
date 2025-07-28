@@ -65,11 +65,11 @@ class PipelineInput:
         """
         Load the associated frames
         """
-        self.load_inner(frameset)
+        self._load_inner(frameset)
         self.set_cpl_attributes()
 
     @abstractmethod
-    def load_inner(self, frameset: cpl.ui.FrameSet) -> None:
+    def _load_inner(self, frameset: cpl.ui.FrameSet) -> None:
         """
         Actually load the associated frames. Implementation differs between derived classes.
         """
@@ -80,10 +80,6 @@ class PipelineInput:
         """
         Set CPL attributes of loaded frames. ToDO: is this really necessary?
         """
-
-    @classmethod
-    def item(cls) -> type[DataItem]:
-        return cls.Item
 
     @classmethod
     def title(cls) -> str:
@@ -125,7 +121,7 @@ class PipelineInput:
             else:
                 if cls == self.Item:
                     Msg.debug(self.__class__.__qualname__,
-                              f"Found a specialized class {cls.__qualname__} for {tag}, instantiating directly")
+                              f"Found a fully specialized class {cls.__qualname__} for {tag}, instantiating directly")
                     self.load(frames)
                 elif cls in self.Item.__subclasses__():
                     Msg.debug(self.__class__.__qualname__,
@@ -134,8 +130,8 @@ class PipelineInput:
                     self.Item = cls
                     self.load(frames)
                 else:
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
+                    #Msg.debug(self.__class__.__qualname__,
+                    #          f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
                     continue
 
     @abstractmethod
@@ -147,14 +143,14 @@ class PipelineInput:
 
     def print_debug(self, *, offset: int = 0) -> None:
         """
-        Print a short description of the tags with a small offset (n spaces).
+        Print a short description of the tags, optionally with a small offset (N spaces).
         """
         Msg.debug(self.__class__.__qualname__,
-                  str(self.item()))
+                  str(self.Item))
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            'item': self.item(),
+            'item': self.Item,
             'required': self.required,
         }
 

@@ -48,7 +48,7 @@ class BaseInputSetTest(ABC):
 
     def test_all_inputs_have_items(self, instance):
         for inp in instance.inputs:
-            assert inp.item() is not None, \
+            assert inp.Item is not None, \
                 f"Input {inp.__class__.__qualname__} has not item defined"
 
     @staticmethod
