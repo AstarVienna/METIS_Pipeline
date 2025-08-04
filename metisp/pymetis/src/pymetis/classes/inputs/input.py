@@ -84,10 +84,6 @@ class PipelineInput:
         """
 
     @classmethod
-    def title(cls) -> str:
-        return cls.Item.title()
-
-    @classmethod
     def required(cls) -> bool:
         """
         Marks whether this pipeline input is required. Used during validation.
@@ -132,8 +128,8 @@ class PipelineInput:
                     self.Item = cls
                     self.load_frameset(frames)
                 else:
-                    #Msg.debug(self.__class__.__qualname__,
-                    #          f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
                     continue
 
     @abstractmethod

@@ -139,7 +139,7 @@ class MetisRecipeImpl(ABC):
 
         The basic workflow inside this function should be as follows:
 
-        1.  Load the CPL Images associated with `Input` frames.
+        1.  Load the CPL structures associated with `Input` frames.
         2.  Do the preprocessing (dark, bias, flat, persistence...) as needed.
             When implementing this function, please always use the topmost applicable method:
                 - Use the functions provided in the pipeline if possible (derive or override).
@@ -195,30 +195,6 @@ class MetisRecipeImpl(ABC):
                 str(product.name()): product.as_dict() for product in self.products
             }
         }
-
-    @staticmethod
-    def _create_dummy_header() -> cpl.core.PropertyList:
-        """
-        Create a dummy header (absolutely no assumptions, just to have something to work with).
-        # ToDo This function should not survive in the future.
-        """
-        return cpl.core.PropertyList()
-
-    @staticmethod
-    def _create_dummy_image() -> cpl.core.Image:
-        """
-        Create a dummy image (absolutely no assumptions, just to have something to work with).
-        # ToDo This function should not survive in the future.
-        """
-        return cpl.core.Image.zeros(32, 32, cpl.core.Type.FLOAT)
-
-    @staticmethod
-    def _create_dummy_table() -> cpl.core.Table:
-        """
-        Create a dummy table (absolutely no assumptions, just to have something to work with).
-        # ToDo This function should not survive in the future.
-        """
-        return cpl.core.Table.empty(3)
 
     @property
     def valid_frames(self) -> cpl.ui.FrameSet:

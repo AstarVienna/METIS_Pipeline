@@ -33,6 +33,7 @@ from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, MasterDar
     GainMapInputSetMixin, SinglePipelineInput, FluxstdCatalogInput, LinearityInputSetMixin
 from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLssStdImpl(DarkImageProcessor):
@@ -87,17 +88,17 @@ class MetisLssStdImpl(DarkImageProcessor):
         raw_images = self.inputset.raw.load_data()
 
         """Create dummy file (should do something more fancy in the future)"""
-        # header = self._create_dummy_header()
+        # header = create_dummy_header()
         # PipelineImageProducts
-        ProductLssStdObjMapHdr = self._create_dummy_header()
-        ProductLssStdSkyMapHdr = self._create_dummy_header()
-        image = self._create_dummy_image()
+        ProductLssStdObjMapHdr = create_dummy_header()
+        ProductLssStdSkyMapHdr = create_dummy_header()
+        image = create_dummy_image()
 
         # PipelineTableProducts
-        ProductMasterResponseHdr = self._create_dummy_header()
-        ProductStdTransmissionHdr = self._create_dummy_header()
-        ProductLssStd1dHdr = self._create_dummy_header()
-        table = self._create_dummy_table()
+        ProductMasterResponseHdr = create_dummy_header()
+        ProductStdTransmissionHdr = create_dummy_header()
+        ProductLssStd1dHdr = create_dummy_header()
+        table = create_dummy_table()
 
         # Write files
         return {

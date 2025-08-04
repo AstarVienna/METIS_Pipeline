@@ -27,6 +27,7 @@ from pymetis.dataitems.distortion.raw import NDistortionRaw
 from pymetis.dataitems.raw.wcuoff import NWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
+from pymetis.utils.dummy import create_dummy_table
 
 
 class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
@@ -50,7 +51,7 @@ class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
             raw_images.append(raw_image)
 
         combined_image = self.combine_images(raw_images, "average")
-        table = self._create_dummy_table()
+        table = create_dummy_table()
 
         return {
             self.ProductDistortionTable(self.header, table),

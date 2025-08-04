@@ -46,7 +46,7 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-    def load_data(self, *, extension: int = 1) -> cpl.core.ImageList:
+    def load(self, *, extension: int = 1) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
 
         """
@@ -95,7 +95,7 @@ class MultiplePipelineInput(PipelineInput):
                     f"({self.Item.name():s}) found in the frameset."
                 )
             else:
-                Msg.debug(self.__class__.__qualname__, f"No {self.title()} frames found but not required.")
+                Msg.debug(self.__class__.__qualname__, f"No {self.Item.title()} frames found but not required.")
         else:
             Msg.debug(self.__class__.__qualname__, f"Frameset OK: {count} frame{'s' if count > 1 else ''} found")
 

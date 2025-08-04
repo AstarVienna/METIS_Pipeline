@@ -26,6 +26,7 @@ from pymetis.dataitems.img.basicreduced import Calibrated
 from pymetis.classes.inputs import FluxCalTableInput
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.recipes import MetisRecipeImpl
+from pymetis.utils.dummy import create_dummy_image
 
 
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
@@ -42,7 +43,7 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     ProductSciCalibrated = Calibrated
 
     def process(self) -> set[DataItem]:
-        combined_image = self._create_dummy_image()
+        combined_image = create_dummy_image()
         product_calibrated = self.ProductSciCalibrated(self.header, combined_image)
 
         return {product_calibrated}

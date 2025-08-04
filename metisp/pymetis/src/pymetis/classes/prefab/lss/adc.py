@@ -22,6 +22,7 @@ from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMi
     BadPixMapInputSetMixin, RawInput
 from pymetis.classes.inputs.mixins import WcuOffInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisAdcSlitlossImpl(DarkImageProcessor):
@@ -39,8 +40,8 @@ class MetisAdcSlitlossImpl(DarkImageProcessor):
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        header = self._create_dummy_header()
-        table = self._create_dummy_table()
+        header = create_dummy_header()
+        table = create_dummy_table()
         return {
             self.ProductAdcSlitloss(header, table),
         }

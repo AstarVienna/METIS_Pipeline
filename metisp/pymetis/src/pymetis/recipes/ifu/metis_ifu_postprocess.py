@@ -24,6 +24,7 @@ from pymetis.dataitems.coadd import IfuSciCoadd
 from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
@@ -47,7 +48,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         self.resample_cubes()
         self.coadd_cubes()
 
-        header = self._create_dummy_header()
+        header = create_dummy_header()
         image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file)  # ToDo actual processing
 
         product = self.ProductSciCoadd(header, image)

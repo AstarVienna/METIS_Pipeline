@@ -23,6 +23,7 @@ from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated, IfuSciReduced
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs.common import FluxCalTableInput
+from pymetis.utils.dummy import create_dummy_image, create_dummy_header
 
 
 class MetisIfuCalibrateImpl(MetisRecipeImpl):
@@ -41,8 +42,8 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         # self.correct_telluric()
         # self.apply_fluxcal()
 
-        header = self._create_dummy_header()
-        image = self._create_dummy_image()
+        header = create_dummy_header()
+        image = create_dummy_image()
 
         product_scc = self.ProductSciCubeCalibrated(header, image)
 

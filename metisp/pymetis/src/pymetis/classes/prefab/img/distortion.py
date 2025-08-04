@@ -32,6 +32,7 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.utils.dummy import create_dummy_table
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
@@ -61,7 +62,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
             raw_images.append(raw_image)
 
         combined_image = self.combine_images(raw_images, "average")
-        table = self._create_dummy_table()
+        table = create_dummy_table()
 
         return {
             self.ProductDistortionTable(self.header, table),

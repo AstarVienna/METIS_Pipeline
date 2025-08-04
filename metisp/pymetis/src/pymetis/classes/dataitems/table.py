@@ -17,11 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from typing import Optional
+
 import cpl
+from cpl.core import Msg
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.dataitem import PIPELINE
+from pymetis.utils.dummy import create_dummy_table
 
 
 class TableDataItem(DataItem, abstract=True):
@@ -29,9 +33,23 @@ class TableDataItem(DataItem, abstract=True):
 
     def __init__(self,
                  header: cpl.core.PropertyList,
-                 frame: cpl.ui.Frame):
-        super().__init__(header, frame)
-        self.table: cpl.core.Table = cpl.core.Table.empty(3) # ToDo Change this
+                 table: cpl.core.Table):
+        super().__init__(header)
+        self.table: cpl.core.Table = table
+
+    @classmethod
+    def load_from_frame(cls, frame: cpl.ui.Frame):
+        Msg.debug(cls.__qualname__, f"Now loading table {frame.file}")
+        try:
+            header = cpl.core.PropertyList.load(frame.file, 0)
+            table = cpl.core.Table.load(frame.file, 0)
+        except cpl.core.DataNotFoundError as err:
+            Msg.error(cls.__qualname__, f"Could not load table, substituting with an empty one!")
+            table = create_dummy_table()
+        except cpl.core.AccessOutOfRangeError as err:
+            Msg.error(cls.__qualname__, f"Tried to access out-of-range extension, substituting with an empty table!")
+            table = create_dummy_table()
+        return cls(header, table)
 
     def save(self,
              recipe: 'PipelineRecipe',

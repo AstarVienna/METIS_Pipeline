@@ -32,6 +32,7 @@ from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMap
     LinearityInputSetMixin, SinglePipelineInput
 from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLssSciImpl(DarkImageProcessor):
@@ -95,9 +96,9 @@ class MetisLssSciImpl(DarkImageProcessor):
         sci_raw_images = self.inputset.raw.load_data()
 
         """Create dummy file (should do something more fancy in the future)"""
-        header = self._create_dummy_header()
-        image = self._create_dummy_image()
-        table = self._create_dummy_table()
+        header = create_dummy_header()
+        image = create_dummy_image()
+        table = create_dummy_table()
 
         # Write files
         return {

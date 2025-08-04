@@ -37,6 +37,9 @@ class SinglePipelineInput(PipelineInput):
         self.frame: cpl.ui.Frame | None = None
         super().__init__(frameset)
 
+        if self.frame is not None:
+            self.item = self.Item.load(self.frame)
+
     def _load_frameset_inner(self, frameset: cpl.ui.FrameSet):
         """
         Load the associated frames.
@@ -50,6 +53,9 @@ class SinglePipelineInput(PipelineInput):
             Msg.debug(self.__class__.__name__,
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
+
+    def load(self, *, extension: int = 0):
+        return self.item.load(extension=extension)
 
     def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()
@@ -74,14 +80,14 @@ class SinglePipelineInput(PipelineInput):
         if frame is None:
             if self.required():
                 raise cpl.core.DataNotFoundError(
-                    f"{self.__class__.__qualname__}: no {self.title()} frame "
+                    f"{self.__class__.__qualname__}: no {self.Item.title()} frame "
                     f"({self.Item.name()}) found in the frameset.")
             else:
                 Msg.debug(self.__class__.__qualname__,
-                          f"No {self.title()} frame found, but not required.")
+                          f"No {self.Item.title()} frame found, but not required.")
         else:
             Msg.debug(self.__class__.__qualname__,
-                      f"Found a {self.title()} frame {frame.file}")
+                      f"Found a {self.Item.title()} frame {frame.file}")
 
     def as_dict(self) -> dict[str, Any]:
         return super().as_dict() | {

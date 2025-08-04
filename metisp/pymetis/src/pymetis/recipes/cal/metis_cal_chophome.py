@@ -71,12 +71,12 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         hwidth = self.parameters[f"{self.name}.halfwindow"].value
 
         background_hdr = cpl.core.PropertyList()
-        bg_images = self.inputset.background.load_data()
+        bg_images = self.inputset.background.load()
         background_img = self.combine_images(bg_images, stackmethod)
         # TODO: define usedframes
 
         combined_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_data()
+        raw_images = self.inputset.raw.load()
         raw_images.subtract_image(background_img)
         combined_img = self.combine_images(raw_images, stackmethod)
 

@@ -16,14 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
-from typing import Optional
+from typing import Self
 
 import cpl
+from cpl.core import Msg
+
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.dataitem import PIPELINE
+from pymetis.utils.dummy import create_dummy_image
 
 
 class ImageDataItem(DataItem, abstract=True):
@@ -31,9 +33,20 @@ class ImageDataItem(DataItem, abstract=True):
 
     def __init__(self,
                  header: cpl.core.PropertyList,
-                 frame: cpl.ui.Frame):
-        super().__init__(header, frame)
-        self.image: Optional[cpl.core.Image] = cpl.core.Image.zeros(32, 32, cpl.core.Type.FLOAT)
+                 image: cpl.core.Image):
+        super().__init__(header)
+        self.image: cpl.core.Image = image
+
+    @classmethod
+    def load_from_frame(cls, frame) -> Self:
+        Msg.debug(cls.__qualname__, f"Now loading image {frame.file}")
+        try:
+            header = cpl.core.PropertyList.load(frame.file, 0)
+            image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT)
+        except cpl.core.DataNotFoundError as err:
+            Msg.error(cls.__qualname__, f"Could not load image: {err}")
+            image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, extension=1)
+        return cls(header, image)
 
     def save(self,
              recipe: 'PipelineRecipeImpl',
@@ -46,7 +59,7 @@ class ImageDataItem(DataItem, abstract=True):
         # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
         assert isinstance(self.image, cpl.core.Image), \
-            f"Attribute `{self}.image` is not an image, but {type(self.image)}"
+            f"Attribute `{self}.image` is not an image, but {type(self.image)}, cannot save"
 
         cpl.dfs.save_image(
             recipe.frameset,  # All frames for the recipe

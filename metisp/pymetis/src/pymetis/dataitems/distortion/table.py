@@ -41,4 +41,24 @@ class NDistortionTable(BandNMixin, DistortionTable):
 
 
 class IfuDistortionTable(BandIfuMixin, DistortionTable):
-    pass
+    def read(self, *, extension: int = 1) -> cpl.core.ImageList:
+        # Load the distortion table
+        # TODO: assumes distortion table has one set of coefficients for each extension
+        distortion_table = cpl.core.Table.load(self.frame.file, extension=extension)
+
+        # obtain the trace polynomials from the distortion table
+        trace_polys = distortion_table.column_array('orders')[0]
+        x_ranges = distortion_table.column_array('column_range')[0]
+
+        # create a list of y-coordinates for each trace from the distortion table
+        # x_arr = np.arange(0, rsrf_raw_img.width)
+        trace_list = []
+        for x_range, trace in zip(x_ranges, trace_polys):
+            x_arr = np.arange(x_range[0], x_range[1])
+            poly_n = len(trace) - 1
+            y_arr = np.array([sum([k * x ** (poly_n - i) for i, k in enumerate(trace)]) for x in x_arr])
+            trace_list.append((x_arr, y_arr))
+
+        # return the list of x,y coordinates for each trace
+        return trace_list
+

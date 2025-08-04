@@ -24,6 +24,7 @@ from pymetis.dataitems.molecfit.model import MfBestFitTable
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.inputs.mixins import AtmProfileInputSetMixin, AtmLineCatInputSetMixin, LsfKernelInputSetMixin
 from pymetis.classes.recipes import MetisRecipeImpl
+from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLssMfModelImpl(MetisRecipeImpl):
@@ -41,12 +42,12 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
 
     #   Method for processing
     def process(self) -> set[DataItem]:
-        """Create dummy file (should do something more fancy in the future)"""
+        """Create a dummy file (should do something more fancy in the future)"""
 
         # TODO: Invoke molecfit here
         # TODO: Check whether the new mf writes out the best-fit param file
-        header = self._create_dummy_header()
-        table = self._create_dummy_table()
+        header = create_dummy_header()
+        table = create_dummy_table()
         return {
             self.ProductMfBestFitTable(header, table),
         }

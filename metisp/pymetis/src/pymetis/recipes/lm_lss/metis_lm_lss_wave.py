@@ -34,6 +34,7 @@ from pymetis.classes.inputs.common import WcuOffInput
 from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
+from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
 class MetisLmLssWaveImpl(DarkImageProcessor):
@@ -60,9 +61,9 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
 
 #   Method for processing
     def process(self) -> set[DataItem]:
-        """Create dummy file (should do something more fancy in the future)"""
-        # header = self._create_dummy_header()
-        table = self._create_dummy_table()
+        """Create a dummy file (should do something more fancy in the future)"""
+        header = create_dummy_header()
+        table = create_dummy_table()
 
         LmLssCurveHdr = cpl.core.PropertyList()
         LmLssDistSolHdr = cpl.core.PropertyList()

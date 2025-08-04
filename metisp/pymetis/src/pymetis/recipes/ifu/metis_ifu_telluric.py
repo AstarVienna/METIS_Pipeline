@@ -22,6 +22,7 @@ from pymetis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
+from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 # The aim of this recipe is twofold:
@@ -95,9 +96,9 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         self.mf_calctrans()
         self.determine_response()
 
-        header = self._create_dummy_header()
-        image = self._create_dummy_image()
-        table = self._create_dummy_table()
+        header = create_dummy_header()
+        image = create_dummy_image()
+        table = create_dummy_table()
 
         product_telluric_transmission = self.ProductTelluricTransmission(header, image)
         product_reduced_1d = self.ProductResponseFunction(header, image)

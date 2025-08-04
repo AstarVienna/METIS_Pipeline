@@ -98,8 +98,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # load MASTER_DARK_IFU image and extract bad pixel map
         # TODO: update to load multi-extension file, current intermediate
         # products are only single-extension
-        master_dark_img = cpl.core.Image.load(
-            self.inputset.master_dark.frame.file, extension=0)
+        master_dark_img = self.inputset.master_dark.load(extension=0)
         badpix_map = master_dark_img.bpm
 
         # load IFU trace definition file - only one extension for now
@@ -107,14 +106,12 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.inputset.distortion_table.frame.file, ext=EXT)
 
         # load wavelength calibration image
-        wavecal_img = cpl.core.Image.load(
-            self.inputset.wavecal.frame.file, extension=0)
+        wavecal_img = self.inputset.wavecal.load(extension=0)
 
         # create master WCU_OFF background image
-        background_hdr = \
-            cpl.core.PropertyList()
+        background_hdr = cpl.core.PropertyList()
         # self.inputset.background.frameset.dump() # debug
-        bg_images = self.inputset.rsrf_wcu_off.load_data()
+        bg_images = self.inputset.rsrf_wcu_off.load()
         background_img = self.combine_images(bg_images, stackmethod)
 
         # TODO: define usedframes?
@@ -124,7 +121,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         spec_flat_hdr = \
             cpl.core.PropertyList()
         # load RSRF_RAW images, subtract the background and stack them
-        raw_images = self.inputset.raw.load_data()
+        raw_images = self.inputset.raw.load()
         # FUNC: single-extension data product for now
         raw_images.subtract_image(background_img)
         spec_flat_img = self.combine_images(raw_images, stackmethod)
@@ -138,9 +135,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             self.inputset.raw.frameset[0].file,
             position=0)
 
-        #bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
-        # FixMe this is not in the small simulated data! Replacing with a fixed value for now
-        bb_temp = 370
+        bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
 
         # create black-body image
         bb_img = create_ifu_blackbody_image(wavecal_img, bb_temp)

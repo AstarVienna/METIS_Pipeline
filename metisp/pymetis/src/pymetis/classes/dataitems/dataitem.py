@@ -20,9 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import datetime
 import inspect
 import re
-import os
 from abc import ABC, abstractmethod
-from typing import Optional, Generator, final
+from pathlib import Path
+from typing import Optional, Generator, final, Self
 
 import cpl
 
@@ -31,32 +31,19 @@ from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
 from pymetis.classes.mixins.base import Parametrizable
+from pymetis.utils.format import partial_format
 
 PIPELINE = r'METIS'
 
-
-class FormatPlaceholder:
-    def __init__(self, key):
-        self.key = key
-
-    def __format__(self, spec):
-        value = f'{self.key}{f':{spec}' if spec else ''}'
-        return f"{{{value}}}"
-
-
-class FormatDict(dict):
-    def __missing__(self, key):
-        return FormatPlaceholder(key)
-
-
-def partial_format(template: str, **kwargs) -> str:
-    return template.format_map(FormatDict(**kwargs))
-
-
 class DataItem(Parametrizable, ABC):
     """
-    The `DataItem` class encapsulates a single data item: the smallest standalone unit of detector data
-    or a product of a recipe.
+    The `DataItem` class encapsulates a single data item:
+    the smallest standalone unit of detector data or a product of a recipe.
+
+    Class properties should describe the data item as defined in the DRLD
+    (or conversely, we should be at least in theory able to regenerate the DRLD items from code).
+
+    Multiple files with the same tag should correspond to multiple instances of the same DataItem class.
     """
     # Class registry: all derived classes are automatically registered here (unless declared abstract)
     _registry: dict[str, type['DataItem']] = {}
@@ -212,8 +199,7 @@ class DataItem(Parametrizable, ABC):
         return cls.name()
 
     def __init__(self,
-                 header: cpl.core.PropertyList,
-                 frame: cpl.ui.Frame):
+                 header: cpl.core.PropertyList = cpl.core.PropertyList()):
         if self.__abstract:
             raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
@@ -234,8 +220,8 @@ class DataItem(Parametrizable, ABC):
 
         # FIXME: temporary to get QC parameters into the product header [OC]
         self.header = header
-        if header is not None:
-            self.properties = header
+        if self.header is not None:
+            self.properties = self.header
         else:
             self.properties = cpl.core.PropertyList()
 
@@ -243,6 +229,21 @@ class DataItem(Parametrizable, ABC):
 
         # Instance creation timestamp (read-only, used in file name)
         self._created_at: datetime.datetime = datetime.datetime.now()
+
+    @classmethod
+    def load(cls, frame: cpl.ui.Frame) -> Self:
+        klass = cls.find(frame.tag)
+        Msg.debug(cls.__qualname__, klass.__qualname__)
+        return klass.load_from_frame(frame)
+
+    @abstractmethod
+    def load_from_frame(self, frame: cpl.ui.Frame) -> None:
+        """
+        Load a CPL frame into this data item.
+
+        This method is abstract, as the implementation is completely different for different underlying data types.
+        """
+        pass
 
     def file_name(self, override: Optional[str] = None):
         """

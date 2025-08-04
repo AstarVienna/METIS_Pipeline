@@ -25,6 +25,7 @@ from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, PersistenceInputSetMixin,
                                     BadPixMapInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLssTraceImpl(DarkImageProcessor):
@@ -44,8 +45,8 @@ class MetisLssTraceImpl(DarkImageProcessor):
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        trace_tab_hdr = self._create_dummy_header()
-        trace_tab_data = self._create_dummy_table()
+        trace_tab_hdr = create_dummy_header()
+        trace_tab_data = create_dummy_table()
         return {
             self.ProductTraceTable(trace_tab_hdr, trace_tab_data)
         }

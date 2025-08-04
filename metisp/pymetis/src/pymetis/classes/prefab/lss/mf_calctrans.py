@@ -23,6 +23,7 @@ from pymetis.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.inputs.mixins import LsfKernelInputSetMixin, AtmLineCatInputSetMixin, AtmProfileInputSetMixin
 from pymetis.classes.recipes import MetisRecipeImpl
+from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
 class MetisLssMfCalctransImpl(MetisRecipeImpl):
@@ -45,8 +46,8 @@ class MetisLssMfCalctransImpl(MetisRecipeImpl):
 
         # TODO: Check whether calctrans creates the Transmission file - if so, no need to
         # write it out here again
-        header = self._create_dummy_header()
-        table = self._create_dummy_table()
+        header = create_dummy_header()
+        table = create_dummy_table()
 
         return {
             self.ProductTransmission(header, table),
