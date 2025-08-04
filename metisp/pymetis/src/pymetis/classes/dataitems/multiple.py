@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Msg
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
@@ -36,6 +37,18 @@ class MultipleDataItem(DataItem, abstract=True):
         self.extensions = extensions
         for key, ext in self.extensions.items():
             self.__setattr__(key, ext)
+
+    @classmethod
+    def load_from_frame(cls, frame: cpl.ui.Frame, *, extension: int = 0):
+        Msg.debug(cls.__qualname__, f"Now loading multiplet {frame.file}")
+        try:
+            header = cpl.core.PropertyList.load(frame.file, extension)
+            table = cpl.core.Table.load(frame.file, extension)
+        except cpl.core.DataNotFoundError as err:
+            Msg.error(cls.__qualname__, f"Could not load table, substituting with an empty one!")
+        except cpl.core.AccessOutOfRangeError as err:
+            Msg.error(cls.__qualname__, f"Tried to access out-of-range extension, substituting with an empty table!")
+        return cls(header, table)
 
     def save(self,
                    recipe: 'PipelineRecipe',

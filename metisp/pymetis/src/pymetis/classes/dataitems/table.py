@@ -62,7 +62,7 @@ class TableDataItem(DataItem, abstract=True):
         # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
         assert isinstance(self.table, cpl.core.Table), \
-            f"Attribute `{self}.table` is not a table, but {type(self.table)}"
+            f"Attribute `{self}.table` is not a table, but {type(self.table).__qualname__}, cannot save"
 
         cpl.dfs.save_table(
             recipe.frameset,  # All frames for the recipe

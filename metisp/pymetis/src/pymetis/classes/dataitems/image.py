@@ -25,7 +25,6 @@ from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.dataitem import PIPELINE
-from pymetis.utils.dummy import create_dummy_image
 
 
 class ImageDataItem(DataItem, abstract=True):
@@ -40,12 +39,8 @@ class ImageDataItem(DataItem, abstract=True):
     @classmethod
     def load_from_frame(cls, frame, *, extension: int = 0) -> Self:
         Msg.debug(cls.__qualname__, f"Now loading image {frame.file}")
-        try:
-            header = cpl.core.PropertyList.load(frame.file, extension)
-            image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, extension)
-        except cpl.core.DataNotFoundError as err:
-            Msg.error(cls.__qualname__, f"Could not load image: {err}")
-            image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, extension=1)
+        header = cpl.core.PropertyList.load(frame.file, extension)
+        image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, extension)
         return cls(header, image)
 
     def save(self,
@@ -59,7 +54,7 @@ class ImageDataItem(DataItem, abstract=True):
         # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
         assert isinstance(self.image, cpl.core.Image), \
-            f"Attribute `{self}.image` is not an image, but {type(self.image)}, cannot save"
+            f"Attribute `{self}.image` is not an image, but {type(self.image).__qualname__}, cannot save"
 
         cpl.dfs.save_image(
             recipe.frameset,  # All frames for the recipe

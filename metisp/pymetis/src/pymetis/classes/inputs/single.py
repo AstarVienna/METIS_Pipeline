@@ -37,9 +37,6 @@ class SinglePipelineInput(PipelineInput):
         self.frame: cpl.ui.Frame | None = None
         super().__init__(frameset)
 
-        if self.frame is not None:
-            self.item = self.Item.load(self.frame)
-
     def _load_frameset_inner(self, frameset: cpl.ui.FrameSet):
         """
         Load the associated frames.
@@ -55,7 +52,7 @@ class SinglePipelineInput(PipelineInput):
             self.frame = frameset[0]
 
     def load(self, *, extension: int = 0):
-        return self.item.load(self.frame, extension=extension)
+        return self.Item.load(self.frame, extension=extension)
 
     def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()

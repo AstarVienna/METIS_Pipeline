@@ -99,7 +99,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # TODO: update to load multi-extension file, current intermediate
         # products are only single-extension
         master_dark_img = self.inputset.master_dark.load(extension=0)
-        badpix_map = master_dark_img.bpm
+        badpix_map = master_dark_img.image.bpm
 
         # load IFU trace definition file - only one extension for now
         trace_list = read_ifu_distortion_table(

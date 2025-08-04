@@ -55,7 +55,7 @@ class MultiplePipelineInput(PipelineInput):
         for idx, frame in enumerate(self.frameset):
             Msg.info(self.__class__.__qualname__,
                      f"Processing input frame #{idx}: {frame.file!r}...")
-            output.append(cpl.core.Image.load(frame.file, extension=extension))
+            output.append(self.Item.load(frame, extension=extension).image)
 
         return output
 

@@ -236,7 +236,6 @@ class DataItem(Parametrizable, ABC):
              *,
              extension: int = 0) -> Self:
         klass = cls.find(frame.tag)
-        Msg.debug(cls.__qualname__, klass.__qualname__)
         return klass.load_from_frame(frame, extension=extension)
 
     @classmethod

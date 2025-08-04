@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl.ui
 
-from pymetis.classes.dataitems import TableDataItem
+from pymetis.classes.dataitems import TableDataItem, ImageDataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
@@ -28,7 +28,6 @@ class DistortionReduced(BandSpecificMixin, TableDataItem, abstract=True):
     _title_template = r"{band} distortion reduced"
     _description_template = r"Table of polynomial coefficients for distortion correction"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_type = cpl.ui.Frame.FrameType.TABLE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
 

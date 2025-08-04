@@ -28,8 +28,6 @@ class FlatRaw(BandSpecificMixin, SourceSpecificMixin, Raw, abstract=True):
     _name_template = r'{band}_FLAT_{source}_RAW'
     _title_template = r'{band} flat {source} raw'
     _description_template = r'Flat raw'
-    _frame_group = cpl.ui.Frame.FrameGroup.RAW
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'DRS.FILTER'}
