@@ -55,7 +55,7 @@ class SinglePipelineInput(PipelineInput):
             self.frame = frameset[0]
 
     def load(self, *, extension: int = 0):
-        return self.item.load(extension=extension)
+        return self.item.load(self.frame, extension=extension)
 
     def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()

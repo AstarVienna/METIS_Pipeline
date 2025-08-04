@@ -22,7 +22,7 @@ import inspect
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Generator, final, Self
+from typing import Optional, Generator, final, Self, Any
 
 import cpl
 
@@ -231,13 +231,20 @@ class DataItem(Parametrizable, ABC):
         self._created_at: datetime.datetime = datetime.datetime.now()
 
     @classmethod
-    def load(cls, frame: cpl.ui.Frame) -> Self:
+    def load(cls,
+             frame: cpl.ui.Frame,
+             *,
+             extension: int = 0) -> Self:
         klass = cls.find(frame.tag)
         Msg.debug(cls.__qualname__, klass.__qualname__)
-        return klass.load_from_frame(frame)
+        return klass.load_from_frame(frame, extension=extension)
 
+    @classmethod
     @abstractmethod
-    def load_from_frame(self, frame: cpl.ui.Frame) -> None:
+    def load_from_frame(cls,
+                        frame: cpl.ui.Frame,
+                        *,
+                        extension: int = 0) -> Any:
         """
         Load a CPL frame into this data item.
 

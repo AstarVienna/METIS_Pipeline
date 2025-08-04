@@ -38,11 +38,11 @@ class TableDataItem(DataItem, abstract=True):
         self.table: cpl.core.Table = table
 
     @classmethod
-    def load_from_frame(cls, frame: cpl.ui.Frame):
+    def load_from_frame(cls, frame: cpl.ui.Frame, *, extension: int = 0):
         Msg.debug(cls.__qualname__, f"Now loading table {frame.file}")
         try:
-            header = cpl.core.PropertyList.load(frame.file, 0)
-            table = cpl.core.Table.load(frame.file, 0)
+            header = cpl.core.PropertyList.load(frame.file, extension)
+            table = cpl.core.Table.load(frame.file, extension)
         except cpl.core.DataNotFoundError as err:
             Msg.error(cls.__qualname__, f"Could not load table, substituting with an empty one!")
             table = create_dummy_table()

@@ -46,7 +46,7 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-    def load(self, *, extension: int = 1) -> cpl.core.ImageList:
+    def load(self, *, extension: int = 0) -> cpl.core.ImageList:
         """Load an imagelist from a FrameSet
 
         """

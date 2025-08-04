@@ -38,11 +38,11 @@ class ImageDataItem(DataItem, abstract=True):
         self.image: cpl.core.Image = image
 
     @classmethod
-    def load_from_frame(cls, frame) -> Self:
+    def load_from_frame(cls, frame, *, extension: int = 0) -> Self:
         Msg.debug(cls.__qualname__, f"Now loading image {frame.file}")
         try:
-            header = cpl.core.PropertyList.load(frame.file, 0)
-            image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT)
+            header = cpl.core.PropertyList.load(frame.file, extension)
+            image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, extension)
         except cpl.core.DataNotFoundError as err:
             Msg.error(cls.__qualname__, f"Could not load image: {err}")
             image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, extension=1)
