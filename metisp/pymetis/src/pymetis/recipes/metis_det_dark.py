@@ -80,30 +80,82 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     # and call them from within `process` as needed.
 
 
+    ########################################################################
+    # TODO?? and outstanding issues
+    #
+    # readnoise is not addressed; should this be done here?
+    #
+    # DRLD specifies hdrml_bpm_3d_compute, which implies finding outlying pixels on a stack
+    # of images, which requires a sufficient number of input files. Is this checked?
+    # at the moment, using sigma clipping of the final image to identify outlier pixels.
+    #
+    # consolidate bit values of the mask with other recipes
+    #
+    # Once multi-extensions supported, read bitmask from DETLIN to intialize
+    #
+    # Currently calculating noise (Poisson only) and pixel mask, but
+    # not writing to file.
+    #
+    #
+    # Check sigmas for thresholds / combining
+    #
+    # what exactly do we mean by "bad pixel" compared to hot or cold. 
+    #
+    # Also, persistence and non-linearity to be implemented. 
+    #########################################################################
+  
+
     def process(self) -> set[DataItem]:
 
-        badBit = 2
-        hotBit = 4
-        coldBit = 8
+        # Input parameters than may need to be changed TODO
         
+        badBit = 2     # bit for bad pixels
+        hotBit = 4     # bit for hot pixels
+        coldBit = 8    # bit for 
+        lowSigma = 2   # sigma for clipping for cold pixels
+        highSigma = 2  # sigma for clipping for hot pixels
+        biasRegion = (0, 2, 0, 2)
+
+        # get the combination method
         
         method = self.parameters["metis_det_dark.stacking.method"].value
 
-        Msg.info(self.__class__.__qualname__, f"Pretending to Load DETLIN")
+        # load calibration files
+        
+        Msg.info(self.__class__.__qualname__, f"Loading DETLIN")
+
         #linearity = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
         
-        Msg.info(self.__class__.__qualname__, f"Pretending to load GAIN_MAP")
-        #gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
+        Msg.info(self.__class__.__qualname__, f"Loading GAIN_MAP")
+        #gainImage = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
+        
+
+        # get the gain
+      #  gainProp = cpl.core.PropertyList.load(self.inputset.gain_map.frame.file, extension=0)
+      #
+      #  gain = gainProp['QC LIN GAIN MEAN']
+
+        gain = 1
+        # load raw data
         
         Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
         raw_images = self.inputset.load_raw_images()
-        
         Msg.info(self.__class__.__qualname__, f"{len(raw_images)} Dark frames loaded")
 
+
+        # now calculate the readnoise
+
+        
+        diff = cpl.core.Image(raw_images[0])
+        diff.subtract(raw_images[1])
+
+        
+        readNoise = cpl.drs.detector.get_noise_window(diff, None)
+        
         ## TODO; if the DETLIN file exists, extract the bad pixel map, if not, initialize
         ## a mask set to zeros.
         
-        Msg.info(self.__class__.__qualname__, f"Pretending to copy mask from DETLIN product to product")
+        Msg.info(self.__class__.__qualname__, f"Pretending to copy bad pixel mask from DETLIN")
         
         bpMask = cpl.core.Image.zeros(2048, 2048, cpl.core.Type.INT)
 
@@ -112,16 +164,34 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         Msg.info(self.__class__.__qualname__, f"Pretending to correct for non-linearity")
 
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
-        combined_image = raw_images.collapse_create()
-        print(combined_image.get_median())
 
-        Msg.info(self.__class__.__qualname__, "Pretending to calculate noise")
-        
+        if(method == "average"):
+            combined_image = raw_images.collapse_create()
+        elif(method == "median"):
+            combined_image = raw_images.collapse_median()
+        elif(method == "sigclip"):
+            combined_image = raw_iamges.collapse_sigclip()
+
+    
+            
+        Msg.info(self.__class__.__qualname__, "Calculating Noise")
         # simple calculation assuming noise is sqrt of image
+
+        # poissonNoise: sqrt of signal divide by gain 
+        poissonNoise = cpl.core.Image(combined_image)
+        poissonNoise.copy_into(combined_image, 0, 0)
+        poissonNoise.divide_scalar(gain)
         
-        noise = cpl.core.Image(combined_image)
-        noise.copy_into(combined_image, 0, 0)
-        noise.power(0.5)
+        # add poisson noise and read noise in quadrature
+
+        totalNoise = cpl.core.Image.zeros(2048, 2048, cpl.core.Type.FLOAT)
+        totalNoise.add(poissonNoise)
+        
+        totalNoise.add_scalar(readNoise[0] ** 2)
+
+        # and take the square root
+        totalNoise.power(2)
+
         
         Msg.info(self.__class__.__qualname__, "Calculate outlying pixels")
         
@@ -129,7 +199,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         darkMedian = combined_image.get_median()
         
         # get masks from thresholds for bad, hot and cold pixels
-        # count the number of bad pixels in each, for later
+        # count the number of bad pixels in each, for later, then 
         # change to Image type from mask for later calculations
         
         mask = cpl.core.Mask.threshold_image(combined_image, darkMedian - 2*darkRms, darkMedian + 2*darkRms, 1)
@@ -150,7 +220,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         maskHot.multiply_scalar(hotBit)
 
         # and update main mask
-        print(type(bpMask))
         bpMask.add(mask)
         bpMask.add(maskHot)
         bpMask.add(maskCold)
