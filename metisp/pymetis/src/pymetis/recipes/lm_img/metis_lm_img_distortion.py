@@ -25,7 +25,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
-from pymetis.utils.dummy import create_dummy_table
+from pymetis.utils.dummy import create_dummy_table, create_dummy_image
 
 
 class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
@@ -50,11 +50,12 @@ class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
 
         combined_image = self.combine_images(raw_images, "average")
         table = create_dummy_table()
+        image = create_dummy_image()
 
         return {
             self.ProductDistortionTable(self.header, table),
             self.ProductDistortionMap(self.header, combined_image),
-            self.ProductDistortionReduced(self.header, table),
+            self.ProductDistortionReduced(self.header, image),
         }
 
 

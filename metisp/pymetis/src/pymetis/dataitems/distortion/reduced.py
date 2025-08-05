@@ -23,7 +23,7 @@ from pymetis.classes.dataitems import TableDataItem, ImageDataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionReduced(BandSpecificMixin, TableDataItem, abstract=True):
+class DistortionReduced(BandSpecificMixin, ImageDataItem, abstract=True):
     _name_template =  r'{band}_DIST_REDUCED'
     _title_template = r"{band} distortion reduced"
     _description_template = r"Table of polynomial coefficients for distortion correction"

@@ -19,19 +19,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.dataitems.distortion.table import LmDistortionTable
+from pymetis.classes.mixins import Detector2rgMixin
 from pymetis.classes.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisImgCalibrateImpl
 
 
 class MetisLmImgCalibrateImpl(MetisImgCalibrateImpl):
-    class InputSet(MetisImgCalibrateImpl.InputSet):
-        class BackgroundInput(BandLmMixin, MetisImgCalibrateImpl.InputSet.BackgroundInput):
-            pass
-
-        class DistortionTableInput(BandLmMixin, MetisImgCalibrateImpl.InputSet.DistortionTableInput):
-            Item = LmDistortionTable
+    class InputSet(BandLmMixin, Detector2rgMixin, MetisImgCalibrateImpl.InputSet):
+        pass
 
 
 class MetisLmImgCalibrate(MetisRecipe):

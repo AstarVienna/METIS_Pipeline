@@ -32,7 +32,7 @@ from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.utils.dummy import create_dummy_table
+from pymetis.utils.dummy import create_dummy_table, create_dummy_image
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
@@ -50,22 +50,12 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     ProductDistortionReduced = DistortionReduced
 
     def process(self) -> set[DataItem]:
-        raw_images = cpl.core.ImageList()
-
-        for idx, frame in enumerate(self.inputset.raw.frameset):
-            Msg.info(self.name, f"Loading raw image {frame.file}")
-
-            if idx == 0:
-                self.header = cpl.core.PropertyList.load(frame.file, 0)
-
-            raw_image = cpl.core.Image.load(frame.file, extension=1)
-            raw_images.append(raw_image)
-
-        combined_image = self.combine_images(raw_images, "average")
+        combined_image = self.combine_images(self.inputset.raw.load(extension=1), "average")
         table = create_dummy_table()
+        image = create_dummy_image()
 
         return {
             self.ProductDistortionTable(self.header, table),
             self.ProductDistortionMap(self.header, combined_image),
-            self.ProductDistortionReduced(self.header, table),
+            self.ProductDistortionReduced(self.header, image),
         }
