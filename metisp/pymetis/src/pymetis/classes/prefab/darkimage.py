@@ -19,6 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
+import cpl
+from cpl.core import Msg
+
 from pymetis.classes.inputs import PipelineInput
 from pymetis.classes.inputs.common import MasterDarkInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
@@ -40,3 +43,19 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         The exact class is not specified at this point -- it must be set by the subclass.
         """
         MasterDarkInput: type[PipelineInput] = MasterDarkInput
+
+    def subtract_dark(self,
+                      images: cpl.core.ImageList) -> cpl.core.ImageList:
+        """
+        Load the master dark frame and subtract it from every image in `images`.
+
+        :param images:
+            ImageList to be corrected.
+        :return:
+            ImageList
+        """
+        master_dark: cpl.core.Image = self.inputset.master_dark.load_data()
+
+        Msg.info(self.__class__.__qualname__,
+                 f"Subtracting the master dark from raw images")
+        return images.subtract_image(master_dark)

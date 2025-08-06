@@ -27,7 +27,7 @@ from pymetis.dataitems.ifu.background import IfuBackground
 from pymetis.dataitems.rsrf import RsrfIfu
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.inputs import (SinglePipelineInput, RawInput, MasterDarkInput, WavecalInput,
+from pymetis.classes.inputs import (SinglePipelineInput, RawInput, WavecalInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
 
 
@@ -39,7 +39,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         class RawSkyInput(RawInput):
             Item = IfuSkyRaw
 
-        MasterDarkInput = MasterDarkInput
         WavecalInput = WavecalInput
 
         class DistortionTableInput(SinglePipelineInput):
@@ -57,8 +56,10 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         # do something... a lot of something
 
         header = cpl.core.PropertyList()
-        images = self.inputset.raw.load(extension=1)
-        image = self.combine_images(images, "add")
+        raw_images = self.inputset.raw.load_data(extension=1)
+        image = self.combine_images(raw_images, "add")
+
+        subtracted_images = self.subtract_dark(self.inputset.master_dark.item().image)
 
         return {
             self.ProductReduced(header, image),

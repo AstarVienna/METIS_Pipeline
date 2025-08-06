@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from typing import Self
+
+import numpy as np
 
 import cpl
 
@@ -41,7 +44,15 @@ class NDistortionTable(BandNMixin, DistortionTable):
 
 
 class IfuDistortionTable(BandIfuMixin, DistortionTable):
-    def read(self, *, extension: int = 1) -> cpl.core.ImageList:
+    def load_from_frame(self) -> Self:
+        self.tables: list[cpl.core.Vector] = []
+
+        for ext in range(1, 5):
+            self.tables[ext] = self.read(ext)
+
+        return self
+
+    def read(self, *, extension: int) -> cpl.core.Vector:
         # Load the distortion table
         # TODO: assumes distortion table has one set of coefficients for each extension
         distortion_table = cpl.core.Table.load(self.frame.file, extension=extension)
@@ -49,6 +60,9 @@ class IfuDistortionTable(BandIfuMixin, DistortionTable):
         # obtain the trace polynomials from the distortion table
         trace_polys = distortion_table.column_array('orders')[0]
         x_ranges = distortion_table.column_array('column_range')[0]
+
+        print(trace_polys)
+        print(x_ranges)
 
         # create a list of y-coordinates for each trace from the distortion table
         # x_arr = np.arange(0, rsrf_raw_img.width)

@@ -25,7 +25,6 @@ import cpl
 
 from pymetis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
                                                     MetisCalChophomeImpl as Impl)
-from pymetis.recipes.cal.metis_cal_chophome import locate_pinhole
 from pymetis.tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductTest
 from pymetis.tests.classes.product import ImageProductTest
 
@@ -67,7 +66,7 @@ class TestLocatePinhole():
         sigma = 2.5
         img = np.exp(-((x - xcen)**2 + (y - ycen)**2)/(2 * sigma**2))
         cimg = cpl.core.Image(img.astype(np.float32))
-        result = locate_pinhole(cimg, 15)
+        result = Impl.locate_pinhole(cimg, 15)
         assert result['xcen'] == approx(xcen + 1)
         assert result['ycen'] == approx(ycen + 1)
         # fwhm measurement is not very good, hence large tolerance

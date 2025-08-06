@@ -28,7 +28,7 @@ from pymetis.classes.inputs.input import PipelineInput
 
 class MultiplePipelineInput(PipelineInput):
     """
-    A pipeline input that expects multiple frames, such as a raw processor.
+    A pipeline input that expects multiple similar frames, such as a raw processor.
     """
     _multiplicity: str = 'N'
 
@@ -46,15 +46,15 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-    def load(self, *, extension: int = 0) -> cpl.core.ImageList:
-        """Load an imagelist from a FrameSet
-
+    def load_data(self, *, extension: Optional[int] = None) -> cpl.core.ImageList:
+        """
+        Load an imagelist from a FrameSet
         """
         output = cpl.core.ImageList()
 
         for idx, frame in enumerate(self.frameset):
             Msg.info(self.__class__.__qualname__,
-                     f"Processing input frame #{idx}: {frame.file!r}...")
+                     f"Loading input frame #{idx}: {frame.file!r}...")
             output.append(self.Item.load(frame, extension=extension).image)
 
         return output

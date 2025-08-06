@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import inspect
 from abc import abstractmethod
-from typing import Any, Optional, Generator, final
+from typing import Any, Optional, Generator, final, Union
 
 import cpl
 from cpl.core import Msg
@@ -86,11 +86,23 @@ class PipelineInput:
     @classmethod
     def required(cls) -> bool:
         """
-        Marks whether this pipeline input is required. Used during validation.
+        Returns whether this pipeline input is required. Used during validation.
         """
         return cls._required
 
+    @classmethod
+    def multiplicity(cls) -> str:
+        """
+        Returns the multiplicity of the input ('1' or 'N')
+        """
+        return cls._multiplicity
+
     def __init__(self, frameset: cpl.ui.FrameSet):
+        """
+        Verify that all required class attributes are defined and promote to the most specialized derived class
+        depending on the input frameset.
+
+        """
         assert self.Item is not None, \
             f"Pipeline input {self.__class__.__qualname__} has no defined data item"
 
@@ -105,7 +117,6 @@ class PipelineInput:
 
         assert self.Item.frame_group() is not None, \
             f"Data item {self.Item.__qualname__} has no defined frame group"
-
 
         for tag, frames in self.preprocess_frameset(frameset).items():
             Msg.debug(self.__class__.__qualname__,
@@ -138,6 +149,10 @@ class PipelineInput:
         Verify that the input has all the required frames and that they are valid themselves.
         There is no default logic, implementation is fully deferred to derived classes.
         """
+
+    @abstractmethod
+    def load_data(self, *, extension: int = 0) -> Union[cpl.core.ImageList, cpl.core.Image, cpl.core.Table]:
+        pass
 
     def print_debug(self, *, offset: int = 0) -> None:
         """

@@ -21,7 +21,6 @@ import datetime
 import inspect
 import re
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import Optional, Generator, final, Self, Any
 
 import cpl
@@ -34,6 +33,7 @@ from pymetis.classes.mixins.base import Parametrizable
 from pymetis.utils.format import partial_format
 
 PIPELINE = r'METIS'
+
 
 class DataItem(Parametrizable, ABC):
     """
@@ -61,6 +61,8 @@ class DataItem(Parametrizable, ABC):
     _frame_type: cpl.ui.Frame.FrameType = None      # Specialised for image / table / multi-extension data
 
     _oca_keywords: set[str] = set()
+
+    _default_extension: int = 0
 
     # [Hacky] A regex to match the tag (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -97,6 +99,7 @@ class DataItem(Parametrizable, ABC):
         super().__init_subclass__(**kwargs)
 
     @classmethod
+    @final
     def find(cls, key):
         """
         Try to retrieve the DataItem subclass with tag `key` from the global registry.
@@ -218,6 +221,7 @@ class DataItem(Parametrizable, ABC):
         if self.frame_level() is None:
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
 
+        self._used: bool = False
         # FIXME: temporary to get QC parameters into the product header [OC]
         self.header = header
         if self.header is not None:
@@ -227,14 +231,15 @@ class DataItem(Parametrizable, ABC):
 
         self.add_properties()
 
-        # Instance creation timestamp (read-only, used in file name)
+        # Instance creation timestamp (should be read-only, used in file name)
         self._created_at: datetime.datetime = datetime.datetime.now()
 
     @classmethod
     def load(cls,
-             frame: cpl.ui.Frame,
-             *,
-             extension: int = 0) -> Self:
+             frame: cpl.ui.Frame, *, extension=0) -> Self:
+        """
+        Construct the data item from a frame object.
+        """
         klass = cls.find(frame.tag)
         return klass.load_from_frame(frame, extension=extension)
 
@@ -243,13 +248,26 @@ class DataItem(Parametrizable, ABC):
     def load_from_frame(cls,
                         frame: cpl.ui.Frame,
                         *,
-                        extension: int = 0) -> Any:
+                        extension: Optional[int] = None) -> Any:
         """
-        Load a CPL frame into this data item.
+        Factory-like constructor. Load a CPL frame into this data item.
 
         This method is abstract, as the implementation is completely different for different underlying data types.
         """
         pass
+
+    def loadi(self) -> None:
+        """
+        Load the data item from the associated frame
+        """
+        self.primary_header = cpl.core.PropertyList.load(self.frame, 0)
+
+    @property
+    def used(self) -> bool:
+        return self._used
+
+    def use(self) -> None:
+        self._used = True
 
     def file_name(self, override: Optional[str] = None):
         """
@@ -381,6 +399,4 @@ class DataItem(Parametrizable, ABC):
         """
         Generate a description line for 'pyesorex --man-page'.
         """
-        return (f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
-                #f"\n{' ' * 84}"
-                f"{f'\n{' ' * 84}'.join([x.__name__ for x in set(cls.product_of_recipes())])}")
+        return f"    {cls.name():39s}{cls.description() or '<no description defined>'}"

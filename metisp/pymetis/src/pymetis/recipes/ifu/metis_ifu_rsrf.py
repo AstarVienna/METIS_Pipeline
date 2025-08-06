@@ -98,20 +98,19 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # load MASTER_DARK_IFU image and extract bad pixel map
         # TODO: update to load multi-extension file, current intermediate
         # products are only single-extension
-        master_dark_img = self.inputset.master_dark.load(extension=0)
+        master_dark_img = self.inputset.master_dark.load_data(extension=0)
         badpix_map = master_dark_img.image.bpm
 
         # load IFU trace definition file - only one extension for now
-        trace_list = read_ifu_distortion_table(
-            self.inputset.distortion_table.frame.file, ext=EXT)
+        trace_list = self.inputset.distortion_table.item().read(extension=0)
 
         # load wavelength calibration image
-        wavecal_img = self.inputset.wavecal.load(extension=0)
+        wavecal_img = self.inputset.wavecal.load_data(extension=0)
 
         # create master WCU_OFF background image
         background_hdr = cpl.core.PropertyList()
         # self.inputset.background.frameset.dump() # debug
-        bg_images = self.inputset.rsrf_wcu_off.load()
+        bg_images = self.inputset.rsrf_wcu_off.load_data()
         background_img = self.combine_images(bg_images, stackmethod)
 
         # TODO: define usedframes?
@@ -121,7 +120,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         spec_flat_hdr = \
             cpl.core.PropertyList()
         # load RSRF_RAW images, subtract the background and stack them
-        raw_images = self.inputset.raw.load()
+        raw_images = self.inputset.raw.load_data(extension=1)
         # FUNC: single-extension data product for now
         raw_images.subtract_image(background_img)
         spec_flat_img = self.combine_images(raw_images, stackmethod)
@@ -252,38 +251,6 @@ def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
     bb_img.reject_value({0})
 
     return bb_img
-
-
-def read_ifu_distortion_table(fits_file, ext: int = 1) -> list:
-    """
-    Read the IFU distortion table from the given FITS file.
-
-    Parameters:
-    fits_file (str): Path to the FITS file containing the distortion table.
-    ext (int): Extension number to read from the FITS file.
-
-    Returns:
-    list: A list of tuples containing the x- and y-coordinates of the traces.
-    """
-    # Load the distortion table
-    # TODO: assumes distortion table has one set of coefficients for each extension
-    distortion_table = cpl.core.Table.load(fits_file, xtnum=ext)
-
-    # obtain the trace polynomials from the distortion table
-    trace_polys = distortion_table.column_array('orders')[0]
-    x_ranges = distortion_table.column_array('column_range')[0]
-
-    # create a list of y-coordinates for each trace from the distortion table
-    # x_arr = np.arange(0, rsrf_raw_img.width)
-    trace_list = []
-    for x_range, trace in zip(x_ranges, trace_polys):
-        x_arr = np.arange(x_range[0], x_range[1])
-        poly_n = len(trace) - 1
-        y_arr = np.array([sum([k * x ** (poly_n - i) for i, k in enumerate(trace)]) for x in x_arr])
-        trace_list.append((x_arr, y_arr))
-
-    # return the list of x,y coordinates for each trace
-    return trace_list
 
 
 def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:

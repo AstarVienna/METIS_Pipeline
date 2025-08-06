@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from typing import Self
+from typing import Self, Optional
 
 import cpl
 from cpl.core import Msg
@@ -37,8 +37,15 @@ class ImageDataItem(DataItem, abstract=True):
         self.image: cpl.core.Image = image
 
     @classmethod
-    def load_from_frame(cls, frame, *, extension: int = 0) -> Self:
-        Msg.debug(cls.__qualname__, f"Now loading image {frame.file}")
+    def load_from_frame(cls,
+                        frame,
+                        *,
+                        extension: Optional[int] = None) -> Self:
+        Msg.debug(cls.__qualname__, f"Now loading image {frame.file}, extension {extension}")
+
+        if extension is None:
+            extension = cls._default_extension
+
         header = cpl.core.PropertyList.load(frame.file, extension)
         image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, extension)
         return cls(header, image)

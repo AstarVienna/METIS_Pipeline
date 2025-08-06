@@ -87,14 +87,14 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
-        flat = self.inputset.master_flat.load()
-        dark = self.inputset.master_dark.load()
-        gain = self.inputset.gain_map.load()
+        flat = self.inputset.master_flat.load_data()
+        dark = self.inputset.master_dark.load_data()
+        gain = self.inputset.gain_map.load_data()
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.inputset.detector}")
 
         Msg.info(self.__class__.__qualname__, "Loading raw images")
-        images = self.inputset.raw.load(extension=1)
+        images = self.inputset.raw.load_data(extension=1)
         Msg.info(self.__class__.__qualname__, "Pretending to correct crosstalk")
         Msg.info(self.__class__.__qualname__, "Pretending to correct for linearity")
 

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Any
+from typing import Any, Union
 
 import cpl
 
@@ -50,9 +50,12 @@ class SinglePipelineInput(PipelineInput):
             Msg.debug(self.__class__.__name__,
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
+            self.item = self.Item.load(self.frame)
 
-    def load(self, *, extension: int = 0):
-        return self.Item.load(self.frame, extension=extension)
+    def load_data(self, *, extension: int = 0) -> Union[cpl.core.Image, cpl.core.Table]:
+        Msg.info(self.__class__.__qualname__,
+                 f"Loading input frame {self.frame.file!r}")
+        return self.Item.load(self.frame, extension=extension).image
 
     def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()

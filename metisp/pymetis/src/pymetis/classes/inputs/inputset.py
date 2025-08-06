@@ -27,7 +27,6 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.inputs.input import PipelineInput
-from pymetis.classes.mixins import TargetSpecificMixin, SourceSpecificMixin, BandSpecificMixin, DetectorSpecificMixin
 from pymetis.classes.mixins.base import Parametrizable, KeywordMixin
 
 
@@ -47,9 +46,9 @@ class PipelineInputSet(Parametrizable, ABC):
     """
 
     # Helper regex: remove final "Input" from the name of the class...
-    cut_input = re.compile(r'Input$')
+    __cut_input = re.compile(r'Input$')
     # Helper regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
-    make_snake = re.compile(r'(?<!^)(?=[A-Z])')
+    __make_snake = re.compile(r'(?<!^)(?=[A-Z])')
     # I.e. `MonsterCrunchInput` class instance will be named `monster_crunch`.
 
     def __init_subclass__(cls, abstract=False, **params):
@@ -79,7 +78,7 @@ class PipelineInputSet(Parametrizable, ABC):
         for (name, input_class) in self.get_inputs():
             inp = input_class(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
-            self.__setattr__(self.make_snake.sub('_', self.cut_input.sub('', name)).lower(), inp)
+            self.__setattr__(self.__make_snake.sub('_', self.__cut_input.sub('', name)).lower(), inp)
             # Add to the set of inputs (for easy iteration over all inputs)
             self.inputs |= {inp}
 

@@ -55,21 +55,16 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
         # target = self.inputset.tag_parameters['target']
 
-        raw_images = self.inputset.raw.load(extension=1)
-        master_dark = self.inputset.master_dark.load().image
-
-        for raw_image in raw_images:
-            Msg.debug(self.__class__.__qualname__, f"Subtracting image {raw_image}")
-            raw_image.subtract(master_dark)
+        raw_images = self.inputset.raw.load_data(extension=1)
+        self.subtract_dark(raw_images)
 
         # Combine the images in the image list using the image stacking option requested by the user.
         method = self.parameters[f"{self.name}.stacking.method"].value
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
 
-        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         combined_image = self.combine_images(raw_images, method)
 
-        product = self.ProductMasterFlat(header, combined_image)
+        product = self.ProductMasterFlat(self.inputset.raw.item().header, combined_image)
 
         return {product}

@@ -81,30 +81,29 @@ class MetisLssStdImpl(DarkImageProcessor):
     ProductLssWave = LssWaveGuess
     ProductLssStd1d = LssStd1d
 
-
     def process(self) -> set[DataItem]:
         # Load raw image
         std_raw_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load(extension=1)
+        raw_images = self.inputset.raw.load_data(extension=1)
 
         """Create dummy file (should do something more fancy in the future)"""
         # header = create_dummy_header()
         # PipelineImageProducts
-        ProductLssStdObjMapHdr = create_dummy_header()
-        ProductLssStdSkyMapHdr = create_dummy_header()
+        product_lss_std_obj_map_hdr = create_dummy_header()
+        product_lss_std_sky_map_hdr = create_dummy_header()
         image = create_dummy_image()
 
         # PipelineTableProducts
-        ProductMasterResponseHdr = create_dummy_header()
-        ProductStdTransmissionHdr = create_dummy_header()
-        ProductLssStd1dHdr = create_dummy_header()
+        product_master_response_hdr = create_dummy_header()
+        product_std_transmission_hdr = create_dummy_header()
+        product_lss_std1d_hdr = create_dummy_header()
         table = create_dummy_table()
 
         # Write files
         return {
-            self.ProductMasterResponse(ProductMasterResponseHdr, table),
-            self.ProductStdTransmission(ProductStdTransmissionHdr, table),
-            self.ProductLssStd1d(ProductLssStd1dHdr, table),
-            self.ProductLssStdObjMap(ProductLssStdObjMapHdr, image),
-            self.ProductLssStdSkyMap(ProductLssStdSkyMapHdr, image),
+            self.ProductMasterResponse(product_master_response_hdr, table),
+            self.ProductStdTransmission(product_std_transmission_hdr, table),
+            self.ProductLssStd1d(product_lss_std1d_hdr, table),
+            self.ProductLssStdObjMap(product_lss_std_obj_map_hdr, image),
+            self.ProductLssStdSkyMap(product_lss_std_sky_map_hdr, image),
         }

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Optional
+from typing import Optional, Self
 
 import cpl
 from cpl.core import Msg
@@ -25,7 +25,6 @@ from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.dataitem import PIPELINE
-from pymetis.utils.dummy import create_dummy_table
 
 
 class TableDataItem(DataItem, abstract=True):
@@ -38,17 +37,17 @@ class TableDataItem(DataItem, abstract=True):
         self.table: cpl.core.Table = table
 
     @classmethod
-    def load_from_frame(cls, frame: cpl.ui.Frame, *, extension: int = 0):
+    def load_from_frame(cls,
+                        frame: cpl.ui.Frame,
+                        *,
+                        extension: Optional[int] = None) -> Self:
         Msg.debug(cls.__qualname__, f"Now loading table {frame.file}")
-        try:
-            header = cpl.core.PropertyList.load(frame.file, extension)
-            table = cpl.core.Table.load(frame.file, extension)
-        except cpl.core.DataNotFoundError as err:
-            Msg.error(cls.__qualname__, f"Could not load table, substituting with an empty one!")
-            table = create_dummy_table()
-        except cpl.core.AccessOutOfRangeError as err:
-            Msg.error(cls.__qualname__, f"Tried to access out-of-range extension, substituting with an empty table!")
-            table = create_dummy_table()
+
+        if extension is None:
+            extension = cls._default_extension
+
+        header = cpl.core.PropertyList.load(frame.file, extension)
+        table = cpl.core.Table.load(frame.file, extension)
         return cls(header, table)
 
     def save(self,

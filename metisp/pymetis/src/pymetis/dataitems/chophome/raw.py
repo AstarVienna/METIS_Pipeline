@@ -30,3 +30,5 @@ class LmChophomeRaw(Raw):
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+
+    _extension = 1
