@@ -41,8 +41,7 @@ class TableDataItem(DataItem, abstract=True):
         Msg.debug(cls.__qualname__, f"Now loading table {frame.file}")
 
         header = cpl.core.PropertyList.load(frame.file, 0)
-
-        Msg.debug(cls.__qualname__, f"{cls._schema}")
+        Msg.debug(cls.__qualname__, f"Schema is {cls._schema}")
 
         for ext, item in enumerate(cls._schema):
             if item is Table:

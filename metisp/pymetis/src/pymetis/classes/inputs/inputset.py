@@ -128,7 +128,7 @@ class PipelineInputSet(Parametrizable, ABC):
             value = _func(inp)
             det = "---" if value is None else value
             Msg.debug(self.__class__.__qualname__,
-                      f"{attr:<15s} in {inp.__class__.__qualname__:<45} {det}")
+                      f"{attr:<15s} in {inp.__class__.__qualname__:<54} {det}")
 
         if (count := len(total)) == 0:
             # If there are no identifiable tag parameters, just emit a message
@@ -149,7 +149,7 @@ class PipelineInputSet(Parametrizable, ABC):
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}{len(self.inputs)} inputs:")
 
         for inp in self.inputs:
-            Msg.debug(self.__class__.__qualname__, f"   {inp.Item.__qualname__:<30s} {inp.Item.name()}")
+            Msg.debug(self.__class__.__qualname__, f"   {inp.Item.__qualname__:<30s} {inp.contents}")
 
     def as_dict(self) -> dict[str, Any]:
         """
@@ -181,4 +181,4 @@ class PipelineInputSet(Parametrizable, ABC):
                 for instance, discarded outliers (without them a different frame might be an outlier)
         # FixMe: Currently this only ensures that frames are loaded, not actually used!
         """
-        return cpl.ui.FrameSet([inp.item for inp in self.inputs if item.used])
+        return cpl.ui.FrameSet([used for inp in self.inputs for used in inp.used_frames()])

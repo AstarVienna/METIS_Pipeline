@@ -21,8 +21,9 @@ from typing import Any, Optional
 
 import cpl
 
-from cpl.core import Msg
+from cpl.core import Msg, Image
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
 
 
@@ -34,6 +35,7 @@ class MultiplePipelineInput(PipelineInput):
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):
+        self.items: list[DataItem] = []
         self.frameset: Optional[cpl.ui.FrameSet] = cpl.ui.FrameSet()
         super().__init__(frameset)
 
@@ -46,18 +48,18 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-    def load_data(self, *, extension: Optional[int] = None) -> cpl.core.ImageList:
+    def load_data(self) -> cpl.core.ImageList:
         """
         Load an imagelist from a FrameSet
         """
-        output = cpl.core.ImageList()
+        self.items = []
 
         for idx, frame in enumerate(self.frameset):
             Msg.info(self.__class__.__qualname__,
                      f"Loading input frame #{idx}: {frame.file!r}...")
-            output.append(self.Item.load(frame).image)
+            self.items.append(self.Item.load(frame))
 
-        return output
+        return cpl.core.ImageList([item.image for item in self.items])
 
     def set_cpl_attributes(self):
         frameset = cpl.ui.FrameSet()
@@ -119,6 +121,10 @@ class MultiplePipelineInput(PipelineInput):
             'frame': str(self.frameset),
         }
 
+    @property
+    def contents(self):
+        return self.items
+
     def valid_frames(self) -> cpl.ui.FrameSet:
         """
         Return a list of valid frames.
@@ -128,3 +134,6 @@ class MultiplePipelineInput(PipelineInput):
             cpl.ui.FrameSet : a list of valid frames
         """
         return self.frameset
+
+    def used_frames(self) -> cpl.ui.FrameSet:
+        return cpl.ui.FrameSet([item for item in self.items if item.used])

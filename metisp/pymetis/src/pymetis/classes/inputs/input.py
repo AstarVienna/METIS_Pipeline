@@ -119,8 +119,8 @@ class PipelineInput:
             f"Data item {self.Item.__qualname__} has no defined frame group"
 
         for tag, frames in self.preprocess_frameset(frameset).items():
-            Msg.debug(self.__class__.__qualname__,
-                      f"Processing frame {tag}")
+            #Msg.debug(self.__class__.__qualname__,
+            #          f"Processing frame {tag}")
             cls = DataItem.find(tag)
 
             if cls is None:
@@ -139,8 +139,8 @@ class PipelineInput:
                     self.Item = cls
                     self.load_frameset(frames)
                 else:
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
+                    #Msg.debug(self.__class__.__qualname__,
+                    #          f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
                     continue
 
     @abstractmethod
@@ -151,7 +151,7 @@ class PipelineInput:
         """
 
     @abstractmethod
-    def load_data(self, *, extension: int = 0) -> Union[cpl.core.ImageList, cpl.core.Image, cpl.core.Table]:
+    def load_data(self) -> Union[cpl.core.ImageList, cpl.core.Image, cpl.core.Table]:
         pass
 
     def print_debug(self, *, offset: int = 0) -> None:
@@ -187,13 +187,24 @@ class PipelineInput:
                 f" {cls.Item.description()}")
 #                f"{f'\n{' ' * 84}'.join([x.__qualname__ for x in set(cls.input_for_recipes())])}")
 
+    @property
+    @abstractmethod
+    def contents(self):
+        pass
+
     @abstractmethod
     def valid_frames(self) -> cpl.ui.FrameSet:
         """
         Return a FrameSet containing all valid, used frames.
-        This is abstract as it differes significantly for Single and Multiple Inputs.
+        This is abstract as it differs significantly for Single and Multiple Inputs.
         """
         pass
+
+    @abstractmethod
+    def used_frames(self) -> cpl.ui.FrameSet:
+        """
+        Return a FrameSet containing all used frames.
+        """
 
     @classmethod
     def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:

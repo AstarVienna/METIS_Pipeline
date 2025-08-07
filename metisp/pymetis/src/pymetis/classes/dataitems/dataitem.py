@@ -258,13 +258,6 @@ class DataItem(Parametrizable, ABC):
         """
         pass
 
-    def loadi(self) -> None:
-        """
-        Load the data item from the associated frame
-        """
-        self.header = cpl.core.PropertyList.load(self.frame.file, 0)
-        self.image = cpl.core.Image.load(self.frame.file)
-
     @property
     def used(self) -> bool:
         """ Return whether this data item is actually used in the product """
@@ -409,3 +402,6 @@ class DataItem(Parametrizable, ABC):
         Generate a description line for 'pyesorex --man-page'.
         """
         return f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
+
+    def __str__(self):
+        return f"{self.name()}"

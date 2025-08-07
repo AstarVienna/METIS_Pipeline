@@ -17,12 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Any, Union
+from typing import Any, Union, Optional
 
 import cpl
 
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
 
 
@@ -34,7 +35,8 @@ class SinglePipelineInput(PipelineInput):
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):                       # Any other args
-        self.frame: cpl.ui.Frame | None = None
+        self.item: Optional[DataItem] = None
+        self.frame: Optional[cpl.ui.Frame] = None
         super().__init__(frameset)
 
     def _load_frameset_specific(self, frameset: cpl.ui.FrameSet):
@@ -52,10 +54,11 @@ class SinglePipelineInput(PipelineInput):
             self.frame = frameset[0]
             self.item = self.Item.load(self.frame)
 
-    def load_data(self, *, extension: int = 0) -> Union[cpl.core.Image, cpl.core.Table]:
+    def load_data(self):
         Msg.info(self.__class__.__qualname__,
                  f"Loading input frame {self.frame.file!r}")
-        return self.Item.load(self.frame).image
+        self.item = self.Item.load(self.frame)
+        return self.item
 
     def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()
@@ -94,9 +97,22 @@ class SinglePipelineInput(PipelineInput):
             'frame': str(self.frame),
         }
 
+    @property
+    def contents(self):
+        return self.item
+
     def valid_frames(self) -> cpl.ui.FrameSet:
         if self.frame is None:
             # This may happen for non-required inputs
             return cpl.ui.FrameSet()
         else:
             return cpl.ui.FrameSet([self.frame])
+
+    def used_frames(self) -> cpl.ui.FrameSet:
+        if self.frame is None:
+            return cpl.ui.FrameSet()
+        else:
+            if self.item.used:
+                return cpl.ui.FrameSet([self.frame])
+            else:
+                return cpl.ui.FrameSet()

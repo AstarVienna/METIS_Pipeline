@@ -31,8 +31,8 @@ class ImageDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
 
     def __init__(self,
-                 header: cpl.core.PropertyList,
-                 image: cpl.core.Image):
+                 header: cpl.core.PropertyList = None,
+                 image: cpl.core.Image = None):
         super().__init__(header)
         self.image: cpl.core.Image = image
 
@@ -41,6 +41,7 @@ class ImageDataItem(DataItem, abstract=True):
         Msg.debug(cls.__qualname__, f"Now loading image {frame.file}")
 
         header = cpl.core.PropertyList.load(frame.file, 0)
+        Msg.debug(cls.__qualname__, f"Schema is {cls._schema}")
 
         for ext, item in enumerate(cls._schema):
             if item is Image:
@@ -61,6 +62,11 @@ class ImageDataItem(DataItem, abstract=True):
 
         assert isinstance(self.image, cpl.core.Image), \
             f"Attribute `{self}.image` is not an image, but {type(self.image).__qualname__}, cannot save"
+
+        Msg.info(self.__class__.__qualname__,
+                 f"Saving image {self.file_name(output_file_name)}")
+        Msg.debug(self.__class__.__qualname__,
+                  f"    used frames {recipe.used_frames}")
 
         cpl.dfs.save_image(
             recipe.frameset,  # All frames for the recipe
