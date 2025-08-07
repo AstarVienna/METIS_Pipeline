@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
@@ -30,6 +31,7 @@ class LinearityMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
+    _schema = [Image]
 
 
 class LinearityMap2rg(Detector2rgMixin, LinearityMap):

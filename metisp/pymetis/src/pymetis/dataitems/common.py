@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image, Table
 
 from pymetis.classes.dataitems import ImageDataItem, TableDataItem
 
@@ -31,14 +32,20 @@ class PersistenceMap(ImageDataItem):
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PERSISTENCE_MAP'
 
+    _default_extension = 1
+    _schema = [None, Image]
 
-class FluxCalTable(TableDataItem):
+
+class FluxCalTable(ImageDataItem): # FixMe this should be a table, right?
     _name_template = r'FLUXCAL_TAB'
     _title_template = "flux table"
     _description_template = "Conversion between instrumental and physical flux units"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG'}
+
+    _default_extension = 0
+    _schema = [None, Image]
 
 
 class PinholeTable(TableDataItem):
@@ -49,6 +56,8 @@ class PinholeTable(TableDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PINHOLE_TABLE'
+
+    _schema = [None, Table]
 
 
 class AtmProfile(TableDataItem):

@@ -21,6 +21,7 @@ from typing import Self
 import numpy as np
 
 import cpl
+from cpl.core import Table, Image
 
 from pymetis.classes.dataitems import TableDataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
@@ -34,6 +35,8 @@ class DistortionTable(BandSpecificMixin, TableDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
+    _schema = [Image]
+
 
 class LmDistortionTable(BandLmMixin, DistortionTable):
     pass
@@ -44,13 +47,7 @@ class NDistortionTable(BandNMixin, DistortionTable):
 
 
 class IfuDistortionTable(BandIfuMixin, DistortionTable):
-    def load_from_frame(self) -> Self:
-        self.tables: list[cpl.core.Vector] = []
-
-        for ext in range(1, 5):
-            self.tables[ext] = self.read(ext)
-
-        return self
+    _schema = [None, Table, Table, Table, Table]
 
     def read(self, *, extension: int) -> cpl.core.Vector:
         # Load the distortion table

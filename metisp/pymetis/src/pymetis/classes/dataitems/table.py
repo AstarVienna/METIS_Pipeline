@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Optional, Self
 
 import cpl
-from cpl.core import Msg
+from cpl.core import Msg, Table
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
@@ -37,18 +37,19 @@ class TableDataItem(DataItem, abstract=True):
         self.table: cpl.core.Table = table
 
     @classmethod
-    def load_from_frame(cls,
-                        frame: cpl.ui.Frame,
-                        *,
-                        extension: Optional[int] = None) -> Self:
+    def load_from_frame(cls, frame: cpl.ui.Frame) -> Self:
         Msg.debug(cls.__qualname__, f"Now loading table {frame.file}")
 
-        if extension is None:
-            extension = cls._default_extension
+        header = cpl.core.PropertyList.load(frame.file, 0)
 
-        header = cpl.core.PropertyList.load(frame.file, extension)
-        table = cpl.core.Table.load(frame.file, extension)
-        return cls(header, table)
+        Msg.debug(cls.__qualname__, f"{cls._schema}")
+
+        for ext, item in enumerate(cls._schema):
+            if item is Table:
+                table = cpl.core.Table.load(frame.file, ext)
+
+        instance = cls(header, table)
+        return instance
 
     def save(self,
              recipe: 'PipelineRecipe',

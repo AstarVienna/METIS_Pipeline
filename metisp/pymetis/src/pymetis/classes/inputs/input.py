@@ -67,11 +67,11 @@ class PipelineInput:
 
         Fills the internal buffer with the contents of the frames (not the actual data yet).
         """
-        self._load_frameset_inner(frameset)
+        self._load_frameset_specific(frameset)
         self.set_cpl_attributes()
 
     @abstractmethod
-    def _load_frameset_inner(self, frameset: cpl.ui.FrameSet) -> None:
+    def _load_frameset_specific(self, frameset: cpl.ui.FrameSet) -> None:
         """
         Actually load the associated frames. Implementation differs between derived classes.
         """
@@ -99,9 +99,9 @@ class PipelineInput:
 
     def __init__(self, frameset: cpl.ui.FrameSet):
         """
-        Verify that all required class attributes are defined and promote to the most specialized derived class
+        Verify that all required class attributes are defined
+        and promote to the most specialized derived class
         depending on the input frameset.
-
         """
         assert self.Item is not None, \
             f"Pipeline input {self.__class__.__qualname__} has no defined data item"

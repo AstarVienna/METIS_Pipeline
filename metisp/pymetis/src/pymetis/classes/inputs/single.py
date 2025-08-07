@@ -37,7 +37,7 @@ class SinglePipelineInput(PipelineInput):
         self.frame: cpl.ui.Frame | None = None
         super().__init__(frameset)
 
-    def _load_frameset_inner(self, frameset: cpl.ui.FrameSet):
+    def _load_frameset_specific(self, frameset: cpl.ui.FrameSet):
         """
         Load the associated frames.
         A SinglePipelineInput verifies there is exactly one matched frame.
@@ -55,7 +55,7 @@ class SinglePipelineInput(PipelineInput):
     def load_data(self, *, extension: int = 0) -> Union[cpl.core.Image, cpl.core.Table]:
         Msg.info(self.__class__.__qualname__,
                  f"Loading input frame {self.frame.file!r}")
-        return self.Item.load(self.frame, extension=extension).image
+        return self.Item.load(self.frame).image
 
     def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()

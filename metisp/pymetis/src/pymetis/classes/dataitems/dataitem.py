@@ -25,7 +25,7 @@ from typing import Optional, Generator, final, Self, Any
 
 import cpl
 
-from cpl.core import Msg
+from cpl.core import Msg, Table, Image
 from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
@@ -62,7 +62,8 @@ class DataItem(Parametrizable, ABC):
 
     _oca_keywords: set[str] = set()
 
-    _default_extension: int = 0
+    # HDU schema: a list of types or None
+    _schema: list[None | Image | Table] = [None]
 
     # [Hacky] A regex to match the tag (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -124,8 +125,8 @@ class DataItem(Parametrizable, ABC):
         """
         Replace all `None` parameters with placeholders.
         Intended for human-readable output in not-fully-specialized recipes, such as man pages.
-        For instance, `MASTER_DARK_{detector}` with parameters `{'detector': None}`
-        gets rendered literally as "MASTER_DARK_{detector}".
+        For instance, `MASTER_DARK_{detector}_{source}` with parameters `{'source': 'STD', 'detector': None}`
+        gets rendered literally as "MASTER_DARK_{detector}_STD".
 
         ToDo: Change to proper t-strings once Python 3.14 is supported.
         """
@@ -198,7 +199,8 @@ class DataItem(Parametrizable, ABC):
         """
         Return the PRO CATG attribute
 
-        Currently same as _name, and will probably stay like that (and if that is the case it will be removed). """
+        Currently the same as _name, and will probably stay like that (and if that is the case it will be removed).
+        """
         return cls.name()
 
     def __init__(self,
@@ -222,6 +224,8 @@ class DataItem(Parametrizable, ABC):
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
 
         self._used: bool = False
+        self.headers: dict[int, cpl.core.PropertyList] = {0: header}
+        self.hdus = []
         # FIXME: temporary to get QC parameters into the product header [OC]
         self.header = header
         if self.header is not None:
@@ -236,19 +240,17 @@ class DataItem(Parametrizable, ABC):
 
     @classmethod
     def load(cls,
-             frame: cpl.ui.Frame, *, extension=0) -> Self:
+             frame: cpl.ui.Frame) -> Self:
         """
         Construct the data item from a frame object.
         """
         klass = cls.find(frame.tag)
-        return klass.load_from_frame(frame, extension=extension)
+        return klass.load_from_frame(frame)
 
     @classmethod
     @abstractmethod
     def load_from_frame(cls,
-                        frame: cpl.ui.Frame,
-                        *,
-                        extension: Optional[int] = None) -> Any:
+                        frame: cpl.ui.Frame) -> Any:
         """
         Factory-like constructor. Load a CPL frame into this data item.
 
@@ -260,13 +262,16 @@ class DataItem(Parametrizable, ABC):
         """
         Load the data item from the associated frame
         """
-        self.primary_header = cpl.core.PropertyList.load(self.frame, 0)
+        self.header = cpl.core.PropertyList.load(self.frame.file, 0)
+        self.image = cpl.core.Image.load(self.frame.file)
 
     @property
     def used(self) -> bool:
+        """ Return whether this data item is actually used in the product """
         return self._used
 
     def use(self) -> None:
+        """ Mark this data item as actually used """
         self._used = True
 
     def file_name(self, override: Optional[str] = None):
@@ -297,8 +302,12 @@ class DataItem(Parametrizable, ABC):
             )
         )
 
-    def as_frame(self, filename: str = None) -> cpl.ui.Frame:
-        """ Create a CPL Frame from this DataItem """
+    def as_frame(self, filename: Optional[str] = None) -> cpl.ui.Frame:
+        """ Create a CPL Frame from this DataItem
+
+        :param: filename
+            If not None, override the default file name with this
+        """
         assert self.frame_level() is not None, \
             f"Data item {self.__class__.__qualname__} does not define a frame level"
 

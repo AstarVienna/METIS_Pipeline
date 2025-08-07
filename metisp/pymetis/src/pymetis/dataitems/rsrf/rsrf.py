@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image, Table
 
 from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem
 from pymetis.classes.mixins import DetectorIfuMixin
@@ -29,14 +30,16 @@ class Rsrf(DataItem):
     _description_template = "2D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    _schema = [None, Image]
 
 
-class RsrfIfu(DetectorIfuMixin, TableDataItem):
+class RsrfIfu(DetectorIfuMixin, ImageDataItem): # FixMe this should be a table?
     _name_template = r'RSRF_IFU'
     _title_template = "RSRF IFU"
     _description_template = "1D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _schema = [Image]
 
 
 class IfuRsrfBackground(DetectorIfuMixin, ImageDataItem):

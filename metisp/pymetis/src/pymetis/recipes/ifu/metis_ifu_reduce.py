@@ -59,7 +59,7 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         raw_images = self.inputset.raw.load_data(extension=1)
         image = self.combine_images(raw_images, "add")
 
-        subtracted_images = self.subtract_dark(self.inputset.master_dark.item().image)
+        subtracted_images = self.subtract_dark(raw_images)
 
         return {
             self.ProductReduced(header, image),

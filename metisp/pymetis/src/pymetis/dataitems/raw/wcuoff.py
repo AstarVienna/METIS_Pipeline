@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
@@ -34,6 +35,8 @@ class WcuOffRaw(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
+
+    _schema = [None, Image]
 
 
 class LmWcuOffRaw(BandLmMixin, WcuOffRaw):

@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Msg
 from pyesorex.parameter import ParameterList
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem
 from pymetis.classes.dataitems.dataitem import PIPELINE
 
 
@@ -30,24 +30,17 @@ class MultipleDataItem(DataItem, abstract=True):
 
     def __init__(self,
                  header: cpl.core.PropertyList,
-                 frame: cpl.ui.Frame,
                  **extensions):
-        super().__init__(header, frame)
+        super().__init__(header)
 
         self.extensions = extensions
         for key, ext in self.extensions.items():
             self.__setattr__(key, ext)
 
     @classmethod
-    def load_from_frame(cls, frame: cpl.ui.Frame, *, extension: int = 0):
+    def load_from_frame(cls, frame: cpl.ui.Frame):
         Msg.debug(cls.__qualname__, f"Now loading multiplet {frame.file}")
-        try:
-            header = cpl.core.PropertyList.load(frame.file, extension)
-            table = cpl.core.Table.load(frame.file, extension)
-        except cpl.core.DataNotFoundError as err:
-            Msg.error(cls.__qualname__, f"Could not load table, substituting with an empty one!")
-        except cpl.core.AccessOutOfRangeError as err:
-            Msg.error(cls.__qualname__, f"Tried to access out-of-range extension, substituting with an empty table!")
+        header = cpl.core.PropertyList.load(frame.file, extension)
         return cls(header, table)
 
     def save(self,
@@ -64,7 +57,7 @@ class MultipleDataItem(DataItem, abstract=True):
             recipe.frameset,
             parameters,
             recipe.used_frames,
-            self.table,
+            recipe.name,
             self.properties,
             PIPELINE,
             self.file_name(output_file_name),
@@ -72,4 +65,18 @@ class MultipleDataItem(DataItem, abstract=True):
         )
 
         for key, ext in self.extensions.items():
-            ext.save(output, cpl.core.PropertyList(), cpl.core.io.EXTEND)
+            ext.save(key, cpl.core.PropertyList(), cpl.core.io.EXTEND)
+
+
+class MultipleImageDataItem(ImageDataItem, MultipleDataItem, abstract=True):
+    def __init__(self,
+                 primary_header: cpl.core.PropertyList,
+                 **extensions: cpl.core.Image):
+        super().__init__(primary_header, **extensions)
+
+
+class MultipleTableDataItem(TableDataItem, MultipleDataItem, abstract=True):
+    def __init__(self,
+                 primary_header: cpl.core.PropertyList,
+                 *extensions: cpl.core.Table):
+        super().__init__(primary_header, **extensions)

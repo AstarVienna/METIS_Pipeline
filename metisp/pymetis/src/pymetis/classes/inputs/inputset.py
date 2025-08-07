@@ -181,4 +181,4 @@ class PipelineInputSet(Parametrizable, ABC):
                 for instance, discarded outliers (without them a different frame might be an outlier)
         # FixMe: Currently this only ensures that frames are loaded, not actually used!
         """
-        return self.valid_frames
+        return cpl.ui.FrameSet([inp.item for inp in self.inputs if item.used])

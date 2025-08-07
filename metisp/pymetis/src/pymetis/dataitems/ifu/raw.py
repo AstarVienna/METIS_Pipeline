@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import cpl
+from cpl.core import Image
 
 from pymetis.dataitems.raw import Raw
 from pymetis.classes.mixins import BandIfuMixin, TargetSpecificMixin, TargetStdMixin, TargetSciMixin
@@ -30,6 +31,7 @@ class IfuRaw(BandIfuMixin, TargetSpecificMixin, Raw, abstract=True):
     _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
                      "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
                      "DRS.IFU"}
+    _schema = [None, Image, Image, Image, Image]
 
 
 
