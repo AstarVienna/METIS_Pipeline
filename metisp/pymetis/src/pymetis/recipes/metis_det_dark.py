@@ -127,6 +127,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         # load raw data
         
         Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
+
         raw_images = self.inputset.load_raw_images()
         Msg.info(self.__class__.__qualname__, f"{len(raw_images)} Dark frames loaded")
 
@@ -136,7 +137,8 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         Msg.info(self.__class__.__qualname__, f"Faking a gain map and badpix map")
 
         # fake the bp mask by initializing to zero
-        bpMask = cpl.core.Image.zeros(2048, 2048, cpl.core.Type.INT)
+        temp = cpl.core.Image.zeros_like(raw_images[0])
+        bpMask = temp.cast(cpl.core.Type.INT)
 
         # fake the gain at the moment by setting to 1
 
@@ -151,12 +153,16 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         raw_images.divide_image(gain)
 
+    
         # now calculate the readnoise
 
         Msg.info(self.__class__.__qualname__, f"Calculating read noise")
+        Msg.info(self.__class__.__qualname__, f"Test {len(raw_images)}")
 
         diff = cpl.core.Image(raw_images[0])
         diff.subtract(raw_images[1])
+
+
 
         readNoise = cpl.drs.detector.get_noise_window(diff, None)
         
@@ -326,7 +332,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
             poissonNoise.copy_into(im, 0, 0)
 
             # add read noise plus shot noise
-            totalNoise = cpl.core.Image.zeros(2048, 2048, cpl.core.Type.FLOAT)
+            totalNoise = cpl.core.Image.zeros_like(poissonNoise)
             totalNoise.add(poissonNoise)
             totalNoise.add_scalar(readNoise ** 2)
 
