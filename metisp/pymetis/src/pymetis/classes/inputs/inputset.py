@@ -83,7 +83,10 @@ class PipelineInputSet(Parametrizable, ABC):
             self.inputs |= {inp}
 
     @classmethod
-    def get_inputs(cls):
+    def get_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:
+        """
+        List all input classes within this input set
+        """
         return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
     def validate(self) -> None:
@@ -119,9 +122,7 @@ class PipelineInputSet(Parametrizable, ABC):
             ValueError if the attribute has multiple different values.
         """
         Msg.debug(self.__class__.__qualname__, f"--- Validating the {attr} parameters ---")
-
         self.tag_matches[attr] = self.tag_parameters()[attr] if attr in self.tag_parameters() else None
-
         total = list(set([_func(inp) for inp in self.inputs]) - {None})
 
         for inp in self.inputs:
@@ -131,7 +132,8 @@ class PipelineInputSet(Parametrizable, ABC):
                       f"{attr:<15s} in {inp.__class__.__qualname__:<54} {det}")
 
         if (count := len(total)) == 0:
-            # If there are no identifiable tag parameters, just emit a message
+            # If there are no identifiable tag parameters, just emit a debug message
+            # (not a warning -- this is OK for items that are not attribute-specific).
             Msg.debug(self.__class__.__qualname__,
                       f"No {attr} could be identified from the SOF")
         elif count == 1:

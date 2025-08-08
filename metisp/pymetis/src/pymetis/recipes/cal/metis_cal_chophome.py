@@ -39,7 +39,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         class RawInput(RawInput):
             Item = LmChophomeRaw
 
-        class BackgroundInput(RawInput):
+        class WcuOffInput(RawInput):
             Item = LmWcuOffRaw
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
@@ -74,8 +74,12 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
         combined_hdr = cpl.core.PropertyList()
         raw_images = self.inputset.raw.load_data()
-        self.inputset.persistence_map.item.use()
+        self.inputset.raw.use()
+
+        persistence_map = self.inputset.persistence_map.load_data()
+        self.inputset.persistence_map.use()
         raw_images.subtract_image(background_img)
+
         combined_img = self.combine_images(raw_images, stackmethod)
 
         # Locate the pinhole image
@@ -111,7 +115,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
     def compute_background(self, *, method):
         background_hdr = cpl.core.PropertyList()
-        bg_images = self.inputset.background.load_data()
+        bg_images = self.inputset.wcu_off.load_data()
         background_img = self.combine_images(bg_images, method)
         # TODO: define usedframes
         return background_hdr, background_img

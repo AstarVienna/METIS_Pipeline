@@ -39,8 +39,8 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
     ProductSciCubeCalibrated = IfuScienceCubeCalibrated
 
     def process(self) -> set[DataItem]:
-        # self.correct_telluric()
-        # self.apply_fluxcal()
+        reduced = self.inputset.reduced.load_data()
+        self.inputset.reduced.use()
 
         header = create_dummy_header()
         image = create_dummy_image()

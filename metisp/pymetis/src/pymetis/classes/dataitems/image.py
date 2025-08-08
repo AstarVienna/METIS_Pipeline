@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Self, Optional
 
 import cpl
-from cpl.core import Msg, Image
+from cpl.core import Msg, Image as CplImage, Table as CplTable
 
 from pyesorex.parameter import ParameterList
 
@@ -31,24 +31,10 @@ class ImageDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
 
     def __init__(self,
-                 header: cpl.core.PropertyList = None,
+                 primary_header: cpl.core.PropertyList = None,
                  image: cpl.core.Image = None):
-        super().__init__(header)
+        super().__init__(primary_header)
         self.image: cpl.core.Image = image
-
-    @classmethod
-    def load_from_frame(cls, frame) -> Self:
-        Msg.debug(cls.__qualname__, f"Now loading image {frame.file}")
-
-        header = cpl.core.PropertyList.load(frame.file, 0)
-        Msg.debug(cls.__qualname__, f"Schema is {cls._schema}")
-
-        for ext, item in enumerate(cls._schema):
-            if item is Image:
-                image = cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, ext)
-
-        instance = cls(header, image)
-        return instance
 
     def save(self,
              recipe: 'PipelineRecipeImpl',
@@ -66,7 +52,10 @@ class ImageDataItem(DataItem, abstract=True):
         Msg.info(self.__class__.__qualname__,
                  f"Saving image {self.file_name(output_file_name)}")
         Msg.debug(self.__class__.__qualname__,
-                  f"    used frames {recipe.used_frames}")
+                  f"Used {len(recipe.used_frames)} frames")
+        for frame in recipe.used_frames:
+            Msg.debug(self.__class__.__qualname__,
+                      f"    {frame}")
 
         cpl.dfs.save_image(
             recipe.frameset,  # All frames for the recipe

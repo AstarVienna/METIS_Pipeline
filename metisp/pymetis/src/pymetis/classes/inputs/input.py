@@ -46,7 +46,8 @@ class PipelineInput:
     @staticmethod
     def preprocess_frameset(frameset: cpl.ui.FrameSet) -> dict[str, cpl.ui.FrameSet]:
         """
-        Convert a SOF (which is a `list[(filename, tag)]`) to a mapping `tag: list[filename]`.
+        Convert a SOF (which is a `list[tuple[filename, tag]]`) to a mapping `tag: list[filename]`
+        to make it more convenient for Python.
         """
         result = {}
 
@@ -119,8 +120,6 @@ class PipelineInput:
             f"Data item {self.Item.__qualname__} has no defined frame group"
 
         for tag, frames in self.preprocess_frameset(frameset).items():
-            #Msg.debug(self.__class__.__qualname__,
-            #          f"Processing frame {tag}")
             cls = DataItem.find(tag)
 
             if cls is None:
@@ -138,10 +137,6 @@ class PipelineInput:
                               f"subclassing this {self.Item.__qualname__} and instantiating")
                     self.Item = cls
                     self.load_frameset(frames)
-                else:
-                    #Msg.debug(self.__class__.__qualname__,
-                    #          f"Tag {tag} is not processed by {self.Item.__qualname__}, ignoring.")
-                    continue
 
     @abstractmethod
     def validate(self) -> None:
@@ -190,7 +185,9 @@ class PipelineInput:
     @property
     @abstractmethod
     def contents(self):
-        pass
+        """
+        Return the data contents (either the item or items)
+        """
 
     @abstractmethod
     def valid_frames(self) -> cpl.ui.FrameSet:
@@ -198,7 +195,6 @@ class PipelineInput:
         Return a FrameSet containing all valid, used frames.
         This is abstract as it differs significantly for Single and Multiple Inputs.
         """
-        pass
 
     @abstractmethod
     def used_frames(self) -> cpl.ui.FrameSet:
@@ -206,17 +202,8 @@ class PipelineInput:
         Return a FrameSet containing all used frames.
         """
 
-    @classmethod
-    def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:
+    @abstractmethod
+    def use(self) -> None:
         """
-        List all PipelineRecipe classes that use this Input.
-        Warning: heavy introspection.
-        Useful for reconstruction of DRLD input/product cards.
+        Mark the input as used
         """
-        for (name, klass) in inspect.getmembers(
-            pymetis.recipes,
-            lambda x: inspect.isclass(x) and x.Impl.InputSet is not None
-        ):
-            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
-                if issubclass(kls, cls):
-                    yield klass

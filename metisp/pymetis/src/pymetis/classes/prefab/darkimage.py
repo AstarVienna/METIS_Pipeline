@@ -55,7 +55,8 @@ class DarkImageProcessor(RawImageProcessor, ABC):
             ImageList
         """
         master_dark: cpl.core.Image = self.inputset.master_dark.load_data()
+        self.inputset.master_dark.item.use()
 
         Msg.info(self.__class__.__qualname__,
                  f"Subtracting the master dark from raw images")
-        return images.subtract_image(master_dark)
+        return images.subtract_image(master_dark.image)

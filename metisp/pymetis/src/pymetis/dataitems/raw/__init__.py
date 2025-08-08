@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image as CplImage
 
 from pymetis.classes.dataitems import ImageDataItem
 from .wcuoff import WcuOffRaw, LmWcuOffRaw, NWcuOffRaw, IfuWcuOffRaw
@@ -32,7 +33,7 @@ class Raw(ImageDataItem, abstract=True):
     _description_template = "Abstract base class for all raw inputs. Please subclass."
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
 
-    _default_extension = 1
+    _schema = [None, CplImage]
 
 __all__ = [
     'Raw',

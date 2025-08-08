@@ -93,7 +93,9 @@ class MetisLssSciImpl(DarkImageProcessor):
         """do something more fancy in the future"""
         # Load raw image
         sci_raw_hdr = cpl.core.PropertyList()
-        sci_raw_images = self.inputset.raw.load_data(extension=1)
+        sci_raw_images = self.inputset.raw.load_data()
+
+        self.inputset.raw.use()
 
         """Create dummy file (should do something more fancy in the future)"""
         header = create_dummy_header()

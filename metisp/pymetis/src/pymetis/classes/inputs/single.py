@@ -52,12 +52,17 @@ class SinglePipelineInput(PipelineInput):
             Msg.debug(self.__class__.__name__,
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
-            self.item = self.Item.load(self.frame)
 
     def load_data(self):
         Msg.info(self.__class__.__qualname__,
                  f"Loading input frame {self.frame.file!r}")
         self.item = self.Item.load(self.frame)
+
+        Msg.info(self.__class__.__qualname__,
+                 f"Item is now {self.item}")
+
+        self.use() # FixMe: for now anything that is actually loaded is marked as used
+
         return self.item
 
     def set_cpl_attributes(self):
@@ -101,6 +106,9 @@ class SinglePipelineInput(PipelineInput):
     def contents(self):
         return self.item
 
+    def use(self) -> None:
+        self.item.use()
+
     def valid_frames(self) -> cpl.ui.FrameSet:
         if self.frame is None:
             # This may happen for non-required inputs
@@ -109,7 +117,7 @@ class SinglePipelineInput(PipelineInput):
             return cpl.ui.FrameSet([self.frame])
 
     def used_frames(self) -> cpl.ui.FrameSet:
-        if self.frame is None:
+        if self.frame is None or self.item is None:
             return cpl.ui.FrameSet()
         else:
             if self.item.used:

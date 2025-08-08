@@ -56,8 +56,13 @@ class MultiplePipelineInput(PipelineInput):
 
         for idx, frame in enumerate(self.frameset):
             Msg.info(self.__class__.__qualname__,
-                     f"Loading input frame #{idx}: {frame.file!r}...")
+                     f"Loading input frame #{idx}: {frame.file!r}")
             self.items.append(self.Item.load(frame))
+
+        Msg.info(self.__class__.__qualname__,
+                 f"Items are now {self.items}")
+
+        self.use() # FixMe: for now anything that is actually loaded is marked as used
 
         return cpl.core.ImageList([item.image for item in self.items])
 
@@ -70,7 +75,10 @@ class MultiplePipelineInput(PipelineInput):
             frame.type = self.Item.frame_type()
 
             Msg.debug(self.__class__.__qualname__,
-                      f"Set CPL attributes: {self.Item.frame_group()} {self.Item.frame_level()} {self.Item.frame_type()}")
+                      f"Setting CPL attributes: "
+                      f"{self.Item.frame_group()} "
+                      f"{self.Item.frame_level()} "
+                      f"{self.Item.frame_type()}")
             frameset.append(frame)
 
         self.frameset = frameset
@@ -125,6 +133,10 @@ class MultiplePipelineInput(PipelineInput):
     def contents(self):
         return self.items
 
+    def use(self) -> None:
+        for item in self.items:
+            item.use()
+
     def valid_frames(self) -> cpl.ui.FrameSet:
         """
         Return a list of valid frames.
@@ -136,4 +148,4 @@ class MultiplePipelineInput(PipelineInput):
         return self.frameset
 
     def used_frames(self) -> cpl.ui.FrameSet:
-        return cpl.ui.FrameSet([item for item in self.items if item.used])
+        return cpl.ui.FrameSet([self.frameset[i] for i, item in enumerate(self.items) if item.used])

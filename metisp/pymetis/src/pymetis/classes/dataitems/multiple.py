@@ -17,8 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from typing import Union
+
 import cpl
-from cpl.core import Msg
+from cpl.core import Msg, Image as CplImage, Table as CplTable, PropertyList as CplPropertyList
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem
@@ -29,19 +31,10 @@ class MultipleDataItem(DataItem, abstract=True):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
     def __init__(self,
-                 header: cpl.core.PropertyList,
-                 **extensions):
-        super().__init__(header)
-
-        self.extensions = extensions
-        for key, ext in self.extensions.items():
-            self.__setattr__(key, ext)
-
-    @classmethod
-    def load_from_frame(cls, frame: cpl.ui.Frame):
-        Msg.debug(cls.__qualname__, f"Now loading multiplet {frame.file}")
-        header = cpl.core.PropertyList.load(frame.file, extension)
-        return cls(header, table)
+                 primary_header: CplPropertyList,
+                 **hdus: tuple[CplPropertyList, dict[str, Union[CplImage, CplTable]]]):
+        super().__init__(primary_header)
+        self.hdus = hdus
 
     def save(self,
                    recipe: 'PipelineRecipe',
@@ -64,19 +57,5 @@ class MultipleDataItem(DataItem, abstract=True):
             header=self.header,
         )
 
-        for key, ext in self.extensions.items():
+        for key, ext in self.hdus.items():
             ext.save(key, cpl.core.PropertyList(), cpl.core.io.EXTEND)
-
-
-class MultipleImageDataItem(ImageDataItem, MultipleDataItem, abstract=True):
-    def __init__(self,
-                 primary_header: cpl.core.PropertyList,
-                 **extensions: cpl.core.Image):
-        super().__init__(primary_header, **extensions)
-
-
-class MultipleTableDataItem(TableDataItem, MultipleDataItem, abstract=True):
-    def __init__(self,
-                 primary_header: cpl.core.PropertyList,
-                 *extensions: cpl.core.Table):
-        super().__init__(primary_header, **extensions)

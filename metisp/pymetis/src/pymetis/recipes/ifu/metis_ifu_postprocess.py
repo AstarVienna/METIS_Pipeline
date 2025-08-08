@@ -23,13 +23,13 @@ from pymetis.classes.dataitems import DataItem
 from pymetis.dataitems.coadd import IfuSciCoadd
 from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput, MultiplePipelineInput
 from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisIfuPostprocessImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class SciCubeCalibratedInput(SinglePipelineInput):
+        class SciCubeCalibratedInput(MultiplePipelineInput):
             Item = IfuScienceCubeCalibrated
 
     ProductSciCoadd = IfuSciCoadd
@@ -41,7 +41,11 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         pass
 
     def coadd_cubes(self):
-        pass
+        images = self.inputset.sci_cube_calibrated.load_data()
+        self.inputset.sci_cube_calibrated.use()
+        coadded = images.collapse_create()
+
+        return coadded
 
     def process(self) -> set[DataItem]:
         self.determine_output_grid()
@@ -49,9 +53,10 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         self.coadd_cubes()
 
         header = create_dummy_header()
-        image = cpl.core.Image.load(self.inputset.sci_cube_calibrated.frame.file)  # ToDo actual processing
 
-        product = self.ProductSciCoadd(header, image)
+        coadded = self.coadd_cubes()
+
+        product = self.ProductSciCoadd(header, coadded)
 
         return {product}  # ToDo is just a dummy for now
 

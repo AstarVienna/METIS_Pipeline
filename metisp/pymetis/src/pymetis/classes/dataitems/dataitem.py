@@ -21,18 +21,18 @@ import datetime
 import inspect
 import re
 from abc import ABC, abstractmethod
-from typing import Optional, Generator, final, Self, Any
+from typing import Optional, Generator, Self, Any, final
 
 import cpl
 
-from cpl.core import Msg, Table, Image
+from cpl.core import Msg, Image as CplImage, Table as CplTable, PropertyList as CplPropertyList
 from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
 from pymetis.classes.mixins.base import Parametrizable
 from pymetis.utils.format import partial_format
 
-PIPELINE = r'METIS'
+PIPELINE = rf'METIS/1'
 
 
 class DataItem(Parametrizable, ABC):
@@ -63,7 +63,8 @@ class DataItem(Parametrizable, ABC):
     _oca_keywords: set[str] = set()
 
     # HDU schema: a list of types or None
-    _schema: list[None | Image | Table] = [None]
+    # By default, only the primary header is present
+    _schema: list[None | CplImage | CplTable] = [None]
 
     # [Hacky] A regex to match the tag (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -144,35 +145,11 @@ class DataItem(Parametrizable, ABC):
     @classmethod
     def name(cls) -> str:
         """
-        Return the machine-oriented name of this data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
+        Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
         """
         assert cls._name_template is not None, \
             f"{cls.__name__} name template is None"
         return cls._name_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
-
-    @classmethod
-    @final
-    def frame_group(cls):
-        """
-        Return the group of this data item. Should not be overridden.
-        """
-        return cls._frame_group
-
-    @classmethod
-    @final
-    def frame_level(cls):
-        """
-        Return the level of this data item. Should not be overridden.
-        """
-        return cls._frame_level
-
-    @classmethod
-    @final
-    def frame_type(cls):
-        """
-        Return the type of this data item. Should not be overridden.
-        """
-        return cls._frame_type
 
     @classmethod
     def description(cls) -> str:
@@ -184,6 +161,36 @@ class DataItem(Parametrizable, ABC):
         assert cls._description_template is not None, \
             f"{cls.__name__} description template is None"
         return cls._description_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
+
+    @classmethod
+    @final
+    def frame_group(cls):
+        """
+        Return the group of this data item.
+
+        This function should not be overridden.
+        """
+        return cls._frame_group
+
+    @classmethod
+    @final
+    def frame_level(cls):
+        """
+        Return the level of this data item.
+
+        This function should not be overridden.
+        """
+        return cls._frame_level
+
+    @classmethod
+    @final
+    def frame_type(cls):
+        """
+        Return the type of this data item.
+
+        This function should not be overridden.
+        """
+        return cls._frame_type
 
     @classmethod
     def oca_keywords(cls):
@@ -204,7 +211,7 @@ class DataItem(Parametrizable, ABC):
         return cls.name()
 
     def __init__(self,
-                 header: cpl.core.PropertyList = cpl.core.PropertyList()):
+                 primary_header: cpl.core.PropertyList = cpl.core.PropertyList()):
         if self.__abstract:
             raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
@@ -224,10 +231,10 @@ class DataItem(Parametrizable, ABC):
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
 
         self._used: bool = False
-        self.headers: dict[int, cpl.core.PropertyList] = {0: header}
+        self.headers: dict[int, cpl.core.PropertyList] = {0: primary_header}
         self.hdus = []
         # FIXME: temporary to get QC parameters into the product header [OC]
-        self.header = header
+        self.header = primary_header
         if self.header is not None:
             self.properties = self.header
         else:
@@ -248,15 +255,25 @@ class DataItem(Parametrizable, ABC):
         return klass.load_from_frame(frame)
 
     @classmethod
-    @abstractmethod
     def load_from_frame(cls,
                         frame: cpl.ui.Frame) -> Any:
-        """
-        Factory-like constructor. Load a CPL frame into this data item.
+        Msg.debug(cls.__qualname__, f"Now loading {frame.file}")
 
-        This method is abstract, as the implementation is completely different for different underlying data types.
-        """
-        pass
+        header = cpl.core.PropertyList.load(frame.file, 0)
+        Msg.debug(cls.__qualname__, f"Schema is {cls._schema}")
+
+        items = []
+        for ext, item in enumerate(cls._schema):
+            header = CplPropertyList.load(frame.file, ext)
+            if item is CplImage:
+                image = CplImage.load(frame.file, cpl.core.Type.FLOAT, ext)
+                items.append(image)
+            elif item is CplTable:
+                table = CplTable.load(frame.file, ext)
+                items.append(table)
+
+        instance = cls(header, *items)
+        return instance
 
     @property
     def used(self) -> bool:
@@ -404,4 +421,7 @@ class DataItem(Parametrizable, ABC):
         return f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
 
     def __str__(self):
+        return f"{self.name()}"
+
+    def __repr__(self):
         return f"{self.name()}"

@@ -31,24 +31,10 @@ class TableDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
 
     def __init__(self,
-                 header: cpl.core.PropertyList,
+                 primary_header: cpl.core.PropertyList,
                  table: cpl.core.Table):
-        super().__init__(header)
+        super().__init__(primary_header)
         self.table: cpl.core.Table = table
-
-    @classmethod
-    def load_from_frame(cls, frame: cpl.ui.Frame) -> Self:
-        Msg.debug(cls.__qualname__, f"Now loading table {frame.file}")
-
-        header = cpl.core.PropertyList.load(frame.file, 0)
-        Msg.debug(cls.__qualname__, f"Schema is {cls._schema}")
-
-        for ext, item in enumerate(cls._schema):
-            if item is Table:
-                table = cpl.core.Table.load(frame.file, ext)
-
-        instance = cls(header, table)
-        return instance
 
     def save(self,
              recipe: 'PipelineRecipe',
