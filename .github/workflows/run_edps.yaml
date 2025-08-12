@@ -109,7 +109,7 @@ jobs:
 
           # DET RECIPES
           pyesorex metis_det_lingain "${SOF_DIR}/metis_det_lingain.lm.sof"
-          pyesorex metis_det_dark "${SOF_DIR}/metis_det_dark.lm.sof"
+          #pyesorex metis_det_dark "${SOF_DIR}/metis_det_dark.lm.sof"
           
           # IMG LM RECIPES
           #pyesorex metis_lm_img_distortion  "${SOF_DIR}/metis_lm_img_distortion.sof"
