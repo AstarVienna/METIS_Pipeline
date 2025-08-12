@@ -124,7 +124,7 @@ jobs:
           pyesorex metis_lm_img_sci_postprocess "${SOF_DIR}/metis_lm_img_sci_postprocess.sof"
 
           # IMG N RECIPES
-	  #pyesorex metis_n_img_distortion  "${SOF_DIR}/metis_n_img_distortion.sof"
+          #pyesorex metis_n_img_distortion  "${SOF_DIR}/metis_n_img_distortion.sof"
           pyesorex metis_n_img_flat  "${SOF_DIR}/metis_n_img_flat.lamp.sof"
           pyesorex metis_n_img_chopnod "${SOF_DIR}/metis_n_img_chopnod.std.sof"
           pyesorex metis_n_img_chopnod "${SOF_DIR}/metis_n_img_chopnod.sci.sof"
