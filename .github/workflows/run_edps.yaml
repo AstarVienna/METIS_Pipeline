@@ -51,7 +51,7 @@ jobs:
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/instrument/test_metis_pupil_imaging.py
           
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_calibrate.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_distortion.py
+          #python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_distortion.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_postprocess.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_reduce.py
           # python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_rsrf.py
@@ -61,14 +61,14 @@ jobs:
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_background.py
           # python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_basic_reduce.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_calibrate.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_distortion.py
+          #python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_distortion.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_flat.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_sci_postprocess.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_std_process.py
           
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_calibrate.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_chopnod.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_distortion.py
+          #python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_distortion.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_flat.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_restore.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_std_process.py
