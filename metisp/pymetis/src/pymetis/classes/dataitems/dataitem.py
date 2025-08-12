@@ -372,6 +372,7 @@ class ImageDataItem(DataItem, abstract=True):
         super().__init__(header, frame)
         # TODO: hard-coded image loading to be removed
         self.image: cpl.core.Image = cpl.core.Image.zeros(32, 32, cpl.core.Type.FLOAT)
+        self.image.add_scalar(1)
 
     def save(self,
              recipe: 'PipelineRecipeImpl',
