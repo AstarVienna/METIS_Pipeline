@@ -155,7 +155,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         bb_level = bb_img.get_median()
         if bb_level == 0:
             Msg.warning(self.__class__.__qualname__,
-                "Zero median vlaue for blackbody image, skipping normalisation")
+                "Zero median value for blackbody image, skipping normalisation")
         else:
             bb_img.multiply_scalar(raw_level / bb_level)
 
@@ -212,8 +212,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             Msg.warning(self.__class__.__qualname__,
                 "Zero average scale for RSRF curves, skipping normalisation")
         else:
-            for i in range(len(rsrf_1d_list)):
-                rsrf_1d_list[i].divide_scalar(scale)
+            for rsrf_1d in rsrf_1d_list:
+                rsrf_1d.divide_scalar(scale)
 
         # create 1D RSRF product
         rsrf_hdr = cpl.core.PropertyList()
