@@ -114,8 +114,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # create master WCU_OFF background image
         Msg.info(self.__class__.__qualname__,
                     f"Creating WCU_OFF background image...")
-        background_hdr = \
-            cpl.core.PropertyList()
+        background_hdr = cpl.core.PropertyList()
         # self.inputset.background.frameset.dump() # debug
         bg_images = self.load_images(self.inputset.rsrf_wcu_off.frameset)
         background_img = self.combine_images(bg_images, stackmethod)
