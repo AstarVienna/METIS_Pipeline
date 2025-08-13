@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Msg
 import numpy as np
 
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
@@ -106,13 +107,14 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         trace_list = read_ifu_distortion_table(
             self.inputset.distortion_table.frame.file, ext=EXT)
 
-        # load wavelength calibration image
+        # load wavelength calibration image - only one extension for now
         wavecal_img = cpl.core.Image.load(
             self.inputset.wavecal.frame.file, extension=EXT)
 
         # create master WCU_OFF background image
-        background_hdr = \
-            cpl.core.PropertyList()
+        Msg.info(self.__class__.__qualname__,
+                    f"Creating WCU_OFF background image...")
+        background_hdr = cpl.core.PropertyList()
         # self.inputset.background.frameset.dump() # debug
         bg_images = self.load_images(self.inputset.rsrf_wcu_off.frameset)
         background_img = self.combine_images(bg_images, stackmethod)
@@ -121,6 +123,9 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # TODO: Add product keywords - currently none defined in DRLD
 
         # create 2D flat image (raw images are added together)
+        Msg.info(self.__class__.__qualname__,
+                    f"Creating 2D spectral flat image...")
+
         spec_flat_hdr = \
             cpl.core.PropertyList()
         # load RSRF_RAW images, subtract the background and stack them
@@ -140,12 +145,18 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
 
         # create black-body image
+        Msg.info(self.__class__.__qualname__,
+                    f"Creating black-body image...")
         bb_img = create_ifu_blackbody_image(wavecal_img, bb_temp)
 
         # scale the BB image to the RSRF image before dividing
         raw_level = spec_flat_img.get_max()
         bb_level = bb_img.get_median()
-        bb_img.multiply_scalar(raw_level / bb_level)
+        if bb_level == 0:
+            Msg.warning(self.__class__.__qualname__,
+                "Zero median value for blackbody image, skipping normalisation")
+        else:
+            bb_img.multiply_scalar(raw_level / bb_level)
 
         # divide the RSRF image by the black-body spectrum
         # (inherits the bb bad-pixel mask)
@@ -164,10 +175,13 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         )
 
         # create bad pixel map product
+        Msg.info(self.__class__.__qualname__,
+                    f"Creating bad pixel map...")
         # TODO: FUNC: create updated bad pixel map
         badpix_hdr = cpl.core.PropertyList()
-        # placeholder data for now -- bad-pixel map based on master_dark
+        # placeholder data for now -- bad-pixel map based spec_flat_img
         badpix_img = master_dark_img
+        badpix_img.reject_from_mask(spec_flat_img.bpm)  # update with master_dark bpm
         # TODO: create QC1 parameters:
         # Add QC keywords
         badpix_hdr.append(
@@ -180,6 +194,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         )
 
         # extract 1D RSRF curves
+        Msg.info(self.__class__.__qualname__,
+                    f"Extracting 1D RSRF curves...")
         rsrf_1d_list = extract_ifu_1d_spectra(spec_flat_img, trace_list,
                                               trace_width=extract_hwidth)
 
@@ -191,13 +207,17 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         scale = np.mean(rsrf_med)
 
-        # TODD: exception for zero scale
-        for i in range(len(rsrf_1d_list)):
-            rsrf_1d_list[i].divide_scalar(scale)
+        if scale == 0:
+            Msg.warning(self.__class__.__qualname__,
+                "Zero average scale for RSRF curves, skipping normalisation")
+        else:
+            for rsrf_1d in rsrf_1d_list:
+                rsrf_1d.divide_scalar(scale)
 
         # create 1D RSRF product
         rsrf_hdr = cpl.core.PropertyList()
         # TODO: FUNC: Add product keywords - currently none defined in DRLD
+        # TODO: Decide on FITS file structure for multiple extensions
         table = QTable()
         for i, rsrf in enumerate(rsrf_1d_list, start=1):
             table[f'rsrf_{i}'] = rsrf
@@ -206,6 +226,9 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
             table[f'rsrf_{i}'].description = '1D RSRF curve {i}'
 
         rsrf_table = cpl.core.Table(table)
+
+        Msg.info(self.__class__.__qualname__,
+                    f"Finalising recipe products...")
 
         product_background = self.ProductRsrfBackground(background_hdr, background_img)
         product_master_flat_ifu = self.ProductMasterFlat(spec_flat_hdr, spec_flat_img)
@@ -225,7 +248,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         output = cpl.core.ImageList()
 
         for idx, frame in enumerate(frameset):
-            cpl.core.Msg.info(self.__class__.__qualname__,
+            Msg.info(self.__class__.__qualname__,
                               f"Processing input frame #{idx}: {frame.file!r}...")
             output.append(cpl.core.Image.load(frame.file, extension=EXT))
 
