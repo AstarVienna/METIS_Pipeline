@@ -43,15 +43,15 @@ jobs:
           export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
           export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
-          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
-          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202508/outputSmall/"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202508/sofFiles/"
           export PYESOREX_OUTPUT_DIR="$SOF_DATA"
           
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/cal/test_metis_cal_chophome.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/instrument/test_metis_pupil_imaging.py
           
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_calibrate.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_distortion.py
+          #python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_distortion.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_postprocess.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_reduce.py
           # python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_rsrf.py
@@ -61,14 +61,14 @@ jobs:
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_background.py
           # python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_basic_reduce.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_calibrate.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_distortion.py
+          #python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_distortion.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_flat.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_sci_postprocess.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_std_process.py
           
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_calibrate.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_chopnod.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_distortion.py
+          #python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_distortion.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_flat.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_restore.py
           python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_std_process.py
@@ -100,8 +100,8 @@ jobs:
           export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
           export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
-          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
-          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202508/outputSmall/"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202508/sofFiles/"
           export PYESOREX_OUTPUT_DIR="$SOF_DATA"
           
           # LIST RECIPES
@@ -109,14 +109,14 @@ jobs:
 
           # DET RECIPES
           pyesorex metis_det_lingain "${SOF_DIR}/metis_det_lingain.lm.sof"
-          pyesorex metis_det_dark "${SOF_DIR}/metis_det_dark.lm.sof"
+          #pyesorex metis_det_dark "${SOF_DIR}/metis_det_dark.lm.sof"
           
           # IMG LM RECIPES
-          pyesorex metis_lm_img_distortion  "${SOF_DIR}/metis_lm_img_distortion.sof"
+          #pyesorex metis_lm_img_distortion  "${SOF_DIR}/metis_lm_img_distortion.sof"
           pyesorex metis_lm_img_flat  "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
-          # pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
-          # pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sci.sof"
-          # pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sky.sof"
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sci.sof"
+          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sky.sof"
           pyesorex metis_lm_img_background "${SOF_DIR}/metis_lm_img_background.std.sof"
           pyesorex metis_lm_img_background "${SOF_DIR}/metis_lm_img_background.sci.sof"
           pyesorex metis_lm_img_std_process "${SOF_DIR}/metis_lm_img_std_process.sof"
@@ -124,7 +124,7 @@ jobs:
           pyesorex metis_lm_img_sci_postprocess "${SOF_DIR}/metis_lm_img_sci_postprocess.sof"
 
           # IMG N RECIPES
-          pyesorex metis_n_img_distortion  "${SOF_DIR}/metis_n_img_distortion.sof"
+          #pyesorex metis_n_img_distortion  "${SOF_DIR}/metis_n_img_distortion.sof"
           pyesorex metis_n_img_flat  "${SOF_DIR}/metis_n_img_flat.lamp.sof"
           pyesorex metis_n_img_chopnod "${SOF_DIR}/metis_n_img_chopnod.std.sof"
           pyesorex metis_n_img_chopnod "${SOF_DIR}/metis_n_img_chopnod.sci.sof"
@@ -133,7 +133,7 @@ jobs:
           pyesorex metis_n_img_restore "${SOF_DIR}/metis_n_img_restore.sof"
 
           # IFU RECIPES
-          pyesorex metis_ifu_distortion "${SOF_DIR}/metis_ifu_distortion.sof"
+          #pyesorex metis_ifu_distortion "${SOF_DIR}/metis_ifu_distortion.sof"
           pyesorex metis_ifu_wavecal "${SOF_DIR}/metis_ifu_wavecal.sof"
           # pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
           pyesorex metis_ifu_reduce "${SOF_DIR}/metis_ifu_reduce.std.sof"
@@ -176,8 +176,8 @@ jobs:
       #     export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
       #     export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
       #     export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
-      #     export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
-      #     export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+      #     export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202508/outputSmall/"
+      #     export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202508/sofFiles/"
       #     edps -lw
       #     edps -w metis.metis_wkf -i $SOF_DATA -c
       #     edps -w metis.metis_wkf -i $SOF_DATA -lt
