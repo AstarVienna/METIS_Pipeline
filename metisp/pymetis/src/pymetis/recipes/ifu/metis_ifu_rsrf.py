@@ -36,7 +36,8 @@ from pymetis.dataitems.raw.wcuoff import IfuWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
-                                    WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin)
+                                    WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin,
+                                    SinglePipelineInput)
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
 
 ma = np.ma
@@ -117,8 +118,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # TODO: Add product keywords - currently none defined in DRLD
 
         # create 2D flat image (raw images are added together)
-        spec_flat_hdr = \
-            cpl.core.PropertyList()
+        spec_flat_hdr = cpl.core.PropertyList()
         # load RSRF_RAW images, subtract the background and stack them
         raw_images = self.inputset.raw.load_data(extension=1)
         # FUNC: single-extension data product for now

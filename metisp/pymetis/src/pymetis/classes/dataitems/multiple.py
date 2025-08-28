@@ -37,10 +37,10 @@ class MultipleDataItem(DataItem, abstract=True):
         self.hdus = hdus
 
     def save(self,
-                   recipe: 'PipelineRecipe',
-                   parameters: ParameterList,
-                   *,
-                   output_file_name: str = None) -> None:
+             recipe: 'PipelineRecipe',
+             parameters: ParameterList,
+             *,
+             output_file_name: str = None) -> None:
 
         # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back.
         parameters = cpl.ui.ParameterList([p for p in parameters])

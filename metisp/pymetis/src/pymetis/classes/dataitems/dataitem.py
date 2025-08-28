@@ -66,7 +66,7 @@ class DataItem(Parametrizable, ABC):
     # By default, only the primary header is present
     _schema: list[None | CplImage | CplTable] = [None]
 
-    # [Hacky] A regex to match the tag (mostly to make sure we are not instantiating a partially specialized class)
+    # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
 
     def __init_subclass__(cls,
@@ -89,7 +89,7 @@ class DataItem(Parametrizable, ABC):
                 (f"Tried to register {cls.__name__} ({cls.name()}) which is not fully specialized "
                  f"(did you mean to set `abstract=True` in the class declaration?)")
 
-            if cls.name().format in DataItem._registry:
+            if cls.name().format() in DataItem._registry:
                 # If the class is already registered, warn about it and do nothing
                 Msg.warning(cls.__qualname__,
                             f"A class with tag {cls.name()} is already registered: {DataItem._registry[cls.name()]}")

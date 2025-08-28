@@ -43,4 +43,4 @@ class GainMapGeo(DetectorGeoMixin, GainMap):
 
 
 class GainMapIfu(DetectorIfuMixin, GainMap):
-    _schema = [Image]
+    pass

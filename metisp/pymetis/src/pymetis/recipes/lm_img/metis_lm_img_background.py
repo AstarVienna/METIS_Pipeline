@@ -62,7 +62,6 @@ class MetisLmImgBackground(MetisRecipe):
     _email = "chyan@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Basic reduction of raw exposures from the LM-band imager"
-    _description = ""
 
     parameters = ParameterList([
         ParameterEnum(
