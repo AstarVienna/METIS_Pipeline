@@ -35,6 +35,7 @@ class Raw(ImageDataItem, abstract=True):
 
     _schema = [None, CplImage]
 
+
 __all__ = [
     'Raw',
     'WcuOffRaw', 'LmWcuOffRaw', 'NWcuOffRaw', 'IfuWcuOffRaw',

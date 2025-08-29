@@ -54,7 +54,7 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         :return:
             ImageList
         """
-        master_dark: cpl.core.Image = self.inputset.master_dark.load_data()
+        master_dark: cpl.core.Image = self.inputset.master_dark.load_images()
         self.inputset.master_dark.item.use()
 
         Msg.info(self.__class__.__qualname__,

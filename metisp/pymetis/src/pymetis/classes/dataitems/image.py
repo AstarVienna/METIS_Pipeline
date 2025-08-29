@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from typing import Self, Optional
 
 import cpl
 from cpl.core import Msg, Image as CplImage, Table as CplTable
@@ -32,9 +31,9 @@ class ImageDataItem(DataItem, abstract=True):
 
     def __init__(self,
                  primary_header: cpl.core.PropertyList = None,
-                 image: cpl.core.Image = None):
+                 *hdus: cpl.core.Image):
         super().__init__(primary_header)
-        self.image: cpl.core.Image = image
+        self.hdus = hdus
 
     def save(self,
              recipe: 'PipelineRecipeImpl',

@@ -45,7 +45,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         # self.apply_fluxcal()
 
         header = cpl.core.PropertyList()
-        images = self.inputset.raw.load_data(extension=1)
+        images = self.inputset.raw.load_images(extension=1)
         image = self.combine_images(images, "add")
 
         product_wavecal = self.ProductIfuWavecal(header, image)

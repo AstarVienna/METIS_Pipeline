@@ -48,23 +48,23 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-    def load_data(self) -> cpl.core.ImageList:
-        """
-        Load an imagelist from a FrameSet
-        """
-        self.items = []
-
-        for idx, frame in enumerate(self.frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Loading input frame #{idx}: {frame.file!r}")
-            self.items.append(self.Item.load(frame))
-
-        Msg.info(self.__class__.__qualname__,
-                 f"Items are now {self.items}")
-
-        self.use() # FixMe: for now anything that is actually loaded is marked as used
-
-        return cpl.core.ImageList([item.image for item in self.items])
+    #def load_images(self) -> cpl.core.ImageList:
+    #    """
+    #    Load an imagelist from a FrameSet
+    #    """
+    #    self.items = []
+    #
+    #    for idx, frame in enumerate(self.frameset):
+    #        Msg.info(self.__class__.__qualname__,
+    #                 f"Loading input frame #{idx}: {frame.file!r}")
+    #        self.items.append(self.Item.load(frame))
+    #
+    #    Msg.info(self.__class__.__qualname__,
+    #             f"Items are now {self.items}")
+    #
+    #    self.use() # FixMe: for now anything that is actually loaded is marked as used
+    #
+    #    return cpl.core.ImageList([item. for item in self.items])
 
     def set_cpl_attributes(self):
         frameset = cpl.ui.FrameSet()

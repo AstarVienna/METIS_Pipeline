@@ -53,7 +53,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
     _matched_keywords: set[str] = set()
-    _algorithm: str = None                                      # Verbal description of the algorithm
+    _algorithm: str = None # Verbal description of the algorithm
 
     # By default, a recipe does not have any parameters.
     parameters: ParameterList = ParameterList([])

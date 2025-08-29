@@ -42,7 +42,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
     ProductDistortionReduced = IfuDistortionReduced
 
     def process(self) -> set[DataItem]:
-        raw_images = self.inputset.raw.load_data()
+        raw_images = self.inputset.raw.load_images()
         self.inputset.raw.use()
 
         combined_image = self.combine_images(raw_images, "average")

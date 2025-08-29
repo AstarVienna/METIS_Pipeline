@@ -19,6 +19,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
+import cpl
+from cpl.core import Msg
+from cpl.core import ImageList as CplImageList
+
 from . import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
@@ -59,6 +63,21 @@ class OptionalInputMixin(PipelineInput, ABC):
 class RawInput(MultiplePipelineInput, ABC):
     Item = Raw
 
+    def load_images(self) -> cpl.core.ImageList:
+        self.items = []
+
+        for idx, frame in enumerate(self.frameset):
+            Msg.info(self.__class__.__qualname__,
+                     f"Loading input frame {idx}: {frame.file!r}")
+            self.items.append(self.Item.load(frame))
+
+        Msg.info(self.__class__.__qualname__,
+                 f"Items are now {self.items}")
+
+        self.use()
+
+        return CplImageList([item.hdus[0] for item in self.items])
+
 
 class MasterDarkInput(SinglePipelineInput):
     Item = MasterDark
@@ -78,7 +97,6 @@ class BadPixMapInput(SinglePipelineInput):
 
 class PersistenceMapInput(SinglePipelineInput):
     Item = PersistenceMap
-    _required = False           # By default, persistence maps are optional
 
 
 class GainMapInput(SinglePipelineInput):

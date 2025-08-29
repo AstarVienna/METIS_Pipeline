@@ -21,7 +21,7 @@ import datetime
 import inspect
 import re
 from abc import ABC, abstractmethod
-from typing import Optional, Generator, Self, Any, final
+from typing import Optional, Generator, Self, Any, final, Union
 
 import cpl
 
@@ -64,7 +64,7 @@ class DataItem(Parametrizable, ABC):
 
     # HDU schema: a list of types or None
     # By default, only the primary header is present
-    _schema: list[None | CplImage | CplTable] = [None]
+    _schema: list[Union[None, type[CplImage], type[CplTable]]] = [None]
 
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -211,7 +211,8 @@ class DataItem(Parametrizable, ABC):
         return cls.name()
 
     def __init__(self,
-                 primary_header: cpl.core.PropertyList = cpl.core.PropertyList()):
+                 primary_header: cpl.core.PropertyList = cpl.core.PropertyList(),
+                 *hdus):
         if self.__abstract:
             raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
@@ -272,8 +273,13 @@ class DataItem(Parametrizable, ABC):
                 table = CplTable.load(frame.file, ext)
                 items.append(table)
 
-        instance = cls(header, *items)
-        return instance
+        try:
+            instance = cls(header, *items)
+            return instance
+        except TypeError as err:
+            Msg.error(cls.__qualname__,
+                      f"Cannot instantiate: {err}")
+            raise err
 
     @property
     def used(self) -> bool:

@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Msg, Image as CplImage, Table as CplTable, PropertyList as CplPropertyList
 from pyesorex.parameter import ParameterList
 
-from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.dataitem import PIPELINE
 
 
@@ -32,9 +32,9 @@ class MultipleDataItem(DataItem, abstract=True):
 
     def __init__(self,
                  primary_header: CplPropertyList,
-                 **hdus: tuple[CplPropertyList, dict[str, Union[CplImage, CplTable]]]):
+                 *hdus: tuple[CplPropertyList, dict[str, Union[CplImage, CplTable]]]):
         super().__init__(primary_header)
-        self.hdus = hdus
+        self.hdus: dict[str, Union[CplImage, CplTable]] = hdus
 
     def save(self,
              recipe: 'PipelineRecipe',

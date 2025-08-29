@@ -53,10 +53,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     ProductCombined = IfuCombined
 
     def process(self) -> set[DataItem]:
-        # do something... a lot of something
-
         header = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_data()
+        raw_images = self.inputset.raw.load_images()
         image = self.combine_images(raw_images, "add")
 
         subtracted_images = self.subtract_dark(raw_images)

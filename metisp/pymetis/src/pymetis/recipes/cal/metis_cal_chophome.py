@@ -73,10 +73,10 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         background_hdr, background_img = self.compute_background(method=stackmethod)
 
         combined_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_data()
+        raw_images = self.inputset.raw.load_images()
         self.inputset.raw.use()
 
-        persistence_map = self.inputset.persistence_map.load_data()
+        persistence_map = self.inputset.persistence_map.load_images()
         self.inputset.persistence_map.use()
         raw_images.subtract_image(background_img)
 
@@ -115,7 +115,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
     def compute_background(self, *, method):
         background_hdr = cpl.core.PropertyList()
-        bg_images = self.inputset.wcu_off.load_data()
+        bg_images = self.inputset.wcu_off.load_images()
         background_img = self.combine_images(bg_images, method)
         # TODO: define usedframes
         return background_hdr, background_img

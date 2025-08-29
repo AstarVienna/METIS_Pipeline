@@ -41,7 +41,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         pass
 
     def coadd_cubes(self):
-        images = self.inputset.sci_cube_calibrated.load_data()
+        images = self.inputset.sci_cube_calibrated.load_images()
         self.inputset.sci_cube_calibrated.use()
         coadded = images.collapse_create()
 

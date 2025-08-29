@@ -50,7 +50,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     ProductDistortionReduced = DistortionReduced
 
     def process(self) -> set[DataItem]:
-        combined_image = self.combine_images(self.inputset.raw.load_data(extension=1), "average")
+        combined_image = self.combine_images(self.inputset.raw.load_images(extension=1), "average")
         table = create_dummy_table()
         image = create_dummy_image()
 

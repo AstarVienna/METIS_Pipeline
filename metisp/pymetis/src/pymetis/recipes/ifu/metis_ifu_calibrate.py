@@ -39,7 +39,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
     ProductSciCubeCalibrated = IfuScienceCubeCalibrated
 
     def process(self) -> set[DataItem]:
-        reduced = self.inputset.reduced.load_data()
+        reduced = self.inputset.reduced.load_images()
         self.inputset.reduced.use()
 
         header = create_dummy_header()

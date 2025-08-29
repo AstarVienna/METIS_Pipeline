@@ -99,19 +99,19 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # load MASTER_DARK_IFU image and extract bad pixel map
         # TODO: update to load multi-extension file, current intermediate
         # products are only single-extension
-        master_dark_img = self.inputset.master_dark.load_data(extension=0)
+        master_dark_img = self.inputset.master_dark.load_images(extension=0)
         badpix_map = master_dark_img.image.bpm
 
         # load IFU trace definition file - only one extension for now
         trace_list = self.inputset.distortion_table.item().read(extension=0)
 
         # load wavelength calibration image
-        wavecal_img = self.inputset.wavecal.load_data(extension=0)
+        wavecal_img = self.inputset.wavecal.load_images(extension=0)
 
         # create master WCU_OFF background image
         background_hdr = cpl.core.PropertyList()
         # self.inputset.background.frameset.dump() # debug
-        bg_images = self.inputset.rsrf_wcu_off.load_data()
+        bg_images = self.inputset.rsrf_wcu_off.load_images()
         background_img = self.combine_images(bg_images, stackmethod)
 
         # TODO: define usedframes?
@@ -120,7 +120,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # create 2D flat image (raw images are added together)
         spec_flat_hdr = cpl.core.PropertyList()
         # load RSRF_RAW images, subtract the background and stack them
-        raw_images = self.inputset.raw.load_data(extension=1)
+        raw_images = self.inputset.raw.load_images(extension=1)
         # FUNC: single-extension data product for now
         raw_images.subtract_image(background_img)
         spec_flat_img = self.combine_images(raw_images, stackmethod)
