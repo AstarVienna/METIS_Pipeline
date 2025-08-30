@@ -35,7 +35,7 @@ class PersistenceMap(ImageDataItem):
     _schema = [None, Image]
 
 
-class FluxCalTable(ImageDataItem): # FixMe this should be a table, right?
+class FluxCalTable(TableDataItem): # FixMe this should be a table, right?
     _name_template = r'FLUXCAL_TAB'
     _title_template = "flux table"
     _description_template = "Conversion between instrumental and physical flux units"
@@ -71,7 +71,7 @@ class LsfKernel(TableDataItem):
     _name_template = r'LSF_KERNEL'
     _title_template = "line spread function kernel"
     _description_template = "Wavelength dependent model of the LSF"
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
 

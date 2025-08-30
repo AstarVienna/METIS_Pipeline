@@ -292,9 +292,10 @@ class DataItem(Parametrizable, ABC):
         """ Return whether this data item is actually used in the product """
         return self._used
 
-    def use(self) -> None:
-        """ Mark this data item as actually used """
+    def use(self) -> Self:
+        """ Mark this data item as actually used. Return itself to enable method chaining """
         self._used = True
+        return self
 
     def file_name(self, override: Optional[str] = None):
         """

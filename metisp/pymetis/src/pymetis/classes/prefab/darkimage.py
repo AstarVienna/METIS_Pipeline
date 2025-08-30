@@ -22,6 +22,7 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs import PipelineInput
 from pymetis.classes.inputs.common import MasterDarkInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
@@ -54,9 +55,8 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         :return:
             ImageList
         """
-        master_dark: cpl.core.Image = self.inputset.master_dark.load_images()
-        self.inputset.master_dark.item.use()
+        master_dark: DataItem = self.inputset.master_dark.load_data().use()
 
         Msg.info(self.__class__.__qualname__,
                  f"Subtracting the master dark from raw images")
-        return images.subtract_image(master_dark.image)
+        return images.subtract_image(master_dark.hdus[0])

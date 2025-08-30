@@ -54,6 +54,8 @@ class ImageDataItem(DataItem, abstract=True):
 
         filename = self.file_name(output_file_name)
 
+        print(recipe.frameset, recipe.used_frames)
+
         # Save the header to the primary HDU
         cpl.dfs.save_propertylist(
             recipe.frameset,
