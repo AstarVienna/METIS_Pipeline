@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
+from cpl.core import ImageList as CplImageList
+
 from pymetis.classes.dataitems import DataItem
 from pymetis.dataitems.coadd import IfuSciCoadd
 from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
@@ -41,9 +43,10 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         pass
 
     def coadd_cubes(self):
-        images = self.inputset.sci_cube_calibrated.load_images()
+        calibrated = self.inputset.sci_cube_calibrated.load_data()
+        raw_images = CplImageList([c.hdus[0] for c in calibrated])
         self.inputset.sci_cube_calibrated.use()
-        coadded = images.collapse_create()
+        coadded = raw_images.collapse_create()
 
         return coadded
 

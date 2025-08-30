@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Msg, Image as CplImage, Table as CplTable
+from cpl.core import Msg, Image as CplImage, Table as CplTable, PropertyList as CplPropertyList
 
 from pyesorex.parameter import ParameterList
 
@@ -65,6 +65,9 @@ class ImageDataItem(DataItem, abstract=True):
             filename,
             header=self.header,
         )
+
+        assert isinstance(self.header, CplPropertyList), \
+            f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
 
         for hdu in self.hdus:
             hdu.save(filename, self.header, cpl.core.io.EXTEND)

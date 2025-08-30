@@ -27,7 +27,7 @@ from pymetis.classes.inputs import RawInput, MasterDarkInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.utils.dummy import create_dummy_table
+from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
 class MetisIfuDistortionImpl(DarkImageProcessor):
@@ -46,10 +46,11 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         self.inputset.raw.use()
 
         combined_image = self.combine_images(raw_images, "average")
+        header = create_dummy_header()
         table = create_dummy_table()
 
-        product_distortion = self.ProductDistortionTable(self.header, table)
-        product_distortion_reduced = self.ProductDistortionReduced(self.header, combined_image)
+        product_distortion = self.ProductDistortionTable(header, table)
+        product_distortion_reduced = self.ProductDistortionReduced(header, combined_image)
 
         return {product_distortion, product_distortion_reduced}
 
