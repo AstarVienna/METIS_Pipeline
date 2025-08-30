@@ -53,7 +53,7 @@ class SinglePipelineInput(PipelineInput):
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
 
-    def load_data(self):
+    def load_data(self) -> DataItem:
         Msg.info(self.__class__.__qualname__,
                  f"Loading input frame {self.frame.file!r}")
         self.item = self.Item.load(self.frame)
@@ -61,8 +61,7 @@ class SinglePipelineInput(PipelineInput):
         Msg.info(self.__class__.__qualname__,
                  f"Item is now {self.item}")
 
-        self.use() # FixMe: for now anything that is actually loaded is marked as used
-
+        self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
         return self.item
 
     def set_cpl_attributes(self):
@@ -74,7 +73,8 @@ class SinglePipelineInput(PipelineInput):
 
     def validate(self):
         """
-        Run all the required instantiation time checks
+        Run all the required instantiation time checks.
+        Currently, we only check whether there is exactly one frame (if required) or at most one (if not required).
         """
         self._verify_frame_present(self.frame)
 

@@ -32,7 +32,6 @@ class PersistenceMap(ImageDataItem):
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PERSISTENCE_MAP'
 
-    _default_extension = 1
     _schema = [None, Image]
 
 
@@ -44,7 +43,6 @@ class FluxCalTable(ImageDataItem): # FixMe this should be a table, right?
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG'}
 
-    _default_extension = 0
     _schema = [None, Image]
 
 

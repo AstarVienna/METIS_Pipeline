@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 from cpl.core import Msg
+from cpl.core import ImageList as CplImageList
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
 from pymetis.classes.dataitems import DataItem
@@ -73,10 +74,11 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         background_hdr, background_img = self.compute_background(method=stackmethod)
 
         combined_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_images()
+        raws = self.inputset.raw.load_data()
+        raw_images = CplImageList([raw.hdus[0] for raw in raws])
         self.inputset.raw.use()
 
-        persistence_map = self.inputset.persistence_map.load_images()
+        persistence_map = self.inputset.persistence_map.load_data()
         self.inputset.persistence_map.use()
         raw_images.subtract_image(background_img)
 

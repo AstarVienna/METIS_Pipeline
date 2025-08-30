@@ -21,7 +21,7 @@ import pytest
 
 from abc import ABC
 
-from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem, MultipleDataItem
+from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem
 
 
 @pytest.mark.product
@@ -62,9 +62,3 @@ class TableProductTest(BaseProductTest):
             f"{self.Product} is not an TableDataItem"
         assert self.Product.frame_type() == cpl.ui.Frame.FrameType.TABLE, \
             f"{self.Product} frame type is not a TABLE, but {self.Product.frame_type()}"
-
-
-class MultipleProductTest(BaseProductTest):
-    def test_does_product_type_match(self):
-        assert issubclass(self.Product, MultipleDataItem)
-        assert self.Product.frame_type == cpl.ui.Frame.FrameType.IMAGE

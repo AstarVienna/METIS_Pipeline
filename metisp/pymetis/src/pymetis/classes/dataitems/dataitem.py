@@ -76,6 +76,7 @@ class DataItem(Parametrizable, ABC):
         """
         Register every subclass of DataItem in a global registry.
         Classes marked as abstract are not registered and should never be instantiated.
+        # FixMe: Hugo says it might be useful for database views and such. But for now it is so.
         """
         cls.__abstract = abstract
 
@@ -105,7 +106,7 @@ class DataItem(Parametrizable, ABC):
     def find(cls, key):
         """
         Try to retrieve the DataItem subclass with tag `key` from the global registry.
-        If not found, return None instead.
+        If not found, return None instead (and rely on the caller to raise an exception if this is not desired).
         """
         if key in DataItem._registry:
             return DataItem._registry[key]
@@ -232,9 +233,10 @@ class DataItem(Parametrizable, ABC):
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
 
         self._used: bool = False
-        self.headers: dict[int, cpl.core.PropertyList] = {0: primary_header}
-        self.hdus = []
+        self.headers: list[cpl.core.PropertyList] = [primary_header]
+        self.hdus = hdus
         # FIXME: temporary to get QC parameters into the product header [OC]
+
         self.header = primary_header
         if self.header is not None:
             self.properties = self.header
@@ -245,6 +247,9 @@ class DataItem(Parametrizable, ABC):
 
         # Instance creation timestamp (should be read-only, used in file name)
         self._created_at: datetime.datetime = datetime.datetime.now()
+
+        Msg.debug(self.__class__.__qualname__,
+                  f"Created a data item with a primary header and {len(self.hdus)} HDUs")
 
     @classmethod
     def load(cls,
@@ -265,20 +270,21 @@ class DataItem(Parametrizable, ABC):
 
         items = []
         for ext, item in enumerate(cls._schema):
-            header = CplPropertyList.load(frame.file, ext)
             if item is CplImage:
                 image = CplImage.load(frame.file, cpl.core.Type.FLOAT, ext)
                 items.append(image)
             elif item is CplTable:
                 table = CplTable.load(frame.file, ext)
                 items.append(table)
+            elif item is None:
+                header = CplPropertyList.load(frame.file, ext)
 
         try:
             instance = cls(header, *items)
             return instance
         except TypeError as err:
             Msg.error(cls.__qualname__,
-                      f"Cannot instantiate: {err}")
+                      f"Cannot instantiate: {err}. Expected {cls._schema}, got {items}")
             raise err
 
     @property

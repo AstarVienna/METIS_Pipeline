@@ -32,8 +32,7 @@ class ImageDataItem(DataItem, abstract=True):
     def __init__(self,
                  primary_header: cpl.core.PropertyList = None,
                  *hdus: cpl.core.Image):
-        super().__init__(primary_header)
-        self.hdus = hdus
+        super().__init__(primary_header, *hdus)
 
     def save(self,
              recipe: 'PipelineRecipeImpl',
@@ -45,9 +44,6 @@ class ImageDataItem(DataItem, abstract=True):
         parameters = cpl.ui.ParameterList([p for p in parameters])
         # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
-        assert isinstance(self.image, cpl.core.Image), \
-            f"Attribute `{self}.image` is not an image, but {type(self.image).__qualname__}, cannot save"
-
         Msg.info(self.__class__.__qualname__,
                  f"Saving image {self.file_name(output_file_name)}")
         Msg.debug(self.__class__.__qualname__,
@@ -56,15 +52,19 @@ class ImageDataItem(DataItem, abstract=True):
             Msg.debug(self.__class__.__qualname__,
                       f"    {frame}")
 
-        cpl.dfs.save_image(
-            recipe.frameset,  # All frames for the recipe
+        filename = self.file_name(output_file_name)
+
+        # Save the header to the primary HDU
+        cpl.dfs.save_propertylist(
+            recipe.frameset,
             parameters,
-            recipe.used_frames,  # The list of frames actually used  FixMe currently not working as intended
-            self.image,  # Image to be saved
-            recipe.name,  # Name of the recipe
-            self.properties,  # Properties to be appended
+            recipe.used_frames,
+            recipe.name,
+            self.properties,
             PIPELINE,
-            self.file_name(output_file_name),
+            filename,
             header=self.header,
         )
 
+        for hdu in self.hdus:
+            hdu.save(filename, self.header, cpl.core.io.EXTEND)
