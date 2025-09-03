@@ -108,14 +108,14 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         Msg.info(self.__class__.__qualname__, "Starting processing image attribute.")
 
-        flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
-        bias = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
-        gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
+        master_flat = self.inputset.master_flat.load_data().use()
+        master_dark = self.inputset.master_dark.load_data().use()
+        gain = self.inputset.gain_map.load_data().use()
 
-        flat = self.prepare_flat(flat, bias)
-        images = self.prepare_images(self.inputset.raw.frameset, flat, bias)
+        master_flat = self.prepare_flat(master_flat.hdus[0], master_dark.hdus[0])
+        images = self.prepare_images(self.inputset.raw.frameset, master_flat, master_dark.hdus[0])
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
-        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+        header = cpl.core.PropertyList.load(self.inputset.master_flat.frame.file, 0)
 
         product = self.ProductReduced(header, combined_image)
 

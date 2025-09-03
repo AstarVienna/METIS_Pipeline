@@ -54,7 +54,8 @@ class ImageDataItem(DataItem, abstract=True):
 
         filename = self.file_name(output_file_name)
 
-        print(recipe.frameset, recipe.used_frames)
+        assert isinstance(self.header, CplPropertyList), \
+            f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
 
         # Save the header to the primary HDU
         cpl.dfs.save_propertylist(
@@ -65,11 +66,8 @@ class ImageDataItem(DataItem, abstract=True):
             self.properties,
             PIPELINE,
             filename,
-            header=self.header,
+            #header=self.header,
         )
-
-        assert isinstance(self.header, CplPropertyList), \
-            f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
 
         for hdu in self.hdus:
             hdu.save(filename, self.header, cpl.core.io.EXTEND)

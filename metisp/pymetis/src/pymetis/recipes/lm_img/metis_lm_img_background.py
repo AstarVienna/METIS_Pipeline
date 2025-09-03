@@ -28,7 +28,7 @@ from pymetis.dataitems.objectcatalog import ObjectCatalog
 from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.utils.dummy import create_dummy_image, create_dummy_table
+from pymetis.utils.dummy import create_dummy_image, create_dummy_table, create_dummy_header
 
 
 class MetisLmImgBackgroundImpl(MetisRecipeImpl):
@@ -45,12 +45,13 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
     def process(self) -> set[DataItem]:
         raw_images = cpl.core.ImageList()
-        image = create_dummy_image()
+        image = self.inputset.basic_reduced.load_data().use()
         table = create_dummy_table()
+        header = create_dummy_header()
 
-        product_bkg = self.ProductBkg(self.header, image)
-        product_bkg_subtracted = self.ProductBkgSubtracted(self.header, image)
-        product_object_cat = self.ProductObjectCatalog(self.header, table)
+        product_bkg = self.ProductBkg(header, image.hdus[0])
+        product_bkg_subtracted = self.ProductBkgSubtracted(header, image.hdus[0])
+        product_object_cat = self.ProductObjectCatalog(header, table)
 
         return {product_bkg, product_bkg_subtracted, product_object_cat}
 
