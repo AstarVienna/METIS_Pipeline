@@ -60,6 +60,29 @@
   "scenarios": [
     {
       "skip": false,
+      "description": "Dark Geo",
+      "workflow": "metis.metis_wkf",
+      "targets": [
+        "metis_det_dark"
+      ],
+      "meta_targets": [],
+      "common_inputs": [
+        "dark_on_n"
+      ],
+      "results": [
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": [
+            "dark_on_n"
+          ],
+          "assoc_prefixes": [
+          ]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
       "description": "METIS detlin n",
       "workflow": "metis.metis_wkf",
       "targets": [
@@ -83,28 +106,7 @@
           ]
         }
       ]
-    },
-    {
-      "skip": false,
-      "description": "Dark Geo",
-      "workflow": "metis.metis_wkf",
-      "targets": [
-        "metis_det_dark"
-      ],
-      "meta_targets": [],
-      "common_inputs": [
-        "dark_on_n"
-      ],
-      "results": [
-        {
-          "recipe": "metis_det_dark",
-          "inputs_prefixes": [
-            "dark_on_n"
-          ],
-          "assoc_prefixes": [
-          ]
-        }
-      ]
     }
+
   ]
 }
