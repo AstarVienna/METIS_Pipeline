@@ -25,7 +25,6 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
-from pymetis.utils.dummy import create_dummy_table, create_dummy_image
 
 
 class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
@@ -37,26 +36,7 @@ class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
             pass
 
     def process(self) -> set[DataItem]:
-        raw_images = cpl.core.ImageList()
-
-        for idx, frame in enumerate(self.inputset.raw.frameset):
-            Msg.info(self.name, f"Loading raw image {frame.file}")
-
-            if idx == 0:
-                self.header = cpl.core.PropertyList.load(frame.file, 0)
-
-            raw_image = cpl.core.Image.load(frame.file, extension=1)
-            raw_images.append(raw_image)
-
-        combined_image = self.combine_images(raw_images, "average")
-        table = create_dummy_table()
-        image = create_dummy_image()
-
-        return {
-            self.ProductDistortionTable(self.header, table),
-            self.ProductDistortionMap(self.header, combined_image),
-            self.ProductDistortionReduced(self.header, image),
-        }
+        return super().process()
 
 
 class MetisLmImgDistortion(MetisRecipe):

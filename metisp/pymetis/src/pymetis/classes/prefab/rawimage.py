@@ -47,6 +47,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
 
             :param: extension
                 the extension of the images to load, default 1
+
             """
             output = cpl.core.ImageList()
 

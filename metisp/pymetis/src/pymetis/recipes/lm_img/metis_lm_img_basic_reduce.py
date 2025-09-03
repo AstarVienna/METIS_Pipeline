@@ -87,22 +87,22 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
-        flat = self.inputset.master_flat.load_images()
-        dark = self.inputset.master_dark.load_images()
-        gain = self.inputset.gain_map.load_images()
+        flat = self.inputset.master_flat.load_data()
+        dark = self.inputset.master_dark.load_data()
+        gain = self.inputset.gain_map.load_data()
 
         Msg.info(self.__class__.__qualname__, f"Detector name = {self.inputset.detector}")
 
         Msg.info(self.__class__.__qualname__, "Loading raw images")
-        images = self.inputset.raw.load_images(extension=1)
+        images = self.inputset.load_raw_images()
         Msg.info(self.__class__.__qualname__, "Pretending to correct crosstalk")
         Msg.info(self.__class__.__qualname__, "Pretending to correct for linearity")
 
         Msg.info(self.__class__.__qualname__, "Subtracting Dark")
-        images.subtract_image(dark.image)
+        images.subtract_image(dark.hdus[0])
 
         Msg.info(self.__class__.__qualname__, "Flat fielding")
-        images.divide_image(flat.image)
+        images.divide_image(flat.hdus[0])
 
         Msg.info(self.__class__.__qualname__, "Pretending to remove masked regions")
 
