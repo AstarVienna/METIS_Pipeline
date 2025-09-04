@@ -17,9 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
-from cpl.core import Msg
-
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem
@@ -38,20 +35,12 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
     ProductLmImgSciCoadd = LmSciCoadd
 
     def process(self) -> set[DataItem]:
-        raw_images = cpl.core.ImageList()
-
-        for idx, frame in enumerate(self.inputset.raw.frameset):
-            Msg.info(self.name, f"Loading raw image {frame.file}")
-
-            if idx == 0:
-                self.header = cpl.core.PropertyList.load(frame.file, 0)
-
-            raw_image = cpl.core.Image.load(frame.file, extension=0)
-            raw_images.append(raw_image)
-
+        raw_images = self.inputset.raw.load_list()
         combined_image = self.combine_images(raw_images, "average")
 
-        product_coadd = self.ProductLmImgSciCoadd(self.header, combined_image)
+        header = self.inputset.raw.items[0].header
+
+        product_coadd = self.ProductLmImgSciCoadd(header, combined_image)
 
         return {product_coadd}
 

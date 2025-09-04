@@ -34,7 +34,9 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
     ProductRestored = NSciRestored
 
     def process(self) -> set[DataItem]:
-        header = create_dummy_header()
+        calibrated = self.inputset.calibrated.load_data()
+
+        header = calibrated.header
         image = create_dummy_image()
         product = self.ProductRestored(header, image)
 

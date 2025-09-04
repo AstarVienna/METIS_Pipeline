@@ -40,11 +40,12 @@ class MetisLssMfCorrectImpl(MetisRecipeImpl):
     def process(self) -> set[DataItem]:
         """Create dummy file (should do something more fancy in the future)"""
 
+        lss_sci_flux = self.inputset.lss_sci_flux1d.load_data()
         self.mf_correct()
 
         # TODO: Check whether calctrans creates the Transmission file - if so, no need to
         # write it out here again
-        header = create_dummy_header()
+        header = lss_sci_flux.header
         table = create_dummy_table()
 
         return {

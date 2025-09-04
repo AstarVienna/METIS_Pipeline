@@ -55,8 +55,11 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
         # target = self.inputset.tag_parameters['target']
 
-        raw_images = self.inputset.raw.load_images(extension=1)
+        raw_images = self.inputset.raw.load_list()
+
         self.subtract_dark(raw_images)
+        print(self.inputset.raw.items)
+        header = self.inputset.raw.items[0].header
 
         # Combine the images in the image list using the image stacking option requested by the user.
         method = self.parameters[f"{self.name}.stacking.method"].value
@@ -65,6 +68,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
         combined_image = self.combine_images(raw_images, method)
 
-        product = self.ProductMasterFlat(self.inputset.raw.item().header, combined_image)
+        product = self.ProductMasterFlat(header, combined_image)
 
         return {product}

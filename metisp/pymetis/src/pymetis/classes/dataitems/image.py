@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Msg, Image as CplImage, Table as CplTable, PropertyList as CplPropertyList
+from cpl.core import Msg, PropertyList as CplPropertyList
 
 from pyesorex.parameter import ParameterList
 
@@ -66,7 +66,7 @@ class ImageDataItem(DataItem, abstract=True):
             self.properties,
             PIPELINE,
             filename,
-            #header=self.header,
+            header=self.header,
         )
 
         for hdu in self.hdus:

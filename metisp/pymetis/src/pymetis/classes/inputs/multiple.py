@@ -21,7 +21,7 @@ from typing import Any, Optional
 
 import cpl
 
-from cpl.core import Msg, Image
+from cpl.core import Msg, Image as CplImage, ImageList as CplImageList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
@@ -50,10 +50,9 @@ class MultiplePipelineInput(PipelineInput):
 
     def load_data(self) -> list[DataItem]:
         """
-        Load an imagelist from a FrameSet
+        Load a list of items from a FrameSet.
+        The items
         """
-        self.items = []
-
         for idx, frame in enumerate(self.frameset):
             Msg.info(self.__class__.__qualname__,
                      f"Loading input frame #{idx}: {frame.file!r}")
@@ -65,6 +64,16 @@ class MultiplePipelineInput(PipelineInput):
         self.use() # FixMe: for now anything that is actually loaded is marked as used
 
         return self.items
+
+    def load_list(self) -> CplImageList:
+        """
+        Helper function: load all items and return as a CPL ImageList.
+        # FixMe: fails for TableItems (there is no CPL TableList)
+        """
+        if len(self.items) == 0:
+            self.load_data()
+
+        return CplImageList([item.hdus[0] for item in self.items])
 
     def set_cpl_attributes(self):
         frameset = cpl.ui.FrameSet()

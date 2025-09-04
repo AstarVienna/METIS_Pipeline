@@ -62,6 +62,8 @@ class Calibrated(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract
     _frame_group = cpl.ui.Frame.FrameGroup.RAW  # This actually has to be raw as it is "primary input" (rite-of-passage)
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
+    _schema = [CplImage]
+
 
 class LmStdCalibrated(BandLmMixin, TargetStdMixin, Calibrated):
     pass

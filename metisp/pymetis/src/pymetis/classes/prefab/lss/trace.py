@@ -45,7 +45,10 @@ class MetisLssTraceImpl(DarkImageProcessor):
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        trace_tab_hdr = create_dummy_header()
+        raws = self.inputset.raw.load_list()
+        master_rsrf = self.inputset.master_rsrf.load_data()
+
+        trace_tab_hdr = self.inputset.master_rsrf.item.header
         trace_tab_data = create_dummy_table()
         return {
             self.ProductTraceTable(trace_tab_hdr, trace_tab_data)

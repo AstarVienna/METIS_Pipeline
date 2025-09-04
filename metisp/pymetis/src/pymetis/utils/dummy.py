@@ -36,9 +36,9 @@ def create_dummy_image() -> cpl.core.Image:
     return cpl.core.Image.zeros(32, 32, cpl.core.Type.FLOAT)
 
 
-def create_dummy_table() -> cpl.core.Table:
+def create_dummy_table(rows: int = 3) -> cpl.core.Table:
     """
     Create a dummy table (absolutely no assumptions, just to have something to work with).
     # ToDo This function should not survive in the future.
     """
-    return cpl.core.Table.empty(3)
+    return cpl.core.Table.empty(rows)

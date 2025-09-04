@@ -48,7 +48,8 @@ class DarkImageProcessor(RawImageProcessor, ABC):
     def subtract_dark(self,
                       images: cpl.core.ImageList) -> cpl.core.ImageList:
         """
-        Load the master dark frame and subtract it from every image in `images`.
+        Load the associated master dark frame and subtract it from every image in `images`.
+        Also automatically marks the master dark as used.
 
         :param images:
             ImageList to be corrected.

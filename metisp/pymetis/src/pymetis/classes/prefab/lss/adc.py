@@ -40,7 +40,9 @@ class MetisAdcSlitlossImpl(DarkImageProcessor):
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        header = create_dummy_header()
+
+        raws = self.inputset.raw.load_list()
+        header = self.inputset.raw.items[0].header
         table = create_dummy_table()
         return {
             self.ProductAdcSlitloss(header, table),

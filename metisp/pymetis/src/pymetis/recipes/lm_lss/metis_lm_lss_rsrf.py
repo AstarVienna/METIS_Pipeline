@@ -28,13 +28,7 @@ class MetisLmLssRsrfImpl(MetisLssRsrfImpl):
     class InputSet(BandLmMixin, Detector2rgMixin, MetisLssRsrfImpl.InputSet):
         pass
 
-# =========================================================================================
-#    MAIN PART
-# =========================================================================================
 
-
-# Define recipe main function as a class which inherits from
-# the PyCPL class cpl.ui.PyRecipe
 class MetisLmLssRsrf(MetisRecipe):
     # The information about the recipe needs to be set. The base class
     # cpl.ui.PyRecipe provides the class variables to be set.
@@ -48,29 +42,7 @@ class MetisLmLssRsrf(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Create spectroscopic relative spectral response function (RSRF) for the 2RG detector"
-    _description: str = """\
-    Create relative spectral response function for the 2RG LSS detector
-
-    Inputs
-        LM_LSS_RSRF_RAW: Raw RSRF images [1-n]
-        LM_WCU_OFF_RAW:  raw WCU OFF background frames [1-n]
-        MASTER_DARK_2RG: Master dark frame [optional?]
-        BADPIX_MAP_2RG:  Bad-pixel map for 2RG detector [optional]
-        PERSISTENCE_MAP: Persistence map [optional]
-        GAIN_MAP_2RG:    Gain map for 2RG detector
-        LINEARITY_2RG:   Linearity map for 2RG detector
-
-     Matched Keywords
-        DET.DIT
-        DET.NDIT
-        DRS.SLIT
-
-    Outputs
-        MASTER_LM_LSS_RSRF:     Master flat (RSRF) frame
-        MEDIAN_LM_LSS_RSRF_IMG: Median map (QC)
-        MEAN_LM_LSS_RSRF_IMG:   Mean map (QC)
-    """
-# TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
+    # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***""" # TODO: Write description
@@ -87,7 +59,6 @@ class MetisLmLssRsrf(MetisRecipe):
             alternatives=("average", "median"),
         ),
     ])     # no parameters defined in DRLD
-# Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
     Impl = MetisLmLssRsrfImpl

@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image as CplImage
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.dataitems.raw import Raw
@@ -102,6 +103,8 @@ class LssRsrfPinholeRaw(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI20.NAME',
                      'DRS.SLIT'}
+
+    _schema = [None, CplImage]
 
 
 class LmLssRsrfPinholeRaw(BandLmMixin, LssRsrfPinholeRaw):

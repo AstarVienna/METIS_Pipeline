@@ -75,19 +75,6 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
     ProductReduced = NStdBackgroundSubtracted
     ProductBackground = NStdBackground
 
-    def prepare_images(self,
-                       raw_frames: cpl.ui.FrameSet) -> cpl.core.ImageList:
-        prepared_images = cpl.core.ImageList()
-
-        for index, frame in enumerate(raw_frames):
-            Msg.info(self.__class__.__qualname__, f"Processing {frame.file}...")
-
-            Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file}")
-            raw_image = cpl.core.Image.load(frame.file, extension=1)
-
-            prepared_images.append(raw_image)
-
-        return prepared_images
 
     def process(self) -> set[DataItem]:
         """
@@ -103,7 +90,7 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
         dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
         gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
-        images = self.prepare_images(self.inputset.raw.frameset)
+        images = self.inputset.raw.load_list()
 
         combined_image = self.combine_images(images, self.parameters["metis_n_img_chopnod.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)

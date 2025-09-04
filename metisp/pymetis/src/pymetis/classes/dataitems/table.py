@@ -18,6 +18,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Msg, PropertyList as CplPropertyList
+
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
@@ -29,9 +31,8 @@ class TableDataItem(DataItem, abstract=True):
 
     def __init__(self,
                  primary_header: cpl.core.PropertyList,
-                 table: cpl.core.Table):
-        super().__init__(primary_header)
-        self.table: cpl.core.Table = table
+                 *hdus: cpl.core.Table):
+        super().__init__(primary_header, *hdus)
 
     def save(self,
              recipe: 'PipelineRecipe',
@@ -43,17 +44,22 @@ class TableDataItem(DataItem, abstract=True):
         parameters = cpl.ui.ParameterList([p for p in parameters])
         # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
-        assert isinstance(self.table, cpl.core.Table), \
-            f"Attribute `{self}.table` is not a table, but {type(self.table).__qualname__}, cannot save"
+        filename = self.file_name(output_file_name)
 
-        cpl.dfs.save_table(
-            recipe.frameset,  # All frames for the recipe
-            parameters,  # The list of input parameters
-            recipe.used_frames,  # The list of frames actually used  FixMe currently not working as intended
-            self.table,  # Table to be saved
-            recipe.name,  # Name of the recipe
-            self.properties,  # Properties to be appended
+        assert isinstance(self.header, CplPropertyList), \
+            f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
+
+        # Save the header to the primary HDU
+        cpl.dfs.save_propertylist(
+            recipe.frameset,
+            parameters,
+            recipe.used_frames,
+            recipe.name,
+            self.properties,
             PIPELINE,
-            self.file_name(output_file_name),
+            filename,
             header=self.header,
         )
+
+        for hdu in self.hdus:
+            hdu.save(self.header, self.header, filename, cpl.core.io.EXTEND)

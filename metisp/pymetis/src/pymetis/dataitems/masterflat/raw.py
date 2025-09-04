@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image as CplImage
 
 from pymetis.dataitems.raw import Raw
 from pymetis.classes.mixins.band import BandNMixin, BandLmMixin, BandSpecificMixin
@@ -31,6 +32,7 @@ class FlatRaw(BandSpecificMixin, SourceSpecificMixin, Raw, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'DRS.FILTER'}
+    _schema = [None, CplImage]
 
 
 class LmFlatLampRaw(BandLmMixin, SourceLampMixin, FlatRaw):

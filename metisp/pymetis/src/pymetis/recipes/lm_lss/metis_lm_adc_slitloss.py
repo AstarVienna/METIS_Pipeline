@@ -37,29 +37,7 @@ class MetisLmAdcSlitloss(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Determines ADC slitlosses"
-    _description: str = """\
-    Determines ADC slitlosses
-
-    Remark: Recipe not well-defined as actual algorithm not well defined (cf. DRLD, Calib plan)
-
-    Inputs
-        LM_ADC_SLITLOSS_RAW: Raw SLITLOSS images [1-n]  ***TBD***
-        LM_WCU_OFF_RAW:      Raw WCU OFF background frames [1-n]
-        MASTER_DARK_2RG:     Master dark frame [optional?]  ***TBChecked***
-        BADPIX_MAP_2RG:      Bad-pixel map for 2RG detector [optional] ***TBChecked***
-        PERSISTENCE_MAP:     Persistence map [optional] ***TBChecked***
-        GAIN_MAP_2RG:        Gain map for 2RG detector ***TBChecked***
-        LINEARITY_2RG:       Linearity map for 2RG detector ***TBChecked***
-
-     Matched Keywords
-        DET.DIT
-        DET.NDIT
-        DRS.SLIT
-
-    Outputs
-        LM_ADC_SLITLOSS:     Table with slit losses ***TBD***
-    """
-# TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
+    # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
     _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Incredible fancy description of algorithm follows... ***TBD***""" # TODO: Write description

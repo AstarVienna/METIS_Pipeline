@@ -62,12 +62,15 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
 #   Method for processing
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        header = create_dummy_header()
+        raws = self.inputset.raw.load_list()
+        master_lss_rsrf = self.inputset.master_rsrf.load_data()
+
+        header = master_lss_rsrf.header
         table = create_dummy_table()
 
-        LmLssCurveHdr = cpl.core.PropertyList()
-        LmLssDistSolHdr = cpl.core.PropertyList()
-        LmLssWaveGuessHdr = cpl.core.PropertyList()
+        LmLssCurveHdr = header
+        LmLssDistSolHdr = header
+        LmLssWaveGuessHdr = header
 
         return {
             self.ProductLssCurve(LmLssCurveHdr, table),

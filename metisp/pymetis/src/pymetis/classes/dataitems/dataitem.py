@@ -235,6 +235,7 @@ class DataItem(Parametrizable, ABC):
         self._used: bool = False
         self.headers: list[cpl.core.PropertyList] = [primary_header]
         self.hdus = hdus
+
         # FIXME: temporary to get QC parameters into the product header [OC]
 
         self.header = primary_header

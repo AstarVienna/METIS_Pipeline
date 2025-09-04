@@ -30,14 +30,6 @@ class RsrfRaw(DetectorSpecificMixin, BandSpecificMixin, Raw, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
 
 
-class LmLssRsrfRaw(Detector2rgMixin, BandLmMixin, RsrfRaw):
-    pass
-
-
-class NLssRsrfRaw(DetectorGeoMixin, BandNMixin, RsrfRaw):
-    pass
-
-
 class IfuRsrfRaw(DetectorIfuMixin, BandIfuMixin, RsrfRaw):
     _name_template = r'IFU_RSRF_RAW'
     _title_template = "IFU RSRF raw image"
