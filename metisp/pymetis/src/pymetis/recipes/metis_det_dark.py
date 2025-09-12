@@ -185,13 +185,15 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         imMed = combined_image.get_median()
         imRMS = combined_image.get_stdev()
 
+
+
         maskHot = cpl.core.Mask.threshold_image(combined_image, 0, imMed + kappaHigh*imRMS, 1)
         qcnhot = maskHot.count()
         maskHot = cpl.core.Image(maskHot,dtype = cpl.core.Type.INT)
 
         maskCold = cpl.core.Mask.threshold_image(combined_image, 0, imMed - kappaLow*imRMS, 0)
         qcncold = maskCold.count()
-        maskCold = cpl.core.Image(maskCold,dtype = cpl.core.Type.INT)
+        maskCold = cpl.core.Image(maskCold, dtype=cpl.core.Type.INT)
 
         maskBad, qcnbad =  self.metis_bpm_3d_compute(raw_images, kappaLow, kappaHigh)
 
@@ -262,7 +264,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         header.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
                                          qcmedmax, "[ADU] median value of max values of individual input images"))
 
-        product = self.ProductMasterDark(header, combined_image,)
+        product = self.ProductMasterDark(header, combined_image)
 
         return {product}
 

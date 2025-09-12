@@ -266,10 +266,8 @@ class DataItem(Parametrizable, ABC):
                         frame: cpl.ui.Frame) -> Any:
         Msg.debug(cls.__qualname__, f"Now loading {frame.file}")
 
-        header = cpl.core.PropertyList.load(frame.file, 0)
-        Msg.debug(cls.__qualname__, f"Schema is {cls._schema}")
-
         items = []
+        primary_header = CplPropertyList()
         for ext, item in enumerate(cls._schema):
             if item is CplImage:
                 image = CplImage.load(frame.file, cpl.core.Type.FLOAT, ext)
@@ -278,10 +276,10 @@ class DataItem(Parametrizable, ABC):
                 table = CplTable.load(frame.file, ext)
                 items.append(table)
             elif item is None:
-                header = CplPropertyList.load(frame.file, ext)
+                primary_header = CplPropertyList.load(frame.file, ext)
 
         try:
-            instance = cls(header, *items)
+            instance = cls(primary_header, *items)
             return instance
         except TypeError as err:
             Msg.error(cls.__qualname__,

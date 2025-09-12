@@ -88,7 +88,7 @@ class BaseRecipeTest(ABC):
         assert output.returncode == 0, \
             f"Pyesorex exited with non-zero return code {output.returncode}"
         assert output.stderr == b"", \
-            "Pyesorex exited with non-empty stderr"
+            f"Pyesorex exited with non-empty stderr: {output.stderr}"
 
     @pytest.mark.pyesorex
     def test_pyesorex_can_display_manpage(self, name) -> None:
