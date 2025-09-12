@@ -119,6 +119,7 @@ class PipelineInput:
         assert self.Item.frame_group() is not None, \
             f"Data item {self.Item.__qualname__} has no defined frame group"
 
+        # Match all frames that can be processed by this PipelineInput.
         for tag, frames in self.preprocess_frameset(frameset).items():
             cls = DataItem.find(tag)
 

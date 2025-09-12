@@ -35,7 +35,7 @@ class ImageDataItem(DataItem, abstract=True):
         super().__init__(primary_header, *hdus)
 
     def save(self,
-             recipe: 'PipelineRecipeImpl',
+             recipe: 'PipelineRecipe',
              parameters: ParameterList,
              *,
              output_file_name: str = None) -> None:
@@ -70,4 +70,5 @@ class ImageDataItem(DataItem, abstract=True):
         )
 
         for hdu in self.hdus:
+            # Here the signature is (filename, header, mode, dtype=image.dtype)
             hdu.save(filename, self.header, cpl.core.io.EXTEND)

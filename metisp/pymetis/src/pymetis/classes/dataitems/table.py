@@ -30,7 +30,7 @@ class TableDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
 
     def __init__(self,
-                 primary_header: cpl.core.PropertyList,
+                 primary_header: cpl.core.PropertyList = None,
                  *hdus: cpl.core.Table):
         super().__init__(primary_header, *hdus)
 
@@ -43,6 +43,14 @@ class TableDataItem(DataItem, abstract=True):
         # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back.
         parameters = cpl.ui.ParameterList([p for p in parameters])
         # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+
+        Msg.info(self.__class__.__qualname__,
+                 f"Saving table {self.file_name(output_file_name)}")
+        Msg.debug(self.__class__.__qualname__,
+                  f"Used {len(recipe.used_frames)} frames")
+        for frame in recipe.used_frames:
+            Msg.debug(self.__class__.__qualname__,
+                      f"    {frame}")
 
         filename = self.file_name(output_file_name)
 
@@ -62,4 +70,5 @@ class TableDataItem(DataItem, abstract=True):
         )
 
         for hdu in self.hdus:
+            # Here the signature is (primary_header, header, filename, mode) for whatever reason...
             hdu.save(self.header, self.header, filename, cpl.core.io.EXTEND)

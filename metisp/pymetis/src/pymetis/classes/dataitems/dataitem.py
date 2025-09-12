@@ -202,15 +202,6 @@ class DataItem(Parametrizable, ABC):
         """
         return cls._oca_keywords
 
-    @classmethod
-    def pro_catg(cls):
-        """
-        Return the PRO CATG attribute
-
-        Currently the same as _name, and will probably stay like that (and if that is the case it will be removed).
-        """
-        return cls.name()
-
     def __init__(self,
                  primary_header: cpl.core.PropertyList = cpl.core.PropertyList(),
                  *hdus):
@@ -308,7 +299,6 @@ class DataItem(Parametrizable, ABC):
         return f"{self.name()}_{self._created_at.strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
             if override is None else override
 
-
     def add_properties(self) -> None:
         """
         Hook for adding custom properties.
@@ -318,7 +308,7 @@ class DataItem(Parametrizable, ABC):
         """
         self.properties.append(
             cpl.core.Property(
-                "ESO PRO CATG",  # Martin suspects this means ESO product category
+                "ESO PRO CATG",
                 cpl.core.Type.STRING,
                 self.name(),
             )
