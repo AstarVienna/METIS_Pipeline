@@ -21,7 +21,7 @@ from abc import ABC
 
 import cpl
 from cpl.core import Msg
-from cpl.core import ImageList as CplImageList
+from cpl.core import ImageList as ImageList
 
 from . import PipelineInput
 from .single import SinglePipelineInput
@@ -76,7 +76,7 @@ class RawInput(MultiplePipelineInput, ABC):
 
         self.use()
 
-        return CplImageList([item.hdus[0] for item in self.items])
+        return ImageList([item.hdus[0] for item in self.items])
 
 
 class MasterDarkInput(SinglePipelineInput):

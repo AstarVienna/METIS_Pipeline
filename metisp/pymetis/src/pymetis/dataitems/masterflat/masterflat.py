@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Image as CplImage
+from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
@@ -43,7 +43,7 @@ class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
 
 
 class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
-    _schema = [None, CplImage, CplImage, CplImage, CplImage]
+    _schema = [None, Image, Image, Image, Image]
 
 
 
@@ -54,7 +54,7 @@ class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstr
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
-    _schema = [CplImage]
+    _schema = [Image]
 
 
 class MasterImgFlatLampLm(BandLmMixin, SourceLampMixin, MasterImgFlat):

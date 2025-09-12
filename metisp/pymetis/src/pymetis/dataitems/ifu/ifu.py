@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Image as CplImage
+from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
@@ -102,4 +102,4 @@ class IfuScienceCubeCalibrated(BandIfuMixin, ImageDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    _schema = [CplImage]
+    _schema = [Image]

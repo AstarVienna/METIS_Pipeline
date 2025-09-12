@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Table as CplTable
+from cpl.core import Table
 
 from pymetis.classes.dataitems import TableDataItem
 from pymetis.dataitems.raw import Raw
@@ -33,7 +33,7 @@ class AdcSlitloss(BandSpecificMixin, TableDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
-    _schema = [None, CplTable]
+    _schema = [None, Table]
 
 
 class LmAdcSlitloss(BandLmMixin, AdcSlitloss):

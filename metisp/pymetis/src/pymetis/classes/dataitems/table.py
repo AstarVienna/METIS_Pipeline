@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Msg, PropertyList as CplPropertyList
+from cpl.core import Msg, PropertyList
 
 from pyesorex.parameter import ParameterList
 
@@ -54,8 +54,8 @@ class TableDataItem(DataItem, abstract=True):
 
         filename = self.file_name(output_file_name)
 
-        assert isinstance(self.header, CplPropertyList), \
-            f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
+        assert isinstance(self.header, PropertyList), \
+            f"{self.header} must be a CPL PropertyList, got a {type(self.header)}"
 
         # Save the header to the primary HDU
         cpl.dfs.save_propertylist(
