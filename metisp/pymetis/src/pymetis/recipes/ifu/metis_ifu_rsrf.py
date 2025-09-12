@@ -30,6 +30,7 @@ from pymetis.classes.dataitems import DataItem
 from pymetis.dataitems.badpixmap import BadPixMapIfu
 from pymetis.dataitems.gainmap import GainMapIfu
 from pymetis.dataitems.linearity.linearity import LinearityMapIfu
+from pymetis.dataitems.distortion import IfuDistortionTable
 from pymetis.dataitems.masterdark.masterdark import MasterDarkIfu
 from pymetis.dataitems.masterflat import MasterFlatIfu
 from pymetis.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
@@ -38,20 +39,23 @@ from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin,
-                                    SinglePipelineInput)
-from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin
+                                    SinglePipelineInput, PersistenceMapInput)
+from pymetis.classes.inputs import LinearityInputSetMixin
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
 
 
 class MetisIfuRsrfImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(LinearityInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRsrfRaw
 
         class MasterDarkInput(MasterDarkInput):
             Item = MasterDarkIfu
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
             Item = GainMapIfu
@@ -70,7 +74,9 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             Item = BadPixMapIfu
 
-        DistortionTableInput = DistortionTableInput
+        class DistortionTableInput(DistortionTableInput):
+            Item = IfuDistortionTable
+
         WavecalInput = WavecalInput
 
     ProductRsrfBackground = IfuRsrfBackground
@@ -100,17 +106,16 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # load MASTER_DARK_IFU image and extract bad pixel map
         # TODO: update to load multi-extension file, current intermediate
         # products are only single-extension
-        master_dark_img = self.inputset.master_dark.load_images(extension=0)
-        badpix_map = master_dark_img.image.bpm
+        #master_dark_img = self.inputset.master_dark.load_images(extension=0)
+        master_dark_img = self.inputset.master_dark.load_data().use().hdus[0]
+        badpix_map = master_dark_img.bpm
 
         # load IFU trace definition file - only one extension for now
-        trace_list = self.inputset.distortion_table.item().read(extension=0)
+        distortion_table = self.inputset.distortion_table.load_data().use()
+        trace_list = distortion_table.read(extension=EXT-1)
 
-        # load wavelength calibration image
-        wavecal_img = self.inputset.wavecal.load_images(extension=0)
         # load wavelength calibration image - only one extension for now
-        wavecal_img = cpl.core.Image.load(
-            self.inputset.wavecal.frame.file, extension=EXT)
+        wavecal_img = self.inputset.wavecal.load_data().use().hdus[EXT-1]
 
         # create master WCU_OFF background image
         background_hdr = cpl.core.PropertyList()
@@ -132,7 +137,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         spec_flat_hdr = \
             cpl.core.PropertyList()
         # load RSRF_RAW images, subtract the background and stack them
-        raw_images = self.inputset.raw.load_images(extension=1)
+        raw_images = self.inputset.raw.load_list()
         # FUNC: single-extension data product for now
         raw_images.subtract_image(background_img)
         spec_flat_img = self.combine_images(raw_images, stackmethod)
@@ -142,10 +147,11 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         # obtain black-body temperature from first frame's header
         # NOTE: this assumes raw frames were grouped by BB temperature
-        rsrf_raw_hdr = cpl.core.PropertyList.load(
-            self.inputset.raw.frameset[0].file,
-            position=0)
+        # rsrf_raw_hdr = cpl.core.PropertyList.load(
+        #     self.inputset.raw.frameset[0].file,
+        #     position=0)
 
+        rsrf_raw_hdr = self.inputset.raw.items[0].header
         bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
 
         # create black-body image

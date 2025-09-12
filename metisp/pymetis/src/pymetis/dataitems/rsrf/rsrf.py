@@ -33,13 +33,13 @@ class Rsrf(DataItem):
     _schema = [None, Image]
 
 
-class RsrfIfu(DetectorIfuMixin, ImageDataItem): # FixMe this should be a table?
+class RsrfIfu(DetectorIfuMixin, TableDataItem): # FixMe this should be a table?
     _name_template = r'RSRF_IFU'
     _title_template = "RSRF IFU"
     _description_template = "1D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _schema = [Image]
+    _schema = [None, Table, Table, Table, Table]
 
 
 class IfuRsrfBackground(DetectorIfuMixin, ImageDataItem):
@@ -48,3 +48,4 @@ class IfuRsrfBackground(DetectorIfuMixin, ImageDataItem):
     _description_template = "2D relative spectral response function background"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _schema = [None, Image, Image, Image, Image]

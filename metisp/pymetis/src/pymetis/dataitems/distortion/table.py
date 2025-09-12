@@ -52,7 +52,8 @@ class IfuDistortionTable(BandIfuMixin, DistortionTable):
     def read(self, *, extension: int) -> cpl.core.Vector:
         # Load the distortion table
         # TODO: assumes distortion table has one set of coefficients for each extension
-        distortion_table = cpl.core.Table.load(self.frame.file, extension=extension)
+        # distortion_table = cpl.core.Table.load(self.frame.file, extension=extension)
+        distortion_table = self.hdus[extension]
 
         # obtain the trace polynomials from the distortion table
         trace_polys = distortion_table.column_array('orders')[0]

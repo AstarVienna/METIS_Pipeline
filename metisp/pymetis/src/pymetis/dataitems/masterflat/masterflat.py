@@ -43,7 +43,8 @@ class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
 
 
 class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
-    pass
+    _schema = [None, CplImage, CplImage, CplImage, CplImage]
+
 
 
 class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstract=True):

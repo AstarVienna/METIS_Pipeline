@@ -36,7 +36,7 @@ class MetisRecipeImpl(ABC):
     Contains central data flow control and also provides abstract methods to be overridden
     by particular pipeline recipe implementations.
     """
-    InputSet: type[PipelineInputSet] = None
+    InputSet: type[PipelineInputSet] | None = None
 
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = ParameterList([])
@@ -153,7 +153,7 @@ class MetisRecipeImpl(ABC):
             Each product should be a `DataItem` and there should be exactly one for every file produced.
         4.  Return a set of `DataItem`s.
 
-        The resulting products dict is then passed to `save_products()` (see `run`).
+        The resulting products set is then passed to `save_products()` (see `run`).
         """
         return set()
 
