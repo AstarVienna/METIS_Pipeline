@@ -34,40 +34,22 @@ class ImageDataItem(DataItem, abstract=True):
                  *hdus: cpl.core.Image):
         super().__init__(primary_header, *hdus)
 
-    def save(self,
-             recipe: 'PipelineRecipeImpl',
-             parameters: ParameterList,
-             *,
-             output_file_name: str = None) -> None:
-
-        # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back.
-        parameters = cpl.ui.ParameterList([p for p in parameters])
-        # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
-
-        Msg.info(self.__class__.__qualname__,
-                 f"Saving image {self.file_name(output_file_name)}")
-        Msg.debug(self.__class__.__qualname__,
-                  f"Used {len(recipe.used_frames)} frames")
-        for frame in recipe.used_frames:
-            Msg.debug(self.__class__.__qualname__,
-                      f"    {frame}")
-
-        filename = self.file_name(output_file_name)
-
-        assert isinstance(self.header, CplPropertyList), \
-            f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
-
-        # Save the header to the primary HDU
-        cpl.dfs.save_propertylist(
-            recipe.frameset,
-            parameters,
-            recipe.used_frames,
-            recipe.name,
-            self.properties,
-            PIPELINE,
-            filename,
-            header=self.header,
-        )
-
+    def save_extensions(self,
+                        filename: str) -> None:
         for hdu in self.hdus:
             hdu.save(filename, self.header, cpl.core.io.EXTEND)
+
+
+class QuadDataItem(DataItem, abstract=True):
+    """
+    An image data item with four detector images included
+    """
+    _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
+
+    def __init__(self,
+                 primary_header: cpl.core.PropertyList = None,
+                 *hdus: cpl.core.Image):
+
+        assert len(hdus) == 4
+
+        super().__init__(primary_header, *hdus)

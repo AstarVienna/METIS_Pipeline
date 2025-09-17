@@ -296,7 +296,7 @@ class DataItem(Parametrizable, ABC):
         self._used = True
         return self
 
-    def file_name(self, override: Optional[str] = None):
+    def _get_file_name(self, override: Optional[str] = None):
         """
         Get the file name of this data item if used as a product.
 
@@ -315,6 +315,8 @@ class DataItem(Parametrizable, ABC):
         Currently only adds ESO PRO CATG to every product,
         but derived classes are more than welcome to add their own stuff.
         Do not forget to call super().add_properties() then.
+
+        #ToDo: this should not be called for raws, those do not have a PRO CATG.
         """
         self.properties.append(
             cpl.core.Property(
@@ -340,20 +342,66 @@ class DataItem(Parametrizable, ABC):
             f"Data item {self.__class__.__qualname__} does not define a frame group"
 
         return cpl.ui.Frame(
-            file=self.file_name(filename),
+            file=self._get_file_name(filename),
             tag=self.name(),
             group=self.frame_group(),
             level=self.frame_level(),
             frameType=self.frame_type(),
         )
 
-    @abstractmethod
     def save(self,
              recipe: 'PipelineRecipeImpl',
              parameters: ParameterList,
              *,
-             output_file_name: str = None) -> None:
-        """ Save the data item to file. Implementation depends on the type of the data. """
+             output_file_name: Optional[str] = None) -> None:
+        """
+        Save the data item. Implementation depends on the type of the data.
+        The body of this method is always called and saves the primary header.
+
+        :param: recipe
+            The pipeline recipe to assign.
+        :param: parameters
+            Extra parameters passed to the pipeline recipe.
+        :param: output_file_name
+            If not None, override the default file name with this.
+        """
+
+        # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back someday.
+        parameters = cpl.ui.ParameterList([p for p in parameters])
+        # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+
+        Msg.info(self.__class__.__qualname__,
+                 f"Saving image {self._get_file_name(output_file_name)}")
+        Msg.debug(self.__class__.__qualname__,
+                  f"Used {len(recipe.used_frames)} frames")
+        for frame in recipe.used_frames:
+            Msg.debug(self.__class__.__qualname__,
+                      f"    {frame}")
+
+        filename = self._get_file_name(output_file_name)
+
+        assert isinstance(self.header, CplPropertyList), \
+            f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
+
+        # Save the header to the primary HDU
+        cpl.dfs.save_propertylist(
+            recipe.frameset,
+            parameters,
+            recipe.used_frames,
+            recipe.name,
+            self.properties,
+            PIPELINE,
+            filename,
+            header=self.header,
+        )
+
+        self.save_extensions(filename)
+
+    @abstractmethod
+    def save_extensions(self,
+                        filename: str) -> None:
+        """ Save extension data to the same file. Implementation depends on the type of the data. """
+
 
     def as_dict(self) -> dict[str, str]:
         return {

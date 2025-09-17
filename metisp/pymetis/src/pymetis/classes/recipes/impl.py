@@ -168,7 +168,7 @@ class MetisRecipeImpl(ABC):
                   f"Saving {len(self.products)} products:")
         for product in self.products:
             Msg.debug(self.__class__.__qualname__,
-                      f"   {product.name():<40} {product.file_name()}")
+                      f"   {product.name():<40} {product._get_file_name()}")
             product.save(recipe=self, parameters=self.parameters)
 
     @final

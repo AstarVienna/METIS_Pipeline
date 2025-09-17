@@ -34,32 +34,7 @@ class TableDataItem(DataItem, abstract=True):
                  *hdus: cpl.core.Table):
         super().__init__(primary_header, *hdus)
 
-    def save(self,
-             recipe: 'PipelineRecipe',
-             parameters: ParameterList,
-             *,
-             output_file_name: str = None) -> None:
-
-        # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back.
-        parameters = cpl.ui.ParameterList([p for p in parameters])
-        # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
-
-        filename = self.file_name(output_file_name)
-
-        assert isinstance(self.header, CplPropertyList), \
-            f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
-
-        # Save the header to the primary HDU
-        cpl.dfs.save_propertylist(
-            recipe.frameset,
-            parameters,
-            recipe.used_frames,
-            recipe.name,
-            self.properties,
-            PIPELINE,
-            filename,
-            header=self.header,
-        )
-
+    def save_extensions(self,
+                        filename: str) -> None:
         for hdu in self.hdus:
             hdu.save(self.header, self.header, filename, cpl.core.io.EXTEND)

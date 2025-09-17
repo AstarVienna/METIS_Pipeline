@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Image
+from cpl.core import Image, PropertyList
 
 from pymetis.dataitems.raw import Raw
 
@@ -33,3 +33,6 @@ class LmChophomeRaw(Raw):
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
     _schema = [None, Image]
+
+    def __init__(self, primary_header: PropertyList, image: Image):
+        super().__init__(primary_header, image)
