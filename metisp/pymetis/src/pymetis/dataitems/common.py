@@ -66,6 +66,8 @@ class AtmProfile(TableDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
+    _schema = [None, Table]
+
 
 class LsfKernel(TableDataItem):
     _name_template = r'LSF_KERNEL'
@@ -83,6 +85,8 @@ class FluxStdCatalog(TableDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = set()
 
+    _schema = [None, Table]
+
 
 class AtmLineCatalog(TableDataItem):
     _name_template = r'ATM_LINE_CAT'
@@ -92,6 +96,8 @@ class AtmLineCatalog(TableDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG'}
 
+    _schema = [None, Table]
+
 
 class LaserTable(TableDataItem):
     _name_template = r'LASER_TAB'
@@ -100,11 +106,16 @@ class LaserTable(TableDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
 
+    _schema = [None, Table]
 
-class IfuTelluric(ImageDataItem):
+
+class IfuTelluric(TableDataItem):
     _name_template = r'IFU_TELLURIC'
     _title_template = "Telluric correction"
     _description_template = "Transmission function for the telluric correction."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+
+    _schema = [None, Table]
+

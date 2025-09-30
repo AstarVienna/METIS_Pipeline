@@ -21,7 +21,7 @@ from typing import Any, Optional
 
 import cpl
 
-from cpl.core import Msg, Image as CplImage, ImageList as CplImageList
+from cpl.core import Msg, Image, ImageList as ImageList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
@@ -65,7 +65,7 @@ class MultiplePipelineInput(PipelineInput):
 
         return self.items
 
-    def load_list(self) -> CplImageList:
+    def load_list(self) -> ImageList:
         """
         Helper function: load all items and return as a CPL ImageList.
         # FixMe: fails for TableItems (there is no CPL TableList)
@@ -73,7 +73,7 @@ class MultiplePipelineInput(PipelineInput):
         if len(self.items) == 0:
             self.load_data()
 
-        return CplImageList([item.hdus[0] for item in self.items])
+        return ImageList([item.hdus[0] for item in self.items])
 
     def set_cpl_attributes(self):
         frameset = cpl.ui.FrameSet()

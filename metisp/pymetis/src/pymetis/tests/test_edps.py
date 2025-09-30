@@ -63,8 +63,10 @@ class TestEDPS:
         output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', os.path.expandvars('$SOF_DATA')],
                                 capture_output=True)
         message = str(output.stdout.decode('utf8'))
-        assert output.returncode == 0
-        assert output.stderr == b''
+        assert output.returncode == 0, \
+            f"Return code {output.returncode}"
+        assert output.stderr == b'', \
+            f"Stderr is not empty, got {output.stderr}"
         assert re.findall('[eE]rror', message) == [], f"EDPS run resulted in errors: {message}"
         assert 'FAILED' not in message, f"EDPS workflow failed: {message}"
         assert 'COMPLETED' in message, f"EDPS workflow not completed: {message}"

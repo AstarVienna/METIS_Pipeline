@@ -102,7 +102,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
         combined = self.inputset.combined.load_data().use()
 
-        product_telluric_transmission = self.ProductTelluricTransmission(header, image)
+        product_telluric_transmission = self.ProductTelluricTransmission(header, table)
         product_reduced_1d = self.ProductResponseFunction(header, image)
         product_fluxcal_tab = self.ProductFluxcalTab(header, table)
 

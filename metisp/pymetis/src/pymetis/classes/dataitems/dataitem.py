@@ -25,7 +25,7 @@ from typing import Optional, Generator, Self, Any, final, Union
 
 import cpl
 
-from cpl.core import Msg, Image as CplImage, Table as CplTable, PropertyList as CplPropertyList
+from cpl.core import Msg, Image, Table, PropertyList
 from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
@@ -64,7 +64,7 @@ class DataItem(Parametrizable, ABC):
 
     # HDU schema: a list of types or None
     # By default, only the primary header is present
-    _schema: list[Union[None, type[CplImage], type[CplTable]]] = [None]
+    _schema: list[Union[None, type[Image], type[Table]]] = [None]
 
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -202,15 +202,6 @@ class DataItem(Parametrizable, ABC):
         """
         return cls._oca_keywords
 
-    @classmethod
-    def pro_catg(cls):
-        """
-        Return the PRO CATG attribute
-
-        Currently the same as _name, and will probably stay like that (and if that is the case it will be removed).
-        """
-        return cls.name()
-
     def __init__(self,
                  primary_header: cpl.core.PropertyList = cpl.core.PropertyList(),
                  *hdus):
@@ -267,16 +258,16 @@ class DataItem(Parametrizable, ABC):
         Msg.debug(cls.__qualname__, f"Now loading {frame.file}")
 
         items = []
-        primary_header = CplPropertyList()
+        primary_header = PropertyList()
         for ext, item in enumerate(cls._schema):
-            if item is CplImage:
-                image = CplImage.load(frame.file, cpl.core.Type.FLOAT, ext)
+            if item is Image:
+                image = Image.load(frame.file, cpl.core.Type.FLOAT, ext)
                 items.append(image)
-            elif item is CplTable:
-                table = CplTable.load(frame.file, ext)
+            elif item is Table:
+                table = Table.load(frame.file, ext)
                 items.append(table)
             elif item is None:
-                primary_header = CplPropertyList.load(frame.file, ext)
+                primary_header = PropertyList.load(frame.file, ext)
 
         try:
             instance = cls(primary_header, *items)
@@ -308,7 +299,6 @@ class DataItem(Parametrizable, ABC):
         return f"{self.name()}_{self._created_at.strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
             if override is None else override
 
-
     def add_properties(self) -> None:
         """
         Hook for adding custom properties.
@@ -320,7 +310,7 @@ class DataItem(Parametrizable, ABC):
         """
         self.properties.append(
             cpl.core.Property(
-                "ESO PRO CATG",  # Martin suspects this means ESO product category
+                "ESO PRO CATG",
                 cpl.core.Type.STRING,
                 self.name(),
             )

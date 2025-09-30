@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import cpl
-from cpl.core import Image as CplImage
+from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import DetectorIfuMixin
@@ -34,7 +34,7 @@ class IfuWavecalRaw(DetectorIfuMixin, ImageDataItem):
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME',
                      'DRS.IFU'}
 
-    _schema = [None, CplImage, CplImage, CplImage, CplImage]
+    _schema = [None, Image, Image, Image, Image]
 
 
 class IfuWavecal(DetectorIfuMixin, ImageDataItem):
@@ -45,4 +45,4 @@ class IfuWavecal(DetectorIfuMixin, ImageDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    _schema = [None, CplImage, CplImage, CplImage, CplImage]
+    _schema = [None, Image, Image, Image, Image]

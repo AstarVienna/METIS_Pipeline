@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Image as CplImage
+from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import (TargetSpecificMixin, TargetSciMixin, TargetStdMixin,
@@ -33,7 +33,7 @@ class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, ImageDataItem
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
-    _schema = [CplImage]
+    _schema = [Image]
 
 
 class StdBackgroundSubtracted(TargetStdMixin, BackgroundSubtracted, abstract=True):
