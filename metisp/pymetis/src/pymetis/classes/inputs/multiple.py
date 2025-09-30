@@ -51,8 +51,9 @@ class MultiplePipelineInput(PipelineInput):
     def load_data(self) -> list[DataItem]:
         """
         Load a list of items from a FrameSet.
-        The items
+        The items should be a homogeneous set.
         """
+        self.items = []
         for idx, frame in enumerate(self.frameset):
             Msg.info(self.__class__.__qualname__,
                      f"Loading input frame #{idx}: {frame.file!r}")
@@ -70,6 +71,9 @@ class MultiplePipelineInput(PipelineInput):
         Helper function: load all items and return as a CPL ImageList.
         # FixMe: fails for TableItems (there is no CPL TableList)
         """
+        assert self.Item.frame_type() == cpl.ui.Frame.FrameType.IMAGE, \
+            f"Cannot load multiple data items at once, if their type is not IMAGE."
+
         if len(self.items) == 0:
             self.load_data()
 

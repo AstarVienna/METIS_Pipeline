@@ -20,10 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 from cpl.core import Msg, Image, PropertyList
 
-from pyesorex.parameter import ParameterList
-
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.dataitem import PIPELINE
 
 
 class ImageDataItem(DataItem, abstract=True):
@@ -42,8 +39,9 @@ class ImageDataItem(DataItem, abstract=True):
 
 class QuadDataItem(DataItem, abstract=True):
     """
-    An image data item with four detector images included
+    An image data item with four detector images for the 2RG detectors
     """
+
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
 
     def __init__(self,
@@ -53,3 +51,9 @@ class QuadDataItem(DataItem, abstract=True):
         assert len(hdus) == 4
 
         super().__init__(primary_header, *hdus)
+
+    def save_extensions(self,
+                        filename: str) -> None:
+        for hdu in self.hdus:
+            hdu.save(filename, self.header, cpl.core.io.EXTEND)
+

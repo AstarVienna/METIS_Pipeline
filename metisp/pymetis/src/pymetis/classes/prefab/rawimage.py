@@ -17,14 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import numpy as np
 from abc import ABC
-from typing import Literal
+from typing import Literal, Optional
 
 import cpl
-from cpl.core import Msg
+from cpl.core import Msg, Image, ImageList
 
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, RawInput
+
+
+COMBINE_METHOD = Literal['add'] | Literal['average'] | Literal['median'] | Literal['sigclip']
 
 
 class RawImageProcessor(MetisRecipeImpl, ABC):
@@ -37,38 +41,18 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         RawInput: type[RawInput] = RawInput
         detector: str = None
 
-        #def load_raw_images(self,
-        #                    *,
-        #                    extension: int = 1) -> cpl.core.ImageList:
-        #    """
-        #    Load a set of raw images, as determined by the tags.
-        #    Chi-Hung has warned Martin that this is unnecessary and fills the memory quickly,
-        #    but if we are to use CPL functions, Martin does not see a way around it.
-
-        #    :param: extension
-        #        the extension of the images to load, default 1
-
-        #    """
-        #    output = cpl.core.ImageList()
-
-        #    for idx, frame in enumerate(self.raw.frameset):
-        #        Msg.info(self.__class__.__qualname__,
-        #                 f"Processing input frame #{idx}: {frame.file!r}...")
-        #        output.append(cpl.core.Image.load(frame.file, extension=extension))
-
-        #    return output
-
     @classmethod
     def combine_images(cls,
                        images: cpl.core.ImageList,
-                       method: Literal['add'] | Literal['average'] | Literal['median']) -> cpl.core.Image:
+                       method: COMBINE_METHOD) -> cpl.core.Image:
         """
-        Basic helper method to combine images using one of `add`, `average` or `median`.
+        Basic helper method to combine images using one of `add`, `average`, `median` or `sigclip`.
         Probably not a universal panacea, but it recurs often enough to warrant being here.
         """
         Msg.info(cls.__qualname__,
                  f"Combining {len(images)} images using method {method!r}")
-        combined_image: cpl.core.Image = None
+        combined_image: Optional[cpl.core.Image] = None
+
         match method:
             case "add":
                 for idx, image in enumerate(images):
@@ -80,9 +64,43 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
                 combined_image = images.collapse_create()
             case "median":
                 combined_image = images.collapse_median_create()
+            case "sigclip":
+                combined_image = images.collapse_sigclip()
             case _:
                 Msg.error(cls.__qualname__,
                           f"Got unknown stacking method {method!r}. Stopping right here!")
                 raise ValueError(f"Unknown stacking method {method!r}")
 
         return combined_image
+
+    @classmethod
+    def combine_images_with_error(cls,
+                                  images: ImageList,
+                                  method: COMBINE_METHOD,
+                                  read_noise: float) -> tuple[Image, Image]:
+        """
+        Collapse and imagelist of raw frames and propagate the errors
+        """
+        combined_image = cls.combine_images(images, method)
+        # for each image, calculate the noise (read noise + shot noise, added in quadrature)
+        error = Image.zeros_like(images[0])
+
+        for im in images:
+            # shot noise as sqrt of signal in, after applying gain
+            poisson_noise = cpl.core.Image.zeros_like(im)
+            poisson_noise.copy_into(im, 0, 0)
+
+            # add read noise plus shot noise
+            totalNoise = cpl.core.Image.zeros_like(poisson_noise)
+            totalNoise.add(poisson_noise)
+            totalNoise.add_scalar(read_noise ** 2)
+
+            # this is square of the noise; add to a running total
+            error.add(totalNoise)
+
+        # and take the sqrt
+        error.power(0.5)
+        error.divide_scalar(np.sqrt(len(images)))
+
+        return combined_image, error
+

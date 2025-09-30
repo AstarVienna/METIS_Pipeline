@@ -21,9 +21,10 @@ import pytest
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.dataitems import LmStdBackground, NStdBackground, DistortionRaw, DistortionTable, LmSciBackground, \
+from pymetis.dataitems.background import LmStdBackground, NStdBackground, LmSciBackground, \
     NSciBackground, LmStdBackgroundSubtracted, LmSciBackgroundSubtracted, NStdBackgroundSubtracted, \
     NSciBackgroundSubtracted
+from pymetis.dataitems.distortion import DistortionRaw, DistortionTable
 from pymetis.dataitems.adc.adc import LmAdcSlitloss, NAdcSlitloss, LmAdcSlitlossRaw, NAdcSlitlossRaw
 from pymetis.dataitems.common import AtmProfile
 from pymetis.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo, MasterDarkIfu

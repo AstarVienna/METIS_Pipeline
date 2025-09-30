@@ -210,19 +210,20 @@ class DataItem(Parametrizable, ABC):
 
         # Check if the title is defined
         if self.title() is None:
-            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no title")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no title defined!")
 
         if self.name() is None:
-            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no name")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no name defined!")
 
         # Check if frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
         if self.frame_group() is None:
-            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined group!")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no group defined!")
 
         if self.frame_level() is None:
-            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no level defined!")
 
+        # Internal usage marker (for used_frames)
         self._used: bool = False
         self.headers: list[cpl.core.PropertyList] = [primary_header]
         self.hdus = hdus
@@ -279,11 +280,11 @@ class DataItem(Parametrizable, ABC):
 
     @property
     def used(self) -> bool:
-        """ Return whether this data item is actually used in the product """
+        """ Return whether this data item is actually used in the product. """
         return self._used
 
     def use(self) -> Self:
-        """ Mark this data item as actually used. Return itself to enable method chaining """
+        """ Mark this data item as actually used. Return itself, in order to enable method chaining. """
         self._used = True
         return self
 
@@ -308,13 +309,19 @@ class DataItem(Parametrizable, ABC):
 
         #ToDo: this should not be called for raws, those do not have a PRO CATG.
         """
-        self.properties.append(
-            cpl.core.Property(
-                "ESO PRO CATG",
-                cpl.core.Type.STRING,
-                self.name(),
+        if self.frame_type() == cpl.ui.Frame.FrameGroup.RAW:
+            Msg.debug(self.__class__.__qualname__,
+                      f"Not appending anything to a RAW data item")
+        else:
+            Msg.debug(self.__class__.__qualname__,
+                      f"Appending ESO PRO CATG to a non-RAW data item")
+            self.properties.append(
+                cpl.core.Property(
+                    "ESO PRO CATG",
+                    cpl.core.Type.STRING,
+                    self.name(),
+                )
             )
-        )
 
     def as_frame(self, filename: Optional[str] = None) -> cpl.ui.Frame:
         """ Create a CPL Frame from this DataItem
@@ -370,7 +377,7 @@ class DataItem(Parametrizable, ABC):
 
         filename = self._get_file_name(output_file_name)
 
-        assert isinstance(self.header, CplPropertyList), \
+        assert isinstance(self.header, PropertyList), \
             f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
 
         # Save the header to the primary HDU
@@ -391,7 +398,6 @@ class DataItem(Parametrizable, ABC):
     def save_extensions(self,
                         filename: str) -> None:
         """ Save extension data to the same file. Implementation depends on the type of the data. """
-
 
     def as_dict(self) -> dict[str, str]:
         return {

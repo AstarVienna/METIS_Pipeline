@@ -26,6 +26,7 @@ from cpl.core import (Image as CplImage,
 
 T = TypeVar('T')
 
+
 class Hdu(Generic[T]):
     """
     A loose association of a header and data

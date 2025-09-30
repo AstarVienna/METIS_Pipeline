@@ -105,11 +105,12 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     #########################################################################
 
     def correct_persistence(self) -> Self:
+        Msg.info(self.__class__.__qualname__, f"Pretending to do persistence correction")
         return self
 
-    def correct_linearity(self) -> Self:
+    def correct_nonlinearity(self) -> Self:
+        Msg.info(self.__class__.__qualname__, f"Pretending to correct for non-linearity")
         return self
-
 
     def process(self) -> set[DataItem]:
         method = self.parameters["metis_det_dark.stacking.method"].value
@@ -120,17 +121,13 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         self.inputset.raw.load_data()
         self.inputset.raw.use()
 
+        Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
         raw_images = cpl.core.ImageList([r.hdus[0] for r in self.inputset.raw.items])
         combined_image = self.combine_images(raw_images, method)
         header = self.inputset.raw.items[0].header
 
-        product = self.ProductMasterDark(header, combined_image)
-
         # load raw data
-
-        Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
-
-        Msg.info(self.__class__.__qualname__, f"{len(raw_images)} Dark frames loaded")
+        Msg.info(self.__class__.__qualname__, f"{len(raw_images)} raw dark frames loaded")
 
 
         Msg.info(self.__class__.__qualname__, f"Pretending to load DETLIN")
@@ -146,7 +143,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         gain = cpl.core.Image.zeros_like(raw_images[0])
         gain.add_scalar(1)
 
-
         # correcting for gain
         Msg.info(self.__class__.__qualname__, f"Correcting raw images for gain")
 
@@ -155,23 +151,19 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         # now calculate the readnoise
 
-        Msg.info(self.__class__.__qualname__, f"Calculating read noise")
-        Msg.info(self.__class__.__qualname__, f"Test {len(raw_images)}")
+        if len(raw_images) > 1:
+            Msg.info(self.__class__.__qualname__, f"Calculating read noise from {len(raw_images)} raw dark frames")
+            diff = cpl.core.Image(raw_images[0])
+            diff.subtract(raw_images[1])
+            readNoise = cpl.drs.detector.get_noise_window(diff, None)
+            combined_image, noise = self.combine_images_with_error(raw_images, method, readNoise[0])
+        else:
+            Msg.warning(self.__class__.__qualname__, f"Cannot calculate read noise as there is only one raw image")
 
-        diff = cpl.core.Image(raw_images[0])
-        diff.subtract(raw_images[1])
-
-        readNoise = cpl.drs.detector.get_noise_window(diff, None)
-
-        Msg.info(self.__class__.__qualname__, f"Pretending to do persistence correction")
         self.correct_persistence()
-
-        Msg.info(self.__class__.__qualname__, f"Pretending to correct for non-linearity")
         self.correct_nonlinearity()
 
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
-
-        combined_image, noise = self.collapse_raw_with_error(raw_images, method, readNoise[0])
 
         Msg.info(self.__class__.__qualname__, "Calculate outlying pixels")
 
@@ -184,8 +176,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         imMed = combined_image.get_median()
         imRMS = combined_image.get_stdev()
-
-
 
         maskHot = cpl.core.Mask.threshold_image(combined_image, 0, imMed + kappaHigh*imRMS, 1)
         qcnhot = maskHot.count()
@@ -298,50 +288,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         mask = cpl.core.Image(mask,dtype = cpl.core.Type.INT)
 
         return mask, qcnbad
-
-
-
-
-
-
-
-
-    def collapse_raw_with_error(self,imageList, method, readNoise):
-
-        """
-        Collapse and imagelist of raw frames and propogate the errors
-        """
-
-        # first, combine the image
-        if(method == "average"):
-            combined_image = imageList.collapse_create()
-        elif(method == "median"):
-            combined_image = imageList.collapse_median()
-        elif(method == "sigclip"):
-            combined_image = imageList.collapse_sigclip()
-
-        # for each image, calculate the noise (read noise + shot noise, added in quadrature)
-        #
-        errors = cpl.core.Image.zeros_like(imageList[0])
-
-        for im in imageList:
-            # shot noise as sqrt of signal in, after applying gain
-            poissonNoise = cpl.core.Image.zeros_like(im)
-            poissonNoise.copy_into(im, 0, 0)
-
-            # add read noise plus shot noise
-            totalNoise = cpl.core.Image.zeros_like(poissonNoise)
-            totalNoise.add(poissonNoise)
-            totalNoise.add_scalar(readNoise ** 2)
-
-            # this is square of the noise; add to a running total
-            errors.add(totalNoise)
-
-        # and take the sqrt
-        errors.power(0.5)
-        errors.divide_scalar(np.sqrt(len(imageList)))
-
-        return combined_image, errors
 
 
 
