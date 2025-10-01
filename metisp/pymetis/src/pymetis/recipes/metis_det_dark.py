@@ -139,7 +139,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         # fake the bp mask by initializing to zero
         temp = cpl.core.Image.zeros_like(raw_images[0])
-        bpMask = temp.cast(cpl.core.Type.INT)
+        bpMask = temp.cast(cpl.core.Type.FLOAT)
 
         # fake the gain at the moment by setting to 1
 
@@ -167,7 +167,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         self.correct_persistence()
 
         Msg.info(self.__class__.__qualname__, f"Pretending to correct for non-linearity")
-        self.correct_nonlinearity()
+        self.correct_linearity()
 
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
@@ -186,7 +186,12 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         imRMS = combined_image.get_stdev()
 
 
-
+        kappaHigh = 2
+        kappaLow = 2
+        badBit = 1
+        coldBit = 1
+        hotBit = 1
+        
         maskHot = cpl.core.Mask.threshold_image(combined_image, 0, imMed + kappaHigh*imRMS, 1)
         qcnhot = maskHot.count()
         maskHot = cpl.core.Image(maskHot,dtype = cpl.core.Type.INT)
@@ -264,7 +269,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         header.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
                                          qcmedmax, "[ADU] median value of max values of individual input images"))
 
-        product = self.ProductMasterDark(header, combined_image)
+        product = self.ProductMasterDark(header, combined_image, noise, bpMask)
 
         return {product}
 
