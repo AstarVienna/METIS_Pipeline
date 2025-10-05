@@ -104,7 +104,7 @@ class SinglePipelineInput(PipelineInput):
 
     @property
     def contents(self):
-        return self.item
+        return self.frame
 
     def use(self) -> None:
         self.item.use()

@@ -309,12 +309,12 @@ class DataItem(Parametrizable, ABC):
 
         #ToDo: this should not be called for raws, those do not have a PRO CATG.
         """
-        if self.frame_type() == cpl.ui.Frame.FrameGroup.RAW:
+        if self.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
             Msg.debug(self.__class__.__qualname__,
                       f"Not appending anything to a RAW data item")
         else:
             Msg.debug(self.__class__.__qualname__,
-                      f"Appending ESO PRO CATG to a non-RAW data item")
+                      f"Appending ESO PRO CATG to a non-RAW data item ({self.frame_group()})")
             self.properties.append(
                 cpl.core.Property(
                     "ESO PRO CATG",

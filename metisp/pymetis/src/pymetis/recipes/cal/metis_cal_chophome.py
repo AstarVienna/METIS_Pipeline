@@ -117,7 +117,9 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
     def compute_background(self, *, method):
         background_hdr = cpl.core.PropertyList()
-        bg_images = self.inputset.wcu_off.load_images()
+
+        self.inputset.wcu_off.load_data()
+        bg_images = cpl.core.ImageList([r.hdus[0] for r in self.inputset.wcu_off.items])
         background_img = self.combine_images(bg_images, method)
         # TODO: define usedframes
         return background_hdr, background_img

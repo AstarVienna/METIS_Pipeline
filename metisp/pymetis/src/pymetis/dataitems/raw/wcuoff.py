@@ -32,7 +32,7 @@ class WcuOffRaw(BandSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_WCU_OFF_RAW'
     _title_template = r"{band} WCU OFF raw"
     _description_template = "Raw data for dark subtraction in other recipes."
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
 

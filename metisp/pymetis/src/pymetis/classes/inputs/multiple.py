@@ -144,7 +144,7 @@ class MultiplePipelineInput(PipelineInput):
 
     @property
     def contents(self):
-        return self.items
+        return self.frameset
 
     def use(self) -> None:
         for item in self.items:

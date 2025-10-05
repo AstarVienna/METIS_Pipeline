@@ -24,6 +24,9 @@ from pymetis.classes.dataitems import DataItem
 
 
 class ImageDataItem(DataItem, abstract=True):
+    """
+    A data item with image data, possibly saved in multiple layers
+    """
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
 
     def __init__(self,
@@ -39,7 +42,7 @@ class ImageDataItem(DataItem, abstract=True):
 
 class QuadDataItem(DataItem, abstract=True):
     """
-    An image data item with four detector images for the 2RG detectors
+    An image data item with four detector images for the 2RG detectors.
     """
 
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
