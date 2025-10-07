@@ -28,12 +28,12 @@ def create_dummy_header() -> cpl.core.PropertyList:
     return cpl.core.PropertyList()
 
 
-def create_dummy_image() -> cpl.core.Image:
+def create_dummy_image(size: int = 2048) -> cpl.core.Image:
     """
     Create a dummy image (absolutely no assumptions, just to have something to work with).
     # ToDo This function should not survive in the future.
     """
-    return cpl.core.Image.zeros(32, 32, cpl.core.Type.FLOAT)
+    return cpl.core.Image.zeros(size, size, cpl.core.Type.FLOAT)
 
 
 def create_dummy_table(rows: int = 3) -> cpl.core.Table:

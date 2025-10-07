@@ -31,6 +31,7 @@ class BadPixMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
+
     _schema = [Image]
 
 

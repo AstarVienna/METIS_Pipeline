@@ -31,13 +31,12 @@ class ImageDataItem(DataItem, abstract=True):
 
     def __init__(self,
                  primary_header: PropertyList = None,
-                 *hdus: Image):
-        super().__init__(primary_header, *hdus)
+                 **hdus: Image):
+        super().__init__(primary_header, **hdus)
 
     def save_extensions(self,
                         filename: str) -> None:
-        for hdu in self.hdus:
-            hdu.save(filename, self.header, cpl.core.io.EXTEND)
+        pass
 
 
 class QuadDataItem(DataItem, abstract=True):
@@ -49,11 +48,11 @@ class QuadDataItem(DataItem, abstract=True):
 
     def __init__(self,
                  primary_header: cpl.core.PropertyList = None,
-                 *hdus: cpl.core.Image):
+                 **hdus: cpl.core.Image):
 
         assert len(hdus) == 4
 
-        super().__init__(primary_header, *hdus)
+        super().__init__(primary_header, **hdus)
 
     def save_extensions(self,
                         filename: str) -> None:

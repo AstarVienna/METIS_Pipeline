@@ -48,36 +48,31 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-    def load_data(self) -> list[DataItem]:
+    def load_data(self, extension: str = None) -> ImageList:
         """
         Load a list of items from a FrameSet.
         The items should be a homogeneous set.
         """
+        Msg.info(self.__class__.__qualname__,
+                 f"Loading multiple input frames for extension: {extension}")
         self.items = []
+
+        images = []
         for idx, frame in enumerate(self.frameset):
             Msg.info(self.__class__.__qualname__,
                      f"Loading input frame #{idx}: {frame.file!r}")
-            self.items.append(self.Item.load(frame))
+            self.items.append(item := self.Item.load(frame))
+            item = item.get_hdu_by_name(extension)
+
+            if item['EXTNAME'] != 'PRIMARY':
+                images.append(cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, extension=item['extno']))
 
         Msg.info(self.__class__.__qualname__,
                  f"Items are now {self.items}")
 
         self.use() # FixMe: for now anything that is actually loaded is marked as used
 
-        return self.items
-
-    def load_list(self) -> ImageList:
-        """
-        Helper function: load all items and return as a CPL ImageList.
-        # FixMe: fails for TableItems (there is no CPL TableList)
-        """
-        assert self.Item.frame_type() == cpl.ui.Frame.FrameType.IMAGE, \
-            f"Cannot load multiple data items at once, if their type is not IMAGE."
-
-        if len(self.items) == 0:
-            self.load_data()
-
-        return ImageList([item.hdus[0] for item in self.items])
+        return ImageList(images)
 
     def set_cpl_attributes(self):
         frameset = cpl.ui.FrameSet()

@@ -155,7 +155,25 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         Correct the raw image list for persistence.
         """
         Msg.info(self.__class__.__qualname__, f"Pretending to do persistence correction")
-        return self
+        return raw_images
+
+    def correct_nonlinearity(self, raw_images: ImageList) -> ImageList:
+        """
+        Correct the raw image list for non-linearity.
+
+        # FixMe Currently a mockup.
+
+        Parameters
+        ----------
+        raw_images
+
+        Returns
+        -------
+        raw_images : ImageList
+            List of raws, now corrected for non-linearity.
+        """
+        Msg.info(self.__class__.__qualname__, f"Pretending to correct for non-linearity")
+        return raw_images
 
     def calculate_outliers(self,
                            image: Image,

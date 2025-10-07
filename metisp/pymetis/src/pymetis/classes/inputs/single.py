@@ -53,16 +53,17 @@ class SinglePipelineInput(PipelineInput):
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
 
-    def load_data(self) -> DataItem:
+    def load_data(self, extension: str = None) -> DataItem:
         Msg.info(self.__class__.__qualname__,
-                 f"Loading input frame {self.frame.file!r}")
+                 f"Loading single input frame {self.frame.file!r}")
+
         self.item = self.Item.load(self.frame)
 
         Msg.info(self.__class__.__qualname__,
                  f"Item is now {self.item}")
 
         self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
-        return self.item
+        return self.item.hdus[extension]
 
     def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()

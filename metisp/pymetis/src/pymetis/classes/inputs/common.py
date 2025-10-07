@@ -38,6 +38,7 @@ from pymetis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.dataitems.masterflat import MasterFlat
 from pymetis.dataitems.synth import SynthTrans
 from pymetis.dataitems.wavecal import IfuWavecal
+from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
@@ -102,6 +103,10 @@ class PinholeTableInput(SinglePipelineInput):
 
 class FluxstdCatalogInput(SinglePipelineInput):
     Item = FluxStdCatalog
+
+
+class MasterRsrfInput(SinglePipelineInput):
+    Item = MasterLssRsrf
 
 
 class FluxCalTableInput(SinglePipelineInput):

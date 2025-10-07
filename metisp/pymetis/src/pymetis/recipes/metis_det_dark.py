@@ -76,7 +76,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
             pass
 
     # Assign product classes. This should be just a data item class.
-    # It is not strictly necessary and we can create the product directly,
+    # It is not strictly necessary, and we can create the product directly,
     # but it enables us to introspect the class for the manpage and DRLD.
     ProductMasterDark = MasterDark
 
@@ -110,28 +110,18 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     # Also, persistence and non-linearity to be implemented.
     #########################################################################
 
-
-    def correct_nonlinearity(self) -> Self:
-        Msg.info(self.__class__.__qualname__, f"Pretending to correct for non-linearity")
-        return self
-
     def process(self) -> set[DataItem]:
         method = self.parameters["metis_det_dark.stacking.method"].value
 
         # load calibration files
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        self.inputset.raw.load_data()
-        self.inputset.raw.use()
-
         Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
-        raw_images = cpl.core.ImageList([r.hdus[0] for r in self.inputset.raw.items])
+        raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
         combined_image = self.combine_images(raw_images, method)
         header = self.inputset.raw.items[0].header
 
         # load raw data
-        Msg.info(self.__class__.__qualname__, f"{len(raw_images)} raw dark frames loaded")
-
         kappa_high = 2  # ToDo This could probably be a recipe parameter
         kappa_low = 2   # ToDo This too
 
@@ -144,11 +134,13 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         Msg.info(self.__class__.__qualname__, f"Faking a gain map and badpix map")
 
         # fake the bp mask by initializing to zero
-        temp = zeros_like(raw_images[0], cpl.core.Type.FLOAT)
+        badpix_mask = zeros_like(raw_images[0], cpl.core.Type.FLOAT)
 
         # fake the gain at the moment by setting to 1
 
         raw_images = self.correct_gain(raw_images)
+        raw_images = self.correct_persistence(raw_images)
+        raw_images = self.correct_nonlinearity(raw_images)
 
         if len(raw_images) > 1:
             Msg.info(self.__class__.__qualname__,
@@ -162,9 +154,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
             read_noise = (0, 0)
 
         combined_image, noise = self.combine_images_with_error(raw_images, method, read_noise[0])
-
-        self.correct_persistence()
-        self.correct_nonlinearity()
 
         Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
 
@@ -246,9 +235,9 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         header.append(cpl.core.Property("QC DARK MEDIAN MIN", cpl.core.Type.DOUBLE,
                                         qcmedmin, "[ADU] median value of min values of individual input images"))
         header.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
-                                         qcmedmax, "[ADU] median value of max values of individual input images"))
+                                        qcmedmax, "[ADU] median value of max values of individual input images"))
 
-        product = self.ProductMasterDark(header, combined_image, noise, badpix_mask)
+        product = self.ProductMasterDark(header, IMAGE=combined_image, NOISE=noise, BPM=badpix_mask)
 
         return {product}
 

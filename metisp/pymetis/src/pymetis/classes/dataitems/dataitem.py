@@ -204,7 +204,7 @@ class DataItem(Parametrizable, ABC):
 
     def __init__(self,
                  primary_header: cpl.core.PropertyList = cpl.core.PropertyList(),
-                 *hdus):
+                 **hdus: dict[str, Any]):
         if self.__abstract:
             raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
@@ -226,7 +226,7 @@ class DataItem(Parametrizable, ABC):
         # Internal usage marker (for used_frames)
         self._used: bool = False
         self.headers: list[cpl.core.PropertyList] = [primary_header]
-        self.hdus = hdus
+        self.hdus = {name: hdu for name, hdu in hdus.items()}
 
         # FIXME: temporary to get QC parameters into the product header [OC]
 
@@ -242,7 +242,7 @@ class DataItem(Parametrizable, ABC):
         self._created_at: datetime.datetime = datetime.datetime.now()
 
         Msg.debug(self.__class__.__qualname__,
-                  f"Created a data item with a primary header and {len(self.hdus)} HDUs")
+                  f"Created a {self.__class__.__qualname__} data item with a primary header and {len(self.hdus) - 1} HDUs")
 
     @classmethod
     def load(cls,
@@ -256,27 +256,33 @@ class DataItem(Parametrizable, ABC):
     @classmethod
     def load_from_frame(cls,
                         frame: cpl.ui.Frame) -> Any:
-        Msg.debug(cls.__qualname__, f"Now loading {frame.file}")
+        Msg.debug(cls.__qualname__, f"Now loading data item {frame.file}")
 
-        items = []
-        primary_header = PropertyList()
-        for ext, item in enumerate(cls._schema):
-            if item is Image:
-                image = Image.load(frame.file, cpl.core.Type.FLOAT, ext)
-                items.append(image)
-            elif item is Table:
-                table = Table.load(frame.file, ext)
-                items.append(table)
-            elif item is None:
-                primary_header = PropertyList.load(frame.file, ext)
+        Msg.info(cls.__qualname__,
+                 f"As HDU list: {frame.as_hdulist()}")
 
-        try:
-            instance = cls(primary_header, *items)
-            return instance
-        except TypeError as err:
-            Msg.error(cls.__qualname__,
-                      f"Cannot instantiate: {err}. Expected {cls._schema}, got {items}")
-            raise err
+        schema = {}
+        index = -1
+
+        while (index := index + 1) < 1000:
+            try:
+                header = cpl.core.PropertyList.load(frame.file, index)
+                subschema = {prop.name: prop.value for prop in header}
+                subschema['extno'] = index
+                subschema['EXTNAME'] = subschema.get('EXTNAME', 'PRIMARY')
+                schema[subschema['EXTNAME']] = subschema
+
+                Msg.debug(cls.__qualname__, f"Loaded HDU {index} ('{subschema.get('EXTNAME', 'PRIMARY')}')")
+
+            except cpl.core.DataNotFoundError:
+                Msg.debug(cls.__qualname__,
+                          f"HDU {index} not present, aborting")
+                break
+
+        Msg.debug(cls.__qualname__, f"{schema}")
+        primary_header = cpl.core.PropertyList.load(frame.file, 0)
+
+        return cls(primary_header, **schema)
 
     @property
     def used(self) -> bool:
@@ -481,3 +487,13 @@ class DataItem(Parametrizable, ABC):
 
     def __repr__(self):
         return f"{self.name()}"
+
+    def __getitem__(self, item):
+        return self.hdus[item]
+
+    def get_hdu_by_name(self, name: str) -> dict:
+        for n, hdu in self.hdus.items():
+            if hdu.get('EXTNAME', 'PRIMARY') == name:
+                return hdu
+            else:
+                print(hdu.get('EXTNAME', 'PRIMARY'))

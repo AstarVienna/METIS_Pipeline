@@ -26,9 +26,8 @@ from pymetis.dataitems.distortion.reduced import DistortionReduced
 from pymetis.dataitems.distortion.table import DistortionTable
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.classes.inputs import RawInput, SinglePipelineInput
-from pymetis.classes.inputs import PinholeTableInput
-from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.inputs import (RawInput, SinglePipelineInput, PinholeTableInput, PersistenceInputSetMixin,
+                                    LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.utils.dummy import create_dummy_table, create_dummy_image
 
 
