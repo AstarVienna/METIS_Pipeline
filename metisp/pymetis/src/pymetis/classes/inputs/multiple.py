@@ -21,7 +21,7 @@ from typing import Any, Optional
 
 import cpl
 
-from cpl.core import Msg, Image, ImageList as ImageList
+from cpl.core import Msg, Image, ImageList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
@@ -48,10 +48,15 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-    def load_data(self, extension: str = None) -> ImageList:
+    def load_data(self, extension: int | str = None) -> ImageList:
         """
         Load a list of items from a FrameSet.
         The items should be a homogeneous set.
+
+        Parameters
+        ----------
+        extension : int | str
+            The extension of the items to load, can be int or string (in which case 'EXTNAME' will be matched)
         """
         Msg.info(self.__class__.__qualname__,
                  f"Loading multiple input frames for extension: {extension}")
@@ -61,16 +66,14 @@ class MultiplePipelineInput(PipelineInput):
         for idx, frame in enumerate(self.frameset):
             Msg.info(self.__class__.__qualname__,
                      f"Loading input frame #{idx}: {frame.file!r}")
-            self.items.append(item := self.Item.load(frame))
-            item = item.get_hdu_by_name(extension)
-
-            if item['EXTNAME'] != 'PRIMARY':
-                images.append(cpl.core.Image.load(frame.file, cpl.core.Type.FLOAT, extension=item['extno']))
+            images.append(item := self.Item.load(frame))
 
         Msg.info(self.__class__.__qualname__,
                  f"Items are now {self.items}")
 
         self.use() # FixMe: for now anything that is actually loaded is marked as used
+
+        images = [item.load_data(extension) for item in images]
 
         return ImageList(images)
 

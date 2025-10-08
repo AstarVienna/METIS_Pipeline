@@ -21,6 +21,7 @@ import datetime
 import inspect
 import re
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Optional, Generator, Self, Any, final, Union
 
 import cpl
@@ -29,6 +30,7 @@ from cpl.core import Msg, Image, Table, PropertyList
 from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.classes.mixins.base import Parametrizable
 from pymetis.utils.format import partial_format
 
@@ -64,7 +66,16 @@ class DataItem(Parametrizable, ABC):
 
     # HDU schema: a list of types or None
     # By default, only the primary header is present
-    _schema: list[Union[None, type[Image], type[Table]]] = [None]
+    _schema: dict[str, Union[None, type[Image], type[Table]]] = {'PRIMARY': None}
+    # For instance
+    # >>> _schema = {
+    # >>>     'PRIMARY': None,
+    # >>>     'DET1.DATA': Image,
+    # >>>     'DET2.DATA': Image,
+    # >>>     'DET3.DATA': Image,
+    # >>>     'DET4.DATA': Image,
+    # >>> }
+
 
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -204,7 +215,9 @@ class DataItem(Parametrizable, ABC):
 
     def __init__(self,
                  primary_header: cpl.core.PropertyList = cpl.core.PropertyList(),
-                 **hdus: dict[str, Any]):
+                 *,
+                 filename: Optional[Path] = None,
+                 **hdus: Hdu):
         if self.__abstract:
             raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
@@ -225,16 +238,22 @@ class DataItem(Parametrizable, ABC):
 
         # Internal usage marker (for used_frames)
         self._used: bool = False
-        self.headers: list[cpl.core.PropertyList] = [primary_header]
-        self.hdus = {name: hdu for name, hdu in hdus.items()}
 
+        self.filename = filename
+        self._hdus: dict[str, Hdu] = {}
+
+        for name, hdu in hdus.items():
+            assert name in self._schema, \
+                f"Schema for {self.__class__.__qualname__} does not specify HDU '{name}', aborting!"
+
+            assert self._schema[name] == hdu.klass, \
+                (f"Schema for {self.__class__.__qualname__} specifies that '{name}' is a {self._schema[name]} type, "
+                 f"got {hdu.klass} instead!")
+
+            self._hdus[name] = hdu
+
+            print(self._hdus)
         # FIXME: temporary to get QC parameters into the product header [OC]
-
-        self.header = primary_header
-        if self.header is not None:
-            self.properties = self.header
-        else:
-            self.properties = cpl.core.PropertyList()
 
         self.add_properties()
 
@@ -242,47 +261,87 @@ class DataItem(Parametrizable, ABC):
         self._created_at: datetime.datetime = datetime.datetime.now()
 
         Msg.debug(self.__class__.__qualname__,
-                  f"Created a {self.__class__.__qualname__} data item with a primary header and {len(self.hdus) - 1} HDUs")
+                  f"Created a {self.__class__.__qualname__} data item with a primary header and {len(self._hdus) - 1} HDUs")
 
     @classmethod
     def load(cls,
              frame: cpl.ui.Frame) -> Self:
         """
         Construct the data item from a frame object.
+
+        Loads all the headers and makes them available via their `EXTNAME`.
+        Does not load the actual pixel data / table. For that, seee `load_data`.
         """
         klass = cls.find(frame.tag)
-        return klass.load_from_frame(frame)
-
-    @classmethod
-    def load_from_frame(cls,
-                        frame: cpl.ui.Frame) -> Any:
         Msg.debug(cls.__qualname__, f"Now loading data item {frame.file}")
 
         Msg.info(cls.__qualname__,
                  f"As HDU list: {frame.as_hdulist()}")
 
-        schema = {}
-        index = -1
+        structure = {}
+        hdus = {}
 
-        while (index := index + 1) < 1000:
+        index = 0
+        while True:
             try:
-                header = cpl.core.PropertyList.load(frame.file, index)
+                header = PropertyList.load(frame.file, index)
+                try:
+                    extname = header['EXTNAME'].value
+                except KeyError:
+                    extname = 'PRIMARY'
+
                 subschema = {prop.name: prop.value for prop in header}
-                subschema['extno'] = index
-                subschema['EXTNAME'] = subschema.get('EXTNAME', 'PRIMARY')
-                schema[subschema['EXTNAME']] = subschema
+                subtype = {
+                    'IMAGE': Image,
+                    'TABLE': Table,
+                    None: None,
+                }[subschema.get('XTENSION', None)]
+
+                structure[extname] = subschema
+                structure['klass'] = subtype
+                structure['extno'] = index
+
+                hdus[extname] = Hdu(header, None, klass=subtype, extno=index)
 
                 Msg.debug(cls.__qualname__, f"Loaded HDU {index} ('{subschema.get('EXTNAME', 'PRIMARY')}')")
 
             except cpl.core.DataNotFoundError:
                 Msg.debug(cls.__qualname__,
-                          f"HDU {index} not present, aborting")
+                          f"HDU {index} not present, finished loading")
                 break
+            index += 1
 
-        Msg.debug(cls.__qualname__, f"{schema}")
+
+        Msg.debug(cls.__qualname__, f"{structure}")
         primary_header = cpl.core.PropertyList.load(frame.file, 0)
 
-        return cls(primary_header, **schema)
+        return klass(primary_header, filename=frame.file, **hdus)
+
+    def load_data(self,
+                  extension: int | str) -> Image | Table | None:
+        """
+        Actually load the associated data (image or a table).
+
+        This might be expensive and therefore the call is better deferred until actually needed.
+
+        Parameters
+        ----------
+        extension: int | str
+           The extensions, either an integer index or a string EXTNAME.
+
+        Returns
+        -------
+        Image | Table | None
+            The associated data (or None if the extension does not contain any, should only happen for the primary one)
+
+        Raises
+        ------
+        KeyError
+            If requested extension is not available
+        """
+
+        return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
+
 
     @property
     def used(self) -> bool:
@@ -486,14 +545,46 @@ class DataItem(Parametrizable, ABC):
         return f"{self.name()}"
 
     def __repr__(self):
-        return f"{self.name()}"
+        return f"<DataItem {self.name()}>"
 
-    def __getitem__(self, item):
-        return self.hdus[item]
+    def __getitem__(self, item: int | str) -> Hdu:
+        """
+        Get an extension from this data item.
 
-    def get_hdu_by_name(self, name: str) -> dict:
-        for n, hdu in self.hdus.items():
-            if hdu.get('EXTNAME', 'PRIMARY') == name:
-                return hdu
-            else:
-                print(hdu.get('EXTNAME', 'PRIMARY'))
+        Can be indexed by int or string (in which case 'EXTNAME' will be matched)
+
+        Parameters
+        ----------
+        item: int | str
+
+        Returns
+        -------
+        tuple[str, Optional[Image | Table]]
+
+        Raises
+        ------
+        KeyError
+            If the item is not a recognized extension.
+        """
+        if isinstance(item, str):
+            return self._hdus[item]
+        elif isinstance(item, int):
+            return self._hdus[self.get_name(item)]
+        else:
+            raise KeyError(f"Invalid item {item}")
+
+    def get_name(self, index: int) -> str:
+        for name, hdu in self._hdus.items():
+            if self._hdus[name].extno == index:
+                return name
+
+    def get_hdu_by_index(self, index: str) -> int:
+        for n, hdu in self._hdus.items():
+            try:
+                if hdu.extno == index:
+                    return hdu.extno
+                else:
+                    continue
+            except KeyError:
+                continue
+        raise KeyError(f"Invalid extension name {index}")

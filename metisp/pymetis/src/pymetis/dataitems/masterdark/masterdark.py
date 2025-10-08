@@ -32,7 +32,13 @@ class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-    _schema = [None, Image, Image, Image]
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+        'DET2.DATA': Image,
+        'DET3.DATA': Image,
+        'DET4.DATA': Image,
+    }
 
 
 class MasterDark2rg(Detector2rgMixin, MasterDark):

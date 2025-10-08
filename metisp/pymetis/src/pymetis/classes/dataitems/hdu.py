@@ -18,39 +18,48 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pathlib import Path
-from typing import Union, TypeVar, Generic
+from typing import Union, TypeVar, Generic, Optional
 
+import cpl
 from cpl.core import (Image as CplImage,
                       Table as CplTable,
                       PropertyList as CplPropertyList)
 
-T = TypeVar('T')
 
-
-class Hdu(Generic[T]):
+class Hdu:
     """
     A loose association of a header and data
     """
     def __init__(self,
                  header: CplPropertyList,
-                 data: T):
+                 data: Optional[CplImage | CplTable],
+                 *,
+                 klass: type[CplImage | CplTable],
+                 extno: Optional[int] = 0,
+                ) -> None:
+        """
+
+        Parameters
+        ----------
+        header: CplPropertyList
+        data: CplImage | CplTable
+            Data inside this HDU. Might be empty.
+        extno:
+            Can be used to access data by index.
+        """
         self.header = header
         self.data = data
+        self.klass = klass
+        self.extno = extno
+
+        try:
+            self.name = self.header['EXTNAME'].value
+        except KeyError:
+            self.name = 'PRIMARY'
 
 
-class ImageHdu(Hdu[CplImage]):
-    def __init__(self,
-                 header: CplPropertyList,
-                 image: CplImage):
-        super().__init__(header, image)
-
-
-class TableHdu(Hdu[CplTable]):
-    def __init__(self,
-                 header: CplPropertyList,
-                 table: CplTable):
-        super().__init__(header, table)
-
+    def __repr__(self) -> str:
+        return f"<HDU {self.name=}, {self.extno=}>"
 
 class MetisImage:
     """
