@@ -31,7 +31,11 @@ class LinearityMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
-    _schema = [Image]
+
+    _schema = {
+        'PRIMARY': None,
+        'DET1DATA': Image,
+    }
 
 
 class LinearityMap2rg(Detector2rgMixin, LinearityMap):

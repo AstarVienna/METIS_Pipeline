@@ -23,6 +23,7 @@ import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.badpixmap import BadPixMap
 from pymetis.dataitems.gainmap import GainMap
 from pymetis.dataitems.linearity.linearity import LinearityMap
@@ -48,10 +49,9 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
     ProductBadPixMap = BadPixMap
 
     def process(self) -> set[DataItem]:
-        self.inputset.raw.load_data()
+        raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
         self.inputset.raw.use()
 
-        raw_images = cpl.core.ImageList([r.hdus[0] for r in self.inputset.raw.items])
         combined_image = self.combine_images(raw_images,
                                              method=self.parameters["metis_det_lingain.stacking.method"].value)
 
@@ -68,9 +68,9 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         linearity_image = combined_image    # TODO Actual implementation missing
         badpix_map = combined_image         # TODO Actual implementation missing
 
-        product_gain_map = self.ProductGainMap(header, gain_image)
-        product_linearity = self.ProductLinearity(header, linearity_image)
-        product_badpix_map = self.ProductBadPixMap(header, badpix_map)
+        product_gain_map = self.ProductGainMap(header, DET1DATA=Hdu(header, gain_image))
+        product_linearity = self.ProductLinearity(header, DET1DATA=Hdu(header, linearity_image))
+        product_badpix_map = self.ProductBadPixMap(header, DET1DATA=Hdu(header, badpix_map))
 
         return {product_gain_map, product_linearity, product_badpix_map}
 

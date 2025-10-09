@@ -67,6 +67,7 @@ class MultiplePipelineInput(PipelineInput):
             Msg.info(self.__class__.__qualname__,
                      f"Loading input frame #{idx}: {frame.file!r}")
             images.append(item := self.Item.load(frame))
+            self.items.append(item)
 
         Msg.info(self.__class__.__qualname__,
                  f"Items are now {self.items}")

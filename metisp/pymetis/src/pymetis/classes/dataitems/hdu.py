@@ -34,7 +34,7 @@ class Hdu:
                  header: CplPropertyList,
                  data: Optional[CplImage | CplTable],
                  *,
-                 klass: type[CplImage | CplTable],
+                 klass: Optional[type[CplImage | CplTable]] = None,
                  extno: Optional[int] = 0,
                 ) -> None:
         """
@@ -49,7 +49,7 @@ class Hdu:
         """
         self.header = header
         self.data = data
-        self.klass = klass
+        self.klass = klass if klass is not None else type(data) if data is not None else None
         self.extno = extno
 
         try:
@@ -59,7 +59,8 @@ class Hdu:
 
 
     def __repr__(self) -> str:
-        return f"<HDU {self.name=}, {self.extno=}>"
+        return f"<HDU {self.name=} = {self.extno=}>"
+
 
 class MetisImage:
     """

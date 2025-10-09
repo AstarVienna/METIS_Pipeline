@@ -31,7 +31,10 @@ class GainMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
-    _schema = [Image]
+
+    _schema = {
+        'PRIMARY': None,
+    }
 
 
 class GainMap2rg(Detector2rgMixin, GainMap):
@@ -43,4 +46,10 @@ class GainMapGeo(DetectorGeoMixin, GainMap):
 
 
 class GainMapIfu(DetectorIfuMixin, GainMap):
-    pass
+    _schema = {
+        'PRIMARY': None,
+        'DET1DATA': Image,
+        'DET2.DATA': Image,
+        'DET3.DATA': Image,
+        'DET4.DATA': Image,
+    }

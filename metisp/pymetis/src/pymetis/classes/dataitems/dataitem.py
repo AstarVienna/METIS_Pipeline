@@ -252,8 +252,9 @@ class DataItem(Parametrizable, ABC):
 
             self._hdus[name] = hdu
 
-            print(self._hdus)
         # FIXME: temporary to get QC parameters into the product header [OC]
+
+        self.primary_header = primary_header
 
         self.add_properties()
 
@@ -275,8 +276,8 @@ class DataItem(Parametrizable, ABC):
         klass = cls.find(frame.tag)
         Msg.debug(cls.__qualname__, f"Now loading data item {frame.file}")
 
-        Msg.info(cls.__qualname__,
-                 f"As HDU list: {frame.as_hdulist()}")
+        #Msg.info(cls.__qualname__,
+        #         f"As HDU list: {frame.as_hdulist()}")
 
         structure = {}
         hdus = {}
@@ -380,7 +381,7 @@ class DataItem(Parametrizable, ABC):
         else:
             Msg.debug(self.__class__.__qualname__,
                       f"Appending ESO PRO CATG to a non-RAW data item ({self.frame_group()})")
-            self.properties.append(
+            self.primary_header.append(
                 cpl.core.Property(
                     "ESO PRO CATG",
                     cpl.core.Type.STRING,
@@ -442,8 +443,8 @@ class DataItem(Parametrizable, ABC):
 
         filename = self._get_file_name(output_file_name)
 
-        assert isinstance(self.header, PropertyList), \
-            f"{self.header} must be a CplPropertyList, got a {type(self.header)}"
+        assert isinstance(self.primary_header, PropertyList), \
+            f"{self.primary_header} must be a CplPropertyList, got a {type(self.primary_header)}"
 
         # Save the header to the primary HDU
         cpl.dfs.save_propertylist(
@@ -451,10 +452,9 @@ class DataItem(Parametrizable, ABC):
             parameters,
             recipe.used_frames,
             recipe.name,
-            self.properties,
+            self.primary_header,
             PIPELINE,
             filename,
-            header=self.header,
         )
 
         self.save_extensions(filename)

@@ -34,10 +34,9 @@ class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
-        'DET1.DATA': Image,
-        'DET2.DATA': Image,
-        'DET3.DATA': Image,
-        'DET4.DATA': Image,
+        'IMAGE': Image,
+        'NOISE': Image,
+        'BPM': Image,
     }
 
 

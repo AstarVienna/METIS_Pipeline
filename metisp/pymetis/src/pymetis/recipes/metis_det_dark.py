@@ -25,6 +25,7 @@ from cpl.core import Msg, ImageList, Image, Mask
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
@@ -35,6 +36,7 @@ from pymetis.classes.recipes import MetisRecipe
 import numpy as np
 
 from pymetis.functions.image import zeros_like
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):
@@ -118,8 +120,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
         raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
-        combined_image = self.combine_images(raw_images, method)
-        header = self.inputset.raw.items[0].header
 
         # load raw data
         kappa_high = 2  # ToDo This could probably be a recipe parameter
@@ -237,8 +237,10 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         header.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
                                         qcmedmax, "[ADU] median value of max values of individual input images"))
 
-        product = self.ProductMasterDark(header, IMAGE=combined_image, NOISE=noise, BPM=badpix_mask)
-
+        product = self.ProductMasterDark(header,
+                                         IMAGE=Hdu(create_dummy_header(), combined_image),
+                                         NOISE=Hdu(create_dummy_header(), noise),
+                                         BPM=Hdu(create_dummy_header(), badpix_mask))
         return {product}
 
 
