@@ -33,10 +33,11 @@ class LmChophomeCombined(BandLmMixin, ImageDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI20.NAME'}
 
-    _schema = [None, Image]
+    _schema = {
+        'PRIMARY': None,
+        'DET1DATA': Image,
+    }
 
-    def __init__(self, primary_header: PropertyList, image: Image):
-        super().__init__(primary_header, image)
 
 
 class LmChophomeBackground(BandLmMixin, ImageDataItem):
@@ -47,3 +48,9 @@ class LmChophomeBackground(BandLmMixin, ImageDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI19.NAME', 'INS.OPTI20.NAME'}
+
+    _schema = {
+        'PRIMARY': None,
+        'DET1DATA': Image,
+    }
+

@@ -32,7 +32,11 @@ class PersistenceMap(ImageDataItem):
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PERSISTENCE_MAP'
 
-    _schema = [None, Image]
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
+
 
 
 class FluxCalTable(TableDataItem): # FixMe this should be a table, right?

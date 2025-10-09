@@ -32,7 +32,7 @@ class LmChophomeRaw(Raw):
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
-    _schema = [None, Image]
-
-    def __init__(self, primary_header: PropertyList, image: Image):
-        super().__init__(primary_header, image)
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }

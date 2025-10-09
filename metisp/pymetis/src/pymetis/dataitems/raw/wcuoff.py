@@ -36,7 +36,13 @@ class WcuOffRaw(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
 
-    _schema = [None, Image]
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+        'DET2.DATA': Image,
+        'DET3.DATA': Image,
+        'DET4.DATA': Image,
+    }
 
 
 class LmWcuOffRaw(BandLmMixin, WcuOffRaw):

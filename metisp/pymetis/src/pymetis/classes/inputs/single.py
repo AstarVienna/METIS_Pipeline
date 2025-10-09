@@ -21,7 +21,7 @@ from typing import Any, Union, Optional
 
 import cpl
 
-from cpl.core import Msg
+from cpl.core import Msg, Image, Table
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
@@ -53,7 +53,7 @@ class SinglePipelineInput(PipelineInput):
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
 
-    def load_data(self, extension: str = None) -> DataItem:
+    def load_data(self, extension: str = None) -> Image | Table:
         Msg.info(self.__class__.__qualname__,
                  f"Loading single input frame {self.frame.file!r}")
 
@@ -63,7 +63,7 @@ class SinglePipelineInput(PipelineInput):
                  f"Item is now {self.item}")
 
         self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
-        return self.item.hdus[extension]
+        return self.item.load_data(extension)
 
     def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()
