@@ -18,14 +18,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import PropertyList as CplPropertyList, Property as CplProperty
 
 
-def create_dummy_header() -> cpl.core.PropertyList:
+def python_to_cpl_type(what: type) -> cpl.core.Type:
+    return {
+        int: cpl.core.Type.INT,
+        float: cpl.core.Type.FLOAT,
+        str: cpl.core.Type.STRING,
+    }[what]
+
+
+def create_dummy_header(**kwargs) -> cpl.core.PropertyList:
     """
     Create a dummy header (absolutely no assumptions, just to have something to work with).
     # ToDo This function should not survive in the future.
     """
-    return cpl.core.PropertyList()
+    return cpl.core.PropertyList([
+        CplProperty(name, python_to_cpl_type(type(prop)), prop) for name, prop in kwargs.items()
+    ])
 
 
 def create_dummy_image(size: int = 2048) -> cpl.core.Image:

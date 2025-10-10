@@ -237,10 +237,11 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         header.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
                                         qcmedmax, "[ADU] median value of max values of individual input images"))
 
-        product = self.ProductMasterDark(header,
-                                         IMAGE=Hdu(create_dummy_header(), combined_image),
-                                         NOISE=Hdu(create_dummy_header(), noise),
-                                         BPM=Hdu(create_dummy_header(), badpix_mask))
+        product = self.ProductMasterDark(header, **{
+            'IMAGE': Hdu(create_dummy_header(EXTNAME='IMAGE'), combined_image),
+            'NOISE': Hdu(create_dummy_header(EXTNAME='NOISE'), noise),
+            'BPM': Hdu(create_dummy_header(EXTNAME='BPM'), badpix_mask),
+        })
         return {product}
 
 

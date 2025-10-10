@@ -23,7 +23,7 @@ from typing import Union, TypeVar, Generic, Optional
 import cpl
 from cpl.core import (Image as CplImage,
                       Table as CplTable,
-                      PropertyList as CplPropertyList)
+                      PropertyList as CplPropertyList, Property)
 
 
 class Hdu:
@@ -60,6 +60,9 @@ class Hdu:
 
     def __repr__(self) -> str:
         return f"<HDU {self.name=} = {self.extno=}>"
+
+    def save(self, filename):
+        self.data.save(filename, self.header, cpl.core.io.EXTEND)
 
 
 class MetisImage:

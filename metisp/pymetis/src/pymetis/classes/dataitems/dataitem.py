@@ -26,7 +26,7 @@ from typing import Optional, Generator, Self, Any, final, Union
 
 import cpl
 
-from cpl.core import Msg, Image, Table, PropertyList
+from cpl.core import Msg, Image, Table, PropertyList as CplPropertyList, Property as CplProperty
 from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
@@ -213,8 +213,12 @@ class DataItem(Parametrizable, ABC):
         """
         return cls._oca_keywords
 
+    @property
+    def hdus(self):
+        return self._hdus
+
     def __init__(self,
-                 primary_header: cpl.core.PropertyList = cpl.core.PropertyList(),
+                 primary_header: CplPropertyList = CplPropertyList(),
                  *,
                  filename: Optional[Path] = None,
                  **hdus: Hdu):
@@ -249,6 +253,12 @@ class DataItem(Parametrizable, ABC):
             assert self._schema[name] == hdu.klass, \
                 (f"Schema for {self.__class__.__qualname__} specifies that '{name}' is a {self._schema[name]} type, "
                  f"got {hdu.klass} instead!")
+
+            hdu.header.append(
+                CplPropertyList([
+                    CplProperty('EXTNAME', cpl.core.Type.STRING, hdu.name)
+                ])
+            )
 
             self._hdus[name] = hdu
 
@@ -285,7 +295,7 @@ class DataItem(Parametrizable, ABC):
         index = 0
         while True:
             try:
-                header = PropertyList.load(frame.file, index)
+                header = CplPropertyList.load(frame.file, index)
                 try:
                     extname = header['EXTNAME'].value
                 except KeyError:

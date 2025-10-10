@@ -34,6 +34,7 @@ class GainMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
+        'DET1DATA': Image,
     }
 
 
