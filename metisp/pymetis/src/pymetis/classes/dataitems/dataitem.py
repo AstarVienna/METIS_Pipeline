@@ -248,11 +248,12 @@ class DataItem(Parametrizable, ABC):
 
         for name, hdu in hdus.items():
             assert name in self._schema, \
-                f"Schema for {self.__class__.__qualname__} does not specify HDU '{name}', aborting!"
+                (f"Schema for {self.__class__.__qualname__} does not specify HDU '{name}'. "
+                 f"Accepted extension names are {list(self._schema.keys())}.")
 
             assert self._schema[name] == hdu.klass, \
                 (f"Schema for {self.__class__.__qualname__} specifies that '{name}' is a {self._schema[name]} type, "
-                 f"got {hdu.klass} instead!")
+                 f"but in {self.filename} we got {hdu.klass} instead!")
 
             hdu.header.append(
                 CplPropertyList([
@@ -272,7 +273,8 @@ class DataItem(Parametrizable, ABC):
         self._created_at: datetime.datetime = datetime.datetime.now()
 
         Msg.debug(self.__class__.__qualname__,
-                  f"Created a {self.__class__.__qualname__} data item with a primary header and {len(self._hdus) - 1} HDUs")
+                  f"Created a {self.__class__.__qualname__} data item with a primary header "
+                  f"and {len(self._hdus) - 1} extensions")
 
     @classmethod
     def load(cls,
@@ -312,6 +314,9 @@ class DataItem(Parametrizable, ABC):
                 structure['klass'] = subtype
                 structure['extno'] = index
 
+                if subschema.get('NAXIS', None) == 2:
+                    subtype = Image
+
                 hdus[extname] = Hdu(header, None, klass=subtype, extno=index)
 
                 Msg.debug(cls.__qualname__, f"Loaded HDU {index} ('{subschema.get('EXTNAME', 'PRIMARY')}')")
@@ -322,8 +327,7 @@ class DataItem(Parametrizable, ABC):
                 break
             index += 1
 
-
-        Msg.debug(cls.__qualname__, f"{structure}")
+        Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
         primary_header = cpl.core.PropertyList.load(frame.file, 0)
 
         return klass(primary_header, filename=frame.file, **hdus)
@@ -351,8 +355,15 @@ class DataItem(Parametrizable, ABC):
             If requested extension is not available
         """
 
-        return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
+        if self[extension].klass is None:
+            self[extension].klass = Image
 
+        try:
+            return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
+        except cpl.core.DataNotFoundError as exc:
+            Msg.error(self.__class__.__qualname__,
+                      f"Failed to load data from extension '{extension}'")
+            raise exc
 
     @property
     def used(self) -> bool:
@@ -453,7 +464,7 @@ class DataItem(Parametrizable, ABC):
 
         filename = self._get_file_name(output_file_name)
 
-        assert isinstance(self.primary_header, PropertyList), \
+        assert isinstance(self.primary_header, CplPropertyList), \
             f"{self.primary_header} must be a CplPropertyList, got a {type(self.primary_header)}"
 
         # Save the header to the primary HDU

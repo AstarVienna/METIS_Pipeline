@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.common import IfuTelluric
 from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated, IfuSciReduced
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
@@ -39,13 +40,18 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
     ProductSciCubeCalibrated = IfuScienceCubeCalibrated
 
     def process(self) -> set[DataItem]:
-        reduced = self.inputset.reduced.load_data()
+        reduced = self.inputset.reduced.load_data(extension='PRIMARY')
         self.inputset.reduced.use()
 
         header = create_dummy_header()
         image = create_dummy_image()
 
-        product_scc = self.ProductSciCubeCalibrated(header, image)
+        hdu = Hdu(header, image)
+
+        product_scc = self.ProductSciCubeCalibrated(
+            header,
+            IMAGE=hdu,
+        )
 
         return {product_scc}
 

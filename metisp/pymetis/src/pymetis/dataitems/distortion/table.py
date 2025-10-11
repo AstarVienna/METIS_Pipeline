@@ -47,7 +47,10 @@ class NDistortionTable(BandNMixin, DistortionTable):
 
 
 class IfuDistortionTable(BandIfuMixin, DistortionTable):
-    _schema = [None, Table, Table, Table, Table]
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 
     def read(self, *, extension: int) -> cpl.core.Vector:
         # Load the distortion table

@@ -23,7 +23,7 @@ from typing import Union, TypeVar, Generic, Optional
 import cpl
 from cpl.core import (Image as CplImage,
                       Table as CplTable,
-                      PropertyList as CplPropertyList, Property)
+                      PropertyList as CplPropertyList, Property, Msg)
 
 
 class Hdu:
@@ -57,12 +57,18 @@ class Hdu:
         except KeyError:
             self.name = 'PRIMARY'
 
+        Msg.debug(self.__class__.__qualname__,
+                  f"Created a HDU '{self.name}' with extno={self.extno}, class is {self.klass}")
 
     def __repr__(self) -> str:
-        return f"<HDU {self.name=} = {self.extno=}>"
+        return f"<HDU {self.name=}, {self.extno=}>"
 
     def save(self, filename):
-        self.data.save(filename, self.header, cpl.core.io.EXTEND)
+        # FixMe this is ugly as hell, but works
+        if self.klass == CplImage:
+            self.data.save(filename, self.header, cpl.core.io.EXTEND)
+        elif self.klass == CplTable:
+            self.data.save(self.header, self.header, filename, cpl.core.io.EXTEND)
 
 
 class MetisImage:

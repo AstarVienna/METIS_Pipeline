@@ -18,24 +18,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Msg, PropertyList
-
-from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.dataitem import PIPELINE
 
 
 class TableDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
 
-    def __init__(self,
-                 primary_header: cpl.core.PropertyList = None,
-                 *hdus: cpl.core.Table):
-        super().__init__(primary_header, *hdus)
-
     def save_extensions(self,
                         filename: str) -> None:
-        for hdu in self.hdus:
+        for name, hdu in self.hdus.items():
             # Here the signature is (primary_header, header, filename, mode) for whatever reason...
-            hdu.save(self.header, self.header, filename, cpl.core.io.EXTEND)
+            hdu.save(filename)

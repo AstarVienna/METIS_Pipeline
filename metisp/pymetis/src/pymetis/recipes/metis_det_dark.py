@@ -16,9 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import copy
+import functools
+import operator
 from abc import ABC
-from typing import Self, Optional
+from typing import Self, Optional, Literal
 
 import cpl
 from cpl.core import Msg, ImageList, Image, Mask
@@ -36,7 +38,7 @@ from pymetis.classes.recipes import MetisRecipe
 import numpy as np
 
 from pymetis.functions.image import zeros_like
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.utils.dummy import create_dummy_header, python_to_cpl_type
 
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):
@@ -112,14 +114,14 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     # Also, persistence and non-linearity to be implemented.
     #########################################################################
 
-    def process(self) -> set[DataItem]:
-        method = self.parameters["metis_det_dark.stacking.method"].value
+    def process_detector(self, detector: Literal[1, 2, 3, 4]) -> list[Hdu]:
+        assert detector in [1, 2, 3, 4], \
+            f"Unknown detector {detector}"
 
-        # load calibration files
+        Msg.info(self.__class__.__qualname__,
+                 f"Processing detector {detector}")
 
-        # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
-        raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
+        raw_images = self.inputset.raw.load_data(extension=f'DET{detector:1d}.DATA')
 
         # load raw data
         kappa_high = 2  # ToDo This could probably be a recipe parameter
@@ -140,7 +142,9 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         raw_images = self.correct_gain(raw_images)
         raw_images = self.correct_persistence(raw_images)
-        raw_images = self.correct_nonlinearity(raw_images)
+
+        linearity_map = self.inputset.linearity.load_data(extension=r'PRIMARY')
+        raw_images = self.correct_nonlinearity(raw_images, linearity_map)
 
         if len(raw_images) > 1:
             Msg.info(self.__class__.__qualname__,
@@ -153,9 +157,9 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
                         f"Cannot calculate actual read noise as there is only one raw image")
             read_noise = (0, 0)
 
-        combined_image, noise = self.combine_images_with_error(raw_images, method, read_noise[0])
+        combined_image, noise = self.combine_images_with_error(raw_images, self.stacking_method, read_noise[0])
 
-        Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
+        Msg.info(self.__class__.__qualname__, f"Combining images using method {self.stacking_method!r}")
 
         mask_hot, mask_cold = self.calculate_outliers(combined_image, kappa_low=kappa_low, kappa_high=kappa_high)
         qcnhot, qcncold = mask_hot.count(), mask_cold.count()
@@ -210,38 +214,61 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         qcmedmax = np.median(np.array(maxs))
         qcmedmean = np.median(np.array(means))
 
-        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+        header_image = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
         # ToDo make this less boilerplatey
-        header.append(cpl.core.Property("QC DARK MEAN", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK MEAN", cpl.core.Type.DOUBLE,
                                         qcmean, "[ADU] mean value of master dark"))
-        header.append(cpl.core.Property("QC DARK MEDIAN", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK MEDIAN", cpl.core.Type.DOUBLE,
                                         qcmed, "[ADU] median value of master dark"))
-        header.append(cpl.core.Property("QC DARK RMS", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK RMS", cpl.core.Type.DOUBLE,
                                         qcrms, "[ADU] rms value of master dark"))
-        header.append(cpl.core.Property("QC DARK NBADPIX", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK NBADPIX", cpl.core.Type.DOUBLE,
                                         qcnbad, "[ADU] number of bad pixels"))
-        header.append(cpl.core.Property("QC DARK NCOLDPIX", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK NCOLDPIX", cpl.core.Type.DOUBLE,
                                         qcncold, "[ADU] number of cold pixels"))
-        header.append(cpl.core.Property("QC DARK NHOTPIX", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK NHOTPIX", cpl.core.Type.DOUBLE,
                                         qcnhot, "[ADU] number of hot pixels"))
-        header.append(cpl.core.Property("QC DARK MEDIAN MEAN", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK MEDIAN MEAN", cpl.core.Type.DOUBLE,
                                         qcmedmean, "[ADU] median value of mean values of individual input images"))
-        header.append(cpl.core.Property("QC DARK MEDIAN MEDIAN", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK MEDIAN MEDIAN", cpl.core.Type.DOUBLE,
                                         qcmedmed, "[ADU] median value of median values of individual input images"))
-        header.append(cpl.core.Property("QC DARK MEDIAN RMS", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK MEDIAN RMS", cpl.core.Type.DOUBLE,
                                         qcmedrms, "[ADU] median value of RMS values of individual input images"))
-        header.append(cpl.core.Property("QC DARK MEDIAN MIN", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK MEDIAN MIN", cpl.core.Type.DOUBLE,
                                         qcmedmin, "[ADU] median value of min values of individual input images"))
-        header.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
+        header_image.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
                                         qcmedmax, "[ADU] median value of max values of individual input images"))
 
-        product = self.ProductMasterDark(header, **{
-            'IMAGE': Hdu(create_dummy_header(EXTNAME='IMAGE'), combined_image),
-            'NOISE': Hdu(create_dummy_header(EXTNAME='NOISE'), noise),
-            'BPM': Hdu(create_dummy_header(EXTNAME='BPM'), badpix_mask),
-        })
+
+        header_noise = copy.deepcopy(header_image)
+        header_noise.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, fr'DET{detector:1d}.NOISE'))
+
+        header_mask = copy.deepcopy(header_image)
+        header_mask.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, fr'DET{detector:1d}.BPM'))
+
+        header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, fr'DET{detector:1d}.IMAGE'))
+
+        return [
+            Hdu(header_image, combined_image),
+            Hdu(header_noise, noise),
+            Hdu(header_mask, badpix_mask),
+        ]
+
+    def process(self) -> set[DataItem]:
+        self.stacking_method = self.parameters["metis_det_dark.stacking.method"].value
+
+        # load calibration files
+
+        # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
+        Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
+
+        print(self.inputset.raw.frameset)
+
+        hdus = functools.reduce(operator.add, map(self.process_detector, [1, 2, 3, 4]))
+
+        product = self.ProductMasterDark(create_dummy_header(), **{hdu.header['EXTNAME'].value: hdu for hdu in hdus})
         return {product}
 
 

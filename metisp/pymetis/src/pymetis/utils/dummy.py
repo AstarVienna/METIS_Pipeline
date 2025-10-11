@@ -24,8 +24,9 @@ from cpl.core import PropertyList as CplPropertyList, Property as CplProperty
 def python_to_cpl_type(what: type) -> cpl.core.Type:
     return {
         int: cpl.core.Type.INT,
-        float: cpl.core.Type.FLOAT,
+        float: cpl.core.Type.DOUBLE,
         str: cpl.core.Type.STRING,
+        list: cpl.core.Type.ARRAY,
     }[what]
 
 
@@ -39,12 +40,12 @@ def create_dummy_header(**kwargs) -> cpl.core.PropertyList:
     ])
 
 
-def create_dummy_image(size: int = 2048) -> cpl.core.Image:
+def create_dummy_image(size: int = 2048, dtype: cpl.core.Type = cpl.core.Type.FLOAT) -> cpl.core.Image:
     """
     Create a dummy image (absolutely no assumptions, just to have something to work with).
     # ToDo This function should not survive in the future.
     """
-    return cpl.core.Image.zeros(size, size, cpl.core.Type.FLOAT)
+    return cpl.core.Image.zeros(size, size, dtype)
 
 
 def create_dummy_table(rows: int = 3) -> cpl.core.Table:

@@ -29,6 +29,11 @@ from pymetis.classes.mixins.target import TargetSpecificMixin
 class IfuBase(TargetSpecificMixin, BandIfuMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
+    # FixMe: This is wrong but matches the current testing data
+    _schema = {
+        'PRIMARY': Image,
+    }
+
 
 class IfuReduced(IfuBase, abstract=True):
     _name_template = r'IFU_{target}_REDUCED'
@@ -102,4 +107,7 @@ class IfuScienceCubeCalibrated(BandIfuMixin, ImageDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    _schema = [Image]
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': Image,
+    }

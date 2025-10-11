@@ -21,6 +21,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import RawInput, MasterDarkInput
@@ -42,15 +43,26 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
     ProductDistortionReduced = IfuDistortionReduced
 
     def process(self) -> set[DataItem]:
-        raw_images = self.inputset.raw.load_images()
+        raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
         self.inputset.raw.use()
 
         combined_image = self.combine_images(raw_images, "average")
         header = create_dummy_header()
+        header_table = create_dummy_header()
+        # FixMe Get rid of this
+        header_table.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, fr'TABLE'))
+
         table = create_dummy_table()
 
-        product_distortion = self.ProductDistortionTable(header, table)
-        product_distortion_reduced = self.ProductDistortionReduced(header, combined_image)
+
+        product_distortion = self.ProductDistortionTable(
+            header,
+            TABLE=Hdu(header_table, table)
+        )
+        product_distortion_reduced = self.ProductDistortionReduced(
+            header,
+            IMAGE=Hdu(create_dummy_header(), combined_image)
+        )
 
         return {product_distortion, product_distortion_reduced}
 

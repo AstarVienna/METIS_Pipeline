@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin, DetectorIfuMixin
 
 
 class DistortionRaw(BandSpecificMixin, Raw, abstract=True):
@@ -40,5 +40,5 @@ class NDistortionRaw(BandNMixin, DistortionRaw):
     pass
 
 
-class IfuDistortionRaw(BandIfuMixin, DistortionRaw):
+class IfuDistortionRaw(DetectorIfuMixin, BandIfuMixin, DistortionRaw):
     pass
