@@ -286,3 +286,227 @@ telluric_ifu_class =classification_rule("IFU_TELLURIC",
 flux_tab_class = classification_rule("FLUXCAL_TAB",
                                      {"pro.catg": "FLUXCAL_TAB",
                                       })
+
+
+# ----- LM LSS Classifications -----
+
+# Slitloss files (TODO: Check the difference to STATIC ones - doubly defined??  Also check whether img or lss mode)
+lm_slitloss_class = classification_rule("LM_ADC_SLITLOSS_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,LM",
+     metis_kwd.dpr_type: "SLITLOSS",
+    })
+
+# RSRF / FLATFIELDS 
+lm_rsrf_raw_class = classification_rule("LM_LSS_RSRF_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,LM",
+     metis_kwd.dpr_type: "FLAT,LAMP",
+    })
+
+# RSRF pinhole frames 
+lm_rsrf_pinh_class = classification_rule("LM_LSS_RSRF_PINH_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,LM",
+     metis_kwd.dpr_type: "FLAT,LAMP,PINH",
+    })
+
+# Wavelength calib files (WCU laser sources)
+lm_wave_class = classification_rule("LM_LSS_WAVE_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,LM",
+     metis_kwd.dpr_type: "WAVE",
+    })
+
+# Standard stars raw
+lm_lss_raw_std_class = classification_rule("LM_LSS_STD_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,LM",
+     metis_kwd.dpr_type: "STD",
+    })
+
+# Science observations in LSS mode
+lm_lss_sci_raw_class = classification_rule("LM_LSS_SCI_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "SCIENCE",
+     metis_kwd.dpr_type: "OBJECT",
+     metis_kwd.dpr_tech: "LSS,LM",
+    })
+
+# MASTERDARK (master calibration)
+MASTERDARK_class = classification_rule("MASTERDARK",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.pro_catg: "MASTERDARK",
+     metis_kwd.det_id: "2RG",
+    })
+
+# LM LSS final product (1D flux)
+lm_lss_sci_flux_1d_class = classification_rule("LM_LSS_SCI_FLUX_1D",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.pro_catg: "LM_LSS_SCI_FLUX_1D",
+    })
+
+# Static / external calibration products
+# Atmospheric line catalogue
+static_atm_line_cat_class = classification_rule("ATM_LINE_CAT",
+    {metis_kwd.pro_catg: "ATM_LINE_CAT",
+    })
+
+# Table with WCU laser wavelengthes
+static_laser_tab_class = classification_rule("LASER_TAB",
+    {metis_kwd.pro_catg: "LASER_TAB",
+    })
+
+# Catalogue of standard stars
+static_ref_std_cat_class = classification_rule("REF_STD_CAT",
+    {metis_kwd.pro_catg: "REF_STD_CAT",
+    })
+
+# Distortion solution
+static_lm_lss_dist_sol_class = classification_rule("LM_LSS_DIST_SOL",
+    {metis_kwd.pro_catg: "LM_LSS_DIST_SOL",
+    })
+
+# First wavelength calibration guess
+static_lm_lss_wave_guess_class = classification_rule("LM_LSS_WAVE_GUESS",
+    {metis_kwd.pro_catg: "LM_LSS_WAVE_GUESS",
+    })
+
+# Static PSF model
+static_ao_psf_model_class = classification_rule("AO_PSF_MODEL",
+    {metis_kwd.pro_catg: "AO_PSF_MODEL",
+    })
+
+# ADC Slitloss file
+static_lm_adc_slitloss_class = classification_rule("LM_ADC_SLITLOSS",
+    {metis_kwd.pro_catg: "LM_ADC_SLITLOSS",
+    })
+
+# Static GAIN map
+static_gain_map_h2rg_class = classification_rule("GAIN_MAP_2RG",
+    {metis_kwd.pro_catg: "GAIN_MAP_2RG",
+    })
+
+# Linearity file
+static_linearity_h2rg_class = classification_rule("LINEARITY_2RG",
+    {metis_kwd.pro_catg: "LINEARITY_2RG",
+    })
+
+# Bad pixel map
+static_badpix_map_h2rg_class = classification_rule("BADPIX_MAP_2RG",
+    {metis_kwd.pro_catg: "BADPIX_MAP_2RG",
+    })
+
+# Synthetic transmission for the LM LSS mode
+static_lm_lss_synth_trans_class = classification_rule("LM_LSS_SYNTH_TRANS",
+    {metis_kwd.pro_catg: "LM_LSS_SYNTH_TRANS",
+    })
+
+# Table for best-fit molecfit parameters
+mf_best_fit_tab_class = classification_rule("MF_BEST_FIT_TAB",
+    {metis_kwd.pro_catg: "MF_BEST_FIT_TAB",
+    })
+
+
+# ----- N LSS Classifications -----
+
+# Slitloss files (TODO: Check the difference to STATIC ones - doubly defined??  Also check whether img or lss mode)
+n_slitloss_class = classification_rule("N_ADC_SLITLOSS_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,N",
+     metis_kwd.dpr_type: "SLITLOSS",
+    })
+
+# RSRF / FLATFIELDS 
+n_rsrf_raw_class = classification_rule("N_LSS_RSRF_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,N",
+     metis_kwd.dpr_type: "FLAT,LAMP",
+    })
+
+# RSRF pinhole frames 
+n_rsrf_pinh_class = classification_rule("N_LSS_RSRF_PINH_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,N",
+     metis_kwd.dpr_type: "FLAT,LAMP,PINH",
+    })
+
+# Wavelength calib files (WCU laser sources)
+n_wave_class = classification_rule("N_LSS_WAVE_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,N",
+     metis_kwd.dpr_type: "WAVE",
+    })
+
+# Standard stars raw 
+n_lss_raw_std_class = classification_rule("N_LSS_STD_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_tech: "LSS,N",
+     metis_kwd.dpr_type: "STD",
+    })
+
+# Science observations raw
+n_lss_sci_raw_class = classification_rule("N_LSS_SCI_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "SCIENCE",
+     metis_kwd.dpr_type: "OBJECT",
+     metis_kwd.dpr_tech: "LSS,N",
+    })
+
+# MASTERDARK for GEO detector
+MASTERDARK_geo_class = classification_rule("MASTERDARK",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.pro_catg: "MASTERDARK",
+     metis_kwd.det_id: "GEO",
+    })
+
+# N LSS product
+n_lss_sci_flux_1d_class = classification_rule("N_LSS_SCI_FLUX_1D",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.pro_catg: "N_LSS_SCI_FLUX_1D",
+    })
+
+# Distortion solution 
+static_n_lss_dist_sol_class = classification_rule("N_LSS_DIST_SOL",
+    {metis_kwd.pro_catg: "N_LSS_DIST_SOL",
+    })
+
+# First wavelength calibration guess 
+static_n_lss_wave_guess_class = classification_rule("N_LSS_WAVE_GUESS",
+    {metis_kwd.pro_catg: "N_LSS_WAVE_GUESS",
+    })
+
+# Static ADC Slitloss 
+static_n_adc_slitloss_class = classification_rule("N_ADC_SLITLOSS",
+    {metis_kwd.pro_catg: "N_ADC_SLITLOSS",
+    })
+
+# Static gain map for GEO detector
+static_gain_map_geo_class = classification_rule("GAIN_MAP_GEO",
+    {metis_kwd.pro_catg: "GAIN_MAP_GEO",
+    })
+
+# Static linearity file for GEO detector
+static_linearity_geo_class = classification_rule("LINEARITY_GEO",
+    {metis_kwd.pro_catg: "LINEARITY_GEO",
+    })
+
+# Static bad pixel map for GEO detector
+static_badpix_map_geo_class = classification_rule("BADPIX_MAP_GEO",
+    {metis_kwd.pro_catg: "BADPIX_MAP_GEO",
+    })
+
+# Synthetic transmission for the N LSS mode
+static_n_lss_synth_trans_class = classification_rule("N_LSS_SYNTH_TRANS",
+    {metis_kwd.pro_catg: "N_LSS_SYNTH_TRANS",
+    })

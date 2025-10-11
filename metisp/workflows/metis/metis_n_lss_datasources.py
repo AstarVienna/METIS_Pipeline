@@ -8,7 +8,7 @@
 from edps import data_source, match_rules
 from edps.generator.time_range import *
 from .metis_n_lss_classification import *
-from . import metis_n_lss_keywords as metis_kwd
+from . import metis_keywords as metis_kwd
 
 # ----------------------------------------------------------------------------
 # ----------------- Defining required number of input files ------------------
