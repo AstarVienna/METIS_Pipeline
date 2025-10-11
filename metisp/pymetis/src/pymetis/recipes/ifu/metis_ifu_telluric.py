@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.common import FluxCalTable, IfuTelluric
 from pymetis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
@@ -100,11 +101,20 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         image = create_dummy_image()
         table = create_dummy_table()
 
-        combined = self.inputset.combined.load_data().use()
+        combined = self.inputset.combined.load_data('PRIMARY')
 
-        product_telluric_transmission = self.ProductTelluricTransmission(header, table)
-        product_reduced_1d = self.ProductResponseFunction(header, image)
-        product_fluxcal_tab = self.ProductFluxcalTab(header, table)
+        product_telluric_transmission = self.ProductTelluricTransmission(
+            header,
+            TABLE=Hdu(header, table),
+        )
+        product_reduced_1d = self.ProductResponseFunction(
+            header,
+            IMAGE=Hdu(header, image),
+        )
+        product_fluxcal_tab = self.ProductFluxcalTab(
+            header,
+            TABLE=Hdu(header, table),
+        )
 
         return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}
 

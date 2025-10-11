@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Image
+from cpl.core import Image as CplImage
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandIfuMixin, BandLmMixin
@@ -31,7 +31,10 @@ class SciCoadd(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-    _schema = [None, Image]
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': CplImage,
+    }
 
 
 class LmSciCoadd(BandLmMixin, SciCoadd):

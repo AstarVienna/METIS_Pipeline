@@ -47,7 +47,10 @@ class FluxCalTable(TableDataItem): # FixMe this should be a table, right?
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG'}
 
-    _schema = [None, Image]
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 
 
 class PinholeTable(TableDataItem):
@@ -59,7 +62,10 @@ class PinholeTable(TableDataItem):
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PINHOLE_TABLE'
 
-    _schema = [None, Table]
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 
 
 class AtmProfile(TableDataItem):
@@ -70,7 +76,10 @@ class AtmProfile(TableDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
-    _schema = [None, Table]
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 
 
 class LsfKernel(TableDataItem):
@@ -121,5 +130,8 @@ class IfuTelluric(TableDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    _schema = [None, Table]
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 

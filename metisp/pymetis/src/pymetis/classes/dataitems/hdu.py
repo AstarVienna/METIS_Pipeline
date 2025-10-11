@@ -64,6 +64,9 @@ class Hdu:
         return f"<HDU {self.name=}, {self.extno=}>"
 
     def save(self, filename):
+        Msg.info(self.__class__.__name__,
+                 f"Saving HDU '{self.name}' to '{filename}'")
+
         # FixMe this is ugly as hell, but works
         if self.klass == CplImage:
             self.data.save(filename, self.header, cpl.core.io.EXTEND)

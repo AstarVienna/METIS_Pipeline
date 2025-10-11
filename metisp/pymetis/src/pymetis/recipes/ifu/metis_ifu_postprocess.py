@@ -18,10 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-
-from cpl.core import ImageList as ImageList
+from cpl.core import ImageList as CplImageList
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.coadd import IfuSciCoadd
 from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
@@ -43,9 +43,8 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         pass
 
     def coadd_cubes(self):
-        calibrated = self.inputset.sci_cube_calibrated.load_list()
+        calibrated = self.inputset.sci_cube_calibrated.load_data('IMAGE')
         coadded = calibrated.collapse_create()
-
         return coadded
 
     def process(self) -> set[DataItem]:
@@ -57,7 +56,10 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
 
         coadded = self.coadd_cubes()
 
-        product = self.ProductSciCoadd(header, coadded)
+        product = self.ProductSciCoadd(
+            header,
+            IMAGE=Hdu(header, coadded),
+        )
 
         return {product}  # ToDo is just a dummy for now
 

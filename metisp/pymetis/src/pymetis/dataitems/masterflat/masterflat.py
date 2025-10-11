@@ -43,7 +43,7 @@ class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
 
 
 class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
-    _schema = [None, Image, Image, Image, Image]
+    pass
 
 
 

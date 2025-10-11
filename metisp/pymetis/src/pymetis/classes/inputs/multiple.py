@@ -75,7 +75,6 @@ class MultiplePipelineInput(PipelineInput):
         self.use() # FixMe: for now anything that is actually loaded is marked as used
 
         images = [item.load_data(extension) for item in images]
-
         return ImageList(images)
 
     def set_cpl_attributes(self):

@@ -467,6 +467,9 @@ class DataItem(Parametrizable, ABC):
         assert isinstance(self.primary_header, CplPropertyList), \
             f"{self.primary_header} must be a CplPropertyList, got a {type(self.primary_header)}"
 
+        assert len(recipe.used_frames) > 0, \
+            f"Recipe {recipe.name()} did not use any frames"
+
         # Save the header to the primary HDU
         cpl.dfs.save_propertylist(
             recipe.frameset,

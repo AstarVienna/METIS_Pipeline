@@ -43,7 +43,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         reduced = self.inputset.reduced.load_data(extension='PRIMARY')
         self.inputset.reduced.use()
 
-        header = create_dummy_header()
+        header = create_dummy_header(EXTNAME='IMAGE')
         image = create_dummy_image()
 
         hdu = Hdu(header, image)

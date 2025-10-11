@@ -74,6 +74,11 @@ class IfuReduced1d(IfuBase, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': Image,
+    }
+
 
 class IfuStdReduced1d(TargetStdMixin, IfuReduced1d):
     _description_template = "Spectrum of a reduced telluric standard star."
