@@ -21,8 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from .dataitem import DataItem
 from .image import ImageDataItem
 from .table import TableDataItem
+from .hdu import Hdu
 
 
 __all__ = [
-    'DataItem', 'ImageDataItem', 'TableDataItem',
+    'DataItem', 'ImageDataItem', 'TableDataItem', 'Hdu'
 ]

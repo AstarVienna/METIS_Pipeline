@@ -301,12 +301,15 @@ class DataItem(Parametrizable, ABC):
                 try:
                     extname = header['EXTNAME'].value
                 except KeyError:
-                    extname = 'PRIMARY'
+                    try:
+                        extname = header['XTENSION'].value
+                    except KeyError:
+                        extname = 'PRIMARY'
 
                 subschema = {prop.name: prop.value for prop in header}
                 subtype = {
                     'IMAGE': Image,
-                    'TABLE': Table,
+                    'BINTABLE': Table,
                     None: None,
                 }[subschema.get('XTENSION', None)]
 
@@ -319,7 +322,7 @@ class DataItem(Parametrizable, ABC):
 
                 hdus[extname] = Hdu(header, None, klass=subtype, extno=index)
 
-                Msg.debug(cls.__qualname__, f"Loaded HDU {index} ('{subschema.get('EXTNAME', 'PRIMARY')}')")
+                Msg.debug(cls.__qualname__, f"Loaded HDU {index} ('{extname}')")
 
             except cpl.core.DataNotFoundError:
                 Msg.debug(cls.__qualname__,
@@ -590,12 +593,15 @@ class DataItem(Parametrizable, ABC):
         KeyError
             If the item is not a recognized extension.
         """
-        if isinstance(item, str):
-            return self._hdus[item]
-        elif isinstance(item, int):
-            return self._hdus[self.get_name(item)]
-        else:
-            raise KeyError(f"Invalid item {item}")
+        try:
+            if isinstance(item, str):
+                return self._hdus[item]
+            elif isinstance(item, int):
+                return self._hdus[self.get_name(item)]
+            else:
+                raise TypeError(f"Invalid item {item} ({type(item)} in {self.filename}")
+        except KeyError as e:
+            raise KeyError(f"HDU '{item}' not found in {self.filename}") from e
 
     def get_name(self, index: int) -> str:
         for name, hdu in self._hdus.items():

@@ -16,7 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from pymetis.classes.dataitems import DataItem
+
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.lss.science import LssSciFlux1d, LssSciFluxTellCorr1d
 from pymetis.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
@@ -35,20 +36,29 @@ class MetisLssMfCorrectImpl(MetisRecipeImpl):
     ProductTellCorrFinal = LssSciFluxTellCorr1d
 
     def mf_correct(self):
+        """
+        Correct the science flux image with MolecFit transmission input
+
+        """
         pass
 
     def process(self) -> set[DataItem]:
         """Create dummy file (should do something more fancy in the future)"""
 
-        lss_sci_flux = self.inputset.lss_sci_flux1d.load_data()
+        lss_sci_flux = self.inputset.lss_sci_flux1d.load_data('BINTABLE')
         self.mf_correct()
 
         # TODO: Check whether calctrans creates the Transmission file - if so, no need to
         # write it out here again
         header = lss_sci_flux.header
+
+        header_table = create_dummy_header(EXTNAME='TABLE')
         table = create_dummy_table()
 
         return {
-            self.ProductTellCorrFinal(header, table),
+            self.ProductTellCorrFinal(
+                header,
+                Hdu(header, table),
+            ),
         }
 

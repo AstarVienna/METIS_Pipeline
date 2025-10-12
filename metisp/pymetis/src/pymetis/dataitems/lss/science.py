@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Table
 
 from pymetis.classes.dataitems import ImageDataItem, TableDataItem
 from pymetis.classes.mixins import BandSpecificMixin, TargetSpecificMixin, BandLmMixin, BandNMixin, TargetSciMixin, \
@@ -118,6 +119,11 @@ class LssSciFlux1d(BandSpecificMixin, TableDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
+
+    _schema = {
+        'PRIMARY': None,
+        'BINTABLE': Table,
+    }
 
 
 class LmLssSciFlux1d(BandLmMixin, LssSciFlux1d):

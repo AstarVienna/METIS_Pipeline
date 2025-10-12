@@ -50,13 +50,22 @@ class MultiplePipelineInput(PipelineInput):
 
     def load_data(self, extension: int | str = None) -> ImageList:
         """
-        Load a list of items from a FrameSet.
-        The items should be a homogeneous set.
+        Load a list of data items from a FrameSet, all corresponding to the same extension HDU.
+        The items should be a homogeneous set of CPL Images.
+        # ToDO make sure that there can never be multiple tables, only images
 
         Parameters
         ----------
-        extension : int | str
-            The extension of the items to load, can be int or string (in which case 'EXTNAME' will be matched)
+        extension:
+            The extension of the items to load, can be
+
+            - ``int``, in which case the extension will be fetched by number;
+            - ``str``, in which case ``EXTNAME`` will be matched.
+
+        Returns
+        -------
+        cpl.core.ImageList
+            A CPL ``ImageLisŧ`` containing the loaded images.
         """
         Msg.info(self.__class__.__qualname__,
                  f"Loading multiple input frames for extension: {extension}")
@@ -78,6 +87,9 @@ class MultiplePipelineInput(PipelineInput):
         return ImageList(images)
 
     def set_cpl_attributes(self):
+        """
+        Set the required CPL attributes from the associated ``DataItem``.
+        """
         frameset = cpl.ui.FrameSet()
 
         for frame in self.frameset:
@@ -103,9 +115,10 @@ class MultiplePipelineInput(PipelineInput):
         Verification shorthand.
 
         If a required frameset is not present or empty,
-        raise a `cpl.core.DataNotFoundError` with the appropriate message.
+        raise a ``cpl.core.DataNotFoundError`` with the appropriate message.
 
-        :raises:
+        Raises
+        ------
         cpl.core.DataNotFoundError:
             If the input is required but the frameset is empty
         """
@@ -127,9 +140,9 @@ class MultiplePipelineInput(PipelineInput):
         Raises
         ------
         KeyError
-            If the found detector name is not a valid detector name
+            If the found detector name is not a valid detector name.
         ValueError
-            If dark frames from more than one detector are found
+            If dark frames from more than one detector are found.
         """
 
     def as_dict(self) -> dict[str, Any]:
