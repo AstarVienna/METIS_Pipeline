@@ -63,7 +63,7 @@ lm_raw_sky_class = classification_rule("LM_IMAGE_SKY_RAW",
      metis_kwd.dpr_tech: "IMAGE,LM",
     })
 
-lm_raw_std_class = classification_rule("LM_IMAGE_STD_RAW",
+lm_raw_img_std_class = classification_rule("LM_IMAGE_STD_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
      metis_kwd.dpr_type: "STD",
@@ -135,7 +135,7 @@ n_raw_sky_class = classification_rule("N_IMAGE_SKY_RAW",
      metis_kwd.dpr_tech: "IMAGE,N",
     })
 
-n_raw_std_class = classification_rule("N_IMAGE_STD_RAW",
+n_raw_img_std_class = classification_rule("N_IMAGE_STD_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
      metis_kwd.dpr_type: "STD",
@@ -389,17 +389,17 @@ static_lm_adc_slitloss_class = classification_rule("LM_ADC_SLITLOSS",
 
 # Static GAIN map
 static_gain_map_h2rg_class = classification_rule("GAIN_MAP_2RG",
-    {metis_kwd.pro_catg: "GAIN_MAP_2RG",
+    {metis_kwd.pro_catg: "GAIN_MAP_det",
     })
 
 # Linearity file
 static_linearity_h2rg_class = classification_rule("LINEARITY_2RG",
-    {metis_kwd.pro_catg: "LINEARITY_2RG",
+    {metis_kwd.pro_catg: "LINEARITY_det",
     })
 
 # Bad pixel map
 static_badpix_map_h2rg_class = classification_rule("BADPIX_MAP_2RG",
-    {metis_kwd.pro_catg: "BADPIX_MAP_2RG",
+    {metis_kwd.pro_catg: "BADPIX_MAP_det",
     })
 
 # Synthetic transmission for the LM LSS mode
