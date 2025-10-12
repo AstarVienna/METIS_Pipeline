@@ -33,6 +33,10 @@ class MasterFlat(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
+    _schema = {
+        'PRIMARY': None,
+    }
+
 
 class MasterFlat2rg(Detector2rgMixin, MasterFlat):
     pass

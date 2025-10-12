@@ -44,9 +44,7 @@ class DetectorGeoMixin(DetectorSpecificMixin, detector='GEO'):
 
 class DetectorIfuMixin(DetectorSpecificMixin, detector='IFU'):
     _schema = {
-        'PRIMARY': None,
-        'DET1.DATA': Image,
-        'DET2.DATA': Image,
-        'DET3.DATA': Image,
-        'DET4.DATA': Image,
+        r'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}.DATA': Image for det in range(1, 5)
     }

@@ -71,6 +71,8 @@ class Hdu:
         if self.klass == CplImage:
             self.data.save(filename, self.header, cpl.core.io.EXTEND)
         elif self.klass == CplTable:
+            # Here the signature is (primary_header, header, filename, mode) for whatever reason...
+            # FixMe What if there are multiple tables? Is primary header overwritten or what?
             self.data.save(self.header, self.header, filename, cpl.core.io.EXTEND)
 
 

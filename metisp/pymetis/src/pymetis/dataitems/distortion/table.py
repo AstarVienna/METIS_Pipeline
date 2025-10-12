@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from typing import Self
 
 import numpy as np
 
@@ -35,7 +34,10 @@ class DistortionTable(BandSpecificMixin, TableDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    _schema = [Image]
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 
 
 class LmDistortionTable(BandLmMixin, DistortionTable):
@@ -49,14 +51,30 @@ class NDistortionTable(BandNMixin, DistortionTable):
 class IfuDistortionTable(BandIfuMixin, DistortionTable):
     _schema = {
         'PRIMARY': None,
-        'TABLE': Table,
+    } | {
+        fr'DET{det:1d}.DATA': Table for det in range(1, 5)
     }
 
-    def read(self, *, extension: int) -> cpl.core.Vector:
+    def read(self,
+             *,
+             extension: int | str) -> cpl.core.Bivector:
+        """
+        Load the distortion table.
+
+        Parameters
+        ----------
+        extension: int | str
+           The desired index of the extension HDU.
+
+        Returns
+        -------
+        cpl.core.Bivector
+            The distortion coefficients.
+        """
         # Load the distortion table
         # TODO: assumes distortion table has one set of coefficients for each extension
         # distortion_table = cpl.core.Table.load(self.frame.file, extension=extension)
-        distortion_table = self.hdus[extension]
+        distortion_table = self[extension]
 
         # obtain the trace polynomials from the distortion table
         trace_polys = distortion_table.column_array('orders')[0]
@@ -75,5 +93,5 @@ class IfuDistortionTable(BandIfuMixin, DistortionTable):
             trace_list.append((x_arr, y_arr))
 
         # return the list of x,y coordinates for each trace
-        return trace_list
+        return cpl.core.Bivector(trace_list)
 

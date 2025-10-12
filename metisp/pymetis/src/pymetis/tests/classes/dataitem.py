@@ -22,7 +22,6 @@ import pytest
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.dataitems import LmStdBackground, NStdBackground
 from pymetis.dataitems.common import AtmProfile
 from pymetis.dataitems.raw import WcuOffRaw
 

@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Table
 
 from pymetis.classes.dataitems import DataItem
 
@@ -25,8 +26,8 @@ from pymetis.classes.dataitems import DataItem
 class TableDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
 
-    def save_extensions(self,
-                        filename: str) -> None:
-        for name, hdu in self.hdus.items():
-            # Here the signature is (primary_header, header, filename, mode) for whatever reason...
-            hdu.save(filename)
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
+

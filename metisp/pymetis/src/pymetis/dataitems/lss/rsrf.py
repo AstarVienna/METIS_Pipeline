@@ -104,7 +104,10 @@ class LssRsrfPinholeRaw(BandSpecificMixin, ImageDataItem, abstract=True):
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI20.NAME',
                      'DRS.SLIT'}
 
-    _schema = [None, Image]
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
 
 
 class LmLssRsrfPinholeRaw(BandLmMixin, LssRsrfPinholeRaw):

@@ -84,17 +84,28 @@ class TestDataItem:
         #    f"Data item {item.__qualname__} does not define any OCA keywords" # This is actually OK sometimes
 
     @pytest.mark.metadata
-    def test_has_schema_defined(self, item):
-        assert isinstance(item._schema, list), \
-            f"Data item {item.__qualname__} does not have a schema defined!"
-        for number, hdu in enumerate(item._schema):
-            assert number == 0 or hdu is not None, \
-                f"Only the primary header (HDU 0) may be None in schema {item._schema}"
-            assert hdu in [None, cpl.core.Image, cpl.core.Table], \
-                f"The schema type must be CPL Image or Table, not {hdu}"
-
-    @pytest.mark.metadata
     def test_are_oca_keywords_a_set_of_valid_strings(self, item):
         for kw in item._oca_keywords:
             assert kw in OCA_KEYWORDS, \
                 f"Data item {item.__qualname__} defines an invalid OCA keyword {kw}!"
+
+    @pytest.mark.metadata
+    def test_has_schema_defined(self, item):
+        assert isinstance(item._schema, dict), \
+            f"Data item {item.__qualname__} does not have a schema defined or it is not a dict!"
+
+    @pytest.mark.metadata
+    def test_schema_has_primary_hdu(self, item):
+        assert 'PRIMARY' in item._schema.keys(),\
+            f"Data item {item.__qualname__} does not have a primary HDU"
+
+    @pytest.mark.metadata
+    def test_schema_values_are_classes(self, item):
+        for key, klass in item._schema.items():
+            assert isinstance(key, str), \
+                f"Schema keys must be strings, not {key} ({type(key)})"
+            assert klass is not None or key == 'PRIMARY', \
+                f"Only the primary header (HDU 0) may be None in schema {item._schema}"
+            assert klass in [None, cpl.core.Image, cpl.core.Table], \
+                f"The schema type must be CPL Image or Table, not {klass}"
+

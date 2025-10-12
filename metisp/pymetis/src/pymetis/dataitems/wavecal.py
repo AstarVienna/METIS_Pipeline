@@ -34,8 +34,6 @@ class IfuWavecalRaw(DetectorIfuMixin, ImageDataItem):
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME',
                      'DRS.IFU'}
 
-    _schema = [None, Image, Image, Image, Image]
-
 
 class IfuWavecal(DetectorIfuMixin, ImageDataItem):
     _name_template = r'IFU_WAVECAL'
@@ -44,5 +42,3 @@ class IfuWavecal(DetectorIfuMixin, ImageDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-    _schema = [None, Image, Image, Image, Image]

@@ -243,6 +243,8 @@ class DataItem(Parametrizable, ABC):
         # Internal usage marker (for used_frames)
         self._used: bool = False
 
+        self.primary_header = primary_header
+
         self.filename = filename
         self._hdus: dict[str, Hdu] = {}
 
@@ -251,8 +253,8 @@ class DataItem(Parametrizable, ABC):
                 (f"Schema for {self.__class__.__qualname__} does not specify HDU '{name}'. "
                  f"Accepted extension names are {list(self._schema.keys())}.")
 
-            assert self._schema[name] == hdu.klass, \
-                (f"Schema for {self.__class__.__qualname__} specifies that '{name}' is a {self._schema[name]} type, "
+            assert hdu.klass == self._schema[name], \
+                (f"Schema for {self.__class__.__qualname__} specifies that HDU '{name}' is a {self._schema[name]} type, "
                  f"but in {self.filename} we got {hdu.klass} instead!")
 
             hdu.header.append(
@@ -261,11 +263,12 @@ class DataItem(Parametrizable, ABC):
                 ])
             )
 
+            if name in self._hdus.keys():
+                Msg.warning(self.__class__.__qualname__,
+                            f"HDU {name} is already loaded and will be overwritten!")
             self._hdus[name] = hdu
 
         # FIXME: temporary to get QC parameters into the product header [OC]
-
-        self.primary_header = primary_header
 
         self.add_properties()
 
@@ -486,10 +489,11 @@ class DataItem(Parametrizable, ABC):
 
         self.save_extensions(filename)
 
-    @abstractmethod
     def save_extensions(self,
                         filename: str) -> None:
         """ Save extension data to the same file. Implementation depends on the type of the data. """
+        for name, hdu in self.hdus.items():
+            hdu.save(filename)
 
     def as_dict(self) -> dict[str, str]:
         return {
@@ -564,7 +568,9 @@ class DataItem(Parametrizable, ABC):
     @final
     def _extended_description_line(cls, name: str = None) -> str:
         """
-        Generate a description line for 'pyesorex --man-page'.
+        Generate a description line for ``pyesorex --man-page``.
+
+        Includes leading space.
         """
         return f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
 
