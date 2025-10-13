@@ -24,9 +24,8 @@ from pymetis.classes.mixins.base import KeywordMixin
 class DetectorSpecificMixin(KeywordMixin, keyword='detector'):
     _detector = None
 
-    def __init_subclass__(cls, *, detector=None, **kwargs):
-        if detector is not None:
-            cls._detector = detector
+    def __init_subclass__(cls, *, detector: str, **kwargs):
+        cls._detector = detector
         super().__init_subclass__(**kwargs)
 
     @classmethod
@@ -46,5 +45,5 @@ class DetectorIfuMixin(DetectorSpecificMixin, detector='IFU'):
     _schema = {
         r'PRIMARY': None,
     } | {
-        fr'DET{det:1d}.DATA': Image for det in range(1, 5)
+        fr'DET{det:1d}.DATA': Image for det in [1, 2, 3, 4]
     }

@@ -50,10 +50,9 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         header = create_dummy_header()
         header_table = create_dummy_header()
         # FixMe Get rid of this
-        header_table.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, fr'TABLE'))
+        header_table.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, r'TABLE'))
 
         table = create_dummy_table()
-
 
         product_distortion = self.ProductDistortionTable(
             header,

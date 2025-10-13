@@ -272,7 +272,6 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         return {product}
 
 
-
 # This is the actual recipe class that is visible by `pyesorex`.
 class MetisDetDark(MetisRecipe):
     # Fill in recipe information for `pyesorex`. These are required and checked by `pyesorex`.

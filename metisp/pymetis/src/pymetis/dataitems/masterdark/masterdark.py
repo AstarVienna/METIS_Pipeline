@@ -34,9 +34,9 @@ class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
-        'DET1.IMAGE': Image,
-        'DET1.NOISE': Image,
-        'DET1.BPM': Image,
+        'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
     }
 
 
@@ -52,9 +52,9 @@ class MasterDarkIfu(DetectorIfuMixin, MasterDark):
     _schema = {
         'PRIMARY': None,
     } | {
-        f'DET{det:1d}.IMAGE': Image for det in [1, 2, 3, 4]
+        f'DET{det:1d}.SCI': Image for det in [1, 2, 3, 4]
     } | {
-        f'DET{det:1d}.NOISE': Image for det in [1, 2, 3, 4]
+        f'DET{det:1d}.ERR': Image for det in [1, 2, 3, 4]
     } | {
-        f'DET{det:1d}.BPM': Image for det in [1, 2, 3, 4]
+        f'DET{det:1d}.DQ': Image for det in [1, 2, 3, 4]
     }
