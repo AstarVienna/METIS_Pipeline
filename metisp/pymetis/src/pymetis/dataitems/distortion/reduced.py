@@ -18,13 +18,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl.ui
-from cpl.core import Image
+from cpl.core import Image, Table
 
-from pymetis.classes.dataitems import ImageDataItem
+from pymetis.classes.dataitems import TableDataItem
 from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionReduced(BandSpecificMixin, ImageDataItem, abstract=True):
+class DistortionReduced(BandSpecificMixin, TableDataItem, abstract=True):
     _name_template =  r'{band}_DIST_REDUCED'
     _title_template = r"{band} distortion reduced"
     _description_template = r"Table of polynomial coefficients for distortion correction"
@@ -48,3 +48,10 @@ class NDistortionReduced(BandNMixin, DistortionReduced):
 
 class IfuDistortionReduced(BandIfuMixin, DistortionReduced):
     _oca_keywords = DistortionReduced._oca_keywords | {'DRS.IFU'}
+
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        rf'DET{detector:1d}': Image for detector in [1, 2, 3, 4]
+    }
+    # FixMe here DRLD specifies a Table

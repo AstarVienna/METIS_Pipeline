@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
+from typing import Optional
+
 from cpl.core import Image
 
 from pymetis.classes.mixins.base import KeywordMixin
@@ -24,8 +27,9 @@ from pymetis.classes.mixins.base import KeywordMixin
 class DetectorSpecificMixin(KeywordMixin, keyword='detector'):
     _detector = None
 
-    def __init_subclass__(cls, *, detector: str, **kwargs):
-        cls._detector = detector
+    def __init_subclass__(cls, *, detector: Optional[str] = None, **kwargs):
+        if detector is not None:
+            cls._detector = detector
         super().__init_subclass__(**kwargs)
 
     @classmethod

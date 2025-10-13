@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Any, Optional
+from typing import Any, Optional, Self
 
 import cpl
 
@@ -157,9 +157,10 @@ class MultiplePipelineInput(PipelineInput):
     def contents(self):
         return self.frameset
 
-    def use(self) -> None:
+    def use(self) -> Self:
         for item in self.items:
             item.use()
+        return self
 
     def valid_frames(self) -> cpl.ui.FrameSet:
         """

@@ -254,8 +254,9 @@ class DataItem(Parametrizable, ABC):
                  f"Accepted extension names are {list(self._schema.keys())}.")
 
             assert hdu.klass == self._schema[name], \
-                (f"Schema for {self.__class__.__qualname__} specifies that HDU '{name}' is a {self._schema[name]} type, "
-                 f"but in {self.filename} we got {hdu.klass} instead!")
+                (f"Schema for {self.__class__.__qualname__} specifies that HDU '{name}' "
+                 f"is of type '{self._schema[name].__qualname__}', "
+                 f"but in {self.filename} we got '{hdu.klass.__qualname__}' instead!")
 
             hdu.header.append(
                 CplPropertyList([

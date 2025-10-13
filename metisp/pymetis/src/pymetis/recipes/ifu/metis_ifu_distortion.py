@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from typing import Literal
 
 import cpl
 from cpl.core import Msg
@@ -42,25 +43,34 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
     ProductDistortionTable = IfuDistortionTable
     ProductDistortionReduced = IfuDistortionReduced
 
-    def process(self) -> set[DataItem]:
-        raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
-        self.inputset.raw.use()
-
+    def process_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+        raw_images = self.inputset.raw.use().load_data(extension=rf'DET{detector:1d}.DATA')
         combined_image = self.combine_images(raw_images, "average")
-        header = create_dummy_header()
-        header_table = create_dummy_header()
-        # FixMe Get rid of this
-        header_table.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, r'TABLE'))
 
-        table = create_dummy_table()
+        header_table = create_dummy_header()
+        header_table.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{detector:1d}'))
+        table = create_dummy_table(14)
+
+        header_image = create_dummy_header()
+        header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{detector:1d}'))
+
+        return {
+            'TABLE': Hdu(header_table, table),
+            'IMAGE': Hdu(header_image, combined_image),
+        }
+
+    def process(self) -> set[DataItem]:
+        header = create_dummy_header()
+
+        output = [self.process_detector(det) for det in [1, 2, 3, 4]]
 
         product_distortion = self.ProductDistortionTable(
             header,
-            TABLE=Hdu(header_table, table)
+            **{out['TABLE'].header['EXTNAME'].value: out['TABLE'] for out in output}
         )
         product_distortion_reduced = self.ProductDistortionReduced(
             header,
-            IMAGE=Hdu(create_dummy_header(), combined_image)
+            **{out['IMAGE'].header['EXTNAME'].value: out['IMAGE'] for out in output}
         )
 
         return {product_distortion, product_distortion_reduced}

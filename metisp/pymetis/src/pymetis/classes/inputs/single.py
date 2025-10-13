@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, Self
 
 import cpl
 
@@ -107,8 +107,9 @@ class SinglePipelineInput(PipelineInput):
     def contents(self):
         return self.frame
 
-    def use(self) -> None:
+    def use(self) -> Self:
         self.item.use()
+        return self
 
     def valid_frames(self) -> cpl.ui.FrameSet:
         if self.frame is None:

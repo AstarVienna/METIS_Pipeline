@@ -52,7 +52,7 @@ class IfuDistortionTable(BandIfuMixin, DistortionTable):
     _schema = {
         'PRIMARY': None,
     } | {
-        fr'DET{det:1d}.DATA': Table for det in range(1, 5)
+        fr'DET{det:1d}': Table for det in range(1, 5)
     }
 
     def read(self,
