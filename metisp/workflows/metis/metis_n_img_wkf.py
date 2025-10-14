@@ -3,6 +3,7 @@ from edps import task, subworkflow, qc1calib, match_rules, FilterMode, calchecke
 from .metis_datasources import *
 from . import metis_keywords as metis_kwd
 
+# TODO: Make Unique names for dark and detlin recipe
 
 dark_geo_task = (task('metis_det_dark')
             .with_main_input(raw_geo_dark)

@@ -11,9 +11,9 @@
 """METIS LSS LM-Band workflow"""
 from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
 from edps import subworkflow, task, data_source, classification_rule
-from .metis_lm_lss_classification import *
-from .metis_lm_lss_datasources import *
-from .metis_lm_lss_task_functions import *
+from .metis_classification import *
+from .metis_datasources import *
+from .metis_lss_task_functions import *
 from .metis_lm_lss_molecfit import telluric_on_standard, telluric_on_science
 
 # ----------------------------------------------------------------------------
@@ -25,18 +25,20 @@ from .metis_lm_lss_molecfit import telluric_on_standard, telluric_on_science
 #             .with_recipe("metis_det_persistence")
 #             .build())
 
+# TODO: TASK NAMES MUST BE UNIQUE, NOT JUST THE STRING, OTHERWISE TARGETS CAN'T BE RESOLVED!
+
 slitloss_task = (task('metis_lm_adc_slitloss')
             .with_recipe("metis_lm_adc_slitloss")
-            .with_main_input(raw_slitloss)
+            .with_main_input(lm_raw_slitloss)
             .with_associated_input(lm_wcu_off_raw)        # check how that is exactly delivered by the ICS!
             # .with_associated_input(static_persistence_map, min_ret=0)
             .with_meta_targets([QC1_CALIB])
             .build())
 
-
+# TODO: Insert unique names for dark and detlin recipe
 dark_task = (task('metis_det_dark')
             .with_recipe("metis_det_dark")
-            .with_main_input(raw_dark)       # check what the minimum number of raw darks is!
+            .with_main_input(raw_2rg_dark)       # check what the minimum number of raw darks is!
             # .with_associated_input(static_persistence_map, min_ret=0)
             .with_meta_targets([QC1_CALIB])
             .build())
@@ -66,7 +68,7 @@ trace_finding_task = (task("metis_lm_lss_trace")
             .with_associated_input(dark_task)
             .with_associated_input(linearity_task)
             .with_associated_input(flatfield_task)
-            .with_associated_input(static_persistence_map, min_ret=0)
+            .with_associated_input(calib_persistence, min_ret=0)
             .with_meta_targets([QC1_CALIB])
             .build())
 
@@ -74,7 +76,7 @@ wavelength_calibration_task = (task("metis_lm_lss_wave")
             .with_recipe("metis_lm_lss_wave")
             .with_main_input(lm_raw_wave)
             .with_associated_input(lm_wcu_off_raw)
-            .with_associated_input(static_persistence_map, min_ret=0)
+            .with_associated_input(calib_persistence, min_ret=0)
             .with_associated_input(static_laser_tab)
             .with_associated_input(dark_task)
             .with_associated_input(linearity_task)
@@ -89,7 +91,7 @@ std_reduction_task = (task('metis_lm_lss_std')
             .with_associated_input(static_badpix_map_h2rg)
             .with_associated_input(static_gain_map_h2rg)
             .with_associated_input(static_linearity_h2rg)
-            .with_associated_input(static_persistence_map, min_ret=0)
+            .with_associated_input(calib_persistence, min_ret=0)
             .with_associated_input(dark_task)
             .with_associated_input(flatfield_task)
             .with_associated_input(trace_finding_task)
@@ -112,7 +114,7 @@ sci_reduction_task = (task('metis_lm_lss_sci')
             .with_associated_input(static_badpix_map_h2rg)
             .with_associated_input(static_gain_map_h2rg)
             .with_associated_input(static_linearity_h2rg)
-            .with_associated_input(static_persistence_map, min_ret=0)
+            .with_associated_input(calib_persistence, min_ret=0)
             .with_associated_input(dark_task)
             .with_associated_input(flatfield_task)
             .with_associated_input(trace_finding_task)
@@ -142,8 +144,8 @@ mf_model_task = (task("metis_lm_lss_mf_model")
             .with_associated_input(std_reduction_task)
             # .with_associated_input(static_ao_psf_model)
             .with_associated_input(static_atm_line_cat)
-            .with_associated_input(static_lsf_kernel)
-            .with_associated_input(static_atm_profile)
+            .with_associated_input(calib_lsf_kernel)
+            .with_associated_input(calib_atm_profile)
             # .with_associated_input(transmission_from_standard, condition=molecfit_on_standard)
             # .with_associated_input(transmission_from_science, condition=molecfit_on_science)            .with_recipe("metis_lm_lss_mf_model")
             .with_recipe('metis_lm_lss_mf_model')
@@ -153,8 +155,8 @@ mf_model_task = (task("metis_lm_lss_mf_model")
 mf_calctrans_task = (task("metis_lm_lss_mf_calctrans")
             .with_main_input(mf_model_task)
             .with_associated_input(static_atm_line_cat)
-            .with_associated_input(static_lsf_kernel)
-            .with_associated_input(static_atm_profile)
+            .with_associated_input(calib_lsf_kernel)
+            .with_associated_input(calib_atm_profile)
             # .with_associated_input(transmission_from_standard, condition=molecfit_on_standard)
             # .with_associated_input(transmission_from_science, condition=molecfit_on_science)                        .with_recipe("metis_lm_lss_calctrans")
             .with_recipe('metis_lm_lss_mf_calctrans')

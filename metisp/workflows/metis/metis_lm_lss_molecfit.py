@@ -1,5 +1,5 @@
 from edps import subworkflow, task, List
-from .metis_lm_lss_datasources import *
+from .metis_datasources import *
 
 # This sub-workflow computes the atmospheric transmission by running molecfit on telluric standard star.
 @subworkflow("telluric_on_standard", "")
