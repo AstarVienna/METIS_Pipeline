@@ -34,7 +34,7 @@ class BadPixMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
-        'DET1DATA': Image,
+        'DET1.DATA': Image,
     }
 
 

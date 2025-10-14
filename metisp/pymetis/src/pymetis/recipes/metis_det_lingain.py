@@ -69,7 +69,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         badpix_map = combined_image         # TODO Actual implementation missing
 
         product_gain_map = self.ProductGainMap(header, Hdu(header, gain_image, name='DET1.DATA'))
-        product_linearity = self.ProductLinearity(header, Hdu(header, linearity_image, name='DET1.DATA'))
+        product_linearity = self.ProductLinearity(header, Hdu(header, linearity_image, name='PRIMARY'))
         product_badpix_map = self.ProductBadPixMap(header, Hdu(header, badpix_map, name='DET1.DATA'))
 
         return {product_gain_map, product_linearity, product_badpix_map}
