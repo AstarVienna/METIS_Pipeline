@@ -46,12 +46,9 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         header = create_dummy_header(EXTNAME='IMAGE')
         image = create_dummy_image()
 
-        hdu = Hdu(header, image)
+        hdu = Hdu(header, image, name='PRIMARY')
 
-        product_scc = self.ProductSciCubeCalibrated(
-            header,
-            IMAGE=hdu,
-        )
+        product_scc = self.ProductSciCubeCalibrated(header, hdu)
 
         return {product_scc}
 

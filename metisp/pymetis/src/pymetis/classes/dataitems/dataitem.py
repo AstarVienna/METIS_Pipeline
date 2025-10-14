@@ -48,7 +48,7 @@ class DataItem(Parametrizable, ABC):
     Multiple files with the same tag should correspond to multiple instances of the same DataItem class.
     """
     # Class registry: all derived classes are automatically registered here (unless declared abstract)
-    _registry: dict[str, type['DataItem']] = {}
+    __registry: dict[str, type['DataItem']] = {}
 
     # Printable title of the data item. Not used internally, only for human-oriented output
     _title_template: str = None                     # No universal title makes sense
@@ -101,26 +101,29 @@ class DataItem(Parametrizable, ABC):
                 (f"Tried to register {cls.__name__} ({cls.name()}) which is not fully specialized "
                  f"(did you mean to set `abstract=True` in the class declaration?)")
 
-            if cls.name().format() in DataItem._registry:
+            if cls.name().format() in DataItem.__registry:
                 # If the class is already registered, warn about it and do nothing
                 Msg.warning(cls.__qualname__,
-                            f"A class with tag {cls.name()} is already registered: {DataItem._registry[cls.name()]}")
+                            f"A class with tag {cls.name()} is already registered, "
+                            f"skipping: {DataItem.__registry[cls.name()]}")
             else:
                 # Otherwise add it to the registry
-                Msg.debug(cls.__qualname__, f"Registered a new class {cls.name()}: {cls}")
-                DataItem._registry[cls.name()] = cls
+                Msg.debug(cls.__qualname__,
+                          f"Registered a new class {cls.name()}: {cls}")
+                DataItem.__registry[cls.name()] = cls
 
         super().__init_subclass__(**kwargs)
 
     @classmethod
     @final
-    def find(cls, key):
+    def find(cls, key: str) -> Optional[type['DataItem']]:
         """
-        Try to retrieve the DataItem subclass with tag `key` from the global registry.
-        If not found, return None instead (and rely on the caller to raise an exception if this is not desired).
+        Try to retrieve the DataItem subclass with tag ``key`` from the global registry.
+
+        If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
         """
-        if key in DataItem._registry:
-            return DataItem._registry[key]
+        if key in DataItem.__registry:
+            return DataItem.__registry[key]
         else:
             return None
 
@@ -219,9 +222,8 @@ class DataItem(Parametrizable, ABC):
 
     def __init__(self,
                  primary_header: CplPropertyList = CplPropertyList(),
-                 *,
-                 filename: Optional[Path] = None,
-                 **hdus: Hdu):
+                 *hdus: Hdu,
+                 filename: Optional[Path] = None):
         if self.__abstract:
             raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
@@ -248,15 +250,15 @@ class DataItem(Parametrizable, ABC):
         self.filename = filename
         self._hdus: dict[str, Hdu] = {}
 
-        for name, hdu in hdus.items():
-            assert name in self._schema, \
-                (f"Schema for {self.__class__.__qualname__} does not specify HDU '{name}'. "
+        for index, hdu in enumerate(hdus, start=1):
+            assert hdu.name in self._schema, \
+                (f"Schema for {self.__class__.__qualname__} does not specify HDU '{hdu.name}'. "
                  f"Accepted extension names are {list(self._schema.keys())}.")
 
-            assert hdu.klass == self._schema[name], \
-                (f"Schema for {self.__class__.__qualname__} specifies that HDU '{name}' "
-                 f"is of type '{self._schema[name].__qualname__}', "
-                 f"but in {self.filename} we got '{hdu.klass.__qualname__}' instead!")
+            assert hdu.klass == self._schema[hdu.name], \
+                (f"Schema for {self.__class__.__qualname__} specifies that HDU '{hdu.name}' "
+                 f"is of type '{self._schema[hdu.name]}', "
+                 f"but in {self.filename} we got '{hdu.klass}' instead!")
 
             hdu.header.append(
                 CplPropertyList([
@@ -264,10 +266,10 @@ class DataItem(Parametrizable, ABC):
                 ])
             )
 
-            if name in self._hdus.keys():
+            if hdu.name in self._hdus.keys():
                 Msg.warning(self.__class__.__qualname__,
-                            f"HDU {name} is already loaded and will be overwritten!")
-            self._hdus[name] = hdu
+                            f"HDU {hdu.name} is already loaded and will be overwritten!")
+            self._hdus[hdu.name] = hdu
 
         # FIXME: temporary to get QC parameters into the product header [OC]
 
@@ -296,7 +298,7 @@ class DataItem(Parametrizable, ABC):
         #         f"As HDU list: {frame.as_hdulist()}")
 
         structure = {}
-        hdus = {}
+        hdus = []
 
         index = 0
         while True:
@@ -324,7 +326,7 @@ class DataItem(Parametrizable, ABC):
                 if subschema.get('NAXIS', None) == 2:
                     subtype = Image
 
-                hdus[extname] = Hdu(header, None, klass=subtype, extno=index)
+                hdus.append(Hdu(header, None, name=extname, klass=subtype, extno=index))
 
                 Msg.debug(cls.__qualname__, f"Loaded HDU {index} ('{extname}')")
 
@@ -337,7 +339,7 @@ class DataItem(Parametrizable, ABC):
         Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
         primary_header = cpl.core.PropertyList.load(frame.file, 0)
 
-        return klass(primary_header, filename=frame.file, **hdus)
+        return klass(primary_header, filename=frame.file, *hdus)
 
     def load_data(self,
                   extension: int | str) -> Image | Table | None:

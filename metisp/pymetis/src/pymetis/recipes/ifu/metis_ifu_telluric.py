@@ -105,15 +105,15 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
         product_telluric_transmission = self.ProductTelluricTransmission(
             header,
-            TABLE=Hdu(header, table),
+            Hdu(header, table, name='TABLE'),
         )
         product_reduced_1d = self.ProductResponseFunction(
             header,
-            IMAGE=Hdu(header, image),
+            Hdu(header, image, name='IMAGE'),
         )
         product_fluxcal_tab = self.ProductFluxcalTab(
             header,
-            TABLE=Hdu(header, table),
+            Hdu(header, table, name='TABLE'),
         )
 
         return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}

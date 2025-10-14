@@ -58,7 +58,9 @@ class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstr
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
-    _schema = [Image]
+    _schema = {
+        'PRIMARY': Image,
+    }
 
 
 class MasterImgFlatLampLm(BandLmMixin, SourceLampMixin, MasterImgFlat):

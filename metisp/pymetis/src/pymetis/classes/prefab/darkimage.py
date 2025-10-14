@@ -56,7 +56,7 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         :return:
             ImageList
         """
-        master_dark: DataItem = self.inputset.master_dark.load_data().use()
+        master_dark: DataItem = self.inputset.master_dark.use().load_data()
 
         Msg.info(self.__class__.__qualname__,
                  f"Subtracting the master dark from raw images")

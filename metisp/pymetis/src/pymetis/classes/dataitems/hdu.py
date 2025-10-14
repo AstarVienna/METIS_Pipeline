@@ -34,6 +34,7 @@ class Hdu:
                  header: CplPropertyList,
                  data: Optional[CplImage | CplTable],
                  *,
+                 name: str = 'PRIMARY',
                  klass: Optional[type[CplImage | CplTable]] = None,
                  extno: Optional[int] = 0,
                 ) -> None:
@@ -51,17 +52,13 @@ class Hdu:
         self.data = data
         self.klass = klass if klass is not None else type(data) if data is not None else None
         self.extno = extno
-
-        try:
-            self.name = self.header['EXTNAME'].value
-        except KeyError:
-            self.name = 'PRIMARY'
+        self.name = name
 
         Msg.debug(self.__class__.__qualname__,
                   f"Created a HDU '{self.name}' with extno={self.extno}, class is {self.klass}")
 
     def __repr__(self) -> str:
-        return f"<HDU {self.name=}, {self.extno=}>"
+        return f"<HDU {self.name=}, {self.extno=}, {self.klass=}>"
 
     def save(self, filename):
         Msg.info(self.__class__.__name__,

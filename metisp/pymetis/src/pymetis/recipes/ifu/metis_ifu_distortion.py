@@ -43,7 +43,22 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
     ProductDistortionTable = IfuDistortionTable
     ProductDistortionReduced = IfuDistortionReduced
 
-    def process_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+        """
+        Find the distortion coeeficients for a single detector of the IFU.
+
+        Parameters
+        ----------
+        detector : Literal[1, 2, 3, 4] # FixMe: Maybe make this fully customizable for any detector count?
+
+        Returns
+        -------
+        dict[str, Hdu]
+            Distortion coefficients for a single detector of the IFU, in a form of table and image
+            # FixMe this does not make much sense but works for now [MB]
+        """
+
+        det = rf'{detector:1d}'
         raw_images = self.inputset.raw.use().load_data(extension=rf'DET{detector:1d}.DATA')
         combined_image = self.combine_images(raw_images, "average")
 
@@ -55,22 +70,22 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{detector:1d}'))
 
         return {
-            'TABLE': Hdu(header_table, table),
-            'IMAGE': Hdu(header_image, combined_image),
+            'TABLE': Hdu(header_table, table, name=rf'DET{det}'),
+            'IMAGE': Hdu(header_image, combined_image, name=rf'DET{det}'),
         }
 
     def process(self) -> set[DataItem]:
         header = create_dummy_header()
 
-        output = [self.process_detector(det) for det in [1, 2, 3, 4]]
+        output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
 
         product_distortion = self.ProductDistortionTable(
             header,
-            **{out['TABLE'].header['EXTNAME'].value: out['TABLE'] for out in output}
+            *[out['TABLE'] for out in output],
         )
         product_distortion_reduced = self.ProductDistortionReduced(
             header,
-            **{out['IMAGE'].header['EXTNAME'].value: out['IMAGE'] for out in output}
+            *[out['IMAGE'] for out in output],
         )
 
         return {product_distortion, product_distortion_reduced}

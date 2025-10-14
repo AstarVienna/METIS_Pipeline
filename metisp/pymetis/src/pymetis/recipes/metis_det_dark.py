@@ -114,7 +114,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     # Also, persistence and non-linearity to be implemented.
     #########################################################################
 
-    def process_detector(self, detector: Literal[1, 2, 3, 4]) -> list[Hdu]:
+    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> list[Hdu]:
         assert detector in [1, 2, 3, 4], \
             f"Unknown detector {detector}"
 
@@ -219,28 +219,27 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         # ToDo make this less boilerplatey
         header_image.append(cpl.core.Property("QC DARK MEAN", cpl.core.Type.DOUBLE,
-                                        qcmean, "[ADU] mean value of master dark"))
+                            qcmean, "[ADU] mean value of master dark"))
         header_image.append(cpl.core.Property("QC DARK MEDIAN", cpl.core.Type.DOUBLE,
-                                        qcmed, "[ADU] median value of master dark"))
+                            qcmed, "[ADU] median value of master dark"))
         header_image.append(cpl.core.Property("QC DARK RMS", cpl.core.Type.DOUBLE,
-                                        qcrms, "[ADU] rms value of master dark"))
+                            qcrms, "[ADU] rms value of master dark"))
         header_image.append(cpl.core.Property("QC DARK NBADPIX", cpl.core.Type.DOUBLE,
-                                        qcnbad, "[ADU] number of bad pixels"))
+                            qcnbad, "[ADU] number of bad pixels"))
         header_image.append(cpl.core.Property("QC DARK NCOLDPIX", cpl.core.Type.DOUBLE,
-                                        qcncold, "[ADU] number of cold pixels"))
+                            qcncold, "[ADU] number of cold pixels"))
         header_image.append(cpl.core.Property("QC DARK NHOTPIX", cpl.core.Type.DOUBLE,
-                                        qcnhot, "[ADU] number of hot pixels"))
+                            qcnhot, "[ADU] number of hot pixels"))
         header_image.append(cpl.core.Property("QC DARK MEDIAN MEAN", cpl.core.Type.DOUBLE,
-                                        qcmedmean, "[ADU] median value of mean values of individual input images"))
+                            qcmedmean, "[ADU] median value of mean values of individual input images"))
         header_image.append(cpl.core.Property("QC DARK MEDIAN MEDIAN", cpl.core.Type.DOUBLE,
-                                        qcmedmed, "[ADU] median value of median values of individual input images"))
+                            qcmedmed, "[ADU] median value of median values of individual input images"))
         header_image.append(cpl.core.Property("QC DARK MEDIAN RMS", cpl.core.Type.DOUBLE,
-                                        qcmedrms, "[ADU] median value of RMS values of individual input images"))
+                            qcmedrms, "[ADU] median value of RMS values of individual input images"))
         header_image.append(cpl.core.Property("QC DARK MEDIAN MIN", cpl.core.Type.DOUBLE,
-                                        qcmedmin, "[ADU] median value of min values of individual input images"))
+                            qcmedmin, "[ADU] median value of min values of individual input images"))
         header_image.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
-                                        qcmedmax, "[ADU] median value of max values of individual input images"))
-
+                            qcmedmax, "[ADU] median value of max values of individual input images"))
 
         header_noise = copy.deepcopy(header_image)
         header_noise.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, fr'DET{detector:1d}.NOISE'))
@@ -266,9 +265,9 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         print(self.inputset.raw.frameset)
 
-        hdus = functools.reduce(operator.add, map(self.process_detector, [1, 2, 3, 4]))
+        hdus = functools.reduce(operator.add, map(self._process_single_detector, [1, 2, 3, 4]))
 
-        product = self.ProductMasterDark(create_dummy_header(), **{hdu.header['EXTNAME'].value: hdu for hdu in hdus})
+        product = self.ProductMasterDark(create_dummy_header(), hdus)
         return {product}
 
 

@@ -43,7 +43,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         pass
 
     def coadd_cubes(self):
-        calibrated = self.inputset.sci_cube_calibrated.load_data('IMAGE')
+        calibrated = self.inputset.sci_cube_calibrated.load_data('PRIMARY') # FixMe: This should not be PRIMARY
         coadded = calibrated.collapse_create()
         return coadded
 
@@ -56,10 +56,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
 
         coadded = self.coadd_cubes()
 
-        product = self.ProductSciCoadd(
-            header,
-            IMAGE=Hdu(header, coadded),
-        )
+        product = self.ProductSciCoadd(header, Hdu(header, coadded, name='IMAGE'))
 
         return {product}  # ToDo is just a dummy for now
 
