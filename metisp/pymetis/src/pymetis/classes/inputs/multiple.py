@@ -21,7 +21,7 @@ from typing import Any, Optional, Self
 
 import cpl
 
-from cpl.core import Msg, Image, ImageList
+from cpl.core import Msg, Image, ImageList, PropertyList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
@@ -48,6 +48,31 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
+
+    def load_structure(self) -> None:
+        """
+        Load the items inside this PipelineInput.
+
+        Returns
+        -------
+        None
+        """
+        if len(self.items) != 0:
+            Msg.debug(self.__class__.__qualname__,
+                      f"Input already loaded, skipping")
+        else:
+            self.items = []
+
+            for idx, frame in enumerate(self.frameset):
+                Msg.info(self.__class__.__qualname__,
+                         f"Loading input frame #{idx}: {frame.file!r}")
+                self.items.append(self.Item.load(frame))
+
+            Msg.info(self.__class__.__qualname__,
+                     f"Items are now {self.items}")
+
+            self.use() # FixMe: for now anything that is actually loaded is marked as used
+
     def load_data(self, extension: int | str = None) -> ImageList:
         """
         Load a list of data items from a FrameSet, all corresponding to the same extension HDU.
@@ -67,23 +92,12 @@ class MultiplePipelineInput(PipelineInput):
         cpl.core.ImageList
             A CPL ``ImageLisŧ`` containing the loaded images.
         """
+        self.load_structure()
+
         Msg.info(self.__class__.__qualname__,
                  f"Loading multiple input frames for extension: {extension}")
-        self.items = []
 
-        images = []
-        for idx, frame in enumerate(self.frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Loading input frame #{idx}: {frame.file!r}")
-            images.append(item := self.Item.load(frame))
-            self.items.append(item)
-
-        Msg.info(self.__class__.__qualname__,
-                 f"Items are now {self.items}")
-
-        self.use() # FixMe: for now anything that is actually loaded is marked as used
-
-        images = [item.load_data(extension) for item in images]
+        images = [item.load_data(extension) for item in self.items]
         return ImageList(images)
 
     def set_cpl_attributes(self):

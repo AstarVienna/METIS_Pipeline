@@ -147,11 +147,16 @@ class PipelineInput:
         """
 
     @abstractmethod
+    def load_structure(self) -> None:
+        """
+        Load the input structure and store as items without data yet.
+        """
+
+    @abstractmethod
     def load_data(self) -> Union[cpl.core.ImageList, cpl.core.Image, cpl.core.Table]:
         """
-        Load the data
+        Load the actual data and return it.
         """
-        pass
 
     def print_debug(self, *, offset: int = 0) -> None:
         """

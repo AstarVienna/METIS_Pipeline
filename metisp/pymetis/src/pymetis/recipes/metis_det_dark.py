@@ -19,8 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import copy
 import functools
 import operator
+import re
 from abc import ABC
-from typing import Self, Optional, Literal
+from typing import Self, Optional, Literal, Dict, Any
 
 import cpl
 from cpl.core import Msg, ImageList, Image, Mask
@@ -113,6 +114,14 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     #
     # Also, persistence and non-linearity to be implemented.
     #########################################################################
+
+    def __init__(self,
+            recipe: 'MetisRecipe',
+            frameset: cpl.ui.FrameSet,
+            settings: Dict[str, Any]) -> None:
+        super().__init__(recipe, frameset, settings)
+        self.stacking_method = self.parameters["metis_det_dark.stacking.method"].value
+
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> list[Hdu]:
         assert detector in [1, 2, 3, 4], \
@@ -242,32 +251,29 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
                             qcmedmax, "[ADU] median value of max values of individual input images"))
 
         header_noise = copy.deepcopy(header_image)
-        header_noise.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, fr'DET{detector:1d}.NOISE'))
-
         header_mask = copy.deepcopy(header_image)
-        header_mask.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, fr'DET{detector:1d}.BPM'))
-
-        header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, fr'DET{detector:1d}.IMAGE'))
 
         return [
-            Hdu(header_image, combined_image),
-            Hdu(header_noise, noise),
-            Hdu(header_mask, badpix_mask),
+            Hdu(header_image, combined_image, name=rf'DET{detector:1d}.SCI'),
+            Hdu(header_noise, noise, name=rf'DET{detector:1d}.ERR'),
+            Hdu(header_mask, badpix_mask, name=rf'DET{detector:1d}.DQ'),
         ]
 
     def process(self) -> set[DataItem]:
-        self.stacking_method = self.parameters["metis_det_dark.stacking.method"].value
-
         # load calibration files
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
         Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
 
-        print(self.inputset.raw.frameset)
+        self.inputset.raw.load_structure()
 
-        hdus = functools.reduce(operator.add, map(self._process_single_detector, [1, 2, 3, 4]))
+        # ToDo This feels stupid but works with all detector types. Find a more robust way maybe?
+        detector_count = len(list(filter(lambda x: re.match(r'DET[0-9].DATA', x) is not None,
+                                  self.inputset.raw.items[0].hdus.keys() - ['PRIMARY'])))
 
-        product = self.ProductMasterDark(create_dummy_header(), hdus)
+        hdus = functools.reduce(operator.add, map(self._process_single_detector, range(1, detector_count + 1)))
+
+        product = self.ProductMasterDark(create_dummy_header(), *hdus)
         return {product}
 
 

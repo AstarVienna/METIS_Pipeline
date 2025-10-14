@@ -25,6 +25,8 @@ from cpl.core import (Image as CplImage,
                       Table as CplTable,
                       PropertyList as CplPropertyList, Property, Msg)
 
+from pymetis.utils.dummy import python_to_cpl_type, make_cpl_property
+
 
 class Hdu:
     """
@@ -53,6 +55,8 @@ class Hdu:
         self.klass = klass if klass is not None else type(data) if data is not None else None
         self.extno = extno
         self.name = name
+
+        self.header.append(make_cpl_property('EXTNAME', name))
 
         Msg.debug(self.__class__.__qualname__,
                   f"Created a HDU '{self.name}' with extno={self.extno}, class is {self.klass}")

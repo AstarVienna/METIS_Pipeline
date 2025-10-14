@@ -34,7 +34,7 @@ class GainMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
-        'DET1DATA': Image,
+        'DET1.DATA': Image,
     }
 
 
@@ -49,7 +49,7 @@ class GainMapGeo(DetectorGeoMixin, GainMap):
 class GainMapIfu(DetectorIfuMixin, GainMap):
     _schema = {
         'PRIMARY': None,
-        'DET1DATA': Image,
+        'DET1.DATA': Image,
         'DET2.DATA': Image,
         'DET3.DATA': Image,
         'DET4.DATA': Image,

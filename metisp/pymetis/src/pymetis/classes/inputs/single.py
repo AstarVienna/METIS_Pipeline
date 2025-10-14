@@ -53,16 +53,23 @@ class SinglePipelineInput(PipelineInput):
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
 
-    def load_data(self, extension: str = None) -> Image | Table:
-        Msg.info(self.__class__.__qualname__,
-                 f"Loading single input frame {self.frame.file!r}")
+    def load_structure(self) -> None:
+        if self.item is not None:
+            Msg.debug(self.__class__.__qualname__,
+                      f"Input already loaded, skipping")
+        else:
+            Msg.info(self.__class__.__qualname__,
+                     f"Loading single input frame {self.frame.file!r}")
 
-        self.item = self.Item.load(self.frame)
+            self.item = self.Item.load(self.frame)
+            self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
+
+    def load_data(self, extension: str = None) -> Image | Table:
+        self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
                  f"Item is now {self.item}")
 
-        self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
         return self.item.load_data(extension)
 
     def set_cpl_attributes(self):
