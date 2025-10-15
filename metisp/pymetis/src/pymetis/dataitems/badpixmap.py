@@ -33,8 +33,8 @@ class BadPixMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG'}
 
     _schema = {
-        'PRIMARY': None,
-        'DET1.DATA': Image,
+        'PRIMARY': Image,
+        #'DET1.DATA': Image,
     }
 
 
@@ -48,3 +48,7 @@ class BadPixMapGeo(DetectorGeoMixin, BadPixMap):
 
 class BadPixMapIfu(DetectorIfuMixin, BadPixMap):
     pass
+
+    _schema = {
+        'PRIMARY': Image,
+    }

@@ -262,9 +262,9 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     def process(self) -> set[DataItem]:
         # load calibration files
 
-        # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
+        # ToDo: preprocessing steps like persistence correction / nonlinearity
+        # ToDo: (or not) -- move to RawImageProcessor anyway
         Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
-
         self.inputset.raw.load_structure()
 
         # ToDo This feels stupid but works with all detector types. Find a more robust way maybe?

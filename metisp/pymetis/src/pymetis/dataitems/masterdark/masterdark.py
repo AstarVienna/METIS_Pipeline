@@ -41,6 +41,9 @@ class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
 
 
 class MasterDark2rg(Detector2rgMixin, MasterDark):
+    _schema ={
+        'PRIMARY': Image,
+    }
     pass
 
 
@@ -52,9 +55,5 @@ class MasterDarkIfu(DetectorIfuMixin, MasterDark):
     _schema = {
         'PRIMARY': None,
     } | {
-        f'DET{det:1d}.SCI': Image for det in [1, 2, 3, 4]
-    } | {
-        f'DET{det:1d}.ERR': Image for det in [1, 2, 3, 4]
-    } | {
-        f'DET{det:1d}.DQ': Image for det in [1, 2, 3, 4]
+        f'DET{det:1d}.{ext}': Image for det in [1, 2, 3, 4] for ext in {'SCI', 'ERR', 'DQ'}
     }
