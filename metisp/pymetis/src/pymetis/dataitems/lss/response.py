@@ -41,6 +41,7 @@ class MasterNResponse(BandNMixin, MasterResponse):
 
 
 class StdTransmission(TableDataItem):
+    # Big kudos to whoever named this
     _name_template = r'STD_TRANSMISSION'
     _title_template = "standard transmission curve"
     _description_template = "Transmission curve derived by means of a standard star"

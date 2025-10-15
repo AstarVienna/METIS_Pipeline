@@ -85,6 +85,10 @@ class MasterLssRsrf(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
+    _schema = {
+        'PRIMARY': Image,
+    }
+
 
 class MasterLmLssRsrfImg(BandLmMixin, MasterLssRsrf):
     pass

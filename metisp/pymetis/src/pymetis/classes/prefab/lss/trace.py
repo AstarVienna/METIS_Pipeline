@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.lss.rsrf import LssRsrfPinholeRaw, MasterLssRsrf
 from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
@@ -45,12 +45,13 @@ class MetisLssTraceImpl(DarkImageProcessor):
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        raws = self.inputset.raw.load_list()
-        master_rsrf = self.inputset.master_rsrf.load_data()
+        raws = self.inputset.raw.load_data('DET1.DATA')
+        master_rsrf = self.inputset.master_rsrf.load_data('PRIMARY')
 
-        trace_tab_hdr = self.inputset.master_rsrf.item.header
+        trace_tab_hdr = self.inputset.master_rsrf.item.primary_header
         trace_tab_data = create_dummy_table()
+
         return {
-            self.ProductTraceTable(trace_tab_hdr, trace_tab_data)
+            self.ProductTraceTable(trace_tab_hdr, Hdu(trace_tab_hdr, trace_tab_data, name='TABLE'))
         }
 

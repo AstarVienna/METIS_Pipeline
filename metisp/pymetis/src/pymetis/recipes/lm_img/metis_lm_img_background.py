@@ -50,10 +50,16 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
 
         product_bkg = self.ProductBkg(
             header,
-            Hdu(header, IMAGE=image)
+            Hdu(header, image, name='PRIMARY'),
         )
-        product_bkg_subtracted = self.ProductBkgSubtracted(header, image.hdus[0])
-        product_object_cat = self.ProductObjectCatalog(header, table)
+        product_bkg_subtracted = self.ProductBkgSubtracted(
+            header,
+            Hdu(header, image, name='DET1.DATA'),
+        )
+        product_object_cat = self.ProductObjectCatalog(
+            header,
+            Hdu(header, table, name='TABLE'),
+        )
 
         return {product_bkg, product_bkg_subtracted, product_object_cat}
 

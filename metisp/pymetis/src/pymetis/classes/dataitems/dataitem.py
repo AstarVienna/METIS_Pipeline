@@ -260,12 +260,6 @@ class DataItem(Parametrizable, ABC):
                  f"is of type '{self._schema[hdu.name]}', "
                  f"but in {self.filename} we got '{hdu.klass}' instead!")
 
-            hdu.header.append(
-                CplPropertyList([
-                    CplProperty('EXTNAME', cpl.core.Type.STRING, hdu.name)
-                ])
-            )
-
             if hdu.name in self._hdus.keys():
                 Msg.warning(self.__class__.__qualname__,
                             f"HDU {hdu.name} is already loaded and will be overwritten!")
@@ -289,7 +283,7 @@ class DataItem(Parametrizable, ABC):
         Construct the data item from a frame object.
 
         Loads all the headers and makes them available via their `EXTNAME`.
-        Does not load the actual pixel data / table. For that, seee `load_data`.
+        Does not load the actual pixel data / table. For that, see `load_data`.
         """
         klass = cls.find(frame.tag)
         Msg.debug(cls.__qualname__, f"Now loading data item {frame.file}")
@@ -304,13 +298,18 @@ class DataItem(Parametrizable, ABC):
         while True:
             try:
                 header = CplPropertyList.load(frame.file, index)
-                try:
-                    extname = header['EXTNAME'].value
-                except KeyError:
+
+                # FixMe: This is a mess... XTENSION should probably not be there.
+                if index == 0:
+                    extname = 'PRIMARY'
+                else:
                     try:
-                        extname = header['XTENSION'].value
+                        extname = header['EXTNAME'].value
                     except KeyError:
-                        extname = 'PRIMARY'
+                        try:
+                            extname = header['XTENSION'].value
+                        except KeyError:
+                            extname = 'PRIMARY'
 
                 subschema = {prop.name: prop.value for prop in header}
                 subtype = {
@@ -323,20 +322,27 @@ class DataItem(Parametrizable, ABC):
                 structure['klass'] = subtype
                 structure['extno'] = index
 
-                if subschema.get('NAXIS', None) == 2:
-                    subtype = Image
+                if subtype != 'IMAGE':
+                    if subschema.get('NAXIS', None) == 2:
+                        subtype = Image
+                        Msg.warning(cls.__qualname__,
+                                    f"Found that NAXIS = 2, determining that this HDU should be an Image")
 
+                Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
                 hdus.append(Hdu(header, None, name=extname, klass=subtype, extno=index))
 
                 Msg.debug(cls.__qualname__, f"Loaded HDU {index} ('{extname}')")
 
             except cpl.core.DataNotFoundError:
-                Msg.debug(cls.__qualname__,
-                          f"HDU {index} not present, finished loading")
+                if index == 0:
+                    Msg.warning(cls.__qualname__,
+                                f"No HDUs could be found in {frame.file}")
+                else:
+                    Msg.debug(cls.__qualname__,
+                              f"HDU {index} not present, finished loading")
                 break
             index += 1
 
-        Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
         primary_header = cpl.core.PropertyList.load(frame.file, 0)
 
         return klass(primary_header, filename=frame.file, *hdus)
@@ -608,22 +614,13 @@ class DataItem(Parametrizable, ABC):
             elif isinstance(item, int):
                 return self._hdus[self.get_name(item)]
             else:
-                raise TypeError(f"Invalid item {item} ({type(item)} in {self.filename}")
+                raise TypeError(f"Invalid HDU {item} ({type(item)} in {self.filename}. "
+                                f"Available HDUs are {self._hdus.keys()})")
         except KeyError as e:
-            raise KeyError(f"HDU '{item}' not found in {self.filename}") from e
+            raise KeyError(f"HDU '{item}' not found in {self.filename}. "
+                           f"Available HDUs are {list(self._hdus.keys())}") from e
 
     def get_name(self, index: int) -> str:
         for name, hdu in self._hdus.items():
             if self._hdus[name].extno == index:
                 return name
-
-    def get_hdu_by_index(self, index: str) -> int:
-        for n, hdu in self._hdus.items():
-            try:
-                if hdu.extno == index:
-                    return hdu.extno
-                else:
-                    continue
-            except KeyError:
-                continue
-        raise KeyError(f"Invalid extension name {index}")

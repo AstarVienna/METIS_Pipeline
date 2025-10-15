@@ -36,7 +36,7 @@ class Hdu:
                  header: CplPropertyList,
                  data: Optional[CplImage | CplTable],
                  *,
-                 name: str = 'PRIMARY',
+                 name: Optional[str] = None,
                  klass: Optional[type[CplImage | CplTable]] = None,
                  extno: Optional[int] = 0,
                 ) -> None:
@@ -54,8 +54,12 @@ class Hdu:
         self.data = data
         self.klass = klass if klass is not None else type(data) if data is not None else None
         self.extno = extno
+
+
         self.name = name
 
+
+        self.header.del_regexp(r'EXTNAME', True)
         self.header.append(make_cpl_property('EXTNAME', name))
 
         Msg.debug(self.__class__.__qualname__,

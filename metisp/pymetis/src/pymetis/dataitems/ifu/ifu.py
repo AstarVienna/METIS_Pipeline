@@ -113,5 +113,6 @@ class IfuScienceCubeCalibrated(BandIfuMixin, ImageDataItem):
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'IMAGE': Image,
     }
