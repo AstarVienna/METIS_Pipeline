@@ -23,13 +23,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from typing import Optional
 
 import cpl
-from cpl.core import Msg
+from cpl.core import Msg, Image, Table
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.dataitems.pupil import PupilRaw
 from pymetis.dataitems.pupil.pupil import PupilImagingReduced
@@ -37,6 +38,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisPupilImagingImpl(DarkImageProcessor):
@@ -60,7 +62,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
     ProductReduced = PupilImagingReduced
 
-    def prepare_flat(self, flat: cpl.core.Image, bias: cpl.core.Image | None):
+    def prepare_flat(self, flat: Image, bias: Optional[Image]):
         """ Flat field preparation: subtract bias and normalize it to median 1 """
         Msg.info(self.__class__.__qualname__, "Preparing flat field")
 
@@ -76,8 +78,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
     def prepare_images(self,
                        raw_frames: cpl.ui.FrameSet,
-                       bias = None,
-                       flat = None) -> cpl.core.ImageList:
+                       bias: Optional[Image] = None,
+                       flat: Optional[Image] = None) -> cpl.core.ImageList:
         prepared_images = cpl.core.ImageList()
 
         """Prepare the images; bias subtracting and flat fielding"""
@@ -108,16 +110,17 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         Msg.info(self.__class__.__qualname__, "Starting processing image attribute.")
 
-        master_flat = self.inputset.master_flat.load_data().use()
-        master_dark = self.inputset.master_dark.load_data().use()
-        gain = self.inputset.gain_map.load_data().use()
+        master_flat = self.inputset.master_flat.load_data('PRIMARY')
+        master_dark = self.inputset.master_dark.load_data('PRIMARY')
+        gain = self.inputset.gain_map.load_data('DET1.DATA')
 
         master_flat = self.prepare_flat(master_flat.hdus[0], master_dark.hdus[0])
         images = self.prepare_images(self.inputset.raw.frameset, master_flat, master_dark.hdus[0])
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         header = cpl.core.PropertyList.load(self.inputset.master_flat.frame.file, 0)
+        header_image = create_dummy_header()
 
-        product = self.ProductReduced(header, combined_image)
+        product = self.ProductReduced(header, Hdu(header, combined_image, name='IMAGE'))
 
         return {product}
 

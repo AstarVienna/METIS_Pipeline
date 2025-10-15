@@ -153,7 +153,7 @@ class PipelineInput:
         """
 
     @abstractmethod
-    def load_data(self) -> Union[cpl.core.ImageList, cpl.core.Image, cpl.core.Table]:
+    def load_data(self, extension: int | str = None) -> Union[cpl.core.ImageList, cpl.core.Image, cpl.core.Table]:
         """
         Load the actual data and return it.
         """
