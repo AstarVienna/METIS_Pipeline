@@ -48,9 +48,15 @@ class LmFlatTwilightRaw(BandLmMixin, SourceTwilightMixin, FlatRaw):
 
 
 class NFlatLampRaw(BandNMixin, SourceLampMixin, FlatRaw):
-    pass
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
 
 
 class NFlatTwilightRaw(BandNMixin, SourceTwilightMixin, FlatRaw):
-    pass
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
 

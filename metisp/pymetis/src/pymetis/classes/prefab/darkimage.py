@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 import cpl
-from cpl.core import Msg
+from cpl.core import Msg, Image
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs import PipelineInput
@@ -56,8 +56,14 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         :return:
             ImageList
         """
-        master_dark: DataItem = self.inputset.master_dark.use().load_data()
+        # FixMe: This currently works somehow, but only for one detector.
+        # The function should take all three (SCI, ERR, DQ) and for all detectors
+        # Or maybe have two functions:
+        # - _subtract_single_dark for a single detector
+        # - _subtract_darks for all detectors that calls the single one for each of them
+        master_dark: Image = self.inputset.master_dark.load_data('DET1.SCI')
 
         Msg.info(self.__class__.__qualname__,
                  f"Subtracting the master dark from raw images")
-        return images.subtract_image(master_dark.hdus[0])
+        images.subtract_image(master_dark)
+        return images
