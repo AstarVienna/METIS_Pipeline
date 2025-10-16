@@ -82,7 +82,7 @@ class MetisLssStdImpl(DarkImageProcessor):
     def process(self) -> set[DataItem]:
         # Load raw image
         std_raw_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_list()
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
 
         """Create dummy file (should do something more fancy in the future)"""
         # header = create_dummy_header()
@@ -106,7 +106,7 @@ class MetisLssStdImpl(DarkImageProcessor):
             self.ProductLssStd1d(product_lss_std1d_hdr,
                                  Hdu(product_lss_std1d_hdr, table, name='TABLE')),
             self.ProductLssStdObjMap(product_lss_std_obj_map_hdr,
-                                     Hdu(product_lss_std_obj_map_hdr, image, name='IMAGE')),
+                                     Hdu(product_lss_std_obj_map_hdr, image, name='PRIMARY')),
             self.ProductLssStdSkyMap(product_lss_std_sky_map_hdr,
-                                     Hdu(product_lss_std_sky_map_hdr, image, name='IMAGE')),
+                                     Hdu(product_lss_std_sky_map_hdr, image, name='PRIMARY')),
         }

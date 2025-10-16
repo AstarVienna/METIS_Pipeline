@@ -51,7 +51,9 @@ class NStdBackgroundSubtracted(BandNMixin, StdBackgroundSubtracted):
 
 
 class SciBackgroundSubtracted(TargetSciMixin, BackgroundSubtracted, abstract=True):
-    pass
+    _schema = {
+        'PRIMARY': Image,
+    }
 
 
 class LmSciBackgroundSubtracted(BandLmMixin, SciBackgroundSubtracted):

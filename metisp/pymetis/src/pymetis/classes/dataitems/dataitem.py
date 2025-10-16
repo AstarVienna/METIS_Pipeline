@@ -322,7 +322,7 @@ class DataItem(Parametrizable, ABC):
                 structure['klass'] = subtype
                 structure['extno'] = index
 
-                if subtype != 'IMAGE':
+                if subtype is None:
                     if subschema.get('NAXIS', None) == 2:
                         subtype = Image
                         Msg.warning(cls.__qualname__,
@@ -374,10 +374,13 @@ class DataItem(Parametrizable, ABC):
             self[extension].klass = Image
 
         try:
-            return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
+            if self[extension].klass == Image:
+                return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
+            elif self[extension].klass == Table:
+                return self[extension].klass.load(self.filename, self._hdus[extension].extno)
         except cpl.core.DataNotFoundError as exc:
             Msg.error(self.__class__.__qualname__,
-                      f"Failed to load data from extension '{extension}'")
+                      f"Failed to load data from extension '{extension}' in file {self.filename}")
             raise exc
 
     @property
