@@ -51,6 +51,11 @@ class MedianLssRsrf(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'DRS.SLIT'}
 
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
+
 
 class MedianLmLssRsrf(BandLmMixin, MedianLssRsrf):
     pass
@@ -68,6 +73,11 @@ class MeanLssRsrf(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
+
 
 class MeanLmLssRsrf(BandLmMixin, MeanLssRsrf):
     pass
@@ -84,6 +94,11 @@ class MasterLssRsrf(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
 
 
 class MasterLmLssRsrfImg(BandLmMixin, MasterLssRsrf):
@@ -104,7 +119,10 @@ class LssRsrfPinholeRaw(BandSpecificMixin, ImageDataItem, abstract=True):
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI20.NAME',
                      'DRS.SLIT'}
 
-    _schema = [None, Image]
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
 
 
 class LmLssRsrfPinholeRaw(BandLmMixin, LssRsrfPinholeRaw):

@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import (TargetSpecificMixin, TargetSciMixin, TargetStdMixin,
@@ -31,6 +32,10 @@ class Background(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+
+    _schema = {
+        'PRIMARY': Image,
+    }
 
 
 class LmStdBackground(BandLmMixin, TargetStdMixin, Background):

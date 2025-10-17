@@ -16,11 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from typing import Literal
 
 import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import RawInput, MasterDarkInput
@@ -41,16 +43,50 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
     ProductDistortionTable = IfuDistortionTable
     ProductDistortionReduced = IfuDistortionReduced
 
-    def process(self) -> set[DataItem]:
-        raw_images = self.inputset.raw.load_images()
-        self.inputset.raw.use()
+    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+        """
+        Find the distortion coeeficients for a single detector of the IFU.
 
+        Parameters
+        ----------
+        detector : Literal[1, 2, 3, 4] # FixMe: Maybe make this fully customizable for any detector count?
+
+        Returns
+        -------
+        dict[str, Hdu]
+            Distortion coefficients for a single detector of the IFU, in a form of table and image
+            # FixMe this does not make much sense but works for now [MB]
+        """
+
+        det = rf'{detector:1d}'
+        raw_images = self.inputset.raw.use().load_data(extension=rf'DET{detector:1d}.DATA')
         combined_image = self.combine_images(raw_images, "average")
-        header = create_dummy_header()
-        table = create_dummy_table()
 
-        product_distortion = self.ProductDistortionTable(header, table)
-        product_distortion_reduced = self.ProductDistortionReduced(header, combined_image)
+        header_table = create_dummy_header()
+        header_table.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{detector:1d}'))
+        table = create_dummy_table(14)
+
+        header_image = create_dummy_header()
+        header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{detector:1d}'))
+
+        return {
+            'TABLE': Hdu(header_table, table, name=rf'DET{det}'),
+            'IMAGE': Hdu(header_image, combined_image, name=rf'DET{det}'),
+        }
+
+    def process(self) -> set[DataItem]:
+        header = create_dummy_header()
+
+        output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
+
+        product_distortion = self.ProductDistortionTable(
+            header,
+            *[out['TABLE'] for out in output],
+        )
+        product_distortion_reduced = self.ProductDistortionReduced(
+            header,
+            *[out['IMAGE'] for out in output],
+        )
 
         return {product_distortion, product_distortion_reduced}
 

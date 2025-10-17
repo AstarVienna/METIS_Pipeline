@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.adc.adc import AdcSlitloss
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.raw import LssSciRaw
@@ -78,7 +78,6 @@ class MetisLssSciImpl(DarkImageProcessor):
         # CHECK THE AO PSF MODEL - why not included? forgotten????
         # --------------------------------------------------------------------
 
-
     ProductLssSciObjMap = LssObjMap
     ProductLssSciSkyMap = LssSkyMap
     ProductLssSci1d = LssSci1d
@@ -93,7 +92,7 @@ class MetisLssSciImpl(DarkImageProcessor):
         """do something more fancy in the future"""
         # Load raw image
         sci_raw_hdr = cpl.core.PropertyList()
-        sci_raw_images = self.inputset.raw.load_images()
+        sci_raw_images = self.inputset.raw.load_data('DET1.DATA')
 
         self.inputset.raw.use()
 
@@ -102,14 +101,43 @@ class MetisLssSciImpl(DarkImageProcessor):
         image = create_dummy_image()
         table = create_dummy_table()
 
+        header_lss_sci_1d = create_dummy_header()
+        header_lss_sci_2d = create_dummy_header()
+        header_lss_sci_sky_map = create_dummy_header()
+        header_lss_sci_obj_map = create_dummy_header()
+        header_lss_sci_flux1d = create_dummy_header()
+        header_lss_sci_flux2d = create_dummy_header()
+        header_lss_sci_flux_tell_corr1d = create_dummy_header()
+
         # Write files
         return {
-            self.ProductLssSci1d(header, table),
-            self.ProductLssSci2d(header, image),
-            self.ProductLssSciFlux1d(header, table),
-            self.ProductLssSciFluxTellCorr1d(header, table),
-            self.ProductLssSciFlux2d(header, image),
-            self.ProductLssSciObjMap(header, image),
-            self.ProductLssSciSkyMap(header, image),
+            self.ProductLssSci1d(
+                header,
+                Hdu(header_lss_sci_1d, table, name='TABLE')
+            ),
+            self.ProductLssSci2d(
+                header,
+                Hdu(header_lss_sci_2d, image, name='PRIMARY')
+            ),
+            self.ProductLssSciFlux1d(
+                header,
+                Hdu(header_lss_sci_1d, table, name='BINTABLE')
+            ),
+            self.ProductLssSciFlux2d(
+                header,
+                Hdu(header_lss_sci_2d, image, name='PRIMARY')
+            ),
+            self.ProductLssSciFluxTellCorr1d(
+                header,
+                Hdu(header_lss_sci_flux_tell_corr1d, table, name='TABLE')
+            ),
+            self.ProductLssSciObjMap(
+                header,
+                Hdu(header_lss_sci_obj_map, image, name='PRIMARY')
+            ),
+            self.ProductLssSciSkyMap(
+                header,
+                Hdu(header_lss_sci_sky_map, image, name='PRIMARY'),
+            ),
         }
 # Dummy routine end +++++++++++++++++++++++++++++++++++++++++++++++++++

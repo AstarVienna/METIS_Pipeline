@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.distortion.map import DistortionMap
 from pymetis.dataitems.distortion.raw import DistortionRaw
 from pymetis.dataitems.distortion.reduced import DistortionReduced
@@ -28,7 +28,7 @@ from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import (RawInput, SinglePipelineInput, PinholeTableInput, PersistenceInputSetMixin,
                                     LinearityInputSetMixin, GainMapInputSetMixin)
-from pymetis.utils.dummy import create_dummy_table, create_dummy_image
+from pymetis.utils.dummy import create_dummy_table, create_dummy_image, create_dummy_header
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
@@ -46,15 +46,27 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
     ProductDistortionReduced = DistortionReduced
 
     def process(self) -> set[DataItem]:
-        combined_image = self.combine_images(self.inputset.raw.load_list(), "average")
-        distortion = self.inputset.distortion.load_data().use()
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
 
-        header = distortion.header
+        combined_image = self.combine_images(raw_images, "average")
+        distortion = self.inputset.distortion.load_data('DET1.DATA')
+        primary_header = self.inputset.distortion.item.primary_header
+
+        header = create_dummy_header()
         table = create_dummy_table()
         image = create_dummy_image()
 
         return {
-            self.ProductDistortionTable(header, table),
-            self.ProductDistortionMap(header, combined_image),
-            self.ProductDistortionReduced(header, image),
+            self.ProductDistortionTable(
+                primary_header,
+                Hdu(header, table, name='TABLE'),
+            ),
+            self.ProductDistortionMap(
+                primary_header,
+                Hdu(header, combined_image, name='DET1.DATA'),
+            ),
+            self.ProductDistortionReduced(
+                primary_header,
+                Hdu(header, image, name='IMAGE'),
+            ),
         }

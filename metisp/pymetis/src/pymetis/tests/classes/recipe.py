@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 import os
 import pprint
 import re
@@ -60,6 +61,7 @@ class BaseRecipeTest(ABC):
     @pytest.mark.external
     def test_recipe_can_be_run_directly(self, frameset) -> None:
         recipe = self.Recipe()
+        print(frameset)
         assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet), \
             f"Recipe {recipe} did not return a FrameSet"
 

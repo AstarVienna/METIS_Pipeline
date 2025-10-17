@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.img.basicreduced import BasicReduced
 from pymetis.dataitems.img.raw import ImageRaw
 from pymetis.dataitems.masterflat import MasterImgFlat
@@ -87,22 +87,20 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
-        flat = self.inputset.master_flat.load_data()
-        dark = self.inputset.master_dark.load_data()
-        gain = self.inputset.gain_map.load_data()
-
-        Msg.info(self.__class__.__qualname__, f"Detector name = {self.inputset.detector}")
+        flat = self.inputset.master_flat.load_data('PRIMARY')
+        dark = self.inputset.master_dark.load_data('PRIMARY')
+        gain = self.inputset.gain_map.load_data('PRIMARY')
 
         Msg.info(self.__class__.__qualname__, "Loading raw images")
-        images = self.inputset.raw.load_list()
+        images = self.inputset.raw.load_data('DET1.DATA')
         Msg.info(self.__class__.__qualname__, "Pretending to correct crosstalk")
         Msg.info(self.__class__.__qualname__, "Pretending to correct for linearity")
 
         Msg.info(self.__class__.__qualname__, "Subtracting Dark")
-        images.subtract_image(dark.hdus[0])
+        images.subtract_image(dark)
 
         Msg.info(self.__class__.__qualname__, "Flat fielding")
-        images.divide_image(flat.hdus[0])
+        images.divide_image(flat)
 
         Msg.info(self.__class__.__qualname__, "Pretending to remove masked regions")
 
@@ -141,7 +139,10 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             header.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] max value of image"))
 
-            product = self.ProductBasicReduced(header, image)
+            product = self.ProductBasicReduced(
+                header,
+                Hdu(header, image, name='PRIMARY'),
+            )
             product_set |= {product}
 
         return product_set

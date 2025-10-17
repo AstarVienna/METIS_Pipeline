@@ -16,17 +16,65 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from typing import Any
 
 import cpl
 from cpl.core import PropertyList as CplPropertyList, Property as CplProperty
 
 
 def python_to_cpl_type(what: type) -> cpl.core.Type:
-    return {
-        int: cpl.core.Type.INT,
-        float: cpl.core.Type.FLOAT,
-        str: cpl.core.Type.STRING,
-    }[what]
+    """
+    Convert a Python type to a CPL type.
+
+    Parameters
+    ----------
+    what: type
+        Python type to convert.
+
+    Returns
+    -------
+    cpl.core.Type
+        Converted type.
+
+    Raises
+    ------
+    KeyError
+        If the type is not a Python type convertible to a CPL type.
+    """
+    try:
+        return {
+            int: cpl.core.Type.INT,
+            float: cpl.core.Type.DOUBLE,
+            str: cpl.core.Type.STRING,
+            list: cpl.core.Type.ARRAY,
+        }[what]
+    except KeyError as exc:
+        raise TypeError(f"Type {what} cannot be converted to a CPL type.") from exc
+
+
+def make_cpl_property(name: str, value: Any) -> cpl.core.Property:
+    """
+    Create a new CPL Property from a Python variable.
+
+    Parameters
+    ----------
+    name: string
+        Name of the new property
+    value:
+        Python variable
+
+    Returns
+    -------
+    cpl.core.Property
+        New CPL Property
+
+    Raises
+    ------
+    KeyError
+        If the type of the variable is not a Python type convertible to a CPL type.
+
+    """
+    return CplProperty(name, python_to_cpl_type(type(value)), value)
 
 
 def create_dummy_header(**kwargs) -> cpl.core.PropertyList:
@@ -35,16 +83,16 @@ def create_dummy_header(**kwargs) -> cpl.core.PropertyList:
     # ToDo This function should not survive in the future.
     """
     return cpl.core.PropertyList([
-        CplProperty(name, python_to_cpl_type(type(prop)), prop) for name, prop in kwargs.items()
+        make_cpl_property(name, prop) for name, prop in kwargs.items()
     ])
 
 
-def create_dummy_image(size: int = 2048) -> cpl.core.Image:
+def create_dummy_image(size: int = 2048, dtype: cpl.core.Type = cpl.core.Type.FLOAT) -> cpl.core.Image:
     """
     Create a dummy image (absolutely no assumptions, just to have something to work with).
     # ToDo This function should not survive in the future.
     """
-    return cpl.core.Image.zeros(size, size, cpl.core.Type.FLOAT)
+    return cpl.core.Image.zeros(size, size, dtype)
 
 
 def create_dummy_table(rows: int = 3) -> cpl.core.Table:

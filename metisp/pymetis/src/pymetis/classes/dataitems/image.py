@@ -25,11 +25,6 @@ from pymetis.classes.dataitems import DataItem
 
 class ImageDataItem(DataItem, abstract=True):
     """
-    A data item with image data, possibly saved in multiple layers
+    A data item with image data, possibly saved in multiple HDUs
     """
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
-
-    def save_extensions(self,
-                        filename: str) -> None:
-        for name, hdu in self.hdus.items():
-            hdu.save(filename)

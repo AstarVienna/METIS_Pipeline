@@ -112,8 +112,10 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
                                               "signal-to-noise ratio of pinhole image"))
 
         return {
-            self.ProductCombined(combined_hdr, DET1DATA=Hdu(create_dummy_header(), combined_img)),
-            self.ProductBackground(background_hdr, DET1DATA=Hdu(create_dummy_header(), background_img)),
+            self.ProductCombined(combined_hdr,
+                                 Hdu(create_dummy_header(), combined_img, name='IMAGE')),
+            self.ProductBackground(background_hdr,
+                                   Hdu(create_dummy_header(), background_img, name='IMAGE')),
         }
 
     def compute_background(self, *, method):

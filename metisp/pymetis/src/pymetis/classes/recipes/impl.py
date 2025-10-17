@@ -96,12 +96,12 @@ class MetisRecipeImpl(ABC):
 
     def run(self) -> cpl.ui.FrameSet:
         """
-            The main function of the recipe implementation. It mirrors the signature of `Recipe.run`
-            and is meant to be called directly by the owner recipe.
-            All recipe implementations should follow this schema
-            (and hence it does not have to be repeated or overridden anywhere).
+        The main function of the recipe implementation. It mirrors the signature of `Recipe.run`
+        and is meant to be called directly by the owner recipe.
+        All recipe implementations should follow this schema
+        (and hence it does not have to be repeated or overridden anywhere).
 
-            ToDo: At least Martin thinks so now. It might change, but needs compelling arguments.
+        ToDo: At least Martin thinks so now. It might change, but needs compelling arguments.
         """
 
         try:
@@ -145,13 +145,13 @@ class MetisRecipeImpl(ABC):
             When implementing this function, please always use the topmost applicable method:
                 - Use the functions provided in the pipeline if possible (derive or override).
                   Much of the functionality is common to many recipes, and we should not repeat ourselves.
-                  Some classes / functions are provided in `prefab`.
+                  Some classes / functions are provided in ``prefab``.
                 - Use HDRL functions, if available.
                 - Use CPL functions, if available.
                 - Implement what you need yourself.
         3.  Build the output images as specified in the DRLD.
-            Each product should be a `DataItem` and there should be exactly one for every file produced.
-        4.  Return a set of `DataItem`s.
+            Each product should be a ``DataItem`` and there should be exactly one for every file produced.
+        4.  Return a set of ``DataItem``.
 
         The resulting products set is then passed to `save_products()` (see `run`).
         """

@@ -35,7 +35,9 @@ class LmChophomeCombined(BandLmMixin, ImageDataItem):
 
     _schema = {
         'PRIMARY': None,
-        'DET1DATA': Image,
+        'IMAGE': Image,
+        'ERR': Image,
+        'DQ': Image,
     }
 
 
@@ -51,6 +53,6 @@ class LmChophomeBackground(BandLmMixin, ImageDataItem):
 
     _schema = {
         'PRIMARY': None,
-        'DET1DATA': Image,
+        'IMAGE': Image,
     }
 

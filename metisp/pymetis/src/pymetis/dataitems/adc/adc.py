@@ -33,8 +33,6 @@ class AdcSlitloss(BandSpecificMixin, TableDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
-    _schema = [None, Table]
-
 
 class LmAdcSlitloss(BandLmMixin, AdcSlitloss):
     pass

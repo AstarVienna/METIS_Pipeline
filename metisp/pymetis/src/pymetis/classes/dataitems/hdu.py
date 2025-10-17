@@ -23,7 +23,9 @@ from typing import Union, TypeVar, Generic, Optional
 import cpl
 from cpl.core import (Image as CplImage,
                       Table as CplTable,
-                      PropertyList as CplPropertyList, Property)
+                      PropertyList as CplPropertyList, Property, Msg)
+
+from pymetis.utils.dummy import python_to_cpl_type, make_cpl_property
 
 
 class Hdu:
@@ -34,6 +36,7 @@ class Hdu:
                  header: CplPropertyList,
                  data: Optional[CplImage | CplTable],
                  *,
+                 name: Optional[str] = None,
                  klass: Optional[type[CplImage | CplTable]] = None,
                  extno: Optional[int] = 0,
                 ) -> None:
@@ -52,17 +55,30 @@ class Hdu:
         self.klass = klass if klass is not None else type(data) if data is not None else None
         self.extno = extno
 
-        try:
-            self.name = self.header['EXTNAME'].value
-        except KeyError:
-            self.name = 'PRIMARY'
 
+        self.name = name
+
+
+        self.header.del_regexp(r'EXTNAME', True)
+        self.header.append(make_cpl_property('EXTNAME', name))
+
+        Msg.debug(self.__class__.__qualname__,
+                  f"Created a HDU '{self.name}' with extno={self.extno}, class is {self.klass}")
 
     def __repr__(self) -> str:
-        return f"<HDU {self.name=} = {self.extno=}>"
+        return f"<HDU {self.name=}, {self.extno=}, {self.klass=}>"
 
     def save(self, filename):
-        self.data.save(filename, self.header, cpl.core.io.EXTEND)
+        Msg.info(self.__class__.__name__,
+                 f"Saving HDU '{self.name}' to '{filename}'")
+
+        # FixMe this is ugly as hell, but works
+        if self.klass == CplImage:
+            self.data.save(filename, self.header, cpl.core.io.EXTEND)
+        elif self.klass == CplTable:
+            # Here the signature is (primary_header, header, filename, mode) for whatever reason...
+            # FixMe What if there are multiple tables? Is primary header overwritten or what?
+            self.data.save(self.header, self.header, filename, cpl.core.io.EXTEND)
 
 
 class MetisImage:

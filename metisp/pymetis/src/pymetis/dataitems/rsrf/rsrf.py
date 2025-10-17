@@ -30,16 +30,25 @@ class Rsrf(DataItem):
     _description_template = "2D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-    _schema = [None, Image]
+
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': Image,
+    }
 
 
-class RsrfIfu(DetectorIfuMixin, TableDataItem): # FixMe this should be a table?
+class RsrfIfu(DetectorIfuMixin, TableDataItem):
     _name_template = r'RSRF_IFU'
     _title_template = "RSRF IFU"
     _description_template = "1D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _schema = [None, Table, Table, Table, Table]
+
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}.DATA': Table for det in range(1, 5)
+    }
 
 
 class IfuRsrfBackground(DetectorIfuMixin, ImageDataItem):
@@ -48,4 +57,9 @@ class IfuRsrfBackground(DetectorIfuMixin, ImageDataItem):
     _description_template = "2D relative spectral response function background"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _schema = [None, Image, Image, Image, Image]
+
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}.DATA': Image for det in range(1, 5)
+    }

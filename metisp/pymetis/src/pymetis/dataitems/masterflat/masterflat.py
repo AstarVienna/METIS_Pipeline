@@ -33,6 +33,10 @@ class MasterFlat(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
+    _schema = {
+        'PRIMARY': None,
+    }
+
 
 class MasterFlat2rg(Detector2rgMixin, MasterFlat):
     pass
@@ -43,7 +47,7 @@ class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
 
 
 class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
-    _schema = [None, Image, Image, Image, Image]
+    pass
 
 
 
@@ -54,7 +58,9 @@ class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstr
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
-    _schema = [Image]
+    _schema = {
+        'PRIMARY': Image,
+    }
 
 
 class MasterImgFlatLampLm(BandLmMixin, SourceLampMixin, MasterImgFlat):

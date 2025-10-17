@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Table, Image
 
 from pymetis.classes.dataitems import ImageDataItem, TableDataItem
 from pymetis.classes.mixins import BandSpecificMixin, TargetSpecificMixin, BandLmMixin, BandNMixin, TargetSciMixin, \
@@ -31,6 +32,10 @@ class LssObjMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+
+    _schema = {
+        'PRIMARY': Image,
+    }
 
 
 class LmLssStdObjMap(BandLmMixin, TargetStdMixin, LssObjMap):
@@ -56,6 +61,10 @@ class LssSkyMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
+
+    _schema = {
+        'PRIMARY': Image,
+    }
 
 
 class LmLssStdSkyMap(BandLmMixin, TargetStdMixin, LssSkyMap):
@@ -99,6 +108,10 @@ class LssSci2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
+    _schema = {
+        'PRIMARY': Image,
+    }
+
 
 class LmLssSci2d(BandLmMixin, LssSci2d):
     pass
@@ -119,6 +132,11 @@ class LssSciFlux1d(BandSpecificMixin, TableDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
+    _schema = {
+        'PRIMARY': None,
+        'BINTABLE': Table,
+    }
+
 
 class LmLssSciFlux1d(BandLmMixin, LssSciFlux1d):
     pass
@@ -138,6 +156,10 @@ class LssSciFlux2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
+
+    _schema = {
+        'PRIMARY': Image,
+    }
 
 
 class LmLssSciFlux2d(BandLmMixin, LssSciFlux2d):

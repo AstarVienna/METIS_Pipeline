@@ -33,8 +33,7 @@ class LinearityMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG'}
 
     _schema = {
-        'PRIMARY': None,
-        'DET1DATA': Image,
+        'PRIMARY': Image,
     }
 
 
@@ -47,4 +46,7 @@ class LinearityMapGeo(DetectorGeoMixin, LinearityMap):
 
 
 class LinearityMapIfu(DetectorIfuMixin, LinearityMap):
-    pass
+    # FixMe: This is wrong but matches the current testing data
+    _schema = {
+        'PRIMARY': Image,
+    }

@@ -47,7 +47,10 @@ class FluxCalTable(TableDataItem): # FixMe this should be a table, right?
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG'}
 
-    _schema = [None, Image]
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 
 
 class PinholeTable(TableDataItem):
@@ -59,7 +62,10 @@ class PinholeTable(TableDataItem):
     _oca_keywords = {'PRO.CATG'}
     _pro_catg = r'PINHOLE_TABLE'
 
-    _schema = [None, Table]
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 
 
 class AtmProfile(TableDataItem):
@@ -70,7 +76,10 @@ class AtmProfile(TableDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
-    _schema = [None, Table]
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 
 
 class LsfKernel(TableDataItem):
@@ -89,8 +98,6 @@ class FluxStdCatalog(TableDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = set()
 
-    _schema = [None, Table]
-
 
 class AtmLineCatalog(TableDataItem):
     _name_template = r'ATM_LINE_CAT'
@@ -100,8 +107,6 @@ class AtmLineCatalog(TableDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG'}
 
-    _schema = [None, Table]
-
 
 class LaserTable(TableDataItem):
     _name_template = r'LASER_TAB'
@@ -109,8 +114,6 @@ class LaserTable(TableDataItem):
     _description_template = "Table with laser lines"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-
-    _schema = [None, Table]
 
 
 class IfuTelluric(TableDataItem):
@@ -120,6 +123,3 @@ class IfuTelluric(TableDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
-
-    _schema = [None, Table]
-

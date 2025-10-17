@@ -21,7 +21,7 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.background import Background, BackgroundSubtracted
 from pymetis.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced
 from pymetis.dataitems.objectcatalog import ObjectCatalog
@@ -44,14 +44,22 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     ProductObjectCatalog = ObjectCatalog
 
     def process(self) -> set[DataItem]:
-        raw_images = cpl.core.ImageList()
-        image = self.inputset.basic_reduced.load_data().use()
+        image = self.inputset.basic_reduced.load_data('PRIMARY')
         table = create_dummy_table()
         header = create_dummy_header()
 
-        product_bkg = self.ProductBkg(header, image.hdus[0])
-        product_bkg_subtracted = self.ProductBkgSubtracted(header, image.hdus[0])
-        product_object_cat = self.ProductObjectCatalog(header, table)
+        product_bkg = self.ProductBkg(
+            header,
+            Hdu(header, image, name='PRIMARY'),
+        )
+        product_bkg_subtracted = self.ProductBkgSubtracted(
+            header,
+            Hdu(header, image, name='DET1.DATA'),
+        )
+        product_object_cat = self.ProductObjectCatalog(
+            header,
+            Hdu(header, table, name='TABLE'),
+        )
 
         return {product_bkg, product_bkg_subtracted, product_object_cat}
 
