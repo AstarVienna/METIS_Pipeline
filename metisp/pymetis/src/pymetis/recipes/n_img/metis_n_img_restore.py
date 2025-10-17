@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterValue
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.img.basicreduced import NSciCalibrated, NSciRestored
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
@@ -34,11 +34,15 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
     ProductRestored = NSciRestored
 
     def process(self) -> set[DataItem]:
-        calibrated = self.inputset.calibrated.load_data().use()
+        calibrated = self.inputset.calibrated.load_data('PRIMARY')
 
-        header = calibrated.header
+        header = self.inputset.calibrated.item.primary_header
         image = create_dummy_image()
-        product = self.ProductRestored(header, image)
+
+        product = self.ProductRestored(
+            header,
+            Hdu(header, image, name='IMAGE')
+        )
 
         return {product}    # ToDo is just a dummy for now
 

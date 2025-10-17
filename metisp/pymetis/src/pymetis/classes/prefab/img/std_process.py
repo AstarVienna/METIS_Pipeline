@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.background.subtracted import StdBackgroundSubtracted
 from pymetis.dataitems.combined import Combined
 from pymetis.dataitems.common import FluxCalTable
@@ -38,13 +38,19 @@ class MetisImgStdProcessImpl(RawImageProcessor):
     ProductImgStdCombined = Combined
 
     def process(self) -> set[DataItem]:
-        raw_images = self.inputset.raw.load_list()
+        raw_images = self.inputset.raw.load_data('PRIMARY')
 
         combined_image = self.combine_images(raw_images, "average")
-        header = self.inputset.raw.items[0].header
+        header = self.inputset.raw.items[0].primary_header
         table = create_dummy_table()
 
-        product_fluxcal = self.ProductImgFluxCalTable(header, table)
-        product_combined = self.ProductImgStdCombined(header, combined_image)
+        product_fluxcal = self.ProductImgFluxCalTable(
+            header,
+            Hdu(header, table, name='TABLE')
+        )
+        product_combined = self.ProductImgStdCombined(
+            header,
+            Hdu(header, combined_image, name='PRIMARY'),
+        )
 
         return {product_fluxcal, product_combined}

@@ -33,8 +33,8 @@ class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, ImageDataItem
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
-    _schema = ImageDataItem._schema | {
-        'DET1.DATA': Image,
+    _schema = {
+        'PRIMARY': Image,
     }
 
 

@@ -93,3 +93,8 @@ class NSciRestored(BandNMixin, ImageDataItem):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': Image,
+    }

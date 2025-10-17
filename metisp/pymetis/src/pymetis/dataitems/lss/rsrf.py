@@ -34,6 +34,11 @@ class LssRsrfRaw(BandSpecificMixin, Raw, abstract=True):
                      'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME',
                      'DRS.SLIT'}
 
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image
+    }
+
 
 class LmLssStdRaw(BandLmMixin, LssRsrfRaw):
     pass
@@ -97,7 +102,7 @@ class MasterLssRsrf(BandSpecificMixin, ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': Image,
-        #'DET1.DATA': Image,
+        'DET1.DATA': Image,
     }
 
 
