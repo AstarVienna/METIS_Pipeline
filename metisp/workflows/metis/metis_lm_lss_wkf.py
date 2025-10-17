@@ -25,7 +25,6 @@ from .metis_lm_lss_molecfit import telluric_on_standard, telluric_on_science
 #             .with_recipe("metis_det_persistence")
 #             .build())
 
-# TODO: TASK NAMES MUST BE UNIQUE, NOT JUST THE STRING, OTHERWISE TARGETS CAN'T BE RESOLVED!
 
 slitloss_lm_lss_task = (task('metis_lm_adc_slitloss')
             .with_recipe("metis_lm_adc_slitloss")
@@ -35,7 +34,6 @@ slitloss_lm_lss_task = (task('metis_lm_adc_slitloss')
             .with_meta_targets([QC1_CALIB])
             .build())
 
-# TODO: Insert unique names for dark and detlin recipe
 dark_2rg_lm_lss_task = (task('metis_det_dark')
             .with_recipe("metis_det_dark")
             .with_main_input(raw_2rg_dark)       # check what the minimum number of raw darks is!
