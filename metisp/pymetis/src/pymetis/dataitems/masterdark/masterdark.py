@@ -43,8 +43,8 @@ class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
 class MasterDark2rg(Detector2rgMixin, MasterDark):
     _schema ={
         'PRIMARY': Image,
+        'DET1.DATA': Image,
     }
-    pass
 
 
 class MasterDarkGeo(DetectorGeoMixin, MasterDark):

@@ -61,7 +61,6 @@ class BaseRecipeTest(ABC):
     @pytest.mark.external
     def test_recipe_can_be_run_directly(self, frameset) -> None:
         recipe = self.Recipe()
-        print(frameset)
         assert isinstance(recipe.run(frameset, {}), cpl.ui.FrameSet), \
             f"Recipe {recipe} did not return a FrameSet"
 

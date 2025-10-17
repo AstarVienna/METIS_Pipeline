@@ -35,7 +35,7 @@ class FlatRaw(BandSpecificMixin, SourceSpecificMixin, Raw, abstract=True):
 
     _schema = {
         'PRIMARY': None,
-        'IMAGE': Image,
+        'DET1.DATA': Image,
     }
 
 

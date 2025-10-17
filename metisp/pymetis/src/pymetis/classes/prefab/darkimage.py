@@ -61,7 +61,7 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         # Or maybe have two functions:
         # - _subtract_single_dark for a single detector
         # - _subtract_darks for all detectors that calls the single one for each of them
-        master_dark: Image = self.inputset.master_dark.load_data('DET1.SCI')
+        master_dark: Image = self.inputset.master_dark.load_data('PRIMARY')
 
         Msg.info(self.__class__.__qualname__,
                  f"Subtracting the master dark from raw images")
