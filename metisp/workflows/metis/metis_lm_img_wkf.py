@@ -3,12 +3,12 @@ from edps import task, subworkflow, qc1calib, match_rules, FilterMode, calchecke
 from .metis_datasources import *
 from . import metis_keywords as metis_kwd
 
-dark_2rg_lm_img_task = (task('metis_det_dark')
+dark_2rg_lm_img_task = (task('metis_lm_img_dark')
             .with_main_input(raw_2rg_dark)
             .with_recipe("metis_det_dark")
             .build())
 
-lingain_2rg_lm_img_task = (task('metis_det_detlin')
+lingain_2rg_lm_img_task = (task('metis_lm_img_lingain')
                 .with_recipe("metis_det_lingain")
                 .with_main_input(detlin_2rg_raw)
                 .with_associated_input(dark_2rg_lm_img_task)

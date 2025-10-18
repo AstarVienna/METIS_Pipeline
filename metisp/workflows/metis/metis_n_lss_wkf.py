@@ -34,14 +34,14 @@ slitloss_n_lss_task = (task('metis_n_adc_slitloss')
             .build())
 
 
-dark_geo_n_lss_task = (task('metis_det_dark')
+dark_geo_n_lss_task = (task('metis_n_lss_dark')
             .with_recipe("metis_det_dark")
             .with_main_input(raw_geo_dark)       # check what the minimum number of raw darks is!
             # .with_associated_input(calib_persistence, min_ret=0)
             .with_meta_targets([QC1_CALIB])
             .build())
 
-linearity_n_lss_task = (task('metis_det_lingain')
+linearity_n_lss_task = (task('metis_n_lss_lingain')
             .with_recipe("metis_det_lingain")
             .with_main_input(detlin_geo_raw)
             .with_associated_input(dark_geo_n_lss_task, min_ret=0) # min_ret=0 --> optional input            # .with_main_input(raw_dark)       # check what the minimum number of raw darks is!
@@ -131,8 +131,9 @@ mf_model_n_lss_task = (task("metis_n_lss_mf_model")
             .with_associated_input(static_atm_line_cat)
             .with_associated_input(calib_lsf_kernel)
             .with_associated_input(calib_atm_profile)
-            # .with_associated_input(transmission_from_standard, condition=molecfit_on_standard)
-            # .with_associated_input(transmission_from_science, condition=molecfit_on_science)            .with_recipe("metis_n_lss_mf_model")
+            # TODO: Include output filtering for sci & std outputs
+            .with_associated_input(std_reduction_n_lss_task, condition=on_standard)
+            .with_associated_input(sci_reduction_n_lss_task, condition=on_science)
             .with_recipe('metis_n_lss_mf_model')
             .with_meta_targets([QC1_CALIB])
             .build())
@@ -142,9 +143,6 @@ mf_calctrans_n_lss_task = (task("metis_n_lss_mf_calctrans")
             .with_associated_input(static_atm_line_cat)
             .with_associated_input(calib_lsf_kernel)
             .with_associated_input(calib_atm_profile)
-            # TODO: Include output filtering for sci & std outputs
-            .with_associated_input(std_reduction_n_lss_task, condition=on_standard)
-            .with_associated_input(sci_reduction_n_lss_task, condition=on_science)                        .with_recipe("metis_n_lss_calctrans")
             .with_recipe('metis_n_lss_mf_calctrans')
             .with_meta_targets([QC1_CALIB])
             .build())
