@@ -1,4 +1,4 @@
-default_parameters: &default
+default_parameters:
   is_default: yes
   recipe_parameters:
     dark_task: &dark_task
@@ -9,13 +9,13 @@ default_parameters: &default
     molecfit: "science"
 
 qc0_parameters:
-  <<: *default
+  <<: *dark_task
   is_default: no
 
 science_parameters:
-  <<: *default
+  <<: *dark_task
   is_default: no
 
 idp_parameters:
-  <<: *default
+  <<: *dark_task
   is_default: no
