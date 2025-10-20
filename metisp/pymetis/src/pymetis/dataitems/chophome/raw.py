@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Image
+from cpl.core import Image, PropertyList
 
 from pymetis.dataitems.raw import Raw
 
@@ -32,4 +32,7 @@ class LmChophomeRaw(Raw):
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
-    _schema = [None, Image]
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }

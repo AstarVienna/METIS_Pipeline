@@ -17,12 +17,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import functools
+import operator
+import re
+
 from abc import ABC
+from typing import Literal, Dict, Any
 
 import cpl
+from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.badpixmap import BadPixMap
 from pymetis.dataitems.gainmap import GainMap
 from pymetis.dataitems.linearity.linearity import LinearityMap
@@ -31,6 +38,7 @@ from pymetis.classes.inputs import RawInput, BadPixMapInput, OptionalInputMixin
 from pymetis.classes.inputs.common import WcuOffInput
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.recipes import MetisRecipe
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisDetLinGainImpl(RawImageProcessor, ABC):
@@ -47,13 +55,39 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
     ProductLinearity = LinearityMap
     ProductBadPixMap = BadPixMap
 
-    def process(self) -> set[DataItem]:
-        self.inputset.raw.load_data()
-        self.inputset.raw.use()
+    def __init__(self,
+                 recipe: 'MetisRecipe',
+                 frameset: cpl.ui.FrameSet,
+                 settings: Dict[str, Any]) -> None:
+        super().__init__(recipe, frameset, settings)
+        self.stacking_method = self.parameters["metis_det_lingain.stacking.method"].value
 
-        raw_images = cpl.core.ImageList([r.hdus[0] for r in self.inputset.raw.items])
-        combined_image = self.combine_images(raw_images,
-                                             method=self.parameters["metis_det_lingain.stacking.method"].value)
+    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+        det = rf'DET{detector:1d}'
+
+        raw_images = self.inputset.raw.load_data(rf'{det}.DATA')
+        combined_image = self.combine_images(raw_images, method=self.stacking_method)
+
+        header_linearity = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+        header_gain = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+        header_badpix = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+
+        gain_image = combined_image         # TODO Actual implementation missing
+        linearity_image = combined_image    # TODO Actual implementation missing
+        badpix_map = combined_image         # TODO Actual implementation missing
+
+        return {
+            #'gain_map': Hdu(header_gain, gain_image, name=rf'{det}.DATA'),
+            #'linearity_map': Hdu(header_linearity, linearity_image, name=rf'{det}.DATA'),
+            #'badpix_map': Hdu(header_badpix, badpix_map, name=rf'{det}.DATA'),
+            'gain_map': Hdu(header_gain, gain_image, name='PRIMARY'),
+            'linearity_map': Hdu(header_linearity, linearity_image, name='PRIMARY'),
+            'badpix_map': Hdu(header_badpix, badpix_map, name='PRIMARY'),
+        }
+
+    def process(self) -> set[DataItem]:
+        Msg.info(self.__class__.__qualname__, f"Loading raw data")
+        self.inputset.raw.load_structure()
 
         # Flat field preparation: subtract bias and normalize it to median 1
         # Msg.info(self.name, "Preparing flat field")
@@ -62,15 +96,16 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         #         flat_image.subtract(bias_image)
         #     median = flat_image.get_median()
         #     flat_image.divide_scalar(median)
-        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        gain_image = combined_image         # TODO Actual implementation missing
-        linearity_image = combined_image    # TODO Actual implementation missing
-        badpix_map = combined_image         # TODO Actual implementation missing
+        detector_count = len(list(filter(lambda x: re.match(r'DET[0-9].DATA', x) is not None,
+                                         self.inputset.raw.items[0].hdus.keys() - ['PRIMARY'])))
+        primary_header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
 
-        product_gain_map = self.ProductGainMap(header, gain_image)
-        product_linearity = self.ProductLinearity(header, linearity_image)
-        product_badpix_map = self.ProductBadPixMap(header, badpix_map)
+        all_hdus = [self._process_single_detector(detector) for detector in range(1, detector_count + 1)]
+
+        product_gain_map = self.ProductGainMap(primary_header, *[output['gain_map'] for output in all_hdus])
+        product_linearity = self.ProductLinearity(primary_header, *[output['linearity_map'] for output in all_hdus])
+        product_badpix_map = self.ProductBadPixMap(primary_header, *[output['badpix_map'] for output in all_hdus])
 
         return {product_gain_map, product_linearity, product_badpix_map}
 

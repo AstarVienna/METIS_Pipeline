@@ -19,13 +19,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.background.subtracted import SciBackgroundSubtracted
 from pymetis.dataitems.distortion.table import DistortionTable
 from pymetis.dataitems.img.basicreduced import Calibrated
 from pymetis.classes.inputs import FluxCalTableInput
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.recipes import MetisRecipeImpl
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
@@ -42,9 +43,13 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     ProductSciCalibrated = Calibrated
 
     def process(self) -> set[DataItem]:
-        background = self.inputset.background.load_data().use()
+        background = self.inputset.background.load_data('PRIMARY')
+        primary_header = self.inputset.background.item.primary_header
+        header = create_dummy_header()
 
-        header = self.inputset.background.item.header
-        product_calibrated = self.ProductSciCalibrated(header, background.hdus[0])
+        product_calibrated = self.ProductSciCalibrated(
+            primary_header,
+            Hdu(header, background, name='PRIMARY'),
+        )
 
         return {product_calibrated}

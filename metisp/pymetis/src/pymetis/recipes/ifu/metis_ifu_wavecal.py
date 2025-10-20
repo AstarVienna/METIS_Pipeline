@@ -16,16 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from typing import Literal
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
 from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisIfuWavecalImpl(DarkImageProcessor):
@@ -40,15 +42,28 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
 
     ProductIfuWavecal = IfuWavecal
 
-    def process(self) -> set[DataItem]:
+    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> Hdu:
+        det = rf'DET{detector:1d}'
+        raw_images = self.inputset.raw.use().load_data(extension=rf'{det}.DATA')
+        combined_image = self.combine_images(raw_images, "average")
+
+        image = self.combine_images(raw_images, "add")
+
         # self.correct_telluric()
         # self.apply_fluxcal()
 
-        header = cpl.core.PropertyList()
-        images = self.inputset.raw.load_images()
-        image = self.combine_images(images, "add")
+        header_table = create_dummy_header(EXTNAME=rf'DET{det}')
+        table = create_dummy_table(14)
 
-        product_wavecal = self.ProductIfuWavecal(header, image)
+        return Hdu(header_table, image, name=rf'{det}.DATA')
+
+    def process(self) -> set[DataItem]:
+        primary_header = cpl.core.PropertyList()
+
+        product_wavecal = self.ProductIfuWavecal(
+            primary_header,
+            *map(self._process_single_detector, [1, 2, 3, 4])
+        )
 
         return {product_wavecal}
 

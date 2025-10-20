@@ -21,7 +21,7 @@ import cpl
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.trace import LssTrace
@@ -62,20 +62,23 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
 #   Method for processing
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        raws = self.inputset.raw.load_list()
-        master_lss_rsrf = self.inputset.master_rsrf.load_data()
+        raws = self.inputset.raw.load_data('DET1.DATA')
+        master_lss_rsrf = self.inputset.master_rsrf.load_data('PRIMARY')
 
-        header = master_lss_rsrf.header
+        header = self.inputset.master_rsrf.item.primary_header
         table = create_dummy_table()
 
-        LmLssCurveHdr = header
-        LmLssDistSolHdr = header
-        LmLssWaveGuessHdr = header
+        lm_lss_curve_header = header
+        lm_lss_dist_sol_hdr = header
+        lm_lss_wave_guess_hdr = header
 
         return {
-            self.ProductLssCurve(LmLssCurveHdr, table),
-            self.ProductLssDistSol(LmLssDistSolHdr, table),
-            self.ProductLssWaveGuess(LmLssWaveGuessHdr, table),
+            self.ProductLssCurve(header,
+                                 Hdu(lm_lss_curve_header, table, name='TABLE')),
+            self.ProductLssDistSol(header,
+                                   Hdu(lm_lss_dist_sol_hdr, table, name='TABLE')),
+            self.ProductLssWaveGuess(header,
+                                     Hdu(lm_lss_wave_guess_hdr, table, name='TABLE')),
         }
 
 

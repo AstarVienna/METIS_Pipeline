@@ -22,7 +22,8 @@ import pytest
 import cpl
 
 from pymetis.classes.dataitems.dataitem import DataItem
-
+from pymetis.dataitems.common import AtmProfile
+from pymetis.dataitems.raw import WcuOffRaw
 
 OCA_KEYWORDS: set[str] = {
     'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
@@ -34,43 +35,44 @@ OCA_KEYWORDS: set[str] = {
 
 
 @pytest.mark.dataitem
-class DataItemTest:
+@pytest.mark.parametrize('item', [LmStdBackground, NStdBackground, WcuOffRaw, AtmProfile])
+class TestDataItem:
     """
     Tests for the `DataItem` class hierarchy. These are mostly *class* tests,
     and should not depend on the data provided from SOF or FITS files.
     """
     Item: type[DataItem] = None
 
-    def test_has_title_defined(self):
-        assert isinstance(self.Item.title(), str), \
-            f"Data item {self.Item.__qualname__} does not define a `title`, or it is not a string"
+    def test_has_title_defined(self, item):
+        assert isinstance(item.title(), str), \
+            f"Data item {item.__qualname__} does not define a `title`, or it is not a string"
 
-    def test_has_name_defined(self):
-        assert isinstance(self.Item.name(), str), \
-            f"Data item {self.Item.__qualname__} does not define a `name`, or it is not a string"
+    def test_has_name_defined(self, item):
+        assert isinstance(item.name(), str), \
+            f"Data item {item.__qualname__} does not define a `name`, or it is not a string"
 
-    def test_has_description_defined(self):
+    def test_has_description_defined(self, item):
         """
         Test that every non-abstract data item defines description():
         by default, it returns the internal `_description` attribute,
         or it can override the getter classmethod.
         """
-        assert self.Item.description() is not None, \
-            f"Data item {self.Item.__qualname__} does not have a description defined!"
+        assert item.description() is not None, \
+            f"Data item {item.__qualname__} does not have a description defined!"
 
-    def test_has_group_defined(self):
-        assert isinstance(self.Item.frame_group(), cpl.ui.Frame.FrameGroup), \
-            f"Data item {self.Item.__qualname__} does not have a frame group defined!"
+    def test_has_group_defined(self, item):
+        assert isinstance(item.frame_group(), cpl.ui.Frame.FrameGroup), \
+            f"Data item {item.__qualname__} does not have a frame group defined!"
 
     @pytest.mark.metadata
-    def test_has_oca_keywords_defined(self):
-        assert isinstance(self.Item._oca_keywords, set), \
-            f"Data item {self.Item.__qualname__} OCA keywords are not a set"
+    def test_has_oca_keywords_defined(self, item):
+        assert isinstance(item._oca_keywords, set), \
+            f"Data item {item.__qualname__} OCA keywords are not a set"
         #assert len(self.Item._oca_keywords) > 0, \
         #    f"Data item {self.Item.__qualname__} does not define any OCA keywords" # This is actually OK sometimes
 
     @pytest.mark.metadata
-    def test_are_oca_keywords_a_set_of_strings(self):
-        for kw in self.Item._oca_keywords:
+    def test_are_oca_keywords_a_set_of_strings(self, item):
+        for kw in item._oca_keywords:
             assert kw in OCA_KEYWORDS, \
-                f"Data item {self.Item.__qualname__} defines an invalid OCA keyword {kw}!"
+                f"Data item {item.__qualname__} defines an invalid OCA keyword {kw}!"

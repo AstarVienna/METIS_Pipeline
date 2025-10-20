@@ -38,6 +38,7 @@ from pymetis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.dataitems.masterflat import MasterFlat
 from pymetis.dataitems.synth import SynthTrans
 from pymetis.dataitems.wavecal import IfuWavecal
+from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
@@ -62,21 +63,6 @@ class OptionalInputMixin(PipelineInput, ABC):
 
 class RawInput(MultiplePipelineInput, ABC):
     Item = Raw
-
-    def load_images(self) -> cpl.core.ImageList:
-        self.items = []
-
-        for idx, frame in enumerate(self.frameset):
-            Msg.info(self.__class__.__qualname__,
-                     f"Loading input frame {idx}: {frame.file!r}")
-            self.items.append(self.Item.load(frame))
-
-        Msg.info(self.__class__.__qualname__,
-                 f"Items are now {self.items}")
-
-        self.use()
-
-        return ImageList([item.hdus[0] for item in self.items])
 
 
 class MasterDarkInput(SinglePipelineInput):
@@ -117,6 +103,10 @@ class PinholeTableInput(SinglePipelineInput):
 
 class FluxstdCatalogInput(SinglePipelineInput):
     Item = FluxStdCatalog
+
+
+class MasterRsrfInput(SinglePipelineInput):
+    Item = MasterLssRsrf
 
 
 class FluxCalTableInput(SinglePipelineInput):

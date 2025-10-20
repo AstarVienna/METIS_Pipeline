@@ -31,7 +31,11 @@ class IfuRaw(BandIfuMixin, TargetSpecificMixin, Raw, abstract=True):
     _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
                      "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
                      "DRS.IFU"}
-    _schema = [None, Image, Image, Image, Image]
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}.DATA': Image for det in range(1, 5)
+    }
 
 
 

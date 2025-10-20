@@ -18,9 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin, DetectorIfuMixin
 
 
 class DistortionRaw(BandSpecificMixin, Raw, abstract=True):
@@ -31,6 +32,10 @@ class DistortionRaw(BandSpecificMixin, Raw, abstract=True):
     _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                      'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'}
 
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
 
 class LmDistortionRaw(BandLmMixin, DistortionRaw):
     pass
@@ -40,5 +45,5 @@ class NDistortionRaw(BandNMixin, DistortionRaw):
     pass
 
 
-class IfuDistortionRaw(BandIfuMixin, DistortionRaw):
+class IfuDistortionRaw(DetectorIfuMixin, BandIfuMixin, DistortionRaw):
     pass

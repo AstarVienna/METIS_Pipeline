@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from pyesorex.parameter import ParameterList
+from cpl.core import Image, PropertyList
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins.band import BandLmMixin
@@ -33,6 +33,14 @@ class LmChophomeCombined(BandLmMixin, ImageDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI20.NAME'}
 
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': Image,
+        'ERR': Image,
+        'DQ': Image,
+    }
+
+
 
 class LmChophomeBackground(BandLmMixin, ImageDataItem):
     _name_template = r'LM_CHOPHOME_BACKGROUND'
@@ -42,3 +50,9 @@ class LmChophomeBackground(BandLmMixin, ImageDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = {'PRO.CATG', 'INS.OPTI19.NAME', 'INS.OPTI20.NAME'}
+
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': Image,
+    }
+

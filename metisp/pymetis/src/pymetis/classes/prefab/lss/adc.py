@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.adc.adc import AdcSlitloss, AdcSlitlossRaw
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, \
     BadPixMapInputSetMixin, RawInput
@@ -41,10 +41,13 @@ class MetisAdcSlitlossImpl(DarkImageProcessor):
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
 
-        raws = self.inputset.raw.load_list()
-        header = self.inputset.raw.items[0].header
+        raws = self.inputset.raw.load_data('DET1.DATA')
+        header = self.inputset.raw.items[0].primary_header
         table = create_dummy_table()
         return {
-            self.ProductAdcSlitloss(header, table),
+            self.ProductAdcSlitloss(
+                header,
+                Hdu(header, table, name='TABLE')
+            ),
         }
 

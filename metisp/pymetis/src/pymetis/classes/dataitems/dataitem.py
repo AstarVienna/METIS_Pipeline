@@ -21,14 +21,16 @@ import datetime
 import inspect
 import re
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Optional, Generator, Self, Any, final, Union
 
 import cpl
 
-from cpl.core import Msg, Image, Table, PropertyList
+from cpl.core import Msg, Image, Table, PropertyList as CplPropertyList, Property as CplProperty
 from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.classes.mixins.base import Parametrizable
 from pymetis.utils.format import partial_format
 
@@ -46,7 +48,7 @@ class DataItem(Parametrizable, ABC):
     Multiple files with the same tag should correspond to multiple instances of the same DataItem class.
     """
     # Class registry: all derived classes are automatically registered here (unless declared abstract)
-    _registry: dict[str, type['DataItem']] = {}
+    __registry: dict[str, type['DataItem']] = {}
 
     # Printable title of the data item. Not used internally, only for human-oriented output
     _title_template: str = None                     # No universal title makes sense
@@ -64,7 +66,16 @@ class DataItem(Parametrizable, ABC):
 
     # HDU schema: a list of types or None
     # By default, only the primary header is present
-    _schema: list[Union[None, type[Image], type[Table]]] = [None]
+    _schema: dict[str, Union[None, type[Image], type[Table]]] = {'PRIMARY': None}
+    # For instance
+    # >>> _schema = {
+    # >>>     'PRIMARY': None,
+    # >>>     'DET1.DATA': Image,
+    # >>>     'DET2.DATA': Image,
+    # >>>     'DET3.DATA': Image,
+    # >>>     'DET4.DATA': Image,
+    # >>> }
+
 
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -90,26 +101,29 @@ class DataItem(Parametrizable, ABC):
                 (f"Tried to register {cls.__name__} ({cls.name()}) which is not fully specialized "
                  f"(did you mean to set `abstract=True` in the class declaration?)")
 
-            if cls.name().format() in DataItem._registry:
+            if cls.name().format() in DataItem.__registry:
                 # If the class is already registered, warn about it and do nothing
                 Msg.warning(cls.__qualname__,
-                            f"A class with tag {cls.name()} is already registered: {DataItem._registry[cls.name()]}")
+                            f"A class with tag {cls.name()} is already registered, "
+                            f"skipping: {DataItem.__registry[cls.name()]}")
             else:
                 # Otherwise add it to the registry
-                Msg.debug(cls.__qualname__, f"Registered a new class {cls.name()}: {cls}")
-                DataItem._registry[cls.name()] = cls
+                Msg.debug(cls.__qualname__,
+                          f"Registered a new class {cls.name()}: {cls}")
+                DataItem.__registry[cls.name()] = cls
 
         super().__init_subclass__(**kwargs)
 
     @classmethod
     @final
-    def find(cls, key):
+    def find(cls, key: str) -> Optional[type['DataItem']]:
         """
-        Try to retrieve the DataItem subclass with tag `key` from the global registry.
-        If not found, return None instead (and rely on the caller to raise an exception if this is not desired).
+        Try to retrieve the DataItem subclass with tag ``key`` from the global registry.
+
+        If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
         """
-        if key in DataItem._registry:
-            return DataItem._registry[key]
+        if key in DataItem.__registry:
+            return DataItem.__registry[key]
         else:
             return None
 
@@ -202,38 +216,56 @@ class DataItem(Parametrizable, ABC):
         """
         return cls._oca_keywords
 
+    @property
+    def hdus(self):
+        return self._hdus
+
     def __init__(self,
-                 primary_header: cpl.core.PropertyList = cpl.core.PropertyList(),
-                 *hdus):
+                 primary_header: CplPropertyList = CplPropertyList(),
+                 *hdus: Hdu,
+                 filename: Optional[Path] = None):
         if self.__abstract:
             raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
 
         # Check if the title is defined
         if self.title() is None:
-            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no title")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no title defined!")
 
         if self.name() is None:
-            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no name")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no name defined!")
 
         # Check if frame_group is defined (if not, this gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
         if self.frame_group() is None:
-            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined group!")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no group defined!")
 
         if self.frame_level() is None:
-            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no defined level!")
+            raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no level defined!")
 
+        # Internal usage marker (for used_frames)
         self._used: bool = False
-        self.headers: list[cpl.core.PropertyList] = [primary_header]
-        self.hdus = hdus
+
+        self.primary_header = primary_header
+
+        self.filename = filename
+        self._hdus: dict[str, Hdu] = {}
+
+        for index, hdu in enumerate(hdus, start=1):
+            assert hdu.name in self._schema, \
+                (f"Schema for {self.__class__.__qualname__} does not specify HDU '{hdu.name}'. "
+                 f"Accepted extension names are {list(self._schema.keys())}.")
+
+            assert hdu.klass == self._schema[hdu.name], \
+                (f"Schema for {self.__class__.__qualname__} specifies that HDU '{hdu.name}' "
+                 f"is of type '{self._schema[hdu.name]}', "
+                 f"but in {self.filename} we got '{hdu.klass}' instead!")
+
+            if hdu.name in self._hdus.keys():
+                Msg.warning(self.__class__.__qualname__,
+                            f"HDU {hdu.name} is already loaded and will be overwritten!")
+            self._hdus[hdu.name] = hdu
 
         # FIXME: temporary to get QC parameters into the product header [OC]
-
-        self.header = primary_header
-        if self.header is not None:
-            self.properties = self.header
-        else:
-            self.properties = cpl.core.PropertyList()
 
         self.add_properties()
 
@@ -241,53 +273,127 @@ class DataItem(Parametrizable, ABC):
         self._created_at: datetime.datetime = datetime.datetime.now()
 
         Msg.debug(self.__class__.__qualname__,
-                  f"Created a data item with a primary header and {len(self.hdus)} HDUs")
+                  f"Created a {self.__class__.__qualname__} data item with a primary header "
+                  f"and {len(self._hdus) - 1} extensions")
 
     @classmethod
     def load(cls,
              frame: cpl.ui.Frame) -> Self:
         """
         Construct the data item from a frame object.
+
+        Loads all the headers and makes them available via their `EXTNAME`.
+        Does not load the actual pixel data / table. For that, see `load_data`.
         """
         klass = cls.find(frame.tag)
-        return klass.load_from_frame(frame)
+        Msg.debug(cls.__qualname__, f"Now loading data item {frame.file}")
 
-    @classmethod
-    def load_from_frame(cls,
-                        frame: cpl.ui.Frame) -> Any:
-        Msg.debug(cls.__qualname__, f"Now loading {frame.file}")
+        #Msg.info(cls.__qualname__,
+        #         f"As HDU list: {frame.as_hdulist()}")
 
-        items = []
-        primary_header = PropertyList()
-        for ext, item in enumerate(cls._schema):
-            if item is Image:
-                image = Image.load(frame.file, cpl.core.Type.FLOAT, ext)
-                items.append(image)
-            elif item is Table:
-                table = Table.load(frame.file, ext)
-                items.append(table)
-            elif item is None:
-                primary_header = PropertyList.load(frame.file, ext)
+        structure = {}
+        hdus = []
+
+        index = 0
+        while True:
+            try:
+                header = CplPropertyList.load(frame.file, index)
+
+                # FixMe: This is a mess... XTENSION should probably not be there.
+                if index == 0:
+                    extname = 'PRIMARY'
+                else:
+                    try:
+                        extname = header['EXTNAME'].value
+                    except KeyError:
+                        try:
+                            extname = header['XTENSION'].value
+                        except KeyError:
+                            extname = 'PRIMARY'
+
+                subschema = {prop.name: prop.value for prop in header}
+                subtype = {
+                    'IMAGE': Image,
+                    'BINTABLE': Table,
+                    None: None,
+                }[subschema.get('XTENSION', None)]
+
+                structure[extname] = subschema
+                structure['klass'] = subtype
+                structure['extno'] = index
+
+                if subtype is None:
+                    if subschema.get('NAXIS', None) == 2:
+                        subtype = Image
+                        Msg.warning(cls.__qualname__,
+                                    f"Found that NAXIS = 2, determining that this HDU should be an Image")
+
+                Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
+                hdus.append(Hdu(header, None, name=extname, klass=subtype, extno=index))
+
+                Msg.debug(cls.__qualname__, f"Loaded HDU {index} ('{extname}')")
+
+            except cpl.core.DataNotFoundError:
+                if index == 0:
+                    Msg.warning(cls.__qualname__,
+                                f"No HDUs could be found in {frame.file}")
+                else:
+                    Msg.debug(cls.__qualname__,
+                              f"HDU {index} not present, finished loading")
+                break
+            index += 1
+
+        primary_header = cpl.core.PropertyList.load(frame.file, 0)
+
+        return klass(primary_header, filename=frame.file, *hdus)
+
+    def load_data(self,
+                  extension: int | str) -> Image | Table | None:
+        """
+        Actually load the associated data (image or a table).
+
+        This might be expensive and therefore the call is better deferred until actually needed.
+
+        Parameters
+        ----------
+        extension: int | str
+           The extensions, either an integer index or a string EXTNAME.
+
+        Returns
+        -------
+        Image | Table | None
+            The associated data (or None if the extension does not contain any, should only happen for the primary one)
+
+        Raises
+        ------
+        KeyError
+            If requested extension is not available
+        """
+
+        if self[extension].klass is None:
+            self[extension].klass = Image
 
         try:
-            instance = cls(primary_header, *items)
-            return instance
-        except TypeError as err:
-            Msg.error(cls.__qualname__,
-                      f"Cannot instantiate: {err}. Expected {cls._schema}, got {items}")
-            raise err
+            if self[extension].klass == Image:
+                return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
+            elif self[extension].klass == Table:
+                return self[extension].klass.load(self.filename, self._hdus[extension].extno)
+        except cpl.core.DataNotFoundError as exc:
+            Msg.error(self.__class__.__qualname__,
+                      f"Failed to load data from extension '{extension}' in file {self.filename}")
+            raise exc
 
     @property
     def used(self) -> bool:
-        """ Return whether this data item is actually used in the product """
+        """ Return whether this data item is actually used in the product. """
         return self._used
 
     def use(self) -> Self:
-        """ Mark this data item as actually used. Return itself to enable method chaining """
+        """ Mark this data item as actually used. Return itself, in order to enable method chaining. """
         self._used = True
         return self
 
-    def file_name(self, override: Optional[str] = None):
+    def _get_file_name(self, override: Optional[str] = None):
         """
         Get the file name of this data item if used as a product.
 
@@ -305,14 +411,22 @@ class DataItem(Parametrizable, ABC):
         Currently only adds ESO PRO CATG to every product,
         but derived classes are more than welcome to add their own stuff.
         Do not forget to call super().add_properties() then.
+
+        #ToDo: this should not be called for raws, those do not have a PRO CATG.
         """
-        self.properties.append(
-            cpl.core.Property(
-                "ESO PRO CATG",
-                cpl.core.Type.STRING,
-                self.name(),
+        if self.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
+            Msg.debug(self.__class__.__qualname__,
+                      f"Not appending anything to a RAW data item")
+        else:
+            Msg.debug(self.__class__.__qualname__,
+                      f"Appending ESO PRO CATG to a non-RAW data item ({self.frame_group()})")
+            self.primary_header.append(
+                cpl.core.Property(
+                    "ESO PRO CATG",
+                    cpl.core.Type.STRING,
+                    self.name(),
+                )
             )
-        )
 
     def as_frame(self, filename: Optional[str] = None) -> cpl.ui.Frame:
         """ Create a CPL Frame from this DataItem
@@ -330,20 +444,68 @@ class DataItem(Parametrizable, ABC):
             f"Data item {self.__class__.__qualname__} does not define a frame group"
 
         return cpl.ui.Frame(
-            file=self.file_name(filename),
+            file=self._get_file_name(filename),
             tag=self.name(),
             group=self.frame_group(),
             level=self.frame_level(),
             frameType=self.frame_type(),
         )
 
-    @abstractmethod
     def save(self,
              recipe: 'PipelineRecipeImpl',
              parameters: ParameterList,
              *,
-             output_file_name: str = None) -> None:
-        """ Save the data item to file. Implementation depends on the type of the data. """
+             output_file_name: Optional[str] = None) -> None:
+        """
+        Save the data item. Implementation depends on the type of the data.
+        The body of this method is always called and saves the primary header.
+
+        :param: recipe
+            The pipeline recipe to assign.
+        :param: parameters
+            Extra parameters passed to the pipeline recipe.
+        :param: output_file_name
+            If not None, override the default file name with this.
+        """
+
+        # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back someday.
+        parameters = cpl.ui.ParameterList([p for p in parameters])
+        # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
+
+        Msg.info(self.__class__.__qualname__,
+                 f"Saving image {self._get_file_name(output_file_name)}")
+        Msg.debug(self.__class__.__qualname__,
+                  f"Used {len(recipe.used_frames)} frames")
+        for frame in recipe.used_frames:
+            Msg.debug(self.__class__.__qualname__,
+                      f"    {frame}")
+
+        filename = self._get_file_name(output_file_name)
+
+        assert isinstance(self.primary_header, CplPropertyList), \
+            f"{self.primary_header} must be a CplPropertyList, got a {type(self.primary_header)}"
+
+        assert len(recipe.used_frames) > 0, \
+            f"Recipe {recipe.name()} did not use any frames"
+
+        # Save the header to the primary HDU
+        cpl.dfs.save_propertylist(
+            recipe.frameset,
+            parameters,
+            recipe.used_frames,
+            recipe.name,
+            self.primary_header,
+            PIPELINE,
+            filename,
+        )
+
+        self.save_extensions(filename)
+
+    def save_extensions(self,
+                        filename: str) -> None:
+        """ Save extension data to the same file. Implementation depends on the type of the data. """
+        for name, hdu in self.hdus.items():
+            hdu.save(filename)
 
     def as_dict(self) -> dict[str, str]:
         return {
@@ -418,7 +580,9 @@ class DataItem(Parametrizable, ABC):
     @final
     def _extended_description_line(cls, name: str = None) -> str:
         """
-        Generate a description line for 'pyesorex --man-page'.
+        Generate a description line for ``pyesorex --man-page``.
+
+        Includes leading space.
         """
         return f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
 
@@ -426,4 +590,40 @@ class DataItem(Parametrizable, ABC):
         return f"{self.name()}"
 
     def __repr__(self):
-        return f"{self.name()}"
+        return f"<DataItem {self.name()}>"
+
+    def __getitem__(self, item: int | str) -> Hdu:
+        """
+        Get an extension from this data item.
+
+        Can be indexed by int or string (in which case 'EXTNAME' will be matched)
+
+        Parameters
+        ----------
+        item: int | str
+
+        Returns
+        -------
+        tuple[str, Optional[Image | Table]]
+
+        Raises
+        ------
+        KeyError
+            If the item is not a recognized extension.
+        """
+        try:
+            if isinstance(item, str):
+                return self._hdus[item]
+            elif isinstance(item, int):
+                return self._hdus[self.get_name(item)]
+            else:
+                raise TypeError(f"Invalid HDU {item} ({type(item)} in {self.filename}. "
+                                f"Available HDUs are {self._hdus.keys()})")
+        except KeyError as e:
+            raise KeyError(f"HDU '{item}' not found in {self.filename}. "
+                           f"Available HDUs are {list(self._hdus.keys())}") from e
+
+    def get_name(self, index: int) -> str:
+        for name, hdu in self._hdus.items():
+            if self._hdus[name].extno == index:
+                return name

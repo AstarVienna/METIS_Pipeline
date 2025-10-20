@@ -18,57 +18,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Msg, PropertyList
-
-from pyesorex.parameter import ParameterList
+from cpl.core import Table
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.dataitem import PIPELINE
 
 
 class TableDataItem(DataItem, abstract=True):
     _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
 
-    def __init__(self,
-                 primary_header: cpl.core.PropertyList = None,
-                 *hdus: cpl.core.Table):
-        super().__init__(primary_header, *hdus)
+    _schema = {
+        'PRIMARY': None,
+        'TABLE': Table,
+    }
 
-    def save(self,
-             recipe: 'PipelineRecipe',
-             parameters: ParameterList,
-             *,
-             output_file_name: str = None) -> None:
-
-        # TODO: to_cplui is broken in pyesorex 1.0.3, so it is removed; need to put it back.
-        parameters = cpl.ui.ParameterList([p for p in parameters])
-        # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
-
-        Msg.info(self.__class__.__qualname__,
-                 f"Saving table {self.file_name(output_file_name)}")
-        Msg.debug(self.__class__.__qualname__,
-                  f"Used {len(recipe.used_frames)} frames")
-        for frame in recipe.used_frames:
-            Msg.debug(self.__class__.__qualname__,
-                      f"    {frame}")
-
-        filename = self.file_name(output_file_name)
-
-        assert isinstance(self.header, PropertyList), \
-            f"{self.header} must be a CPL PropertyList, got a {type(self.header)}"
-
-        # Save the header to the primary HDU
-        cpl.dfs.save_propertylist(
-            recipe.frameset,
-            parameters,
-            recipe.used_frames,
-            recipe.name,
-            self.properties,
-            PIPELINE,
-            filename,
-            header=self.header,
-        )
-
-        for hdu in self.hdus:
-            # Here the signature is (primary_header, header, filename, mode) for whatever reason...
-            hdu.save(self.header, self.header, filename, cpl.core.io.EXTEND)

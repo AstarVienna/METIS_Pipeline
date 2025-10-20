@@ -17,11 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Any, Optional
+from typing import Any, Optional, Self
 
 import cpl
 
-from cpl.core import Msg, Image, ImageList as ImageList
+from cpl.core import Msg, Image, ImageList, PropertyList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
@@ -48,34 +48,62 @@ class MultiplePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__name__,
               f"Found a {self.Item.__qualname__} frameset: {frameset}")
 
-    def load_data(self) -> list[DataItem]:
+
+    def load_structure(self) -> None:
         """
-        Load a list of items from a FrameSet.
-        The items
+        Load the items inside this PipelineInput.
+
+        Returns
+        -------
+        None
         """
-        for idx, frame in enumerate(self.frameset):
+        if len(self.items) != 0:
+            Msg.debug(self.__class__.__qualname__,
+                      f"Input already loaded, skipping")
+        else:
+            self.items = []
+
+            for idx, frame in enumerate(self.frameset):
+                Msg.info(self.__class__.__qualname__,
+                         f"Loading input frame #{idx}: {frame.file!r}")
+                self.items.append(self.Item.load(frame))
+
             Msg.info(self.__class__.__qualname__,
-                     f"Loading input frame #{idx}: {frame.file!r}")
-            self.items.append(self.Item.load(frame))
+                     f"Items are now {self.items}")
+
+            self.use() # FixMe: for now anything that is actually loaded is marked as used
+
+    def load_data(self, extension: int | str = None) -> ImageList:
+        """
+        Load a list of data items from a FrameSet, all corresponding to the same extension HDU.
+        The items should be a homogeneous set of CPL Images.
+        # ToDO make sure that there can never be multiple tables, only images
+
+        Parameters
+        ----------
+        extension:
+            The extension of the items to load, can be
+
+            - ``int``, in which case the extension will be fetched by number;
+            - ``str``, in which case ``EXTNAME`` will be matched.
+
+        Returns
+        -------
+        cpl.core.ImageList
+            A CPL ``ImageLisŧ`` containing the loaded images.
+        """
+        self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
-                 f"Items are now {self.items}")
+                 f"Loading multiple input frames for extension: {extension}")
 
-        self.use() # FixMe: for now anything that is actually loaded is marked as used
-
-        return self.items
-
-    def load_list(self) -> ImageList:
-        """
-        Helper function: load all items and return as a CPL ImageList.
-        # FixMe: fails for TableItems (there is no CPL TableList)
-        """
-        if len(self.items) == 0:
-            self.load_data()
-
-        return ImageList([item.hdus[0] for item in self.items])
+        images = [item.load_data(extension) for item in self.items]
+        return ImageList(images)
 
     def set_cpl_attributes(self):
+        """
+        Set the required CPL attributes from the associated ``DataItem``.
+        """
         frameset = cpl.ui.FrameSet()
 
         for frame in self.frameset:
@@ -101,9 +129,10 @@ class MultiplePipelineInput(PipelineInput):
         Verification shorthand.
 
         If a required frameset is not present or empty,
-        raise a `cpl.core.DataNotFoundError` with the appropriate message.
+        raise a ``cpl.core.DataNotFoundError`` with the appropriate message.
 
-        :raises:
+        Raises
+        ------
         cpl.core.DataNotFoundError:
             If the input is required but the frameset is empty
         """
@@ -125,9 +154,9 @@ class MultiplePipelineInput(PipelineInput):
         Raises
         ------
         KeyError
-            If the found detector name is not a valid detector name
+            If the found detector name is not a valid detector name.
         ValueError
-            If dark frames from more than one detector are found
+            If dark frames from more than one detector are found.
         """
 
     def as_dict(self) -> dict[str, Any]:
@@ -140,11 +169,12 @@ class MultiplePipelineInput(PipelineInput):
 
     @property
     def contents(self):
-        return self.items
+        return self.frameset
 
-    def use(self) -> None:
+    def use(self) -> Self:
         for item in self.items:
             item.use()
+        return self
 
     def valid_frames(self) -> cpl.ui.FrameSet:
         """

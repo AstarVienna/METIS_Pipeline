@@ -16,15 +16,19 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import copy
+import functools
+import operator
+import re
 from abc import ABC
-from typing import Self
+from typing import Self, Optional, Literal, Dict, Any
 
 import cpl
-from cpl.core import Msg
-from pyesorex.parameter import ParameterList, ParameterEnum
+from cpl.core import Msg, ImageList, Image, Mask
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
@@ -33,6 +37,10 @@ from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.recipes import MetisRecipe
 
 import numpy as np
+
+from pymetis.functions.image import zeros_like
+from pymetis.utils.dummy import create_dummy_header, python_to_cpl_type
+
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):
     """
@@ -72,6 +80,9 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
 
+    # Assign product classes. This should be just a data item class.
+    # It is not strictly necessary, and we can create the product directly,
+    # but it enables us to introspect the class for the manpage and DRLD.
     ProductMasterDark = MasterDark
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
@@ -104,114 +115,88 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     # Also, persistence and non-linearity to be implemented.
     #########################################################################
 
-    def correct_persistence(self) -> Self:
-        return self
+    def __init__(self,
+            recipe: 'MetisRecipe',
+            frameset: cpl.ui.FrameSet,
+            settings: Dict[str, Any]) -> None:
+        super().__init__(recipe, frameset, settings)
+        self.stacking_method = self.parameters["metis_det_dark.stacking.method"].value
 
-    def correct_linearity(self) -> Self:
-        return self
 
+    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> list[Hdu]:
+        assert detector in [1, 2, 3, 4], \
+            f"Unknown detector {detector}"
 
-    def process(self) -> set[DataItem]:
-        method = self.parameters["metis_det_dark.stacking.method"].value
+        Msg.info(self.__class__.__qualname__,
+                 f"Processing detector {detector}")
 
-        # load calibration files
-
-        # TODO: preprocessing steps like persistence correction / nonlinearity (or not)
-        self.inputset.raw.load_data()
-        self.inputset.raw.use()
-
-        raw_images = cpl.core.ImageList([r.hdus[0] for r in self.inputset.raw.items])
-        combined_image = self.combine_images(raw_images, method)
-        header = self.inputset.raw.items[0].header
-
-        product = self.ProductMasterDark(header, combined_image)
+        raw_images = self.inputset.raw.load_data(extension=f'DET{detector:1d}.DATA')
 
         # load raw data
+        kappa_high = 2  # ToDo This could probably be a recipe parameter
+        kappa_low = 2   # ToDo This too
 
-        Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
-
-        Msg.info(self.__class__.__qualname__, f"{len(raw_images)} Dark frames loaded")
-
+        bad_bit = 1
+        cold_bit = 1
+        hot_bit = 1
 
         Msg.info(self.__class__.__qualname__, f"Pretending to load DETLIN")
 
         Msg.info(self.__class__.__qualname__, f"Faking a gain map and badpix map")
 
         # fake the bp mask by initializing to zero
-        temp = cpl.core.Image.zeros_like(raw_images[0])
-        bpMask = temp.cast(cpl.core.Type.INT)
+        badpix_mask = zeros_like(raw_images[0], cpl.core.Type.FLOAT)
 
         # fake the gain at the moment by setting to 1
 
-        gain = cpl.core.Image.zeros_like(raw_images[0])
-        gain.add_scalar(1)
+        raw_images = self.correct_gain(raw_images)
+        raw_images = self.correct_persistence(raw_images)
 
+        linearity_map = self.inputset.linearity.load_data(extension=r'PRIMARY')
+        raw_images = self.correct_nonlinearity(raw_images, linearity_map)
 
-        # correcting for gain
-        Msg.info(self.__class__.__qualname__, f"Correcting raw images for gain")
+        if len(raw_images) > 1:
+            Msg.info(self.__class__.__qualname__,
+                     f"Calculating read noise from {len(raw_images)} raw dark frames")
+            diff = cpl.core.Image(raw_images[0])
+            diff.subtract(raw_images[1])
+            read_noise = cpl.drs.detector.get_noise_window(diff, None)
+        else:
+            Msg.warning(self.__class__.__qualname__,
+                        f"Cannot calculate actual read noise as there is only one raw image")
+            read_noise = (0, 0)
 
-        raw_images.divide_image(gain)
+        combined_image, noise = self.combine_images_with_error(raw_images, self.stacking_method, read_noise[0])
 
+        Msg.info(self.__class__.__qualname__, f"Combining images using method {self.stacking_method!r}")
 
-        # now calculate the readnoise
+        mask_hot, mask_cold = self.calculate_outliers(combined_image, kappa_low=kappa_low, kappa_high=kappa_high)
+        qcnhot, qcncold = mask_hot.count(), mask_cold.count()
+        mask_bad = self.metis_bpm_3d_compute(raw_images, kappa_low=kappa_low, kappa_high=kappa_high)
+        qcnbad = mask_bad.count()
 
-        Msg.info(self.__class__.__qualname__, f"Calculating read noise")
-        Msg.info(self.__class__.__qualname__, f"Test {len(raw_images)}")
+        Msg.info(self.__class__.__qualname__,
+                 f"Updating mask: {(mask_cold | mask_hot | mask_bad).count()} pixels masked: "
+                 f"{qcnbad} bad + {qcnhot} hot + {qcncold} cold")
+        mask_hot = cpl.core.Image(mask_hot, dtype=cpl.core.Type.INT)
+        mask_cold = cpl.core.Image(mask_cold, dtype=cpl.core.Type.INT)
+        mask_bad = cpl.core.Image(mask_bad, dtype=cpl.core.Type.INT)
 
-        diff = cpl.core.Image(raw_images[0])
-        diff.subtract(raw_images[1])
-
-        readNoise = cpl.drs.detector.get_noise_window(diff, None)
-
-        Msg.info(self.__class__.__qualname__, f"Pretending to do persistence correction")
-        self.correct_persistence()
-
-        Msg.info(self.__class__.__qualname__, f"Pretending to correct for non-linearity")
-        self.correct_nonlinearity()
-
-        Msg.info(self.__class__.__qualname__, f"Combining images using method {method!r}")
-
-        combined_image, noise = self.collapse_raw_with_error(raw_images, method, readNoise[0])
-
-        Msg.info(self.__class__.__qualname__, "Calculate outlying pixels")
-
-        darkRms = combined_image.get_stdev()
-        darkMedian = combined_image.get_median()
-
-        # get masks from thresholds for bad, hot and cold pixels
-        # count the number of bad pixels in each, for later, then
-        # change to Image type from mask for later calculations
-
-        imMed = combined_image.get_median()
-        imRMS = combined_image.get_stdev()
-
-
-
-        maskHot = cpl.core.Mask.threshold_image(combined_image, 0, imMed + kappaHigh*imRMS, 1)
-        qcnhot = maskHot.count()
-        maskHot = cpl.core.Image(maskHot,dtype = cpl.core.Type.INT)
-
-        maskCold = cpl.core.Mask.threshold_image(combined_image, 0, imMed - kappaLow*imRMS, 0)
-        qcncold = maskCold.count()
-        maskCold = cpl.core.Image(maskCold, dtype=cpl.core.Type.INT)
-
-        maskBad, qcnbad =  self.metis_bpm_3d_compute(raw_images, kappaLow, kappaHigh)
 
         # multiple masks to the correct bitmask
-        maskBad.multiply_scalar(badBit)
-        maskCold.multiply_scalar(coldBit)
-        maskHot.multiply_scalar(hotBit)
+        # ToDo [Martin] What does this do? Multiply by one?
+        mask_bad.multiply_scalar(bad_bit)
+        mask_cold.multiply_scalar(cold_bit)
+        mask_hot.multiply_scalar(hot_bit)
 
         # and update main mask
-        bpMask.add(maskBad)
-        bpMask.add(maskHot)
-        bpMask.add(maskCold)
-
-        Msg.info(self.__class__.__qualname__, "Updating Mask; {mask.count()} pixels set as bad")
+        badpix_mask.add(mask_bad)
+        badpix_mask.add(mask_hot)
+        badpix_mask.add(mask_cold)
 
         ## how to copy mask into image?
 
-        Msg.info(self.__class__.__qualname__, "Actually Calculating QC Parameters")
+        Msg.info(self.__class__.__qualname__, "Actually Calculating QC parameters")
 
         # calculate the stats in each individual image
         medians = []
@@ -238,112 +223,58 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         qcmedmax = np.median(np.array(maxs))
         qcmedmean = np.median(np.array(means))
 
-        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+        header_image = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
-        header.append(cpl.core.Property("QC DARK MEAN", cpl.core.Type.DOUBLE,
-                                        qcmean, "[ADU] mean value of master dark"))
-        header.append(cpl.core.Property("QC DARK MEDIAN", cpl.core.Type.DOUBLE,
-                                        qcmed, "[ADU] median value of master dark"))
-        header.append(cpl.core.Property("QC DARK RMS", cpl.core.Type.DOUBLE,
-                                        qcrms, "[ADU] rms value of master dark"))
-        header.append(cpl.core.Property("QC DARK NBADPIX", cpl.core.Type.DOUBLE,
-                                        qcnbad, "[ADU] number of bad pixels"))
-        header.append(cpl.core.Property("QC DARK NCOLDPIX", cpl.core.Type.DOUBLE,
-                                        qcncold, "[ADU] number of cold pixels"))
-        header.append(cpl.core.Property("QC DARK NHOTPIX", cpl.core.Type.DOUBLE,
-                                        qcnhot, "[ADU] number of hot pixels"))
-        header.append(cpl.core.Property("QC DARK MEDIAN MEAN", cpl.core.Type.DOUBLE,
-                                        qcmedmean, "[ADU] median value of mean values of individual input images"))
-        header.append(cpl.core.Property("QC DARK MEDIAN MEDIAN", cpl.core.Type.DOUBLE,
-                                        qcmedmed, "[ADU] median value of median values of individual input images"))
-        header.append(cpl.core.Property("QC DARK MEDIAN RMS", cpl.core.Type.DOUBLE,
-                                        qcmedrms, "[ADU] median value of RMS values of individual input images"))
-        header.append(cpl.core.Property("QC DARK MEDIAN MIN", cpl.core.Type.DOUBLE,
-                                        qcmedmin, "[ADU] median value of min values of individual input images"))
-        header.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
-                                         qcmedmax, "[ADU] median value of max values of individual input images"))
+        # ToDo make this less boilerplatey
+        header_image.append(cpl.core.Property("QC DARK MEAN", cpl.core.Type.DOUBLE,
+                            qcmean, "[ADU] mean value of master dark"))
+        header_image.append(cpl.core.Property("QC DARK MEDIAN", cpl.core.Type.DOUBLE,
+                            qcmed, "[ADU] median value of master dark"))
+        header_image.append(cpl.core.Property("QC DARK RMS", cpl.core.Type.DOUBLE,
+                            qcrms, "[ADU] rms value of master dark"))
+        header_image.append(cpl.core.Property("QC DARK NBADPIX", cpl.core.Type.DOUBLE,
+                            qcnbad, "[ADU] number of bad pixels"))
+        header_image.append(cpl.core.Property("QC DARK NCOLDPIX", cpl.core.Type.DOUBLE,
+                            qcncold, "[ADU] number of cold pixels"))
+        header_image.append(cpl.core.Property("QC DARK NHOTPIX", cpl.core.Type.DOUBLE,
+                            qcnhot, "[ADU] number of hot pixels"))
+        header_image.append(cpl.core.Property("QC DARK MEDIAN MEAN", cpl.core.Type.DOUBLE,
+                            qcmedmean, "[ADU] median value of mean values of individual input images"))
+        header_image.append(cpl.core.Property("QC DARK MEDIAN MEDIAN", cpl.core.Type.DOUBLE,
+                            qcmedmed, "[ADU] median value of median values of individual input images"))
+        header_image.append(cpl.core.Property("QC DARK MEDIAN RMS", cpl.core.Type.DOUBLE,
+                            qcmedrms, "[ADU] median value of RMS values of individual input images"))
+        header_image.append(cpl.core.Property("QC DARK MEDIAN MIN", cpl.core.Type.DOUBLE,
+                            qcmedmin, "[ADU] median value of min values of individual input images"))
+        header_image.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
+                            qcmedmax, "[ADU] median value of max values of individual input images"))
 
-        product = self.ProductMasterDark(header, combined_image)
+        header_noise = copy.deepcopy(header_image)
+        header_mask = copy.deepcopy(header_image)
 
+        return [
+            Hdu(header_image, combined_image, name=rf'DET{detector:1d}.SCI'),
+            Hdu(header_noise, noise, name=rf'DET{detector:1d}.ERR'),
+            Hdu(header_mask, badpix_mask, name=rf'DET{detector:1d}.DQ'),
+        ]
+
+    def process(self) -> set[DataItem]:
+        # load calibration files
+
+        # ToDo: preprocessing steps like persistence correction / nonlinearity
+        # ToDo: (or not) -- move to RawImageProcessor anyway
+        Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
+        self.inputset.raw.load_structure()
+
+        # ToDo This feels stupid but works with all detector types. Find a more robust way maybe?
+        detector_count = len(list(filter(lambda x: re.match(r'DET[0-9].DATA', x) is not None,
+                                  self.inputset.raw.items[0].hdus.keys() - ['PRIMARY'])))
+
+        hdus = functools.reduce(operator.add, map(self._process_single_detector, range(1, detector_count + 1)))
+
+        product = self.ProductMasterDark(create_dummy_header(), *hdus)
         return {product}
-
-
-    def metis_bpm_3d_compute(self,imageList,kappaLow, kappaHigh):
-
-        """Calculate outlier pixels based on high/low thresholds based on the frame to frame variation of a pixel"""
-
-        imsum = cpl.core.Image.zeros_like(imageList[0])
-        im2sum = cpl.core.Image.zeros_like(imageList[0])
-
-        for im in imageList:
-            imTem = cpl.core.Image.zeros_like(im)
-            imTem.copy_into(im, 0, 0)
-            imsum.add(im)
-            im.power(2)
-            im2sum.add(im)
-
-        imsum.divide_scalar(len(imageList))
-        imsum.power(2)
-        im2sum.divide_scalar(len(imageList))
-
-        imsum.add(im2sum)
-        imsum.power(0.5)
-
-        imMed = imsum.get_median()
-        imRMS = imsum.get_stdev()
-
-        mask = cpl.core.Mask.threshold_image(imsum, imMed - kappaLow*imRMS, imMed + kappaHigh*imRMS, 1)
-        qcnbad = mask.count()
-        mask = cpl.core.Image(mask,dtype = cpl.core.Type.INT)
-
-        return mask, qcnbad
-
-
-
-
-
-
-
-
-    def collapse_raw_with_error(self,imageList, method, readNoise):
-
-        """
-        Collapse and imagelist of raw frames and propogate the errors
-        """
-
-        # first, combine the image
-        if(method == "average"):
-            combined_image = imageList.collapse_create()
-        elif(method == "median"):
-            combined_image = imageList.collapse_median()
-        elif(method == "sigclip"):
-            combined_image = imageList.collapse_sigclip()
-
-        # for each image, calculate the noise (read noise + shot noise, added in quadrature)
-        #
-        errors = cpl.core.Image.zeros_like(imageList[0])
-
-        for im in imageList:
-            # shot noise as sqrt of signal in, after applying gain
-            poissonNoise = cpl.core.Image.zeros_like(im)
-            poissonNoise.copy_into(im, 0, 0)
-
-            # add read noise plus shot noise
-            totalNoise = cpl.core.Image.zeros_like(poissonNoise)
-            totalNoise.add(poissonNoise)
-            totalNoise.add_scalar(readNoise ** 2)
-
-            # this is square of the noise; add to a running total
-            errors.add(totalNoise)
-
-        # and take the sqrt
-        errors.power(0.5)
-        errors.divide_scalar(np.sqrt(len(imageList)))
-
-        return combined_image, errors
-
-
 
 
 # This is the actual recipe class that is visible by `pyesorex`.
@@ -376,6 +307,19 @@ class MetisDetDark(MetisRecipe):
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
+        # ToDo: Maybe these should be user-configurable as well?
+        #ParameterValue(
+        #    name=f"{_name}.outliers.kappa_low",
+        #    context=_name,
+        #    description="Lower bound for bad pixel clipping, in standard deviations",
+        #    default=2,
+        #),
+        #ParameterValue(
+        #    name=f"{_name}.outliers.kappa_high",
+        #    context=_name,
+        #    description="Upper bound for bad pixel clipping, in standard deviations",
+        #    default=2,
+        #),
     ])
 
     # Point the `implementation_class` to the *top* class of your recipe hierarchy.

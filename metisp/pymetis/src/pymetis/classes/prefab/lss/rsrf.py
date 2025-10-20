@@ -19,12 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRsrf, MeanLssRsrf, MasterLssRsrf
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
     LinearityInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisLssRsrfImpl(DarkImageProcessor):
@@ -44,23 +45,33 @@ class MetisLssRsrfImpl(DarkImageProcessor):
     def process(self) -> set[DataItem]:
         """do something more fancy in the future"""
         # Load raw image
-        spec_flat_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_list()
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
+
+        primary_header = create_dummy_header()
 
         # Final RSRF
-        combined_master_hdr = cpl.core.PropertyList()
+        combined_master_hdr = create_dummy_header()
         combined_master_img = self.combine_images(raw_images, "median")
 
         # Mean combine
-        combined_mean_hdr = cpl.core.PropertyList()
+        combined_mean_hdr = create_dummy_header()
         combined_mean_img = self.combine_images(raw_images, "average")
 
         # Median combine
-        combined_median_hdr = cpl.core.PropertyList()
+        combined_median_hdr = create_dummy_header()
         combined_median_img = self.combine_images(raw_images, "median")
 
         return {
-            self.ProductMasterLssRsrf(combined_master_hdr, combined_master_img),
-            self.ProductMeanLssRsrf(combined_mean_hdr, combined_mean_img),
-            self.ProductMedianLssRsrf(combined_median_hdr, combined_median_img),
+            self.ProductMasterLssRsrf(
+                primary_header,
+                Hdu(combined_master_hdr, combined_master_img, name='DET1.DATA'),
+            ),
+            self.ProductMeanLssRsrf(
+                primary_header,
+                Hdu(combined_mean_hdr, combined_mean_img, name='DET1.DATA'),
+            ),
+            self.ProductMedianLssRsrf(
+                primary_header,
+                Hdu(combined_median_hdr, combined_median_img, name='DET1.DATA'),
+            ),
         }

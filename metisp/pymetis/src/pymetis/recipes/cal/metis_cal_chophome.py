@@ -19,10 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 from cpl.core import Msg
-from cpl.core import ImageList as ImageList
+from cpl.core import ImageList
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
 from pymetis.dataitems.gainmap import GainMap2rg
 from pymetis.dataitems.linearity.linearity import LinearityMap2rg
@@ -31,6 +32,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
                                     PinholeTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.prefab import RawImageProcessor
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
@@ -74,11 +76,10 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         background_hdr, background_img = self.compute_background(method=stackmethod)
 
         combined_hdr = cpl.core.PropertyList()
-        raws = self.inputset.raw.load_data()
-        raw_images = ImageList([raw.hdus[0] for raw in raws])
+        raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
         self.inputset.raw.use()
 
-        persistence_map = self.inputset.persistence_map.load_data()
+        persistence_map = self.inputset.persistence_map.load_data(extension='DET1.DATA')
         self.inputset.persistence_map.use()
         raw_images.subtract_image(background_img)
 
@@ -111,13 +112,16 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
                                               "signal-to-noise ratio of pinhole image"))
 
         return {
-            self.ProductCombined(combined_hdr, combined_img),
-            self.ProductBackground(background_hdr, background_img),
+            self.ProductCombined(combined_hdr,
+                                 Hdu(create_dummy_header(), combined_img, name='IMAGE')),
+            self.ProductBackground(background_hdr,
+                                   Hdu(create_dummy_header(), background_img, name='IMAGE')),
         }
 
     def compute_background(self, *, method):
         background_hdr = cpl.core.PropertyList()
-        bg_images = self.inputset.wcu_off.load_images()
+
+        bg_images = self.inputset.wcu_off.load_data(extension='DET1.DATA')
         background_img = self.combine_images(bg_images, method)
         # TODO: define usedframes
         return background_hdr, background_img

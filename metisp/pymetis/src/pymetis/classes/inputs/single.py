@@ -17,11 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, Self
 
 import cpl
 
-from cpl.core import Msg
+from cpl.core import Msg, Image, Table
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
@@ -53,16 +53,24 @@ class SinglePipelineInput(PipelineInput):
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
 
-    def load_data(self) -> DataItem:
-        Msg.info(self.__class__.__qualname__,
-                 f"Loading input frame {self.frame.file!r}")
-        self.item = self.Item.load(self.frame)
+    def load_structure(self) -> None:
+        if self.item is not None:
+            Msg.debug(self.__class__.__qualname__,
+                      f"Input already loaded, skipping")
+        else:
+            Msg.info(self.__class__.__qualname__,
+                     f"Loading single input frame {self.frame.file!r}")
+
+            self.item = self.Item.load(self.frame)
+            self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
+
+    def load_data(self, extension: str = None) -> Image | Table:
+        self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
                  f"Item is now {self.item}")
 
-        self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
-        return self.item
+        return self.item.load_data(extension)
 
     def set_cpl_attributes(self):
         self.frame.group = self.Item.frame_group()
@@ -104,10 +112,11 @@ class SinglePipelineInput(PipelineInput):
 
     @property
     def contents(self):
-        return self.item
+        return self.frame
 
-    def use(self) -> None:
+    def use(self) -> Self:
         self.item.use()
+        return self
 
     def valid_frames(self) -> cpl.ui.FrameSet:
         if self.frame is None:

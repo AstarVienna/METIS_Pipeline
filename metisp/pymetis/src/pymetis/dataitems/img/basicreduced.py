@@ -33,7 +33,9 @@ class BasicReduced(BandLmMixin, TargetSpecificMixin, ImageDataItem, abstract=Tru
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
-    _schema = [Image]
+    _schema = {
+        'PRIMARY': Image,   # FixMe This is wrong but matches current testing data
+    }
 
 
 class LmStdBasicReduced(TargetStdMixin, BasicReduced):
@@ -62,7 +64,9 @@ class Calibrated(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract
     _frame_group = cpl.ui.Frame.FrameGroup.RAW  # This actually has to be raw as it is "primary input" (rite-of-passage)
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
-    _schema = [Image]
+    _schema = {
+        'PRIMARY': Image,   # FixMe This is wrong but matches current testing data
+    }
 
 
 class LmStdCalibrated(BandLmMixin, TargetStdMixin, Calibrated):
@@ -89,3 +93,8 @@ class NSciRestored(BandNMixin, ImageDataItem):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': Image,
+    }

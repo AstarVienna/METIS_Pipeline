@@ -31,7 +31,11 @@ class BadPixMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}
-    _schema = [Image]
+
+    _schema = {
+        'PRIMARY': Image,
+        #'DET1.DATA': Image,
+    }
 
 
 class BadPixMap2rg(Detector2rgMixin, BadPixMap):
@@ -44,3 +48,7 @@ class BadPixMapGeo(DetectorGeoMixin, BadPixMap):
 
 class BadPixMapIfu(DetectorIfuMixin, BadPixMap):
     pass
+
+    _schema = {
+        'PRIMARY': Image,
+    }

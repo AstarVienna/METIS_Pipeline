@@ -22,13 +22,14 @@ from abc import ABC
 import cpl
 from cpl.core import Msg
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.dataitems.masterflat.raw import FlatRaw
 from pymetis.classes.inputs import RawInput, MasterDarkInput
 
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
@@ -55,19 +56,24 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
         # target = self.inputset.tag_parameters['target']
 
-        raw_images = self.inputset.raw.load_list()
+        self.inputset.raw.load_structure()
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
+        dark_corrected = self.subtract_dark(raw_images)
 
-        self.subtract_dark(raw_images)
-        print(self.inputset.raw.items)
-        header = self.inputset.raw.items[0].header
+        # FixMe: At skeleton level we just copy the header from the first raw
+        primary_header = self.inputset.raw.items[0].primary_header
 
         # Combine the images in the image list using the image stacking option requested by the user.
         method = self.parameters[f"{self.name}.stacking.method"].value
 
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
+        # ToDo: And this should be moved to the base class anyway
+        combined_image = self.combine_images(dark_corrected, method)
+        # ToDo actually produce the flat
 
-        combined_image = self.combine_images(raw_images, method)
-
-        product = self.ProductMasterFlat(header, combined_image)
+        product = self.ProductMasterFlat(
+            primary_header,
+            Hdu(create_dummy_header(), combined_image, name='PRIMARY'),
+        )
 
         return {product}

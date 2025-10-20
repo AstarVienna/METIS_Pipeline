@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Table
+from cpl.core import Table, Image
 
 from pymetis.classes.dataitems import TableDataItem
 from pymetis.dataitems.raw import Raw
@@ -32,8 +32,6 @@ class AdcSlitloss(BandSpecificMixin, TableDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
-
-    _schema = [None, Table]
 
 
 class LmAdcSlitloss(BandLmMixin, AdcSlitloss):
@@ -49,6 +47,11 @@ class AdcSlitlossRaw(BandSpecificMixin, Raw, abstract=True):
     _title_template = r'{band} ADC slit loss raw'
     _description_template = "Raw files for ADC slitloss determination (TBD)."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
 
 
 class LmAdcSlitlossRaw(BandLmMixin, AdcSlitlossRaw):

@@ -1,2 +1,111 @@
+"""
+This file is part of the METIS Pipeline.
+Copyright (C) 2024 European Southern Observatory
 
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+"""
+import pytest
+
+import cpl
+
+from pymetis.classes.dataitems.dataitem import DataItem
+from pymetis.dataitems.background import LmStdBackground, NStdBackground, LmSciBackground, \
+    NSciBackground, LmStdBackgroundSubtracted, LmSciBackgroundSubtracted, NStdBackgroundSubtracted, \
+    NSciBackgroundSubtracted
+from pymetis.dataitems.distortion import DistortionRaw, DistortionTable
+from pymetis.dataitems.adc.adc import LmAdcSlitloss, NAdcSlitloss, LmAdcSlitlossRaw, NAdcSlitlossRaw
+from pymetis.dataitems.common import AtmProfile
+from pymetis.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo, MasterDarkIfu
+from pymetis.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterFlatIfu
+from pymetis.dataitems.raw import WcuOffRaw
+
+OCA_KEYWORDS: set[str] = {
+    'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
+    'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME',
+    'DRS.FILTER', 'DRS.IFU', 'DRS.SLIT',
+    'DET.ID', 'DET.DIT', 'DET.NDIT',
+    'PRO.CATG',
+}
+
+@pytest.mark.dataitem
+@pytest.mark.parametrize('item', [LmStdBackground, NStdBackground, LmSciBackground, NSciBackground,
+                                  LmStdBackgroundSubtracted, NStdBackgroundSubtracted, LmSciBackgroundSubtracted, NSciBackgroundSubtracted,
+                                  WcuOffRaw, AtmProfile, MasterFlatGeo, MasterFlatIfu, MasterFlat2rg,
+                                  MasterDark2rg, MasterDarkGeo, MasterDarkIfu, DistortionRaw, DistortionTable,
+                                  LmAdcSlitloss, NAdcSlitloss, LmAdcSlitlossRaw, NAdcSlitlossRaw])
+class TestDataItem:
+    """
+    Tests for the `DataItem` class hierarchy. These are mostly *class* tests,
+    and should not depend on the data provided from SOF or FITS files.
+    """
+    Item: type[DataItem] = None
+
+    def test_has_title_defined(self, item):
+        assert isinstance(item.title(), str), \
+            f"Data item {item.__qualname__} does not define a `title`, or it is not a string"
+
+    @pytest.mark.metadata
+    def test_has_name_defined(self, item):
+        assert isinstance(item.name(), str), \
+            f"Data item {item.__qualname__} does not define a `name`, or it is not a string"
+
+    @pytest.mark.metadata
+    def test_has_description_defined(self, item):
+        """
+        Test that every non-abstract data item defines description():
+        by default, it returns the internal `_description` attribute,
+        or it can also override the getter classmethod if it has to be computed.
+        """
+        assert item.description() is not None, \
+            f"Data item {item.__qualname__} does not have a description defined!"
+
+    @pytest.mark.metadata
+    def test_has_group_defined(self, item):
+        assert isinstance(item.frame_group(), cpl.ui.Frame.FrameGroup), \
+            f"Data item {item.__qualname__} does not have a frame group defined!"
+
+    @pytest.mark.metadata
+    def test_has_oca_keywords_defined(self, item):
+        assert isinstance(item._oca_keywords, set), \
+            f"Data item {item.__qualname__} OCA keywords are not a set"
+        #assert len(item._oca_keywords) > 0, \
+        #    f"Data item {item.__qualname__} does not define any OCA keywords" # This is actually OK sometimes
+
+    @pytest.mark.metadata
+    def test_are_oca_keywords_a_set_of_valid_strings(self, item):
+        for kw in item._oca_keywords:
+            assert kw in OCA_KEYWORDS, \
+                f"Data item {item.__qualname__} defines an invalid OCA keyword {kw}!"
+
+    @pytest.mark.metadata
+    def test_has_schema_defined(self, item):
+        assert isinstance(item._schema, dict), \
+            f"Data item {item.__qualname__} does not have a schema defined or it is not a dict!"
+
+    @pytest.mark.metadata
+    def test_schema_has_primary_hdu(self, item):
+        assert 'PRIMARY' in item._schema.keys(),\
+            f"Data item {item.__qualname__} does not have a primary HDU"
+
+    @pytest.mark.metadata
+    def test_schema_values_are_classes(self, item):
+        for key, klass in item._schema.items():
+            assert isinstance(key, str), \
+                f"Schema keys must be strings, not {key} ({type(key)})"
+            assert klass is not None or key == 'PRIMARY', \
+                f"Only the primary header (HDU 0) may be None in schema {item._schema}"
+            assert klass in [None, cpl.core.Image, cpl.core.Table], \
+                f"The schema type must be CPL Image or Table, not {klass}"
 

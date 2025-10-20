@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.adc.adc import AdcSlitloss
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.raw import LssStdRaw
@@ -30,7 +30,7 @@ from pymetis.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
 from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, MasterDarkInput, BadPixMapInputSetMixin, \
-    GainMapInputSetMixin, SinglePipelineInput, FluxstdCatalogInput, LinearityInputSetMixin
+    GainMapInputSetMixin, SinglePipelineInput, FluxstdCatalogInput, MasterRsrfInput, LinearityInputSetMixin
 from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
@@ -43,9 +43,7 @@ class MetisLssStdImpl(DarkImageProcessor):
             Item = LssStdRaw
 
         MasterDarkInput = MasterDarkInput
-
-        class MasterRsrfInput(SinglePipelineInput):
-            Item = MasterLssRsrf
+        MasterRsrfInput = MasterRsrfInput
 
         class MasterLssTrace(SinglePipelineInput):
             Item = LssTrace
@@ -84,7 +82,7 @@ class MetisLssStdImpl(DarkImageProcessor):
     def process(self) -> set[DataItem]:
         # Load raw image
         std_raw_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_list()
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
 
         """Create dummy file (should do something more fancy in the future)"""
         # header = create_dummy_header()
@@ -101,9 +99,14 @@ class MetisLssStdImpl(DarkImageProcessor):
 
         # Write files
         return {
-            self.ProductMasterResponse(product_master_response_hdr, table),
-            self.ProductStdTransmission(product_std_transmission_hdr, table),
-            self.ProductLssStd1d(product_lss_std1d_hdr, table),
-            self.ProductLssStdObjMap(product_lss_std_obj_map_hdr, image),
-            self.ProductLssStdSkyMap(product_lss_std_sky_map_hdr, image),
+            self.ProductMasterResponse(product_master_response_hdr,
+                                       Hdu(product_master_response_hdr, table, name='TABLE')),
+            self.ProductStdTransmission(product_std_transmission_hdr,
+                                        Hdu(product_std_transmission_hdr, table, name='TABLE')),
+            self.ProductLssStd1d(product_lss_std1d_hdr,
+                                 Hdu(product_lss_std1d_hdr, table, name='TABLE')),
+            self.ProductLssStdObjMap(product_lss_std_obj_map_hdr,
+                                     Hdu(product_lss_std_obj_map_hdr, image, name='PRIMARY')),
+            self.ProductLssStdSkyMap(product_lss_std_sky_map_hdr,
+                                     Hdu(product_lss_std_sky_map_hdr, image, name='PRIMARY')),
         }

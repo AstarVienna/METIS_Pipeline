@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins.band import BandSpecificMixin, BandLmMixin, BandNMixin
@@ -30,6 +31,11 @@ class PupilImagingReduced(BandSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
+
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': Image,
+    }
 
 
 class LmPupilImagingReduced(BandLmMixin, PupilImagingReduced):

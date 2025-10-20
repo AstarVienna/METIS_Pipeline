@@ -17,13 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from typing import Optional
+
+from cpl.core import Image
+
 from pymetis.classes.mixins.base import KeywordMixin
 
 
 class DetectorSpecificMixin(KeywordMixin, keyword='detector'):
     _detector = None
 
-    def __init_subclass__(cls, *, detector=None, **kwargs):
+    def __init_subclass__(cls, *, detector: Optional[str] = None, **kwargs):
         if detector is not None:
             cls._detector = detector
         super().__init_subclass__(**kwargs)
@@ -42,4 +46,8 @@ class DetectorGeoMixin(DetectorSpecificMixin, detector='GEO'):
 
 
 class DetectorIfuMixin(DetectorSpecificMixin, detector='IFU'):
-    pass
+    _schema = {
+        r'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}.DATA': Image for det in [1, 2, 3, 4]
+    }

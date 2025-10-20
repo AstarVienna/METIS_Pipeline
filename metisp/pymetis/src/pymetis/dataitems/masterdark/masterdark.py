@@ -31,11 +31,20 @@ class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
-    _schema = [Image]
+
+    _schema = {
+        'PRIMARY': None,
+        'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
+    }
 
 
 class MasterDark2rg(Detector2rgMixin, MasterDark):
-    pass
+    _schema ={
+        'PRIMARY': Image,
+        'DET1.DATA': Image,
+    }
 
 
 class MasterDarkGeo(DetectorGeoMixin, MasterDark):
@@ -43,4 +52,8 @@ class MasterDarkGeo(DetectorGeoMixin, MasterDark):
 
 
 class MasterDarkIfu(DetectorIfuMixin, MasterDark):
-    pass
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        f'DET{det:1d}.{ext}': Image for det in [1, 2, 3, 4] for ext in {'SCI', 'ERR', 'DQ'}
+    }
