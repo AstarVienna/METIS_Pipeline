@@ -6,3 +6,4 @@ from .metis_pupil_imaging_wkf import *
 from .metis_ifu_wkf import *
 from .metis_lm_lss_wkf import *
 from .metis_n_lss_wkf import *
+from .metis_n_img_wkf import *
