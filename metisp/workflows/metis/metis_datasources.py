@@ -18,19 +18,19 @@ setup = [metis_kwd.det_binx, metis_kwd.det_biny, metis_kwd.ins_mode]
 instrument_setup = [metis_kwd.instrume] + setup
 
 
-# --- Data sources ---
+# --- LM IMG Data sources ---
 detlin_2rg_raw = (data_source()
             .with_classification_rule(detlin_2rg_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
-raw_2rg_dark = (data_source()
-            .with_classification_rule(rawdark_2rg_class)
+dark_2rg_raw = (data_source()
+            .with_classification_rule(dark_2rg_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
-lm_lamp_flat = (data_source()
-            .with_classification_rule(lm_lampflat_class)
+lm_flat_lamp_raw = (data_source()
+            .with_classification_rule(lm_flat_lamp_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
@@ -44,35 +44,36 @@ lm_wcu_off_raw = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-lm_raw_science = (data_source()
-            .with_classification_rule(lm_raw_science_class)
+lm_image_sci_raw = (data_source()
+            .with_classification_rule(lm_image_sci_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
-lm_raw_sky = (data_source()
-            .with_classification_rule(lm_raw_sky_class)
+lm_image_sky_raw = (data_source()
+            .with_classification_rule(lm_image_sky_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
-lm_raw_std = (data_source()
-            .with_classification_rule(lm_raw_std_class)
+lm_image_std_raw = (data_source()
+            .with_classification_rule(lm_image_std_raw_class)
             .with_match_keywords(["instrume"])
             .build())
-# ------- N BAND DATA SOURCES ---------
+
+# ------- N IMG BAND DATA SOURCES ---------
 
 detlin_geo_raw = (data_source()
             .with_classification_rule(detlin_geo_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
-raw_geo_dark = (data_source()
-            .with_classification_rule(rawdark_geo_class)
+dark_geo_raw = (data_source()
+            .with_classification_rule(dark_geo_raw_class)
             .with_grouping_keywords(["instrume","tpl.start"])
             .with_match_keywords(["instrume","det.dit","det.ndit"])
             .build())
 
-n_lamp_flat = (data_source()
-            .with_classification_rule(n_lampflat_class)
+n_flat_lamp_raw = (data_source()
+            .with_classification_rule(n_flat_lamp_raw_class)
             .with_grouping_keywords(["instrume","tpl.start"])
             .with_match_keywords(["instrume","det.dit","det.ndit"])
             .build())
@@ -87,18 +88,18 @@ n_wcu_off_raw = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-n_raw_science = (data_source()
-            .with_classification_rule(n_raw_science_class)        
+n_image_sci_raw = (data_source()
+            .with_classification_rule(n_image_sci_raw_class)        
             .with_match_keywords(["instrume"])
             .build())
 
-n_raw_sky = (data_source()
-            .with_classification_rule(n_raw_sky_class)        
+n_image_sky_raw = (data_source()
+            .with_classification_rule(n_image_sky_raw_class)        
             .with_match_keywords(["instrume"])
             .build())
 
-n_raw_std = (data_source()
-            .with_classification_rule(n_raw_std_class)        
+n_image_std_raw = (data_source()
+            .with_classification_rule(n_image_std_raw_class)        
             .with_match_keywords(["instrume"])
             .build())
 
@@ -108,34 +109,29 @@ fluxstd_catalog = (data_source()
                 .with_match_keywords(["instrume"])
                 .build())
 
-pinehole_tab = (data_source()
-                .with_classification_rule(pinhole_table_class)
-                .with_match_keywords(["instrume"])
-                .build())
-
 # --- IFU Data Sources ---
 
-bad_pix_ifu_calib = (data_source()
-                 .with_classification_rule(badpix_ifu_class)
+badpix_map_ifu = (data_source()
+                 .with_classification_rule(badpix_map_ifu_class)
                  .build())
 
 detlin_ifu_raw = (data_source()
-              .with_classification_rule(detlin_ifu_class)
+              .with_classification_rule(detlin_ifu_raw_class)
               .with_match_keywords(["instrume"])
               .build())
 
 dark_ifu_raw = (data_source()
-            .with_classification_rule(rawdark_ifu_class)
+            .with_classification_rule(dark_ifu_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
-distortion_ifu_raw = (data_source()
-                  .with_classification_rule(distortion_ifu_class)
+ifu_distortion_raw = (data_source()
+                  .with_classification_rule(ifu_distortion_raw_class)
                   .with_match_keywords(["instrume"])
                   .build())
 
-wave_ifu_raw = (data_source()
-            .with_classification_rule(wave_ifu_class)
+ifu_wave_raw = (data_source()
+            .with_classification_rule(ifu_wave_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
@@ -144,47 +140,230 @@ rsrf_ifu_raw = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-wcu_off_ifu_raw = (data_source()
-                   .with_classification_rule(wcu_off_ifu_class)
+ifu_wcu_off_raw = (data_source()
+                   .with_classification_rule(ifu_wcu_off_raw_class)
                    .with_match_keywords(["instrume"])
                    .build())
 
-std_ifu_raw = (data_source()
-           .with_classification_rule(std_ifu_class)
+ifu_std_raw = (data_source()
+           .with_classification_rule(ifu_std_raw_class)
            .with_match_keywords(["instrume"])
            .build())
 
-sky_ifu_raw = (data_source()
-               .with_classification_rule(sky_ifu_class)
+ifu_sky_raw = (data_source()
+               .with_classification_rule(ifu_sky_raw_class)
                .with_match_keywords(["instrume"])
                .build())
 
-sci_ifu_raw = (data_source()
-           .with_classification_rule(sci_ifu_class)
+ifu_sci_raw = (data_source()
+           .with_classification_rule(ifu_sci_raw_class)
            .with_match_keywords(["instrume"])
            .build())
 
-calib_persistence = (data_source()
-                     .with_classification_rule(persistence_class)
+persistence_map = (data_source()
+                     .with_classification_rule(persistence_map_class)
                      .with_match_keywords(["simple"])
                      .build())
 
-calib_pinhole = (data_source()
+pinhole_table = (data_source()
                  .with_classification_rule(pinhole_table_class)
                  .with_match_keywords(["simple"])
                  .build())
 
-calib_lsf_kernel = (data_source()
+lsf_kernel = (data_source()
                     .with_classification_rule(lsf_kernel_class)
                     .with_match_keywords(["simple"])
                     .build())
 
-calib_flux_std = (data_source()
-                  .with_classification_rule(fluxstd_ifu_class)
+fluxstd_catalog = (data_source()
+                  .with_classification_rule(fluxstd_catalog_class)
                   .with_match_keywords(["simple"])
                   .build())
 
-calib_atm_profile = (data_source()
+atm_profile = (data_source()
                      .with_classification_rule(atm_profile_class)
                      .with_match_keywords(["simple"])
                      .build())
+
+# --- LM LSS Data Sources ---
+lm_adc_slitloss_raw = (data_source()
+            .with_classification_rule(lm_adc_slitloss_raw_class)
+            # .with_min_group_size(MIN_NUM_SLITLOSPOS)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_lss_rsrf_raw = (data_source()
+            .with_classification_rule(lm_lss_rsrf_raw_class)
+            #.with_min_group_size(MIN_NUM_RSRF)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_lss_rsrf_pinh_raw = (data_source()
+            .with_classification_rule(lm_lss_rsrf_pinh_raw_class)
+            #.with_min_group_size(MIN_NUM_PINH)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_lss_std_raw = (data_source()
+            .with_classification_rule(lm_lss_std_raw_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_lss_sci_raw = (data_source()
+            .with_classification_rule(lm_lss_sci_raw_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_lss_wave_raw = (data_source()
+            .with_classification_rule(lm_lss_wave_raw_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_lss_sci_flux_1d = (data_source()
+            .with_classification_rule(lm_lss_sci_flux_1d_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+# STATIC + OTHER calibration sources (LM/LSS)
+gain_map_h2rg = (data_source()
+            .with_classification_rule(gain_map_h2rg_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+linearity_h2rg = (data_source()
+            .with_classification_rule(linearity_h2rg_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+badpix_map_h2rg = (data_source()
+            .with_classification_rule(badpix_map_h2rg_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+atm_line_cat = (data_source()
+            .with_classification_rule(atm_line_cat_class)
+            .with_match_keywords([metis_kwd.instrume])
+            # .with_match_keywords([metis_kwd.pro_catg])
+            .build())
+
+laser_tab = (data_source()
+            .with_classification_rule(laser_tab_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+ref_std_cat = (data_source()
+            .with_classification_rule(ref_std_cat_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_lss_dist_sol = (data_source()
+            .with_classification_rule(lm_lss_dist_sol_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_lss_wave_guess = (data_source()
+            .with_classification_rule(lm_lss_wave_guess_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_lss_synth_trans = (data_source()
+            .with_classification_rule(lm_lss_synth_trans_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+ao_psf_model = (data_source()
+            .with_classification_rule(ao_psf_model_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+lm_adc_slitloss = (data_source()
+            .with_classification_rule(lm_adc_slitloss_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+mf_best_fit_tab = (data_source()
+            .with_classification_rule(mf_best_fit_tab_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+# --- N LSS Data Sources ---
+
+n_adc_slitloss_raw = (data_source()
+            .with_classification_rule(n_adc_slitloss_raw_class)
+            # .with_min_group_size(MIN_NUM_SLITLOSPOS)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+n_lss_rsrf_raw = (data_source()
+            .with_classification_rule(n_lss_rsrf_raw_class)
+            #.with_min_group_size(MIN_NUM_RSRF)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+n_lss_rsrf_pinh_raw = (data_source()
+            .with_classification_rule(n_lss_rsrf_pinh_raw_class)
+            #.with_min_group_size(MIN_NUM_PINH)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+n_lss_std_raw = (data_source()
+            .with_classification_rule(n_lss_std_raw_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+n_lss_wave_raw = (data_source()
+            .with_classification_rule(n_lss_wave_raw_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+n_lss_sci_raw = (data_source()
+            .with_classification_rule(n_lss_sci_raw_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+# Final data products
+n_lss_sci_flux_1d = (data_source()
+            .with_classification_rule(n_lss_sci_flux_1d_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+gain_map_geo = (data_source()
+            .with_classification_rule(gain_map_geo_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+linearity_geo = (data_source()
+            .with_classification_rule(linearity_geo_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+badpix_map_geo = (data_source()
+            .with_classification_rule(badpix_map_geo_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+ref_std_cat = (data_source()
+            .with_classification_rule(ref_std_cat_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+n_lss_dist_sol = (data_source()
+            .with_classification_rule(n_lss_dist_sol_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+n_lss_wave_guess = (data_source()
+            .with_classification_rule(n_lss_wave_guess_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+n_lss_synth_trans = (data_source()
+            .with_classification_rule(n_lss_synth_trans_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+
+n_adc_slitloss = (data_source()
+            .with_classification_rule(n_adc_slitloss_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
+

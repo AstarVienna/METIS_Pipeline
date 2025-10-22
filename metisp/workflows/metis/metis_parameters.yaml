@@ -1,16 +1,19 @@
 default_parameters: &default
   is_default: yes
   recipe_parameters:
-    dark_task:
+    dark_task: 
       # Overriding the default for stacking
       metis.metis_det_dark.stacking.method: "median"
+  
+  workflow_parameters:
+    molecfit: "science"
 
 qc0_parameters:
   <<: *default
   is_default: no
 
 science_parameters:
-  <<: *default
+  <<: *default:
   is_default: no
 
 idp_parameters:
