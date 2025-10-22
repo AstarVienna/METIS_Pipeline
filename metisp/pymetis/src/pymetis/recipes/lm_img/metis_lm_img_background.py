@@ -54,7 +54,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         )
         product_bkg_subtracted = self.ProductBkgSubtracted(
             header,
-            Hdu(header, image, name='DET1.DATA'),
+            Hdu(header, image, name='PRIMARY'),
         )
         product_object_cat = self.ProductObjectCatalog(
             header,

@@ -42,8 +42,10 @@ class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
 
 class MasterDark2rg(Detector2rgMixin, MasterDark):
     _schema ={
-        'PRIMARY': Image,
-        'DET1.DATA': Image,
+        'PRIMARY': None,
+        'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
     }
 
 
