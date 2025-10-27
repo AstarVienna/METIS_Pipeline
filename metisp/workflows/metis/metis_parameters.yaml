@@ -13,7 +13,7 @@ qc0_parameters:
   is_default: no
 
 science_parameters:
-  <<: *default:
+  <<: *default
   is_default: no
 
 idp_parameters:
