@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Literal
 
 import cpl
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
@@ -55,7 +56,7 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         header_table = create_dummy_header(EXTNAME=rf'DET{det}')
         table = create_dummy_table(14)
 
-        return Hdu(header_table, image, name=rf'{det}.DATA')
+        return Hdu(header_table, image, name=rf'{det}')
 
     def process(self) -> set[DataItem]:
         primary_header = cpl.core.PropertyList()
@@ -83,5 +84,16 @@ class MetisIfuWavecal(MetisRecipe):
         Compute wavelength solution ξ(x, y, i), λ(x, y, i).
         Compute wavelength map."""
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+
+    # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
+    parameters = ParameterList([
+        ParameterEnum(
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
+    ])
 
     Impl = MetisIfuWavecalImpl

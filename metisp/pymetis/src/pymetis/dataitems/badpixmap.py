@@ -50,5 +50,9 @@ class BadPixMapIfu(DetectorIfuMixin, BadPixMap):
     pass
 
     _schema = {
-        'PRIMARY': Image,
+       'PRIMARY': None,
+       'DET1.DATA': Image,
+       'DET2.DATA': Image,
+       'DET3.DATA': Image,
+       'DET4.DATA': Image,
     }

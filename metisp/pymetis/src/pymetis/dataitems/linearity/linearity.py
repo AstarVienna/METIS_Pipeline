@@ -46,7 +46,10 @@ class LinearityMapGeo(DetectorGeoMixin, LinearityMap):
 
 
 class LinearityMapIfu(DetectorIfuMixin, LinearityMap):
-    # FixMe: This is wrong but matches the current testing data
     _schema = {
-        'PRIMARY': Image,
+       'PRIMARY': None,
+       'DET1.DATA': Image,
+       'DET2.DATA': Image,
+       'DET3.DATA': Image,
+       'DET4.DATA': Image,
     }

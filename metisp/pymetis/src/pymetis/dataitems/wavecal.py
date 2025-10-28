@@ -20,6 +20,7 @@ import cpl
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import DetectorIfuMixin
+from cpl.core import Table, Image
 
 
 class IfuWavecalRaw(DetectorIfuMixin, ImageDataItem):
@@ -41,3 +42,9 @@ class IfuWavecal(DetectorIfuMixin, ImageDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}': Image for det in range(1, 5)
+    }

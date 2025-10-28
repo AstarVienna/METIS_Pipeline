@@ -77,12 +77,9 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         badpix_map = combined_image         # TODO Actual implementation missing
 
         return {
-            #'gain_map': Hdu(header_gain, gain_image, name=rf'{det}.DATA'),
-            #'linearity_map': Hdu(header_linearity, linearity_image, name=rf'{det}.DATA'),
-            #'badpix_map': Hdu(header_badpix, badpix_map, name=rf'{det}.DATA'),
-            'gain_map': Hdu(header_gain, gain_image, name='PRIMARY'),
-            'linearity_map': Hdu(header_linearity, linearity_image, name='PRIMARY'),
-            'badpix_map': Hdu(header_badpix, badpix_map, name='PRIMARY'),
+            'gain_map': Hdu(header_gain, gain_image, name=rf'{det}.DATA'),
+            'linearity_map': Hdu(header_linearity, linearity_image, name=rf'{det}.DATA'),
+            'badpix_map': Hdu(header_badpix, badpix_map, name=rf'{det}.DATA'),
         }
 
     def process(self) -> set[DataItem]:
@@ -96,6 +93,8 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         #         flat_image.subtract(bias_image)
         #     median = flat_image.get_median()
         #     flat_image.divide_scalar(median)
+
+        Msg.info(self.__class__.__qualname__, f"HDUs: {self.inputset.raw.items[0].hdus.keys()}")
 
         detector_count = len(list(filter(lambda x: re.match(r'DET[0-9].DATA', x) is not None,
                                          self.inputset.raw.items[0].hdus.keys() - ['PRIMARY'])))

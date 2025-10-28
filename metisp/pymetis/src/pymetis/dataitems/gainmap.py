@@ -46,13 +46,13 @@ class GainMapGeo(DetectorGeoMixin, GainMap):
 
 
 class GainMapIfu(DetectorIfuMixin, GainMap):
-    #_schema = {
-    #    'PRIMARY': None,
-    #    'DET1.DATA': Image,
-    #    'DET2.DATA': Image,
-    #    'DET3.DATA': Image,
-    #    'DET4.DATA': Image,
-    #}
     _schema = {
-        'PRIMARY': Image,
+       'PRIMARY': None,
+       'DET1.DATA': Image,
+       'DET2.DATA': Image,
+       'DET3.DATA': Image,
+       'DET4.DATA': Image,
     }
+    # _schema = {
+    #     'PRIMARY': Image,
+    # }
