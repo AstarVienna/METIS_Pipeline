@@ -110,9 +110,9 @@ class MetisPupilImagingImpl(DarkImageProcessor):
 
         Msg.info(self.__class__.__qualname__, "Starting processing image attribute.")
 
-        master_flat = self.inputset.master_flat.load_data('PRIMARY')
-        master_dark = self.inputset.master_dark.load_data('PRIMARY')
-        gain = self.inputset.gain_map.load_data('PRIMARY')
+        master_flat = self.inputset.master_flat.load_data('DET1.SCI')
+        master_dark = self.inputset.master_dark.load_data('DET1.SCI')
+        gain = self.inputset.gain_map.load_data('DET1.SCI')
 
         master_flat = self.prepare_flat(master_flat, master_dark)
         images = self.prepare_images(self.inputset.raw.frameset, master_flat, master_dark)

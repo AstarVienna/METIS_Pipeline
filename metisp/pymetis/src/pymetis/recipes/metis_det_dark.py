@@ -152,7 +152,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         raw_images = self.correct_gain(raw_images)
         raw_images = self.correct_persistence(raw_images)
 
-        linearity_map = self.inputset.linearity.load_data(extension=r'PRIMARY')
+        linearity_map = self.inputset.linearity.load_data(extension=rf'DET{detector:1d}.SCI')
         raw_images = self.correct_nonlinearity(raw_images, linearity_map)
 
         if len(raw_images) > 1:

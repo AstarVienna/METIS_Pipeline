@@ -34,7 +34,8 @@ class Background(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'DET1.DATA': Image,
     }
 
 

@@ -73,7 +73,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
         product = self.ProductMasterFlat(
             primary_header,
-            Hdu(create_dummy_header(), combined_image, name='PRIMARY'),
+            Hdu(create_dummy_header(), combined_image, name='DET1.SCI'),
         )
 
         return {product}

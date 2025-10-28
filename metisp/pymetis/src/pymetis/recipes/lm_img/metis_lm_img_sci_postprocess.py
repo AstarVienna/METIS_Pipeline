@@ -19,12 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.coadd import LmSciCoadd
 from pymetis.dataitems.img.basicreduced import LmSciCalibrated
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor):
@@ -35,12 +36,16 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
     ProductLmImgSciCoadd = LmSciCoadd
 
     def process(self) -> set[DataItem]:
-        raw_images = self.inputset.raw.load_list()
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
         combined_image = self.combine_images(raw_images, "average")
 
-        header = self.inputset.raw.items[0].header
+        primary_header = self.inputset.raw.items[0].primary_header
+        header_combined = create_dummy_header()
 
-        product_coadd = self.ProductLmImgSciCoadd(header, combined_image)
+        product_coadd = self.ProductLmImgSciCoadd(
+            primary_header,
+            Hdu(header_combined, combined_image, name='IMAGE')
+        )
 
         return {product_coadd}
 

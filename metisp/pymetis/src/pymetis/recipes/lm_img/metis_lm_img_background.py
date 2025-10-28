@@ -44,21 +44,24 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
     ProductObjectCatalog = ObjectCatalog
 
     def process(self) -> set[DataItem]:
-        image = self.inputset.basic_reduced.load_data('PRIMARY')
+        image = self.inputset.basic_reduced.load_data('DET1.DATA')
+        primary_header = self.inputset.basic_reduced.item.primary_header
         table = create_dummy_table()
-        header = create_dummy_header()
+        header_bkg = create_dummy_header()
+        header_bkg_subtracted = create_dummy_header()
+        header_object_cat = create_dummy_header()
 
         product_bkg = self.ProductBkg(
-            header,
-            Hdu(header, image, name='PRIMARY'),
+            primary_header,
+            Hdu(header_bkg, image, name='DET1.DATA'),
         )
         product_bkg_subtracted = self.ProductBkgSubtracted(
-            header,
-            Hdu(header, image, name='PRIMARY'),
+            primary_header,
+            Hdu(header_bkg_subtracted, image, name='DET1.DATA'),
         )
         product_object_cat = self.ProductObjectCatalog(
-            header,
-            Hdu(header, table, name='TABLE'),
+            primary_header,
+            Hdu(header_object_cat, table, name='TABLE'),
         )
 
         return {product_bkg, product_bkg_subtracted, product_object_cat}

@@ -87,9 +87,9 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
         Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
-        flat = self.inputset.master_flat.load_data('PRIMARY')
-        dark = self.inputset.master_dark.load_data('PRIMARY')
-        gain = self.inputset.gain_map.load_data('PRIMARY')
+        flat = self.inputset.master_flat.load_data('DET1.SCI')
+        dark = self.inputset.master_dark.load_data('DET1.SCI')
+        gain = self.inputset.gain_map.load_data('DET1.SCI')
 
         Msg.info(self.__class__.__qualname__, "Loading raw images")
         images = self.inputset.raw.load_data('DET1.DATA')
@@ -141,7 +141,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             product = self.ProductBasicReduced(
                 header,
-                Hdu(header, image, name='PRIMARY'),
+                Hdu(header, image, name='DET1.DATA'),
             )
             product_set |= {product}
 

@@ -56,7 +56,10 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
 
         coadded = self.coadd_cubes()
 
-        product = self.ProductSciCoadd(header, Hdu(header, coadded, name='IMAGE'))
+        product = self.ProductSciCoadd(
+            header,
+            Hdu(header, coadded, name='IMAGE')
+        )
 
         return {product}  # ToDo is just a dummy for now
 

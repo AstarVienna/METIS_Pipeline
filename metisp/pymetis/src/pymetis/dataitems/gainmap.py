@@ -33,26 +33,29 @@ class GainMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG'}
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
     }
 
 
 class GainMap2rg(Detector2rgMixin, GainMap):
-    pass
+    _schema = GainMap._schema | {
+        'DET1.SCI': Image,
+        #ToDo ERR and DQ to follow
+    }
 
 
 class GainMapGeo(DetectorGeoMixin, GainMap):
-    pass
+    _schema = GainMap._schema | {
+        'DET1.SCI': Image,
+        #ToDo ERR and DQ to follow
+    }
 
 
 class GainMapIfu(DetectorIfuMixin, GainMap):
-    #_schema = {
-    #    'PRIMARY': None,
-    #    'DET1.DATA': Image,
-    #    'DET2.DATA': Image,
-    #    'DET3.DATA': Image,
-    #    'DET4.DATA': Image,
-    #}
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'DET1.SCI': Image,
+        'DET2.SCI': Image,
+        'DET3.SCI': Image,
+        'DET4.SCI': Image,
     }

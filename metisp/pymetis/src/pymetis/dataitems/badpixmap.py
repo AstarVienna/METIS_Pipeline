@@ -34,21 +34,26 @@ class BadPixMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': Image,
-        #'DET1.DATA': Image,
     }
 
 
 class BadPixMap2rg(Detector2rgMixin, BadPixMap):
-    pass
+    _schema = BadPixMap._schema | {
+        'DET1.SCI': Image,
+        #ToDo ERR and DQ to follow
+    }
 
 
 class BadPixMapGeo(DetectorGeoMixin, BadPixMap):
-    pass
+    _schema = BadPixMap._schema | {
+        'DET1.SCI': Image,
+        #ToDo ERR and DQ to follow
+    }
 
 
 class BadPixMapIfu(DetectorIfuMixin, BadPixMap):
-    pass
-
     _schema = {
         'PRIMARY': Image,
+    } | {
+        rf'DET{det:1d}.SCI': Image for det in [1, 2, 3, 4]
     }

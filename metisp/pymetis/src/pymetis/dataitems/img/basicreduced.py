@@ -34,7 +34,8 @@ class BasicReduced(BandLmMixin, TargetSpecificMixin, ImageDataItem, abstract=Tru
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
     _schema = {
-        'PRIMARY': Image,   # FixMe This is wrong but matches current testing data
+        'PRIMARY': None,
+        'DET1.DATA': Image,
     }
 
 
@@ -54,6 +55,11 @@ class LmSkyBasicReduced(ImageDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
 
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
+
 
 class Calibrated(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
     _name_template = r'{band}_{target}_CALIBRATED'
@@ -65,7 +71,8 @@ class Calibrated(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     _schema = {
-        'PRIMARY': Image,   # FixMe This is wrong but matches current testing data
+        'PRIMARY': None,
+        'DET1.DATA': Image,
     }
 
 
@@ -96,5 +103,5 @@ class NSciRestored(BandNMixin, ImageDataItem):
 
     _schema = {
         'PRIMARY': None,
-        'IMAGE': Image,
+        'DET1.DATA': Image,
     }
