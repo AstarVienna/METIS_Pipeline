@@ -52,6 +52,6 @@ class IfuDistortionReduced(BandIfuMixin, DistortionReduced):
     _schema = {
         'PRIMARY': None,
     } | {
-        rf'DET{detector:1d}': Image for detector in [1, 2, 3, 4]
+        rf'DET{detector:1d}.DATA': Image for detector in [1, 2, 3, 4]
     }
     # FixMe here DRLD specifies a Table

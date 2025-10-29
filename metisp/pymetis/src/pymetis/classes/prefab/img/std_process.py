@@ -38,7 +38,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
     ProductImgStdCombined = Combined
 
     def process(self) -> set[DataItem]:
-        raw_images = self.inputset.raw.load_data('PRIMARY')
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
 
         combined_image = self.combine_images(raw_images, "average")
         header = self.inputset.raw.items[0].primary_header
@@ -50,7 +50,7 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         )
         product_combined = self.ProductImgStdCombined(
             header,
-            Hdu(header, combined_image, name='PRIMARY'),
+            Hdu(header, combined_image, name='IMAGE'),
         )
 
         return {product_fluxcal, product_combined}

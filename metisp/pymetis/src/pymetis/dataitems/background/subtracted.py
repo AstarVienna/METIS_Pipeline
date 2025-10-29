@@ -34,7 +34,8 @@ class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, ImageDataItem
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'} # maybe
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'DET1.DATA': Image,
     }
 
 
@@ -52,7 +53,8 @@ class NStdBackgroundSubtracted(BandNMixin, StdBackgroundSubtracted):
 
 class SciBackgroundSubtracted(TargetSciMixin, BackgroundSubtracted, abstract=True):
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'DET1.DATA': Image,
     }
 
 

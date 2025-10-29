@@ -35,7 +35,7 @@ def name() -> str:
 
 @pytest.fixture
 def sof(name: str) -> str:
-    return rf'{name}.lm.sof'
+    return rf'{name}.ifu.sof'
 
 
 class TestRecipe(BandParamRecipeTest):

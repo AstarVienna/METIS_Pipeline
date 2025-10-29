@@ -43,13 +43,13 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
     ProductSciCalibrated = Calibrated
 
     def process(self) -> set[DataItem]:
-        background = self.inputset.background.load_data('PRIMARY')
+        background = self.inputset.background.load_data('DET1.DATA')
         primary_header = self.inputset.background.item.primary_header
         header = create_dummy_header()
 
         product_calibrated = self.ProductSciCalibrated(
             primary_header,
-            Hdu(header, background, name='PRIMARY'),
+            Hdu(header, background, name='DET1.DATA'),
         )
 
         return {product_calibrated}

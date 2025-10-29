@@ -59,7 +59,8 @@ class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstr
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'DET1.SCI': Image,
     }
 
 

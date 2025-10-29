@@ -22,7 +22,7 @@ from cpl.core import Msg
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.background.background import NStdBackground
 from pymetis.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.dataitems.masterflat import MasterImgFlat
@@ -31,6 +31,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisNImgChopnodImpl(DarkImageProcessor):
@@ -87,17 +88,28 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         Msg.info(self.__class__.__qualname__, "Processing Images")
         Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
-        flat = cpl.core.Image.load(self.inputset.master_flat.frame.file, extension=0)
-        dark = cpl.core.Image.load(self.inputset.master_dark.frame.file, extension=0)
-        gain = cpl.core.Image.load(self.inputset.gain_map.frame.file, extension=0)
-        images = self.inputset.raw.load_list()
+        flat = self.inputset.master_flat.load_data('DET1.SCI')
+        dark = self.inputset.master_dark.load_data('DET1.SCI')
+        gain = self.inputset.gain_map.load_data('DET1.SCI')
+
+        images = self.inputset.raw.load_data('DET1.DATA')
 
         combined_image = self.combine_images(images, self.parameters["metis_n_img_chopnod.stacking.method"].value)
-        header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+
+        primary_header = self.inputset.raw.items[0].primary_header
+        header_reduced = create_dummy_header()
+        header_background = create_dummy_header()
+
         self.target = self.inputset.tag_matches['target']
 
-        product_reduced = self.ProductReduced(header, combined_image)
-        product_background = self.ProductBackground(header, combined_image)
+        product_reduced = self.ProductReduced(
+            primary_header,
+            Hdu(header_reduced, combined_image, name='DET1.DATA')
+        )
+        product_background = self.ProductBackground(
+            primary_header,
+            Hdu(header_background, combined_image, name='DET1.DATA')
+        )
 
         return {product_reduced, product_background}
 

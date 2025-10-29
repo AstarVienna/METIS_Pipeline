@@ -36,7 +36,8 @@ class Combined(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'IMAGE': Image,
     }
 
 
