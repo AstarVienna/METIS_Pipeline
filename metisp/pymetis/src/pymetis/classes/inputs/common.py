@@ -19,10 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-import cpl
-from cpl.core import Msg
-from cpl.core import ImageList as ImageList
-
 from . import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
@@ -42,7 +38,7 @@ from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
-You should never derive directly from `PipelineInput`, but rather from
+You should never derive actual `Input`s directly from `PipelineInput`, but rather from
 
  -  `SinglePipelineInput` (for `Input` classes with a single Frame)
  -  `MultiplePipelineInput` (for `Input` classes with a FrameSet)
@@ -52,8 +48,9 @@ You should override class attributes:
  -  `Item`
     points to the data item inside this `Input`
  -  `_required`
-    A boolean telling the recipe if this input is required or not. Default is True, so it is enough to say
-    `_required = False` for optional inputs, or even better, derive from `OptionalInputMixin` first
+    A boolean telling the recipe if this input is required or not. Default is `True`, so most of the time
+    it does not have to be touched. For optional inputs it is enough to define `_required = False`,
+    or even better, derive from `OptionalInputMixin` first.
 """
 
 
