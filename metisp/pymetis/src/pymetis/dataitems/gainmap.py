@@ -59,3 +59,6 @@ class GainMapIfu(DetectorIfuMixin, GainMap):
         'DET3.SCI': Image,
         'DET4.SCI': Image,
     }
+    # _schema = {
+    #     'PRIMARY': Image,
+    # }

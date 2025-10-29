@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 from cpl.core import Msg
 import numpy as np
+from typing import Literal
 
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
@@ -27,6 +28,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 from astropy.table import QTable
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.badpixmap import BadPixMapIfu
 from pymetis.dataitems.gainmap import GainMapIfu
 from pymetis.dataitems.linearity.linearity import LinearityMapIfu
@@ -77,6 +79,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         class DistortionTableInput(DistortionTableInput):
             Item = IfuDistortionTable
 
+        # TBD: schema to be defined
         WavecalInput = WavecalInput
 
     ProductRsrfBackground = IfuRsrfBackground
@@ -84,72 +87,74 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
     ProductRsrfIfu = RsrfIfu
     ProductBadPixMap = BadPixMapIfu
 
-    def process(self) -> set[DataItem]:
+    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         """
-        This function processes the input images:
+        Caclulate the RSRF for a single detector of the IFU.
+        This function processes the input images, for each detector:
         - stack the wcu_off images into background_img
         - subtract background_img from raw_images and stack
         - calculate the black-body image from the wavecal_img
         - divide the stacked raw image by the black-body image
         - create the 1D RSRF curves from the flat image
         - create the bad pixel map from the master dark and update it
+
+        Parameters
+        ----------
+        detector : Literal[1, 2, 3, 4] # FixMe: Maybe make this fully customizable for any detector count?
+
+        Returns
+        -------
+        dict[str, Hdu]
+            Distortion coefficients for a single detector of the IFU, in a form of table and image
+            # FixMe this does not make much sense but works for now [MB]
         """
 
-        # load parameters
-        stackmethod = self.parameters[f"{self.name}.stacking.method"].value
-        extract_hwidth = self.parameters[f"{self.name}.extract.hwidth"].value
+        det = rf'{detector:1d}'
 
         # TODO: FUNC: basic raw processing of RSRF and WCU_OFF input frames:
         # - dark subtraction? (subtracting WCU_OFF frame should suffice?)
         # - gain / linearity correction?
 
         # load MASTER_DARK_IFU image and extract bad pixel map
-        # TODO: update to load multi-extension file, current intermediate
-        # products are only single-extension
-        #master_dark_img = self.inputset.master_dark.load_images(extension=0)
-        master_dark_img = self.inputset.master_dark.load_data().use().hdus[0]
+        master_dark_img = self.inputset.master_dark.use().load_data(extension=rf'DET{det}.SCI')
         badpix_map = master_dark_img.bpm
 
-        # load IFU trace definition file - only one extension for now
-        distortion_table = self.inputset.distortion_table.load_data().use()
-        trace_list = distortion_table.read(extension=EXT-1)
+        # load IFU trace definition file
+        distortion_table = self.inputset.distortion_table.use().load_data(extension=rf'DET{det}')
+        trace_list = distortion_table.read(extension=rf'DET{det}')
 
-        # load wavelength calibration image - only one extension for now
-        wavecal_img = self.inputset.wavecal.load_data().use().hdus[EXT-1]
+        # load wavelength calibration image
+        wavecal_img = self.inputset.wavecal.use().load_data(extension=rf'DET{det}')
 
         # create master WCU_OFF background image
-        background_hdr = cpl.core.PropertyList()
         Msg.info(self.__class__.__qualname__,
                     f"Creating WCU_OFF background image...")
         background_hdr = cpl.core.PropertyList()
+        background_hdr.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
+
         # self.inputset.background.frameset.dump() # debug
-        bg_images = self.inputset.rsrf_wcu_off.load_images()
-        background_img = self.combine_images(bg_images, stackmethod)
+        bg_images = self.inputset.rsrf_wcu_off.use().load_data(extension=rf'DET{det}.DATA')
+        background_img = self.combine_images(bg_images, self.stackmethod)
 
         # TODO: define usedframes?
         # TODO: Add product keywords - currently none defined in DRLD
 
         # create 2D flat image (raw images are added together)
-        spec_flat_hdr = cpl.core.PropertyList()
         Msg.info(self.__class__.__qualname__,
                     f"Creating 2D spectral flat image...")
+        spec_flat_hdr = cpl.core.PropertyList()
+        spec_flat_hdr.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
 
-        spec_flat_hdr = \
-            cpl.core.PropertyList()
         # load RSRF_RAW images, subtract the background and stack them
-        raw_images = self.inputset.raw.load_list()
-        # FUNC: single-extension data product for now
+        raw_images = self.inputset.raw.use().load_data(extension=rf'DET{det}.DATA')
         raw_images.subtract_image(background_img)
-        spec_flat_img = self.combine_images(raw_images, stackmethod)
+        spec_flat_img = self.combine_images(raw_images, self.stackmethod)
         # propagate badpixel mask
         spec_flat_img.reject_from_mask(badpix_map)
         # TODO: propagate errors
 
         # obtain black-body temperature from first frame's header
         # NOTE: this assumes raw frames were grouped by BB temperature
-        # rsrf_raw_hdr = cpl.core.PropertyList.load(
-        #     self.inputset.raw.frameset[0].file,
-        #     position=0)
 
         rsrf_raw_hdr = self.inputset.raw.items[0].header
         bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
@@ -189,6 +194,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
                     f"Creating bad pixel map...")
         # TODO: FUNC: create updated bad pixel map
         badpix_hdr = cpl.core.PropertyList()
+        badpix_hdr.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
         # placeholder data for now -- bad-pixel map based spec_flat_img
         badpix_img = master_dark_img
         badpix_img.reject_from_mask(spec_flat_img.bpm)  # update with master_dark bpm
@@ -207,7 +213,7 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         Msg.info(self.__class__.__qualname__,
                     f"Extracting 1D RSRF curves...")
         rsrf_1d_list = extract_ifu_1d_spectra(spec_flat_img, trace_list,
-                                              trace_width=extract_hwidth)
+                                              trace_width=self.extract_hwidth)
 
         # global normalisation of the 1D RSRF curves
         rsrf_med = np.zeros(len(rsrf_1d_list))
@@ -228,8 +234,8 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         # create 1D RSRF product
         rsrf_hdr = cpl.core.PropertyList()
+        rsrf_hdr.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
         # TODO: FUNC: Add product keywords - currently none defined in DRLD
-        # TODO: Decide on FITS file structure for multiple extensions
         table = QTable()
         for i, rsrf in enumerate(rsrf_1d_list, start=1):
             table[f'rsrf_{i}'] = rsrf
@@ -239,13 +245,43 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
 
         rsrf_table = cpl.core.Table(table)
 
+        return {
+            'BACKGROUND': Hdu(background_hdr, background_img, name=rf'DET{det}'),
+            'MASTERFLAT': Hdu(spec_flat_hdr, spec_flat_img, name=rf'DET{det}'),
+            'BADPIXMAP': Hdu(badpix_hdr, badpix_img, name=rf'DET{det}'),
+            '1DRSRF': Hdu(rsrf_hdr, rsrf_table, name=rf'DET{det}'),
+        }
+
+    def process(self) -> set[DataItem]:
+
+        # load parameters
+        self.stackmethod = self.parameters[f"{self.name}.stacking.method"].value
+        self.extract_hwidth = self.parameters[f"{self.name}.extract.hwidth"].value
+
+        output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
+
         Msg.info(self.__class__.__qualname__,
                     f"Finalising recipe products...")
 
-        product_background = self.ProductRsrfBackground(background_hdr, background_img)
-        product_master_flat_ifu = self.ProductMasterFlat(spec_flat_hdr, spec_flat_img)
-        product_rsrf_ifu = self.ProductRsrfIfu(rsrf_hdr, rsrf_table)
-        product_badpix_map_ifu = self.ProductBadPixMap(badpix_hdr, badpix_img)
+        # TBD: define final product primary headers, for now copy from first raw frame
+        header = self.inputset.raw.items[0].header
+
+        product_background = self.ProductRsrfBackground(
+            header,
+            *[out['BACKGROUND'] for out in output],
+        )
+        product_master_flat_ifu = self.ProductMasterFlat(
+            header,
+            *[out['MASTERFLAT'] for out in output],
+        )
+        product_rsrf_ifu = self.ProductRsrfIfu(
+            header,
+            *[out['1DRSRF'] for out in output],
+        )
+        product_badpix_map_ifu = self.ProductBadPixMap(
+            header,
+            *[out['BADPIXMAP'] for out in output],
+        )
 
         return {product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu}
 
