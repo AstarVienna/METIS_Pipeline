@@ -1,0 +1,2098 @@
+
+
+
+
+
+strict digraph {
+    graph [
+        concentrate=true
+        fontcolor=red
+        fontsize=100
+        label="metis.metis_wkf"
+        labeljust=c
+        labelloc=t
+        rankdir=TB
+        ratio=1.5
+        splines=spline
+        ranksep=1.0
+        ]
+    node [shape=plain fontsize=24]
+    edge [colorscheme=spectral11 penwidth=8]
+
+        metis_lm_lss_dark [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_dark</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DARK_2RG_RAW</td>
+        <td colspan="2">metis_det_dark</td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_dark [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_dark</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DARK_2RG_RAW</td>
+        <td colspan="2">metis_det_dark</td>
+    </tr>
+    </table>>]
+
+        metis_ifu_lingain [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_lingain</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DETLIN_IFU_RAW</td>
+        <td colspan="2">metis_det_lingain</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left">IFU_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_adc_slitloss [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_adc_slitloss</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_ADC_SLITLOSS_RAW</td>
+        <td colspan="2">metis_lm_adc_slitloss</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_dark [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_dark</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DARK_GEO_RAW</td>
+        <td colspan="2">metis_det_dark</td>
+    </tr>
+    </table>>]
+
+        metis_n_img_dark [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_dark</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DARK_GEO_RAW</td>
+        <td colspan="2">metis_det_dark</td>
+    </tr>
+    </table>>]
+
+        metis_n_adc_slitloss [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_adc_slitloss</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_ADC_SLITLOSS_RAW</td>
+        <td colspan="2">metis_n_adc_slitloss</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">N_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_lingain [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_lingain</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DETLIN_2RG_RAW</td>
+        <td colspan="2">metis_det_lingain</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff0000">metis_lm_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_lingain [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_lingain</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DETLIN_2RG_RAW</td>
+        <td colspan="2">metis_det_lingain</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#007358">metis_lm_img_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_dark [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_dark</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DARK_IFU_RAW</td>
+        <td colspan="2">metis_det_dark</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#2fabc1">metis_ifu_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_lingain [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_lingain</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DETLIN_GEO_RAW</td>
+        <td colspan="2">metis_det_lingain</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ac4552">metis_n_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_lingain [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_lingain</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DETLIN_GEO_RAW</td>
+        <td colspan="2">metis_det_lingain</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ff00">metis_n_img_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_rsrf [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_rsrf</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_LSS_RSRF_RAW</td>
+        <td colspan="2">metis_lm_lss_rsrf</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff0000">metis_lm_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ff00">metis_lm_lss_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_flat [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_flat</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_FLAT_LAMP_RAW</td>
+        <td colspan="2">metis_lm_img_flat</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#007358">metis_lm_img_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#e4de01">metis_lm_img_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_cal_distortion [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_cal_distortion</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_DISTORTION_RAW</td>
+        <td colspan="2">metis_lm_img_distortion</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PINHOLE_TABLE</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#e4de01">metis_lm_img_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_distortion [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_distortion</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>IFU_DISTORTION_RAW</td>
+        <td colspan="2">metis_ifu_distortion</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#2fabc1">metis_ifu_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left">PINHOLE_TABLE</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#cd9763">metis_ifu_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_rsrf [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_rsrf</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_LSS_RSRF_RAW</td>
+        <td colspan="2">metis_n_lss_rsrf</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">N_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ac4552">metis_n_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#cd9763">metis_n_lss_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_distortion [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_distortion</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_DISTORTION_RAW</td>
+        <td colspan="2">metis_n_img_distortion</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">N_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PINHOLE_TABLE</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ffff">metis_n_img_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_flat [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_flat</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_FLAT_LAMP_RAW</td>
+        <td colspan="2">metis_n_img_flat</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ff00">metis_n_img_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ffff">metis_n_img_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_trace [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_trace</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_LSS_RSRF_PINH_RAW</td>
+        <td colspan="2">metis_lm_lss_trace</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff0000">metis_lm_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ff00">metis_lm_lss_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff8d6a">metis_lm_lss_rsrf</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    </table>>]
+
+        metis_pupil_imaging [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_pupil_imaging</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_PUPIL_RAW</td>
+        <td colspan="2">metis_pupil_imaging</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#e4de01">metis_lm_img_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#007358">metis_lm_img_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#9904ff">metis_lm_img_flat</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_basic_reduce_sci [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_basic_reduce_sci</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_IMAGE_SCI_RAW</td>
+        <td colspan="2">metis_lm_img_basic_reduce</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#e4de01">metis_lm_img_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#007358">metis_lm_img_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#9904ff">metis_lm_img_flat</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_basic_reduce_sky [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_basic_reduce_sky</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_IMAGE_SKY_RAW</td>
+        <td colspan="2">metis_lm_img_basic_reduce</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#e4de01">metis_lm_img_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#007358">metis_lm_img_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#9904ff">metis_lm_img_flat</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_wavecal [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_wavecal</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>IFU_WAVE_RAW</td>
+        <td colspan="2">metis_ifu_wavecal</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#2fabc1">metis_ifu_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#cd9763">metis_ifu_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#04ffb0">metis_ifu_distortion</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_trace [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_trace</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_LSS_RSRF_PINH_RAW</td>
+        <td colspan="2">metis_n_lss_trace</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">N_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ac4552">metis_n_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#cd9763">metis_n_lss_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#04ffb0">metis_n_lss_rsrf</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_chopnod_sci [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_chopnod_sci</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_IMAGE_SCI_RAW</td>
+        <td colspan="2">metis_n_img_chopnod</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ffff">metis_n_img_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ff00">metis_n_img_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff8d6a">metis_n_img_flat</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_chopnod_std [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_chopnod_std</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_IMAGE_STD_RAW</td>
+        <td colspan="2">metis_n_img_chopnod</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ffff">metis_n_img_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ff00">metis_n_img_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff8d6a">metis_n_img_flat</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_wave [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_wave</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_LSS_WAVE_RAW</td>
+        <td colspan="2">metis_lm_lss_wave</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left">LASER_TAB</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff0000">metis_lm_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ff00">metis_lm_lss_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff8d6a">metis_lm_lss_rsrf</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#0000ff">metis_lm_lss_trace</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_background_std [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_background_std</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#00ffff">metis_lm_img_basic_reduce_sci</font></td>
+        <td colspan="2">metis_lm_img_background</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#9904ff">metis_lm_img_basic_reduce_sky</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_background_sci [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_background_sci</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#00ffff">metis_lm_img_basic_reduce_sci</font></td>
+        <td colspan="2">metis_lm_img_background</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#9904ff">metis_lm_img_basic_reduce_sky</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_rsrf [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_rsrf</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>RSRF_IFU</td>
+        <td colspan="2">metis_ifu_rsrf</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#2fabc1">metis_ifu_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#cd9763">metis_ifu_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#04ffb0">metis_ifu_distortion</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">IFU_WCU_OFF_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#bcadff">metis_ifu_wavecal</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_std [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_lss_std</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_LSS_STD_RAW</td>
+        <td colspan="2">metis_n_lss_std</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_GEO</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">GAIN_MAP_GEO</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LINEARITY_GEO</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ac4552">metis_n_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#04ffb0">metis_n_lss_rsrf</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#2fabc1">metis_n_lss_trace</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#0000ff">metis_n_adc_slitloss</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">REF_STD_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_LSS_SYNTH_TRANS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_LSS_DIST_SOL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_LSS_WAVE_GUESS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_ADC_SLITLOSS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">AO_PSF_MODEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_standard_flux [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_standard_flux</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#007358">metis_n_img_chopnod_std</font></td>
+        <td colspan="2">metis_n_img_std_process</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">FLUXSTD_CATALOG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_std [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_lss_std</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_LSS_STD_RAW</td>
+        <td colspan="2">metis_lm_lss_std</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_2RG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">GAIN_MAP_2RG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LINEARITY_2RG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff0000">metis_lm_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff8d6a">metis_lm_lss_rsrf</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#0000ff">metis_lm_lss_trace</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ff00">metis_lm_lss_wave</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#e4de01">metis_lm_lss_adc_slitloss</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">REF_STD_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_LSS_SYNTH_TRANS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_LSS_DIST_SOL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_LSS_WAVE_GUESS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_ADC_SLITLOSS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">AO_PSF_MODEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_standard_flux [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_standard_flux</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#5e2903">metis_lm_img_background_std</font></td>
+        <td colspan="2">metis_lm_img_std_process</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">FLUXSTD_CATALOG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_std_reduce [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_std_reduce</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>IFU_STD_RAW</td>
+        <td colspan="2">metis_ifu_reduce</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#2fabc1">metis_ifu_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#cd9763">metis_ifu_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#04ffb0">metis_ifu_distortion</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#bcadff">metis_ifu_wavecal</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ac4552">metis_ifu_rsrf</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">IFU_SKY_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_sci_reduce [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_sci_reduce</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>IFU_SCI_RAW</td>
+        <td colspan="2">metis_ifu_reduce</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#2fabc1">metis_ifu_lingain</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#cd9763">metis_ifu_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#04ffb0">metis_ifu_distortion</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#bcadff">metis_ifu_wavecal</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ac4552">metis_ifu_rsrf</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">IFU_SKY_RAW</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_sci [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_lss_sci</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_LSS_SCI_RAW</td>
+        <td colspan="2">metis_n_lss_sci</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_GEO</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">GAIN_MAP_GEO</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LINEARITY_GEO</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ac4552">metis_n_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#04ffb0">metis_n_lss_rsrf</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#2fabc1">metis_n_lss_trace</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_LSS_DIST_SOL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_LSS_WAVE_GUESS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#bcadff">metis_n_lss_std</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_ADC_SLITLOSS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">AO_PSF_MODEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_calib [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_calib</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#ff0000">metis_n_img_chopnod_sci</font></td>
+        <td colspan="2">metis_n_img_calibrate</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#0000ff">metis_n_img_standard_flux</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#5e2903">metis_n_img_distortion</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_sci [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_lss_sci</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_LSS_SCI_RAW</td>
+        <td colspan="2">metis_lm_lss_sci</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_2RG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">GAIN_MAP_2RG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LINEARITY_2RG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff0000">metis_lm_lss_dark</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff8d6a">metis_lm_lss_rsrf</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#0000ff">metis_lm_lss_trace</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#00ff00">metis_lm_lss_wave</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_LSS_DIST_SOL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_LSS_WAVE_GUESS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff8d6a">metis_lm_lss_std</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_ADC_SLITLOSS</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">AO_PSF_MODEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_calib [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_calib</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#2fabc1">metis_lm_img_background_sci</font></td>
+        <td colspan="2">metis_lm_img_calibrate</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#5e2903">metis_lm_img_standard_flux</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#bcadff">metis_lm_img_cal_distortion</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_std_telluric [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_std_telluric</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#0000ff">metis_ifu_std_reduce</font></td>
+        <td colspan="2">metis_ifu_telluric</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">FLUXSTD_CATALOG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_sci_telluric [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_sci_telluric</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#007358">metis_ifu_sci_reduce</font></td>
+        <td colspan="2">metis_ifu_telluric</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">FLUXSTD_CATALOG</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_mf_model [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_mf_model</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#bcadff">metis_n_lss_std</font></td>
+        <td colspan="2">metis_n_lss_mf_model</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#bcadff">metis_n_lss_std</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ac4552">metis_n_lss_sci</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_restore [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_restore</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#ea09ff">metis_n_img_calib</font></td>
+        <td colspan="2">metis_n_img_restore</td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_mf_model [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_mf_model</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#ff0000">metis_lm_lss_sci</font></td>
+        <td colspan="2">metis_lm_lss_mf_model</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff0000">metis_lm_lss_sci</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff8d6a">metis_lm_lss_std</font></td>
+        <td rowspan="1"><font color="green">&#x2713;</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_coadd [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_coadd</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#04ffb0">metis_lm_img_calib</font></td>
+        <td colspan="2">metis_lm_img_sci_postprocess</td>
+    </tr>
+    </table>>]
+
+        metis_ifu_calibrate [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_calibrate</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#007358">metis_ifu_sci_reduce</font></td>
+        <td colspan="2">metis_ifu_calibrate</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#e4de01">metis_ifu_sci_telluric</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ea09ff">metis_ifu_std_telluric</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_mf_calctrans [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_mf_calctrans</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#ea09ff">metis_n_lss_mf_model</font></td>
+        <td colspan="2">metis_n_lss_mf_calctrans</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_mf_calctrans [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_mf_calctrans</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#00ffff">metis_lm_lss_mf_model</font></td>
+        <td colspan="2">metis_lm_lss_mf_calctrans</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_postprocess [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_ifu_postprocess</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#9904ff">metis_ifu_calibrate</font></td>
+        <td colspan="2">metis_ifu_postprocess</td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_mf_correct [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_lss_mf_correct</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#ac4552">metis_n_lss_sci</font></td>
+        <td colspan="2">metis_n_lss_mf_correct</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#cd9763">metis_n_lss_mf_calctrans</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_mf_correct [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_lss_mf_correct</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="#ff0000">metis_lm_lss_sci</font></td>
+        <td colspan="2">metis_lm_lss_mf_correct</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+        <td bgcolor="lightgrey"><b>Opt</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="#ff0000">metis_lm_lss_mf_calctrans</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+        <td rowspan="1"><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+
+
+    "metis_lm_lss_trace" -> "metis_lm_lss_sci" [color="#0000ff"]
+    "metis_lm_lss_trace" -> "metis_lm_lss_std" [color="#0000ff"]
+    "metis_lm_lss_trace" -> "metis_lm_lss_wave" [color="#0000ff"]
+    "metis_lm_lss_dark" -> "metis_lm_lss_trace" [color="#ff0000"]
+    "metis_lm_lss_dark" -> "metis_lm_lss_sci" [color="#ff0000"]
+    "metis_lm_lss_dark" -> "metis_lm_lss_std" [color="#ff0000"]
+    "metis_lm_lss_dark" -> "metis_lm_lss_lingain" [color="#ff0000"]
+    "metis_lm_lss_dark" -> "metis_lm_lss_rsrf" [color="#ff0000"]
+    "metis_lm_lss_dark" -> "metis_lm_lss_wave" [color="#ff0000"]
+    "metis_lm_lss_lingain" -> "metis_lm_lss_trace" [color="#00ff00"]
+    "metis_lm_lss_lingain" -> "metis_lm_lss_rsrf" [color="#00ff00"]
+    "metis_lm_lss_lingain" -> "metis_lm_lss_wave" [color="#00ff00"]
+    "metis_lm_lss_rsrf" -> "metis_lm_lss_trace" [color="#ff8d6a"]
+    "metis_lm_lss_rsrf" -> "metis_lm_lss_sci" [color="#ff8d6a"]
+    "metis_lm_lss_rsrf" -> "metis_lm_lss_std" [color="#ff8d6a"]
+    "metis_lm_lss_rsrf" -> "metis_lm_lss_wave" [color="#ff8d6a"]
+    "metis_n_img_distortion" -> "metis_n_img_calib" [color="#5e2903"]
+    "metis_n_img_lingain" -> "metis_n_img_distortion" [color="#00ffff"]
+    "metis_n_img_lingain" -> "metis_n_img_chopnod_sci" [color="#00ffff"]
+    "metis_n_img_lingain" -> "metis_n_img_chopnod_std" [color="#00ffff"]
+    "metis_n_img_lingain" -> "metis_n_img_flat" [color="#00ffff"]
+    "metis_ifu_calibrate" -> "metis_ifu_postprocess" [color="#9904ff"]
+    "metis_ifu_sci_reduce" -> "metis_ifu_calibrate" [color="#007358"]
+    "metis_ifu_sci_reduce" -> "metis_ifu_sci_telluric" [color="#007358"]
+    "metis_ifu_sci_telluric" -> "metis_ifu_calibrate" [color="#e4de01"]
+    "metis_ifu_std_telluric" -> "metis_ifu_calibrate" [color="#ea09ff"]
+    "metis_ifu_rsrf" -> "metis_ifu_std_reduce" [color="#ac4552"]
+    "metis_ifu_rsrf" -> "metis_ifu_sci_reduce" [color="#ac4552"]
+    "metis_ifu_lingain" -> "metis_ifu_rsrf" [color="#2fabc1"]
+    "metis_ifu_lingain" -> "metis_ifu_std_reduce" [color="#2fabc1"]
+    "metis_ifu_lingain" -> "metis_ifu_sci_reduce" [color="#2fabc1"]
+    "metis_ifu_lingain" -> "metis_ifu_wavecal" [color="#2fabc1"]
+    "metis_ifu_lingain" -> "metis_ifu_dark" [color="#2fabc1"]
+    "metis_ifu_lingain" -> "metis_ifu_distortion" [color="#2fabc1"]
+    "metis_ifu_dark" -> "metis_ifu_rsrf" [color="#cd9763"]
+    "metis_ifu_dark" -> "metis_ifu_std_reduce" [color="#cd9763"]
+    "metis_ifu_dark" -> "metis_ifu_sci_reduce" [color="#cd9763"]
+    "metis_ifu_dark" -> "metis_ifu_wavecal" [color="#cd9763"]
+    "metis_ifu_dark" -> "metis_ifu_distortion" [color="#cd9763"]
+    "metis_ifu_distortion" -> "metis_ifu_rsrf" [color="#04ffb0"]
+    "metis_ifu_distortion" -> "metis_ifu_std_reduce" [color="#04ffb0"]
+    "metis_ifu_distortion" -> "metis_ifu_sci_reduce" [color="#04ffb0"]
+    "metis_ifu_distortion" -> "metis_ifu_wavecal" [color="#04ffb0"]
+    "metis_ifu_wavecal" -> "metis_ifu_rsrf" [color="#bcadff"]
+    "metis_ifu_wavecal" -> "metis_ifu_std_reduce" [color="#bcadff"]
+    "metis_ifu_wavecal" -> "metis_ifu_sci_reduce" [color="#bcadff"]
+    "metis_ifu_std_reduce" -> "metis_ifu_std_telluric" [color="#0000ff"]
+    "metis_n_img_chopnod_sci" -> "metis_n_img_calib" [color="#ff0000"]
+    "metis_n_img_dark" -> "metis_n_img_chopnod_sci" [color="#00ff00"]
+    "metis_n_img_dark" -> "metis_n_img_chopnod_std" [color="#00ff00"]
+    "metis_n_img_dark" -> "metis_n_img_lingain" [color="#00ff00"]
+    "metis_n_img_dark" -> "metis_n_img_flat" [color="#00ff00"]
+    "metis_n_img_flat" -> "metis_n_img_chopnod_sci" [color="#ff8d6a"]
+    "metis_n_img_flat" -> "metis_n_img_chopnod_std" [color="#ff8d6a"]
+    "metis_lm_img_background_std" -> "metis_lm_img_standard_flux" [color="#5e2903"]
+    "metis_lm_img_basic_reduce_sci" -> "metis_lm_img_background_std" [color="#00ffff"]
+    "metis_lm_img_basic_reduce_sci" -> "metis_lm_img_background_sci" [color="#00ffff"]
+    "metis_lm_img_basic_reduce_sky" -> "metis_lm_img_background_std" [color="#9904ff"]
+    "metis_lm_img_basic_reduce_sky" -> "metis_lm_img_background_sci" [color="#9904ff"]
+    "metis_n_img_chopnod_std" -> "metis_n_img_standard_flux" [color="#007358"]
+    "metis_lm_lss_adc_slitloss" -> "metis_lm_lss_std" [color="#e4de01"]
+    "metis_n_img_calib" -> "metis_n_img_restore" [color="#ea09ff"]
+    "metis_n_lss_dark" -> "metis_n_lss_trace" [color="#ac4552"]
+    "metis_n_lss_dark" -> "metis_n_lss_std" [color="#ac4552"]
+    "metis_n_lss_dark" -> "metis_n_lss_sci" [color="#ac4552"]
+    "metis_n_lss_dark" -> "metis_n_lss_lingain" [color="#ac4552"]
+    "metis_n_lss_dark" -> "metis_n_lss_rsrf" [color="#ac4552"]
+    "metis_n_lss_trace" -> "metis_n_lss_std" [color="#2fabc1"]
+    "metis_n_lss_trace" -> "metis_n_lss_sci" [color="#2fabc1"]
+    "metis_n_lss_lingain" -> "metis_n_lss_trace" [color="#cd9763"]
+    "metis_n_lss_lingain" -> "metis_n_lss_rsrf" [color="#cd9763"]
+    "metis_n_lss_rsrf" -> "metis_n_lss_trace" [color="#04ffb0"]
+    "metis_n_lss_rsrf" -> "metis_n_lss_std" [color="#04ffb0"]
+    "metis_n_lss_rsrf" -> "metis_n_lss_sci" [color="#04ffb0"]
+    "metis_n_lss_std" -> "metis_n_lss_mf_model" [color="#bcadff"]
+    "metis_n_lss_std" -> "metis_n_lss_sci" [color="#bcadff"]
+    "metis_n_adc_slitloss" -> "metis_n_lss_std" [color="#0000ff"]
+    "metis_lm_lss_sci" -> "metis_lm_lss_mf_model" [color="#ff0000"]
+    "metis_lm_lss_sci" -> "metis_lm_lss_mf_correct" [color="#ff0000"]
+    "metis_lm_lss_wave" -> "metis_lm_lss_sci" [color="#00ff00"]
+    "metis_lm_lss_wave" -> "metis_lm_lss_std" [color="#00ff00"]
+    "metis_lm_lss_std" -> "metis_lm_lss_sci" [color="#ff8d6a"]
+    "metis_lm_lss_std" -> "metis_lm_lss_mf_model" [color="#ff8d6a"]
+    "metis_lm_img_standard_flux" -> "metis_lm_img_calib" [color="#5e2903"]
+    "metis_lm_lss_mf_model" -> "metis_lm_lss_mf_calctrans" [color="#00ffff"]
+    "metis_lm_img_flat" -> "metis_pupil_imaging" [color="#9904ff"]
+    "metis_lm_img_flat" -> "metis_lm_img_basic_reduce_sci" [color="#9904ff"]
+    "metis_lm_img_flat" -> "metis_lm_img_basic_reduce_sky" [color="#9904ff"]
+    "metis_lm_img_dark" -> "metis_lm_img_flat" [color="#007358"]
+    "metis_lm_img_dark" -> "metis_pupil_imaging" [color="#007358"]
+    "metis_lm_img_dark" -> "metis_lm_img_basic_reduce_sci" [color="#007358"]
+    "metis_lm_img_dark" -> "metis_lm_img_basic_reduce_sky" [color="#007358"]
+    "metis_lm_img_dark" -> "metis_lm_img_lingain" [color="#007358"]
+    "metis_lm_img_lingain" -> "metis_lm_img_flat" [color="#e4de01"]
+    "metis_lm_img_lingain" -> "metis_pupil_imaging" [color="#e4de01"]
+    "metis_lm_img_lingain" -> "metis_lm_img_cal_distortion" [color="#e4de01"]
+    "metis_lm_img_lingain" -> "metis_lm_img_basic_reduce_sci" [color="#e4de01"]
+    "metis_lm_img_lingain" -> "metis_lm_img_basic_reduce_sky" [color="#e4de01"]
+    "metis_n_lss_mf_model" -> "metis_n_lss_mf_calctrans" [color="#ea09ff"]
+    "metis_n_lss_sci" -> "metis_n_lss_mf_model" [color="#ac4552"]
+    "metis_n_lss_sci" -> "metis_n_lss_mf_correct" [color="#ac4552"]
+    "metis_lm_img_background_sci" -> "metis_lm_img_calib" [color="#2fabc1"]
+    "metis_n_lss_mf_calctrans" -> "metis_n_lss_mf_correct" [color="#cd9763"]
+    "metis_lm_img_calib" -> "metis_lm_img_coadd" [color="#04ffb0"]
+    "metis_lm_img_cal_distortion" -> "metis_lm_img_calib" [color="#bcadff"]
+    "metis_n_img_standard_flux" -> "metis_n_img_calib" [color="#0000ff"]
+    "metis_lm_lss_mf_calctrans" -> "metis_lm_lss_mf_correct" [color="#ff0000"]
+}
+
+
