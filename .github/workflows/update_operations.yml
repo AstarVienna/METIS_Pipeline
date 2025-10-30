@@ -64,7 +64,7 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           commit-message: "Update workflow figures"
-          branch: update-operations-wiki-export
+          branch: update-workflow-figures
           delete-branch: true
           title: "[Assist PR] Update workflow figures"
           body: |
