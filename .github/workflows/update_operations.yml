@@ -55,7 +55,10 @@ jobs:
       ### End of copy from run_edps_cached.yaml ###
 
       - name: Create figures
-        run: bash toolbox/make_edps_graphs.sh
+        run: |
+          # https://askubuntu.com/questions/503567/dot-doesnt-recognize-any-formats
+          dot -c
+          bash toolbox/make_edps_graphs.sh
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
