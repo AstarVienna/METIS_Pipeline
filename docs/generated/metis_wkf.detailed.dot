@@ -19,6 +19,66 @@ strict digraph {
     node [shape=plain fontsize=24]
     edge [colorscheme=spectral11 penwidth=8]
 
+        metis_lm_img_dark [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_dark</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DARK_2RG_RAW</td>
+        <td colspan="2">metis_det_dark</td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_dark [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_dark</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DARK_2RG_RAW</td>
+        <td colspan="2">metis_det_dark</td>
+    </tr>
+    </table>>]
+
+        metis_ifu_lingain [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_lingain</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DETLIN_IFU_RAW</td>
+        <td colspan="2">metis_det_lingain</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">IFU_WCU_OFF_RAW</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
         metis_n_adc_slitloss [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
@@ -44,10 +104,10 @@ strict digraph {
     </tr>
     </table>>]
 
-        metis_n_img_dark [label=<
+        metis_n_lss_dark [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_dark</font></td>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_dark</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
@@ -59,10 +119,10 @@ strict digraph {
     </tr>
     </table>>]
 
-        metis_n_lss_dark [label=<
+        metis_n_img_dark [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_dark</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_dark</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
@@ -99,77 +159,17 @@ strict digraph {
     </tr>
     </table>>]
 
-        metis_ifu_lingain [label=<
+        metis_lm_img_lingain [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_lingain</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_lingain</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td>DETLIN_IFU_RAW</td>
-        <td colspan="2">metis_det_lingain</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">BADPIX_MAP_IFU</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">IFU_WCU_OFF_RAW</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_lm_img_dark [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_dark</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>DARK_2RG_RAW</td>
-        <td colspan="2">metis_det_dark</td>
-    </tr>
-    </table>>]
-
-        metis_lm_lss_dark [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_dark</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>DARK_2RG_RAW</td>
-        <td colspan="2">metis_det_dark</td>
-    </tr>
-    </table>>]
-
-        metis_n_img_lingain [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_lingain</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>DETLIN_GEO_RAW</td>
+        <td>DETLIN_2RG_RAW</td>
         <td colspan="2">metis_det_lingain</td>
     </tr>
     <tr>
@@ -178,7 +178,7 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/11">metis_n_img_dark</font></td>
+        <td align="left"><font color="/spectral11/11">metis_lm_img_dark</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -188,8 +188,83 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left">N_WCU_OFF_RAW</td>
+        <td align="left">LM_WCU_OFF_RAW</td>
         <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_lingain [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_lingain</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DETLIN_2RG_RAW</td>
+        <td colspan="2">metis_det_lingain</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/1">metis_lm_lss_dark</font></td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_dark [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_dark</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>DARK_IFU_RAW</td>
+        <td colspan="2">metis_det_dark</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/4">metis_ifu_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td><font color="red">x</font></td>
         <td><font color="red">x</font></td>
     </tr>
     </table>>]
@@ -229,57 +304,17 @@ strict digraph {
     </tr>
     </table>>]
 
-        metis_ifu_dark [label=<
+        metis_n_img_lingain [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_dark</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_lingain</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td>DARK_IFU_RAW</td>
-        <td colspan="2">metis_det_dark</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/11">metis_ifu_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">BADPIX_MAP_IFU</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">PERSISTENCE_MAP</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_lm_img_lingain [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_lingain</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>DETLIN_2RG_RAW</td>
+        <td>DETLIN_GEO_RAW</td>
         <td colspan="2">metis_det_lingain</td>
     </tr>
     <tr>
@@ -288,7 +323,7 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/1">metis_lm_img_dark</font></td>
+        <td align="left"><font color="/spectral11/10">metis_n_img_dark</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -298,24 +333,24 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left">LM_WCU_OFF_RAW</td>
+        <td align="left">N_WCU_OFF_RAW</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     </table>>]
 
-        metis_lm_lss_lingain [label=<
+        metis_lm_img_cal_distortion [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_lingain</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_cal_distortion</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td>DETLIN_2RG_RAW</td>
-        <td colspan="2">metis_det_lingain</td>
+        <td>LM_DISTORTION_RAW</td>
+        <td colspan="2">metis_lm_img_distortion</td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
@@ -323,72 +358,7 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/10">metis_lm_lss_dark</font></td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">LM_WCU_OFF_RAW</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_n_img_flat [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_flat</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>N_FLAT_LAMP_RAW</td>
-        <td colspan="2">metis_n_img_flat</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/11">metis_n_img_dark</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/1">metis_n_img_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_n_img_distortion [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_distortion</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>N_DISTORTION_RAW</td>
-        <td colspan="2">metis_n_img_distortion</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/1">metis_n_img_lingain</font></td>
+        <td align="left"><font color="/spectral11/10">metis_lm_img_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -403,7 +373,127 @@ strict digraph {
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">N_WCU_OFF_RAW</td>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_flat [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_flat</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_FLAT_LAMP_RAW</td>
+        <td colspan="2">metis_lm_img_flat</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/11">metis_lm_img_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/10">metis_lm_img_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_rsrf [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_rsrf</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_LSS_RSRF_RAW</td>
+        <td colspan="2">metis_lm_lss_rsrf</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/3">metis_lm_lss_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/1">metis_lm_lss_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">LM_WCU_OFF_RAW</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_distortion [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_distortion</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>IFU_DISTORTION_RAW</td>
+        <td colspan="2">metis_ifu_distortion</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/4">metis_ifu_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/8">metis_ifu_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PINHOLE_TABLE</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -433,7 +523,7 @@ strict digraph {
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/8">metis_n_lss_lingain</font></td>
+        <td align="left"><font color="/spectral11/4">metis_n_lss_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -449,18 +539,18 @@ strict digraph {
     </tr>
     </table>>]
 
-        metis_ifu_distortion [label=<
+        metis_n_img_flat [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_distortion</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_flat</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td>IFU_DISTORTION_RAW</td>
-        <td colspan="2">metis_ifu_distortion</td>
+        <td>N_FLAT_LAMP_RAW</td>
+        <td colspan="2">metis_n_img_flat</td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
@@ -468,12 +558,37 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/2">metis_ifu_dark</font></td>
+        <td align="left"><font color="/spectral11/10">metis_n_img_dark</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/11">metis_ifu_lingain</font></td>
+        <td align="left"><font color="/spectral11/2">metis_n_img_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_distortion [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_n_img_distortion</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_DISTORTION_RAW</td>
+        <td colspan="2">metis_n_img_distortion</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/2">metis_n_img_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -481,300 +596,15 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
         <td bgcolor="lightgrey"><b>Mand</b></td>
         <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">PERSISTENCE_MAP</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">PINHOLE_TABLE</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">BADPIX_MAP_IFU</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_lm_img_flat [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_flat</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>LM_FLAT_LAMP_RAW</td>
-        <td colspan="2">metis_lm_img_flat</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/11">metis_lm_img_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/1">metis_lm_img_dark</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_lm_img_cal_distortion [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_lm_img_cal_distortion</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>LM_DISTORTION_RAW</td>
-        <td colspan="2">metis_lm_img_distortion</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/11">metis_lm_img_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">LM_WCU_OFF_RAW</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">PINHOLE_TABLE</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_lm_lss_rsrf [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_rsrf</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>LM_LSS_RSRF_RAW</td>
-        <td colspan="2">metis_lm_lss_rsrf</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/10">metis_lm_lss_dark</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/7">metis_lm_lss_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">LM_WCU_OFF_RAW</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_n_img_chopnod_std [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_chopnod_std</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>N_IMAGE_STD_RAW</td>
-        <td colspan="2">metis_n_img_chopnod</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/11">metis_n_img_dark</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/2">metis_n_img_flat</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/1">metis_n_img_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_n_img_chopnod_sci [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_chopnod_sci</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>N_IMAGE_SCI_RAW</td>
-        <td colspan="2">metis_n_img_chopnod</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/11">metis_n_img_dark</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/2">metis_n_img_flat</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/1">metis_n_img_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_n_lss_trace [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_trace</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>N_LSS_RSRF_PINH_RAW</td>
-        <td colspan="2">metis_n_lss_trace</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/5">metis_n_lss_rsrf</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/8">metis_n_lss_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/4">metis_n_lss_dark</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">PERSISTENCE_MAP</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
     </tr>
     <tr>
         <td align="left">N_WCU_OFF_RAW</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
-    </table>>]
-
-        metis_ifu_wavecal [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_wavecal</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>IFU_WAVE_RAW</td>
-        <td colspan="2">metis_ifu_wavecal</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/2">metis_ifu_dark</font></td>
+        <td align="left">PINHOLE_TABLE</td>
         <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/1">metis_ifu_distortion</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/11">metis_ifu_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">PERSISTENCE_MAP</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">BADPIX_MAP_IFU</td>
-        <td><font color="red">x</font></td>
         <td><font color="red">x</font></td>
     </tr>
     </table>>]
@@ -798,17 +628,17 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/11">metis_lm_img_lingain</font></td>
+        <td align="left"><font color="/spectral11/3">metis_lm_img_flat</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/7">metis_lm_img_flat</font></td>
+        <td align="left"><font color="/spectral11/11">metis_lm_img_dark</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/1">metis_lm_img_dark</font></td>
+        <td align="left"><font color="/spectral11/10">metis_lm_img_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -833,17 +663,17 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/11">metis_lm_img_lingain</font></td>
+        <td align="left"><font color="/spectral11/3">metis_lm_img_flat</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/7">metis_lm_img_flat</font></td>
+        <td align="left"><font color="/spectral11/11">metis_lm_img_dark</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/1">metis_lm_img_dark</font></td>
+        <td align="left"><font color="/spectral11/10">metis_lm_img_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -868,17 +698,17 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/11">metis_lm_img_lingain</font></td>
+        <td align="left"><font color="/spectral11/3">metis_lm_img_flat</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/7">metis_lm_img_flat</font></td>
+        <td align="left"><font color="/spectral11/11">metis_lm_img_dark</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/1">metis_lm_img_dark</font></td>
+        <td align="left"><font color="/spectral11/10">metis_lm_img_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -903,17 +733,17 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/3">metis_lm_lss_rsrf</font></td>
+        <td align="left"><font color="/spectral11/3">metis_lm_lss_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/7">metis_lm_lss_lingain</font></td>
+        <td align="left"><font color="/spectral11/1">metis_lm_lss_dark</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/10">metis_lm_lss_dark</font></td>
+        <td align="left"><font color="/spectral11/11">metis_lm_lss_rsrf</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -921,56 +751,31 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
         <td bgcolor="lightgrey"><b>Mand</b></td>
         <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">LM_WCU_OFF_RAW</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
     </tr>
     <tr>
         <td align="left">PERSISTENCE_MAP</td>
         <td><font color="red">x</font></td>
         <td><font color="red">x</font></td>
     </tr>
-    </table>>]
-
-        metis_n_img_standard_flux [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_standard_flux</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td><font color="/spectral11/7">metis_n_img_chopnod_std</font></td>
-        <td colspan="2">metis_n_img_std_process</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">FLUXSTD_CATALOG</td>
+        <td align="left">LM_WCU_OFF_RAW</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     </table>>]
 
-        metis_n_lss_std [label=<
+        metis_ifu_wavecal [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_lss_std</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_wavecal</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td>N_LSS_STD_RAW</td>
-        <td colspan="2">metis_n_lss_std</td>
+        <td>IFU_WAVE_RAW</td>
+        <td colspan="2">metis_ifu_wavecal</td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
@@ -978,12 +783,62 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/5">metis_n_lss_rsrf</font></td>
+        <td align="left"><font color="/spectral11/4">metis_ifu_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/9">metis_n_lss_trace</font></td>
+        <td align="left"><font color="/spectral11/8">metis_ifu_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/5">metis_ifu_distortion</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_trace [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_trace</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_LSS_RSRF_PINH_RAW</td>
+        <td colspan="2">metis_n_lss_trace</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/11">metis_n_lss_rsrf</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/4">metis_n_lss_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -993,7 +848,177 @@ strict digraph {
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/5">metis_n_adc_slitloss</font></td>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_WCU_OFF_RAW</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_chopnod_sci [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_chopnod_sci</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_IMAGE_SCI_RAW</td>
+        <td colspan="2">metis_n_img_chopnod</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/10">metis_n_img_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/2">metis_n_img_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/7">metis_n_img_flat</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_chopnod_std [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_chopnod_std</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_IMAGE_STD_RAW</td>
+        <td colspan="2">metis_n_img_chopnod</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/10">metis_n_img_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/2">metis_n_img_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/7">metis_n_img_flat</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_background_sci [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_background_sci</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="/spectral11/8">metis_lm_img_basic_reduce_sci</font></td>
+        <td colspan="2">metis_lm_img_background</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/8">metis_lm_img_basic_reduce_sky</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_img_background_std [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_background_std</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="/spectral11/8">metis_lm_img_basic_reduce_sci</font></td>
+        <td colspan="2">metis_lm_img_background</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/8">metis_lm_img_basic_reduce_sky</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_wave [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_wave</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>LM_LSS_WAVE_RAW</td>
+        <td colspan="2">metis_lm_lss_wave</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/3">metis_lm_lss_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/2">metis_lm_lss_trace</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/1">metis_lm_lss_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/11">metis_lm_lss_rsrf</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1003,57 +1028,17 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left">REF_STD_CAT</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">BADPIX_MAP_GEO</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
         <td align="left">PERSISTENCE_MAP</td>
         <td><font color="red">x</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">ATM_LINE_CAT</td>
+        <td align="left">LM_WCU_OFF_RAW</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">N_LSS_WAVE_GUESS</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">AO_PSF_MODEL</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">N_LSS_SYNTH_TRANS</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">LINEARITY_GEO</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">N_ADC_SLITLOSS</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">N_LSS_DIST_SOL</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">GAIN_MAP_GEO</td>
+        <td align="left">LASER_TAB</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1078,22 +1063,22 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/10">metis_ifu_wavecal</font></td>
+        <td align="left"><font color="/spectral11/4">metis_ifu_lingain</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/2">metis_ifu_dark</font></td>
+        <td align="left"><font color="/spectral11/8">metis_ifu_dark</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/1">metis_ifu_distortion</font></td>
+        <td align="left"><font color="/spectral11/7">metis_ifu_wavecal</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/11">metis_ifu_lingain</font></td>
+        <td align="left"><font color="/spectral11/5">metis_ifu_distortion</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1119,18 +1104,18 @@ strict digraph {
     </tr>
     </table>>]
 
-        metis_lm_img_background_sci [label=<
+        metis_n_lss_std [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_background_sci</font></td>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_lss_std</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/3">metis_lm_img_basic_reduce_sci</font></td>
-        <td colspan="2">metis_lm_img_background</td>
+        <td>N_LSS_STD_RAW</td>
+        <td colspan="2">metis_n_lss_std</td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
@@ -1138,157 +1123,17 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/9">metis_lm_img_basic_reduce_sky</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_lm_img_background_std [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_lm_img_background_std</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td><font color="/spectral11/3">metis_lm_img_basic_reduce_sci</font></td>
-        <td colspan="2">metis_lm_img_background</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/9">metis_lm_img_basic_reduce_sky</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_lm_lss_wave [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_wave</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>LM_LSS_WAVE_RAW</td>
-        <td colspan="2">metis_lm_lss_wave</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/3">metis_lm_lss_rsrf</font></td>
+        <td align="left"><font color="/spectral11/2">metis_n_lss_trace</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/9">metis_lm_lss_trace</font></td>
+        <td align="left"><font color="/spectral11/9">metis_n_adc_slitloss</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/7">metis_lm_lss_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/10">metis_lm_lss_dark</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">LASER_TAB</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">LM_WCU_OFF_RAW</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">PERSISTENCE_MAP</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_n_img_calib [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_calib</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td><font color="/spectral11/2">metis_n_img_chopnod_sci</font></td>
-        <td colspan="2">metis_n_img_calibrate</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/10">metis_n_img_distortion</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/1">metis_n_img_standard_flux</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_n_lss_sci [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_lss_sci</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>N_LSS_SCI_RAW</td>
-        <td colspan="2">metis_n_lss_sci</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/5">metis_n_lss_rsrf</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/9">metis_n_lss_std</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/9">metis_n_lss_trace</font></td>
+        <td align="left"><font color="/spectral11/11">metis_n_lss_rsrf</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1303,6 +1148,11 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
+        <td align="left">N_LSS_SYNTH_TRANS</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
         <td align="left">BADPIX_MAP_GEO</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
@@ -1310,6 +1160,11 @@ strict digraph {
     <tr>
         <td align="left">PERSISTENCE_MAP</td>
         <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">AO_PSF_MODEL</td>
+        <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
@@ -1323,12 +1178,7 @@ strict digraph {
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">AO_PSF_MODEL</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">LINEARITY_GEO</td>
+        <td align="left">N_LSS_DIST_SOL</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1338,7 +1188,12 @@ strict digraph {
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">N_LSS_DIST_SOL</td>
+        <td align="left">REF_STD_CAT</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LINEARITY_GEO</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1349,48 +1204,18 @@ strict digraph {
     </tr>
     </table>>]
 
-        metis_ifu_std_reduce [label=<
+        metis_n_img_standard_flux [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_std_reduce</font></td>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_standard_flux</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td>IFU_STD_RAW</td>
-        <td colspan="2">metis_ifu_reduce</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/10">metis_ifu_wavecal</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/2">metis_ifu_dark</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/1">metis_ifu_distortion</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/3">metis_ifu_rsrf</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/11">metis_ifu_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
+        <td><font color="/spectral11/11">metis_n_img_chopnod_std</font></td>
+        <td colspan="2">metis_n_img_std_process</td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
@@ -1398,83 +1223,8 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left">PERSISTENCE_MAP</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">IFU_SKY_RAW</td>
+        <td align="left">FLUXSTD_CATALOG</td>
         <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">BADPIX_MAP_IFU</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    </table>>]
-
-        metis_ifu_sci_reduce [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_sci_reduce</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td>IFU_SCI_RAW</td>
-        <td colspan="2">metis_ifu_reduce</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/10">metis_ifu_wavecal</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/2">metis_ifu_dark</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/1">metis_ifu_distortion</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/3">metis_ifu_rsrf</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/11">metis_ifu_lingain</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">PERSISTENCE_MAP</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">IFU_SKY_RAW</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">BADPIX_MAP_IFU</td>
-        <td><font color="red">x</font></td>
         <td><font color="red">x</font></td>
     </tr>
     </table>>]
@@ -1489,7 +1239,7 @@ strict digraph {
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/9">metis_lm_img_background_std</font></td>
+        <td><font color="/spectral11/7">metis_lm_img_background_std</font></td>
         <td colspan="2">metis_lm_img_std_process</td>
     </tr>
     <tr>
@@ -1523,22 +1273,12 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/3">metis_lm_lss_rsrf</font></td>
+        <td align="left"><font color="/spectral11/10">metis_lm_lss_wave</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/9">metis_lm_lss_trace</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/4">metis_lm_lss_wave</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/10">metis_lm_lss_dark</font></td>
+        <td align="left"><font color="/spectral11/2">metis_lm_lss_trace</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1548,52 +1288,22 @@ strict digraph {
         <td><font color="red">x</font></td>
     </tr>
     <tr>
+        <td align="left"><font color="/spectral11/1">metis_lm_lss_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/11">metis_lm_lss_rsrf</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
         <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
         <td bgcolor="lightgrey"><b>Mand</b></td>
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left">REF_STD_CAT</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">LM_ADC_SLITLOSS</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">PERSISTENCE_MAP</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">GAIN_MAP_2RG</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">ATM_LINE_CAT</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">AO_PSF_MODEL</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">LINEARITY_2RG</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">LM_LSS_SYNTH_TRANS</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">LM_LSS_DIST_SOL</td>
+        <td align="left">BADPIX_MAP_2RG</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1603,62 +1313,22 @@ strict digraph {
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">BADPIX_MAP_2RG</td>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LINEARITY_2RG</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
-    </table>>]
-
-        metis_n_img_restore [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_restore</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td><font color="/spectral11/11">metis_n_img_calib</font></td>
-        <td colspan="2">metis_n_img_restore</td>
-    </tr>
-    </table>>]
-
-        metis_n_lss_mf_model [label=<
-    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
-    <tr>
-        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_mf_model</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
-        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
-    </tr>
-    <tr>
-        <td><font color="/spectral11/9">metis_n_lss_std</font></td>
-        <td colspan="2">metis_n_lss_mf_model</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/9">metis_n_lss_std</font></td>
+        <td align="left">GAIN_MAP_2RG</td>
         <td><font color="green">&#x2713;</font></td>
-        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/10">metis_n_lss_sci</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="green">&#x2713;</font></td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">LSF_KERNEL</td>
+        <td align="left">LM_LSS_DIST_SOL</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1668,24 +1338,69 @@ strict digraph {
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">ATM_PROFILE</td>
+        <td align="left">LM_ADC_SLITLOSS</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">AO_PSF_MODEL</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">REF_STD_CAT</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_LSS_SYNTH_TRANS</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     </table>>]
 
-        metis_ifu_std_telluric [label=<
+        metis_ifu_sci_reduce [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_std_telluric</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_sci_reduce</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/2">metis_ifu_std_reduce</font></td>
-        <td colspan="2">metis_ifu_telluric</td>
+        <td>IFU_SCI_RAW</td>
+        <td colspan="2">metis_ifu_reduce</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/4">metis_ifu_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/8">metis_ifu_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/7">metis_ifu_wavecal</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/1">metis_ifu_rsrf</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/5">metis_ifu_distortion</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
@@ -1693,34 +1408,64 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left">FLUXSTD_CATALOG</td>
-        <td><font color="green">&#x2713;</font></td>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td><font color="red">x</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">LSF_KERNEL</td>
-        <td><font color="green">&#x2713;</font></td>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td><font color="red">x</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">ATM_PROFILE</td>
+        <td align="left">IFU_SKY_RAW</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     </table>>]
 
-        metis_ifu_sci_telluric [label=<
+        metis_ifu_std_reduce [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_sci_telluric</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_std_reduce</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/8">metis_ifu_sci_reduce</font></td>
-        <td colspan="2">metis_ifu_telluric</td>
+        <td>IFU_STD_RAW</td>
+        <td colspan="2">metis_ifu_reduce</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/4">metis_ifu_lingain</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/8">metis_ifu_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/7">metis_ifu_wavecal</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/1">metis_ifu_rsrf</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/5">metis_ifu_distortion</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
@@ -1728,17 +1473,137 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left">FLUXSTD_CATALOG</td>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_IFU</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">IFU_SKY_RAW</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_sci [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_lss_sci</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td>N_LSS_SCI_RAW</td>
+        <td colspan="2">metis_n_lss_sci</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/2">metis_n_lss_trace</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">LSF_KERNEL</td>
+        <td align="left"><font color="/spectral11/11">metis_n_lss_rsrf</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">ATM_PROFILE</td>
+        <td align="left"><font color="/spectral11/4">metis_n_lss_dark</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/10">metis_n_lss_std</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">BADPIX_MAP_GEO</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">AO_PSF_MODEL</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_LSS_WAVE_GUESS</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_LSS_DIST_SOL</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">N_ADC_SLITLOSS</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LINEARITY_GEO</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">GAIN_MAP_GEO</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_img_calib [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_calib</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="/spectral11/9">metis_n_img_chopnod_sci</font></td>
+        <td colspan="2">metis_n_img_calibrate</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/1">metis_n_img_standard_flux</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/4">metis_n_img_distortion</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1754,7 +1619,7 @@ strict digraph {
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/10">metis_lm_img_background_sci</font></td>
+        <td><font color="/spectral11/3">metis_lm_img_background_sci</font></td>
         <td colspan="2">metis_lm_img_calibrate</td>
     </tr>
     <tr>
@@ -1763,12 +1628,12 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/8">metis_lm_img_standard_flux</font></td>
+        <td align="left"><font color="/spectral11/5">metis_lm_img_standard_flux</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/5">metis_lm_img_cal_distortion</font></td>
+        <td align="left"><font color="/spectral11/2">metis_lm_img_cal_distortion</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1793,27 +1658,27 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/3">metis_lm_lss_rsrf</font></td>
+        <td align="left"><font color="/spectral11/10">metis_lm_lss_wave</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/8">metis_lm_lss_std</font></td>
+        <td align="left"><font color="/spectral11/2">metis_lm_lss_trace</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/9">metis_lm_lss_trace</font></td>
+        <td align="left"><font color="/spectral11/1">metis_lm_lss_dark</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/4">metis_lm_lss_wave</font></td>
+        <td align="left"><font color="/spectral11/7">metis_lm_lss_std</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/10">metis_lm_lss_dark</font></td>
+        <td align="left"><font color="/spectral11/11">metis_lm_lss_rsrf</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1823,32 +1688,7 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left">LM_ADC_SLITLOSS</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">PERSISTENCE_MAP</td>
-        <td><font color="red">x</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">GAIN_MAP_2RG</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">ATM_LINE_CAT</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">AO_PSF_MODEL</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">LINEARITY_2RG</td>
+        <td align="left">BADPIX_MAP_2RG</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -1858,29 +1698,54 @@ strict digraph {
         <td><font color="red">x</font></td>
     </tr>
     <tr>
+        <td align="left">PERSISTENCE_MAP</td>
+        <td><font color="red">x</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LINEARITY_2RG</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">GAIN_MAP_2RG</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
         <td align="left">LM_LSS_DIST_SOL</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     <tr>
-        <td align="left">BADPIX_MAP_2RG</td>
+        <td align="left">ATM_LINE_CAT</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LM_ADC_SLITLOSS</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">AO_PSF_MODEL</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
     </table>>]
 
-        metis_n_lss_mf_calctrans [label=<
+        metis_ifu_sci_telluric [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_mf_calctrans</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_sci_telluric</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/11">metis_n_lss_mf_model</font></td>
-        <td colspan="2">metis_n_lss_mf_calctrans</td>
+        <td><font color="/spectral11/9">metis_ifu_sci_reduce</font></td>
+        <td colspan="2">metis_ifu_telluric</td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
@@ -1888,9 +1753,89 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
+        <td align="left">FLUXSTD_CATALOG</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
         <td align="left">LSF_KERNEL</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_ifu_std_telluric [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_std_telluric</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="/spectral11/11">metis_ifu_std_reduce</font></td>
+        <td colspan="2">metis_ifu_telluric</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">FLUXSTD_CATALOG</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_mf_model [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_mf_model</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="/spectral11/10">metis_n_lss_std</font></td>
+        <td colspan="2">metis_n_lss_mf_model</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/10">metis_n_lss_std</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/1">metis_n_lss_sci</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="green">&#x2713;</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
         <td align="left">ATM_LINE_CAT</td>
@@ -1902,35 +1847,25 @@ strict digraph {
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
     </table>>]
 
-        metis_ifu_calibrate [label=<
+        metis_n_img_restore [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_calibrate</font></td>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_img_restore</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/8">metis_ifu_sci_reduce</font></td>
-        <td colspan="2">metis_ifu_calibrate</td>
-    </tr>
-    <tr>
-        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
-        <td bgcolor="lightgrey"><b>Mand</b></td>
-        <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/5">metis_ifu_sci_telluric</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left"><font color="/spectral11/7">metis_ifu_std_telluric</font></td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
+        <td><font color="/spectral11/3">metis_n_img_calib</font></td>
+        <td colspan="2">metis_n_img_restore</td>
     </tr>
     </table>>]
 
@@ -1959,7 +1894,7 @@ strict digraph {
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/2">metis_lm_lss_sci</font></td>
+        <td><font color="/spectral11/5">metis_lm_lss_sci</font></td>
         <td colspan="2">metis_lm_lss_mf_model</td>
     </tr>
     <tr>
@@ -1968,12 +1903,12 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/2">metis_lm_lss_sci</font></td>
+        <td align="left"><font color="/spectral11/7">metis_lm_lss_std</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="green">&#x2713;</font></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/8">metis_lm_lss_std</font></td>
+        <td align="left"><font color="/spectral11/5">metis_lm_lss_sci</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="green">&#x2713;</font></td>
     </tr>
@@ -1981,11 +1916,6 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
         <td bgcolor="lightgrey"><b>Mand</b></td>
         <td bgcolor="lightgrey"><b>Cond</b></td>
-    </tr>
-    <tr>
-        <td align="left">LSF_KERNEL</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
     </tr>
     <tr>
         <td align="left">ATM_LINE_CAT</td>
@@ -1997,20 +1927,25 @@ strict digraph {
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
     </table>>]
 
-        metis_n_lss_mf_correct [label=<
+        metis_ifu_calibrate [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_lss_mf_correct</font></td>
+        <td bgcolor="white" colspan="3"><font point-size="30">Task metis_ifu_calibrate</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/10">metis_n_lss_sci</font></td>
-        <td colspan="2">metis_n_lss_mf_correct</td>
+        <td><font color="/spectral11/9">metis_ifu_sci_reduce</font></td>
+        <td colspan="2">metis_ifu_calibrate</td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
@@ -2018,7 +1953,82 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/1">metis_n_lss_mf_calctrans</font></td>
+        <td align="left"><font color="/spectral11/9">metis_ifu_sci_telluric</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left"><font color="/spectral11/1">metis_ifu_std_telluric</font></td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_n_lss_mf_calctrans [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_n_lss_mf_calctrans</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="/spectral11/2">metis_n_lss_mf_model</font></td>
+        <td colspan="2">metis_n_lss_mf_calctrans</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    </table>>]
+
+        metis_lm_lss_mf_calctrans [label=<
+    <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
+    <tr>
+        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_mf_calctrans</font></td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
+        <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
+    </tr>
+    <tr>
+        <td><font color="/spectral11/8">metis_lm_lss_mf_model</font></td>
+        <td colspan="2">metis_lm_lss_mf_calctrans</td>
+    </tr>
+    <tr>
+        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Mand</b></td>
+        <td bgcolor="lightgrey"><b>Cond</b></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_LINE_CAT</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">ATM_PROFILE</td>
+        <td><font color="green">&#x2713;</font></td>
+        <td><font color="red">x</font></td>
+    </tr>
+    <tr>
+        <td align="left">LSF_KERNEL</td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -2034,41 +2044,31 @@ strict digraph {
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/4">metis_ifu_calibrate</font></td>
+        <td><font color="/spectral11/10">metis_ifu_calibrate</font></td>
         <td colspan="2">metis_ifu_postprocess</td>
     </tr>
     </table>>]
 
-        metis_lm_lss_mf_calctrans [label=<
+        metis_n_lss_mf_correct [label=<
     <table border="0" cellborder="1" cellspacing="0" align="left" valign="top">
     <tr>
-        <td bgcolor="green" colspan="3"><font point-size="30">Task metis_lm_lss_mf_calctrans</font></td>
+        <td bgcolor="deepskyblue3" colspan="3"><font point-size="30">Task metis_n_lss_mf_correct</font></td>
     </tr>
     <tr>
         <td bgcolor="lightgrey"><font point-size="25"><b>Main Input</b></font></td>
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/3">metis_lm_lss_mf_model</font></td>
-        <td colspan="2">metis_lm_lss_mf_calctrans</td>
+        <td><font color="/spectral11/1">metis_n_lss_sci</font></td>
+        <td colspan="2">metis_n_lss_mf_correct</td>
     </tr>
     <tr>
-        <td bgcolor="lightgrey"><b>Static Calibrations</b></td>
+        <td bgcolor="lightgrey"><b>Associated Inputs</b></td>
         <td bgcolor="lightgrey"><b>Mand</b></td>
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left">LSF_KERNEL</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">ATM_LINE_CAT</td>
-        <td><font color="green">&#x2713;</font></td>
-        <td><font color="red">x</font></td>
-    </tr>
-    <tr>
-        <td align="left">ATM_PROFILE</td>
+        <td align="left"><font color="/spectral11/9">metis_n_lss_mf_calctrans</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -2084,7 +2084,7 @@ strict digraph {
         <td bgcolor="lightgrey" colspan="2"><font point-size="25"><b>Recipe</b></font></td>
     </tr>
     <tr>
-        <td><font color="/spectral11/2">metis_lm_lss_sci</font></td>
+        <td><font color="/spectral11/5">metis_lm_lss_sci</font></td>
         <td colspan="2">metis_lm_lss_mf_correct</td>
     </tr>
     <tr>
@@ -2093,7 +2093,7 @@ strict digraph {
         <td bgcolor="lightgrey"><b>Cond</b></td>
     </tr>
     <tr>
-        <td align="left"><font color="/spectral11/4">metis_lm_lss_mf_calctrans</font></td>
+        <td align="left"><font color="/spectral11/5">metis_lm_lss_mf_calctrans</font></td>
         <td><font color="green">&#x2713;</font></td>
         <td><font color="red">x</font></td>
     </tr>
@@ -2101,113 +2101,113 @@ strict digraph {
 
 
 
-    "metis_ifu_distortion" -> "metis_ifu_std_reduce" [color=1]
-    "metis_ifu_distortion" -> "metis_ifu_wavecal" [color=1]
-    "metis_ifu_distortion" -> "metis_ifu_sci_reduce" [color=1]
-    "metis_ifu_distortion" -> "metis_ifu_rsrf" [color=1]
-    "metis_ifu_lingain" -> "metis_ifu_distortion" [color=11]
-    "metis_ifu_lingain" -> "metis_ifu_std_reduce" [color=11]
-    "metis_ifu_lingain" -> "metis_ifu_wavecal" [color=11]
-    "metis_ifu_lingain" -> "metis_ifu_sci_reduce" [color=11]
-    "metis_ifu_lingain" -> "metis_ifu_rsrf" [color=11]
-    "metis_ifu_lingain" -> "metis_ifu_dark" [color=11]
-    "metis_ifu_dark" -> "metis_ifu_distortion" [color=2]
-    "metis_ifu_dark" -> "metis_ifu_std_reduce" [color=2]
-    "metis_ifu_dark" -> "metis_ifu_wavecal" [color=2]
-    "metis_ifu_dark" -> "metis_ifu_sci_reduce" [color=2]
-    "metis_ifu_dark" -> "metis_ifu_rsrf" [color=2]
-    "metis_lm_img_background_sci" -> "metis_lm_img_calib" [color=10]
-    "metis_lm_img_basic_reduce_sci" -> "metis_lm_img_background_sci" [color=3]
-    "metis_lm_img_basic_reduce_sci" -> "metis_lm_img_background_std" [color=3]
-    "metis_lm_img_basic_reduce_sky" -> "metis_lm_img_background_sci" [color=9]
-    "metis_lm_img_basic_reduce_sky" -> "metis_lm_img_background_std" [color=9]
-    "metis_ifu_calibrate" -> "metis_ifu_postprocess" [color=4]
-    "metis_ifu_sci_reduce" -> "metis_ifu_calibrate" [color=8]
-    "metis_ifu_sci_reduce" -> "metis_ifu_sci_telluric" [color=8]
-    "metis_ifu_sci_telluric" -> "metis_ifu_calibrate" [color=5]
-    "metis_ifu_std_telluric" -> "metis_ifu_calibrate" [color=7]
-    "metis_n_lss_mf_calctrans" -> "metis_n_lss_mf_correct" [color=1]
-    "metis_n_lss_mf_model" -> "metis_n_lss_mf_calctrans" [color=11]
-    "metis_ifu_std_reduce" -> "metis_ifu_std_telluric" [color=2]
-    "metis_ifu_wavecal" -> "metis_ifu_std_reduce" [color=10]
-    "metis_ifu_wavecal" -> "metis_ifu_sci_reduce" [color=10]
-    "metis_ifu_wavecal" -> "metis_ifu_rsrf" [color=10]
-    "metis_ifu_rsrf" -> "metis_ifu_std_reduce" [color=3]
-    "metis_ifu_rsrf" -> "metis_ifu_sci_reduce" [color=3]
-    "metis_lm_img_background_std" -> "metis_lm_img_standard_flux" [color=9]
-    "metis_lm_img_calib" -> "metis_lm_img_coadd" [color=4]
-    "metis_lm_img_standard_flux" -> "metis_lm_img_calib" [color=8]
-    "metis_lm_img_cal_distortion" -> "metis_lm_img_calib" [color=5]
-    "metis_lm_img_flat" -> "metis_pupil_imaging" [color=7]
-    "metis_lm_img_flat" -> "metis_lm_img_basic_reduce_sci" [color=7]
-    "metis_lm_img_flat" -> "metis_lm_img_basic_reduce_sky" [color=7]
-    "metis_lm_img_dark" -> "metis_lm_img_flat" [color=1]
-    "metis_lm_img_dark" -> "metis_pupil_imaging" [color=1]
-    "metis_lm_img_dark" -> "metis_lm_img_basic_reduce_sci" [color=1]
-    "metis_lm_img_dark" -> "metis_lm_img_basic_reduce_sky" [color=1]
-    "metis_lm_img_dark" -> "metis_lm_img_lingain" [color=1]
-    "metis_lm_img_lingain" -> "metis_lm_img_flat" [color=11]
-    "metis_lm_img_lingain" -> "metis_lm_img_cal_distortion" [color=11]
-    "metis_lm_img_lingain" -> "metis_pupil_imaging" [color=11]
-    "metis_lm_img_lingain" -> "metis_lm_img_basic_reduce_sci" [color=11]
-    "metis_lm_img_lingain" -> "metis_lm_img_basic_reduce_sky" [color=11]
-    "metis_lm_lss_sci" -> "metis_lm_lss_mf_model" [color=2]
-    "metis_lm_lss_sci" -> "metis_lm_lss_mf_correct" [color=2]
-    "metis_lm_lss_dark" -> "metis_lm_lss_sci" [color=10]
-    "metis_lm_lss_dark" -> "metis_lm_lss_trace" [color=10]
-    "metis_lm_lss_dark" -> "metis_lm_lss_std" [color=10]
-    "metis_lm_lss_dark" -> "metis_lm_lss_wave" [color=10]
-    "metis_lm_lss_dark" -> "metis_lm_lss_lingain" [color=10]
-    "metis_lm_lss_dark" -> "metis_lm_lss_rsrf" [color=10]
-    "metis_lm_lss_rsrf" -> "metis_lm_lss_sci" [color=3]
-    "metis_lm_lss_rsrf" -> "metis_lm_lss_trace" [color=3]
-    "metis_lm_lss_rsrf" -> "metis_lm_lss_std" [color=3]
-    "metis_lm_lss_rsrf" -> "metis_lm_lss_wave" [color=3]
-    "metis_lm_lss_trace" -> "metis_lm_lss_sci" [color=9]
-    "metis_lm_lss_trace" -> "metis_lm_lss_std" [color=9]
-    "metis_lm_lss_trace" -> "metis_lm_lss_wave" [color=9]
-    "metis_lm_lss_wave" -> "metis_lm_lss_sci" [color=4]
-    "metis_lm_lss_wave" -> "metis_lm_lss_std" [color=4]
-    "metis_lm_lss_std" -> "metis_lm_lss_sci" [color=8]
-    "metis_lm_lss_std" -> "metis_lm_lss_mf_model" [color=8]
-    "metis_n_adc_slitloss" -> "metis_n_lss_std" [color=5]
-    "metis_n_img_chopnod_std" -> "metis_n_img_standard_flux" [color=7]
-    "metis_n_img_lingain" -> "metis_n_img_chopnod_std" [color=1]
-    "metis_n_img_lingain" -> "metis_n_img_flat" [color=1]
-    "metis_n_img_lingain" -> "metis_n_img_distortion" [color=1]
-    "metis_n_img_lingain" -> "metis_n_img_chopnod_sci" [color=1]
-    "metis_n_img_dark" -> "metis_n_img_chopnod_std" [color=11]
-    "metis_n_img_dark" -> "metis_n_img_lingain" [color=11]
-    "metis_n_img_dark" -> "metis_n_img_flat" [color=11]
-    "metis_n_img_dark" -> "metis_n_img_chopnod_sci" [color=11]
-    "metis_n_img_flat" -> "metis_n_img_chopnod_std" [color=2]
-    "metis_n_img_flat" -> "metis_n_img_chopnod_sci" [color=2]
-    "metis_n_lss_sci" -> "metis_n_lss_mf_correct" [color=10]
-    "metis_n_lss_sci" -> "metis_n_lss_mf_model" [color=10]
+    "metis_n_img_standard_flux" -> "metis_n_img_calib" [color=1]
+    "metis_n_img_chopnod_std" -> "metis_n_img_standard_flux" [color=11]
+    "metis_lm_img_cal_distortion" -> "metis_lm_img_calib" [color=2]
+    "metis_lm_img_lingain" -> "metis_lm_img_cal_distortion" [color=10]
+    "metis_lm_img_lingain" -> "metis_pupil_imaging" [color=10]
+    "metis_lm_img_lingain" -> "metis_lm_img_basic_reduce_sci" [color=10]
+    "metis_lm_img_lingain" -> "metis_lm_img_basic_reduce_sky" [color=10]
+    "metis_lm_img_lingain" -> "metis_lm_img_flat" [color=10]
+    "metis_n_img_calib" -> "metis_n_img_restore" [color=3]
+    "metis_n_img_chopnod_sci" -> "metis_n_img_calib" [color=9]
+    "metis_n_img_distortion" -> "metis_n_img_calib" [color=4]
+    "metis_lm_lss_mf_model" -> "metis_lm_lss_mf_calctrans" [color=8]
+    "metis_lm_lss_sci" -> "metis_lm_lss_mf_model" [color=5]
+    "metis_lm_lss_sci" -> "metis_lm_lss_mf_correct" [color=5]
+    "metis_lm_lss_std" -> "metis_lm_lss_mf_model" [color=7]
+    "metis_lm_lss_std" -> "metis_lm_lss_sci" [color=7]
+    "metis_lm_lss_dark" -> "metis_lm_lss_std" [color=1]
+    "metis_lm_lss_dark" -> "metis_lm_lss_wave" [color=1]
+    "metis_lm_lss_dark" -> "metis_lm_lss_lingain" [color=1]
+    "metis_lm_lss_dark" -> "metis_lm_lss_rsrf" [color=1]
+    "metis_lm_lss_dark" -> "metis_lm_lss_sci" [color=1]
+    "metis_lm_lss_dark" -> "metis_lm_lss_trace" [color=1]
+    "metis_lm_lss_rsrf" -> "metis_lm_lss_std" [color=11]
+    "metis_lm_lss_rsrf" -> "metis_lm_lss_wave" [color=11]
+    "metis_lm_lss_rsrf" -> "metis_lm_lss_sci" [color=11]
+    "metis_lm_lss_rsrf" -> "metis_lm_lss_trace" [color=11]
+    "metis_lm_lss_trace" -> "metis_lm_lss_std" [color=2]
+    "metis_lm_lss_trace" -> "metis_lm_lss_wave" [color=2]
+    "metis_lm_lss_trace" -> "metis_lm_lss_sci" [color=2]
+    "metis_lm_lss_wave" -> "metis_lm_lss_std" [color=10]
+    "metis_lm_lss_wave" -> "metis_lm_lss_sci" [color=10]
     "metis_lm_lss_adc_slitloss" -> "metis_lm_lss_std" [color=3]
-    "metis_n_lss_trace" -> "metis_n_lss_sci" [color=9]
-    "metis_n_lss_trace" -> "metis_n_lss_std" [color=9]
-    "metis_n_lss_dark" -> "metis_n_lss_trace" [color=4]
+    "metis_ifu_sci_reduce" -> "metis_ifu_sci_telluric" [color=9]
+    "metis_ifu_sci_reduce" -> "metis_ifu_calibrate" [color=9]
+    "metis_ifu_lingain" -> "metis_ifu_sci_reduce" [color=4]
+    "metis_ifu_lingain" -> "metis_ifu_rsrf" [color=4]
+    "metis_ifu_lingain" -> "metis_ifu_dark" [color=4]
+    "metis_ifu_lingain" -> "metis_ifu_distortion" [color=4]
+    "metis_ifu_lingain" -> "metis_ifu_std_reduce" [color=4]
+    "metis_ifu_lingain" -> "metis_ifu_wavecal" [color=4]
+    "metis_ifu_dark" -> "metis_ifu_sci_reduce" [color=8]
+    "metis_ifu_dark" -> "metis_ifu_rsrf" [color=8]
+    "metis_ifu_dark" -> "metis_ifu_distortion" [color=8]
+    "metis_ifu_dark" -> "metis_ifu_std_reduce" [color=8]
+    "metis_ifu_dark" -> "metis_ifu_wavecal" [color=8]
+    "metis_ifu_distortion" -> "metis_ifu_sci_reduce" [color=5]
+    "metis_ifu_distortion" -> "metis_ifu_rsrf" [color=5]
+    "metis_ifu_distortion" -> "metis_ifu_std_reduce" [color=5]
+    "metis_ifu_distortion" -> "metis_ifu_wavecal" [color=5]
+    "metis_ifu_wavecal" -> "metis_ifu_sci_reduce" [color=7]
+    "metis_ifu_wavecal" -> "metis_ifu_rsrf" [color=7]
+    "metis_ifu_wavecal" -> "metis_ifu_std_reduce" [color=7]
+    "metis_ifu_rsrf" -> "metis_ifu_sci_reduce" [color=1]
+    "metis_ifu_rsrf" -> "metis_ifu_std_reduce" [color=1]
+    "metis_lm_img_dark" -> "metis_pupil_imaging" [color=11]
+    "metis_lm_img_dark" -> "metis_lm_img_basic_reduce_sci" [color=11]
+    "metis_lm_img_dark" -> "metis_lm_img_basic_reduce_sky" [color=11]
+    "metis_lm_img_dark" -> "metis_lm_img_lingain" [color=11]
+    "metis_lm_img_dark" -> "metis_lm_img_flat" [color=11]
+    "metis_n_img_lingain" -> "metis_n_img_flat" [color=2]
+    "metis_n_img_lingain" -> "metis_n_img_distortion" [color=2]
+    "metis_n_img_lingain" -> "metis_n_img_chopnod_sci" [color=2]
+    "metis_n_img_lingain" -> "metis_n_img_chopnod_std" [color=2]
+    "metis_n_img_dark" -> "metis_n_img_lingain" [color=10]
+    "metis_n_img_dark" -> "metis_n_img_flat" [color=10]
+    "metis_n_img_dark" -> "metis_n_img_chopnod_sci" [color=10]
+    "metis_n_img_dark" -> "metis_n_img_chopnod_std" [color=10]
+    "metis_lm_img_flat" -> "metis_pupil_imaging" [color=3]
+    "metis_lm_img_flat" -> "metis_lm_img_basic_reduce_sci" [color=3]
+    "metis_lm_img_flat" -> "metis_lm_img_basic_reduce_sky" [color=3]
+    "metis_n_adc_slitloss" -> "metis_n_lss_std" [color=9]
     "metis_n_lss_dark" -> "metis_n_lss_sci" [color=4]
     "metis_n_lss_dark" -> "metis_n_lss_lingain" [color=4]
     "metis_n_lss_dark" -> "metis_n_lss_rsrf" [color=4]
     "metis_n_lss_dark" -> "metis_n_lss_std" [color=4]
-    "metis_n_lss_lingain" -> "metis_n_lss_trace" [color=8]
-    "metis_n_lss_lingain" -> "metis_n_lss_rsrf" [color=8]
-    "metis_n_lss_rsrf" -> "metis_n_lss_trace" [color=5]
-    "metis_n_lss_rsrf" -> "metis_n_lss_sci" [color=5]
-    "metis_n_lss_rsrf" -> "metis_n_lss_std" [color=5]
-    "metis_lm_lss_lingain" -> "metis_lm_lss_trace" [color=7]
-    "metis_lm_lss_lingain" -> "metis_lm_lss_wave" [color=7]
-    "metis_lm_lss_lingain" -> "metis_lm_lss_rsrf" [color=7]
-    "metis_n_img_standard_flux" -> "metis_n_img_calib" [color=1]
-    "metis_n_img_calib" -> "metis_n_img_restore" [color=11]
-    "metis_n_img_chopnod_sci" -> "metis_n_img_calib" [color=2]
-    "metis_n_img_distortion" -> "metis_n_img_calib" [color=10]
-    "metis_lm_lss_mf_model" -> "metis_lm_lss_mf_calctrans" [color=3]
-    "metis_n_lss_std" -> "metis_n_lss_sci" [color=9]
-    "metis_n_lss_std" -> "metis_n_lss_mf_model" [color=9]
-    "metis_lm_lss_mf_calctrans" -> "metis_lm_lss_mf_correct" [color=4]
+    "metis_n_lss_dark" -> "metis_n_lss_trace" [color=4]
+    "metis_lm_img_basic_reduce_sci" -> "metis_lm_img_background_sci" [color=8]
+    "metis_lm_img_basic_reduce_sci" -> "metis_lm_img_background_std" [color=8]
+    "metis_lm_lss_mf_calctrans" -> "metis_lm_lss_mf_correct" [color=5]
+    "metis_n_img_flat" -> "metis_n_img_chopnod_sci" [color=7]
+    "metis_n_img_flat" -> "metis_n_img_chopnod_std" [color=7]
+    "metis_n_lss_sci" -> "metis_n_lss_mf_model" [color=1]
+    "metis_n_lss_sci" -> "metis_n_lss_mf_correct" [color=1]
+    "metis_n_lss_rsrf" -> "metis_n_lss_sci" [color=11]
+    "metis_n_lss_rsrf" -> "metis_n_lss_std" [color=11]
+    "metis_n_lss_rsrf" -> "metis_n_lss_trace" [color=11]
+    "metis_n_lss_trace" -> "metis_n_lss_sci" [color=2]
+    "metis_n_lss_trace" -> "metis_n_lss_std" [color=2]
+    "metis_n_lss_std" -> "metis_n_lss_sci" [color=10]
+    "metis_n_lss_std" -> "metis_n_lss_mf_model" [color=10]
+    "metis_lm_lss_lingain" -> "metis_lm_lss_wave" [color=3]
+    "metis_lm_lss_lingain" -> "metis_lm_lss_rsrf" [color=3]
+    "metis_lm_lss_lingain" -> "metis_lm_lss_trace" [color=3]
+    "metis_ifu_sci_telluric" -> "metis_ifu_calibrate" [color=9]
+    "metis_n_lss_lingain" -> "metis_n_lss_rsrf" [color=4]
+    "metis_n_lss_lingain" -> "metis_n_lss_trace" [color=4]
+    "metis_lm_img_basic_reduce_sky" -> "metis_lm_img_background_sci" [color=8]
+    "metis_lm_img_basic_reduce_sky" -> "metis_lm_img_background_std" [color=8]
+    "metis_lm_img_standard_flux" -> "metis_lm_img_calib" [color=5]
+    "metis_lm_img_background_std" -> "metis_lm_img_standard_flux" [color=7]
+    "metis_ifu_std_telluric" -> "metis_ifu_calibrate" [color=1]
+    "metis_ifu_std_reduce" -> "metis_ifu_std_telluric" [color=11]
+    "metis_n_lss_mf_model" -> "metis_n_lss_mf_calctrans" [color=2]
+    "metis_ifu_calibrate" -> "metis_ifu_postprocess" [color=10]
+    "metis_lm_img_background_sci" -> "metis_lm_img_calib" [color=3]
+    "metis_n_lss_mf_calctrans" -> "metis_n_lss_mf_correct" [color=9]
+    "metis_lm_img_calib" -> "metis_lm_img_coadd" [color=4]
 }
 
 
