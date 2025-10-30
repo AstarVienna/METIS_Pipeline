@@ -57,7 +57,7 @@ jobs:
       - name: Create figures
         run: |
           # https://askubuntu.com/questions/503567/dot-doesnt-recognize-any-formats
-          dot -c
+          sudo dot -c
           bash toolbox/make_edps_graphs.sh
 
       - name: Create Pull Request
