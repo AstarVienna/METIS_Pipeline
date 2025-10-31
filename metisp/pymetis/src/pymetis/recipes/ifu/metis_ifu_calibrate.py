@@ -43,12 +43,14 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         reduced = self.inputset.reduced.load_data(extension='PRIMARY')
         self.inputset.reduced.use()
 
-        header = create_dummy_header(EXTNAME='IMAGE')
+        primary_header = create_dummy_header()
+        header_scc = create_dummy_header()
         image = create_dummy_image()
 
-        hdu = Hdu(header, image, name='IMAGE')
-
-        product_scc = self.ProductSciCubeCalibrated(header, hdu)
+        product_scc = self.ProductSciCubeCalibrated(
+            primary_header,
+            Hdu(header_scc, image, name='IMAGE'),
+        )
 
         return {product_scc}
 

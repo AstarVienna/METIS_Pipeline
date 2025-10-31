@@ -117,10 +117,13 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         master_flat = self.prepare_flat(master_flat, master_dark)
         images = self.prepare_images(self.inputset.raw.frameset, master_flat, master_dark)
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
-        header = cpl.core.PropertyList.load(self.inputset.master_flat.frame.file, 0)
+        primary_header = cpl.core.PropertyList.load(self.inputset.master_flat.frame.file, 0)
         header_image = create_dummy_header()
 
-        product = self.ProductReduced(header, Hdu(header, combined_image, name='IMAGE'))
+        product = self.ProductReduced(
+            primary_header,
+            Hdu(header_image, combined_image, name='IMAGE')
+        )
 
         return {product}
 

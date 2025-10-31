@@ -69,11 +69,12 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         # TODO: preprocessing steps like persistence correction / nonlinearity (or not) should come here
         # ToDo: And this should be moved to the base class anyway
         combined_image = self.combine_images(dark_corrected, method)
+        header_master_flat = create_dummy_header()
         # ToDo actually produce the flat
 
         product = self.ProductMasterFlat(
             primary_header,
-            Hdu(create_dummy_header(), combined_image, name='DET1.SCI'),
+            Hdu(header_master_flat, combined_image, name='DET1.SCI'),
         )
 
         return {product}
