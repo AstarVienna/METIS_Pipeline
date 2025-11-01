@@ -21,6 +21,8 @@ from typing import Literal
 import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
+import numpy as np
+
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
 from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
@@ -45,18 +47,49 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> Hdu:
         det = rf'DET{detector:1d}'
+
+        # load the raw wavecal images and combine
         raw_images = self.inputset.raw.use().load_data(extension=rf'{det}.DATA')
         combined_image = self.combine_images(raw_images, "average")
+        imsize_x = combined_image.shape[1]
+        imsize_y = combined_image.shape[0]
 
-        image = self.combine_images(raw_images, "add")
+        # load the IFU distortion table
+        distortion_table = self.inputset.distortion_table.load_data(extension=det)
+        trace_list = self.inputset.distortion_table.item.read(distortion_table=distortion_table)
+
+        # create static dummy wavecal image
+        
+        # static wavecal parameters for each detector
+        wstart = np.array([3.5565, 3.5284, 3.5275, 3.5557]) # in microns
+        wend =   np.array([3.5823, 3.5547, 3.5541, 3.5820]) # in microns
+        wdelta = (wend - wstart) / (imsize_x - 1)
+        # linear dispersion model
+        wavelen = np.zeros(imsize_x, dtype=float)
+        for i in range(imsize_x):
+            wavelen[i] = wstart[detector - 1] + i * wdelta[detector - 1]
+
+        # create wavecal image based on distortion table
+        trc_h = 57 # total trace height is twice this [pix]
+        wc_image = np.zeros(combined_image.shape, dtype=float)
+        for i, trace in enumerate(trace_list):
+            x_coords, y_coords = trace
+            for x, y in zip(x_coords.astype(int), y_coords.astype(int)):
+                if 0 <= x < imsize_x:
+                    y_min = y - trc_h
+                    y_max = y + trc_h
+                    if 0 <= y_min < imsize_y and 0 <= y_max < imsize_y:
+                        for yy in range(y_min, y_max + 1):
+                            wc_image[yy, x] = wavelen[x]
 
         # self.correct_telluric()
         # self.apply_fluxcal()
 
-        header_table = create_dummy_header(EXTNAME=rf'DET{det}')
-        table = create_dummy_table(14)
+        wc_image = cpl.core.Image(wc_image)
 
-        return Hdu(header_table, image, name=rf'{det}')
+        header_wcal = create_dummy_header(EXTNAME=det)
+
+        return Hdu(header_wcal, wc_image, name=det)
 
     def process(self) -> set[DataItem]:
         primary_header = cpl.core.PropertyList()

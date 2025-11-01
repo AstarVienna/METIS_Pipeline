@@ -47,7 +47,13 @@ class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
 
 
 class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
-    pass
+    _schema = {
+        'PRIMARY': None,
+        'DET1.SCI': Image,
+        'DET2.SCI': Image,
+        'DET3.SCI': Image,
+        'DET4.SCI': Image,
+    }
 
 
 
