@@ -214,7 +214,7 @@ ifu_wcu_off_raw_class = classification_rule("IFU_WCU_OFF_RAW",
                                          "dpr.type": "DARK,WCUOFF",
                                          })
 
-rsrf_ifu_class = classification_rule("RSRF_IFU",
+ifu_rsrf_class = classification_rule("RSRF_IFU",
                                       {"pro.catg": "RSRF_IFU",
                                        })
 

@@ -135,8 +135,8 @@ ifu_wave_raw = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-rsrf_ifu_raw = (data_source()
-            .with_classification_rule(rsrf_ifu_class)
+ifu_rsrf_raw = (data_source()
+            .with_classification_rule(ifu_rsrf_raw_class)
             .with_match_keywords(["instrume"])
             .build())
 
@@ -184,6 +184,11 @@ atm_profile = (data_source()
                      .with_classification_rule(atm_profile_class)
                      .with_match_keywords(["simple"])
                      .build())
+
+ifu_wavecal = (data_source()
+            .with_classification_rule(ifu_wavecal_class)
+            .with_match_keywords([metis_kwd.instrume])
+            .build())
 
 # --- LM LSS Data Sources ---
 lm_adc_slitloss_raw = (data_source()

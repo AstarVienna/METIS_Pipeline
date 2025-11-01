@@ -182,16 +182,17 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
         }
 
     def process(self) -> set[DataItem]:
-        header = create_dummy_header()
+        header_table = create_dummy_header()
+        header_reduced = create_dummy_header()
 
         output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
 
         product_distortion = self.ProductDistortionTable(
-            header,
+            header_table,
             *[out['TABLE'] for out in output],
         )
         product_distortion_reduced = self.ProductDistortionReduced(
-            header,
+            header_reduced,
             *[out['IMAGE'] for out in output],
         )
 

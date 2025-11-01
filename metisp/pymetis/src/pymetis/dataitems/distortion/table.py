@@ -57,7 +57,7 @@ class IfuDistortionTable(BandIfuMixin, DistortionTable):
 
     def read(self,
              *,
-             extension: int | str) -> cpl.core.Bivector:
+             distortion_table : cpl.core.Table) -> list[tuple[np.ndarray, np.ndarray]]:
         """
         Load the distortion table.
 
@@ -68,20 +68,20 @@ class IfuDistortionTable(BandIfuMixin, DistortionTable):
 
         Returns
         -------
-        cpl.core.Bivector
-            The distortion coefficients.
+        list of tuples, each containing two np.ndarrays for x and y coordinates
+            The ifu traces.
         """
         # Load the distortion table
         # TODO: assumes distortion table has one set of coefficients for each extension
         # distortion_table = cpl.core.Table.load(self.frame.file, extension=extension)
-        distortion_table = self[extension]
+        # distortion_table = self[extension].data
 
         # obtain the trace polynomials from the distortion table
         trace_polys = distortion_table.column_array('orders')[0]
         x_ranges = distortion_table.column_array('column_range')[0]
 
-        print(trace_polys)
-        print(x_ranges)
+        # print(trace_polys)
+        # print(x_ranges)
 
         # create a list of y-coordinates for each trace from the distortion table
         # x_arr = np.arange(0, rsrf_raw_img.width)
@@ -93,5 +93,5 @@ class IfuDistortionTable(BandIfuMixin, DistortionTable):
             trace_list.append((x_arr, y_arr))
 
         # return the list of x,y coordinates for each trace
-        return cpl.core.Bivector(trace_list)
+        return trace_list
 
