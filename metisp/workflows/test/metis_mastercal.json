@@ -1,0 +1,112 @@
+{
+  "keywords": {
+    "n_wcu_off_raw": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IMAGE,N"
+    },
+    "detlin_geo_raw": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IMAGE,N"
+    },
+    "dark_geo_raw": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IMAGE,N"
+    }
+  },
+  "inputs": [
+    {
+      "name_prefix": "wcu_off_on_n",
+      "count": 20,
+      "common_keywords": [
+        "n_wcu_off_raw",
+        "VIS_1x1_100k"
+      ],
+      "keywords": {
+        "dpr.type": "DARK,WCUOFF",
+        "tpl.nexp": 20,
+        "tpl.start": "2010-11-22T05:15:50"
+      }
+    },
+    {
+      "name_prefix": "detlin_on_n",
+      "count": 20,
+      "common_keywords": [
+        "detlin_geo_raw",
+        "VIS_1x1_100k"
+      ],
+      "keywords": {
+        "dpr.type": "DETLIN",
+        "tpl.nexp": 20,
+        "tpl.start": "2010-11-22T05:15:50"
+      }
+    },
+    {
+      "name_prefix": "dark_on_n",
+      "count": 20,
+      "common_keywords": [
+        "dark_geo_raw",
+        "VIS_1x1_100k"
+      ],
+      "keywords": {
+        "dpr.type": "DARK",
+        "tpl.nexp": 20,
+        "tpl.start": "2010-11-22T05:15:50"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "skip": false,
+      "description": "Dark Geo",
+      "workflow": "metis.metis_wkf",
+      "targets": [
+        "metis_det_dark"
+      ],
+      "meta_targets": [],
+      "common_inputs": [
+        "dark_on_n"
+      ],
+      "results": [
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": [
+            "dark_on_n"
+          ],
+          "assoc_prefixes": [
+          ]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "METIS detlin n",
+      "workflow": "metis.metis_wkf",
+      "targets": [
+        "metis_det_detlin"
+      ],
+      "meta_targets": [],
+      "common_inputs": [
+        "detlin_on_n",
+        "dark_on_n",
+        "wcu_off_on_n"
+      ],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": [
+            "detlin_on_n"
+          ],
+          "assoc_prefixes": [
+            "dark_on_n",
+            "wcu_off_on_n"
+          ]
+        }
+      ]
+    }
+
+  ]
+}
