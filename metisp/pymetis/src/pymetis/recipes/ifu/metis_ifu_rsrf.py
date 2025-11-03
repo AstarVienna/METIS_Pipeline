@@ -43,6 +43,7 @@ from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, G
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin,
                                     SinglePipelineInput, PersistenceMapInput)
 from pymetis.classes.inputs import LinearityInputSetMixin
+from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
@@ -116,15 +117,15 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # - gain / linearity correction?
 
         # load MASTER_DARK_IFU image and extract bad pixel map
-        master_dark_img = self.inputset.master_dark.use().load_data(extension=rf'DET{det}.SCI')
+        master_dark_img = self.inputset.master_dark.load_data(extension=rf'DET{det}.SCI')
         badpix_map = master_dark_img.bpm
 
         # load IFU trace definition file
-        distortion_table = self.inputset.distortion_table.use().load_data(extension=rf'DET{det}')
-        trace_list = distortion_table.read(extension=rf'DET{det}')
+        distortion_table = self.inputset.distortion_table.load_data(extension=rf'DET{det}')
+        trace_list = self.inputset.distortion_table.item.read(distortion_table=distortion_table)
 
         # load wavelength calibration image
-        wavecal_img = self.inputset.wavecal.use().load_data(extension=rf'DET{det}')
+        wavecal_img = self.inputset.wavecal.load_data(extension=rf'DET{det}')
 
         # create master WCU_OFF background image
         Msg.info(self.__class__.__qualname__,
@@ -156,8 +157,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # obtain black-body temperature from first frame's header
         # NOTE: this assumes raw frames were grouped by BB temperature
 
-        rsrf_raw_hdr = self.inputset.raw.items[0].header
-        bb_temp = rsrf_raw_hdr['WCU_BB_TEMP'].value
+        rsrf_raw_hdr = self.inputset.raw.items[0]['PRIMARY'].header
+        # bb_temp = rsrf_raw_hdr['HIERARCH ESO INS WCU_BB SOURCETEMP'].value
+        # TBD: read from header
+        bb_temp = 800
 
         # create black-body image
         Msg.info(self.__class__.__qualname__,
@@ -219,18 +222,16 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         rsrf_med = np.zeros(len(rsrf_1d_list))
         for i in range(len(rsrf_1d_list)):
             # avoid calling cpl.core.Vector.median() as this sorts the vector!
-            rsrf_med[i] = np.median(np.array(rsrf_1d_list[i]))
+            rsrf_med[i] = np.median(rsrf_1d_list[i])
 
-        # scale = np.mean(rsrf_med) + 1
-        # FixMe manually adding one to avoid a cpl.core.DivisionByZeroError
-        scale = np.mean(rsrf_med) + 1
+        scale = np.mean(rsrf_med)
 
         if scale == 0:
             Msg.warning(self.__class__.__qualname__,
                 "Zero average scale for RSRF curves, skipping normalisation")
         else:
             for rsrf_1d in rsrf_1d_list:
-                rsrf_1d.divide_scalar(scale)
+                rsrf_1d /= scale
 
         # create 1D RSRF product
         rsrf_hdr = cpl.core.PropertyList()
@@ -246,10 +247,10 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         rsrf_table = cpl.core.Table(table)
 
         return {
-            'BACKGROUND': Hdu(background_hdr, background_img, name=rf'DET{det}'),
-            'MASTERFLAT': Hdu(spec_flat_hdr, spec_flat_img, name=rf'DET{det}'),
-            'BADPIXMAP': Hdu(badpix_hdr, badpix_img, name=rf'DET{det}'),
-            '1DRSRF': Hdu(rsrf_hdr, rsrf_table, name=rf'DET{det}'),
+            'BACKGROUND': Hdu(background_hdr, background_img, name=rf'DET{det}.DATA'),
+            'MASTERFLAT': Hdu(spec_flat_hdr, spec_flat_img, name=rf'DET{det}.SCI'),
+            'BADPIXMAP': Hdu(badpix_hdr, badpix_img, name=rf'DET{det}.SCI'),
+            '1DRSRF': Hdu(rsrf_hdr, rsrf_table, name=rf'DET{det}.DATA'),
         }
 
     def process(self) -> set[DataItem]:
@@ -263,23 +264,26 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         Msg.info(self.__class__.__qualname__,
                     f"Finalising recipe products...")
 
-        # TBD: define final product primary headers, for now copy from first raw frame
-        header = self.inputset.raw.items[0].header
+        # TBD: define final product primary headers, for now just dummy headers
+        header_background = create_dummy_header()
+        header_mflat = create_dummy_header()
+        header_1drsrf = create_dummy_header()
+        header_badpixmap = create_dummy_header()
 
         product_background = self.ProductRsrfBackground(
-            header,
+            header_background,
             *[out['BACKGROUND'] for out in output],
         )
         product_master_flat_ifu = self.ProductMasterFlat(
-            header,
+            header_mflat,
             *[out['MASTERFLAT'] for out in output],
         )
         product_rsrf_ifu = self.ProductRsrfIfu(
-            header,
+            header_1drsrf,
             *[out['1DRSRF'] for out in output],
         )
         product_badpix_map_ifu = self.ProductBadPixMap(
-            header,
+            header_badpixmap,
             *[out['BADPIXMAP'] for out in output],
         )
 
@@ -358,10 +362,8 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
         rsrf_1d = np.zeros(2048, dtype=float)
         for i, x in enumerate(x_arr):
             yc = y_arr[i]
-            # rsrf_1d[x] = mdata[int(yc - trace_width):int(yc + trace_width), x].mean()
-            # FixMe replaced this by one for now. Also, numpy definitely has a clever method for rolling median
-            rsrf_1d[x] = 1
-        rsrf_1d_list.append(cpl.core.Vector(rsrf_1d))
+            rsrf_1d[int(x)] = mdata[int(yc - trace_width):int(yc + trace_width), int(x)].mean()
+        rsrf_1d_list.append(rsrf_1d)
 
     return rsrf_1d_list
 

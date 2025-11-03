@@ -47,8 +47,11 @@ class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
 
 
 class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
-    pass
-
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}.SCI': Image for det in range(1, 5)
+    }
 
 
 class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstract=True):
