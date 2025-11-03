@@ -42,11 +42,13 @@ class MetisAdcSlitlossImpl(DarkImageProcessor):
         """Create a dummy file (should do something more fancy in the future)"""
 
         raws = self.inputset.raw.load_data('DET1.DATA')
-        header = self.inputset.raw.items[0].primary_header
+        primary_header = self.inputset.raw.items[0].primary_header
+
+        header = create_dummy_header()
         table = create_dummy_table()
         return {
             self.ProductAdcSlitloss(
-                header,
+                primary_header,
                 Hdu(header, table, name='TABLE')
             ),
         }

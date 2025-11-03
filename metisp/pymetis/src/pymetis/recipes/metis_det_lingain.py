@@ -105,9 +105,18 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
         all_hdus = [self._process_single_detector(detector) for detector in range(1, detector_count + 1)]
 
-        product_gain_map = self.ProductGainMap(primary_header, *[output['gain_map'] for output in all_hdus])
-        product_linearity = self.ProductLinearity(primary_header, *[output['linearity_map'] for output in all_hdus])
-        product_badpix_map = self.ProductBadPixMap(primary_header, *[output['badpix_map'] for output in all_hdus])
+        product_gain_map = self.ProductGainMap(
+            primary_header,
+            *[output['gain_map'] for output in all_hdus]
+        )
+        product_linearity = self.ProductLinearity(
+            primary_header,
+            *[output['linearity_map'] for output in all_hdus]
+        )
+        product_badpix_map = self.ProductBadPixMap(
+            primary_header,
+            *[output['badpix_map'] for output in all_hdus]
+        )
 
         return {product_gain_map, product_linearity, product_badpix_map}
 

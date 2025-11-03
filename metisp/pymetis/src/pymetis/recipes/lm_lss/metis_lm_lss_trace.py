@@ -43,7 +43,7 @@ class MetisLmLssTrace(MetisRecipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Detection of LM order location on the 2RG detector"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD*** """
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

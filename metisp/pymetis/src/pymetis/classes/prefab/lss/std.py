@@ -83,6 +83,7 @@ class MetisLssStdImpl(DarkImageProcessor):
         # Load raw image
         std_raw_hdr = cpl.core.PropertyList()
         raw_images = self.inputset.raw.load_data('DET1.DATA')
+        primary_header = self.inputset.raw.items[0].primary_header
 
         """Create dummy file (should do something more fancy in the future)"""
         # header = create_dummy_header()
@@ -99,14 +100,24 @@ class MetisLssStdImpl(DarkImageProcessor):
 
         # Write files
         return {
-            self.ProductMasterResponse(product_master_response_hdr,
-                                       Hdu(product_master_response_hdr, table, name='TABLE')),
-            self.ProductStdTransmission(product_std_transmission_hdr,
-                                        Hdu(product_std_transmission_hdr, table, name='TABLE')),
-            self.ProductLssStd1d(product_lss_std1d_hdr,
-                                 Hdu(product_lss_std1d_hdr, table, name='TABLE')),
-            self.ProductLssStdObjMap(product_lss_std_obj_map_hdr,
-                                     Hdu(product_lss_std_obj_map_hdr, image, name='PRIMARY')),
-            self.ProductLssStdSkyMap(product_lss_std_sky_map_hdr,
-                                     Hdu(product_lss_std_sky_map_hdr, image, name='PRIMARY')),
+            self.ProductMasterResponse(
+                primary_header,
+                Hdu(product_master_response_hdr, table, name='TABLE')
+            ),
+            self.ProductStdTransmission(
+                primary_header,
+                Hdu(product_std_transmission_hdr, table, name='TABLE')
+            ),
+            self.ProductLssStd1d(
+                primary_header,
+                Hdu(product_lss_std1d_hdr, table, name='TABLE')
+            ),
+            self.ProductLssStdObjMap(
+                primary_header,
+                Hdu(product_lss_std_obj_map_hdr, image, name='IMAGE')
+            ),
+            self.ProductLssStdSkyMap(
+                primary_header,
+                Hdu(product_lss_std_sky_map_hdr, image, name='IMAGE')
+            ),
         }

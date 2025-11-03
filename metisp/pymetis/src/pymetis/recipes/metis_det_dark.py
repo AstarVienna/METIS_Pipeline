@@ -273,7 +273,10 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         hdus = functools.reduce(operator.add, map(self._process_single_detector, range(1, detector_count + 1)))
 
-        product = self.ProductMasterDark(create_dummy_header(), *hdus)
+        product = self.ProductMasterDark(
+            create_dummy_header(),
+            *hdus,
+        )
         return {product}
 
 

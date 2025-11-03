@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.molecfit.model import MfBestFitTable
 from pymetis.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
@@ -46,12 +46,16 @@ class MetisLssMfCalctransImpl(MetisRecipeImpl):
 
         # TODO: Check whether calctrans creates the Transmission file - if so, no need to
         # write it out here again
-        best_fit_table = self.inputset.mf_best_fit_table.load_data()
+        best_fit_table = self.inputset.mf_best_fit_table.load_data('TABLE')
 
-        header = self.inputset.mf_best_fit_table.item.header
+        primary_header = self.inputset.mf_best_fit_table.item.primary_header
+        header_transmission = create_dummy_header()
         table = create_dummy_table(8)
 
         return {
-            self.ProductTransmission(header, table),
+            self.ProductTransmission(
+                primary_header,
+                Hdu(header_transmission, table, name='TABLE'),
+            )
         }
 

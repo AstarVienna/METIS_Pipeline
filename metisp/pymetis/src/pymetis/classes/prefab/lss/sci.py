@@ -97,7 +97,7 @@ class MetisLssSciImpl(DarkImageProcessor):
         self.inputset.raw.use()
 
         """Create dummy file (should do something more fancy in the future)"""
-        header = create_dummy_header()
+        primary_header = create_dummy_header()
         image = create_dummy_image()
         table = create_dummy_table()
 
@@ -105,39 +105,39 @@ class MetisLssSciImpl(DarkImageProcessor):
         header_lss_sci_2d = create_dummy_header()
         header_lss_sci_sky_map = create_dummy_header()
         header_lss_sci_obj_map = create_dummy_header()
-        header_lss_sci_flux1d = create_dummy_header()
-        header_lss_sci_flux2d = create_dummy_header()
+        header_lss_sci_flux_1d = create_dummy_header()
+        header_lss_sci_flux_2d = create_dummy_header()
         header_lss_sci_flux_tell_corr1d = create_dummy_header()
 
         # Write files
         return {
             self.ProductLssSci1d(
-                header,
+                primary_header,
                 Hdu(header_lss_sci_1d, table, name='TABLE')
             ),
             self.ProductLssSci2d(
-                header,
-                Hdu(header_lss_sci_2d, image, name='PRIMARY')
+                primary_header,
+                Hdu(header_lss_sci_2d, image, name='IMAGE')
             ),
             self.ProductLssSciFlux1d(
-                header,
-                Hdu(header_lss_sci_1d, table, name='BINTABLE')
+                primary_header,
+                Hdu(header_lss_sci_flux_1d, table, name='TABLE')
             ),
             self.ProductLssSciFlux2d(
-                header,
-                Hdu(header_lss_sci_2d, image, name='PRIMARY')
+                primary_header,
+                Hdu(header_lss_sci_flux_2d, image, name='IMAGE')
             ),
             self.ProductLssSciFluxTellCorr1d(
-                header,
+                primary_header,
                 Hdu(header_lss_sci_flux_tell_corr1d, table, name='TABLE')
             ),
             self.ProductLssSciObjMap(
-                header,
-                Hdu(header_lss_sci_obj_map, image, name='PRIMARY')
+                primary_header,
+                Hdu(header_lss_sci_obj_map, image, name='IMAGE')
             ),
             self.ProductLssSciSkyMap(
-                header,
-                Hdu(header_lss_sci_sky_map, image, name='PRIMARY'),
+                primary_header,
+                Hdu(header_lss_sci_sky_map, image, name='IMAGE'),
             ),
         }
 # Dummy routine end +++++++++++++++++++++++++++++++++++++++++++++++++++
