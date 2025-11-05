@@ -3,22 +3,25 @@ from edps import task, subworkflow, qc1calib, match_rules, FilterMode, calchecke
 from .metis_datasources import *
 from . import metis_keywords as metis_kwd
 
-n_img_dark_task = (task('metis_n_img_dark')
-            .with_main_input(dark_geo_raw)
-            .with_recipe("metis_det_dark")
-            .build())
 
 n_img_lingain_task = (task('metis_n_img_lingain')
                 .with_recipe("metis_det_lingain")
                 .with_main_input(detlin_geo_raw)
-                .with_associated_input(n_img_dark_task)
                 .with_associated_input(n_wcu_off_raw)
                 .build())
+
+n_img_dark_task = (task('metis_n_img_dark')
+            .with_main_input(dark_geo_raw)
+            .with_associated_input(n_img_lingain_task)
+            .with_associated_input(persistence_map)
+            .with_recipe("metis_det_dark")
+            .build())
 
 n_img_flat_task = (task("metis_n_img_flat")
              .with_main_input(n_flat_lamp_raw)
              .with_associated_input(n_img_dark_task)
              .with_associated_input(n_img_lingain_task)
+             .with_associated_input(persistence_map)
              .with_recipe("metis_n_img_flat")
              .build())
 
@@ -27,6 +30,7 @@ n_img_distortion_task = (task('metis_n_img_distortion')
                    .with_associated_input(n_wcu_off_raw)
                    .with_associated_input(pinhole_table)
                    .with_associated_input(n_img_lingain_task)
+                   .with_associated_input(persistence_map)
                    .with_recipe('metis_n_img_distortion')
                    .build())
 
@@ -36,6 +40,7 @@ n_img_chopnod_sci_task = (task('metis_n_img_chopnod_sci')
                     .with_associated_input(n_img_lingain_task)
                     .with_associated_input(n_img_dark_task)
                     .with_associated_input(n_img_flat_task)
+                    .with_associated_input(persistence_map)
                     .with_meta_targets([SCIENCE])
                     .build())
 
@@ -45,6 +50,7 @@ n_img_chopnod_std_task = (task('metis_n_img_chopnod_std')
                     .with_associated_input(n_img_lingain_task)
                     .with_associated_input(n_img_dark_task)
                     .with_associated_input(n_img_flat_task)
+                    .with_associated_input(persistence_map)
                     .with_meta_targets([SCIENCE])
                     .build())
 
