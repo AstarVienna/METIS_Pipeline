@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.lss.science import LssSciFlux1d
 from pymetis.dataitems.lss.std import LssStd1d
 from pymetis.dataitems.molecfit.model import MfBestFitTable
@@ -47,10 +47,15 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         # TODO: Invoke molecfit here
         # TODO: Check whether the new mf writes out the best-fit param file
 
-        lss_sci_flux = self.inputset.lss_sci_flux1d.load_data('XTENSION')
+        lss_sci_flux = self.inputset.lss_sci_flux1d.load_data('TABLE')
 
-        header = lss_sci_flux.header
+        primary_header = self.inputset.lss_sci_flux1d.item.primary_header
+
+        header_mf_best_fit = create_dummy_header()
         table = create_dummy_table()
         return {
-            self.ProductMfBestFitTable(header, table),
+            self.ProductMfBestFitTable(
+                primary_header,
+                Hdu(header_mf_best_fit, table, name='TABLE'),
+            ),
         }

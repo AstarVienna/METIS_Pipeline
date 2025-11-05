@@ -52,21 +52,23 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         distortion = self.inputset.distortion.load_data('DET1.DATA')
         primary_header = self.inputset.distortion.item.primary_header
 
-        header = create_dummy_header()
+        header_distortion_table = create_dummy_header()
+        header_distortion_map = create_dummy_header()
+        header_distortion_reduced = create_dummy_header()
         table = create_dummy_table()
         image = create_dummy_image()
 
         return {
             self.ProductDistortionTable(
                 primary_header,
-                Hdu(header, table, name='TABLE'),
+                Hdu(header_distortion_table, table, name='TABLE'),
             ),
             self.ProductDistortionMap(
                 primary_header,
-                Hdu(header, combined_image, name='DET1.DATA'),
+                Hdu(header_distortion_map, combined_image, name='DET1.DATA'),
             ),
             self.ProductDistortionReduced(
                 primary_header,
-                Hdu(header, image, name='IMAGE'),
+                Hdu(header_distortion_reduced, image, name='IMAGE'),
             ),
         }

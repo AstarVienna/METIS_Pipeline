@@ -75,7 +75,7 @@ class MetisNLssSci(MetisRecipe):
         N_LSS_SCI_FLUX_TELL_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science object (optional)
     """
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

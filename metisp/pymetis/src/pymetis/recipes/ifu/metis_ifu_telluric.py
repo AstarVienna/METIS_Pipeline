@@ -97,23 +97,26 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         self.mf_calctrans()
         self.determine_response()
 
-        header = create_dummy_header()
+        primary_header = create_dummy_header()
+        header_transmission = create_dummy_header()
+        header_reduced_1d = create_dummy_header()
+        header_fluxcal_tab = create_dummy_header()
         image = create_dummy_image()
         table = create_dummy_table()
 
         combined = self.inputset.combined.load_data('PRIMARY')
 
         product_telluric_transmission = self.ProductTelluricTransmission(
-            header,
-            Hdu(header, table, name='TABLE'),
+            primary_header,
+            Hdu(header_transmission, table, name='TABLE'),
         )
         product_reduced_1d = self.ProductResponseFunction(
-            header,
-            Hdu(header, image, name='IMAGE'),
+            primary_header,
+            Hdu(header_reduced_1d, image, name='IMAGE'),
         )
         product_fluxcal_tab = self.ProductFluxcalTab(
-            header,
-            Hdu(header, table, name='TABLE'),
+            primary_header,
+            Hdu(header_fluxcal_tab, table, name='TABLE'),
         )
 
         return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}

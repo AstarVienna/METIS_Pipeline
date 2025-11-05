@@ -48,10 +48,14 @@ class MetisLssTraceImpl(DarkImageProcessor):
         raws = self.inputset.raw.load_data('DET1.DATA')
         master_rsrf = self.inputset.master_rsrf.load_data('PRIMARY')
 
-        trace_tab_hdr = self.inputset.master_rsrf.item.primary_header
+        primary_header = self.inputset.master_rsrf.item.primary_header
+
+        trace_tab_header = create_dummy_header()
         trace_tab_data = create_dummy_table()
 
         return {
-            self.ProductTraceTable(trace_tab_hdr, Hdu(trace_tab_hdr, trace_tab_data, name='TABLE'))
+            self.ProductTraceTable(
+                primary_header,
+                Hdu(trace_tab_header, trace_tab_data, name='TABLE'))
         }
 

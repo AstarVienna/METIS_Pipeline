@@ -34,7 +34,8 @@ class LssObjMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'IMAGE': Image,
     }
 
 
@@ -63,7 +64,8 @@ class LssSkyMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'IMAGE': Image,
     }
 
 
@@ -109,7 +111,8 @@ class LssSci2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'IMAGE': Image,
     }
 
 
@@ -134,7 +137,7 @@ class LssSciFlux1d(BandSpecificMixin, TableDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
-        'BINTABLE': Table,
+        'TABLE': Table,
     }
 
 
@@ -158,7 +161,8 @@ class LssSciFlux2d(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'IMAGE': Image,
     }
 
 

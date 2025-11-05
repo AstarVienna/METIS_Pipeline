@@ -52,13 +52,14 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
         self.resample_cubes()
         self.coadd_cubes()
 
-        header = create_dummy_header()
+        primary_header = create_dummy_header()
+        header_coadd = create_dummy_header()
 
         coadded = self.coadd_cubes()
 
         product = self.ProductSciCoadd(
-            header,
-            Hdu(header, coadded, name='IMAGE')
+            primary_header,
+            Hdu(header_coadd, coadded, name='IMAGE')
         )
 
         return {product}  # ToDo is just a dummy for now

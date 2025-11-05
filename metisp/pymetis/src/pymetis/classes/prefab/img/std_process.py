@@ -24,7 +24,7 @@ from pymetis.dataitems.common import FluxCalTable
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import FluxstdCatalogInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
-from pymetis.utils.dummy import create_dummy_table
+from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
 class MetisImgStdProcessImpl(RawImageProcessor):
@@ -41,16 +41,19 @@ class MetisImgStdProcessImpl(RawImageProcessor):
         raw_images = self.inputset.raw.load_data('DET1.DATA')
 
         combined_image = self.combine_images(raw_images, "average")
-        header = self.inputset.raw.items[0].primary_header
+        primary_header = self.inputset.raw.items[0].primary_header
+
+        header_table = create_dummy_header()
+        header_combined = create_dummy_header()
         table = create_dummy_table()
 
         product_fluxcal = self.ProductImgFluxCalTable(
-            header,
-            Hdu(header, table, name='TABLE')
+            primary_header,
+            Hdu(header_table, table, name='TABLE')
         )
         product_combined = self.ProductImgStdCombined(
-            header,
-            Hdu(header, combined_image, name='IMAGE'),
+            primary_header,
+            Hdu(header_combined, combined_image, name='IMAGE'),
         )
 
         return {product_fluxcal, product_combined}

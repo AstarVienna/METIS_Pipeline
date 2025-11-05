@@ -17,8 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
-
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
@@ -65,20 +63,26 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
         raws = self.inputset.raw.load_data('DET1.DATA')
         master_lss_rsrf = self.inputset.master_rsrf.load_data('PRIMARY')
 
-        header = self.inputset.master_rsrf.item.primary_header
+        primary_header = self.inputset.master_rsrf.item.primary_header
         table = create_dummy_table()
 
-        lm_lss_curve_header = header
-        lm_lss_dist_sol_hdr = header
-        lm_lss_wave_guess_hdr = header
+        lm_lss_curve_header = create_dummy_header()
+        lm_lss_dist_sol_hdr = create_dummy_header()
+        lm_lss_wave_guess_hdr = create_dummy_header()
 
         return {
-            self.ProductLssCurve(header,
-                                 Hdu(lm_lss_curve_header, table, name='TABLE')),
-            self.ProductLssDistSol(header,
-                                   Hdu(lm_lss_dist_sol_hdr, table, name='TABLE')),
-            self.ProductLssWaveGuess(header,
-                                     Hdu(lm_lss_wave_guess_hdr, table, name='TABLE')),
+            self.ProductLssCurve(
+                primary_header,
+                Hdu(lm_lss_curve_header, table, name='TABLE')
+            ),
+            self.ProductLssDistSol(
+                primary_header,
+                Hdu(lm_lss_dist_sol_hdr, table, name='TABLE')
+            ),
+            self.ProductLssWaveGuess(
+                primary_header,
+                Hdu(lm_lss_wave_guess_hdr, table, name='TABLE')
+            ),
         }
 
 

@@ -31,6 +31,7 @@ from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisLmImgBasicReduceImpl(DarkImageProcessor):
@@ -115,7 +116,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
 
             Msg.info(self.__class__.__qualname__, f"Processing frame {frame.file}")
 
-            header = cpl.core.PropertyList.load(frame.file, 0)
+            primary_header = cpl.core.PropertyList.load(frame.file, 0)
 
             Msg.info(self.__class__.__qualname__, "Pretending to calculate noise")
 
@@ -132,16 +133,17 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             Msg.info(self.__class__.__qualname__, "Actually Calculating QC Parameters")
             Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
-            header.append(cpl.core.Property("QC LM IMG MEDIAN", cpl.core.Type.DOUBLE,
+            header_reduced = create_dummy_header()
+            header_reduced.append(cpl.core.Property("QC LM IMG MEDIAN", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] median value of image"))
-            header.append(cpl.core.Property("QC LM IMG STDEV", cpl.core.Type.DOUBLE,
+            header_reduced.append(cpl.core.Property("QC LM IMG STDEV", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] stddev value of image"))
-            header.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
+            header_reduced.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] max value of image"))
 
             product = self.ProductBasicReduced(
-                header,
-                Hdu(header, image, name='DET1.DATA'),
+                primary_header,
+                Hdu(header_reduced, image, name='DET1.DATA'),
             )
             product_set |= {product}
 

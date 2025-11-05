@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Any
 
 import cpl
+import numpy as np
+from astropy.table import QTable
 from cpl.core import PropertyList as CplPropertyList, Property as CplProperty
 
 
@@ -100,4 +102,6 @@ def create_dummy_table(rows: int = 3) -> cpl.core.Table:
     Create a dummy table (absolutely no assumptions, just to have something to work with).
     # ToDo This function should not survive in the future.
     """
-    return cpl.core.Table.empty(rows)
+    table = QTable()
+    table['data'] = np.array([5, 6, 7])
+    return cpl.core.Table(table)
