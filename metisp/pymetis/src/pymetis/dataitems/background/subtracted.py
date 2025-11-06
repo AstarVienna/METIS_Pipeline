@@ -40,7 +40,11 @@ class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, ImageDataItem
 
 
 class StdBackgroundSubtracted(TargetStdMixin, BackgroundSubtracted, abstract=True):
-    pass
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
+
 
 
 class LmStdBackgroundSubtracted(BandLmMixin, StdBackgroundSubtracted):
