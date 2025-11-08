@@ -389,8 +389,8 @@ badpix_map_h2rg_class = classification_rule("BADPIX_MAP_2RG",
     })
 
 # Synthetic transmission for the LM LSS mode
-lm_lss_synth_trans_class = classification_rule("LM_LSS_SYNTH_TRANS",
-    {metis_kwd.pro_catg: "LM_LSS_SYNTH_TRANS",
+lm_synth_trans_class = classification_rule("LM_SYNTH_TRANS",
+    {metis_kwd.pro_catg: "LM_SYNTH_TRANS",
     })
 
 # Table for best-fit molecfit parameters
@@ -486,6 +486,6 @@ badpix_map_geo_class = classification_rule("BADPIX_MAP_GEO",
     })
 
 # Synthetic transmission for the N LSS mode
-n_lss_synth_trans_class = classification_rule("N_LSS_SYNTH_TRANS",
-    {metis_kwd.pro_catg: "N_LSS_SYNTH_TRANS",
+n_synth_trans_class = classification_rule("N_SYNTH_TRANS",
+    {metis_kwd.pro_catg: "N_SYNTH_TRANS",
     })

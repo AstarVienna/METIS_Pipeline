@@ -101,7 +101,7 @@ class MasterLssRsrf(BandSpecificMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
 
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
         'DET1.DATA': Image,
     }
 
