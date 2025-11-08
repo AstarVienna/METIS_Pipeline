@@ -48,6 +48,7 @@ class SinglePipelineInput(PipelineInput):
         if len(frameset) > 1:
             Msg.warning(self.__class__.__name__,
                         f"Expected a single frame, but found {len(frameset)} of them!")
+            self.frame = frameset[0]
         else:
             Msg.debug(self.__class__.__name__,
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
