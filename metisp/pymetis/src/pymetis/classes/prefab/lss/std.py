@@ -28,7 +28,7 @@ from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.science import LssSkyMap, LssObjMap
 from pymetis.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
 from pymetis.dataitems.lss.trace import LssTrace
-from pymetis.dataitems.synth import LssSynthTrans
+from pymetis.dataitems.synth import SynthTrans
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, MasterDarkInput, BadPixMapInputSetMixin, \
     GainMapInputSetMixin, SinglePipelineInput, FluxstdCatalogInput, MasterRsrfInput, LinearityInputSetMixin
 from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
@@ -62,7 +62,7 @@ class MetisLssStdImpl(DarkImageProcessor):
             Item = AdcSlitloss
 
         class LssSynthTransInput(SinglePipelineInput):
-            Item = LssSynthTrans
+            Item = SynthTrans
 
         class RefStdCatInput(FluxstdCatalogInput):
             Item = RefStdCat

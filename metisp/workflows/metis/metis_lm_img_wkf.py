@@ -24,7 +24,7 @@ lm_img_flat_task = (task("metis_lm_img_flat")
              .with_recipe("metis_lm_img_flat")
              .build())
 
-lm_img_distortion_task = (task('metis_lm_img_cal_distortion')
+lm_img_distortion_task = (task('metis_lm_img_distortion')
                    .with_main_input(lm_distortion_raw)
                    .with_associated_input(lm_wcu_off_raw)
                    .with_associated_input(pinhole_table)

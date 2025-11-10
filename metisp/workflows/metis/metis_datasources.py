@@ -271,8 +271,8 @@ lm_lss_wave_guess = (data_source()
             .with_match_keywords([metis_kwd.instrume])
             .build())
 
-lm_lss_synth_trans = (data_source()
-            .with_classification_rule(lm_lss_synth_trans_class)
+lm_synth_trans = (data_source()
+            .with_classification_rule(lm_synth_trans_class)
             .with_match_keywords([metis_kwd.instrume])
             .build())
 
@@ -362,8 +362,8 @@ n_lss_wave_guess = (data_source()
             .with_match_keywords([metis_kwd.instrume])
             .build())
 
-n_lss_synth_trans = (data_source()
-            .with_classification_rule(n_lss_synth_trans_class)
+n_synth_trans = (data_source()
+            .with_classification_rule(n_synth_trans_class)
             .with_match_keywords([metis_kwd.instrume])
             .build())
 
