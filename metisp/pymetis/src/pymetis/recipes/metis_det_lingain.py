@@ -97,7 +97,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         #     median = flat_image.get_median()
         #     flat_image.divide_scalar(median)
 
-        Msg.info(self.__class__.__qualname__, f"HDUs: {self.inputset.raw.items[0].hdus.keys()}")
+        Msg.info(self.__class__.__qualname__, f"HDUs found: {list(self.inputset.raw.items[0].hdus.keys())}")
 
         detector_count = len(list(filter(lambda x: re.match(r'DET[0-9].DATA', x) is not None,
                                          self.inputset.raw.items[0].hdus.keys() - ['PRIMARY'])))

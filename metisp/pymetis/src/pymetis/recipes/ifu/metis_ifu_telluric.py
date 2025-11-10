@@ -104,7 +104,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         image = create_dummy_image()
         table = create_dummy_table()
 
-        combined = self.inputset.combined.load_data('PRIMARY')
+        combined = self.inputset.combined.load_data('DET1.DATA')
 
         product_telluric_transmission = self.ProductTelluricTransmission(
             primary_header,

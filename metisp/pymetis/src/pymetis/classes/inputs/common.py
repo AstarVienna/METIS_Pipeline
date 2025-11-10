@@ -82,6 +82,10 @@ class PersistenceMapInput(SinglePipelineInput):
     Item = PersistenceMap
 
 
+class OptionalPersistenceMapInput(OptionalInputMixin, SinglePipelineInput):
+    Item = PersistenceMap
+
+
 class GainMapInput(SinglePipelineInput):
     Item = GainMap
 

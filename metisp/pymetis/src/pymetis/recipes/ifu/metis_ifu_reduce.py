@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.distortion.table import IfuDistortionTable
 from pymetis.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
 from pymetis.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
@@ -29,6 +29,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, WavecalInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):
@@ -53,17 +54,34 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     ProductCombined = IfuCombined
 
     def process(self) -> set[DataItem]:
-        header = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_images()
+        primary_header = cpl.core.PropertyList()
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
         image = self.combine_images(raw_images, "add")
 
         subtracted_images = self.subtract_dark(raw_images)
 
+        header_reduced = create_dummy_header()
+        header_background = create_dummy_header()
+        header_reduced_cube = create_dummy_header()
+        header_combined = create_dummy_header()
+
         return {
-            self.ProductReduced(header, image),
-            self.ProductBackground(header, image),
-            self.ProductReducedCube(header, image),
-            self.ProductCombined(header, image),
+            self.ProductReduced(
+                primary_header,
+                Hdu(header_reduced, image, name='DET1.DATA'),
+            ),
+            self.ProductBackground(
+                primary_header,
+                Hdu(header_background, image, name='DET1.DATA'),
+            ),
+            self.ProductReducedCube(
+                primary_header,
+                Hdu(header_reduced_cube, image, name='DET1.DATA'),
+            ),
+            self.ProductCombined(
+                primary_header,
+                Hdu(header_combined, image, name='DET1.DATA'),
+            ),
         }
 
 

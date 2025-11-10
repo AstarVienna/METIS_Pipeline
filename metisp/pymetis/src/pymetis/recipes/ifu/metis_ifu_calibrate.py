@@ -40,7 +40,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
     ProductSciCubeCalibrated = IfuScienceCubeCalibrated
 
     def process(self) -> set[DataItem]:
-        reduced = self.inputset.reduced.load_data(extension='PRIMARY')
+        reduced = self.inputset.reduced.load_data(extension='DET1.DATA')
         self.inputset.reduced.use()
 
         primary_header = create_dummy_header()

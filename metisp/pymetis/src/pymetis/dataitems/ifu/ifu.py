@@ -31,7 +31,9 @@ class IfuBase(TargetSpecificMixin, BandIfuMixin, ImageDataItem, abstract=True):
 
     # FixMe: This is wrong but matches the current testing data
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}.DATA': Image for det in range(1, 5)
     }
 
 
