@@ -85,7 +85,9 @@ class PipelineInputSet(Parametrizable, ABC):
     @classmethod
     def get_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:
         """
-        List all input classes within this input set
+        List all input classes within this input set.
+
+        Warning: uses introspection, feels hacky
         """
         return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
