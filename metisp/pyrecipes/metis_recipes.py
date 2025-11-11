@@ -58,6 +58,7 @@ from pymetis.recipes.lm_lss.metis_lm_lss_mf_model import MetisLmLssMfModel
 from pymetis.recipes.lm_lss.metis_lm_lss_mf_calctrans import MetisLmLssMfCalctrans
 from pymetis.recipes.lm_lss.metis_lm_lss_mf_correct import MetisLmLssMfCorrect
 from pymetis.recipes.lm_lss.metis_lm_adc_slitloss import MetisLmAdcSlitloss
+from pymetis.recipes.hci.metis_img_adi_cgrph import MetisLmRavcSciCalibrated
 
 __all__ = [
     MetisDetLinGain,
@@ -101,4 +102,5 @@ __all__ = [
     MetisLmLssMfCalctrans,
     MetisLmLssMfCorrect,
     MetisLmAdcSlitloss,
+    MetisLmRavcSciCalibrated,
 ]
