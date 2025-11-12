@@ -134,7 +134,7 @@ find some useful information [here](https://it.overleaf.com/project/65c1ef845ddd
 
 To be safe, this command clear our all the cache data, log, product.
 ```
-edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf EDPS_data/*
+edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf $HOME/EDPS_data/* /tmp/EDPS_DATA/*
 ```
 
 Listing all avaliable data files
