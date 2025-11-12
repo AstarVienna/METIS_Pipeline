@@ -29,11 +29,10 @@ from pymetis.classes.mixins.target import TargetSpecificMixin
 class IfuBase(TargetSpecificMixin, BandIfuMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
-    # FixMe: This is wrong but matches the current testing data
     _schema = {
-        'PRIMARY': Image,
+        'PRIMARY': None,
+        'IMAGE': Image,
     }
-
 
 class IfuReduced(IfuBase, abstract=True):
     _name_template = r'IFU_{target}_REDUCED'
@@ -41,6 +40,15 @@ class IfuReduced(IfuBase, abstract=True):
     _description_template = "Reduced 2D detector image of a {target}"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+
+    # TBD: Current DRLD specifies only four image extensions, but ERR and DQ should be added
+    # TBD: DRLD mentions possible presence of a table extension describing
+    # ...slice layout and wavelength calibration - could also go in the header
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        rf'DET{detector:1d}.DATA': Image for detector in [1, 2, 3, 4]
+    }
 
 
 class IfuStdReduced(TargetStdMixin, IfuReduced):
@@ -58,9 +66,12 @@ class IfuReducedCube(IfuBase, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
 
+    # TBD: Need to support nominal/extended modes (=one extension per echelle order)
+
 
 class IfuStdReducedCube(TargetStdMixin, IfuReducedCube):
-    _description_template = "Reduced 2D detector image of spectroscopic flux standard star."
+    # TBD: Note, DRLD description incorrect
+    _description_template = "A rectified spectral cube with a linear wavelength grid."
 
 
 class IfuSciReducedCube(TargetSciMixin, IfuReducedCube):
@@ -73,11 +84,6 @@ class IfuReduced1d(IfuBase, abstract=True):
     _description_template = "Reduced 1D spectrum"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-
-    _schema = {
-        'PRIMARY': None,
-        'IMAGE': Image,
-    }
 
 
 class IfuStdReduced1d(TargetStdMixin, IfuReduced1d):
@@ -93,7 +99,7 @@ class IfuCombined(IfuBase, abstract=True):
     _title_template = "spectral cube of science object"
     _description_template = "Spectral cube of a standard star, combining multiple exposures."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
 
 
 class IfuStdCombined(TargetStdMixin, IfuCombined):

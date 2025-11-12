@@ -152,7 +152,7 @@ class MetisIfuDistortionImpl(DarkImageProcessor):
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         """
-        Find the distortion coeeficients for a single detector of the IFU.
+        Find the distortion coefficients for a single detector of the IFU.
 
         Parameters
         ----------

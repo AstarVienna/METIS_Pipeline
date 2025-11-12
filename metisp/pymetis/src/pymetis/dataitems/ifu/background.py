@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image
 
 from pymetis.dataitems.ifu.ifu import IfuBase
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
@@ -30,6 +31,14 @@ class IfuBackground(IfuBase, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
 
+    # TBD: Current DRLD specifies only four image extensions, but ERR and DQ should be added
+    # TBD: DRLD mentions possible presence of a table extension describing
+    # slice layout and wavelength calibration - could also go in the header
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        rf'DET{detector:1d}.DATA': Image for detector in [1, 2, 3, 4]
+    }
 
 class IfuStdBackground(TargetStdMixin, IfuBackground):
     _description_template = "Reduced 2D detector image of background."
