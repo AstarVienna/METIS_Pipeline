@@ -114,7 +114,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         )
         product_reduced_1d = self.ProductResponseFunction(
             primary_header,
-            Hdu(header_reduced_1d, image, name='IMAGE'),
+            Hdu(header_reduced_1d, image, name='DET1.DATA'),
         )
         product_fluxcal_tab = self.ProductFluxcalTab(
             primary_header,
