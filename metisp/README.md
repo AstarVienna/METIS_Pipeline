@@ -1,5 +1,7 @@
 
-## Quick start
+## Manual Installation
+
+Instructions for installation via docker containers look here [README.md](../toolbox/README.md)
 
 ### Install system-wide prerequisites
 For systems that use `apt`:
