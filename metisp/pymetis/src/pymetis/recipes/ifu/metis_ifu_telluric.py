@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.common import FluxCalTable, IfuTelluric
@@ -133,5 +135,16 @@ class MetisIfuTelluric(MetisRecipe):
     Compute telluric correction.
     Compute conversion to physical units as function of wave-length."""
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+
+    # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
+    parameters = ParameterList([
+        ParameterEnum(
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
+    ])
 
     Impl = MetisIfuTelluricImpl

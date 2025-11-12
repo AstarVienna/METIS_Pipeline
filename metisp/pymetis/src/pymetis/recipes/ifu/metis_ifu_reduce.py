@@ -17,7 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+from typing import Literal
+
 import cpl
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.distortion.table import IfuDistortionTable
@@ -29,7 +32,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, WavecalInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):
@@ -53,34 +56,76 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     ProductReducedCube = IfuReducedCube
     ProductCombined = IfuCombined
 
+    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+        """
+        Process exposures for a single detector of the IFU.
+
+        Parameters
+        ----------
+        detector : Literal[1, 2, 3, 4]
+
+        Returns
+        -------
+        dict[str, Hdu]
+            Processed and background images for the given detector.
+        """
+
+        det = rf'{detector:1d}'
+        raw_images = self.inputset.raw.use().load_data(extension=rf'DET{det}.DATA')
+
+        #TBD: implement actual reduction steps
+        combined_image = self.combine_images(raw_images, "average")
+
+        header_image = create_dummy_header()
+        header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}.DATA'))
+
+        header_background = create_dummy_header()
+        header_background.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}.DATA'))
+
+
+        return {
+            'IMAGE': Hdu(header_image, combined_image, name=rf'DET{det}.DATA'),
+            'BACKGROUND': Hdu(header_background, combined_image, name=rf'DET{det}.DATA'),
+        }
+
     def process(self) -> set[DataItem]:
+        header_reduced = create_dummy_header()
+        header_background = create_dummy_header()
+        header_reduced_cube = create_dummy_header()
+        header_combined_cube = create_dummy_header()
+
+        output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
         primary_header = cpl.core.PropertyList()
         raw_images = self.inputset.raw.load_data('DET1.DATA')
         image = self.combine_images(raw_images, "add")
 
-        subtracted_images = self.subtract_dark(raw_images)
+        product_reduced = self.ProductReduced(
+            header_reduced,
+            *[out['IMAGE'] for out in output],
+        )
 
-        header_reduced = create_dummy_header()
-        header_background = create_dummy_header()
-        header_reduced_cube = create_dummy_header()
-        header_combined = create_dummy_header()
+        product_background = self.ProductBackground(
+            header_background,
+            *[out['BACKGROUND'] for out in output],
+        )
+
+        # cready dummy image for cube outputs
+        raw_images = self.inputset.raw.use().load_data(extension=rf'DET1.DATA')
+        combined_image = self.combine_images(raw_images, "average")
+        header_image = create_dummy_header()
+        header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'IMAGE'))
+        cube_hdu = Hdu(header_image, combined_image, name='IMAGE')
 
         return {
-            self.ProductReduced(
-                primary_header,
-                Hdu(header_reduced, image, name='DET1.DATA'),
-            ),
-            self.ProductBackground(
-                primary_header,
-                Hdu(header_background, image, name='DET1.DATA'),
-            ),
+            product_reduced,
+            product_background,
             self.ProductReducedCube(
                 primary_header,
                 Hdu(header_reduced_cube, image, name='DET1.DATA'),
             ),
             self.ProductCombined(
                 primary_header,
-                Hdu(header_combined, image, name='DET1.DATA'),
+                Hdu(header_combined_cube, image, name='DET1.DATA'),
             ),
         }
 
@@ -102,5 +147,16 @@ class MetisIfuReduce(MetisRecipe):
     Estimate background from dithered science exposures or blank-sky exposures and subtract
     Rectify spectra and assemble cube
     Extract 1D object spectrum"""
+
+    # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
+    parameters = ParameterList([
+        ParameterEnum(
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
+    ])
 
     Impl = MetisIfuReduceImpl

@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
@@ -68,5 +69,16 @@ class MetisIfuCalibrate(MetisRecipe):
     _matched_keywords = {'DRS.IFU'}
     _algorithm = """Correct for telluric absorption.
     Apply flux calibration."""
+
+    # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
+    parameters = ParameterList([
+        ParameterEnum(
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
+    ])
 
     Impl = MetisIfuCalibrateImpl
