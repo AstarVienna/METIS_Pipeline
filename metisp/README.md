@@ -129,20 +129,19 @@ List of available recipes:
 
 
 ## Use with EDPS
-Before starting to use this pipeline with EDPS, make sure you have read the document of EDPS.  You may also 
-find some useful information [here](https://it.overleaf.com/project/65c1ef845dddcc9a7247e46c)
+Before starting to use this pipeline with EDPS, make sure you have read the documentation for EDPS.  A good starting point is [here](https://www.eso.org/sci/software/edps.html).
 
-To be safe, this command clear our all the cache data, log, product.
+To be safe, this command clears out all the cached data, logs, products, etc. This erases the whole EDPS history, and is therefore most useful when developing / debugging and shouldn't be done in regular operation. 
 ```
 edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf $HOME/EDPS_data/* /tmp/EDPS_DATA/*
 ```
 
-Listing all avaliable data files
+List all avaliable data files
 ```
  edps -w metis.metis_wkf -i $SOF_DATA -c
 ```
 
-Listing all avaliable processing tasks
+List all avaliable processing tasks
 ```
  edps -w metis.metis_wkf -i $SOF_DATA -lt
 ```
@@ -161,7 +160,7 @@ Running Meta-target
  edps -w metis.metis_wkf -i $SOF_DATA -m science 
 ```
 
-Getting report in a better way
+Getting reports in a better way
 ```
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -od
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -og
@@ -173,7 +172,7 @@ Making plots
 edps -w metis.metis_lm_img_wkf -i $SOF_DATA -g > test.dot
 dot -T png test.dot > mygraph.png
 ```
-The gerated plotting code can plot using online tool as well
+The generated plotting code can plot using online tool as well
 [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)
 
 
