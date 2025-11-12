@@ -172,7 +172,7 @@ Making plots
 edps -w metis.metis_lm_img_wkf -i $SOF_DATA -g > test.dot
 dot -T png test.dot > mygraph.png
 ```
-The generated plotting code can plot using online tool as well
+The generated plotting code can be plotted using an online tool as well
 [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)
 
 
