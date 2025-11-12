@@ -1,13 +1,19 @@
 
+# METIS Pipeline
+The METIS pipeline is the data reduction software for the Mid-infrared E-ELT Imager and Spectrograph (METIS). 
+
 ## Manual Installation
 
 Instructions for installation via docker containers look here [README.md](../toolbox/README.md)
 
-### Install system-wide prerequisites
-For systems that use `apt`:
+For basic instructions on how to run workflows and recipes, go [here](#running-the-software)
+
+## Install dependencies
+
+The instructions below assume Ubuntu 24.04, but can easily be adapted for other systems.
 ```
 apt-get install -y \
-	wget gcc automake autogen libtool gsl-bin libgsl-dev \
+	wget gcc  automake autogen libtool gsl-bin libgsl-dev \
 	libfftw3-bin libfftw3-dev fftw-dev \
 	curl bzip2 less subversion git cppcheck lcov valgrind \
 	zlib1g zlib1g-dev \
@@ -24,12 +30,10 @@ apt-get install -y \
 	python3-jupyter-core python3-jupyter-client python3-notebook
 ```
 
-### Clone the repository
-```
-git clone https://github.com/AstarVienna/METIS_Pipeline.git
-```
+## Create a Python environment
+Use your favourite tool to create a Python environment, e.g. venv, conda, etc 
+Python 3.12 is recommended. Then start the environment.
 
-### Set up the virtual environment
 An example using virtualenv:
 ```
 python -m venv metis_pip
@@ -42,48 +46,139 @@ conda create -n metis python==3.12 poetry
 conda activate metis
 ```
 
-Or with `pipenv`:
+## Clone the METIS pipeline
 ```
-pipenv shell
+git clone https://github.com/AstarVienna/METIS_Pipeline.git
 ```
-
-Optionally, you may install `pytest` to be able to run automated tests, with
-```
-pip install pytest
-```
-or for `pipenv`
-```
-pipenv install --dev pytest
-```
-
-### Set up environment variables
-For some reason the `PYESOREX_PLUGIN_DIR` environment variable needs to point
-to the recipes, even **before** you install pyesorex and edps:
-
+and set the following environment variables:
 ```
 export PYTHONPATH="$(pwd)/METIS_Pipeline/metisp/pymetis/src/"
 export PYCPL_RECIPE_DIR="$(pwd)/METIS_Pipeline/metisp/pyrecipes/"
 export PYESOREX_PLUGIN_DIR="$PYCPL_RECIPE_DIR"
 ```
 
-Optionally, you may put the `export`s into the `.rc` file of the shell of your choice.
+## Install PyEsoRex, PyCPL and EDPS
 
-The pipeline also requires file locations to be set:
-```
-export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
-export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
-export PYESOREX_OUTPUT_DIR="/tmp/"
-```
+Set the PYESOREX_PLUGIN_DIR environment variable: 
+The PYESOREX_PLUGIN_DIR environment variable needs to be pointing to the recipes already before you install pyesorex and edps. See above for the export statement.
 
-### Install external ESO prerequisites
-Probably the easiest way is to activate the virtual environment and then run 
+Install pyesorex and the EDPS in the Python environment.
 ```
 pip install --extra-index-url \
     https://ftp.eso.org/pub/dfs/pipelines/libraries \
     pycpl pyesorex edps adari_core
 ```
 
-### Run `pytest`
-If everything is configured properly, you should be able to run `pytest` from within `.../metisp/pymetis`.
-If EDPS has not yet been set up, `pytest -m "not edps"` deselects the related tests
-(which also take much longer than the rest).
+Pyesorex and the EDPS need to be configured to use the METIS Pipeline. The easiest way to do this is by copying the provided configuration files. 
+
+–WARNING–: 
+Backup any existing EDPS configuration before proceeding.
+
+Option 1 (beginner)
+The simple way to configure the system environment to run EDPS is to run the following bash script from the toolbox:
+```
+./METIS_Pipeline/toolbox/create_config.sh
+```
+Option 2 (expert)
+The hard way gives you more control about where the EDPS configuration is kept:
+```
+mkdir -p "/tmp/EDPS_data"
+mkdir -p "${HOME}/.edps"
+cp -avi METIS_Pipeline/toolbox/config/DOTedps/* "${HOME}/.edps"
+```
+Note that the above sets these parameters
+```
+base_dir=/tmp/EDPS_data
+workflow_dir=.
+```
+since the absolute paths are not known.
+
+For manual configuration, change these parameters in ~./edps/application.properties :
+```
+esorex_path=pyesorex
+workflow_dir=/absolute/path/to/METIS_Pipeline/metisp/workflows
+breakpoints_url=
+```
+Where the absolute path to the METIS workflow directory must be given. Setting the breakpoints_url is optional, but required to use the pipeline offline.
+
+
+# Running the software
+
+## Checking with PyESOREX
+
+Firstly, run pyesorex.  We will see all avaliable receipes if there is not problem.
+
+```
+$ pyesorex --recipes
+[ INFO  ] pyesorex: This is PyEsoRex, version 1.0.0.
+
+     ***** ESO Recipe Execution Tool, Python version 1.0.0 *****
+
+List of available recipes:
+
+  metis_det_dark        : Create master dark
+  metis_abstract_base   : Abstract-like base class for METIS recipes
+  metis_det_lingain     : Measure detector non-linearity and gain
+  metis_ifu_calibrate   : Calibrate IFU science data
+  metis_ifu_reduce      : Reduce raw science exposures of the IFU.
+  metis_ifu_telluric    : Derive telluric absorption correction and optionally flux calibration
+  metis_lm_basic_reduction: Basic science image data processing
+  metis_lm_img_flat     : Create master flat for L/M band detectors
+  metis_n_img_flat      : Create master flat for N band detectors
+```
+
+
+## Use with EDPS
+Before starting to use this pipeline with EDPS, make sure you have read the document of EDPS.  You may also 
+find some useful information [here](https://it.overleaf.com/project/65c1ef845dddcc9a7247e46c)
+
+To be safe, this command clear our all the cache data, log, product.
+```
+edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf EDPS_data/*
+```
+
+Listing all avaliable data files
+```
+ edps -w metis.metis_wkf -i $SOF_DATA -c
+```
+
+Listing all avaliable processing tasks
+```
+ edps -w metis.metis_wkf -i $SOF_DATA -lt
+```
+
+Running one specific recipe
+```
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_detlin
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_lm_img_flat
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_lm_img_basic_reduce
+ 
+```
+
+Running Meta-target
+```
+ edps -w metis.metis_wkf -i $SOF_DATA -m science 
+```
+
+Getting report in a better way
+```
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -od
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -og
+ edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -f
+```
+
+Making plots
+```
+edps -w metis.metis_lm_img_wkf -i $SOF_DATA -g > test.dot
+dot -T png test.dot > mygraph.png
+```
+The gerated plotting code can plot using online tool as well
+[GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)
+
+
+## Note for developers
+When you're using the Python Debugger (pdb) and an error occurs, pdb will automatically enter post-mortem debugging mode, allowing you to inspect the state of the program at the point where the error occurred. Here's how you can find out where the error happened:
+```
+import pdb ; pdb.set_trace()
+```
