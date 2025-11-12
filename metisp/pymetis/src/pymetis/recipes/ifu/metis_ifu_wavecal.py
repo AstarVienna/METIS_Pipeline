@@ -24,24 +24,24 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 import numpy as np
 
 from pymetis.classes.dataitems import DataItem, Hdu
-from pymetis.classes.inputs.common import OptionalPersistenceMapInput
 from pymetis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
 from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.utils.dummy import create_dummy_header, create_dummy_table
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisIfuWavecalImpl(DarkImageProcessor):
     class InputSet(BandIfuMixin, DetectorIfuMixin,
-                   LinearityInputSetMixin, GainMapInputSetMixin,
+                   PersistenceInputSetMixin,
+                   LinearityInputSetMixin,
+                   GainMapInputSetMixin,
                    DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuWavecalRaw
 
-        PersistenceMap = OptionalPersistenceMapInput
         MasterDarkInput = MasterDarkInput
         DistortionTableInput = DistortionTableInput
 

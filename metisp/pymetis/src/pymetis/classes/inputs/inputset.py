@@ -48,7 +48,7 @@ class PipelineInputSet(Parametrizable, ABC):
     # Helper regex: remove final "Input" from the name of the class...
     __cut_input = re.compile(r'Input$')
     # Helper regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
-    __make_snake = re.compile(r'(?<!^)(?=[A-Z])')
+    __make_snake = re.compile(r'(?<!^)(?=[A-Z0-9])')
     # I.e. `MonsterCrunchInput` class instance will be named `monster_crunch`.
 
     def __init_subclass__(cls, abstract=False, **params):
@@ -105,6 +105,7 @@ class PipelineInputSet(Parametrizable, ABC):
 
         if len(self.inputs) == 0:
             raise NotImplementedError("PipelineInputSet must define at least one input.")
+
 
         for inp in self.inputs:
             inp.validate()
