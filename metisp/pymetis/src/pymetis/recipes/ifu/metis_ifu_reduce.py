@@ -22,8 +22,7 @@ from typing import Literal
 import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.distortion.table import IfuDistortionTable
 from pymetis.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
 from pymetis.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
@@ -96,6 +95,9 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         header_combined_cube = create_dummy_header()
 
         output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
+        primary_header = cpl.core.PropertyList()
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
+        image = self.combine_images(raw_images, "add")
 
         product_reduced = self.ProductReduced(
             header_reduced,
@@ -117,8 +119,14 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         return {
             product_reduced,
             product_background,
-            self.ProductReducedCube(header_reduced_cube, cube_hdu),
-            self.ProductCombined(header_combined_cube, cube_hdu),
+            self.ProductReducedCube(
+                primary_header,
+                Hdu(header_reduced_cube, image, name='DET1.DATA'),
+            ),
+            self.ProductCombined(
+                primary_header,
+                Hdu(header_combined_cube, image, name='DET1.DATA'),
+            ),
         }
 
 

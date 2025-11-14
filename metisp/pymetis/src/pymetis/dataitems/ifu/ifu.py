@@ -31,8 +31,10 @@ class IfuBase(TargetSpecificMixin, BandIfuMixin, ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
-        'IMAGE': Image,
+    } | {
+        fr'DET{det:1d}.DATA': Image for det in range(1, 5)
     }
+
 
 class IfuReduced(IfuBase, abstract=True):
     _name_template = r'IFU_{target}_REDUCED'
@@ -40,15 +42,6 @@ class IfuReduced(IfuBase, abstract=True):
     _description_template = "Reduced 2D detector image of a {target}"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-
-    # TBD: Current DRLD specifies only four image extensions, but ERR and DQ should be added
-    # TBD: DRLD mentions possible presence of a table extension describing
-    # ...slice layout and wavelength calibration - could also go in the header
-    _schema = {
-        'PRIMARY': None,
-    } | {
-        rf'DET{detector:1d}.DATA': Image for detector in [1, 2, 3, 4]
-    }
 
 
 class IfuStdReduced(TargetStdMixin, IfuReduced):
@@ -99,7 +92,7 @@ class IfuCombined(IfuBase, abstract=True):
     _title_template = "spectral cube of science object"
     _description_template = "Spectral cube of a standard star, combining multiple exposures."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
 
 
 class IfuStdCombined(TargetStdMixin, IfuCombined):

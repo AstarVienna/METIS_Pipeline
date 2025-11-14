@@ -45,14 +45,17 @@ class SinglePipelineInput(PipelineInput):
         A SinglePipelineInput verifies there is exactly one matched frame.
         """
         Msg.debug(self.__class__.__qualname__, f"Loading {frameset}")
-        if len(frameset) > 1:
+        if (count := len(frameset)) == 0:
             Msg.warning(self.__class__.__name__,
-                        f"Expected a single frame, but found {len(frameset)} of them!")
-            self.frame = frameset[0]
+                        f"No frames found!")
+        elif count > 1:
+            Msg.warning(self.__class__.__name__,
+                        f"Expected a single frame, but found {count} of them!")
         else:
             Msg.debug(self.__class__.__name__,
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
-            self.frame = frameset[0]
+
+        self.frame = frameset[0]
 
     def load_structure(self) -> None:
         if self.item is not None:
@@ -85,6 +88,7 @@ class SinglePipelineInput(PipelineInput):
         Run all the required instantiation time checks.
         Currently, we only check whether there is exactly one frame (if required) or at most one (if not required).
         """
+        Msg.debug(self.__class__.__qualname__, f"{self.frame}")
         self._verify_frame_present(self.frame)
 
     def _verify_frame_present(self,

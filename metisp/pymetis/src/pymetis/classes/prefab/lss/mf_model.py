@@ -18,8 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems import DataItem, Hdu
-from pymetis.dataitems.lss.science import LssSciFlux1d
-from pymetis.dataitems.lss.std import LssStd1d
+from pymetis.dataitems.lss.science import LssSciFlux1d, LssSci1d
 from pymetis.dataitems.molecfit.model import MfBestFitTable
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.inputs.mixins import AtmProfileInputSetMixin, AtmLineCatInputSetMixin, LsfKernelInputSetMixin
@@ -28,15 +27,18 @@ from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLssMfModelImpl(MetisRecipeImpl):
-    class InputSet(AtmProfileInputSetMixin, AtmLineCatInputSetMixin, LsfKernelInputSetMixin, PipelineInputSet):
+    class InputSet(AtmProfileInputSetMixin,
+                   AtmLineCatInputSetMixin,
+                   LsfKernelInputSetMixin,
+                   PipelineInputSet):
         # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
         class LssSciFlux1dInput(SinglePipelineInput):
             Item = LssSciFlux1d
 
         # Alternative (Path #3 in DRLD Section CritAlg)
-        class LssStd1dInput(SinglePipelineInput):
-            Item = LssStd1d
+        class LssSci1dInput(SinglePipelineInput):
+            Item = LssSci1d
 
     ProductMfBestFitTable = MfBestFitTable
 
@@ -47,9 +49,9 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         # TODO: Invoke molecfit here
         # TODO: Check whether the new mf writes out the best-fit param file
 
-        lss_sci_flux = self.inputset.lss_sci_flux1d.load_data('TABLE')
+        lss_sci_flux = self.inputset.lss_sci_flux_1d.load_data('TABLE')
 
-        primary_header = self.inputset.lss_sci_flux1d.item.primary_header
+        primary_header = self.inputset.lss_sci_flux_1d.item.primary_header
 
         header_mf_best_fit = create_dummy_header()
         table = create_dummy_table()
