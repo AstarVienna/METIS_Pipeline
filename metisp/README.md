@@ -1,6 +1,6 @@
 
 # METIS Pipeline
-The METIS pipeline is the data reduction software for the Mid-infrared E-ELT Imager and Spectrograph (METIS). 
+The METIS pipeline is the data reduction software for the Mid-infrared ELT Imager and Spectrograph (METIS). 
 
 ## Manual Installation
 
