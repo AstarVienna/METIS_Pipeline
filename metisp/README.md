@@ -131,7 +131,7 @@ List of available recipes:
 ## Use with EDPS
 Before starting to use this pipeline with EDPS, make sure you have read the documentation for EDPS.  A good starting point is [here](https://www.eso.org/sci/software/edps.html).
 
-To be safe, this command clears out all the cached data, logs, products, etc. This erases the whole EDPS history, and is therefore most useful when developing / debugging and shouldn't be done in regular operation. 
+To be safe, this command clears out all the cached data, logs, products, etc. This erases the whole EDPS history, and is therefore most useful when developing / debugging and shouldn't be done in regular operation.  If you've set the base data directory to something other than $HOME/EDPS_data/* or /tmp/EDPS_DATA/*, change the following command accordingly. 
 ```
 edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf $HOME/EDPS_data/* /tmp/EDPS_DATA/*
 ```
