@@ -85,7 +85,9 @@ ifu_sci_reduce_task = (task("metis_ifu_sci_reduce")
 
 ifu_sci_telluric_task = (task("metis_ifu_sci_telluric")
                 .with_recipe("metis_ifu_telluric")
-                .with_main_input(ifu_sci_reduce_task)
+                # FixMe: using raw input to avoid empty frameset on product save issue
+                .with_main_input(ifu_sci_raw)
+                .with_associated_input(ifu_sci_reduce_task)
                 .with_associated_input(fluxstd_catalog)
                 .with_associated_input(lsf_kernel)
                 .with_associated_input(atm_profile)
@@ -95,7 +97,9 @@ ifu_sci_telluric_task = (task("metis_ifu_sci_telluric")
 
 ifu_std_telluric_task = (task("metis_ifu_std_telluric")
                  .with_recipe("metis_ifu_telluric")
-                 .with_main_input(ifu_std_reduce_task)
+                # FixMe: using raw input to avoid empty frameset on product save issue
+                 .with_main_input(ifu_std_raw)
+                 .with_associated_input(ifu_std_reduce_task)
                  .with_associated_input(fluxstd_catalog)
                  .with_associated_input(lsf_kernel)
                  .with_associated_input(atm_profile)

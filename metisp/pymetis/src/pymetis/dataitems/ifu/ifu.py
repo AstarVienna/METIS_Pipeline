@@ -99,7 +99,7 @@ class IfuCombined(IfuBase, abstract=True):
     _title_template = "spectral cube of science object"
     _description_template = "Spectral cube of a standard star, combining multiple exposures."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _frame_group = cpl.ui.Frame.FrameGroup.RAW
 
 
 class IfuStdCombined(TargetStdMixin, IfuCombined):

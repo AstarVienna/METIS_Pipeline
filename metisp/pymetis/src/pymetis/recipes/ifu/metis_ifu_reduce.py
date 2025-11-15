@@ -56,6 +56,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     ProductBackground = IfuBackground
     ProductReducedCube = IfuReducedCube
     ProductCombined = IfuCombined
+    # FixMe: override frame group when dataitem used as product
+    ProductCombined._frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         """
