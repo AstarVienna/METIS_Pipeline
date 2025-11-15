@@ -22,9 +22,11 @@ from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.dataitems.common import FluxCalTable, IfuTelluric
 from pymetis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
+from pymetis.dataitems.ifu.raw import IfuRaw
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet, RawInput, MasterDarkInput
 from pymetis.classes.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
+from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
@@ -48,6 +50,10 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         #     _group = cpl.ui.Frame.FrameGroup.CALIB
         #     _title: str = "uncorrected mf input spectrum"
         #     _description: str = "Uncorrected MF input spectrum."
+
+        # FixMe: using raw input to avoid empty frameset on product save issue
+        class RawInput(RawInput):
+            Item = IfuRaw
 
         class CombinedInput(SinglePipelineInput):
             Item = IfuCombined
@@ -106,7 +112,9 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         image = create_dummy_image()
         table = create_dummy_table()
 
-        combined = self.inputset.combined.load_data('IMAGE')
+        # FixMe: using raw input to avoid empty frameset on product save issue
+        combined = self.inputset.raw.load_data('DET1.DATA')
+        self.inputset.raw.use()
 
         product_telluric_transmission = self.ProductTelluricTransmission(
             primary_header,
