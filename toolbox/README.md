@@ -3,7 +3,7 @@ METIS pipe line is the data reduction software for ELT early science instrument 
 
 ## Manual Installation
 
-See the `README.md` in the `metisp` directory for manual installation of the pipeline.
+See [`README.md`](../metisp) for manual installation of the pipeline.
 
 ## Installation via Docker
 

@@ -1,5 +1,12 @@
+
 # METIS Pipeline
-The METIS pipeline is the data reduction software for the Mid-infrared E-ELT Imager and Spectrograph (METIS). 
+The METIS pipeline is the data reduction software for the Mid-infrared ELT Imager and Spectrograph (METIS). 
+
+## Manual Installation
+
+Instructions for installation via docker containers look here [README.md](../toolbox/README.md)
+
+For basic instructions on how to run workflows and recipes, go [here](#running-the-software)
 
 ## Install dependencies
 
@@ -95,6 +102,8 @@ breakpoints_url=
 Where the absolute path to the METIS workflow directory must be given. Setting the breakpoints_url is optional, but required to use the pipeline offline.
 
 
+# Running the software
+
 ## Checking with PyESOREX
 
 Firstly, run pyesorex.  We will see all avaliable receipes if there is not problem.
@@ -120,20 +129,19 @@ List of available recipes:
 
 
 ## Use with EDPS
-Before starting to use this pipeline with EDPS, make sure you have read the document of EDPS.  You may also 
-find some useful information [here](https://it.overleaf.com/project/65c1ef845dddcc9a7247e46c)
+Before starting to use this pipeline with EDPS, make sure you have read the documentation for EDPS.  A good starting point is [here](https://www.eso.org/sci/software/edps.html).
 
-To be safe, this command clear our all the cache data, log, product.
+To be safe, this command clears out all the cached data, logs, products, etc. This erases the whole EDPS history, and is therefore most useful when developing / debugging and shouldn't be done in regular operation.  If you've set the base data directory to something other than $HOME/EDPS_data/* or /tmp/EDPS_DATA/*, change the following command accordingly. 
 ```
-edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf EDPS_data/*
+edps -shutdown ; rm -rf edps.log ;rm -rf pyesorex.log ; rm -rf $HOME/EDPS_data/* /tmp/EDPS_DATA/*
 ```
 
-Listing all avaliable data files
+List all avaliable data files
 ```
  edps -w metis.metis_wkf -i $SOF_DATA -c
 ```
 
-Listing all avaliable processing tasks
+List all avaliable processing tasks
 ```
  edps -w metis.metis_wkf -i $SOF_DATA -lt
 ```
@@ -152,7 +160,7 @@ Running Meta-target
  edps -w metis.metis_wkf -i $SOF_DATA -m science 
 ```
 
-Getting report in a better way
+Getting reports in a better way
 ```
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -od
  edps -w metis.metis_lm_img_wkf -i $SOF_DATA -t metis_det_dark -og
@@ -164,7 +172,7 @@ Making plots
 edps -w metis.metis_lm_img_wkf -i $SOF_DATA -g > test.dot
 dot -T png test.dot > mygraph.png
 ```
-The gerated plotting code can plot using online tool as well
+The generated plotting code can be plotted using an online tool as well
 [GraphvizOnline](https://dreampuf.github.io/GraphvizOnline/)
 
 
