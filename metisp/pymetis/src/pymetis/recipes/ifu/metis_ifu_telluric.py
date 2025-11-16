@@ -112,9 +112,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         image = create_dummy_image()
         table = create_dummy_table()
 
-        # FixMe: using raw input to avoid empty frameset on product save issue
-        combined = self.inputset.raw.load_data('DET1.DATA')
-        self.inputset.raw.use()
+        combined = self.inputset.combined.load_data('DET1.DATA')
 
         product_telluric_transmission = self.ProductTelluricTransmission(
             primary_header,
@@ -122,7 +120,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
         )
         product_reduced_1d = self.ProductResponseFunction(
             primary_header,
-            Hdu(header_reduced_1d, image, name='IMAGE'),
+            Hdu(header_reduced_1d, image, name='DET1.DATA'),
         )
         product_fluxcal_tab = self.ProductFluxcalTab(
             primary_header,

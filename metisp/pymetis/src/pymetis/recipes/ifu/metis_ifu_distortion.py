@@ -26,9 +26,10 @@ import numpy as np
 
 from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.inputs.common import OptionalPersistenceMapInput
 from pymetis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import RawInput, MasterDarkInput
+from pymetis.classes.inputs import RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput
 from pymetis.classes.inputs import PinholeTableInput
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
@@ -140,9 +141,10 @@ def create_distortion_table(ext: Literal[1, 2, 3, 4]) -> cpl.core.Table:
 
 
 class MetisIfuDistortionImpl(DarkImageProcessor):
-    class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, PersistenceInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         MasterDarkInput = MasterDarkInput
         PinholeTableInput = PinholeTableInput
+        PersistenceMap = OptionalPersistenceMapInput
 
         class RawInput(RawInput):
             Item = IfuDistortionRaw

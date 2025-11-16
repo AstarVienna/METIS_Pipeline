@@ -22,8 +22,7 @@ from typing import Literal
 import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.distortion.table import IfuDistortionTable
 from pymetis.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
 from pymetis.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
@@ -33,7 +32,8 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, WavecalInput,
                                     PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
-from pymetis.utils.dummy import create_dummy_table, create_dummy_header
+
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisIfuReduceImpl(DarkImageProcessor):
@@ -56,8 +56,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
     ProductBackground = IfuBackground
     ProductReducedCube = IfuReducedCube
     ProductCombined = IfuCombined
-    # FixMe: override frame group when dataitem used as product
-    ProductCombined._frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         """
@@ -85,7 +83,6 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         header_background = create_dummy_header()
         header_background.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}.DATA'))
 
-
         return {
             'IMAGE': Hdu(header_image, combined_image, name=rf'DET{det}.DATA'),
             'BACKGROUND': Hdu(header_background, combined_image, name=rf'DET{det}.DATA'),
@@ -98,6 +95,9 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         header_combined_cube = create_dummy_header()
 
         output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
+        primary_header = cpl.core.PropertyList()
+        raw_images = self.inputset.raw.load_data('DET1.DATA')
+        image = self.combine_images(raw_images, "add")
 
         product_reduced = self.ProductReduced(
             header_reduced,
@@ -112,15 +112,18 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         # cready dummy image for cube outputs
         raw_images = self.inputset.raw.use().load_data(extension=rf'DET1.DATA')
         combined_image = self.combine_images(raw_images, "average")
-        header_image = create_dummy_header()
-        header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'IMAGE'))
-        cube_hdu = Hdu(header_image, combined_image, name='IMAGE')
 
         return {
             product_reduced,
             product_background,
-            self.ProductReducedCube(header_reduced_cube, cube_hdu),
-            self.ProductCombined(header_combined_cube, cube_hdu),
+            self.ProductReducedCube(
+                primary_header,
+                Hdu(header_reduced_cube, combined_image, name='IMAGE'),
+            ),
+            self.ProductCombined(
+                primary_header,
+                Hdu(header_combined_cube, image, name='DET1.DATA'),
+            ),
         }
 
 
