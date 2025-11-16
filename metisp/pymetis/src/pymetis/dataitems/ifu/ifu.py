@@ -59,6 +59,10 @@ class IfuReducedCube(IfuBase, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
 
+    _schema = {
+        'PRIMARY': None,
+        'IMAGE': Image,
+    }
     # TBD: Need to support nominal/extended modes (=one extension per echelle order)
 
 
