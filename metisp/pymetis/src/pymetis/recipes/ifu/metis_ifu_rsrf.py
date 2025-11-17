@@ -344,7 +344,7 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
         The width of the trace to be used for extraction.
 
     Returns:
-    list of cpl.core.Vector
+    list of 1d array
         A list of 1D spectra extracted from the image.
     """
 
@@ -359,7 +359,7 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
     rsrf_1d_list = []
     for trace in trace_list:
         x_arr, y_arr = trace[0], trace[1]
-        rsrf_1d = np.zeros(2048, dtype=float)
+        rsrf_1d = np.zeros(imwidth, dtype=float)
         for i, x in enumerate(x_arr):
             yc = y_arr[i]
             rsrf_1d[int(x)] = mdata[int(yc - trace_width):int(yc + trace_width), int(x)].mean()
