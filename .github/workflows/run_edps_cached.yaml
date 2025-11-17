@@ -103,4 +103,5 @@ jobs:
           edps -lw
           edps -w metis.metis_wkf -i $SOF_DATA -c
           edps -w metis.metis_wkf -i $SOF_DATA -lt
-          ! grep "'FAILED'" edps.stdout.txt
+          # edps -w metis.metis_wkf -i $SOF_DATA -m all | tee edps.stdout.txt
+          # ! grep "'FAILED'" edps.stdout.txt

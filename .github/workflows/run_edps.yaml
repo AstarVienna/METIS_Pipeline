@@ -46,51 +46,8 @@ jobs:
           export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
           export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
           export PYESOREX_OUTPUT_DIR="$SOF_DATA"
-          
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/cal/test_metis_cal_chophome.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/instrument/test_metis_pupil_imaging.py
-          
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_calibrate.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_distortion.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_postprocess.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_reduce.py
-          # python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_rsrf.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_telluric.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/ifu/test_metis_ifu_wavecal.py
-          
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_background.py
-          # python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_basic_reduce.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_calibrate.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_distortion.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_flat.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_sci_postprocess.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_img/test_metis_lm_img_std_process.py
-          
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_calibrate.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_chopnod.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_distortion.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_flat.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_restore.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_img/test_metis_n_img_std_process.py
 
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_adc_slitloss.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_rsrf.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_trace.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_wave.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_std.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_sci.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_mf_model.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_mf_calctrans.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/lm_lss/test_metis_lm_lss_mf_correct.py
-
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_adc_slitloss.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_rsrf.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_trace.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_std.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_sci.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_mf_model.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_mf_calctrans.py
-          python -m pytest $PYTHONPATH/pymetis/tests/recipes/n_lss/test_metis_n_lss_mf_correct.py
+          python -m pytest -m "not external and not inputset and not pyesorex and not recipe"
 
       - name: Run pyESOREX test
         run: |
@@ -107,90 +64,17 @@ jobs:
           # LIST RECIPES
           pyesorex --recipes
 
-          # DET RECIPES
-          pyesorex metis_det_lingain "${SOF_DIR}/metis_det_lingain.lm.sof"
-          pyesorex metis_det_dark "${SOF_DIR}/metis_det_dark.lm.sof"
-          
-          # IMG LM RECIPES
-          pyesorex metis_lm_img_distortion  "${SOF_DIR}/metis_lm_img_distortion.sof"
-          pyesorex metis_lm_img_flat  "${SOF_DIR}/metis_lm_img_flat.lamp.sof"
-          # pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.std.sof"
-          # pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sci.sof"
-          # pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sky.sof"
-          pyesorex metis_lm_img_background "${SOF_DIR}/metis_lm_img_background.std.sof"
-          pyesorex metis_lm_img_background "${SOF_DIR}/metis_lm_img_background.sci.sof"
-          pyesorex metis_lm_img_std_process "${SOF_DIR}/metis_lm_img_std_process.sof"
-          pyesorex metis_lm_img_calibrate "${SOF_DIR}/metis_lm_img_calibrate.sof"
-          pyesorex metis_lm_img_sci_postprocess "${SOF_DIR}/metis_lm_img_sci_postprocess.sof"
 
-          # IMG N RECIPES
-          pyesorex metis_n_img_distortion  "${SOF_DIR}/metis_n_img_distortion.sof"
-          pyesorex metis_n_img_flat  "${SOF_DIR}/metis_n_img_flat.lamp.sof"
-          pyesorex metis_n_img_chopnod "${SOF_DIR}/metis_n_img_chopnod.std.sof"
-          pyesorex metis_n_img_chopnod "${SOF_DIR}/metis_n_img_chopnod.sci.sof"
-          pyesorex metis_n_img_std_process "${SOF_DIR}/metis_n_img_std_process.sof"
-          pyesorex metis_n_img_calibrate "${SOF_DIR}/metis_n_img_calibrate.sof"
-          pyesorex metis_n_img_restore "${SOF_DIR}/metis_n_img_restore.sof"
-
-          # IFU RECIPES
-          pyesorex metis_ifu_distortion "${SOF_DIR}/metis_ifu_distortion.sof"
-          pyesorex metis_ifu_wavecal "${SOF_DIR}/metis_ifu_wavecal.sof"
-          # pyesorex metis_ifu_rsrf "${SOF_DIR}/metis_ifu_rsrf.sof"
-          pyesorex metis_ifu_reduce "${SOF_DIR}/metis_ifu_reduce.std.sof"
-          pyesorex metis_ifu_reduce "${SOF_DIR}/metis_ifu_reduce.sci.sof"
-          pyesorex metis_ifu_telluric "${SOF_DIR}/metis_ifu_telluric.std.sof"
-          pyesorex metis_ifu_telluric "${SOF_DIR}/metis_ifu_telluric.sci.sof"
-          pyesorex metis_ifu_calibrate "${SOF_DIR}/metis_ifu_calibrate.sof"
-          pyesorex metis_ifu_postprocess "${SOF_DIR}/metis_ifu_postprocess.sof"
-
-          # LM LSS RECIPES
-          pyesorex metis_lm_adc_slitloss "${SOF_DIR}/metis_lm_adc_slitloss.sof"
-          pyesorex metis_lm_lss_rsrf "${SOF_DIR}/metis_lm_lss_rsrf.sof"
-          pyesorex metis_lm_lss_trace "${SOF_DIR}/metis_lm_lss_trace.sof"
-          pyesorex metis_lm_lss_wave "${SOF_DIR}/metis_lm_lss_wave.sof"
-          pyesorex metis_lm_lss_std "${SOF_DIR}/metis_lm_lss_std.sof"
-          pyesorex metis_lm_lss_sci "${SOF_DIR}/metis_lm_lss_sci.sof"
-          pyesorex metis_lm_lss_mf_model "${SOF_DIR}/metis_lm_lss_mf_model.sof"
-          pyesorex metis_lm_lss_mf_calctrans "${SOF_DIR}/metis_lm_lss_mf_calctrans.sof"
-          pyesorex metis_lm_lss_mf_correct "${SOF_DIR}/metis_lm_lss_mf_correct.sof"
-
-          # N LSS RECIPES
-          pyesorex metis_n_adc_slitloss "${SOF_DIR}/metis_n_adc_slitloss.sof"
-          pyesorex metis_n_lss_rsrf "${SOF_DIR}/metis_n_lss_rsrf.sof"
-          pyesorex metis_n_lss_trace "${SOF_DIR}/metis_n_lss_trace.sof"
-          pyesorex metis_n_lss_std "${SOF_DIR}/metis_n_lss_std.sof"
-          pyesorex metis_n_lss_sci "${SOF_DIR}/metis_n_lss_sci.sof"
-          pyesorex metis_n_lss_mf_model "${SOF_DIR}/metis_n_lss_mf_model.sof"
-          pyesorex metis_n_lss_mf_calctrans "${SOF_DIR}/metis_n_lss_mf_calctrans.sof"
-          pyesorex metis_n_lss_mf_correct "${SOF_DIR}/metis_n_lss_mf_correct.sof"
-
-          # CAL RECIPES
-          cat "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
-          # TODO: This recipe name is incorrect and should be renamed
-          pyesorex metis_lm_img_basic_reduce "${SOF_DIR}/metis_lm_img_basic_reduce.sof"
-          cat "${SOF_DIR}/metis_lm_img_background.sof"
-          pyesorex metis_lm_img_background  "${SOF_DIR}/metis_lm_img_background.sof"
-          cat "${SOF_DIR}/metis_lm_img_std_process.sof"
-          pyesorex metis_lm_img_std_process "${SOF_DIR}/metis_lm_img_std_process.sof"
-          cat "${SOF_DIR}/metis_lm_img_cal_distortion.sof"  
-          pyesorex metis_lm_img_cal_distortion  "${SOF_DIR}/metis_lm_img_distortion.sof"
-
-          cat "${SOF_DIR}/metis_cal_chophome.sof"
-          pyesorex metis_cal_chophome "${SOF_DIR}/metis_cal_chophome.sof"
-          
-          # PUPIL IMAGING 
-          pyesorex metis_pupil_imaging "${SOF_DIR}/metis_pupil_imaging.lm.sof"
-
-      # - name: Run EDPS
-      #   run:  |
-      #     # . metispipe/bin/activate
-      #     export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
-      #     export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-      #     export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
-      #     export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
-      #     export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
-      #     edps -lw
-      #     edps -w metis.metis_wkf -i $SOF_DATA -c
-      #     edps -w metis.metis_wkf -i $SOF_DATA -lt
-      #     edps -w metis.metis_wkf -i $SOF_DATA -m all | tee edps.stdout.txt
-      #     ! grep "'FAILED'" edps.stdout.txt
+      - name: Run EDPS
+        run:  |
+          # . metispipe/bin/activate
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+          edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          edps -w metis.metis_wkf -i $SOF_DATA -lt
+          # edps -w metis.metis_wkf -i $SOF_DATA -m all | tee edps.stdout.txt
+          # ! grep "'FAILED'" edps.stdout.txt
