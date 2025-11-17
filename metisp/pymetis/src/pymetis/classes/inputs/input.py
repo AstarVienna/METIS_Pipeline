@@ -17,14 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import inspect
 from abc import abstractmethod
 from typing import Any, Optional, Generator, final, Union
 
 import cpl
 from cpl.core import Msg
 
-import pymetis
 from pymetis.classes.dataitems.dataitem import DataItem
 
 

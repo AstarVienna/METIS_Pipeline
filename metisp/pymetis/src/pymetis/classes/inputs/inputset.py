@@ -49,7 +49,7 @@ class PipelineInputSet(Parametrizable, ABC):
     __cut_input = re.compile(r'Input$')
     # Helper regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
     __make_snake = re.compile(r'(?<!^)(?=[A-Z0-9])')
-    # I.e. `MonsterCrunchInput` class instance will be named `monster_crunch`.
+    # E. g. `MonsterCrunch3dInput` class instance will be named `monster_crunch_3d`.
 
     def __init_subclass__(cls, abstract=False, **params):
         cls.__abstract = abstract
@@ -87,7 +87,7 @@ class PipelineInputSet(Parametrizable, ABC):
         """
         List all input classes within this input set.
 
-        Warning: uses introspection, feels hacky
+        Warning: uses introspection, feels hacky. # ToDo Maybe make this more explicit someday?
         """
         return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
 
@@ -185,5 +185,6 @@ class PipelineInputSet(Parametrizable, ABC):
         - [HB]: also includes frames that do not contribute any pixel data,
                 for instance, discarded outliers (without them a different frame might be an outlier)
         # FixMe: Currently this only ensures that frames are loaded, not actually used!
+        # FixMe: This is not a trivial problem though, maybe it will have to be marked manually everytime.
         """
         return cpl.ui.FrameSet([used for inp in self.inputs for used in inp.used_frames()])
