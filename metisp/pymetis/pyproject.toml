@@ -9,7 +9,7 @@ name = "pymetis"
 version = "0.0.1"
 description = "Python package for METIS python recipes"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 license = { text = "GPL-3.0-or-later" }
 authors = [
     { name = "European Southern Observatory", email = "cpl-help@eso.org" }
