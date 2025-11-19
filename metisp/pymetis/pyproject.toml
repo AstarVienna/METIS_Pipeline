@@ -30,6 +30,8 @@ dependencies = [
     "pyesorex",
     "edps",
     "astropy",
+    "edpsgui>=0.8.0",
+    "edpsplot>=0.2.1",
 ]
 
 [project.urls]
