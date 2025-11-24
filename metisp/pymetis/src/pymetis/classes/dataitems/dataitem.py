@@ -370,8 +370,8 @@ class DataItem(Parametrizable, ABC):
             If requested extension is not available
         """
 
-        if self[extension].klass is None:
-            self[extension].klass = Image
+        #if self[extension].klass is None:
+        #    self[extension].klass = Image
 
         try:
             if self[extension].klass == Image:
@@ -408,16 +408,16 @@ class DataItem(Parametrizable, ABC):
     def add_properties(self) -> None:
         """
         Hook for adding custom properties.
-        Currently only adds ESO PRO CATG to every product,
+
+        Currently only adds/replaces ESO PRO CATG to/in every product,
         but derived classes are more than welcome to add their own stuff.
         Do not forget to call super().add_properties() then.
-
-        #ToDo: this should not be called for raws, those do not have a PRO CATG.
         """
         if self.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
             Msg.debug(self.__class__.__qualname__,
                       f"Not appending anything to a RAW data item")
         else:
+            self.primary_header.del_regexp('ESO PRO CATG', False)
             Msg.debug(self.__class__.__qualname__,
                       f"Appending ESO PRO CATG to a non-RAW data item ({self.frame_group()})")
             self.primary_header.append(

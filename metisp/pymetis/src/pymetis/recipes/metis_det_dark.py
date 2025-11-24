@@ -29,6 +29,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.prefab.persistence import PersistenceCorrectionMixin
 from pymetis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
@@ -42,9 +43,9 @@ from pymetis.functions.image import zeros_like
 from pymetis.utils.dummy import create_dummy_header, python_to_cpl_type
 
 
-class MetisDetDarkImpl(RawImageProcessor, ABC):
+class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, ABC):
     """
-    Implementation class for `metis_det_dark`.
+    Implementation class for the `metis_det_dark` recipe.
     """
 
     # We start by deriving the implementation class from `MetisRecipeImpl`, or in this case, one of its subclasses,
@@ -148,8 +149,10 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         badpix_mask = zeros_like(raw_images[0], cpl.core.Type.FLOAT)
 
         # fake the gain at the moment by setting to 1
+        gain = cpl.core.Image.zeros_like(raw_images[0])
+        gain.add_scalar(1)
 
-        raw_images = self.correct_gain(raw_images)
+        raw_images = self.correct_gain(raw_images, gain)
         raw_images = self.correct_persistence(raw_images)
 
         linearity_map = self.inputset.linearity.load_data(extension=rf'DET{detector:1d}.SCI')
@@ -310,7 +313,7 @@ class MetisDetDark(MetisRecipe):
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
-        # ToDo: Maybe these should be user-configurable as well?
+        # ToDo: Maybe these should be user-configurable as well? Added them commented out.
         #ParameterValue(
         #    name=f"{_name}.outliers.kappa_low",
         #    context=_name,

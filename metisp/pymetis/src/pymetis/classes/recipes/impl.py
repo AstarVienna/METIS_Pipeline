@@ -84,12 +84,14 @@ class MetisRecipeImpl(ABC):
 
         for name, item in cls.list_product_classes():
             # Try to find a promoted class in the registry
+            old_class = item.__qualname__
+            old_class_name = item.name()
             if (new_class := DataItem.find(tag := item.specialize(**parameters))) is None:
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:
-                Msg.debug(cls.__class__.__qualname__,
-                          f"Promoting {item.__qualname__} ({item.name()}) "
-                          f"to {new_class.__qualname__} ({new_class.name()})")
+                Msg.info(cls.__class__.__qualname__,
+                         f" - {old_class} ({old_class_name}) becomes "
+                         f"{new_class.__qualname__} ({new_class.name()})")
 
             # Replace the product attribute with the new class
             cls.__class__.__setattr__(cls, name, new_class)
@@ -105,7 +107,7 @@ class MetisRecipeImpl(ABC):
         """
 
         try:
-            self.products = self.process()           # Do all the actual processing
+            self.products: set[DataItem] = self.process()   # Do all the actual processing
             self._save_products()                           # Save the output products
 
             return self.build_product_frameset()            # Return the output as a pycpl FrameSet

@@ -72,7 +72,7 @@ class SinglePipelineInput(PipelineInput):
         self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
-                 f"Item is now {self.item}")
+                 f"Loaded the data item: it is now {self.item}")
 
         return self.item.load_data(extension)
 
