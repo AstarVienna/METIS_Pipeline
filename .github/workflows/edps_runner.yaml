@@ -16,6 +16,29 @@ jobs:
           # . metispipe/bin/activate
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
           ./toolbox/create_config.sh
+      - name: Find latest data directory
+        id: find_data
+        run: |
+          if [ -L "/data/LatestBuild" ]; then
+            DATA_DIR="/data/LatestBuild/imgLM"
+            echo "Using symlink: $DATA_DIR"
+          elif [ -d "/data/LatestBuild/imgLM" ]; then
+            DATA_DIR="/data/LatestBuild/imgLM"
+            echo "Using direct path: $DATA_DIR"
+          else
+            LATEST_DIR=$(ls -d /data/20??-??-??/imgLM 2>/dev/null | sort -r | head -n1)
+            if [ -n "$LATEST_DIR" ]; then
+              DATA_DIR="$LATEST_DIR"
+              echo "Using latest dated directory: $DATA_DIR"
+            else
+              echo "No data directory found!"
+              ls -la /data/ || echo "/data does not exist"
+              exit 1
+            fi
+          fi
+          
+          echo "data_dir=$DATA_DIR" >> $GITHUB_OUTPUT
+          ls -la "$DATA_DIR"
 
       - name: Setting up environment
         run: |
