@@ -43,7 +43,7 @@ class MetisLmLssSci(MetisRecipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Reduction of the LSS science star frames"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

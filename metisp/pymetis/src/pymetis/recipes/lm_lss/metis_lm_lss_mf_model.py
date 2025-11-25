@@ -37,7 +37,7 @@ class MetisLmLssMfModel(MetisRecipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of molecfit model"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fit of telluric features visible in the science input spectrum
     Determination of best-fit parameter set"""
 

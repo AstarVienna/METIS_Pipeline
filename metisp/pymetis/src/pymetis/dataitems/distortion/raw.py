@@ -21,10 +21,10 @@ import cpl
 from cpl.core import Image
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin, DetectorIfuMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandIfuMixin, DetectorIfuMixin
 
 
-class DistortionRaw(BandSpecificMixin, Raw, abstract=True):
+class DistortionRaw(Raw, abstract=True):
     _name_template = r'{band}_DISTORTION_RAW'
     _title_template = "distortion raw"
     _description_template = "Raw data for distortion determination in other recipes in the {band} band."

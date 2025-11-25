@@ -69,8 +69,8 @@ class MetisRecipeImpl(ABC):
 
     @classmethod
     def specialize(cls, **parameters) -> None:
-        Msg.info(cls.__qualname__,
-                 f"Specializing {cls.__qualname__} with parameters: {parameters}")
+        cls.InputSet.specialize(**parameters)
+
 
     @classmethod
     def promote(cls, **parameters) -> None:

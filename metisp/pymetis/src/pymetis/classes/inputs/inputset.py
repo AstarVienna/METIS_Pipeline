@@ -26,6 +26,7 @@ from typing import Any, Callable, Optional
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
 from pymetis.classes.mixins.base import Parametrizable, KeywordMixin
 
@@ -81,6 +82,32 @@ class PipelineInputSet(Parametrizable, ABC):
             self.__setattr__(self.__make_snake.sub('_', self.__cut_input.sub('', name)).lower(), inp)
             # Add to the set of inputs (for easy iteration over all inputs)
             self.inputs |= {inp}
+
+    @classmethod
+    def specialize(cls, **parameters) -> None:
+        for name, inp in cls.get_inputs():
+            old_class = inp.Item.__class__
+            old_class_name = inp.Item.name()
+
+            print(parameters, inp.Item.specialize(**parameters))
+            if (new_class := DataItem.find(tag := inp.Item.specialize(**parameters))) is None:
+                raise TypeError(f"Could not promote class {inp.Item.__qualname__}: {tag} is not a registered tag")
+            else:
+                Msg.info(cls.__class__.__qualname__,
+                         f" - {old_class} ({old_class_name}) becomes "
+                         f"{new_class.__qualname__} ({new_class.name()})")
+
+    @classmethod
+    def promote(cls, **parameters) -> None:
+        for name, inp in cls.get_inputs():
+            old_class = inp.Item.__qualname__
+            old_class_name = inp.Item.name()
+            if (new_class := DataItem.find(tag := inp.Item.specialize(**parameters))) is None:
+                raise TypeError(f"Could not promote class {inp.Item.__qualname__}: {tag} is not a registered tag")
+            else:
+                Msg.info(cls.__class__.__qualname__,
+                         f" - {old_class} ({old_class_name}) becomes "
+                         f"{new_class.__qualname__} ({new_class.name()})")
 
     @classmethod
     def get_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:

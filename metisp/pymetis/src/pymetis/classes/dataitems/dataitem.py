@@ -91,6 +91,8 @@ class DataItem(Parametrizable, ABC):
         """
         cls.__abstract = abstract
 
+        print(cls.__name__, cls.tag_parameters())
+
         if cls.__abstract:
             # If the class is not fully specialized, skip it
             Msg.debug(cls.__qualname__,
@@ -98,7 +100,8 @@ class DataItem(Parametrizable, ABC):
         else:
             # Otherwise, add it to the global registry
             assert cls.__regex_pattern.match(cls.name()) is not None, \
-                (f"Tried to register {cls.__name__} ({cls.name()}) which is not fully specialized "
+                (f"Tried to register {cls.__name__} ({cls.name()}) for parameters {cls.tag_parameters()}, "
+                 f"which is not fully specialized "
                  f"(did you mean to set `abstract=True` in the class declaration?)")
 
             if cls.name().format() in DataItem.__registry:
@@ -130,6 +133,10 @@ class DataItem(Parametrizable, ABC):
     @classmethod
     def name_template(cls) -> str:
         return cls._name_template
+
+    @classmethod
+    def registry(cls) -> dict[str, type['DataItem']]:
+        return DataItem.__registry
 
     @classmethod
     def specialize(cls, **parameters) -> str:
@@ -307,6 +314,7 @@ class DataItem(Parametrizable, ABC):
                         extname = header['EXTNAME'].value
                     except KeyError:
                         try:
+                            # FixMe: this is not reliable but XTENSION is sometimes found in the simulated data
                             extname = header['XTENSION'].value
                         except KeyError:
                             extname = 'PRIMARY'
@@ -350,7 +358,7 @@ class DataItem(Parametrizable, ABC):
     def load_data(self,
                   extension: int | str) -> Image | Table | None:
         """
-        Actually load the associated data (image or a table).
+        Load the associated data (image or a table).
 
         This might be expensive and therefore the call is better deferred until actually needed.
 
@@ -514,39 +522,6 @@ class DataItem(Parametrizable, ABC):
             'group': self.frame_group().name,
         }
 
-    def _verify_same_detector_from_header(self) -> None:
-        """
-        Verification for headers, currently disabled
-        """
-        detectors = []
-        for frame in self.frameset:
-            header = cpl.core.PropertyList.load(frame.file, 0)
-            try:
-                det = header['ESO DPR TECH'].value
-                try:
-                    detectors.append({
-                        'IMAGE,LM': '2RG',
-                        'IMAGE,N': 'GEO',
-                        'IFU': 'IFU',
-                    }[det])
-                except KeyError as e:
-                    raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
-            except KeyError:
-                Msg.warning(self.__class__.__qualname__, "No detector (ESO DPR TECH) set!")
-
-        # Check if all the raws have the same detector, if not, we have a problem
-        if (detector_count := len(unique := list(set(detectors)))) == 1:
-            self._detector = unique[0]
-            Msg.debug(self.__class__.__qualname__,
-                      f"Detector determined: {self._detector}")
-        elif detector_count == 0:
-            Msg.warning(self.__class__.__qualname__,
-                        "No detectors specified (this is probably fine in skeleton stage)")
-        else:
-            # raise ValueError(f"Frames from more than one detector found: {set(detectors)}!")
-            Msg.warning(self.__class__.__qualname__,
-                        f"Frames from more than one detector found: {unique}!")
-
     @classmethod
     def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:
         """
@@ -584,7 +559,7 @@ class DataItem(Parametrizable, ABC):
 
         Includes leading space.
         """
-        return f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
+        return f"    {cls.name():49s}{cls.description() or '<no description defined>'}"
 
     def __str__(self):
         return f"{self.name()}"

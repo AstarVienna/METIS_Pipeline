@@ -20,10 +20,10 @@ import cpl
 from cpl.core import Image
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandIfuMixin, TargetSpecificMixin, TargetStdMixin, TargetSciMixin
+from pymetis.classes.mixins import BandIfuMixin, TargetStdMixin, TargetSciMixin
 
 
-class IfuRaw(BandIfuMixin, TargetSpecificMixin, Raw, abstract=True):
+class IfuRaw(BandIfuMixin, Raw, abstract=True):
     _name_template = r'{band}_{target}_RAW'
     _title_template = r"{band} {target} raw"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
@@ -36,7 +36,6 @@ class IfuRaw(BandIfuMixin, TargetSpecificMixin, Raw, abstract=True):
     } | {
         fr'DET{det:1d}.DATA': Image for det in range(1, 5)
     }
-
 
 
 class IfuStdRaw(TargetStdMixin, IfuRaw):

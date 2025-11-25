@@ -21,11 +21,11 @@ import cpl
 from cpl.core import Image
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins.band import BandNMixin, BandLmMixin, BandSpecificMixin
-from pymetis.classes.mixins.source import SourceSpecificMixin, SourceLampMixin, SourceTwilightMixin
+from pymetis.classes.mixins.band import BandNMixin, BandLmMixin
+from pymetis.classes.mixins.source import SourceLampMixin, SourceTwilightMixin
 
 
-class FlatRaw(BandSpecificMixin, SourceSpecificMixin, Raw, abstract=True):
+class FlatRaw(Raw, abstract=True):
     _name_template = r'{band}_FLAT_{source}_RAW'
     _title_template = r'{band} flat {source} raw'
     _description_template = r'Flat raw'

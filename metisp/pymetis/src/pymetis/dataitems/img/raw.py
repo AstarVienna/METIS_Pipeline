@@ -19,11 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl.ui
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin, BandNMixin,
-                                    TargetSpecificMixin, TargetStdMixin, TargetSciMixin, TargetSkyMixin)
+from pymetis.classes.mixins import (BandLmMixin, BandNMixin,
+                                    TargetStdMixin, TargetSciMixin, TargetSkyMixin)
 
 
-class ImageRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
+class ImageRaw(Raw, abstract=True):
     """
     Abstract intermediate class for image raws.
     """

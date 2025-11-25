@@ -38,7 +38,7 @@ class MetisLmLssMfCorrect(MetisRecipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Application of the telluric correction"
 
-    _matched_keywords: {str} = {'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DRS.SLIT'}
     _algorithm = """Apply telluric correction, i.e. divide the input science spectrum by the synthetic transmission."""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

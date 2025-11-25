@@ -43,7 +43,7 @@ class MetisLmLssStd(MetisRecipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Reduction of the standard star frames for determining the response function (flux calibration) and/or the transmission (telluric correction)"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import copy
 from abc import ABC
 from typing import Self
 
@@ -34,13 +34,20 @@ class Parametrizable:
     Currently applies to DataItems, PipelineInputSets and their Mixins.
     """
 
+    _tag_parameters: dict[str, str] = copy.deepcopy({})
+
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
         """
         Return the tag parameters for this class.
         By default, there are none, but mixins may add their own.
         """
-        return {}
+        return cls._tag_parameters
+
+    def __init_subclass__(cls, **kwargs):
+        cls._tag_parameters = {}
+        for key, value in kwargs.items():
+            cls._tag_parameters[key] = value
 
 
 class KeywordMixin(Parametrizable, ABC):

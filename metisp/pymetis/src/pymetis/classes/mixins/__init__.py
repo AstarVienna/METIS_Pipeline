@@ -17,19 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from .detector import (DetectorSpecificMixin,
-                       Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin)
-from .band import (BandSpecificMixin,
+from .detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from .band import (
                    BandLmMixin, BandNMixin, BandIfuMixin)
-from .target import (TargetSpecificMixin,
+from .target import (
                      TargetStdMixin, TargetSciMixin, TargetSkyMixin)
-from .source import (SourceSpecificMixin,
+from .source import (
                      SourceLampMixin, SourceTwilightMixin)
 
 
 __all__ = [
-    'DetectorSpecificMixin', 'Detector2rgMixin', 'DetectorGeoMixin', 'DetectorIfuMixin',
-    'BandSpecificMixin', 'BandLmMixin', 'BandNMixin', 'BandIfuMixin',
-    'TargetSpecificMixin', 'TargetStdMixin', 'TargetSciMixin', 'TargetSkyMixin',
-    'SourceSpecificMixin', 'SourceTwilightMixin', 'SourceLampMixin',
+    'Detector2rgMixin', 'DetectorGeoMixin', 'DetectorIfuMixin',
+    'BandLmMixin', 'BandNMixin', 'BandIfuMixin',
+    'TargetStdMixin', 'TargetSciMixin', 'TargetSkyMixin',
+    'SourceTwilightMixin', 'SourceLampMixin',
 ]

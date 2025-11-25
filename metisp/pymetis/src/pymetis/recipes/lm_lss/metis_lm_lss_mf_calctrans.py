@@ -24,7 +24,7 @@ from pymetis.classes.prefab.lss.mf_calctrans import MetisLssMfCalctransImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisLmLssMfCalctransImpl(MetisLssMfCalctransImpl):
+class MetisLmLssMfCalctransImpl(BandLmMixin, MetisLssMfCalctransImpl):
     class InputSet(BandLmMixin, MetisLssMfCalctransImpl.InputSet):
         pass
 
@@ -42,23 +42,8 @@ class MetisLmLssMfCalctrans(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of transmission function"
-    _description: str = """\
-    Calculation of transmission function
 
-    Inputs
-        MF_BEST_FIT_TAB: Table with best-fit parameters
-        LSF_KERNEL:      LSF Kernel file
-        ATM_LINE_CAT:    Catalogue of atmospheric lines
-        ATM_PROFILE:     Atmospheric input profile
-
-     Matched Keywords
-        DRS.SLIT
-
-    Outputs
-        LM_LSS_SYNTH_TRANS: Synthetic transmission of the Earth's atmosphere
-    """
-
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

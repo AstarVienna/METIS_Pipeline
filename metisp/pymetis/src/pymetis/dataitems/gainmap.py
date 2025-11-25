@@ -21,10 +21,10 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, DetectorSpecificMixin
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class GainMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
+class GainMap(ImageDataItem, abstract=True):
     _name_template = r'GAIN_MAP_{detector}'
     _title_template = "gain map"
     _description_template = "Gain map"

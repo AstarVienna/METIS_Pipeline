@@ -24,6 +24,7 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.mixins import BandLmMixin
 from pymetis.dataitems.img.basicreduced import BasicReduced
 from pymetis.dataitems.img.raw import ImageRaw
 from pymetis.dataitems.masterflat import MasterImgFlat
@@ -34,7 +35,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisLmImgBasicReduceImpl(DarkImageProcessor):
+class MetisLmImgBasicReduceImpl(BandLmMixin, DarkImageProcessor):
     class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class
