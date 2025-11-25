@@ -15,12 +15,12 @@ jobs:
           # python3 -m venv metispipe
           # . metispipe/bin/activate
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-          ./toolbox/install_edps.sh
           ./toolbox/create_config.sh
 
       - name: Setting up environment
         run: |
-          set +x
+          ./toolbox/create_config.sh
+          export PATH="$HOME/.local/bin:$PATH"
           # . metispipe/bin/activate
           export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
           export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
