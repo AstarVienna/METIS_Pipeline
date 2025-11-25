@@ -15,6 +15,7 @@ jobs:
           # python3 -m venv metispipe
           # . metispipe/bin/activate
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          ./toolbox/install_edps.sh
           ./toolbox/create_config.sh
       - name: Find latest data directory
         id: find_data
