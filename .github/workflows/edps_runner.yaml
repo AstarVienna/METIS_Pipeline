@@ -2,8 +2,8 @@ name: Run EDPS workflows automatically or manually
 
 on:
   workflow_dispatch:  # Manual trigger
-  #schedule:
-  #  - cron: '0 1 * * *'  # Run on 0:00 UTC 
+  schedule:
+    - cron: '0 2 * * *'  # Run on 2:00 UTC 
 
 jobs:
   run:
