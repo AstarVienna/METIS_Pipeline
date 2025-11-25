@@ -7,9 +7,9 @@ on:
 
 jobs:
   run:
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Linux, pipeline, zeus]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install dependencies
         run: |
           sudo ./toolbox/install_dependencies_ubuntu.sh
