@@ -84,8 +84,9 @@ jobs:
           
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
-          # 複製並重新命名為 imgLM
           cp -r "$TIMESTAMP_DIR" /product/$TODAY/imgLM
           
           echo "Successfully copied to /product/$TODAY/imgLM"
           ls -la /product/$TODAY/imgLM
+
+          scp -r /product/$TODAY chyan@zeus:/data/METIS_Pipeline_Product/$TODAY
