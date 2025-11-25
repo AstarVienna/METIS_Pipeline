@@ -12,7 +12,6 @@ jobs:
       - uses: actions/checkout@v5
       - name: Install dependencies
         run: |
-          ./toolbox/install_dependencies_ubuntu.sh
           # python3 -m venv metispipe
           # . metispipe/bin/activate
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
