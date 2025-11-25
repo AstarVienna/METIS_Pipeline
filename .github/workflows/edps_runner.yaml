@@ -1,0 +1,39 @@
+name: Run EDPS workflows automatically or manually
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 1 * * *'  # Run on 0:00 UTC 
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo ./toolbox/install_dependencies_ubuntu.sh
+          # python3 -m venv metispipe
+          # . metispipe/bin/activate
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          ./toolbox/install_edps.sh
+          ./toolbox/create_config.sh
+
+      - name: Setting up environment
+        run: |
+          set +x
+          # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="/data/LatestBuild/imgLM/"
+          
+      - name: Run EDPS
+        run:  |
+          # . metispipe/bin/activate
+          edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          edps -w metis.metis_wkf -i $SOF_DATA -lt
+          edps -w metis.metis_lm_img_wkf -i $SOF_DATA -m science | tee edps.stdout.txt
+          # ! grep "'FAILED'" edps.stdout.txt
