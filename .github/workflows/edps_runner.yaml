@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v5
       - name: Install dependencies
         run: |
-          sudo ./toolbox/install_dependencies_ubuntu.sh
+          ./toolbox/install_dependencies_ubuntu.sh
           # python3 -m venv metispipe
           # . metispipe/bin/activate
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
@@ -28,9 +28,7 @@ jobs:
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
           export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
           export SOF_DATA="/data/LatestBuild/imgLM/"
-          
-      - name: Run EDPS
-        run:  |
+
           # . metispipe/bin/activate
           edps -lw
           edps -w metis.metis_wkf -i $SOF_DATA -c
