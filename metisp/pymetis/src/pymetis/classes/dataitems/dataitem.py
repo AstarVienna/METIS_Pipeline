@@ -402,7 +402,7 @@ class DataItem(Parametrizable, ABC):
         """
         # ToDo determine how this should be really formed: timestamp, hash, combination?
         # ToDo Hugo says there is a 56 char limit for file names
-        return f"{self.name()}_{self._created_at.strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
+        return f"{self.name()}_{self._created_at.strftime('%Y-%m-%dT%H-%M-%S-%f')}.fits" \
             if override is None else override
 
     def add_properties(self) -> None:
