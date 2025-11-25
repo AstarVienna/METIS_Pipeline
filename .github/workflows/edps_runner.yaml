@@ -49,9 +49,10 @@ jobs:
           export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
           export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
-          export SOF_DATA="/data/LatestBuild/imgLM/"
+          export SOF_DATA="/data/LatestBuild/imgLM"
 
           # . metispipe/bin/activate
+          edps --shutdown
           edps -lw
           edps -w metis.metis_wkf -i $SOF_DATA -c
           edps -w metis.metis_wkf -i $SOF_DATA -lt
