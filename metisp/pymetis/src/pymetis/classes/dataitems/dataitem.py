@@ -181,7 +181,8 @@ class DataItem(Parametrizable):
         """
         assert cls._description_template is not None, \
             f"{cls.__name__} description template is None"
-        return cls._description_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
+        description = partial_format(cls._description_template, **cls.__replace_empty_tags(**cls.tag_parameters()))
+        return description
 
     @classmethod
     @final

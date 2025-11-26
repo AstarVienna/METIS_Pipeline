@@ -20,6 +20,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.dataitems.common import FluxCalTable, IfuTelluric
 from pymetis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
 from pymetis.dataitems.ifu.raw import IfuRaw
@@ -42,7 +43,7 @@ class MetisIfuTelluricImpl(MetisRecipeImpl):
 
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Define molecfit main input class as one 1d spectrum, either Science or Standard spectrum
-    class InputSet(PipelineInputSet):
+    class InputSet(DetectorIfuMixin, BandIfuMixin, PipelineInputSet):
         """Inputs for metis_ifu_telluric"""
         # TODO: still needs to be added to the input set
         # class Reduced1DInput(SinglePipelineInput):

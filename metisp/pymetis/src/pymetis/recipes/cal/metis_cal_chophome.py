@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 from cpl.core import Msg
-from cpl.core import ImageList
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
 from pymetis.classes.dataitems import DataItem
@@ -80,7 +79,6 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         self.inputset.raw.use()
 
         persistence_map = self.inputset.persistence_map.load_data(extension='DET1.DATA')
-        self.inputset.persistence_map.use()
         raw_images.subtract_image(background_img)
 
         combined_img = self.combine_images(raw_images, stackmethod)

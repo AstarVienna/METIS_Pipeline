@@ -73,4 +73,3 @@ class Parametrizable:
         merged.update(kwargs)
 
         cls._tag_parameters = merged
-        print(cls.__qualname__, cls._tag_parameters)

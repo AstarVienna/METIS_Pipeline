@@ -23,32 +23,40 @@ from .common import (GainMapInput, LinearityInput, BadPixMapInput,
 
 
 class PersistenceInputSetMixin(PipelineInputSet):
-    PersistenceMapInput = OptionalPersistenceMapInput
+    class     PersistenceMapInput(OptionalPersistenceMapInput):
+        pass
 
 
 class GainMapInputSetMixin(PipelineInputSet):
-    GainMapInput = GainMapInput
+    class GainMapInput(GainMapInput):
+        pass
 
 
 class LinearityInputSetMixin(PipelineInputSet):
-    LinearityInput = LinearityInput
+    class LinearityInput(LinearityInput):
+        pass
 
 
 class BadPixMapInputSetMixin(PipelineInputSet):
-    BadPixMapInput = BadPixMapInput
+    class BadPixMapInput(BadPixMapInput):
+        pass
 
 
 class AtmLineCatInputSetMixin(PipelineInputSet):
-    AtmLineCatInput = AtmLineCatInput
+    class AtmLineCatInput(AtmLineCatInput):
+        pass
 
 
 class AtmProfileInputSetMixin(PipelineInputSet):
-    AtmProfileInput = AtmProfileInput
+    class AtmProfileInput(AtmProfileInput):
+        pass
 
 
 class LsfKernelInputSetMixin(PipelineInputSet):
-    LsfKernelInput = LsfKernelInput
+    class LsfKernelInput(LsfKernelInput):
+        pass
 
 
 class WcuOffInputSetMixin(PipelineInputSet):
-    WcuOffInput = WcuOffInput
+    class WcuOffInput(WcuOffInput):
+        pass

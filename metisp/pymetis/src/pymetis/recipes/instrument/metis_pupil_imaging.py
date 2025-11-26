@@ -54,7 +54,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         class RawInput(RawInput):
             Item = PupilRaw
 
-        MasterDarkInput = MasterDarkInput
+        class MasterDarkInput(MasterDarkInput):
+            pass
 
         # Also, one master flat is required. We use a prefabricated class
         class MasterFlatInput(MasterFlatInput):

@@ -16,11 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import copy
 
 import cpl
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.adc.adc import AdcSlitloss
+from pymetis.dataitems.common import AtmLineCatalog
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.raw import LssSciRaw
 from pymetis.dataitems.lss.response import MasterResponse, StdTransmission
@@ -29,16 +31,19 @@ from pymetis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci
     LssSciFlux2d, LssSciFluxTellCorr1d
 from pymetis.dataitems.lss.std import AoPsfModel
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
-    LinearityInputSetMixin, SinglePipelineInput
+    LinearityInputSetMixin, SinglePipelineInput, AtmLineCatInput
 from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLssSciImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-                   AtmLineCatInputSetMixin,
-                   DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
+        PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
+
+        class AtmLineCatInput(AtmLineCatInput):
+            Item = AtmLineCatalog
+
         class RawInput(RawInput):
             Item = LssSciRaw
 
@@ -78,9 +83,15 @@ class MetisLssSciImpl(DarkImageProcessor):
         # CHECK THE AO PSF MODEL - why not included? forgotten????
         # --------------------------------------------------------------------
 
-    ProductLssSciObjMap = LssObjMap
-    ProductLssSciSkyMap = LssSkyMap
-    ProductLssSci1d = LssSci1d
+    class ProductLssSciObjMap(LssObjMap, abstract=True):
+        pass
+
+    class ProductLssSciSkyMap(LssSkyMap, abstract=True):
+        pass
+
+    class ProductLssSci1d(LssSci1d, abstract=True):
+        pass
+
     ProductLssSci2d = LssSci2d
     ProductLssSciFlux1d = LssSciFlux1d
     ProductLssSciFlux2d = LssSciFlux2d

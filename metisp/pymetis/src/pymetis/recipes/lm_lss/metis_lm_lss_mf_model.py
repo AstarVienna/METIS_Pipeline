@@ -24,7 +24,7 @@ from pymetis.classes.prefab.lss.mf_model import MetisLssMfModelImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisLmLssMfModelImpl(MetisLssMfModelImpl):
+class MetisLmLssMfModelImpl(BandLmMixin, MetisLssMfModelImpl):
     class InputSet(BandLmMixin, MetisLssMfModelImpl.InputSet):
         pass
 

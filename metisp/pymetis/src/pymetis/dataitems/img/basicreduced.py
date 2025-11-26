@@ -27,7 +27,7 @@ from pymetis.classes.mixins import TargetSciMixin, TargetStdMixin, BandLmMixin, 
 class BasicReduced(ImageDataItem, abstract=True):
     _name_template = r'{band}_{target}_BASIC_REDUCED'
     _title_template = "{band} {target} basic reduced"
-    _description_template = "Detrended exposure of the {band} image mode."
+    _description_template = "Detrended {target} exposure of the {band} image mode."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}

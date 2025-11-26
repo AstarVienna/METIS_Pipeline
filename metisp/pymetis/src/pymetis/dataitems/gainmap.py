@@ -26,8 +26,8 @@ from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorI
 
 class GainMap(ImageDataItem, abstract=True):
     _name_template = r'GAIN_MAP_{detector}'
-    _title_template = "gain map"
-    _description_template = "Gain map"
+    _title_template = "gain map for {detector} detector"
+    _description_template = "Gain map for the {detector} detector"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = {'PRO.CATG'}

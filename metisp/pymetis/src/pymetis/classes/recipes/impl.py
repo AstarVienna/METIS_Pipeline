@@ -28,9 +28,10 @@ from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.inputset import PipelineInputSet
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class MetisRecipeImpl(ABC):
+class MetisRecipeImpl(Parametrizable, ABC):
     """
     An abstract base class for all METIS recipe implementations.
     Contains central data flow control and also provides abstract methods to be overridden
@@ -71,6 +72,19 @@ class MetisRecipeImpl(ABC):
     def specialize(cls) -> None:
         cls.InputSet.specialize(**cls.tag_parameters())
 
+        for name, item in cls.list_product_classes():
+            # Try to find a promoted class in the registry
+            old_class = item.__qualname__
+            old_class_name = item.name()
+            if (new_class := DataItem.find(tag := item.specialize(**cls.tag_parameters()))) is None:
+                pass
+            else:
+                Msg.info(cls.__class__.__qualname__,
+                         f" - {old_class} ({old_class_name}) becomes "
+                         f"{new_class.__qualname__} ({new_class.name()})")
+
+            # Replace the product attribute with the new class
+            cls.__class__.__setattr__(cls, name, new_class)
 
     @classmethod
     def promote(cls, **parameters) -> None:

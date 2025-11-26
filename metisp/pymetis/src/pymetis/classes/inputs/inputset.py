@@ -85,29 +85,25 @@ class PipelineInputSet(ABC):
 
     @classmethod
     def specialize(cls, **parameters) -> None:
-        for name, inp in cls.get_inputs():
-            old_class = inp.Item.__class__
-            old_class_name = inp.Item.name()
+        """
+        Specialize all input classes within this input set, based on tunable parameters.
+        """
+        print(f"Specializing {cls.__name__} with parameters {parameters}")
 
-            print(parameters, inp.Item.specialize(**parameters))
-            if (new_class := DataItem.find(tag := inp.Item.specialize(**parameters))) is None:
-                raise TypeError(f"Could not promote class {inp.Item.__qualname__}: {tag} is not a registered tag")
-            else:
-                Msg.info(cls.__class__.__qualname__,
-                         f" - {old_class} ({old_class_name}) becomes "
-                         f"{new_class.__qualname__} ({new_class.name()})")
-
-    @classmethod
-    def promote(cls, **parameters) -> None:
         for name, inp in cls.get_inputs():
             old_class = inp.Item.__qualname__
             old_class_name = inp.Item.name()
+
+            print(f"{cls.__qualname__} specializing {inp.Item.specialize(**parameters)} for {parameters}")
             if (new_class := DataItem.find(tag := inp.Item.specialize(**parameters))) is None:
-                raise TypeError(f"Could not promote class {inp.Item.__qualname__}: {tag} is not a registered tag")
+                pass
             else:
-                Msg.info(cls.__class__.__qualname__,
-                         f" - {old_class} ({old_class_name}) becomes "
+                Msg.info(cls.__qualname__,
+                         f" - {old_class} ({old_class_name}) => "
                          f"{new_class.__qualname__} ({new_class.name()})")
+                print(inp.__qualname__)
+                inp.Item = new_class
+
 
     @classmethod
     def get_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:
@@ -138,7 +134,7 @@ class PipelineInputSet(ABC):
 
     def _validate_attr(self, _func: Callable, attr: str) -> Optional[str]:
         """
-        Helper method: validate the input attribute (detector, band, source or target).
+        Helper method: validate the input attribute.
 
         Return
             None, if the attribute cannot be identified (this usually is not an error if it is not defined).
