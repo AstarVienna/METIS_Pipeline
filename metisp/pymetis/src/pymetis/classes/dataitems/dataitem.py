@@ -100,21 +100,17 @@ class DataItem(Parametrizable):
                       f"Class is abstract, skipping registration")
         else:
             # Otherwise, add it to the global registry
-            assert cls.__regex_pattern.match(cls.name()) is not None, \
-                (f"Tried to register {cls.__name__} ({cls.name()}) for parameters {cls.tag_parameters()}, "
-                 f"which is not fully specialized "
-                 f"(did you mean to set `abstract=True` in the class declaration?)")
-
-            if cls.name() in DataItem._registry:
-                # If the class is already registered, warn about it and do nothing
-                Msg.warning(cls.__qualname__,
-                            f"A class with tag {cls.name()} is already registered, "
-                            f"skipping: {DataItem._registry[cls.name()]}")
-            else:
-                # Otherwise add it to the registry
-                Msg.debug(cls.__qualname__,
-                          f"Registered a new class {cls.name()}: {cls}")
-                DataItem._registry[cls.name()] = cls
+            if cls.__regex_pattern.match(cls.name()) is not None:
+                if cls.name() in DataItem._registry:
+                    # If the class is already registered, warn about it and do nothing
+                    Msg.warning(cls.__qualname__,
+                                f"A class with tag {cls.name()} is already registered, "
+                                f"skipping: {DataItem._registry[cls.name()]}")
+                else:
+                    # Otherwise add it to the registry
+                    Msg.debug(cls.__qualname__,
+                              f"Registered a new class {cls.name()}: {cls}")
+                    DataItem._registry[cls.name()] = cls
 
     @classmethod
     @final

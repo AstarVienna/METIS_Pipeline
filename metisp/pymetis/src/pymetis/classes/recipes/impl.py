@@ -79,12 +79,12 @@ class MetisRecipeImpl(Parametrizable, ABC):
             if (new_class := DataItem.find(tag := item.specialize(**cls.tag_parameters()))) is None:
                 pass
             else:
-                Msg.info(cls.__class__.__qualname__,
+                Msg.info(cls.__qualname__,
                          f" - {old_class} ({old_class_name}) becomes "
                          f"{new_class.__qualname__} ({new_class.name()})")
 
-            # Replace the product attribute with the new class
-            cls.__class__.__setattr__(cls, name, new_class)
+                # Replace the product class with the new class
+                setattr(cls, name, new_class)
 
     @classmethod
     def promote(cls, **parameters) -> None:

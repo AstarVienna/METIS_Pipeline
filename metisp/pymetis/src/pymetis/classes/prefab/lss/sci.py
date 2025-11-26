@@ -32,7 +32,6 @@ from pymetis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci
 from pymetis.dataitems.lss.std import AoPsfModel
 from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
     LinearityInputSetMixin, SinglePipelineInput, AtmLineCatInput
-from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
@@ -92,8 +91,12 @@ class MetisLssSciImpl(DarkImageProcessor):
     class ProductLssSci1d(LssSci1d, abstract=True):
         pass
 
-    ProductLssSci2d = LssSci2d
-    ProductLssSciFlux1d = LssSciFlux1d
+    class ProductLssSci2d(LssSci2d, abstract=True):
+        pass
+
+    class ProductLssSciFlux1d(LssSciFlux1d, abstract=True):
+        pass
+
     ProductLssSciFlux2d = LssSciFlux2d
     ProductLssSciFluxTellCorr1d = LssSciFluxTellCorr1d
 

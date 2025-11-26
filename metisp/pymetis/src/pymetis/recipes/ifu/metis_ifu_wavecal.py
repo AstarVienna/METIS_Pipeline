@@ -42,8 +42,11 @@ class MetisIfuWavecalImpl(DarkImageProcessor):
         class RawInput(RawInput):
             Item = IfuWavecalRaw
 
-        MasterDarkInput = MasterDarkInput
-        DistortionTableInput = DistortionTableInput
+        class MasterDarkInput(MasterDarkInput):
+            pass
+
+        class DistortionTableInput(DistortionTableInput):
+            pass
 
     ProductIfuWavecal = IfuWavecal
 

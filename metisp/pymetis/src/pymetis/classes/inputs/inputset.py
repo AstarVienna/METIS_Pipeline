@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import copy
 import inspect
 import re
 
@@ -88,21 +88,20 @@ class PipelineInputSet(ABC):
         """
         Specialize all input classes within this input set, based on tunable parameters.
         """
-        print(f"Specializing {cls.__name__} with parameters {parameters}")
-
         for name, inp in cls.get_inputs():
-            old_class = inp.Item.__qualname__
-            old_class_name = inp.Item.name()
+            old_class = inp.Item
+            # Copy the entire type so that we do not mess up the original one
+            new_class = type(inp.Item.__name__, inp.Item.__bases__, dict(inp.Item.__dict__))
+            new_class.specialize(**parameters)
 
-            print(f"{cls.__qualname__} specializing {inp.Item.specialize(**parameters)} for {parameters}")
-            if (new_class := DataItem.find(tag := inp.Item.specialize(**parameters))) is None:
-                pass
+            if (new_class := DataItem.find(new_class._name_template)) is None:
+                Msg.info(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} for {parameters}")
             else:
-                Msg.info(cls.__qualname__,
-                         f" - {old_class} ({old_class_name}) => "
-                         f"{new_class.__qualname__} ({new_class.name()})")
-                print(inp.__qualname__)
                 inp.Item = new_class
+                Msg.info(cls.__qualname__,
+                         f" - {inp.__qualname__} data item specialized to "
+                         f"{new_class.__qualname__} ({inp.Item.name()})")
+
 
 
     @classmethod
@@ -131,41 +130,7 @@ class PipelineInputSet(ABC):
 
         for inp in self.inputs:
             inp.validate()
-
-    def _validate_attr(self, _func: Callable, attr: str) -> Optional[str]:
-        """
-        Helper method: validate the input attribute.
-
-        Return
-            None, if the attribute cannot be identified (this usually is not an error if it is not defined).
-            The attribute value, if the attribute only has the same value everywhere.
-        Raise
-            ValueError if the attribute has multiple different values.
-        """
-        Msg.debug(self.__class__.__qualname__, f"--- Validating the {attr} parameters ---")
-        self.tag_matches[attr] = self.tag_parameters()[attr] if attr in self.tag_parameters() else None
-        total = list(set([_func(inp) for inp in self.inputs]) - {None})
-
-        for inp in self.inputs:
-            value = _func(inp)
-            det = "---" if value is None else value
-            Msg.debug(self.__class__.__qualname__,
-                      f"{attr:<15s} in {inp.__class__.__qualname__:<54} {det}")
-
-        if (count := len(total)) == 0:
-            # If there are no identifiable tag parameters, just emit a debug message
-            # (not a warning -- this is OK for items that are not attribute-specific).
-            Msg.debug(self.__class__.__qualname__,
-                      f"No {attr} could be identified from the SOF")
-        elif count == 1:
-            # If there is exactly one unique value, the input is consistent, so set it as an InputSet tag parameter
-            result = total[0]
-            Msg.debug(self.__class__.__qualname__,
-                      f"Correctly identified {attr} from the SOF: {result}")
-            self.tag_matches[attr] = result
-        else:
-            # If there is more than one unique value, the input is inconsistent, raise an exception
-            raise ValueError(f"Data from more than one {attr} found in inputset: {total}!")
+            self.tag_matches |= inp.Item.tag_parameters()
 
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")

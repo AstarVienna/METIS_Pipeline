@@ -42,8 +42,11 @@ class MetisLssStdImpl(DarkImageProcessor):
         class RawInput(RawInput):
             Item = LssStdRaw
 
-        MasterDarkInput = MasterDarkInput
-        MasterRsrfInput = MasterRsrfInput
+        class MasterDarkInput(MasterDarkInput):
+            pass
+
+        class MasterRsrfInput(MasterRsrfInput):
+            pass
 
         class MasterLssTrace(SinglePipelineInput):
             Item = LssTrace

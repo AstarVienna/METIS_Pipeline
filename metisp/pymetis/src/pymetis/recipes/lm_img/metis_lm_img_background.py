@@ -28,10 +28,10 @@ from pymetis.dataitems.objectcatalog import ObjectCatalog
 from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.utils.dummy import create_dummy_image, create_dummy_table, create_dummy_header
+from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
-class MetisLmImgBackgroundImpl(MetisRecipeImpl):
+class MetisLmImgBackgroundImpl(BandLmMixin, MetisRecipeImpl):
     class InputSet(BandLmMixin, Detector2rgMixin, PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
             Item = BasicReduced

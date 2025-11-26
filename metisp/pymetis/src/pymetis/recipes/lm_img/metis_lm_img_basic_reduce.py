@@ -69,7 +69,8 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, DarkImageProcessor):
         # Now we need a master dark frame. Since nothing is changed and the tag is always the same,
         # we just point to the provided MasterDarkInput. Note that we do not have to instantiate
         # it explicitly anywhere, `MasterDarkInput` takes care of that for us.
-        MasterDarkInput = MasterDarkInput
+        class MasterDarkInput(MasterDarkInput):
+            pass
 
         # Also, one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
