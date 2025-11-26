@@ -68,8 +68,8 @@ class MetisRecipeImpl(ABC):
                   f"{"-" * 40} Recipe initialization complete {"-" * 40}")
 
     @classmethod
-    def specialize(cls, **parameters) -> None:
-        cls.InputSet.specialize(**parameters)
+    def specialize(cls) -> None:
+        cls.InputSet.specialize(**cls.tag_parameters())
 
 
     @classmethod

@@ -24,7 +24,7 @@ from pymetis.classes.prefab.lss.sci import MetisLssSciImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisLmLssSciImpl(MetisLssSciImpl):
+class MetisLmLssSciImpl(BandLmMixin, MetisLssSciImpl):
     class InputSet(BandLmMixin, Detector2rgMixin, MetisLssSciImpl.InputSet):
         pass
 

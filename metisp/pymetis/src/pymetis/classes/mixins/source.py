@@ -17,44 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.mixins.base import KeywordMixin
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class SourceSpecificMixin(KeywordMixin, keyword='source'):
-    """
-    Mixin class for data items that need to define the `target` attribute.
-
-    Hopefully it does not cause any issues with the MRO.
-    """
-    _source: str = None
-
-    def __init_subclass__(cls, *, source=None, **kwargs):
-        if source is not None:
-            cls._source = source
-        super().__init_subclass__(**kwargs)
-
-    @classmethod
-    def source(cls) -> str:
-        return cls._source
-
-    @classmethod
-    def get_source_string(cls) -> str:
-        """
-        Return a pretty formatted target string for human-oriented output.
-        """
-        return {
-            'LAMP': 'lamp',
-            'TWILIGHT': 'twilight',
-        }.get(cls.source(), cls.source())
-
-    @classmethod
-    def tag_parameters(cls):
-        return super().tag_parameters() | {'source': cls._source}
-
-
-class SourceLampMixin(SourceSpecificMixin, source='LAMP'):
+class SourceLampMixin(Parametrizable, source='LAMP'):
     pass
 
 
-class SourceTwilightMixin(SourceSpecificMixin, source='TWILIGHT'):
+class SourceTwilightMixin(Parametrizable, source='TWILIGHT'):
     pass

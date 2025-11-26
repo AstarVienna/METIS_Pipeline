@@ -37,7 +37,7 @@ from pymetis.utils.format import partial_format
 PIPELINE = rf'METIS/1'
 
 
-class DataItem(Parametrizable, ABC):
+class DataItem(Parametrizable):
     """
     The `DataItem` class encapsulates a single data item:
     the smallest standalone unit of detector data or a product of a recipe.
@@ -48,12 +48,12 @@ class DataItem(Parametrizable, ABC):
     Multiple files with the same tag should correspond to multiple instances of the same DataItem class.
     """
     # Class registry: all derived classes are automatically registered here (unless declared abstract)
-    __registry: dict[str, type['DataItem']] = {}
+    _registry: dict[str, type['DataItem']] = {}
 
     # Printable title of the data item. Not used internally, only for human-oriented output
     _title_template: str = None                     # No universal title makes sense
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
-    _name_template: str = None                      # No universal name makes sense
+    _name_template: str = "DataItem"                # No universal name makes sense
     # Description for man page
     _description_template: Optional[str] = None     # A verbose string; should correspond to the DRLD description
 
@@ -89,9 +89,10 @@ class DataItem(Parametrizable, ABC):
         Classes marked as abstract are not registered and should never be instantiated.
         # FixMe: Hugo says it might be useful for database views and such. But for now it is so.
         """
-        cls.__abstract = abstract
 
-        print(cls.__name__, cls.tag_parameters())
+        super().__init_subclass__(**kwargs)
+
+        cls.__abstract = abstract
 
         if cls.__abstract:
             # If the class is not fully specialized, skip it
@@ -104,18 +105,16 @@ class DataItem(Parametrizable, ABC):
                  f"which is not fully specialized "
                  f"(did you mean to set `abstract=True` in the class declaration?)")
 
-            if cls.name().format() in DataItem.__registry:
+            if cls.name() in DataItem._registry:
                 # If the class is already registered, warn about it and do nothing
                 Msg.warning(cls.__qualname__,
                             f"A class with tag {cls.name()} is already registered, "
-                            f"skipping: {DataItem.__registry[cls.name()]}")
+                            f"skipping: {DataItem._registry[cls.name()]}")
             else:
                 # Otherwise add it to the registry
                 Msg.debug(cls.__qualname__,
                           f"Registered a new class {cls.name()}: {cls}")
-                DataItem.__registry[cls.name()] = cls
-
-        super().__init_subclass__(**kwargs)
+                DataItem._registry[cls.name()] = cls
 
     @classmethod
     @final
@@ -125,8 +124,8 @@ class DataItem(Parametrizable, ABC):
 
         If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
         """
-        if key in DataItem.__registry:
-            return DataItem.__registry[key]
+        if key in DataItem._registry:
+            return DataItem._registry[key]
         else:
             return None
 
@@ -136,7 +135,7 @@ class DataItem(Parametrizable, ABC):
 
     @classmethod
     def registry(cls) -> dict[str, type['DataItem']]:
-        return DataItem.__registry
+        return DataItem._registry
 
     @classmethod
     def specialize(cls, **parameters) -> str:
@@ -162,7 +161,7 @@ class DataItem(Parametrizable, ABC):
         """
         assert cls._title_template is not None, \
             f"{cls.__name__} title template is None"
-        return cls._title_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
+        return partial_format(cls._title_template, **cls.__replace_empty_tags(**cls.tag_parameters()))
 
     @classmethod
     def name(cls) -> str:
@@ -171,7 +170,7 @@ class DataItem(Parametrizable, ABC):
         """
         assert cls._name_template is not None, \
             f"{cls.__name__} name template is None"
-        return cls._name_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
+        return partial_format(cls._name_template, **cls.__replace_empty_tags(**cls.tag_parameters()))
 
     @classmethod
     def description(cls) -> str:

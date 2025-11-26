@@ -19,11 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import ImageDataItem, TableDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.dataitems import TableDataItem
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 
-class LssCurve(BandSpecificMixin, TableDataItem, abstract=True):
+class LssCurve(TableDataItem, abstract=True):
     """
     Trace curvature
     """
@@ -43,7 +43,7 @@ class NLssCurve(BandNMixin, LssCurve):
     pass
 
 
-class LssDistSol(BandSpecificMixin, TableDataItem, abstract=True):
+class LssDistSol(TableDataItem, abstract=True):
     """
     Distortion solution
     """
@@ -63,7 +63,7 @@ class NLssDistSol(BandNMixin, LssDistSol):
     pass
 
 
-class LssWaveGuess(BandSpecificMixin, TableDataItem, abstract=True):
+class LssWaveGuess(TableDataItem, abstract=True):
     """
     First guess of the wavelength solution
     """

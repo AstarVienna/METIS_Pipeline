@@ -110,7 +110,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         else:
             matched_keywords = '\n    '.join(self._matched_keywords)
 
-        self.Impl.specialize(band=self.__class__._band)
+        self.Impl.specialize()
 
         inputs = '\n'.join(sorted([input_type._extended_description_line(name)
                                    for (name, input_type) in self._list_inputs()]))

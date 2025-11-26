@@ -17,8 +17,27 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import copy
-from abc import ABC
-from typing import Self
+
+
+class ParametrizableMeta(type):
+    def __new__(mcs, name, bases, namespace, **kwargs):
+        # 1. Start with merged parameters from all bases
+        merged = {}
+        for base in bases:
+            if hasattr(base, "_tag_parameters") and isinstance(base._tag_parameters, dict):
+                merged.update(base._tag_parameters)
+
+        # 2. Merge parameters from class namespace (mixins may define _tag_parameters)
+        merged.update(namespace.get("_tag_parameters", {}))
+
+        # 3. Merge parameters passed via class kwargs
+        merged.update(kwargs)
+
+        # 4. Inject merged _tag_parameters into the class
+        namespace["_tag_parameters"] = merged
+
+        # 5. Create the class
+        return super().__new__(mcs, name, bases, namespace)
 
 
 class Parametrizable:
@@ -34,7 +53,7 @@ class Parametrizable:
     Currently applies to DataItems, PipelineInputSets and their Mixins.
     """
 
-    _tag_parameters: dict[str, str] = copy.deepcopy({})
+    _tag_parameters: dict[str, str] = {}
 
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
@@ -45,29 +64,13 @@ class Parametrizable:
         return cls._tag_parameters
 
     def __init_subclass__(cls, **kwargs):
-        cls._tag_parameters = {}
-        for key, value in kwargs.items():
-            cls._tag_parameters[key] = value
+        merged = {}
+        for base in reversed(cls.__mro__):
+            params = base.__dict__.get('_tag_parameters')
+            if isinstance(params, dict):
+                merged.update(params)
 
+        merged.update(kwargs)
 
-class KeywordMixin(Parametrizable, ABC):
-    """
-    Base class for keyword-parametrizable mixins.
-
-    Contains a global registry of such classes, with placeholders as keys
-    """
-
-    # Global registry of parametrizable tags in the form {keyword: class},
-    # e.g. {'detector': DetectorSpecificMixin, ...}
-    # Filled automatically with __init_subclass__.
-    _registry: dict[str, type[Self]] = {}
-
-    def __init_subclass__(cls, *, keyword: str = None, **kwargs):
-        if keyword is not None:
-            cls._registry[keyword] = cls
-        super().__init_subclass__(**kwargs)
-
-    @classmethod
-    def registry(cls) -> dict[str, type[Self]]:
-        """ Class property to access the global registry """
-        return cls._registry
+        cls._tag_parameters = merged
+        print(cls.__qualname__, cls._tag_parameters)

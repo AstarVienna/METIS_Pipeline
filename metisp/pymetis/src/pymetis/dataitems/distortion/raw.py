@@ -45,5 +45,5 @@ class NDistortionRaw(BandNMixin, DistortionRaw):
     pass
 
 
-class IfuDistortionRaw(DetectorIfuMixin, BandIfuMixin, DistortionRaw):
+class IfuDistortionRaw(BandIfuMixin, DistortionRaw):
     pass

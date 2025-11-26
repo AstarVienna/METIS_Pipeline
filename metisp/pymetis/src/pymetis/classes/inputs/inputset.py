@@ -28,10 +28,10 @@ from cpl.core import Msg
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
-from pymetis.classes.mixins.base import Parametrizable, KeywordMixin
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class PipelineInputSet(Parametrizable, ABC):
+class PipelineInputSet(ABC):
     """
     The `PipelineInputSet` class is a utility class for a recipe dealing with the input data.
     It reads and filters the input FrameSet, categorizes the frames by their metadata,
@@ -133,13 +133,8 @@ class PipelineInputSet(Parametrizable, ABC):
         if len(self.inputs) == 0:
             raise NotImplementedError("PipelineInputSet must define at least one input.")
 
-
         for inp in self.inputs:
             inp.validate()
-
-        # Validate that tag parameters match the keyword mixin from which the data items are derived
-        for attr, klass in KeywordMixin.registry().items():
-            self._validate_attr(lambda x: x.Item.tag_parameters()[attr] if issubclass(x.Item, klass) else None, attr)
 
     def _validate_attr(self, _func: Callable, attr: str) -> Optional[str]:
         """

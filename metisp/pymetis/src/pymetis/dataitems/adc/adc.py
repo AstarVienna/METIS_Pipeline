@@ -22,10 +22,10 @@ from cpl.core import Table, Image
 
 from pymetis.classes.dataitems import TableDataItem
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandSpecificMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 
-class AdcSlitloss(BandSpecificMixin, TableDataItem, abstract=True):
+class AdcSlitloss(TableDataItem, abstract=True):
     _name_template = r'{band}_ADC_SLITLOSS'
     _title_template = "{band} ADC slit loss"
     _description_template = "Table with ADC induced {band} slitlosses"
@@ -42,7 +42,7 @@ class NAdcSlitloss(BandNMixin, AdcSlitloss):
     pass
 
 
-class AdcSlitlossRaw(BandSpecificMixin, Raw, abstract=True):
+class AdcSlitlossRaw(Raw, abstract=True):
     _name_template = r'{band}_ADC_SLITLOSS_RAW'
     _title_template = r'{band} ADC slit loss raw'
     _description_template = "Raw files for ADC slitloss determination (TBD)."
