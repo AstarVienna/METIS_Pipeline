@@ -25,7 +25,7 @@ class FormatPlaceholder:
         self.key = key
 
     def __format__(self, spec):
-        value = f'{self.key}{f':{spec}' if spec else ''}'
+        value = f"{self.key}{f':{spec}' if spec else ''}"
         return f"{{{value}}}"
 
 
