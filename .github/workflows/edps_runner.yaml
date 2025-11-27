@@ -86,10 +86,6 @@ jobs:
           echo "Successfully copied to /product/$TODAY/imgLM"
           ls -la /product/$TODAY/imgLM
           
-          # Create/update LatestBuild symlink
-          ln -sfn $TODAY /product/LatestBuild
-          echo "Updated /product/LatestBuild -> $TODAY"
-     
       - name: run EDPS workflows - N Image Science
         run: |
           export MODE="imgN"
@@ -104,9 +100,9 @@ jobs:
 
           # . metispipe/bin/activate
           edps --shutdown
-          edps -lw
+          #edps -lw
           edps -w metis.metis_wkf -i $SOF_DATA -c
-          edps -w metis.metis_wkf -i $SOF_DATA -lt
+          #edps -w metis.metis_wkf -i $SOF_DATA -lt
           edps -w metis.metis_n_img_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
           # ! grep "'FAILED'" edps.stdout.txt
       
@@ -140,7 +136,7 @@ jobs:
           
           # Transfer today's directory
           scp -r /product/$TODAY chyan@zeus:/data/METIS_Pipeline_Product/$TODAY
-          
+        
           # Update LatestBuild symlink on zeus
-          ssh chyan@zeus "ln -sfn $TODAY /data/METIS_Pipeline_Product/LatestBuild"
+          ssh chyan@zeus "ln -sfn /data/METIS_Pipeline_Product/$TODAY /data/METIS_Pipeline_Product/LatestBuild"
           echo "Updated zeus:/data/METIS_Pipeline_Product/LatestBuild -> $TODAY"
