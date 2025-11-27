@@ -138,5 +138,5 @@ jobs:
           scp -r /product/$TODAY chyan@zeus:/data/METIS_Pipeline_Product/$TODAY
         
           # Update LatestBuild symlink on zeus
-          ssh chyan@zeus "ln -sfn /data/METIS_Pipeline_Product/$TODAY /data/METIS_Pipeline_Product/LatestBuild"
+          ssh chyan@zeus "ln -sfn $TODAY /data/METIS_Pipeline_Product/LatestBuild"
           echo "Updated zeus:/data/METIS_Pipeline_Product/LatestBuild -> $TODAY"
