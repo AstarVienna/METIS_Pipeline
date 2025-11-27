@@ -41,7 +41,7 @@ jobs:
           echo "data_dir=$DATA_DIR" >> $GITHUB_OUTPUT
           ls -la "$DATA_DIR"
 
-      - name: Setting up environment
+      - name: run EDPS workflows - LM Image Science
         run: |
           ./toolbox/create_config.sh
           export PATH="$HOME/.local/bin:$PATH"
@@ -60,9 +60,6 @@ jobs:
           edps -w metis.metis_lm_img_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
           # ! grep "'FAILED'" edps.stdout.txt
       
-      - name: Organize output products
-        if: success()
-        run: |
           set -euo pipefail
           
           TODAY=$(date +%Y-%m-%d)
@@ -88,5 +85,53 @@ jobs:
           
           echo "Successfully copied to /product/$TODAY/imgLM"
           ls -la /product/$TODAY/imgLM
+     
+      - name: run EDPS workflows - N Image Science
+        run: |
+          export MODE = imgN
+          ./toolbox/create_config.sh
+          export PATH="$HOME/.local/bin:$PATH"
+          # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="/data/LatestBuild/$MODE"
 
+          # . metispipe/bin/activate
+          edps --shutdown
+          edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          edps -w metis.metis_wkf -i $SOF_DATA -lt
+          edps -w metis.metis_lm_img_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
+          # ! grep "'FAILED'" edps.stdout.txt
+      
+          set -euo pipefail
+          
+          TODAY=$(date +%Y-%m-%d)
+          echo "Today's date: $TODAY"
+          
+          mkdir -p /product/$TODAY
+          
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_IMAGE_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          echo "Found output directory: $LATEST_OUTPUT"
+          
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
+          
+          if [ -z "$TIMESTAMP_DIR" ]; then
+            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
+            echo "Directory contents:"
+            ls -la "$LATEST_OUTPUT"
+            exit 1
+          fi
+          
+          echo "Found timestamp directory: $TIMESTAMP_DIR"
+          
+          cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
+          
+          echo "Successfully copied to /product/$TODAY/$MODE"
+          ls -la /product/$TODAY/$MODE
+
+      - name: Transfer products to Zeus server
+        run: |
           scp -r /product/$TODAY chyan@zeus:/data/METIS_Pipeline_Product/$TODAY
