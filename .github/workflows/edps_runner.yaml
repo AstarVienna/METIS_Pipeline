@@ -135,7 +135,7 @@ jobs:
           TODAY=$(date +%Y-%m-%d)
           
           # Transfer today's directory
-          scp -r /product/$TODAY chyan@zeus:/data/METIS_Pipeline_Product/$TODAY
+          scp -r /product/$TODAY chyan@zeus:/data/METIS_Pipeline_Product/
         
           # Update LatestBuild symlink on zeus
           ssh chyan@zeus "ln -sfn $TODAY /data/METIS_Pipeline_Product/LatestBuild"
