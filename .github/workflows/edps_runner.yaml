@@ -88,7 +88,7 @@ jobs:
      
       - name: run EDPS workflows - N Image Science
         run: |
-          export MODE="imgN
+          export MODE="imgN"
           ./toolbox/create_config.sh
           export PATH="$HOME/.local/bin:$PATH"
           # . metispipe/bin/activate
