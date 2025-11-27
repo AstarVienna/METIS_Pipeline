@@ -199,7 +199,7 @@ jobs:
           TODAY=$(date +%Y-%m-%d)
           echo "Today's date: $TODAY"
                     
-          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.N_IMAGE_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_LSS_WAVE_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
           echo "Found output directory: $LATEST_OUTPUT"
           
           TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
