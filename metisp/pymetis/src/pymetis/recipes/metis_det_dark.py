@@ -292,7 +292,7 @@ class MetisDetDark(MetisRecipe):
     _email = "hugo@buddelmeijer.nl"
     _synopsis = "Create master dark"
     _description = (
-        "Prototype to create a METIS masterdark."
+        "Prototype to create a METIS masterdark for {detector} in {2RG, GEO, IFU}"
     )
 
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description

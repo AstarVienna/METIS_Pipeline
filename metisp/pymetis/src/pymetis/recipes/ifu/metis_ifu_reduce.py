@@ -44,7 +44,8 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         class RawSkyInput(RawInput):
             Item = IfuSkyRaw
 
-        WavecalInput = WavecalInput
+        class WavecalInput(WavecalInput):
+            pass # We need to create a new class here, not reuse the old one!
 
         class DistortionTableInput(SinglePipelineInput):
             Item = IfuDistortionTable

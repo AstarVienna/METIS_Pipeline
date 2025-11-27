@@ -42,9 +42,6 @@ class MetisNLssSci(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Reduction of the LSS science star frames"
-    _description: str = """\
-    Reduction of the LSS science star frames
-    """
 
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""

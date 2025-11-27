@@ -105,7 +105,7 @@ class DataItem(Parametrizable):
                     # If the class is already registered, warn about it and do nothing
                     Msg.warning(cls.__qualname__,
                                 f"A class with tag {cls.name()} is already registered, "
-                                f"skipping: {DataItem._registry[cls.name()]}")
+                                f"skipping: {DataItem._registry[cls.name()].__qualname__}")
                 else:
                     # Otherwise add it to the registry
                     Msg.debug(cls.__qualname__,

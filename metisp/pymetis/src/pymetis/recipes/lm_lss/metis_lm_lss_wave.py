@@ -48,8 +48,11 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
         class LssTraceInput(SinglePipelineInput):
             Item = LssTrace
 
-        WcuOffInput = WcuOffInput
-        LaserTableInput = LaserTableInput
+        class WcuOffInput(WcuOffInput):
+            pass
+
+        class LaserTableInput(LaserTableInput):
+            pass
 
     # ++++++++++++ Intermediate / QC products ++++++++++++
     ProductLssCurve = LssCurve

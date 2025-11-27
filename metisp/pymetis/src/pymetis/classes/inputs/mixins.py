@@ -23,7 +23,7 @@ from .common import (GainMapInput, LinearityInput, BadPixMapInput,
 
 
 class PersistenceInputSetMixin(PipelineInputSet):
-    class     PersistenceMapInput(OptionalPersistenceMapInput):
+    class PersistenceMapInput(OptionalPersistenceMapInput):
         pass
 
 

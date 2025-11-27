@@ -19,12 +19,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin, TargetStdMixin
 from pymetis.classes.prefab.lss.std import MetisLssStdImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisLmLssStdImpl(MetisLssStdImpl):
+class MetisLmLssStdImpl(BandLmMixin, Detector2rgMixin, TargetStdMixin, MetisLssStdImpl):
     class InputSet(BandLmMixin, Detector2rgMixin, MetisLssStdImpl.InputSet):
         pass
 

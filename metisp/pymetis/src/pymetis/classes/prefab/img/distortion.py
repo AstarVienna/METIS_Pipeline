@@ -39,7 +39,8 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         class DistortionInput(SinglePipelineInput):
             Item = DistortionRaw
 
-        PinholeTableInput = PinholeTableInput
+        class PinholeTableInput(PinholeTableInput):
+            pass
 
     ProductDistortionTable = DistortionTable
     ProductDistortionMap = DistortionMap

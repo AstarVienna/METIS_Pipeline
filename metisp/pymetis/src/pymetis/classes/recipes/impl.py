@@ -70,21 +70,22 @@ class MetisRecipeImpl(Parametrizable, ABC):
 
     @classmethod
     def specialize(cls) -> None:
+        Msg.info(cls.__qualname__, f"Specializing {cls.__qualname__} with {cls.tag_parameters()}")
         cls.InputSet.specialize(**cls.tag_parameters())
 
-        for name, item in cls.list_product_classes():
-            # Try to find a promoted class in the registry
-            old_class = item.__qualname__
-            old_class_name = item.name()
-            if (new_class := DataItem.find(tag := item.specialize(**cls.tag_parameters()))) is None:
-                pass
-            else:
-                Msg.info(cls.__qualname__,
-                         f" - {old_class} ({old_class_name}) becomes "
-                         f"{new_class.__qualname__} ({new_class.name()})")
+        for name, item_class in cls.list_product_classes():
+            old_class = item_class
+            # Copy the entire type so that we do not mess up the original one
+            new_class = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
+            new_class.specialize(**cls.tag_parameters())
 
-                # Replace the product class with the new class
-                setattr(cls, name, new_class)
+            if (new_class := DataItem.find(new_class._name_template)) is None:
+                Msg.info(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} for {cls.tag_parameters()}")
+            else:
+                setattr(cls, name, item_class)
+                Msg.info(cls.__qualname__,
+                         f" - {cls.__qualname__} data item specialized to "
+                         f"{new_class.__qualname__} ({new_class.name()})")
 
     @classmethod
     def promote(cls, **parameters) -> None:

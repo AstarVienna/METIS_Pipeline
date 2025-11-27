@@ -34,7 +34,8 @@ class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
         class BackgroundInput(SinglePipelineInput):
             Item = SciBackgroundSubtracted
 
-        FluxcalTableInput = FluxCalTableInput
+        class FluxcalTableInput(FluxCalTableInput):
+            pass
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
