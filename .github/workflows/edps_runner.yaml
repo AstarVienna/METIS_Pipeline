@@ -219,6 +219,7 @@ jobs:
           ls -la /product/$TODAY/$MODE
 
       - name: Transfer products to Zeus server
+        if: always()
         run: |
           TODAY=$(date +%Y-%m-%d)
           
