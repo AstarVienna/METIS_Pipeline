@@ -1,13 +1,37 @@
-[build-system]
-requires = [
-    "setuptools >= 45",
-]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "pymetis"
-version = "0.0.1"
-dynamic = ["description","requires-python","license","authors","classifiers","urls","dependencies","optional-dependencies"]
+version = "0.1.0"
+description = "METIS pipeline"
+authors = [
+    {name = "martin.balaz@univie.ac.at"}
+]
+license = {text = "GPLv3"}
+readme = "README.md"
+requires-python = ">=3.11, <3.14"
+dependencies = [
+  "pycpl==1.0.3.post1",   # prefer ivh's re-packaged pycpl
+  "edps",
+  "pyesorex",
+  "adari_core",
+  "scopesim",
+  "scopesim_templates"
+]
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.1,<10.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+extra-index-url = [
+  "https://ivh.github.io/pycpl/simple/",
+  "https://ftp.eso.org/pub/dfs/pipelines/libraries/"
+]
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
