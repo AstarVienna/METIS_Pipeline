@@ -85,6 +85,10 @@ jobs:
           
           echo "Successfully copied to /product/$TODAY/imgLM"
           ls -la /product/$TODAY/imgLM
+          
+          # Create/update LatestBuild symlink
+          ln -sfn $TODAY /product/LatestBuild
+          echo "Updated /product/LatestBuild -> $TODAY"
      
       - name: run EDPS workflows - N Image Science
         run: |
@@ -132,4 +136,11 @@ jobs:
 
       - name: Transfer products to Zeus server
         run: |
+          TODAY=$(date +%Y-%m-%d)
+          
+          # Transfer today's directory
           scp -r /product/$TODAY chyan@zeus:/data/METIS_Pipeline_Product/$TODAY
+          
+          # Update LatestBuild symlink on zeus
+          ssh chyan@zeus "ln -sfn $TODAY /data/METIS_Pipeline_Product/LatestBuild"
+          echo "Updated zeus:/data/METIS_Pipeline_Product/LatestBuild -> $TODAY"
