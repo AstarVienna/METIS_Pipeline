@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin
+from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin, TargetSciMixin
 from pymetis.classes.prefab.lss.sci import MetisLssSciImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNLssSciImpl(MetisLssSciImpl):
-    class InputSet(BandNMixin, DetectorGeoMixin, MetisLssSciImpl.InputSet):
+class MetisNLssSciImpl(BandNMixin, DetectorGeoMixin, TargetSciMixin, MetisLssSciImpl):
+    class InputSet(MetisLssSciImpl.InputSet):
         pass
 
 
@@ -51,7 +51,7 @@ class MetisNLssSci(MetisRecipe):
     # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.parameter1",
             context=_name,
             description="Description of parameter 1",
             default="value1",
