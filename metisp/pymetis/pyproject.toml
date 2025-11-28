@@ -9,7 +9,7 @@ license = {text = "GPLv3"}
 readme = "README.md"
 requires-python = ">=3.11, <3.14"
 dependencies = [
-  "pycpl==1.0.3.post1",   # prefer ivh's re-packaged pycpl
+  "pycpl==1.0.3.post4",   # prefer ivh's re-packaged pycpl
   "edps",
   "pyesorex",
   "adari_core",
@@ -27,11 +27,21 @@ dev = [
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry]
-extra-index-url = [
-  "https://ivh.github.io/pycpl/simple/",
-  "https://ftp.eso.org/pub/dfs/pipelines/libraries/"
-]
+[tool.poetry.dependencies]
+adari_core = { source = "eso" }
+pyesorex = { source = "eso" }
+edps = { source = "eso" }
+pycpl = { version = "1.0.3.post4", source = "ivh" }
+
+[[tool.poetry.source]]
+name = "eso"
+url = "https://ftp.eso.org/pub/dfs/pipelines/repositories/stable/src"
+priority = "explicit"
+
+[[tool.poetry.source]]
+name = "ivh"
+url = "https://ivh.github.io/pycpl/simple/"
+priority = "explicit"
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
