@@ -43,6 +43,7 @@ jobs:
 
       - name: run EDPS workflows - LM Image Science
         run: |
+          export MODE="imgLM"
           ./toolbox/create_config.sh
           export PATH="$HOME/.local/bin:$PATH"
           # . metispipe/bin/activate
