@@ -20,3 +20,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.recipes import *
 from pymetis.recipes.hci.metis_img_adi_cgrph import MetisLmRavcSciCalibrated
 from pymetis.recipes.hci.metis_ifu_adi_cgrph import MetisIfuRavcSciCalibrated
+from pymetis.recipes.hci.metis_lm_adi_app import MetisLmAppSciCalibrated
