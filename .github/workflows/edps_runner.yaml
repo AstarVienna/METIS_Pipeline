@@ -181,7 +181,7 @@ jobs:
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
 
-          f [ ! -d "/product/$TODAY/$MODE" ]; then
+          if [ ! -d "/product/$TODAY/$MODE" ]; then
             cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
           else
             cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
@@ -229,7 +229,7 @@ jobs:
           
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
-          f [ ! -d "/product/$TODAY/$MODE" ]; then
+          if [ ! -d "/product/$TODAY/$MODE" ]; then
             cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
           else
             cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
