@@ -58,7 +58,6 @@ jobs:
           edps -w metis.metis_wkf -i $SOF_DATA -c
           edps -w metis.metis_wkf -i $SOF_DATA -lt
           edps -w metis.metis_lm_img_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
-          # ! grep "'FAILED'" edps.stdout.txt
       
           set -euo pipefail
           
@@ -67,6 +66,9 @@ jobs:
           
           mkdir -p /product/$TODAY
           
+          #
+          # SCI image products
+          #
           LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_IMAGE_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
           echo "Found output directory: $LATEST_OUTPUT"
           
@@ -82,7 +84,46 @@ jobs:
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
           cp -r "$TIMESTAMP_DIR" /product/$TODAY/imgLM
+
+          #
+          # SKY image products
+          #
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_IMAGE_SKY_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          echo "Found output directory: $LATEST_OUTPUT"
           
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
+          
+          if [ -z "$TIMESTAMP_DIR" ]; then
+            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
+            echo "Directory contents:"
+            ls -la "$LATEST_OUTPUT"
+            exit 1
+          fi
+          
+          echo "Found timestamp directory: $TIMESTAMP_DIR"
+          
+          cp -r "$TIMESTAMP_DIR" /product/$TODAY/imgLM
+          
+          #
+          # STD image products
+          #
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_IMAGE_STD_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          echo "Found output directory: $LATEST_OUTPUT"
+          
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
+          
+          if [ -z "$TIMESTAMP_DIR" ]; then
+            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
+            echo "Directory contents:"
+            ls -la "$LATEST_OUTPUT"
+            exit 1
+          fi
+          
+          echo "Found timestamp directory: $TIMESTAMP_DIR"
+          
+          cp -r "$TIMESTAMP_DIR" /product/$TODAY/imgLM
+
+          # ---------
           echo "Successfully copied to /product/$TODAY/imgLM"
           ls -la /product/$TODAY/imgLM
           
@@ -199,7 +240,7 @@ jobs:
           TODAY=$(date +%Y-%m-%d)
           echo "Today's date: $TODAY"
                     
-          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_LSS_WAVE_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_LSS_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
           echo "Found output directory: $LATEST_OUTPUT"
           
           TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
