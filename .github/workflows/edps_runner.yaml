@@ -84,11 +84,8 @@ jobs:
           
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
-          if [ ! -d "/product/$TODAY/$MODE" ]; then
-            cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
-          else
-            cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
-          fi
+          mkdir -p /product/$TODAY/$MODE
+          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
 
           echo "Successfully copied to /product/$TODAY/$MODE"
           ls -la /product/$TODAY/$MODE
@@ -132,11 +129,8 @@ jobs:
           
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
-          if [ ! -d "/product/$TODAY/$MODE" ]; then
-            cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
-          else
-            cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
-          fi
+          mkdir -p /product/$TODAY/$MODE
+          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
           
           echo "Successfully copied to /product/$TODAY/$MODE"
           ls -la /product/$TODAY/$MODE
@@ -181,11 +175,8 @@ jobs:
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
 
-          if [ ! -d "/product/$TODAY/$MODE" ]; then
-            cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
-          else
-            cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
-          fi
+          mkdir -p /product/$TODAY/$MODE
+          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
           
           echo "Successfully copied to /product/$TODAY/$MODE"
           ls -la /product/$TODAY/$MODE
@@ -229,11 +220,8 @@ jobs:
           
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
-          if [ ! -d "/product/$TODAY/$MODE" ]; then
-            cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
-          else
-            cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
-          fi
+          mkdir -p /product/$TODAY/$MODE
+          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
           
           echo "Successfully copied to /product/$TODAY/$MODE"
           ls -la /product/$TODAY/$MODE
