@@ -167,6 +167,35 @@ class DataItem(Parametrizable, ABC):
         return cls._name_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
 
     @classmethod
+    def name_short(cls) -> str:
+        """
+        Return a short name to be used in filenames that are short.
+        Short filenames are necessary to fit in FITS headers.
+
+        See _get_file_name().
+        """
+        short = (cls.name()
+                 .replace("CONTRAST", "CTR")
+                 .replace("DEROTATED", "DRTD")
+                 .replace("RADPROF", "RDPR")
+                 .replace("TWILIGHT", "TWL")
+                 .replace("PSFSUB", "PSB")
+                 .replace("CALIBRATED", "CLBTD")
+                 .replace("TELLCORR", "TC")
+                 .replace("TEMPLATE","TPL")
+                 .replace("THROUGHPUT", "THRP")
+                 .replace("BACKGROUND", "BKG")
+                 .replace("FLUX", "FLX")
+                 .replace("TELL", "TLL")
+                 .replace("LAMP", "LMP")
+                 .replace("FLAT", "FLT"))
+        if len(short) > 21:
+            Msg.warning(self.__class__.__qualname__,
+                        f"Short name {short} of {cls.name()} is longer than 21"
+                        f" characters, and will therefore break data lineage.")
+        return short
+
+    @classmethod
     def description(cls) -> str:
         """
         Return the description of the data item.
@@ -401,8 +430,22 @@ class DataItem(Parametrizable, ABC):
         If provided, override the file name. Otherwise, name with formatted timestamp is used.
         """
         # ToDo determine how this should be really formed: timestamp, hash, combination?
-        # ToDo Hugo says there is a 56 char limit for file names
-        return f"{self.name()}_{self._created_at.strftime('%Y-%m-%dT%H-%M-%S-%f')}.fits" \
+        #
+        # These filenames end up in the FITS headers of processed files, for
+        # tracking of the date lineage. E.g. in cards like
+        # HIERARCH ESO PRO REC1 CAL2 NAME= 'MASTER_IMG_FLAT_LAMP_N_2025-11-28T10-45-28-05'
+        # FITS header cards can only be 80 characters long, especially since
+        # the ESO stack does not support the CONTINUE keyword.
+        #
+        # Since "HIERARCH ESO PRO REC1 CAL2 NAME= '.fits'" is already 40
+        # characters, there are only 80 - 40 = 40 characters left for the
+        # stem of the file name:
+        #
+        #  1-21: MASTER_IMG_FLT_TWL_LM
+        #  22:   _
+        #  23-40 20251128T142225111
+        timestamp = self._created_at.strftime('%Y%m%dT%H%M%S%f')[:-3]
+        return f"{self.name_short()}_{timestamp}.fits" \
             if override is None else override
 
     def add_properties(self) -> None:
