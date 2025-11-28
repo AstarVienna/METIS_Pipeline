@@ -90,6 +90,8 @@ jobs:
             cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
           fi
 
+          echo "Successfully copied to /product/$TODAY/$MODE"
+          ls -la /product/$TODAY/$MODE
           
       - name: run EDPS workflows - N Image Science
         run: |
@@ -119,7 +121,7 @@ jobs:
           LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.N_IMAGE_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
           echo "Found output directory: $LATEST_OUTPUT"
           
-          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" |sort -rn| head -1)
           
           if [ -z "$TIMESTAMP_DIR" ]; then
             echo "No timestamp subdirectory found in $LATEST_OUTPUT"
@@ -130,7 +132,11 @@ jobs:
           
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
-          cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
+          f [ ! -d "/product/$TODAY/$MODE" ]; then
+            cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
+          else
+            cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
+          fi
           
           echo "Successfully copied to /product/$TODAY/$MODE"
           ls -la /product/$TODAY/$MODE
@@ -163,7 +169,7 @@ jobs:
           LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.IFU_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
           echo "Found output directory: $LATEST_OUTPUT"
           
-          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" |sort -rn| head -1)
           
           if [ -z "$TIMESTAMP_DIR" ]; then
             echo "No timestamp subdirectory found in $LATEST_OUTPUT"
@@ -174,7 +180,12 @@ jobs:
           
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
-          cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
+
+          f [ ! -d "/product/$TODAY/$MODE" ]; then
+            cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
+          else
+            cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
+          fi
           
           echo "Successfully copied to /product/$TODAY/$MODE"
           ls -la /product/$TODAY/$MODE
@@ -218,7 +229,11 @@ jobs:
           
           echo "Found timestamp directory: $TIMESTAMP_DIR"
           
-          cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
+          f [ ! -d "/product/$TODAY/$MODE" ]; then
+            cp -r "$TIMESTAMP_DIR" /product/$TODAY/$MODE
+          else
+            cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
+          fi
           
           echo "Successfully copied to /product/$TODAY/$MODE"
           ls -la /product/$TODAY/$MODE
