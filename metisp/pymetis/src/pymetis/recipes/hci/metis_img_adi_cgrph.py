@@ -66,7 +66,7 @@ class MetisLmRavcSciCalibrateImpl(RawImageProcessor):
     
     def process(self) -> set[DataItem]:
         
-            image = self.inputset.raw.load_data('DET1.DATA')[0]
+            image = self.inputset.raw.load_data('IMAGE')[0]
             #image = create_dummy_image()
             table = create_dummy_table()
 
