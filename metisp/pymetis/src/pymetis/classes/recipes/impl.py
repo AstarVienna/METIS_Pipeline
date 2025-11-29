@@ -73,7 +73,7 @@ class MetisRecipeImpl(Parametrizable, ABC):
         """
         Specialize the recipe implementation to the current class parameters.
         """
-        Msg.debug(cls.__qualname__, f"Specializing {cls.__qualname__} with {cls.tag_parameters()}")
+        Msg.warning(cls.__qualname__, f"Specializing {cls.__qualname__} with {cls.tag_parameters()}")
         cls.InputSet.specialize(**cls.tag_parameters())
 
         for name, item_class in cls.list_product_classes():
@@ -82,13 +82,14 @@ class MetisRecipeImpl(Parametrizable, ABC):
             new_class = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
             new_class.specialize(**cls.tag_parameters())
 
-            if (new_class := DataItem.find(new_class._name_template)) is None:
+            if (klass := DataItem.find(new_class._name_template)) is None:
+                setattr(cls, name, new_class)
                 Msg.debug(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} with {cls.tag_parameters()}")
             else:
-                setattr(cls, name, new_class)
+                setattr(cls, name, klass)
                 Msg.debug(cls.__qualname__,
                          f" - {old_class.__qualname__} specialized to "
-                         f"{new_class.__qualname__} ({new_class.name()})")
+                         f"{klass.__qualname__} ({klass.name()})")
 
     @classmethod
     def promote(cls, **parameters) -> None:

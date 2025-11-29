@@ -28,7 +28,6 @@ from cpl.core import Msg
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
-from pymetis.classes.mixins.base import Parametrizable
 
 
 class PipelineInputSet(ABC):
@@ -88,21 +87,23 @@ class PipelineInputSet(ABC):
         """
         Specialize all input classes within this input set, based on tunable parameters.
         """
+        Msg.info(cls.__qualname__, f"Now specializing {cls.__qualname__} for {parameters}")
+
         for name, inp in cls.get_inputs():
             old_class = inp.Item
             # Copy the entire type so that we do not mess up the original one
             new_class = type(inp.Item.__name__, inp.Item.__bases__, dict(inp.Item.__dict__))
             new_class.specialize(**parameters)
 
-            if (new_class := DataItem.find(new_class._name_template)) is None:
-                Msg.debug(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} for {parameters}")
-            else:
+            if (klass := DataItem.find(new_class._name_template)) is None:
                 inp.Item = new_class
-                Msg.debug(cls.__qualname__,
+                Msg.info(cls.__qualname__, f" ! Cannot specialize {old_class.__qualname__} ({old_class.name()}) "
+                                           f"for {parameters}, {inp.Item.__qualname__} is now {new_class.__qualname__} ({new_class.name()})")
+            else:
+                inp.Item = klass
+                Msg.info(cls.__qualname__,
                          f" - {inp.__qualname__} data item specialized to "
-                         f"{new_class.__qualname__} ({inp.Item.name()})")
-
-
+                         f"{klass.__qualname__} ({klass.name()})")
 
     @classmethod
     def get_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:

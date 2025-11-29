@@ -22,18 +22,29 @@ from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.lss.rsrf import LssRsrfPinholeRaw, MasterLssRsrf
 from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
-from pymetis.classes.inputs import (SinglePipelineInput, RawInput, PersistenceInputSetMixin,
-                                    BadPixMapInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
+from pymetis.classes.inputs import SinglePipelineInput, RawInput, PersistenceMapInput, OptionalInputMixin, GainMapInput, \
+    LinearityInput, BadPixMapInput
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLssTraceImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-                   DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
 
         class RawInput(RawInput):
             Item = LssRsrfPinholeRaw
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class BadPixMapInput(BadPixMapInput):
+            pass
 
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw

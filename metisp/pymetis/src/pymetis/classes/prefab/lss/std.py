@@ -24,21 +24,19 @@ from pymetis.dataitems.adc.adc import AdcSlitloss
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.raw import LssStdRaw
 from pymetis.dataitems.lss.response import MasterResponse, StdTransmission
-from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.science import LssSkyMap, LssObjMap
 from pymetis.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
 from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.synth import SynthTrans
-from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, MasterDarkInput, BadPixMapInputSetMixin, \
-    GainMapInputSetMixin, SinglePipelineInput, FluxstdCatalogInput, MasterRsrfInput, LinearityInputSetMixin
-from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
+from pymetis.classes.inputs import RawInput, MasterDarkInput, \
+    SinglePipelineInput, FluxstdCatalogInput, MasterRsrfInput, PersistenceMapInput, BadPixMapInput, GainMapInput, \
+    LinearityInput, AtmLineCatInput
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLssStdImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-                   AtmLineCatInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssStdRaw
 
@@ -46,6 +44,21 @@ class MetisLssStdImpl(DarkImageProcessor):
             pass
 
         class MasterRsrfInput(MasterRsrfInput):
+            pass
+
+        class PersistenceInput(PersistenceMapInput):
+            pass
+
+        class BadPixMapInput(BadPixMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class AtmLineCatInput(AtmLineCatInput):
             pass
 
         class MasterLssTrace(SinglePipelineInput):

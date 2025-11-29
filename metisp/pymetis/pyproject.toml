@@ -9,6 +9,9 @@ name = "pymetis"
 version = "0.0.1"
 dynamic = ["description","requires-python","license","authors","classifiers","urls","dependencies","optional-dependencies"]
 
+[tool.poetry.dependencies]
+python = "^3.11"
+
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
 markers = [

@@ -21,7 +21,7 @@ from abc import ABC
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin, SourceLampMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgFlatImpl
 

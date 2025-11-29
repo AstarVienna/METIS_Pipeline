@@ -29,14 +29,14 @@ from pymetis.dataitems.img.basicreduced import BasicReduced
 from pymetis.dataitems.img.raw import ImageRaw
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
-                                    PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
+                                    OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisLmImgBasicReduceImpl(BandLmMixin, DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class
         that wraps all the recipe inputs. It encapsulates the entire input and
@@ -70,6 +70,15 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, DarkImageProcessor):
         # we just point to the provided MasterDarkInput. Note that we do not have to instantiate
         # it explicitly anywhere, `MasterDarkInput` takes care of that for us.
         class MasterDarkInput(MasterDarkInput):
+            pass
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
             pass
 
         # Also, one master flat is required. Again, we use a prefabricated class but reset the tags

@@ -24,6 +24,7 @@ from pymetis.dataitems.combined import Combined
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import FluxstdCatalogInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
+from pymetis.dataitems.common import FluxCalTable
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
@@ -36,6 +37,7 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor):
             pass
 
     ProductImgStdCombined = Combined
+    ProductImgFluxCalTable = FluxCalTable
 
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')

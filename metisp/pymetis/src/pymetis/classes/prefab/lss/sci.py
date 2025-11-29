@@ -22,7 +22,6 @@ import cpl
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.adc.adc import AdcSlitloss
-from pymetis.dataitems.common import AtmLineCatalog
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.raw import LssSciRaw
 from pymetis.dataitems.lss.response import MasterResponse, StdTransmission
@@ -30,21 +29,29 @@ from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, \
     LssSciFlux2d, LssSciFluxTellCorr1d
 from pymetis.dataitems.lss.std import AoPsfModel
-from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
-    LinearityInputSetMixin, SinglePipelineInput, AtmLineCatInput
+from pymetis.classes.inputs import RawInput, \
+    SinglePipelineInput, AtmLineCatInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
+    LinearityInput, BadPixMapInput
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLssSciImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
-        PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-
-        class AtmLineCatInput(AtmLineCatInput):
-            Item = AtmLineCatalog
-
         class RawInput(RawInput):
             Item = LssSciRaw
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class BadPixMapInput(BadPixMapInput):
+            pass
 
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf

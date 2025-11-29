@@ -43,7 +43,6 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin,
                                     SinglePipelineInput, PersistenceMapInput)
-from pymetis.classes.inputs import LinearityInputSetMixin
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 ma = np.ma
@@ -51,7 +50,7 @@ EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME inste
 
 
 class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor):
-    class InputSet(LinearityInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRsrfRaw
 

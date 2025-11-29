@@ -23,19 +23,20 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.mixins import DetectorGeoMixin, BandNMixin
 from pymetis.dataitems.background.background import NStdBackground
 from pymetis.dataitems.background.subtracted import NStdBackgroundSubtracted
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.dataitems.img.raw import ImageRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
-                                    PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
+                                    OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisNImgChopnodImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
+class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet:
         the one-to-one class that wraps all the recipe inputs.
@@ -73,6 +74,16 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         # Also one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
 
     ProductReduced = NStdBackgroundSubtracted
     ProductBackground = NStdBackground
