@@ -88,6 +88,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
     def process(self) -> set[DataItem]:
         Msg.info(self.__class__.__qualname__, f"Loading raw data")
         self.inputset.raw.load_structure()
+        self.inputset.wcu_off.load_structure()
 
         # Flat field preparation: subtract bias and normalize it to median 1
         # Msg.info(self.name, "Preparing flat field")
