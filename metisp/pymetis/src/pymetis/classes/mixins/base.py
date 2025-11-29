@@ -16,28 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-import copy
-
-
-class ParametrizableMeta(type):
-    def __new__(mcs, name, bases, namespace, **kwargs):
-        # 1. Start with merged parameters from all bases
-        merged = {}
-        for base in bases:
-            if hasattr(base, "_tag_parameters") and isinstance(base._tag_parameters, dict):
-                merged.update(base._tag_parameters)
-
-        # 2. Merge parameters from class namespace (mixins may define _tag_parameters)
-        merged.update(namespace.get("_tag_parameters", {}))
-
-        # 3. Merge parameters passed via class kwargs
-        merged.update(kwargs)
-
-        # 4. Inject merged _tag_parameters into the class
-        namespace["_tag_parameters"] = merged
-
-        # 5. Create the class
-        return super().__new__(mcs, name, bases, namespace)
 
 
 class Parametrizable:

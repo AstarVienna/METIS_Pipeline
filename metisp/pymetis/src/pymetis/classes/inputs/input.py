@@ -118,6 +118,9 @@ class PipelineInput:
             f"Data item {self.Item.__qualname__} has no defined frame group"
 
         # Match all frames that can be processed by this PipelineInput.
+        Msg.debug(self.__class__.__qualname__,
+                  f"Initializing an input {self.Item.name()}")
+
         for tag, frames in self.preprocess_frameset(frameset).items():
             cls = DataItem.find(tag)
 
@@ -130,12 +133,16 @@ class PipelineInput:
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a fully specialized class {cls.__qualname__} for {tag}, instantiating directly")
                     self.load_frameset(frames)
-                elif cls in self.Item.__subclasses__():
+                elif issubclass(cls, self.Item):
+                    # If there is a more specialized class, use it instead
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a specialized class {cls.__qualname__} for {tag}, "
                               f"subclassing this {self.Item.__qualname__} and instantiating")
                     self.Item = cls
                     self.load_frameset(frames)
+                else:
+                    Msg.error(self.__class__.__qualname__,
+                              f"Could not specialize class {cls.__qualname__} for {tag}")
 
     @abstractmethod
     def validate(self) -> None:

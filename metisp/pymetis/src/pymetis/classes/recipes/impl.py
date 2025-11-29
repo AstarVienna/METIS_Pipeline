@@ -61,8 +61,8 @@ class MetisRecipeImpl(Parametrizable, ABC):
 
         self.frameset: cpl.ui.FrameSet = frameset
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
-        self.promote(**self.inputset.tag_matches)
         self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
+        self.promote(**self.inputset.tag_matches)
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
         Msg.debug(self.__class__.__qualname__,
@@ -84,7 +84,7 @@ class MetisRecipeImpl(Parametrizable, ABC):
 
             if (klass := DataItem.find(new_class._name_template)) is None:
                 setattr(cls, name, new_class)
-                Msg.debug(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} with {cls.tag_parameters()}")
+                Msg.debug(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {cls.tag_parameters()}, had to create a new class {new_class.__qualname__}")
             else:
                 setattr(cls, name, klass)
                 Msg.debug(cls.__qualname__,

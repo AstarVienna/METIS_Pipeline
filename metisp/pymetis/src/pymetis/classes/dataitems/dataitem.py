@@ -94,23 +94,16 @@ class DataItem(Parametrizable):
 
         cls.__abstract = abstract
 
-        if cls.__abstract:
-            # If the class is not fully specialized, skip it
+        if cls.name() in DataItem._registry:
+            # If the class is already registered, warn about it and do nothing
             Msg.debug(cls.__qualname__,
-                      f"Class is abstract, skipping registration")
+                        f"A class with tag {cls.name()} is already registered, "
+                        f"skipping: {DataItem._registry[cls.name()].__qualname__}")
         else:
-            # Otherwise, add it to the global registry
-            if cls.__regex_pattern.match(cls.name()) is not None:
-                if cls.name() in DataItem._registry:
-                    # If the class is already registered, warn about it and do nothing
-                    Msg.debug(cls.__qualname__,
-                                f"A class with tag {cls.name()} is already registered, "
-                                f"skipping: {DataItem._registry[cls.name()].__qualname__}")
-                else:
-                    # Otherwise add it to the registry
-                    Msg.debug(cls.__qualname__,
-                              f"Registered a new class {cls.name()}: {cls}")
-                    DataItem._registry[cls.name()] = cls
+            # Otherwise add it to the registry
+            Msg.debug(cls.__qualname__,
+                      f"Registered a new class {cls.name()}: {cls}")
+            DataItem._registry[cls.name()] = cls
 
     @classmethod
     @final
@@ -228,7 +221,7 @@ class DataItem(Parametrizable):
                  *hdus: Hdu,
                  filename: Optional[Path] = None):
         if self.__abstract:
-            raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
+            raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__} for {self.name()}")
 
         # Check if the title is defined
         if self.title() is None:
