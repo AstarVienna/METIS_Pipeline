@@ -87,7 +87,7 @@ class PipelineInputSet(ABC):
         """
         Specialize all input classes within this input set, based on tunable parameters.
         """
-        Msg.info(cls.__qualname__, f"Now specializing {cls.__qualname__} for {parameters}")
+        Msg.debug(cls.__qualname__, f"Now specializing {cls.__qualname__} for {parameters}")
 
         for name, inp in cls.get_inputs():
             old_class = inp.Item
@@ -97,13 +97,13 @@ class PipelineInputSet(ABC):
 
             if (klass := DataItem.find(new_class._name_template)) is None:
                 inp.Item = new_class
-                Msg.info(cls.__qualname__, f" ! Cannot specialize {old_class.__qualname__} ({old_class.name()}) "
-                                           f"for {parameters}, {inp.Item.__qualname__} is now {new_class.__qualname__} ({new_class.name()})")
+                Msg.debug(cls.__qualname__, f" ! Cannot specialize {old_class.__qualname__} ({old_class.name()}) "
+                                            f"for {parameters}, {inp.Item.__qualname__} is now {new_class.__qualname__} ({new_class.name()})")
             else:
                 inp.Item = klass
-                Msg.info(cls.__qualname__,
-                         f" - {inp.__qualname__} data item specialized to "
-                         f"{klass.__qualname__} ({klass.name()})")
+                Msg.debug(cls.__qualname__,
+                          f" - {inp.__qualname__} data item specialized to "
+                          f"{klass.__qualname__} ({klass.name()})")
 
     @classmethod
     def get_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:

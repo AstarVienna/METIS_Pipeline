@@ -61,8 +61,8 @@ class MetisRecipeImpl(Parametrizable, ABC):
 
         self.frameset: cpl.ui.FrameSet = frameset
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
-        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
         self.promote(**self.inputset.tag_matches)
+        self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
         Msg.debug(self.__class__.__qualname__,
@@ -73,7 +73,7 @@ class MetisRecipeImpl(Parametrizable, ABC):
         """
         Specialize the recipe implementation to the current class parameters.
         """
-        Msg.warning(cls.__qualname__, f"Specializing {cls.__qualname__} with {cls.tag_parameters()}")
+        Msg.debug(cls.__qualname__, f"Specializing {cls.__qualname__} with {cls.tag_parameters()}")
         cls.InputSet.specialize(**cls.tag_parameters())
 
         for name, item_class in cls.list_product_classes():
