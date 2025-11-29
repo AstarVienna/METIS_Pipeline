@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import copy
 
 import cpl
 
@@ -63,15 +64,15 @@ class MetisLssRsrfImpl(DarkImageProcessor):
 
         return {
             self.ProductMasterLssRsrf(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(combined_master_hdr, combined_master_img, name='DET1.DATA'),
             ),
             self.ProductMeanLssRsrf(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(combined_mean_hdr, combined_mean_img, name='DET1.DATA'),
             ),
             self.ProductMedianLssRsrf(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(combined_median_hdr, combined_median_img, name='DET1.DATA'),
             ),
         }

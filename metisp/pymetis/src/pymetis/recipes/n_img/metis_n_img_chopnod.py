@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import copy
 
 import cpl
 from cpl.core import Msg
@@ -103,11 +104,11 @@ class MetisNImgChopnodImpl(DarkImageProcessor):
         self.target = self.inputset.tag_matches['target']
 
         product_reduced = self.ProductReduced(
-            primary_header,
+            copy.deepcopy(primary_header),
             Hdu(header_reduced, combined_image, name='DET1.DATA')
         )
         product_background = self.ProductBackground(
-            primary_header,
+            copy.deepcopy(primary_header),
             Hdu(header_background, combined_image, name='DET1.DATA')
         )
 

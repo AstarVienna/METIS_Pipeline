@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import copy
 from abc import ABC
 
 from pymetis.classes.dataitems import DataItem, Hdu
@@ -60,15 +60,15 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
 
         return {
             self.ProductDistortionTable(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_distortion_table, table, name='TABLE'),
             ),
             self.ProductDistortionMap(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_distortion_map, combined_image, name='DET1.DATA'),
             ),
             self.ProductDistortionReduced(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_distortion_reduced, image, name='IMAGE'),
             ),
         }

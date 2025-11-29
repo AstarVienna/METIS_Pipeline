@@ -52,7 +52,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         header_object_cat = create_dummy_header()
 
         product_bkg = self.ProductBkg(
-            primary_header,
+            create_dummy_header(),
             Hdu(header_bkg, image, name='DET1.DATA'),
         )
         product_bkg_subtracted = self.ProductBkgSubtracted(
@@ -60,7 +60,7 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
             Hdu(header_bkg_subtracted, image, name='DET1.DATA'),
         )
         product_object_cat = self.ProductObjectCatalog(
-            primary_header,
+            create_dummy_header(),
             Hdu(header_object_cat, table, name='TABLE'),
         )
 

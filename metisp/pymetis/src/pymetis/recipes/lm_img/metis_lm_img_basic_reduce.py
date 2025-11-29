@@ -142,7 +142,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
                                             image.get_median(), "[ADU] max value of image"))
 
             product = self.ProductBasicReduced(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_reduced, image, name='DET1.DATA'),
             )
             product_set |= {product}

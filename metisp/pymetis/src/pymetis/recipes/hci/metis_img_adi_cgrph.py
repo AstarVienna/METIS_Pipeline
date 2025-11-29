@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import copy
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
@@ -87,55 +88,55 @@ class MetisLmRavcSciCalibrateImpl(RawImageProcessor):
         
             
             product_lmSciCalibrated = self.ProductLmSciCalibrated(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciCalibrated, image, name='DET1.DATA'),
             )
             product_lmSciCentred = self.ProductLmSciCentred(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciCentred, image, name='DET1.DATA'),
             )
             product_lmCentroidTable = self.ProductLmCentroidTab(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmCentroidTable, table, name='DET1.DATA'),
             )
             product_lmSciSpeckle = self.ProductLmSciSpeckle(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciSpeckle, image, name='DET1.DATA'),
             )
             product_lmSciHifilt = self.ProductLmSciHifilt(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciHifilt, image, name='DET1.DATA'),
             )
             product_lmSciDerotatedPsfsub = self.ProductLmSciDerotatedPsfsub(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciDerotatedPsfsub, image, name='DET1.DATA'),
             )
             product_lmSciDerotated = self.ProductLmSciDerotated(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciDerotated, image, name='DET1.DATA'),
             )
             product_lmSciContrastRadprof = self.ProductLmSciContrastRadprof(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciContrastRadprof, table, name='DET1.DATA'),
             )
             product_lmSciContrastAdi = self.ProductLmSciContrastAdi(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciContrastAdi, table, name='DET1.DATA'),
             )
             product_lmSciThroughput = self.ProductLmSciThroughput(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciThroughput, table, name='DET1.DATA'),
             )
             product_lmSciCoverage = self.ProductLmSciCoverage(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciCoverage, image, name='DET1.DATA'),
             )
             product_lmSciSnr = self.ProductLmSciSnr(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciSnr, image, name='DET1.DATA'),
             )
             product_lmSciPsfMedian = self.ProductLmSciPsfMedian(
-                    primary_header,
+                    copy.deepcopy(primary_header),
                     Hdu(header_lmSciPsfMedian, image, name='DET1.DATA'),
             )
 
