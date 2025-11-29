@@ -141,8 +141,8 @@ def create_distortion_table(ext: Literal[1, 2, 3, 4]) -> cpl.core.Table:
     return table
 
 
-class MetisIfuDistortionImpl(DarkImageProcessor):
-    class InputSet(DetectorIfuMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
+class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor):
+    class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
         class MasterDarkInput(MasterDarkInput): pass
         class PinholeTableInput(PinholeTableInput): pass
         class PersistenceMap(OptionalPersistenceMapInput): pass

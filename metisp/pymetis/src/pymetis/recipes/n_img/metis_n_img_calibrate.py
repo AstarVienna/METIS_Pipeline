@@ -25,8 +25,8 @@ from pymetis.classes.prefab import MetisImgCalibrateImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNImgCalibrateImpl(MetisImgCalibrateImpl):
-    class InputSet(BandNMixin, DetectorGeoMixin, MetisImgCalibrateImpl.InputSet):
+class MetisNImgCalibrateImpl(BandNMixin, DetectorGeoMixin, MetisImgCalibrateImpl):
+    class InputSet(MetisImgCalibrateImpl.InputSet):
         pass
 
 

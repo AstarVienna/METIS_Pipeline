@@ -95,10 +95,10 @@ class PipelineInputSet(ABC):
             new_class.specialize(**parameters)
 
             if (new_class := DataItem.find(new_class._name_template)) is None:
-                Msg.info(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} for {parameters}")
+                Msg.debug(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} for {parameters}")
             else:
                 inp.Item = new_class
-                Msg.info(cls.__qualname__,
+                Msg.debug(cls.__qualname__,
                          f" - {inp.__qualname__} data item specialized to "
                          f"{new_class.__qualname__} ({inp.Item.name()})")
 

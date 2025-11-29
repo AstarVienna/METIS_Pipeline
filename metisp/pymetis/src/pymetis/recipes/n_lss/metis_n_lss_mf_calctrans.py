@@ -24,8 +24,8 @@ from pymetis.classes.prefab.lss.mf_calctrans import MetisLssMfCalctransImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNLssMfCalctransImpl(MetisLssMfCalctransImpl):
-    class InputSet(BandNMixin, MetisLssMfCalctransImpl.InputSet):
+class MetisNLssMfCalctransImpl(BandNMixin, MetisLssMfCalctransImpl):
+    class InputSet(MetisLssMfCalctransImpl.InputSet):
         pass
 
 

@@ -24,8 +24,8 @@ from pymetis.classes.prefab.lss.rsrf import MetisLssRsrfImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNLssRsrfImpl(MetisLssRsrfImpl):
-    class InputSet(BandNMixin, DetectorGeoMixin, MetisLssRsrfImpl.InputSet):
+class MetisNLssRsrfImpl(BandNMixin, DetectorGeoMixin, MetisLssRsrfImpl):
+    class InputSet(MetisLssRsrfImpl.InputSet):
         pass
 
 

@@ -39,34 +39,19 @@ class BackgroundSubtracted(ImageDataItem, abstract=True):
     }
 
 
-class StdBackgroundSubtracted(TargetStdMixin, BackgroundSubtracted, abstract=True):
-    _schema = {
-        'PRIMARY': None,
-        'DET1.DATA': Image,
-    }
-
-
-
-class LmStdBackgroundSubtracted(BandLmMixin, StdBackgroundSubtracted):
+class LmStdBackgroundSubtracted(BandLmMixin, TargetStdMixin, BackgroundSubtracted):
     pass
 
 
-class NStdBackgroundSubtracted(BandNMixin, StdBackgroundSubtracted):
+class NStdBackgroundSubtracted(BandNMixin, TargetStdMixin, BackgroundSubtracted):
     pass
 
 
-class SciBackgroundSubtracted(TargetSciMixin, BackgroundSubtracted, abstract=True):
-    _schema = {
-        'PRIMARY': None,
-        'DET1.DATA': Image,
-    }
-
-
-class LmSciBackgroundSubtracted(BandLmMixin, SciBackgroundSubtracted):
+class LmSciBackgroundSubtracted(BandLmMixin, TargetSciMixin, BackgroundSubtracted):
     pass
 
 
-class NSciBackgroundSubtracted(BandNMixin, SciBackgroundSubtracted):
+class NSciBackgroundSubtracted(BandNMixin, TargetSciMixin, BackgroundSubtracted):
     pass
 
 

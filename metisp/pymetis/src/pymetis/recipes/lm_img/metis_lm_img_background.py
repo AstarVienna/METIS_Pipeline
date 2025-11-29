@@ -31,8 +31,8 @@ from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
-class MetisLmImgBackgroundImpl(BandLmMixin, MetisRecipeImpl):
-    class InputSet(BandLmMixin, Detector2rgMixin, PipelineInputSet):
+class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
+    class InputSet(PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
             Item = BasicReduced
 

@@ -20,6 +20,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.dataitems.common import IfuTelluric
 from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated, IfuSciReduced
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
@@ -28,7 +29,7 @@ from pymetis.classes.inputs.common import FluxCalTableInput
 from pymetis.utils.dummy import create_dummy_image, create_dummy_header
 
 
-class MetisIfuCalibrateImpl(MetisRecipeImpl):
+class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class ReducedInput(SinglePipelineInput):
             Item = IfuSciReduced

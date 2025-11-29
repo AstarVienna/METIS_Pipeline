@@ -25,8 +25,8 @@ from pymetis.classes.recipes import MetisRecipe
 
 
 # TODO: Check 2D input spectra -- correct all row with same trans?
-class MetisLmLssMfCorrectImpl(MetisLssMfCorrectImpl):
-    class InputSet(BandLmMixin, MetisLssMfCorrectImpl.InputSet):
+class MetisLmLssMfCorrectImpl(BandLmMixin, MetisLssMfCorrectImpl):
+    class InputSet(MetisLssMfCorrectImpl.InputSet):
         pass
 
 
@@ -46,7 +46,7 @@ class MetisLmLssMfCorrect(MetisRecipe):
     # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.parameter1",
             context=_name,
             description="Description of parameter 1",
             default="value1",

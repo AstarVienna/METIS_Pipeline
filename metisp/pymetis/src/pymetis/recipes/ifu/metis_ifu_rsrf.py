@@ -29,6 +29,7 @@ from astropy.table import QTable
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.mixins import DetectorIfuMixin, BandIfuMixin
 from pymetis.dataitems.badpixmap import BadPixMapIfu
 from pymetis.dataitems.gainmap import GainMapIfu
 from pymetis.dataitems.linearity.linearity import LinearityMapIfu
@@ -49,7 +50,7 @@ ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
 
 
-class MetisIfuRsrfImpl(DarkImageProcessor):
+class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor):
     class InputSet(LinearityInputSetMixin, DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRsrfRaw

@@ -38,12 +38,12 @@ from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_
 # Note that there will be most probably a redesign / split into more recipes to follow the approach
 # implemented already in other ESO pipelines
 
-class MetisIfuTelluricImpl(MetisRecipeImpl):
+class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
     """Implementation class for metis_ifu_telluric"""
 
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Define molecfit main input class as one 1d spectrum, either Science or Standard spectrum
-    class InputSet(DetectorIfuMixin, BandIfuMixin, PipelineInputSet):
+    class InputSet(PipelineInputSet):
         """Inputs for metis_ifu_telluric"""
         # TODO: still needs to be added to the input set
         # class Reduced1DInput(SinglePipelineInput):

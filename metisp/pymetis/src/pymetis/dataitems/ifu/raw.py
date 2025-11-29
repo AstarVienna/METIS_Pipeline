@@ -26,6 +26,7 @@ from pymetis.classes.mixins import BandIfuMixin, TargetStdMixin, TargetSciMixin
 class IfuRaw(BandIfuMixin, Raw, abstract=True):
     _name_template = r'{band}_{target}_RAW'
     _title_template = r"{band} {target} raw"
+    _description_template = r"{band} {target} raw image"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",

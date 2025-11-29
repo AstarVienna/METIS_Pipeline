@@ -18,23 +18,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems import DataItem, Hdu
-from pymetis.dataitems.background.subtracted import StdBackgroundSubtracted
+from pymetis.classes.mixins import TargetStdMixin
+from pymetis.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.dataitems.combined import Combined
-from pymetis.dataitems.common import FluxCalTable
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import FluxstdCatalogInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
-class MetisImgStdProcessImpl(RawImageProcessor):
+class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = StdBackgroundSubtracted
+            Item = BackgroundSubtracted
 
-        FluxstdCatalogInput = FluxstdCatalogInput
+        class FluxstdCatalogInput(FluxstdCatalogInput):
+            pass
 
-    ProductImgFluxCalTable = FluxCalTable
     ProductImgStdCombined = Combined
 
     def process(self) -> set[DataItem]:

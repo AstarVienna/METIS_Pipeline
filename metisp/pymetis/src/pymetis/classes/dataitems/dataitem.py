@@ -103,7 +103,7 @@ class DataItem(Parametrizable):
             if cls.__regex_pattern.match(cls.name()) is not None:
                 if cls.name() in DataItem._registry:
                     # If the class is already registered, warn about it and do nothing
-                    Msg.warning(cls.__qualname__,
+                    Msg.debug(cls.__qualname__,
                                 f"A class with tag {cls.name()} is already registered, "
                                 f"skipping: {DataItem._registry[cls.name()].__qualname__}")
                 else:
