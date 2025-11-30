@@ -117,7 +117,15 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         master_flat = self.prepare_flat(master_flat, master_dark)
         images = self.prepare_images(self.inputset.raw.frameset, master_flat, master_dark)
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
-        primary_header = cpl.core.PropertyList.load(self.inputset.master_flat.frame.file, 0)
+        # Copying the header from the primary input causes
+        #   TypeMismatchError: CPL error stack trace (most recent error last):
+        #     File "cpl_propertylist.c", line 6884, in cpl_propertylist_copy_filter_
+        #   Type mismatch: name: ESO DET DIT
+        # Because the input MASTERDARK has a DIT of 1 (not 1.), because the
+        # input raws have a DIT of 1. See
+        # https://github.com/AstarVienna/METIS_Simulations/pull/156
+        # primary_header = cpl.core.PropertyList.load(self.inputset.master_flat.frame.file, 0)
+        primary_header = create_dummy_header()
         header_image = create_dummy_header()
 
         product = self.ProductReduced(
