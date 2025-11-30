@@ -38,19 +38,26 @@ class FlatRaw(Raw, abstract=True):
         'DET1.DATA': Image,
     }
 
-
-class LmFlatLampRaw(BandLmMixin, SourceLampMixin, FlatRaw):
+class LmFlatRaw(BandLmMixin, FlatRaw):
     pass
 
 
-class LmFlatTwilightRaw(BandLmMixin, SourceTwilightMixin, FlatRaw):
+class LmFlatLampRaw(SourceLampMixin, LmFlatRaw):
     pass
 
 
-class NFlatLampRaw(BandNMixin, SourceLampMixin, FlatRaw):
+class LmFlatTwilightRaw(SourceTwilightMixin, LmFlatRaw):
     pass
 
 
-class NFlatTwilightRaw(BandNMixin, SourceTwilightMixin, FlatRaw):
+class NFlatRaw(BandNMixin, FlatRaw):
+    pass
+
+
+class NFlatLampRaw(SourceLampMixin, FlatRaw):
+    pass
+
+
+class NFlatTwilightRaw(SourceTwilightMixin, FlatRaw):
     pass
 

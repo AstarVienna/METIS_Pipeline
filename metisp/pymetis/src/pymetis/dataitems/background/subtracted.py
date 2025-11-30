@@ -23,6 +23,7 @@ from cpl.core import Image
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import (TargetSciMixin, TargetStdMixin,
                                     BandLmMixin, BandNMixin)
+from pymetis.dataitems.img.basicreduced import Calibrated
 
 
 class BackgroundSubtracted(ImageDataItem, abstract=True):
@@ -39,19 +40,27 @@ class BackgroundSubtracted(ImageDataItem, abstract=True):
     }
 
 
-class LmStdBackgroundSubtracted(BandLmMixin, TargetStdMixin, BackgroundSubtracted):
+class LmBackgroundSubtracted(BandLmMixin, BackgroundSubtracted):
     pass
 
 
-class NStdBackgroundSubtracted(BandNMixin, TargetStdMixin, BackgroundSubtracted):
+class LmStdBackgroundSubtracted(TargetStdMixin, LmBackgroundSubtracted):
     pass
 
 
-class LmSciBackgroundSubtracted(BandLmMixin, TargetSciMixin, BackgroundSubtracted):
+class LmSciBackgroundSubtracted(TargetSciMixin, LmBackgroundSubtracted):
     pass
 
 
-class NSciBackgroundSubtracted(BandNMixin, TargetSciMixin, BackgroundSubtracted):
+class NBackgroundSubtracted(BandNMixin, BackgroundSubtracted):
+    pass
+
+
+class NStdBackgroundSubtracted(TargetStdMixin, NBackgroundSubtracted):
+    pass
+
+
+class NSciBackgroundSubtracted(TargetSciMixin, NBackgroundSubtracted):
     pass
 
 

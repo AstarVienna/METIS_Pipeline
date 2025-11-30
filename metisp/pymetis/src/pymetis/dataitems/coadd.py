@@ -30,6 +30,7 @@ class SciCoadd(ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    _description_template = "{band} science co-added"
 
     _schema = {
         'PRIMARY': None,

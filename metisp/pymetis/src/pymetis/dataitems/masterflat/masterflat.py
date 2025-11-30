@@ -67,17 +67,25 @@ class MasterImgFlat(ImageDataItem, abstract=True):
     }
 
 
-class MasterImgFlatLampLm(BandLmMixin, SourceLampMixin, MasterImgFlat):
+class MasterImgFlatLm(BandLmMixin, MasterImgFlat):
     pass
 
 
-class MasterImgFlatTwilightLm(BandLmMixin, SourceTwilightMixin, MasterImgFlat):
+class MasterImgFlatLampLm(SourceLampMixin, MasterImgFlatLm):
     pass
 
 
-class MasterImgFlatLampN(BandNMixin, SourceLampMixin, MasterImgFlat):
+class MasterImgFlatTwilightLm(SourceTwilightMixin, MasterImgFlatLm):
     pass
 
 
-class MasterImgFlatTwilightN(BandNMixin, SourceTwilightMixin, MasterImgFlat):
+class MasterImgFlatN(BandNMixin, MasterImgFlat):
+    pass
+
+
+class MasterImgFlatLampN(SourceLampMixin, MasterImgFlatN):
+    pass
+
+
+class MasterImgFlatTwilightN(SourceTwilightMixin, MasterImgFlatN):
     pass

@@ -38,11 +38,15 @@ class BasicReduced(ImageDataItem, abstract=True):
     }
 
 
-class LmStdBasicReduced(BandLmMixin, TargetStdMixin, BasicReduced):
+class LmBasicReduced(BandLmMixin, BasicReduced):
     pass
 
 
-class LmSciBasicReduced(BandLmMixin, TargetSciMixin, BasicReduced):
+class LmStdBasicReduced(TargetStdMixin, LmBasicReduced):
+    pass
+
+
+class LmSciBasicReduced(TargetSciMixin, LmBasicReduced):
     pass
 
 
