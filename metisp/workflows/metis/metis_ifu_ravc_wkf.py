@@ -4,7 +4,7 @@ from .metis_datasources import *
 from . import metis_keywords as metis_kwd
 from .metis_ifu_wkf import *
 
-ifu_ravc_post_task = (task('ifu_ravc_post')
+ifu_adi_cgrph = (task('metis_ifu_adi_cgrph')
              .with_recipe('metis_ifu_adi_cgrph')
              .with_main_input(ifu_calibrate_task)
              .with_meta_targets([SCIENCE])
