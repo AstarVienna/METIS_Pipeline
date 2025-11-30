@@ -123,12 +123,14 @@ class PipelineInput:
 
         for tag, frames in self.preprocess_frameset(frameset).items():
             cls = DataItem.find(tag)
-            Msg.debug(cls.__qualname__, f"Found {cls.__name__} with tag {tag}, but we are {self.Item.name()}")
             if cls is None:
                 Msg.warning(self.__class__.__qualname__,
                             f"Found a frame with tag '{tag}', which is not a registered data item. Ignoring.")
                 continue
             else:
+                Msg.debug(self.__class__.__qualname__,
+                          f"Found {cls.__name__} with tag {tag}, "
+                          f"but we are {self.Item.__qualname__} ({self.Item.name()})")
                 if cls == self.Item:
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a fully specialized class {cls.__qualname__} for {tag}, instantiating directly")

@@ -33,25 +33,26 @@ class LssRaw(Raw, abstract=True):
                      'DRS.SLIT'}
 
 
-class LssStdRaw(TargetStdMixin, LssRaw, abstract=True):
+class LmLssRaw(BandLmMixin, LssRaw):
     pass
 
 
-class LmLssStdRaw(BandLmMixin, LssStdRaw):
+class LmLssStdRaw(TargetStdMixin, LmLssRaw):
     pass
 
 
-class NLssStdRaw(BandNMixin, LssStdRaw):
+class LmLssSciRaw(TargetSciMixin, LmLssRaw):
     pass
 
 
-class LssSciRaw(TargetSciMixin, LssRaw, abstract=True):
+class NLssRaw(BandNMixin, LssRaw):
     pass
 
 
-class LmLssSciRaw(BandLmMixin, LssSciRaw):
+class NLssStdRaw(TargetStdMixin, NLssRaw):
     pass
 
 
-class NLssSciRaw(BandNMixin, LssSciRaw):
+class NLssSciRaw(TargetSciMixin, NLssRaw):
     pass
+

@@ -62,7 +62,12 @@ class MetisRecipeImpl(Parametrizable, ABC):
         self.frameset: cpl.ui.FrameSet = frameset
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
         self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
-        self.promote(**self.inputset.tag_matches)
+
+        # Promote the implementation to the correct subclass, based on
+        # - tag parameters (from defined mixins, class-based)
+        # - tag matches (from the loaded frameset, instance-based)
+        # ToDo: Decide what to do in case of a conflict between those two
+        self.promote(**(self.tag_parameters() | self.inputset.tag_matches))
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
         Msg.debug(self.__class__.__qualname__,
@@ -108,7 +113,7 @@ class MetisRecipeImpl(Parametrizable, ABC):
             if (new_class := DataItem.find(tag := item.specialize(**parameters))) is None:
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:
-                Msg.debug(cls.__class__.__qualname__,
+                Msg.debug(cls.__qualname__,
                           f" - {old_class} ({old_class_name}) => "
                           f"{new_class.__qualname__} ({new_class.name()})")
 

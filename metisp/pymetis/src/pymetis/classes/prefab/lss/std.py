@@ -22,7 +22,7 @@ import cpl
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.adc.adc import AdcSlitloss
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
-from pymetis.dataitems.lss.raw import LssStdRaw
+from pymetis.dataitems.lss.raw import LssRaw
 from pymetis.dataitems.lss.response import MasterResponse, StdTransmission
 from pymetis.dataitems.lss.science import LssSkyMap, LssObjMap
 from pymetis.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
@@ -38,7 +38,7 @@ from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_
 class MetisLssStdImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LssStdRaw
+            Item = LssRaw
 
         class MasterDarkInput(MasterDarkInput):
             pass

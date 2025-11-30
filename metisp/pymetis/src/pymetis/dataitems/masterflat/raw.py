@@ -54,10 +54,10 @@ class NFlatRaw(BandNMixin, FlatRaw):
     pass
 
 
-class NFlatLampRaw(SourceLampMixin, FlatRaw):
+class NFlatLampRaw(SourceLampMixin, NFlatRaw):
     pass
 
 
-class NFlatTwilightRaw(SourceTwilightMixin, FlatRaw):
+class NFlatTwilightRaw(SourceTwilightMixin, NFlatRaw):
     pass
 

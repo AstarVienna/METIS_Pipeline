@@ -136,6 +136,7 @@ class PipelineInputSet(ABC):
 
         for inp in self.inputs:
             inp.validate()
+            Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
             self.tag_matches |= inp.Item.tag_parameters()
 
 
