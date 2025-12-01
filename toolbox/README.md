@@ -19,6 +19,7 @@ git clone https://github.com/AstarVienna/METIS_Pipeline.git
 Build the image
 
 ```
+cd METIS_Pipeline/toolbox/
 docker build -t metispipeline .
 ```
 
