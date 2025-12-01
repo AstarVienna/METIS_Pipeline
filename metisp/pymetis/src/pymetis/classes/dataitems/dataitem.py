@@ -242,7 +242,7 @@ class DataItem(Parametrizable):
 
         for index, hdu in enumerate(hdus, start=1):
             assert hdu.name in self._schema, \
-                (f"Schema for {self.__class__.__qualname__} does not specify HDU '{hdu.name}'. "
+                (f"Found a HDU '{hdu.name}', which is not defined by the schema for {self.__class__.__qualname__}. "
                  f"Accepted extension names are {list(self._schema.keys())}.")
 
             assert hdu.klass == self._schema[hdu.name], \

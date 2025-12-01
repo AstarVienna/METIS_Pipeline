@@ -17,7 +17,6 @@ def main():
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
 
-    print("Collecting recipes")
     recipes = {
         recipe._name: recipe
         for name, recipe in inspect.getmembers(metis_recipes)
@@ -27,7 +26,6 @@ def main():
     if args.debug:
         Msg.set_config(level=Msg.SeverityLevel.DEBUG)
 
-    print("Collected recipes")
     frameset = cpl.ui.FrameSet(args.sof.name)
     recipe = recipes[args.recipe]()
     recipe.run(frameset, {})
