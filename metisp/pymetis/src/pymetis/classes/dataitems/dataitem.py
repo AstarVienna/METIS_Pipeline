@@ -54,7 +54,7 @@ class DataItem(Parametrizable):
     _title_template: str = None                     # No universal title makes sense
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
     _name_template: str = "DataItem"                # No universal name makes sense
-    # Description for man page
+    # A long description that will be used in the man page
     _description_template: Optional[str] = None     # A verbose string; should correspond to the DRLD description
 
     # CPL frame group and level
@@ -85,9 +85,7 @@ class DataItem(Parametrizable):
                           abstract: bool = False,
                           **kwargs):
         """
-        Register every subclass of DataItem in a global registry.
-        Classes marked as abstract are not registered and should never be instantiated.
-        # FixMe: Hugo says it might be useful for database views and such. But for now it is so.
+        Register every subclass of DataItem in a global registry based on their tags.
         """
 
         super().__init_subclass__(**kwargs)
@@ -95,12 +93,12 @@ class DataItem(Parametrizable):
         cls.__abstract = abstract
 
         if cls.name() in DataItem._registry:
-            # If the class is already registered, warn about it and do nothing
+            # If the class is already registered, warn about it and do nothing.
             Msg.debug(cls.__qualname__,
-                        f"A class with tag {cls.name()} is already registered, "
-                        f"skipping: {DataItem._registry[cls.name()].__qualname__}")
+                      f"A class with tag {cls.name()} is already registered, "
+                      f"skipping: {DataItem._registry[cls.name()].__qualname__}")
         else:
-            # Otherwise add it to the registry
+            # Otherwise add the class to the global registry
             Msg.debug(cls.__qualname__,
                       f"Registered a new class {cls.name()}: {cls}")
             DataItem._registry[cls.name()] = cls
@@ -119,15 +117,10 @@ class DataItem(Parametrizable):
             return None
 
     @classmethod
-    def name_template(cls) -> str:
-        return cls._name_template
-
-    @classmethod
-    def registry(cls) -> dict[str, type['DataItem']]:
-        return DataItem._registry
-
-    @classmethod
-    def specialize(cls, **parameters) -> str:
+    def specialize(cls, **parameters: str) -> str:
+        """
+        Specialize the data item's name template with given parameters
+        """
         cls._name_template = partial_format(cls._name_template, **parameters)
         return cls._name_template
 
@@ -220,8 +213,9 @@ class DataItem(Parametrizable):
                  primary_header: CplPropertyList = CplPropertyList(),
                  *hdus: Hdu,
                  filename: Optional[Path] = None):
-        if self.__abstract:
-            raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__} for {self.name()}")
+        if self.__abstract or not self.__regex_pattern.match(self.name()):
+            raise TypeError(f"Tried to instantiate an abstract data item "
+                            f"{self.__class__.__qualname__} for {self.name()}")
 
         # Check if the title is defined
         if self.title() is None:
@@ -230,7 +224,7 @@ class DataItem(Parametrizable):
         if self.name() is None:
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no name defined!")
 
-        # Check if frame_group is defined (if not, this gives rise to strange errors deep within CPL
+        # Check if frame_group is defined (if not, it gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
         if self.frame_group() is None:
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no group defined!")
@@ -241,9 +235,9 @@ class DataItem(Parametrizable):
         # Internal usage marker (for used_frames)
         self._used: bool = False
 
-        self.primary_header = primary_header
-
         self.filename = filename
+        self.primary_header = primary_header
+        # Currently all items are expected to have an empty primary HDU
         self._hdus: dict[str, Hdu] = {}
 
         for index, hdu in enumerate(hdus, start=1):
@@ -349,7 +343,7 @@ class DataItem(Parametrizable):
         """
         Load the associated data (image or a table).
 
-        This might be expensive and therefore the call is better deferred until actually needed.
+        This might be an expensive operation and therefore the call is better deferred until actually needed.
 
         Parameters
         ----------
@@ -364,11 +358,8 @@ class DataItem(Parametrizable):
         Raises
         ------
         KeyError
-            If requested extension is not available
+            If the requested extension is not available
         """
-
-        #if self[extension].klass is None:
-        #    self[extension].klass = Image
 
         try:
             if self[extension].klass == Image:
@@ -377,7 +368,7 @@ class DataItem(Parametrizable):
                 return self[extension].klass.load(self.filename, self._hdus[extension].extno)
         except cpl.core.DataNotFoundError as exc:
             Msg.error(self.__class__.__qualname__,
-                      f"Failed to load data from extension '{extension}' in file {self.filename}")
+                      f"Failed to load data from extension '{extension}' from file {self.filename}")
             raise exc
 
     @property

@@ -72,7 +72,7 @@ class PipelineInput:
     @abstractmethod
     def _load_frameset_specific(self, frameset: cpl.ui.FrameSet) -> None:
         """
-        Actually load the associated frames. Implementation differs between derived classes.
+        Load the associated frames. Implementation differs between derived classes.
         """
         pass
 
@@ -156,13 +156,13 @@ class PipelineInput:
     @abstractmethod
     def load_structure(self) -> None:
         """
-        Load the input structure and store as items without data yet.
+        Load the input structure and store as data items, but without data yet.
         """
 
     @abstractmethod
     def load_data(self, extension: int | str = None) -> Union[cpl.core.ImageList, cpl.core.Image, cpl.core.Table]:
         """
-        Load the actual data and return it.
+        Load the actual data content and return it.
         """
 
     def print_debug(self, *, offset: int = 0) -> None:

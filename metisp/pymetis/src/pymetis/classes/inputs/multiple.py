@@ -71,7 +71,7 @@ class MultiplePipelineInput(PipelineInput):
                 self.items.append(self.Item.load(frame))
 
             Msg.info(self.__class__.__qualname__,
-                     f"Input Items are now {self.items}")
+                     f"Input Items loaded: {self.items}")
 
             self.use() # FixMe: for now anything that is actually loaded is marked as used
 
@@ -97,7 +97,7 @@ class MultiplePipelineInput(PipelineInput):
         self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
-                 f"Loading multiple input frames for extension: {extension}")
+                 f"Loading extension '{extension}' from multiple frames")
 
         images = [item.load_data(extension) for item in self.items]
         return ImageList(images)
