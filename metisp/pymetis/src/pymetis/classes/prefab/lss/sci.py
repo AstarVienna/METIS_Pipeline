@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import copy
 
 import cpl
 
@@ -112,31 +113,31 @@ class MetisLssSciImpl(DarkImageProcessor):
         # Write files
         return {
             self.ProductLssSci1d(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_1d, table, name='TABLE')
             ),
             self.ProductLssSci2d(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_2d, image, name='IMAGE')
             ),
             self.ProductLssSciFlux1d(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_flux_1d, table, name='TABLE')
             ),
             self.ProductLssSciFlux2d(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_flux_2d, image, name='IMAGE')
             ),
             self.ProductLssSciFluxTellCorr1d(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_flux_tell_corr1d, table, name='TABLE')
             ),
             self.ProductLssSciObjMap(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_obj_map, image, name='IMAGE')
             ),
             self.ProductLssSciSkyMap(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_sky_map, image, name='IMAGE'),
             ),
         }

@@ -414,19 +414,23 @@ class DataItem(Parametrizable, ABC):
 
         #ToDo: this should not be called for raws, those do not have a PRO CATG.
         """
-        if self.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
-            Msg.debug(self.__class__.__qualname__,
-                      f"Not appending anything to a RAW data item")
-        else:
-            Msg.debug(self.__class__.__qualname__,
-                      f"Appending ESO PRO CATG to a non-RAW data item ({self.frame_group()})")
-            self.primary_header.append(
-                cpl.core.Property(
-                    "ESO PRO CATG",
-                    cpl.core.Type.STRING,
-                    self.name(),
-                )
+        # Some data products actually have FrameGroup RAW because they are
+        # input to other recipes (to prevent the cryptic empty set-of-frames
+        # error from CPL.) Labeling products as Raw might or might not be a
+        # good idea, but those products need to be saved correctly nonetheless.
+        # if self.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
+        #     Msg.debug(self.__class__.__qualname__,
+        #               f"Not appending anything to a RAW data item")
+        # else:
+        Msg.debug(self.__class__.__qualname__,
+                  f"Appending ESO PRO CATG to a non-RAW data item ({self.frame_group()})")
+        self.primary_header.append(
+            cpl.core.Property(
+                "ESO PRO CATG",
+                cpl.core.Type.STRING,
+                self.name(),
             )
+        )
 
     def as_frame(self, filename: Optional[str] = None) -> cpl.ui.Frame:
         """ Create a CPL Frame from this DataItem

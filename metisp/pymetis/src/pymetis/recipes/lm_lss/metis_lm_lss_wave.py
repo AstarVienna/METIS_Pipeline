@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import copy
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
@@ -72,15 +73,15 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
 
         return {
             self.ProductLssCurve(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(lm_lss_curve_header, table, name='TABLE')
             ),
             self.ProductLssDistSol(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(lm_lss_dist_sol_hdr, table, name='TABLE')
             ),
             self.ProductLssWaveGuess(
-                primary_header,
+                copy.deepcopy(primary_header),
                 Hdu(lm_lss_wave_guess_hdr, table, name='TABLE')
             ),
         }
