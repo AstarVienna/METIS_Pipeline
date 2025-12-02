@@ -71,7 +71,7 @@ class MetisRecipeImpl(Parametrizable, ABC):
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
         Msg.debug(self.__class__.__qualname__,
-                  f"{"-" * 40} Recipe initialization complete {"-" * 40}")
+                  f"{'-' * 40} Recipe initialization complete {'-' * 40}")
 
     @classmethod
     def specialize(cls) -> None:

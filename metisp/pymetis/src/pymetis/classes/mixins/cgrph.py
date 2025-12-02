@@ -17,5 +17,34 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.recipes import *
-from pymetis.recipes.hci.metis_img_adi_cgrph import MetisLmRavcSciCalibrated
+from pymetis.classes.mixins.base import KeywordMixin
+
+
+class CgrphSpecificMixin(KeywordMixin, keyword='cgrph'):
+    _cgrph: str = None
+
+    @classmethod
+    def cgrph(cls) -> str:
+        return cls._cgrph
+
+    def __init_subclass__(cls, *, cgrph=None, **kwargs):
+        if cgrph is not None:
+            cls._cgrph = cgrph
+        super().__init_subclass__(**kwargs)
+
+    @classmethod
+    def tag_parameters(cls):
+        return super().tag_parameters() | {'cgrph': cls._cgrph}
+
+
+class CgrphRavcMixin(CgrphSpecificMixin, cgrph='RAVC'):
+    pass
+
+
+class CgrphCvcMixin(CgrphSpecificMixin, cgrph='CVC'):
+    pass
+
+
+class CgrphAppMixin(CgrphSpecificMixin, cgrph='APP'):
+    pass
+

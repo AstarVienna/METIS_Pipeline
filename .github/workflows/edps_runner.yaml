@@ -1,0 +1,285 @@
+name: Run EDPS workflows automatically or manually
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 2 * * *'  # Run on 2:00 UTC 
+
+jobs:
+  run:
+    runs-on: [self-hosted, Linux, pipeline, zeus]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install dependencies
+        run: |
+          # python3 -m venv metispipe
+          # . metispipe/bin/activate
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          ./toolbox/install_edps.sh
+          ./toolbox/create_config.sh
+      - name: Find latest data directory
+        id: find_data
+        run: |
+          if [ -L "/data/LatestBuild" ]; then
+            DATA_DIR="/data/LatestBuild/imgLM"
+            echo "Using symlink: $DATA_DIR"
+          elif [ -d "/data/LatestBuild/imgLM" ]; then
+            DATA_DIR="/data/LatestBuild/imgLM"
+            echo "Using direct path: $DATA_DIR"
+          else
+            LATEST_DIR=$(ls -d /data/20??-??-??/imgLM 2>/dev/null | sort -r | head -n1)
+            if [ -n "$LATEST_DIR" ]; then
+              DATA_DIR="$LATEST_DIR"
+              echo "Using latest dated directory: $DATA_DIR"
+            else
+              echo "No data directory found!"
+              ls -la /data/ || echo "/data does not exist"
+              exit 1
+            fi
+          fi
+          
+          echo "data_dir=$DATA_DIR" >> $GITHUB_OUTPUT
+          ls -la "$DATA_DIR"
+
+      - name: run EDPS workflows - LM Image Science
+        run: |
+          export MODE="imgLM"
+          ./toolbox/create_config.sh
+          export PATH="$HOME/.local/bin:$PATH"
+          # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="/data/LatestBuild/imgLM"
+
+          # . metispipe/bin/activate
+          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
+          edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          edps -w metis.metis_wkf -i $SOF_DATA -lt
+          edps -w metis.metis_lm_img_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
+      
+          set -euo pipefail
+          
+          TODAY=$(date +%Y-%m-%d)
+          echo "Today's date: $TODAY"
+          
+          mkdir -p /product/$TODAY
+          
+          #
+          # SCI image products
+          #
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_IMAGE_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          echo "Found output directory: $LATEST_OUTPUT"
+          
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" |sort -rn | head -1)
+          
+          if [ -z "$TIMESTAMP_DIR" ]; then
+            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
+            echo "Directory contents:"
+            ls -la "$LATEST_OUTPUT"
+            exit 1
+          fi
+          
+          echo "Found timestamp directory: $TIMESTAMP_DIR"
+          
+          mkdir -p /product/$TODAY/$MODE
+          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
+
+          echo "Successfully copied to /product/$TODAY/$MODE"
+          ls -la /product/$TODAY/$MODE
+          
+      - name: run EDPS workflows - N Image Science
+        run: |
+          export MODE="imgN"
+          ./toolbox/create_config.sh
+          export PATH="$HOME/.local/bin:$PATH"
+          # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="/data/LatestBuild/$MODE"
+
+          # . metispipe/bin/activate
+          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
+          #edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          #edps -w metis.metis_wkf -i $SOF_DATA -lt
+          edps -w metis.metis_n_img_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
+          # ! grep "'FAILED'" edps.stdout.txt
+      
+          set -euo pipefail
+          
+          TODAY=$(date +%Y-%m-%d)
+          echo "Today's date: $TODAY"
+                    
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.N_IMAGE_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          echo "Found output directory: $LATEST_OUTPUT"
+          
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" |sort -rn| head -1)
+          
+          if [ -z "$TIMESTAMP_DIR" ]; then
+            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
+            echo "Directory contents:"
+            ls -la "$LATEST_OUTPUT"
+            exit 1
+          fi
+          
+          echo "Found timestamp directory: $TIMESTAMP_DIR"
+          
+          mkdir -p /product/$TODAY/$MODE
+          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
+          
+          echo "Successfully copied to /product/$TODAY/$MODE"
+          ls -la /product/$TODAY/$MODE
+      
+      - name: run EDPS workflows - IFU Science
+        run: |
+          export MODE="ifu"
+          ./toolbox/create_config.sh
+          export PATH="$HOME/.local/bin:$PATH"
+          # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="/data/LatestBuild/$MODE"
+
+          # . metispipe/bin/activate
+          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
+          #edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          #edps -w metis.metis_wkf -i $SOF_DATA -lt
+          edps -w metis.metis_ifu_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
+          # ! grep "'FAILED'" edps.stdout.txt
+      
+          set -euo pipefail
+          
+          TODAY=$(date +%Y-%m-%d)
+          echo "Today's date: $TODAY"
+                    
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.IFU_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          echo "Found output directory: $LATEST_OUTPUT"
+          
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" |sort -rn| head -1)
+          
+          if [ -z "$TIMESTAMP_DIR" ]; then
+            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
+            echo "Directory contents:"
+            ls -la "$LATEST_OUTPUT"
+            exit 1
+          fi
+          
+          echo "Found timestamp directory: $TIMESTAMP_DIR"
+          
+
+          mkdir -p /product/$TODAY/$MODE
+          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
+          
+          echo "Successfully copied to /product/$TODAY/$MODE"
+          ls -la /product/$TODAY/$MODE
+
+      - name: run EDPS workflows - LM Long-Slit Spectroscopy Science
+        run: |
+          export MODE="lssLM"
+          ./toolbox/create_config.sh
+          export PATH="$HOME/.local/bin:$PATH"
+          # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="/data/LatestBuild/$MODE"
+
+          # . metispipe/bin/activate
+          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
+          #edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          #edps -w metis.metis_wkf -i $SOF_DATA -lt
+          edps -w metis.metis_lm_lss_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
+          # ! grep "'FAILED'" edps.stdout.txt
+      
+          set -euo pipefail
+          
+          TODAY=$(date +%Y-%m-%d)
+          echo "Today's date: $TODAY"
+                    
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_LSS_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          echo "Found output directory: $LATEST_OUTPUT"
+          
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
+          
+          if [ -z "$TIMESTAMP_DIR" ]; then
+            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
+            echo "Directory contents:"
+            ls -la "$LATEST_OUTPUT"
+            exit 1
+          fi
+          
+          echo "Found timestamp directory: $TIMESTAMP_DIR"
+          
+          mkdir -p /product/$TODAY/$MODE
+          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
+          
+          echo "Successfully copied to /product/$TODAY/$MODE"
+          ls -la /product/$TODAY/$MODE
+
+      - name: run EDPS workflows - N Long-Slit Spectroscopy Science
+        run: |
+          export MODE="lssN"
+          ./toolbox/create_config.sh
+          export PATH="$HOME/.local/bin:$PATH"
+          # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="/data/LatestBuild/$MODE"
+
+          # . metispipe/bin/activate
+          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
+          #edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          #edps -w metis.metis_wkf -i $SOF_DATA -lt
+          edps -w metis.metis_n_lss_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
+          # ! grep "'FAILED'" edps.stdout.txt
+      
+          set -euo pipefail
+          
+          TODAY=$(date +%Y-%m-%d)
+          echo "Today's date: $TODAY"
+                    
+          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.N_LSS_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)    
+          echo "Found output directory: $LATEST_OUTPUT"
+          
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
+          
+          if [ -z "$TIMESTAMP_DIR" ]; then
+            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
+            echo "Directory contents:"
+            ls -la "$LATEST_OUTPUT"
+            exit 1
+          fi
+          
+          echo "Found timestamp directory: $TIMESTAMP_DIR"
+          
+          mkdir -p /product/$TODAY/$MODE
+          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
+          
+          echo "Successfully copied to /product/$TODAY/$MODE"
+          ls -la /product/$TODAY/$MODE
+          
+          
+      - name: Transfer products to Zeus server
+        if: always()
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          
+          # Transfer today's directory
+          scp -r /product/$TODAY chyan@zeus:/data/METIS_Pipeline_Product/
+        
+          # Update LatestBuild symlink on zeus
+          ssh chyan@zeus "ln -sfn $TODAY /data/METIS_Pipeline_Product/LatestBuild"
+          echo "Updated zeus:/data/METIS_Pipeline_Product/LatestBuild -> $TODAY"

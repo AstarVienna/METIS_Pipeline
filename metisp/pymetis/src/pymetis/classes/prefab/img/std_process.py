@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import copy
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.mixins import TargetStdMixin
@@ -50,11 +51,11 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor):
         table = create_dummy_table()
 
         product_fluxcal = self.ProductImgFluxCalTable(
-            primary_header,
+            copy.deepcopy(primary_header),
             Hdu(header_table, table, name='TABLE')
         )
         product_combined = self.ProductImgStdCombined(
-            primary_header,
+            copy.deepcopy(primary_header),
             Hdu(header_combined, combined_image, name='IMAGE'),
         )
 

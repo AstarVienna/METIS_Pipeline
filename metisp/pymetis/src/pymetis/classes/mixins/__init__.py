@@ -24,6 +24,8 @@ from .target import (
                      TargetStdMixin, TargetSciMixin, TargetSkyMixin)
 from .source import (
                      SourceLampMixin, SourceTwilightMixin)
+from .cgrph import (CgrphSpecificMixin,
+                    CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin)
 
 
 __all__ = [
@@ -31,4 +33,5 @@ __all__ = [
     'BandLmMixin', 'BandNMixin', 'BandIfuMixin',
     'TargetStdMixin', 'TargetSciMixin', 'TargetSkyMixin',
     'SourceTwilightMixin', 'SourceLampMixin',
+    'CgrphRavcMixin',  'CgrphCvcMixin',  'CgrphAppMixin',
 ]

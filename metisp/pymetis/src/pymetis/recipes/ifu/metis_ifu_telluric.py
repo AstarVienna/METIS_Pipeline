@@ -106,7 +106,6 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         self.mf_calctrans()
         self.determine_response()
 
-        primary_header = create_dummy_header()
         header_transmission = create_dummy_header()
         header_reduced_1d = create_dummy_header()
         header_fluxcal_tab = create_dummy_header()
@@ -116,15 +115,15 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         combined = self.inputset.combined.load_data('DET1.DATA')
 
         product_telluric_transmission = self.ProductTelluricTransmission(
-            primary_header,
+            create_dummy_header(),
             Hdu(header_transmission, table, name='TABLE'),
         )
         product_reduced_1d = self.ProductResponseFunction(
-            primary_header,
+            create_dummy_header(),
             Hdu(header_reduced_1d, image, name='DET1.DATA'),
         )
         product_fluxcal_tab = self.ProductFluxcalTab(
-            primary_header,
+            create_dummy_header(),
             Hdu(header_fluxcal_tab, table, name='TABLE'),
         )
 

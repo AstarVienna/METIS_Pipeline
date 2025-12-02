@@ -88,6 +88,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
     def process(self) -> set[DataItem]:
         Msg.info(self.__class__.__qualname__, f"Loading raw data")
         self.inputset.raw.load_structure()
+        self.inputset.wcu_off.load_structure()
 
         # Flat field preparation: subtract bias and normalize it to median 1
         # Msg.info(self.name, "Preparing flat field")
@@ -101,20 +102,23 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
         detector_count = len(list(filter(lambda x: re.match(r'DET[0-9].DATA', x) is not None,
                                          self.inputset.raw.items[0].hdus.keys() - ['PRIMARY'])))
-        primary_header = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+
+        primary_header_gain_map = create_dummy_header()
+        primary_header_linearity = create_dummy_header()
+        primary_header_badpix_map = create_dummy_header()
 
         all_hdus = [self._process_single_detector(detector) for detector in range(1, detector_count + 1)]
 
         product_gain_map = self.ProductGainMap(
-            primary_header,
+            primary_header_gain_map,
             *[output['gain_map'] for output in all_hdus]
         )
         product_linearity = self.ProductLinearity(
-            primary_header,
+            primary_header_linearity,
             *[output['linearity_map'] for output in all_hdus]
         )
         product_badpix_map = self.ProductBadPixMap(
-            primary_header,
+            primary_header_badpix_map,
             *[output['badpix_map'] for output in all_hdus]
         )
 

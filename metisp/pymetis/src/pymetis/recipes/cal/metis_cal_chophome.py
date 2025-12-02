@@ -78,7 +78,11 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor):  #
         raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
         self.inputset.raw.use()
 
-        persistence_map = self.inputset.persistence_map.load_data(extension='DET1.DATA')
+        # I think there's a bit of confusion about different sources of persistence maps that's
+        # causing the workflow to crash. For now, I'll comment out the two lines, to be
+        # uncommented after the workflow demonstration in Koln
+        # persistence_map = self.inputset.persistence_map.load_data(extension='DET1.DATA')
+        # self.inputset.persistence_map.use()
         raw_images.subtract_image(background_img)
 
         combined_img = self.combine_images(raw_images, stackmethod)

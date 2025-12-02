@@ -390,7 +390,7 @@ class DataItem(Parametrizable):
         """
         # ToDo determine how this should be really formed: timestamp, hash, combination?
         # ToDo Hugo says there is a 56 char limit for file names
-        return f"{self.name()}_{self._created_at.strftime("%Y-%m-%dT%H-%M-%S-%f")}.fits" \
+        return f"{self.name()}_{self._created_at.strftime('%Y-%m-%dT%H-%M-%S-%f')}.fits" \
             if override is None else override
 
     def add_properties(self) -> None:
@@ -401,20 +401,23 @@ class DataItem(Parametrizable):
         but derived classes are more than welcome to add their own stuff.
         Do not forget to call super().add_properties() then.
         """
-        if self.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
-            Msg.debug(self.__class__.__qualname__,
-                      f"Not appending anything to a RAW data item")
-        else:
-            self.primary_header.del_regexp('ESO PRO CATG', False)
-            Msg.debug(self.__class__.__qualname__,
-                      f"Appending ESO PRO CATG to a non-RAW data item ({self.frame_group()})")
-            self.primary_header.append(
-                cpl.core.Property(
-                    "ESO PRO CATG",
-                    cpl.core.Type.STRING,
-                    self.name(),
-                )
+        # Some data products actually have FrameGroup RAW because they are
+        # input to other recipes (to prevent the cryptic empty set-of-frames
+        # error from CPL.) Labeling products as Raw might or might not be a
+        # good idea, but those products need to be saved correctly nonetheless.
+        # if self.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
+        #     Msg.debug(self.__class__.__qualname__,
+        #               f"Not appending anything to a RAW data item")
+        # else:
+        Msg.debug(self.__class__.__qualname__,
+                  f"Appending ESO PRO CATG to a non-RAW data item ({self.frame_group()})")
+        self.primary_header.append(
+            cpl.core.Property(
+                "ESO PRO CATG",
+                cpl.core.Type.STRING,
+                self.name(),
             )
+        )
 
     def as_frame(self, filename: Optional[str] = None) -> cpl.ui.Frame:
         """ Create a CPL Frame from this DataItem
