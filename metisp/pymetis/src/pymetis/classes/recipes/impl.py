@@ -162,26 +162,29 @@ class MetisRecipeImpl(Parametrizable, ABC):
         """
         The core method of the recipe implementation. It should contain all the processing logic.
         At its entry point, the `InputSet` class must be already loaded and validated.
+        This should not be a concern of the author of a recipe, as long as everything is declared correctly.
 
-        All pixel manipulation should happen inside this function (or something it calls from within).
+        All pixel manipulation should happen inside this function (or private subroutines it calls from within).
         Put explicitly, this means
             - no pixel manipulation *before* entering `process`,
             - and no pixel manipulation *after* exiting `process`.
 
         The basic workflow inside this function should be as follows:
 
-        1.  Load the CPL structures associated with `Input` frames.
+        1.  Load the CPL structures associated with `PipelineInput` frames.
+            To conserve resources, most importantly memory, defer the `load_data` call
+            until the data are actually needed.
         2.  Do the preprocessing (dark, bias, flat, persistence...) as needed.
             When implementing this function, please always use the topmost applicable method:
-                - Use the functions provided in the pipeline if possible (derive or override).
-                  Much of the functionality is common to many recipes, and we should not repeat ourselves.
+                - Use the functions provided by the pipeline package if possible (derive or override).
+                  Much of the functionality is trivially common to many recipes, and we should not repeat ourselves.
                   Some classes / functions are provided in ``prefab``.
                 - Use HDRL functions, if available.
                 - Use CPL functions, if available.
-                - Implement what you need yourself.
+                - Implement what you need yourself as a subroutine.
         3.  Build the output images as specified in the DRLD.
             Each product should be a ``DataItem`` and there should be exactly one for every file produced.
-        4.  Return a set of ``DataItem``.
+        4.  Return a set of ``DataItem`` instance.
 
         The resulting products set is then passed to `save_products()` (see `run`).
         """
