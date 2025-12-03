@@ -74,7 +74,7 @@ class SinglePipelineInput(PipelineInput):
         self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
-                 f"Loading extension '{extension}' from a single frame")
+                 f"Loading extension '{extension}' from a single frame {self.frame.file}")
 
         return self.item.load_data(extension)
 

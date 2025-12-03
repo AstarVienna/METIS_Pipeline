@@ -97,7 +97,7 @@ class MultiplePipelineInput(PipelineInput):
         self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
-                 f"Loading extension '{extension}' from multiple frames")
+                 f"Loading extension '{extension}' from multiple frames {self.frameset}")
 
         images = [item.load_data(extension) for item in self.items]
         return ImageList(images)

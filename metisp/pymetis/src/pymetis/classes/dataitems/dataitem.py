@@ -105,6 +105,11 @@ class DataItem(Parametrizable):
 
     @classmethod
     @final
+    def schema(cls) -> dict[str, Union[None, type[Image], type[Table]]]:
+        return cls._schema
+
+    @classmethod
+    @final
     def find(cls, key: str) -> Optional[type['DataItem']]:
         """
         Try to retrieve the DataItem subclass with tag ``key`` from the global registry.
@@ -241,9 +246,10 @@ class DataItem(Parametrizable):
         self._hdus: dict[str, Hdu] = {}
 
         for index, hdu in enumerate(hdus, start=1):
-            assert hdu.name in self._schema, \
-                (f"Found a HDU '{hdu.name}', which is not defined by the schema for {self.__class__.__qualname__}. "
-                 f"Accepted extension names are {list(self._schema.keys())}.")
+            if hdu.name not in self._schema:
+                Msg.error(self.__class__.__qualname__,
+                          f"Found a HDU '{hdu.name}', which is not defined by the schema for {self.__class__.__qualname__}. "
+                          f"Accepted extension names are {list(self._schema.keys())}.")
 
             assert hdu.klass == self._schema[hdu.name], \
                 (f"Schema for {self.__class__.__qualname__} specifies that HDU '{hdu.name}' "

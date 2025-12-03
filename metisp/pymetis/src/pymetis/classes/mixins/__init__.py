@@ -18,14 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from .detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
-from .band import (
-                   BandLmMixin, BandNMixin, BandIfuMixin)
-from .target import (
-                     TargetStdMixin, TargetSciMixin, TargetSkyMixin)
-from .source import (
-                     SourceLampMixin, SourceTwilightMixin)
-from .cgrph import (CgrphSpecificMixin,
-                    CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin)
+from .band import BandLmMixin, BandNMixin, BandIfuMixin
+from .target import TargetStdMixin, TargetSciMixin, TargetSkyMixin
+from .source import SourceLampMixin, SourceTwilightMixin
+from .cgrph import CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin
 
 
 __all__ = [
