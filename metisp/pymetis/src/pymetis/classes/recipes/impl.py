@@ -158,6 +158,14 @@ class MetisRecipeImpl(ABC):
         """
         return set()
 
+    def collect_qc_parameters(self, *qc_parameters: QcParameter) -> cpl.core.PropertyList:
+        out = cpl.core.PropertyList()
+        for qcparam in qc_parameters:
+            out.append(qcparam.as_property())
+
+        return out
+
+
     @final
     def _save_products(self) -> None:
         """

@@ -90,7 +90,15 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
     QcDarkMedian = DarkMedian
     QcDarkMean = DarkMean
+    QcDarkRms = DarkRms
+    QcDarkNBadpix = DarkNBadpix
+    QcDarkNColdpix = DarkNColdpix
+    QcDarkNHotpix = DarkNHotpix
+    QcDarkMedianMean = DarkMedianMean
     QcDarkMedianMedian = DarkMedianMedian
+    QcDarkMedianRms = DarkMedianRms
+    QcDarkMedianMin = DarkMedianMin
+    QcDarkMedianMax = DarkMedianMax
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -233,22 +241,21 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         header_image = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
-        qc_parameters = [
-            DarkMean(qcmean),
-            DarkMedian(qcmed),
-            DarkRms(qcrms),
-            DarkNBadpix(qcnbad),
-            DarkNColdpix(qcncold),
-            DarkNHotpix(qcnhot),
-            DarkMedianMean(qcmedmean),
-            DarkMedianMedian(qcmedmed),
-            DarkMedianRms(qcmedrms),
-            DarkMedianMin(qcmedmin),
-            DarkMedianMax(qcmedmax),
-        ]
-
-        for qcparam in qc_parameters:
-            header_image.append(qcparam.as_property())
+        header_image.append(
+            self.collect_qc_parameters(
+                DarkMean(qcmean),
+                DarkMedian(qcmed),
+                DarkRms(qcrms),
+                DarkNBadpix(qcnbad),
+                DarkNColdpix(qcncold),
+                DarkNHotpix(qcnhot),
+                DarkMedianMean(qcmedmean),
+                DarkMedianMedian(qcmedmed),
+                DarkMedianRms(qcmedrms),
+                DarkMedianMin(qcmedmin),
+                DarkMedianMax(qcmedmax),
+            )
+        )
 
         header_noise = copy.deepcopy(header_image)
         header_mask = copy.deepcopy(header_image)
