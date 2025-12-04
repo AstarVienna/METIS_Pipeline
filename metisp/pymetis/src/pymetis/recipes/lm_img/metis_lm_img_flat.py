@@ -26,7 +26,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgFlatImpl
 
 
-class MetisLmImgFlatImpl(BandLmMixin, Detector2rgMixin, MetisBaseImgFlatImpl, ABC):
+class MetisLmImgFlatImpl(BandLmMixin, Detector2rgMixin, MetisBaseImgFlatImpl):
     class InputSet(MetisBaseImgFlatImpl.InputSet):
         pass
 
