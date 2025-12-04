@@ -23,11 +23,12 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
 
 
-class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
+class MetisLmImgDistortionImpl(BandLmMixin, Detector2rgMixin, MetisBaseImgDistortionImpl):
     class InputSet(MetisBaseImgDistortionImpl.InputSet):
         class RawInput(MetisBaseImgDistortionImpl.InputSet.RawInput):
             pass

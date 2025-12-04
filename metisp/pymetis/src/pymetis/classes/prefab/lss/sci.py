@@ -23,25 +23,35 @@ import cpl
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.adc.adc import AdcSlitloss
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
-from pymetis.dataitems.lss.raw import LssSciRaw
+from pymetis.dataitems.lss.raw import LssRaw
 from pymetis.dataitems.lss.response import MasterResponse, StdTransmission
 from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, \
     LssSciFlux2d, LssSciFluxTellCorr1d
 from pymetis.dataitems.lss.std import AoPsfModel
-from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
-    LinearityInputSetMixin, SinglePipelineInput
-from pymetis.classes.inputs.mixins import AtmLineCatInputSetMixin
+from pymetis.classes.inputs import RawInput, \
+    SinglePipelineInput, AtmLineCatInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
+    LinearityInput, BadPixMapInput
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLssSciImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-                   AtmLineCatInputSetMixin,
-                   DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LssSciRaw
+            Item = LssRaw
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class BadPixMapInput(BadPixMapInput):
+            pass
 
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
@@ -79,11 +89,21 @@ class MetisLssSciImpl(DarkImageProcessor):
         # CHECK THE AO PSF MODEL - why not included? forgotten????
         # --------------------------------------------------------------------
 
-    ProductLssSciObjMap = LssObjMap
-    ProductLssSciSkyMap = LssSkyMap
-    ProductLssSci1d = LssSci1d
-    ProductLssSci2d = LssSci2d
-    ProductLssSciFlux1d = LssSciFlux1d
+    class ProductLssSciObjMap(LssObjMap, abstract=True):
+        pass
+
+    class ProductLssSciSkyMap(LssSkyMap, abstract=True):
+        pass
+
+    class ProductLssSci1d(LssSci1d, abstract=True):
+        pass
+
+    class ProductLssSci2d(LssSci2d, abstract=True):
+        pass
+
+    class ProductLssSciFlux1d(LssSciFlux1d, abstract=True):
+        pass
+
     ProductLssSciFlux2d = LssSciFlux2d
     ProductLssSciFluxTellCorr1d = LssSciFluxTellCorr1d
 

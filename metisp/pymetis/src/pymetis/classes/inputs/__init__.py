@@ -22,7 +22,6 @@ from .inputset import PipelineInputSet
 from .input import PipelineInput
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
-from .mixins import PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin, BadPixMapInputSetMixin
 
 from .common import (RawInput,
                      MasterDarkInput,
@@ -51,5 +50,4 @@ __all__ = [
     'PinholeTableInput', 'DistortionTableInput', 'LsfKernelInput', 'AtmProfileInput', 'MasterRsrfInput',
     'WavecalInput', 'OptionalInputMixin',
     'LsfKernelInput', 'AtmLineCatInput', 'LaserTableInput', 'SynthTransInput',
-    'PersistenceInputSetMixin', 'GainMapInputSetMixin', 'LinearityInputSetMixin', 'BadPixMapInputSetMixin',
 ]

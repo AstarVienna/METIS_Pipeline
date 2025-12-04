@@ -35,14 +35,13 @@ from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.dataitems.pupil import PupilRaw
 from pymetis.dataitems.pupil.pupil import PupilImagingReduced
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
-                                    LinearityInputSetMixin, GainMapInputSetMixin)
+from pymetis.classes.inputs import RawInput, MasterDarkInput, MasterFlatInput, GainMapInput, LinearityInput
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisPupilImagingImpl(DarkImageProcessor):
-    class InputSet(LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
         """
         Define the input sets and tags.
         Here, we define dark, flat, linearity, persistence and gain map
@@ -54,7 +53,14 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         class RawInput(RawInput):
             Item = PupilRaw
 
-        MasterDarkInput = MasterDarkInput
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class MasterDarkInput(MasterDarkInput):
+            pass
 
         # Also, one master flat is required. We use a prefabricated class
         class MasterFlatInput(MasterFlatInput):

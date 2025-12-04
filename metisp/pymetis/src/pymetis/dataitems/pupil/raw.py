@@ -19,17 +19,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.mixins.band import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.dataitems import ImageDataItem
+from pymetis.classes.mixins.band import BandLmMixin, BandNMixin
 
 
-class PupilRaw(BandSpecificMixin, DataItem, abstract=True):
+class PupilRaw(ImageDataItem, abstract=True):
     _name_template = r'{band}_PUPIL_RAW'
     _title_template = "{band} pupil raw"
     _description_template = "Raw exposure of the pupil in {band} image mode."
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_type = cpl.ui.Frame.FrameType.IMAGE
 
 
 class LmPupilRaw(BandLmMixin, PupilRaw):

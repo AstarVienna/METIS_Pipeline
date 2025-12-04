@@ -24,8 +24,8 @@ from pymetis.classes.prefab.lss.rsrf import MetisLssRsrfImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisLmLssRsrfImpl(MetisLssRsrfImpl):
-    class InputSet(BandLmMixin, Detector2rgMixin, MetisLssRsrfImpl.InputSet):
+class MetisLmLssRsrfImpl(BandLmMixin, Detector2rgMixin, MetisLssRsrfImpl):
+    class InputSet(MetisLssRsrfImpl.InputSet):
         pass
 
 
@@ -44,7 +44,7 @@ class MetisLmLssRsrf(MetisRecipe):
     _synopsis: str = "Create spectroscopic relative spectral response function (RSRF) for the 2RG detector"
     # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

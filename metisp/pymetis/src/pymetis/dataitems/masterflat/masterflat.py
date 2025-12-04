@@ -21,11 +21,11 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, BandSpecificMixin, \
-    BandLmMixin, SourceLampMixin, BandNMixin, SourceSpecificMixin, DetectorSpecificMixin, SourceTwilightMixin
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, \
+    BandLmMixin, SourceLampMixin, BandNMixin, SourceTwilightMixin
 
 
-class MasterFlat(DetectorSpecificMixin, ImageDataItem, abstract=True):
+class MasterFlat(ImageDataItem, abstract=True):
     _name_template = r'MASTER_FLAT_{detector}'
     _title_template = r'{detector} master flat'
     _description_template = "Abstract base class for master flats. Please subclass."
@@ -54,7 +54,7 @@ class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
     }
 
 
-class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstract=True):
+class MasterImgFlat(ImageDataItem, abstract=True):
     _name_template = r'MASTER_IMG_FLAT_{source}_{band}'
     _title_template = r'{band} {source} master flat'
     _description_template = "Master flat frame for {band} data"
@@ -67,17 +67,25 @@ class MasterImgFlat(BandSpecificMixin, SourceSpecificMixin, ImageDataItem, abstr
     }
 
 
-class MasterImgFlatLampLm(BandLmMixin, SourceLampMixin, MasterImgFlat):
+class MasterImgFlatLm(BandLmMixin, MasterImgFlat):
     pass
 
 
-class MasterImgFlatTwilightLm(BandLmMixin, SourceTwilightMixin, MasterImgFlat):
+class MasterImgFlatLampLm(SourceLampMixin, MasterImgFlatLm):
     pass
 
 
-class MasterImgFlatLampN(BandNMixin, SourceLampMixin, MasterImgFlat):
+class MasterImgFlatTwilightLm(SourceTwilightMixin, MasterImgFlatLm):
     pass
 
 
-class MasterImgFlatTwilightN(BandNMixin, SourceTwilightMixin, MasterImgFlat):
+class MasterImgFlatN(BandNMixin, MasterImgFlat):
+    pass
+
+
+class MasterImgFlatLampN(SourceLampMixin, MasterImgFlatN):
+    pass
+
+
+class MasterImgFlatTwilightN(SourceTwilightMixin, MasterImgFlatN):
     pass

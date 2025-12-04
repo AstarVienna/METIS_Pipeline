@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import TableDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 
-class LssStd1d(BandSpecificMixin, TableDataItem, abstract=True):
+class LssStd1d(TableDataItem, abstract=True):
     _name_template = r'{band}_LSS_STD_1D'
     _title_template = "{band} LSS 1D standard star spectrum"
     _description_template = "Extracted {band} 1D standard star spectrum."

@@ -17,9 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import ABC
-from typing import Self
-
 
 class Parametrizable:
     """
@@ -34,33 +31,23 @@ class Parametrizable:
     Currently applies to DataItems, PipelineInputSets and their Mixins.
     """
 
+    _tag_parameters: dict[str, str] = {}
+
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
         """
         Return the tag parameters for this class.
         By default, there are none, but mixins may add their own.
         """
-        return {}
+        return cls._tag_parameters
 
+    def __init_subclass__(cls, **kwargs):
+        merged = {}
+        for base in reversed(cls.__mro__):
+            params = base.__dict__.get('_tag_parameters')
+            if isinstance(params, dict):
+                merged.update(params)
 
-class KeywordMixin(Parametrizable, ABC):
-    """
-    Base class for keyword-parametrizable mixins.
+        merged.update(kwargs)
 
-    Contains a global registry of such classes, with placeholders as keys
-    """
-
-    # Global registry of parametrizable tags in the form {keyword: class},
-    # e.g. {'detector': DetectorSpecificMixin, ...}
-    # Filled automatically with __init_subclass__.
-    _registry: dict[str, type[Self]] = {}
-
-    def __init_subclass__(cls, *, keyword: str = None, **kwargs):
-        if keyword is not None:
-            cls._registry[keyword] = cls
-        super().__init_subclass__(**kwargs)
-
-    @classmethod
-    def registry(cls) -> dict[str, type[Self]]:
-        """ Class property to access the global registry """
-        return cls._registry
+        cls._tag_parameters = merged

@@ -24,8 +24,8 @@ from pymetis.classes.prefab.lss.rsrf import MetisLssRsrfImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNLssRsrfImpl(MetisLssRsrfImpl):
-    class InputSet(BandNMixin, DetectorGeoMixin, MetisLssRsrfImpl.InputSet):
+class MetisNLssRsrfImpl(BandNMixin, DetectorGeoMixin, MetisLssRsrfImpl):
+    class InputSet(MetisLssRsrfImpl.InputSet):
         pass
 
 
@@ -50,31 +50,10 @@ class MetisNLssRsrf(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Create spectroscopic relative spectral response function (RSRF) for the GEO detector"
-    _description: str = """\
-    Create relative spectral response function for the GEO LSS detector
 
-    Inputs
-        N_LSS_RSRF_RAW: Raw RSRF images [1-n]
-        N_WCU_OFF_RAW:  raw WCU OFF background frames [1-n]
-        MASTER_DARK_GEO: Master dark frame [optional?]
-        BADPIX_MAP_GEO:  Bad-pixel map for GEO detector [optional]
-        PERSISTENCE_MAP: Persistence map [optional]
-        GAIN_MAP_GEO:    Gain map for GEO detector
-        LINEARITY_GEO:   Linearity map for GEO detector
-
-     Matched Keywords
-        DET.DIT
-        DET.NDIT
-        DRS.SLIT
-
-    Outputs
-        MASTER_N_LSS_RSRF:     Master flat (RSRF) frame
-        MEDIAN_N_LSS_RSRF_IMG: Median map (QC)
-        MEAN_N_LSS_RSRF_IMG:   Mean map (QC)
-    """
 # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

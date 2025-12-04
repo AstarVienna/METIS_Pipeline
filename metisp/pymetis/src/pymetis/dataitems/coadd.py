@@ -21,15 +21,16 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandIfuMixin, BandLmMixin
+from pymetis.classes.mixins import BandIfuMixin, BandLmMixin
 
 
-class SciCoadd(BandSpecificMixin, ImageDataItem, abstract=True):
+class SciCoadd(ImageDataItem, abstract=True):
     _name_template = r'{band}_SCI_COADD'
     _title_template = r"{band} science co-added"
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    _description_template = "{band} science co-added"
 
     _schema = {
         'PRIMARY': None,

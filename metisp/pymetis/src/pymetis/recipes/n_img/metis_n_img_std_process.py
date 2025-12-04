@@ -25,9 +25,9 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img.std_process import MetisImgStdProcessImpl
 
 
-class MetisNImgStdProcessImpl(MetisImgStdProcessImpl):
+class MetisNImgStdProcessImpl(BandNMixin, MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
-        class RawInput(BandNMixin, MetisImgStdProcessImpl.InputSet.RawInput):
+        class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             pass
 
     ProductFluxcalTab = FluxCalTable

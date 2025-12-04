@@ -21,13 +21,13 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin, BandNMixin)
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 """
 The hierarchy is somewhat atypical here by design: no N data item, and only IFU supports STD|SKY target.
 """
 
-class Combined(BandSpecificMixin, ImageDataItem, abstract=True):
+class Combined(ImageDataItem, abstract=True):
     _name_template = r'{band}_STD_COMBINED'
     _title_template = r'band standard combined'
     _description_template = r"Stacked {band} band exposures."

@@ -21,10 +21,10 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class WcuOffRaw(BandSpecificMixin, ImageDataItem, abstract=True):
+class WcuOffRaw(ImageDataItem, abstract=True):
     """
     WCU_OFF input illuminated by the WCU up-to and including the
     integrating sphere, but no source.

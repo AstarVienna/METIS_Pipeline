@@ -17,49 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.mixins.base import KeywordMixin
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class TargetSpecificMixin(KeywordMixin, keyword='target'):
-    """
-    Mixin class for data items that need to define the `target` attribute.
-
-    Hopefully it does not cause any issues with the MRO.
-    """
-    _target: str = None
-
-    def __init_subclass__(cls, *, target=None, **kwargs):
-        if target is not None:
-            cls._target = target
-        super().__init_subclass__(**kwargs)
-
-    @classmethod
-    def target(cls) -> str:
-        return cls._target
-
-    @classmethod
-    def get_target_string(cls) -> str:
-        """
-        Return a pretty formatted target string for human-oriented output.
-        """
-        return {
-            'SCI': 'science object',
-            'STD': 'standard star',
-            'SKY': 'sky',
-        }.get(cls.target(), cls.target())
-
-    @classmethod
-    def tag_parameters(cls):
-        return super().tag_parameters() | {'target': cls._target}
-
-
-class TargetStdMixin(TargetSpecificMixin, target='STD'):
+class TargetStdMixin(Parametrizable, target='STD'):
     pass
 
 
-class TargetSciMixin(TargetSpecificMixin, target='SCI'):
+class TargetSciMixin(Parametrizable, target='SCI'):
     pass
 
 
-class TargetSkyMixin(TargetSpecificMixin, target='SKY'):
+class TargetSkyMixin(Parametrizable, target='SKY'):
     pass

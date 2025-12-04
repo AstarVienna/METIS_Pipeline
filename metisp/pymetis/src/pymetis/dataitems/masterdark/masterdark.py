@@ -21,10 +21,10 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class MasterDark(DetectorSpecificMixin, ImageDataItem, abstract=True):
+class MasterDark(ImageDataItem, abstract=True):
     _name_template = r'MASTER_DARK_{detector}'
     _title_template = r"{detector} master dark"
     _description_template = "Master dark frame for {detector} data"

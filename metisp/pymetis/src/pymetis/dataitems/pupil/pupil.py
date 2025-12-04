@@ -21,10 +21,10 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins.band import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.mixins.band import BandLmMixin, BandNMixin
 
 
-class PupilImagingReduced(BandSpecificMixin, ImageDataItem, abstract=True):
+class PupilImagingReduced(ImageDataItem, abstract=True):
     _name_template = r'{band}_PUPIL_REDUCED'
     _title_template = r"{band} pupil reduced"
     _description_template = "Reduced pupil image in {band} mode."

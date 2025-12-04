@@ -17,33 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.mixins.base import KeywordMixin
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class BandSpecificMixin(KeywordMixin, keyword='band'):
-    _band: str = None
-
-    @classmethod
-    def band(cls) -> str:
-        return cls._band
-
-    def __init_subclass__(cls, *, band=None, **kwargs):
-        if band is not None:
-            cls._band = band
-        super().__init_subclass__(**kwargs)
-
-    @classmethod
-    def tag_parameters(cls):
-        return super().tag_parameters() | {'band': cls._band}
-
-
-class BandLmMixin(BandSpecificMixin, band='LM'):
+class BandLmMixin(Parametrizable, band='LM'):
     pass
 
 
-class BandNMixin(BandSpecificMixin, band='N'):
+class BandNMixin(Parametrizable, band='N'):
     pass
 
 
-class BandIfuMixin(BandSpecificMixin, band='IFU'):
+class BandIfuMixin(Parametrizable, band='IFU'):
     pass

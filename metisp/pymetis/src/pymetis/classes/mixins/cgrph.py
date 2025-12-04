@@ -17,34 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.mixins.base import KeywordMixin
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class CgrphSpecificMixin(KeywordMixin, keyword='cgrph'):
-    _cgrph: str = None
-
-    @classmethod
-    def cgrph(cls) -> str:
-        return cls._cgrph
-
-    def __init_subclass__(cls, *, cgrph=None, **kwargs):
-        if cgrph is not None:
-            cls._cgrph = cgrph
-        super().__init_subclass__(**kwargs)
-
-    @classmethod
-    def tag_parameters(cls):
-        return super().tag_parameters() | {'cgrph': cls._cgrph}
-
-
-class CgrphRavcMixin(CgrphSpecificMixin, cgrph='RAVC'):
+class CgrphRavcMixin(Parametrizable, cgrph='RAVC'):
     pass
 
 
-class CgrphCvcMixin(CgrphSpecificMixin, cgrph='CVC'):
+class CgrphCvcMixin(Parametrizable, cgrph='CVC'):
     pass
 
 
-class CgrphAppMixin(CgrphSpecificMixin, cgrph='APP'):
+class CgrphAppMixin(Parametrizable, cgrph='APP'):
     pass
 

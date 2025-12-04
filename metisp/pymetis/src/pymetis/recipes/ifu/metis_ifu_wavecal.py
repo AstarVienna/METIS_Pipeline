@@ -27,23 +27,31 @@ from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
 from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput
-from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput, OptionalInputMixin, \
+    PersistenceMapInput, GainMapInput, LinearityInput
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisIfuWavecalImpl(DarkImageProcessor):
-    class InputSet(BandIfuMixin, DetectorIfuMixin,
-                   PersistenceInputSetMixin,
-                   LinearityInputSetMixin,
-                   GainMapInputSetMixin,
-                   DarkImageProcessor.InputSet):
+class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuWavecalRaw
 
-        MasterDarkInput = MasterDarkInput
-        DistortionTableInput = DistortionTableInput
+        class MasterDarkInput(MasterDarkInput):
+            pass
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class DistortionTableInput(DistortionTableInput):
+            pass
 
     ProductIfuWavecal = IfuWavecal
 

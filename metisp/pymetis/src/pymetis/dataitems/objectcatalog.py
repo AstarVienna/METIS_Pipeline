@@ -20,11 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import TableDataItem
-from pymetis.classes.mixins import (BandSpecificMixin, BandNMixin, BandLmMixin,
-                                    TargetSpecificMixin, TargetStdMixin, TargetSciMixin)
+from pymetis.classes.mixins import (BandLmMixin, BandNMixin,
+                                    TargetStdMixin, TargetSciMixin)
 
 
-class ObjectCatalog(BandSpecificMixin, TargetSpecificMixin, TableDataItem, abstract=True):
+class ObjectCatalog(TableDataItem, abstract=True):
     _name_template = r'{band}_{target}_OBJECT_CAT'
     _title_template = "{band} {target} object catalog"
     _description_template = "Catalog of masked objects in {target} {band} exposures"

@@ -16,21 +16,34 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.inputs.common import WcuOffInput, BadPixMapInput
 from pymetis.dataitems.adc.adc import AdcSlitloss, AdcSlitlossRaw
-from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, \
-    BadPixMapInputSetMixin, RawInput
-from pymetis.classes.inputs.mixins import WcuOffInputSetMixin
+from pymetis.classes.inputs import RawInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisAdcSlitlossImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, BadPixMapInputSetMixin,
-                   WcuOffInputSetMixin,
-                   DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = AdcSlitlossRaw
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class BadPixMapInput(BadPixMapInput):
+            pass
+
+        class WcuOffInput(WcuOffInput):
+            pass
 
     ProductAdcSlitloss = AdcSlitloss
 

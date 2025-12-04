@@ -25,7 +25,7 @@ from pymetis.classes.recipes import MetisRecipe
 
 
 # TODO: Check 2D input spectra - correct all row with same trans?
-class MetisNLssMfCorrectImpl(MetisLssMfCorrectImpl):
+class MetisNLssMfCorrectImpl(BandNMixin, MetisLssMfCorrectImpl):
     class InputSet(BandNMixin, MetisLssMfCorrectImpl.InputSet):
         pass
 
@@ -43,19 +43,7 @@ class MetisNLssMfCorrect(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Application of the telluric correction"
-    _description: str = """\
-    Application of the telluric correction
 
-    Inputs
-        N_LSS_SCI_FLUX_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science
-        N_LSS_SYNTH_TRANS: Synthetic transmission of the Earth's atmosphere'
-
-     Matched Keywords
-        DRS.SLIT
-
-    Outputs
-        N_LSS_SCI_FLUX_TELL_1D: Coadded, wavelength + flux calibrated, telluric corrected 1D spectrum of the science object
-    """
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 

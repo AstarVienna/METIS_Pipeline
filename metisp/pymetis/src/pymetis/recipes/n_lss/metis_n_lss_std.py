@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin
+from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin, TargetStdMixin
 from pymetis.classes.prefab.lss.std import MetisLssStdImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNLssStdImpl(MetisLssStdImpl):
-    class InputSet(BandNMixin, DetectorGeoMixin, MetisLssStdImpl.InputSet):
+class MetisNLssStdImpl(BandNMixin, DetectorGeoMixin, TargetStdMixin, MetisLssStdImpl):
+    class InputSet(MetisLssStdImpl.InputSet):
         pass
 
 
@@ -41,41 +41,10 @@ class MetisNLssStd(MetisRecipe):
     _author: str = "Wolfgang Kausch, A*"
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
-    _synopsis: str = "Reduction of the standard star frames for determining the response function (flux calibration) and/or the transmission (telluric correction)"
-    _description: str = """\
-    Reduction of the standard star frames for determining the response function (flux calibration) and/or the transmission (telluric correction)
+    _synopsis: str = ("Reduction of the standard star frames for determining the response "
+                      "function (flux calibration) and/or the transmission (telluric correction)")
 
-    Inputs
-        N_LSS_STD_RAW:     Raw standard star images [1-n]
-        PERSISTENCE_MAP:    Persistence map [optional]
-        LINEARITY_GEO:      Linearity map for GEO detector
-        GAIN_MAP_GEO:       Gain map for GEO detector
-        BADPIX_MAP_GEO:     Bad-pixel map for GEO detector [optional]
-        MASTER_DARK_GEO:    Master dark frame [optional?]
-        MASTER_N_LSS_RSRF: Master flat (RSRF) frame
-        N_LSS_DIST_SOL:    Distortion solution
-        N_LSS_WAVE_GUESS:  First guess of the wavelength solution
-        AO_PSF_MODEL:       Model of the AO PSF
-        ATM_LINE_CAT:       Catalogue of atmospheric lines
-        N_ADC_SLITLOSS:    Slitloss information
-        N_SYNTH_TRANS:     Synthetic model of the Earth's atmopshere transmission
-        REF_STD_CAT:        Catalogue of standard stars
-
-     Matched Keywords
-        DET.DIT
-        DET.NDIT
-        DRS.SLIT
-
-    Outputs
-        N_LSS_STD_OBJ_MAP: Pixel map of the object pixels (QC)
-        N_LSS_STD_SKY_MAP: Pixel map of the sky pixels (QC)
-        N_LSS_STD_1D:      Coadded, wavelength calibrated, collapsed 1D spectrum of the standard star
-        N_LSS_STD_WAVE:    Wavelength solution based on std star
-        STD_TRANSMISSION:   Transmission of the Earth's atmosphere derived from the STD for telluric correction  [optional]
-        MASTER_N_RESPONSE: Response function for flux calibration
-    """
-
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
@@ -83,7 +52,7 @@ class MetisNLssStd(MetisRecipe):
     # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.parameter1",
             context=_name,
             description="Description of parameter 1",
             default="value1",

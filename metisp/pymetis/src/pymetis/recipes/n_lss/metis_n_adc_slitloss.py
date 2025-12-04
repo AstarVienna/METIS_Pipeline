@@ -37,31 +37,10 @@ class MetisNAdcSlitloss(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Determines ADC slitlosses"
-    _description: str = """\
-    Determines ADC slitlosses
 
-    Remark: Recipe not welldefined as actual algorithm not well defined (cf. DRLD, Calib plan)
+    # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
-    Inputs
-        N_ADC_SLITLOSS_RAW:  Raw SLITLOSS images [1-n]  ***TBD***
-        N_WCU_OFF_RAW:       Raw WCU OFF background frames [1-n]
-        MASTER_DARK_GEO:     Master dark frame [optional?]  ***TBChecked***
-        BADPIX_MAP_GEO:      Bad-pixel map for GEO detector [optional] ***TBChecked***
-        PERSISTENCE_MAP:     Persistence map [optional] ***TBChecked***
-        GAIN_MAP_GEO:        Gain map for GEO detector ***TBChecked***
-        LINEARITY_GEO:       Linearity map for GEO detector ***TBChecked***
-
-     Matched Keywords
-        DET.DIT
-        DET.NDIT
-        DRS.SLIT
-
-    Outputs
-        N_ADC_SLITLOSS:     Table with slit losses ***TBD***
-    """
-# TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
-
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Incredible fancy description of algorithm follows... ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

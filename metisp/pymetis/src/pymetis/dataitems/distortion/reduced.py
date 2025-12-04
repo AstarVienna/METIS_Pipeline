@@ -18,13 +18,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl.ui
-from cpl.core import Image, Table
+from cpl.core import Image
 
 from pymetis.classes.dataitems import TableDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionReduced(BandSpecificMixin, TableDataItem, abstract=True):
+class DistortionReduced(TableDataItem, abstract=True):
     _name_template =  r'{band}_DIST_REDUCED'
     _title_template = r"{band} distortion reduced"
     _description_template = r"Table of polynomial coefficients for distortion correction"

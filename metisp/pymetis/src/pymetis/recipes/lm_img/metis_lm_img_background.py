@@ -28,11 +28,11 @@ from pymetis.dataitems.objectcatalog import ObjectCatalog
 from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.utils.dummy import create_dummy_image, create_dummy_table, create_dummy_header
+from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
-class MetisLmImgBackgroundImpl(MetisRecipeImpl):
-    class InputSet(BandLmMixin, Detector2rgMixin, PipelineInputSet):
+class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
+    class InputSet(PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
             Item = BasicReduced
 
@@ -73,7 +73,8 @@ class MetisLmImgBackground(MetisRecipe):
     _author = "Chi-Hung Yan, A*"
     _email = "chyan@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Basic reduction of raw exposures from the LM-band imager"
+    _synopsis = "Basic reduction of raw exposures from the {band} imager"
+    _description = "Something"
 
     parameters = ParameterList([
         ParameterEnum(

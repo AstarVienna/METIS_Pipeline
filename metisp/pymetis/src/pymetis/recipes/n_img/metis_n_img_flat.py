@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins.band import BandNMixin, BandLmMixin
+from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgFlatImpl
 
 
-class MetisNImgFlatImpl(MetisBaseImgFlatImpl):
-    class InputSet(BandNMixin, MetisBaseImgFlatImpl.InputSet):
+class MetisNImgFlatImpl(BandNMixin, DetectorGeoMixin, MetisBaseImgFlatImpl):
+    class InputSet(MetisBaseImgFlatImpl.InputSet):
         pass
 
 

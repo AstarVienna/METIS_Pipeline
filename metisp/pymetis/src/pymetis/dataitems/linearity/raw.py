@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class LinearityRaw(DetectorSpecificMixin, Raw, abstract=True):
+class LinearityRaw(Raw, abstract=True):
     _name_template = r'DETLIN_{detector}_RAW'
     _title_template = r'{detector} linearity raw'
     _description_template = r"Raw data for non-linearity determination for {detector} observations"

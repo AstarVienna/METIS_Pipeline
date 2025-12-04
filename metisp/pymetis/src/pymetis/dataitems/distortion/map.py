@@ -21,10 +21,10 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 
-class DistortionMap(BandSpecificMixin, ImageDataItem, abstract=True):
+class DistortionMap(ImageDataItem, abstract=True):
     _name_template = r'{band}_DISTORTION_MAP'
     _title_template = "{band} distortion map"
     _description_template = "Map of pixel scale across the {band} detector"

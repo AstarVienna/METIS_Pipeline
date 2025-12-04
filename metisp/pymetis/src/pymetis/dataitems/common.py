@@ -34,7 +34,7 @@ class PersistenceMap(ImageDataItem):
 
     _schema = {
         'PRIMARY': None,
-        'DET1.DATA': Image,
+        'PERSISTENCE_MAP': Image,
     }
 
 

@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin
+from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin, TargetSciMixin
 from pymetis.classes.prefab.lss.sci import MetisLssSciImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNLssSciImpl(MetisLssSciImpl):
-    class InputSet(BandNMixin, DetectorGeoMixin, MetisLssSciImpl.InputSet):
+class MetisNLssSciImpl(BandNMixin, DetectorGeoMixin, TargetSciMixin, MetisLssSciImpl):
+    class InputSet(MetisLssSciImpl.InputSet):
         pass
 
 
@@ -42,38 +42,6 @@ class MetisNLssSci(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Reduction of the LSS science star frames"
-    _description: str = """\
-    Reduction of the LSS science star frames
-
-    Inputs
-        N_LSS_SCI_RAW:     Raw science images [1-n]
-        PERSISTENCE_MAP:    Persistence map [optional]
-        LINEARITY_GEO:      Linearity map for GEO detector
-        GAIN_MAP_GEO:       Gain map for GEO detector
-        BADPIX_MAP_GEO:     Bad-pixel map for GEO detector [optional]
-        MASTER_DARK_GEO:    Master dark frame [optional?]
-        MASTER_N_LSS_RSRF: Master flat (RSRF) frame
-        N_LSS_DIST_SOL:    Distortion solution
-        N_LSS_WAVE_GUESS:  First guess of the wavelength solution
-        ATM_LINE_CAT:       Catalogue of atmospheric lines
-        N_ADC_SLITLOSS:    Slitloss information
-        STD_TRANSMISSION:   Transmission of the Earth's atmosphere derived from the STD for telluric correction  [optional]
-        MASTER_N_RESPONSE: Response function for flux calibration
-
-     Matched Keywords
-        DET.DIT
-        DET.NDIT
-        DRS.SLIT
-
-    Outputs
-        N_LSS_SCI_OBJ_MAP: Pixel map of the object pixels (QC)
-        N_LSS_SCI_SKY_MAP: Pixel map of the sky pixels (QC)
-        N_LSS_SCI_2D:      Coadded, wavelength calibrated, 2D spectrum of the science object
-        N_LSS_SCI_1D:      Coadded, wavelength calibrated, collapsed 1D spectrum of the science object
-        N_LSS_SCI_FLUX_2D: Coadded, wavelength + flux calibrated, 2D spectrum of the science object
-        N_LSS_SCI_FLUX_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science object
-        N_LSS_SCI_FLUX_TELL_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science object (optional)
-    """
 
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
@@ -83,7 +51,7 @@ class MetisNLssSci(MetisRecipe):
     # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.parameter1",
             context=_name,
             description="Description of parameter 1",
             default="value1",

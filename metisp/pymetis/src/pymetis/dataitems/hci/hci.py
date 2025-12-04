@@ -23,12 +23,9 @@ from cpl.core import Image, Table
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin 
 from pymetis.classes.mixins import BandLmMixin
-from pymetis.classes.mixins.band import BandSpecificMixin
-from pymetis.classes.mixins.cgrph import CgrphSpecificMixin
 
 
-class OffAxisPsfRaw(BandSpecificMixin, ImageDataItem, abstract=True):
-
+class OffAxisPsfRaw(ImageDataItem, abstract=True):
     _name_template = r'{band}_OFF_AXIS_PSF_RAW'
     _title_template = r"{band} RAVC sci calibration"
     _description_template = "calibration ADI image data" 
@@ -41,8 +38,7 @@ class OffAxisPsfRaw(BandSpecificMixin, ImageDataItem, abstract=True):
         'DET1.DATA': Image,
     }
 
-class AdiCalibrated(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
-
+class AdiCalibrated(ImageDataItem, abstract=True):
     _name_template = r'{band}_RAVC_SCI_CALIBRATED'
     _title_template = r"{band} RAVC sci calibration"
     _description_template = "calibration ADI image data" 
@@ -55,8 +51,7 @@ class AdiCalibrated(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstra
         'DET1.DATA': Image,
     }
 
-class OnAxisPsfTemplate(BandSpecificMixin, ImageDataItem, abstract=True):
-
+class OnAxisPsfTemplate(ImageDataItem, abstract=True):
     _name_template = r'{band}_ON_AXIS_PSF_TEMPLATE'
     _title_template = r"{band} RAVC sci calibration"
     _description_template = "calibration ADI image data" 
@@ -71,7 +66,7 @@ class OnAxisPsfTemplate(BandSpecificMixin, ImageDataItem, abstract=True):
 
 
 
-class SciCentred(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
+class SciCentred(ImageDataItem, abstract=True):
 
     _name_template = r"{band}_RAVC_SCI_CENTRED"
     _title_template = r"{band} RAVC sci centred"
@@ -85,7 +80,7 @@ class SciCentred(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=
         'DET1.DATA': Image,
     }
 
-class CentroidTab(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
+class CentroidTab(ImageDataItem, abstract=True):
 
     _name_template = r'{band}_RAVC_CENTROID_TAB'
     _title_template = r"{band} RAVC centroid tab"
@@ -99,7 +94,7 @@ class CentroidTab(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract
         'DET1.DATA': Table,
     }
 
-class SciSpeckle(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
+class SciSpeckle(ImageDataItem, abstract=True):
 
     _name_template = r'{band}_RAVC_SCI_SPECKLE'
     _title_template = r"{band} RAVC sci speckle"
@@ -113,7 +108,7 @@ class SciSpeckle(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=
         'DET1.DATA': Image,
     }
 
-class SciHifilt(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
+class SciHifilt(ImageDataItem, abstract=True):
 
     _name_template = r'{band}_RAVC_SCI_HIFILT'
     _title_template = r"{band} RAVC sci hifilt"
@@ -127,7 +122,7 @@ class SciHifilt(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=T
         'DET1.DATA': Image,
     }
 
-class SciDerotatedPsfsub(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
+class SciDerotatedPsfsub(ImageDataItem, abstract=True):
 
     _name_template = r'{band}_RAVC_SCI_DEROTATED_PSFSUB'
     _title_template = r"{band} RAVC sci derotated psfsub"
@@ -141,8 +136,8 @@ class SciDerotatedPsfsub(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, a
         'DET1.DATA': Image,
     }
 
-class SciDerotated(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
 
+class SciDerotated(ImageDataItem, abstract=True):
     _name_template = r'{band}_RAVC_SCI_DEROTATED'
     _title_template = r"{band} RAVC sci derotated"
     _description_template = "" 
@@ -155,8 +150,8 @@ class SciDerotated(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstrac
         'DET1.DATA': Image,
     }
 
-class SciContrastRadprof(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
 
+class SciContrastRadprof(ImageDataItem, abstract=True):
     _name_template = r'{band}_RAVC_SCI_CONTRAST_RADPROF'
     _title_template = r"{band} RAVC sci contrast radprof"
     _description_template = "" 
@@ -169,8 +164,8 @@ class SciContrastRadprof(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, a
         'DET1.DATA': Table,
     }
 
-class SciContrastAdi(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
 
+class SciContrastAdi(ImageDataItem, abstract=True):
     _name_template = r'{band}_RAVC_SCI_CONTRAST_ADI'
     _title_template = r"{band} RAVC sci contrast adi"
     _description_template = "" 
@@ -183,8 +178,8 @@ class SciContrastAdi(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstr
         'DET1.DATA': Table,
     }
 
-class SciThroughput(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
 
+class SciThroughput(ImageDataItem, abstract=True):
     _name_template = r'{band}_RAVC_SCI_THROUGHPUT'
     _title_template = r"{band} RAVC sci throughput"
     _description_template = "" 
@@ -197,8 +192,8 @@ class SciThroughput(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstra
         'DET1.DATA': Table,
     }
 
-class SciCoverage(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
 
+class SciCoverage(ImageDataItem, abstract=True):
     _name_template = r'{band}_RAVC_SCI_COVERAGE'
     _title_template = r"{band} RAVC sci coverage"
     _description_template = "" 
@@ -211,8 +206,8 @@ class SciCoverage(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract
         'DET1.DATA': Image,
     }
 
-class SciSnr(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
 
+class SciSnr(ImageDataItem, abstract=True):
     _name_template = r'{band}_RAVC_SCI_SNR'
     _title_template = r"{band} RAVC sci snr"
     _description_template = "" 
@@ -224,8 +219,9 @@ class SciSnr(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True
         'PRIMARY': None,
         'DET1.DATA': Image,
     }
-class PsfMedian(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=True):
 
+
+class PsfMedian(ImageDataItem, abstract=True):
     _name_template = r'{band}_RAVC_SCI_PSF_MEDIAN'
     _title_template = r"{band} RAVC sci psf median"
     _description_template = "" 
@@ -242,8 +238,10 @@ class PsfMedian(BandSpecificMixin, CgrphSpecificMixin, ImageDataItem, abstract=T
 class LmRavcCalibrated(BandLmMixin, CgrphRavcMixin, AdiCalibrated):
     pass
 
+
 class LmCvcCalibrated(BandLmMixin, CgrphCvcMixin, AdiCalibrated):
     pass
+
 
 class LmAppCalibrated(BandLmMixin, CgrphAppMixin, AdiCalibrated):
     pass
