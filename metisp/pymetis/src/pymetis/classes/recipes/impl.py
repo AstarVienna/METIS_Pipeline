@@ -28,6 +28,7 @@ from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.inputset import PipelineInputSet
+from pymetis.classes.qc.parameter import QcParameter
 
 
 class MetisRecipeImpl(ABC):
@@ -208,3 +209,7 @@ class MetisRecipeImpl(ABC):
     @classmethod
     def list_product_classes(cls) -> list[tuple[str, type[DataItem]]]:
         return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, DataItem))
+
+    @classmethod
+    def list_qc_parameters(cls) -> list[tuple[str, type[QcParameter]]]:
+        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, QcParameter))
