@@ -84,7 +84,7 @@ class MetisRecipeImpl(Parametrizable, ABC):
         for name, item_class in cls.list_product_classes():
             old_class = item_class
             # Copy the entire type so that we do not mess up the original one
-            new_class = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
+            new_class: DataItem = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
             new_class.specialize(**cls.tag_parameters())
 
             if (klass := DataItem.find(new_class._name_template)) is None:
