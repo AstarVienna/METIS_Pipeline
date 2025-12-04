@@ -144,7 +144,7 @@ class MetisLmLssWave(MetisRecipe):
         LM_LSS_WAVE_GUESS: First guess of the wavelength solution
     """
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
