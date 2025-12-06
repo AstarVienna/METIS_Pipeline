@@ -26,6 +26,7 @@ import cpl
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.qc.parameter import QcParameter
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInput
 
@@ -75,13 +76,14 @@ class MetisRecipe(cpl.ui.PyRecipe):
         self.implementation = self.Impl(self, frameset, settings)
         return self.implementation.run()
 
-    def _list_inputs(self) -> list[tuple[str, PipelineInput]]:
-        return inspect.getmembers(self.Impl.InputSet,
-                                  lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
+    def _list_inputs(self) -> list[tuple[str, type[PipelineInput]]]:
+        return self.Impl.InputSet.list_input_classes()
 
-    def _list_products(self) -> list[tuple[str, DataItem]]:
-        return inspect.getmembers(self.Impl,
-                                  lambda x: inspect.isclass(x) and issubclass(x, DataItem))
+    def _list_products(self) -> list[tuple[str, type[DataItem]]]:
+        return self.Impl.list_product_classes()
+
+    def _list_qc_parameters(self) -> list[tuple[str, type[QcParameter]]]:
+        return self.Impl.list_qc_parameters()
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:
@@ -113,6 +115,8 @@ class MetisRecipe(cpl.ui.PyRecipe):
                                    for (name, input_type) in self._list_inputs()]))
         products = '\n'.join(sorted([product_type._extended_description_line(name)
                                      for (name, product_type) in self._list_products()]))
+        qc_parameters = '\n'.join(sorted([qcp_type._extended_description_line()
+                                          for (name, qcp_type) in self._list_qc_parameters()]))
         description = self._format_spacing(self._description, 'description', 2)
         algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
 
@@ -123,6 +127,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
     {matched_keywords}
   Inputs\n{inputs}
   Outputs\n{products}
+  QC parameters\n{qc_parameters}
   Algorithm\n{algorithm}
 """
 

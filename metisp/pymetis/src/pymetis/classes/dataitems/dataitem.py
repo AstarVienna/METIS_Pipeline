@@ -103,9 +103,9 @@ class DataItem(Parametrizable, ABC):
 
             if cls.name().format() in DataItem.__registry:
                 # If the class is already registered, warn about it and do nothing
-                Msg.warning(cls.__qualname__,
-                            f"A class with tag {cls.name()} is already registered, "
-                            f"skipping: {DataItem.__registry[cls.name()]}")
+                Msg.debug(cls.__qualname__,
+                          f"A class with tag {cls.name()} is already registered, "
+                          f"skipping: {DataItem.__registry[cls.name()]}")
             else:
                 # Otherwise add it to the registry
                 Msg.debug(cls.__qualname__,
