@@ -36,6 +36,9 @@ from pymetis.classes.inputs import (RawInput, BadPixMapInput, PersistenceMapInpu
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.recipes import MetisRecipe
 
+from pymetis.qc.dark import DarkMean, DarkMedian, DarkRms, DarkNColdpix, DarkNHotpix, DarkNBadpix, DarkMedianMedian, \
+    DarkMedianMean, DarkMedianRms, DarkMedianMin, DarkMedianMax
+
 import numpy as np
 
 from pymetis.functions.image import zeros_like
@@ -84,6 +87,18 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
     # It is not strictly necessary, and we can create the product directly,
     # but it enables us to introspect the class for the manpage and DRLD.
     ProductMasterDark = MasterDark
+
+    QcDarkMedian = DarkMedian
+    QcDarkMean = DarkMean
+    QcDarkRms = DarkRms
+    QcDarkNBadpix = DarkNBadpix
+    QcDarkNColdpix = DarkNColdpix
+    QcDarkNHotpix = DarkNHotpix
+    QcDarkMedianMean = DarkMedianMean
+    QcDarkMedianMedian = DarkMedianMedian
+    QcDarkMedianRms = DarkMedianRms
+    QcDarkMedianMin = DarkMedianMin
+    QcDarkMedianMax = DarkMedianMax
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -226,29 +241,21 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         header_image = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
-        # ToDo make this less boilerplatey
-        header_image.append(cpl.core.Property("QC DARK MEAN", cpl.core.Type.DOUBLE,
-                            qcmean, "[ADU] mean value of master dark"))
-        header_image.append(cpl.core.Property("QC DARK MEDIAN", cpl.core.Type.DOUBLE,
-                            qcmed, "[ADU] median value of master dark"))
-        header_image.append(cpl.core.Property("QC DARK RMS", cpl.core.Type.DOUBLE,
-                            qcrms, "[ADU] rms value of master dark"))
-        header_image.append(cpl.core.Property("QC DARK NBADPIX", cpl.core.Type.DOUBLE,
-                            qcnbad, "[ADU] number of bad pixels"))
-        header_image.append(cpl.core.Property("QC DARK NCOLDPIX", cpl.core.Type.DOUBLE,
-                            qcncold, "[ADU] number of cold pixels"))
-        header_image.append(cpl.core.Property("QC DARK NHOTPIX", cpl.core.Type.DOUBLE,
-                            qcnhot, "[ADU] number of hot pixels"))
-        header_image.append(cpl.core.Property("QC DARK MEDIAN MEAN", cpl.core.Type.DOUBLE,
-                            qcmedmean, "[ADU] median value of mean values of individual input images"))
-        header_image.append(cpl.core.Property("QC DARK MEDIAN MEDIAN", cpl.core.Type.DOUBLE,
-                            qcmedmed, "[ADU] median value of median values of individual input images"))
-        header_image.append(cpl.core.Property("QC DARK MEDIAN RMS", cpl.core.Type.DOUBLE,
-                            qcmedrms, "[ADU] median value of RMS values of individual input images"))
-        header_image.append(cpl.core.Property("QC DARK MEDIAN MIN", cpl.core.Type.DOUBLE,
-                            qcmedmin, "[ADU] median value of min values of individual input images"))
-        header_image.append(cpl.core.Property("QC DARK MEDIAN MAX", cpl.core.Type.DOUBLE,
-                            qcmedmax, "[ADU] median value of max values of individual input images"))
+        header_image.append(
+            self.collect_qc_parameters(
+                DarkMean(qcmean),
+                DarkMedian(qcmed),
+                DarkRms(qcrms),
+                DarkNBadpix(qcnbad),
+                DarkNColdpix(qcncold),
+                DarkNHotpix(qcnhot),
+                DarkMedianMean(qcmedmean),
+                DarkMedianMedian(qcmedmed),
+                DarkMedianRms(qcmedrms),
+                DarkMedianMin(qcmedmin),
+                DarkMedianMax(qcmedmax),
+            )
+        )
 
         header_noise = copy.deepcopy(header_image)
         header_mask = copy.deepcopy(header_image)

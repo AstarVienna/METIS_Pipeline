@@ -75,7 +75,7 @@ class PipelineInputSet(Parametrizable, ABC):
         self.tag_matches: dict[str, str] = {}
 
         # Now iterate over all defined Inputs, instantiate them and feed them the frameset to filter.
-        for (name, input_class) in self.get_inputs():
+        for (name, input_class) in self.list_input_classes():
             inp = input_class(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
             self.__setattr__(self.__make_snake.sub('_', self.__cut_input.sub('', name)).lower(), inp)
@@ -83,7 +83,7 @@ class PipelineInputSet(Parametrizable, ABC):
             self.inputs |= {inp}
 
     @classmethod
-    def get_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:
+    def list_input_classes(cls) -> list[tuple[str, type[PipelineInput]]]:
         """
         List all input classes within this input set.
 

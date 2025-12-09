@@ -29,6 +29,7 @@ from pymetis.classes.inputs import RawInput, MasterDarkInput
 
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
+from pymetis.qc.flat import LmMFlatRms, LmMFlatNbadpix, LmFlatMean, LmFlatRms, LmFlatMedianMin, LmFlatMedianMax, LmFlatMedianRms
 from pymetis.utils.dummy import create_dummy_header
 
 
@@ -43,6 +44,14 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
             Item = FlatRaw
 
     ProductMasterFlat = MasterImgFlat
+
+    QcLmMflatRms = LmMFlatRms
+    QcLmMflatNBadpix = LmMFlatNbadpix
+    QcLmFlatMean = LmFlatMean
+    QcLmFlatRms = LmFlatRms
+    QcLmFlatMedianMin = LmFlatMedianMin
+    QcLmFlatMedianMax = LmFlatMedianMax
+    QcLmFlatMedianRms = LmFlatMedianRms
 
     def process(self) -> set[DataItem]:
         """
