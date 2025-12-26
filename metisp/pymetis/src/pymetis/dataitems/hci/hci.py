@@ -273,6 +273,9 @@ class LmRavcSciCentred(BandLmMixin, CgrphAppMixin, SciCentred):
 class LmRavcCentroidTab(BandLmMixin, CgrphAppMixin,  CentroidTab):
     pass
 
+class LmRavcCentroidTab(BandLmMixin, CgrphAppMixin,  CentroidTab):
+    pass
+
 
 class LmRavcSciSpeckle(BandLmMixin, CgrphAppMixin, SciSpeckle):
     pass
@@ -459,3 +462,67 @@ class NCvcSciSnr(BandLmMixin, CgrphAppMixin,  SciSnr):
 
 class NCvcPsfMedian(BandLmMixin, CgrphAppMixin, PsfMedian):
     pass
+
+
+###
+
+
+class LmAppSciCentred(BandLmMixin, CgrphAppMixin, SciCentred):
+    _name_template = r"{band}_APP_SCI_CENTRED"
+    
+
+
+class LmAppCentroidTab(BandLmMixin, CgrphAppMixin,  CentroidTab):
+    _name_template = r"{band}_APP_SCI_CENTROID_TAB"
+    
+
+class LmAppSciSpeckle(BandLmMixin, CgrphAppMixin, SciSpeckle):
+     _name_template = r"{band}_APP_SCI_SPECKLE"
+   
+
+
+class LmAppSciHifilt(BandLmMixin, CgrphAppMixin, SciHifilt):
+    _name_template = r"{band}_APP_SCI_HIFILT"
+    
+
+
+class LmAppSciDerotatedPsfsub(BandLmMixin, CgrphAppMixin, SciDerotatedPsfsub):
+    _name_template = r"{band}_APP_SCI_DEROTATED_PSFSUB"
+    
+
+
+class LmAppSciDerotated(BandLmMixin, CgrphAppMixin, SciDerotated):
+    _name_template = r"{band}_APP_SCI_DEROTATED"
+    
+
+
+class LmAppSciContrastRadprof(BandLmMixin, CgrphAppMixin, SciContrastRadprof):
+    _name_template = r"{band}_APP_SCI_RADPROF"
+    
+
+
+class LmAppSciContrastAdi(BandLmMixin, CgrphAppMixin, SciContrastAdi):
+    _name_template = r"{band}_APP_SCI_CONTRAST_ADI"
+    
+
+
+class LmAppSciThroughput(BandLmMixin, CgrphAppMixin, SciThroughput):
+    _name_template = r"{band}_APP_SCI_SCI_THROUGHPUT"
+    
+
+
+class LmAppSciCoverage(BandLmMixin, CgrphAppMixin, SciCoverage):
+     _name_template = r"{band}_APP_SCI_COVERAGE"
+   
+
+
+class LmAppSciSnr(BandLmMixin, CgrphAppMixin, SciSnr):
+    _name_template = r"{band}_APP_SCI_SNR"
+    
+
+
+class LmAppPsfMedian(BandLmMixin, CgrphAppMixin,  PsfMedian):
+    _name_template = r"{band}_APP_SCI_PSF_MEDIAN"
+    
+
+
