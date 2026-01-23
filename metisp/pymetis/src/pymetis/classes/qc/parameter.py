@@ -47,7 +47,7 @@ class QcParameter(Parametrizable):
 
         """
         # [5:] is there to get rid of "Type." prefix
-        return f"    {cls._name:<23s} {f'{cls._type}'[5:]:<14s} {cls._description}"
+        return f"    {cls._name:<31s} {f'{cls._type}'[5:]:<14s} {cls._description}"
 
     def as_property(self) -> cpl.core.Property:
         return cpl.core.Property(self._name, self._type, self.value, self._description)

@@ -173,7 +173,7 @@ class PipelineInput:
     @final
     def _description_line(cls, name: str = None) -> str:
         """ Produce a description line for man page. """
-        return (f"    {cls.Item.name():<60} [{cls._multiplicity}]"
+        return (f"    {cls.Item.name():<68} [{cls._multiplicity}]"
                 f"{' (optional)' if not cls._required else '           '} "
                 f"{cls.Item.description()}\n{' ' * 84}")
 
@@ -185,7 +185,7 @@ class PipelineInput:
         assert cls.Item.name() is not None, f"{cls.Item.__qualname__} has no name"
         assert cls.Item.description() is not None, f"{cls.Item.__qualname__} has no description defined"
 
-        return (f"    {cls.Item.name():<24}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
+        return (f"    {cls.Item.name():<32}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
                 f" {cls.Item.description()}")
 #                f"{f'\n{' ' * 84}'.join([x.__qualname__ for x in set(cls.input_for_recipes())])}")
 

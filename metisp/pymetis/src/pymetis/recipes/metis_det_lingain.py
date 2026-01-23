@@ -38,6 +38,7 @@ from pymetis.classes.inputs import RawInput, BadPixMapInput, OptionalInputMixin
 from pymetis.classes.inputs.common import WcuOffInput
 from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.recipes import MetisRecipe
+from pymetis.qc.lingain import LinGainMean, LinGainRms, LinNumBadpix, LinMinFlux, LinMaxFlux, GainLin, GainCoeff
 from pymetis.utils.dummy import create_dummy_header
 
 
@@ -54,6 +55,14 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
     ProductGainMap = GainMap
     ProductLinearity = LinearityMap
     ProductBadPixMap = BadPixMap
+
+    QcLinGainMean = LinGainMean
+    QcLinGainRms = LinGainRms
+    QcLinNumBadpix = LinNumBadpix
+    QcLinMinFlux = LinMinFlux
+    QcLinMaxFlux = LinMaxFlux
+    QcGainLin = GainLin
+    QcGainCoeff = GainCoeff
 
     def __init__(self,
                  recipe: 'MetisRecipe',

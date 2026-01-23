@@ -588,7 +588,7 @@ class DataItem(Parametrizable, ABC):
 
         Includes leading space.
         """
-        return f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
+        return f"    {cls.name():47s}{cls.description() or '<no description defined>'}"
 
     def __str__(self):
         return f"{self.name()}"

@@ -32,6 +32,8 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
                                     PinholeTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.prefab import RawImageProcessor
+from pymetis.qc.chophome import CalChophomeXcen, CalChophomeXcenStdev, CalChophomeYcen, CalChophomeYcenStdev, \
+    CalChophomeFwhm, CalChophomeSnr, CalChophomeOffx, CalChophomeOffy
 from pymetis.utils.dummy import create_dummy_header
 
 
@@ -61,6 +63,15 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
 
     ProductCombined = LmChophomeCombined
     ProductBackground = LmChophomeBackground
+
+    QcXcen = CalChophomeXcen
+    QcXcenStdev = CalChophomeXcenStdev
+    QcYcen = CalChophomeYcen
+    QcYcenStdev = CalChophomeYcenStdev
+    QcFwhm = CalChophomeFwhm
+    QcSnr = CalChophomeSnr
+    QcOffX = CalChophomeOffx
+    QcOffY = CalChophomeOffy
 
     def process(self) -> set[DataItem]:
         """This function processes the input images

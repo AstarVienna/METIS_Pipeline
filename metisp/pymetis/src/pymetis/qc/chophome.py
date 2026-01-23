@@ -26,49 +26,49 @@ from pymetis.classes.qc.parameter import QcParameter
 class CalChophomeXcen(QcParameter):
     _name = "QC CAL CHOPHOME XCEN"
     _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
+    _unit = "pixel"
     _description = "Centroid of point source in x"
 
 
 class CalChophomeXcenStdev(QcParameter):
     _name = "QC CAL CHOPHOME XCEN STDEV"
     _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
+    _unit = "pixel"
     _description = "Uncertainty of centroid in x"
 
 
 class CalChophomeYcen(QcParameter):
     _name = "QC CAL CHOPHOME YCEN"
     _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
+    _unit = "pixel"
     _description = "Centroid of point source in y"
 
 
 class CalChophomeYcenStdev(QcParameter):
     _name = "QC CAL CHOPHOME YCEN STDEV"
     _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
+    _unit = "pixel"
     _description = "Uncertainty of centroid in y"
 
 
 class CalChophomeFwhm(QcParameter):
     _name = "QC CAL CHOPHOME FWHM"
     _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
+    _unit = "pixel"
     _description = "FWHM of point source"
 
 
 class CalChophomeSnr(QcParameter):
     _name = "QC CAL CHOPHOME SNR"
     _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
+    _unit = "pixel"
     _description = "Signal-to-noise ratio of point source"
 
 
 class CalChophomeOffx(QcParameter):
     _name = "QC CAL CHOPHOME OFFX"
     _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
+    _unit = "pixel"
     _description = "Chopper offset in x"
 
 
