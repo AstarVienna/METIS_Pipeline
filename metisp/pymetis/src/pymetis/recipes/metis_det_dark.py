@@ -29,6 +29,8 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
@@ -83,22 +85,24 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
 
-    # Assign product classes. This should be just a data item class.
-    # It is not strictly necessary, and we can create the product directly,
-    # but it enables us to introspect the class for the manpage and DRLD.
-    ProductMasterDark = MasterDark
+    class ProductSet(PipelineProductSet):
+        # Assign product classes. This should be just a data item class.
+        # It is not strictly necessary, and we can create the product directly,
+        # but it enables us to introspect the class for the manpage and DRLD.
+        MasterDark = MasterDark
 
-    QcDarkMedian = DarkMedian
-    QcDarkMean = DarkMean
-    QcDarkRms = DarkRms
-    QcDarkNBadpix = DarkNBadpix
-    QcDarkNColdpix = DarkNColdpix
-    QcDarkNHotpix = DarkNHotpix
-    QcDarkMedianMean = DarkMedianMean
-    QcDarkMedianMedian = DarkMedianMedian
-    QcDarkMedianRms = DarkMedianRms
-    QcDarkMedianMin = DarkMedianMin
-    QcDarkMedianMax = DarkMedianMax
+    class Qc(QcParameterSet):
+        DarkMedian = DarkMedian
+        DarkMean = DarkMean
+        DarkRms = DarkRms
+        DarkNBadpix = DarkNBadpix
+        DarkNColdpix = DarkNColdpix
+        DarkNHotpix = DarkNHotpix
+        DarkMedianMean = DarkMedianMean
+        DarkMedianMedian = DarkMedianMedian
+        DarkMedianRms = DarkMedianRms
+        DarkMedianMin = DarkMedianMin
+        DarkMedianMax = DarkMedianMax
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -280,7 +284,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         hdus = functools.reduce(operator.add, map(self._process_single_detector, range(1, detector_count + 1)))
 
-        product = self.ProductMasterDark(
+        product = self.ProductSet.MasterDark(
             create_dummy_header(),
             *hdus,
         )

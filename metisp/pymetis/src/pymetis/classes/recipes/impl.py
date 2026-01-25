@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import inspect
 from abc import abstractmethod, ABC
-from typing import Dict, Any, final
+from typing import Dict, Any, final, Optional
 
 import cpl
 from cpl.core import Msg
@@ -27,8 +27,9 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs.inputset import PipelineInputSet
-from pymetis.classes.qc.parameter import QcParameter
+from pymetis.classes.qc import QcParameterSet, QcParameter
 
 
 class MetisRecipeImpl(ABC):
@@ -37,7 +38,9 @@ class MetisRecipeImpl(ABC):
     Contains central data flow control and also provides abstract methods to be overridden
     by particular pipeline recipe implementations.
     """
-    InputSet: type[PipelineInputSet] | None = None
+    InputSet: Optional[type[PipelineInputSet]] = None
+    ProductSet: Optional[type[PipelineProductSet]] = PipelineProductSet
+    Qc: Optional[type[QcParameterSet]] = QcParameterSet
 
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = ParameterList([])
@@ -165,7 +168,6 @@ class MetisRecipeImpl(ABC):
 
         return out
 
-
     @final
     def _save_products(self) -> None:
         """
@@ -213,11 +215,3 @@ class MetisRecipeImpl(ABC):
     @property
     def used_frames(self) -> cpl.ui.FrameSet:
         return self.inputset.used_frames
-
-    @classmethod
-    def list_product_classes(cls) -> list[tuple[str, type[DataItem]]]:
-        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, DataItem))
-
-    @classmethod
-    def list_qc_parameters(cls) -> list[tuple[str, type[QcParameter]]]:
-        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, QcParameter))

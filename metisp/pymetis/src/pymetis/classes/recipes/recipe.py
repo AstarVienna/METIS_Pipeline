@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import inspect
 import re
 from typing import Any
 
@@ -26,7 +25,7 @@ import cpl
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.classes.qc.parameter import QcParameter
+from pymetis.classes.qc import QcParameter
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInput
 
@@ -80,10 +79,10 @@ class MetisRecipe(cpl.ui.PyRecipe):
         return self.Impl.InputSet.list_input_classes()
 
     def _list_products(self) -> list[tuple[str, type[DataItem]]]:
-        return self.Impl.list_product_classes()
+        return self.Impl.ProductSet.list_classes()
 
     def _list_qc_parameters(self) -> list[tuple[str, type[QcParameter]]]:
-        return self.Impl.list_qc_parameters()
+        return self.Impl.Qc.list_parameters()
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:
@@ -102,7 +101,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
     def _build_description(self) -> str:
         """
         Automatically build the `description` attribute from available attributes.
-        This should only depend on the class, never on an instance.
+        Everything inside this should only depend on the class, never on an instance.
         """
         if self._matched_keywords is None:
             matched_keywords = '<not defined>'
@@ -111,11 +110,11 @@ class MetisRecipe(cpl.ui.PyRecipe):
         else:
             matched_keywords = '\n    '.join(self._matched_keywords)
 
-        inputs = '\n'.join(sorted([input_type._extended_description_line(name)
+        inputs = '\n'.join(sorted([input_type.extended_description_line(name)
                                    for (name, input_type) in self._list_inputs()]))
-        products = '\n'.join(sorted([product_type._extended_description_line(name)
+        products = '\n'.join(sorted([product_type.extended_description_line(name)
                                      for (name, product_type) in self._list_products()]))
-        qc_parameters = '\n'.join(sorted([qcp_type._extended_description_line()
+        qc_parameters = '\n'.join(sorted([qcp_type.extended_description_line()
                                           for (name, qcp_type) in self._list_qc_parameters()]))
         description = self._format_spacing(self._description, 'description', 2)
         algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)

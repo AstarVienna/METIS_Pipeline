@@ -23,6 +23,8 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.dataitems.masterflat.raw import FlatRaw
 from pymetis.classes.inputs import RawInput, MasterDarkInput
@@ -43,15 +45,17 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         class RawInput(RawInput):
             Item = FlatRaw
 
-    ProductMasterFlat = MasterImgFlat
+    class ProductSet(PipelineProductSet):
+        MasterFlat = MasterImgFlat
 
-    QcLmMflatRms = LmMFlatRms
-    QcLmMflatNBadpix = LmMFlatNbadpix
-    QcLmFlatMean = LmFlatMean
-    QcLmFlatRms = LmFlatRms
-    QcLmFlatMedianMin = LmFlatMedianMin
-    QcLmFlatMedianMax = LmFlatMedianMax
-    QcLmFlatMedianRms = LmFlatMedianRms
+    class Qc(QcParameterSet):
+        LmMflatRms = LmMFlatRms
+        LmMflatNBadpix = LmMFlatNbadpix
+        LmFlatMean = LmFlatMean
+        LmFlatRms = LmFlatRms
+        LmFlatMedianMin = LmFlatMedianMin
+        LmFlatMedianMax = LmFlatMedianMax
+        LmFlatMedianRms = LmFlatMedianRms
 
     def process(self) -> set[DataItem]:
         """
