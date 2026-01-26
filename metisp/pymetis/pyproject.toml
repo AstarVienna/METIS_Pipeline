@@ -51,11 +51,25 @@ zip-safe = false
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[[tool.uv.index]]
+name = "pycpl"
+url = "https://ivh.github.io/pycpl/simple/"
+explicit = true
+
+[[tool.uv.index]]
+name = "eso"
+url = "https://ftp.eso.org/pub/dfs/pipelines/libraries/"
+explicit = true
+
+[tool.uv.sources]
+pycpl = { index = "pycpl" }
+pyesorex = { index = "eso" }
+edps = { index = "eso" }
+edpsgui = { index = "eso" }
+edpsplot = { index = "eso" }
+
 [tool.uv]
-extra-index-url = [
-    "https://ivh.github.io/pycpl/simple/",
-    "https://ftp.eso.org/pub/dfs/pipelines/libraries/",
-]
+constraint-dependencies = ["numba>=0.60"]
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
