@@ -33,7 +33,8 @@ class QcParameter(Parametrizable):
 
     def __init__(self, value: Any):
         assert isinstance(value, self._type), \
-            f"{self.__class__.__qualname__} expected a {self._type} value, but got {value} ({type(value)}) instead"
+            (f"{self.__class__.__qualname__} expected a {self._type} value, "
+             f"but got {value} ({type(value)}) instead")
         self._value = value
 
     @property
@@ -44,7 +45,6 @@ class QcParameter(Parametrizable):
     def extended_description_line(cls) -> str:
         """
         Return a formatted description line for the man page.
-
         """
         # [5:] is there to get rid of "Type." prefix
         return f"    {cls._name:<31s} {f'{cls._type}'[5:]:<14s} {cls._description}"

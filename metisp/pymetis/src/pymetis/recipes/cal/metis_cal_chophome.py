@@ -24,6 +24,8 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
 from pymetis.dataitems.gainmap import GainMap2rg
 from pymetis.dataitems.linearity.linearity import LinearityMap2rg
@@ -61,17 +63,20 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         class PinholeTableInput(OptionalInputMixin, PinholeTableInput):
             pass
 
-    ProductCombined = LmChophomeCombined
-    ProductBackground = LmChophomeBackground
 
-    QcXcen = CalChophomeXcen
-    QcXcenStdev = CalChophomeXcenStdev
-    QcYcen = CalChophomeYcen
-    QcYcenStdev = CalChophomeYcenStdev
-    QcFwhm = CalChophomeFwhm
-    QcSnr = CalChophomeSnr
-    QcOffX = CalChophomeOffx
-    QcOffY = CalChophomeOffy
+    class ProductSet(PipelineProductSet):
+        Combined = LmChophomeCombined
+        Background = LmChophomeBackground
+
+    class Qc(QcParameterSet):
+        Xcen = CalChophomeXcen
+        XcenStdev = CalChophomeXcenStdev
+        Ycen = CalChophomeYcen
+        YcenStdev = CalChophomeYcenStdev
+        Fwhm = CalChophomeFwhm
+        Snr = CalChophomeSnr
+        OffX = CalChophomeOffx
+        OffY = CalChophomeOffy
 
     def process(self) -> set[DataItem]:
         """This function processes the input images
@@ -102,33 +107,22 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         # Locate the pinhole image
         pinhole_loc = self.locate_pinhole(combined_img, hwidth)
 
-
-        # Extract QC parameters
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME XCEN",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["xcen"],
-                                              "[pix] x position of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME YCEN",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["ycen"],
-                                              "[pix] y position of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME FWHMX",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["fwhm_x"],
-                                              "[pix] fwhm in x of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME FWHMY",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["fwhm_y"],
-                                              "[pix] fwhm in y of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME SNR",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["snr"],
-                                              "signal-to-noise ratio of pinhole image"))
+        combined_hdr.append(
+            self.collect_qc_parameters(
+                self.Qc.Xcen(pinhole_loc['xcen']),
+                self.Qc.Ycen(pinhole_loc['ycen']),
+                self.Qc.XcenStdev(pinhole_loc['xcenstd']),
+                self.Qc.YcenStdev(pinhole_loc['ycenstd']),
+                self.Qc.Fwhm(pinhole_loc['fwhm_x']),
+                # FixMe: FWHM should be 2D?
+                self.Qc.Snr(pinhole_loc['snr']),
+            )
+        )
 
         return {
-            self.ProductCombined(combined_hdr,
+            self.ProductSet.Combined(combined_hdr,
                                  Hdu(create_dummy_header(), combined_img, name='IMAGE')),
-            self.ProductBackground(background_hdr,
+            self.ProductSet.Background(background_hdr,
                                    Hdu(create_dummy_header(), background_img, name='IMAGE')),
         }
 
