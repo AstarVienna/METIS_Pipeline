@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import TableDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 
-class SynthTrans(BandSpecificMixin, TableDataItem, abstract=True):
+class SynthTrans(TableDataItem, abstract=True):
     _name_template = r'{band}_SYNTH_TRANS'
     _title_template = "{band} synthetic transmission"
     _description_template = "Synthetic {band} transmission used for default telluric correction of STD stars"
@@ -39,7 +39,7 @@ class NSynthTrans(BandNMixin, SynthTrans):
     pass
 
 
-class LssSynthTrans(BandSpecificMixin, TableDataItem, abstract=True):
+class LssSynthTrans(TableDataItem, abstract=True):
     """
     Transmission spectrum
     """

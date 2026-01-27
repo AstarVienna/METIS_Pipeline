@@ -21,10 +21,10 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class LinearityMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
+class LinearityMap(ImageDataItem, abstract=True):
     _name_template = r'LINEARITY_{detector}'
     _title_template = r'{detector} linearity'
     _description_template = "Coefficients for the pixel {detector} non-linearity correction"

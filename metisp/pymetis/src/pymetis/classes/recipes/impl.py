@@ -29,10 +29,11 @@ from pyesorex.parameter import ParameterList
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs.inputset import PipelineInputSet
+from pymetis.classes.mixins.base import Parametrizable
 from pymetis.classes.qc import QcParameterSet, QcParameter
 
 
-class MetisRecipeImpl(ABC):
+class MetisRecipeImpl(Parametrizable, ABC):
     """
     An abstract base class for all METIS recipe implementations.
     Contains central data flow control and also provides abstract methods to be overridden
@@ -65,35 +66,64 @@ class MetisRecipeImpl(ABC):
         self.frameset: cpl.ui.FrameSet = frameset
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
         self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
-        self.promote(**self.inputset.tag_matches)
+
+        # Promote the implementation to the correct subclass, based on
+        # - tag parameters (from defined mixins, class-based)
+        # - tag matches (from the loaded frameset, instance-based)
+        # ToDo: Decide what to do in case of a conflict between those two
+        self.promote(**(self.tag_parameters() | self.inputset.tag_matches))
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
         Msg.debug(self.__class__.__qualname__,
                   f"{'-' * 40} Recipe initialization complete {'-' * 40}")
 
     @classmethod
-    def specialize(cls, **parameters) -> None:
-        Msg.info(cls.__qualname__,
-                 f"Specializing {cls.__qualname__} with parameters: {parameters}")
+    def specialize(cls) -> None:
+        """
+        Specialize the recipe implementation to the current class parameters.
+        """
+        Msg.debug(cls.__qualname__, f"Specializing {cls.__qualname__} with {cls.tag_parameters()}")
+        cls.InputSet.specialize(**cls.tag_parameters())
+
+        for name, item_class in cls.ProductSet.list_classes():
+            old_class = item_class
+            # Copy the entire type so that we do not mess up the original one
+            new_class: DataItem = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
+            new_class.specialize(**cls.tag_parameters())
+
+            if (klass := DataItem.find(new_class._name_template)) is None:
+                setattr(cls, name, new_class)
+                Msg.debug(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {cls.tag_parameters()}, had to create a new class {new_class.__qualname__}")
+            else:
+                setattr(cls, name, klass)
+                Msg.debug(cls.__qualname__,
+                         f" - {old_class.__qualname__} specialized to "
+                         f"{klass.__qualname__} ({klass.name()})")
 
     @classmethod
     def promote(cls, **parameters) -> None:
         """
         Promote the products of this class to appropriate subclasses, as determined from the input data.
         This may be only called after the recipe is initialized.
+
+        May also contain template variables that are notmixed in during class creation.
+        For instance, `recipe_{band}_{target}` can specify band=LM, but no target,
+        resulting in a partial specialiation. The target has to be supplied from the actual data.)
         """
 
         Msg.info(cls.__qualname__,
                  f"Promoting the recipe implementation {cls.__qualname__} with {parameters}")
 
-        for name, item in cls.list_product_classes():
+        for name, item in cls.ProductSet.list_classes():
             # Try to find a promoted class in the registry
+            old_class = item.__qualname__
+            old_class_name = item.name()
             if (new_class := DataItem.find(tag := item.specialize(**parameters))) is None:
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:
-                Msg.debug(cls.__class__.__qualname__,
-                          f"Promoting {item.__qualname__} ({item.name()}) "
-                          f"to {new_class.__qualname__} ({new_class.name()})")
+                Msg.debug(cls.__qualname__,
+                          f" - {old_class} ({old_class_name}) => "
+                          f"{new_class.__qualname__} ({new_class.name()})")
 
             # Replace the product attribute with the new class
             cls.__class__.__setattr__(cls, name, new_class)
@@ -109,7 +139,7 @@ class MetisRecipeImpl(ABC):
         """
 
         try:
-            self.products = self.process()           # Do all the actual processing
+            self.products: set[DataItem] = self.process()   # Do all the actual processing
             self._save_products()                           # Save the output products
 
             return self.build_product_frameset()            # Return the output as a pycpl FrameSet
@@ -136,26 +166,29 @@ class MetisRecipeImpl(ABC):
         """
         The core method of the recipe implementation. It should contain all the processing logic.
         At its entry point, the `InputSet` class must be already loaded and validated.
+        This should not be a concern of the author of a recipe, as long as everything is declared correctly.
 
-        All pixel manipulation should happen inside this function (or something it calls from within).
+        All pixel manipulation should happen inside this function (or private subroutines it calls from within).
         Put explicitly, this means
             - no pixel manipulation *before* entering `process`,
             - and no pixel manipulation *after* exiting `process`.
 
         The basic workflow inside this function should be as follows:
 
-        1.  Load the CPL structures associated with `Input` frames.
+        1.  Load the CPL structures associated with `PipelineInput` frames.
+            To conserve resources, most importantly memory, defer the `load_data` call
+            until the data are actually needed.
         2.  Do the preprocessing (dark, bias, flat, persistence...) as needed.
             When implementing this function, please always use the topmost applicable method:
-                - Use the functions provided in the pipeline if possible (derive or override).
-                  Much of the functionality is common to many recipes, and we should not repeat ourselves.
+                - Use the functions provided by the pipeline package if possible (derive or override).
+                  Much of the functionality is trivially common to many recipes, and we should not repeat ourselves.
                   Some classes / functions are provided in ``prefab``.
                 - Use HDRL functions, if available.
                 - Use CPL functions, if available.
-                - Implement what you need yourself.
+                - Implement what you need yourself as a subroutine.
         3.  Build the output images as specified in the DRLD.
             Each product should be a ``DataItem`` and there should be exactly one for every file produced.
-        4.  Return a set of ``DataItem``.
+        4.  Return a set of ``DataItem`` instance.
 
         The resulting products set is then passed to `save_products()` (see `run`).
         """

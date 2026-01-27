@@ -20,13 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import numpy as np
 
 import cpl
-from cpl.core import Table, Image
+from cpl.core import Table
 
 from pymetis.classes.dataitems import TableDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionTable(BandSpecificMixin, TableDataItem, abstract=True):
+class DistortionTable(TableDataItem, abstract=True):
     _name_template = r'{band}_DISTORTION_TABLE'
     _title_template = "distortion table"
     _description_template = r"Table of distortion coefficients for a {band} band data set"

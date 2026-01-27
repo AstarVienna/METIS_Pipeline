@@ -20,6 +20,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.dataitems.common import FluxCalTable, IfuTelluric
 from pymetis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
 from pymetis.dataitems.ifu.raw import IfuRaw
@@ -37,7 +38,7 @@ from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_
 # Note that there will be most probably a redesign / split into more recipes to follow the approach
 # implemented already in other ESO pipelines
 
-class MetisIfuTelluricImpl(MetisRecipeImpl):
+class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
     """Implementation class for metis_ifu_telluric"""
 
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

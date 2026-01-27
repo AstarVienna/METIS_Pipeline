@@ -25,8 +25,8 @@ from pymetis.classes.recipes import MetisRecipe
 
 
 # TODO: Check 2D input spectra -- correct all row with same trans?
-class MetisLmLssMfCorrectImpl(MetisLssMfCorrectImpl):
-    class InputSet(BandLmMixin, MetisLssMfCorrectImpl.InputSet):
+class MetisLmLssMfCorrectImpl(BandLmMixin, MetisLssMfCorrectImpl):
+    class InputSet(MetisLssMfCorrectImpl.InputSet):
         pass
 
 
@@ -38,7 +38,7 @@ class MetisLmLssMfCorrect(MetisRecipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Application of the telluric correction"
 
-    _matched_keywords: {str} = {'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DRS.SLIT'}
     _algorithm = """Apply telluric correction, i.e. divide the input science spectrum by the synthetic transmission."""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
@@ -46,7 +46,7 @@ class MetisLmLssMfCorrect(MetisRecipe):
     # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.parameter1",
             context=_name,
             description="Description of parameter 1",
             default="value1",

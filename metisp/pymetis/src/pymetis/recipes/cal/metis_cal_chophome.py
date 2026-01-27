@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 from cpl.core import Msg
-from cpl.core import ImageList
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
 from pymetis.classes.dataitems import DataItem
@@ -27,8 +26,6 @@ from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
-from pymetis.dataitems.gainmap import GainMap2rg
-from pymetis.dataitems.linearity.linearity import LinearityMap2rg
 from pymetis.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
@@ -50,12 +47,13 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             Item = LmWcuOffRaw
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
-            Item = GainMap2rg
+            pass
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
-            Item = LinearityMap2rg
+            pass
 
-        PersistenceMapInput = PersistenceMapInput
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
 
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             pass
@@ -95,7 +93,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
         self.inputset.raw.use()
 
-        # I think there's a bit of confusion abotu different sources of persistence maps that's
+        # I think there's a bit of confusion about different sources of persistence maps that's
         # causing the workflow to crash. For now, I'll comment out the two lines, to be
         # uncommented after the workflow demonstration in Koln
         # persistence_map = self.inputset.persistence_map.load_data(extension='DET1.DATA')

@@ -41,8 +41,10 @@ class SinglePipelineInput(PipelineInput):
 
     def _load_frameset_specific(self, frameset: cpl.ui.FrameSet):
         """
-        Load the associated frames.
-        A SinglePipelineInput verifies there is exactly one matched frame.
+        Assign the associated frame.
+
+        SinglePipelineInput also verifies there is exactly one matched frame,
+        if not, a warning is issued and the first found frame is used.
         """
         Msg.debug(self.__class__.__qualname__, f"Loading {frameset}")
         if (count := len(frameset)) == 0:
@@ -72,7 +74,7 @@ class SinglePipelineInput(PipelineInput):
         self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
-                 f"Item is now {self.item}")
+                 f"Loading extension '{extension}' from a single frame {self.frame.file}")
 
         return self.item.load_data(extension)
 

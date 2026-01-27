@@ -25,23 +25,31 @@ from pymetis.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.lss.wave import LssWaveRaw
-from pymetis.classes.inputs import (SinglePipelineInput, RawInput,
-                                    LaserTableInput,
-                                    PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin,
-                                    LinearityInputSetMixin)
-from pymetis.classes.inputs.common import WcuOffInput
+from pymetis.classes.inputs import SinglePipelineInput, RawInput, LaserTableInput
+from pymetis.classes.inputs.common import WcuOffInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
+    LinearityInput, BadPixMapInput
 from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
-class MetisLmLssWaveImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-                   BandLmMixin,
-                   DarkImageProcessor.InputSet):
+class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssWaveRaw
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class BadPixMapInput(BadPixMapInput):
+            pass
 
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
@@ -49,8 +57,11 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
         class LssTraceInput(SinglePipelineInput):
             Item = LssTrace
 
-        WcuOffInput = WcuOffInput
-        LaserTableInput = LaserTableInput
+        class WcuOffInput(WcuOffInput):
+            pass
+
+        class LaserTableInput(LaserTableInput):
+            pass
 
     # ++++++++++++ Intermediate / QC products ++++++++++++
     ProductLssCurve = LssCurve
@@ -133,7 +144,7 @@ class MetisLmLssWave(MetisRecipe):
         LM_LSS_WAVE_GUESS: First guess of the wavelength solution
     """
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

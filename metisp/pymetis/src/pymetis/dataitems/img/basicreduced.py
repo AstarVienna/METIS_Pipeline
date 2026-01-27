@@ -21,14 +21,13 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import TargetSpecificMixin, TargetSciMixin, TargetStdMixin, \
-    BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.mixins import TargetSciMixin, TargetStdMixin, BandLmMixin, BandNMixin
 
 
-class BasicReduced(BandLmMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
+class BasicReduced(ImageDataItem, abstract=True):
     _name_template = r'{band}_{target}_BASIC_REDUCED'
     _title_template = "{band} {target} basic reduced"
-    _description_template = "Detrended exposure of the {band} image mode."
+    _description_template = "Detrended {target} exposure of the {band} image mode."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
@@ -39,11 +38,15 @@ class BasicReduced(BandLmMixin, TargetSpecificMixin, ImageDataItem, abstract=Tru
     }
 
 
-class LmStdBasicReduced(TargetStdMixin, BasicReduced):
+class LmBasicReduced(BandLmMixin, BasicReduced):
     pass
 
 
-class LmSciBasicReduced(TargetSciMixin, BasicReduced):
+class LmStdBasicReduced(TargetStdMixin, LmBasicReduced):
+    pass
+
+
+class LmSciBasicReduced(TargetSciMixin, LmBasicReduced):
     pass
 
 
@@ -61,7 +64,7 @@ class LmSkyBasicReduced(ImageDataItem):
     }
 
 
-class Calibrated(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
+class Calibrated(ImageDataItem, abstract=True):
     _name_template = r'{band}_{target}_CALIBRATED'
     _title_template = '{band} {target} calibrated'
     _description_template = 'Calibrated {band} {target}'

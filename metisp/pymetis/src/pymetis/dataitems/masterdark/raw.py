@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class DarkRaw(DetectorSpecificMixin, Raw, abstract=True):
+class DarkRaw(Raw, abstract=True):
     _name_template = r'DARK_{detector}_RAW'
     _title_template = r'{detector} dark raw'
     _description_template = r"Raw data for creating a {detector} master dark."

@@ -23,6 +23,7 @@ import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.dataitems.distortion.table import IfuDistortionTable
 from pymetis.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
 from pymetis.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
@@ -31,20 +32,30 @@ from pymetis.dataitems.rsrf import RsrfIfu
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, WavecalInput,
-                                    PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
+                                    OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisIfuReduceImpl(DarkImageProcessor):
-    class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
+class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRaw
 
         class RawSkyInput(RawInput):
             Item = IfuSkyRaw
 
-        WavecalInput = WavecalInput
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class WavecalInput(WavecalInput):
+            pass # We need to create a new class here, not reuse the old one!
 
         class DistortionTableInput(SinglePipelineInput):
             Item = IfuDistortionTable

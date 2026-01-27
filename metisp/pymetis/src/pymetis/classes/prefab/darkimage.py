@@ -43,7 +43,8 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         A DarkImageProcessor's Input is just a raw image processor input with a master dark frame.
         The exact class is not specified at this point -- it must be set by the subclass.
         """
-        MasterDarkInput: type[PipelineInput] = MasterDarkInput
+        class MasterDarkInput(MasterDarkInput):
+            pass
 
     def subtract_dark(self,
                       images: cpl.core.ImageList) -> cpl.core.ImageList:

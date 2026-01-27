@@ -26,16 +26,15 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.dataitems.background.subtracted import LmStdBackgroundSubtracted
 
 
-class MetisLmImgStdProcessImpl(MetisImgStdProcessImpl):
+class MetisLmImgStdProcessImpl(BandLmMixin, MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
-        class RawInput(BandLmMixin, MetisImgStdProcessImpl.InputSet.RawInput):
+        class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             Item = LmStdBackgroundSubtracted
 
     ProductImgStdCombined = LmStdCombined
 
 
 class MetisLmImgStdProcess(MetisRecipe):
-    # FixMe This can be probably also largely deduplicated
     _name: str = "metis_lm_img_std_process"
     _version: str = "0.1"
     _author: str = "Chi-Hung Yan, A*"

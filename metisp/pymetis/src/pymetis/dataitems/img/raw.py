@@ -19,11 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl.ui
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import (BandSpecificMixin, BandLmMixin, BandNMixin,
-                                    TargetSpecificMixin, TargetStdMixin, TargetSciMixin, TargetSkyMixin)
+from pymetis.classes.mixins import (BandLmMixin, BandNMixin,
+                                    TargetStdMixin, TargetSciMixin, TargetSkyMixin)
 
 
-class ImageRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
+class ImageRaw(Raw, abstract=True):
     """
     Abstract intermediate class for image raws.
     """
@@ -35,21 +35,29 @@ class ImageRaw(BandSpecificMixin, TargetSpecificMixin, Raw, abstract=True):
                      "INS.OPTI9.NAME", "INS.OPTI10.NAME", "DRS.FILTER"}
 
 
-class LmImageStdRaw(BandLmMixin, TargetStdMixin, ImageRaw):
+class LmImageRaw(BandLmMixin, ImageRaw):
     pass
 
 
-class LmImageSciRaw(BandLmMixin, TargetSciMixin, ImageRaw):
+class LmImageStdRaw(TargetStdMixin, LmImageRaw):
     pass
 
 
-class LmImageSkyRaw(BandLmMixin, TargetSkyMixin, ImageRaw):
+class LmImageSciRaw(TargetSciMixin, LmImageRaw):
     pass
 
 
-class NImageStdRaw(BandNMixin, TargetStdMixin, ImageRaw):
+class LmImageSkyRaw(TargetSkyMixin, LmImageRaw):
     pass
 
 
-class NImageSciRaw(BandNMixin, TargetSciMixin, ImageRaw):
+class NImageRaw(BandNMixin, ImageRaw):
+    pass
+
+
+class NImageStdRaw(TargetStdMixin, NImageRaw):
+    pass
+
+
+class NImageSciRaw(TargetSciMixin, NImageRaw):
     pass

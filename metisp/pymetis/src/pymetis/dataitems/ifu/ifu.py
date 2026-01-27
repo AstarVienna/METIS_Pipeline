@@ -23,10 +23,9 @@ from cpl.core import Image
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
 from pymetis.classes.mixins.band import BandIfuMixin
-from pymetis.classes.mixins.target import TargetSpecificMixin
 
 
-class IfuBase(TargetSpecificMixin, BandIfuMixin, ImageDataItem, abstract=True):
+class IfuBase(BandIfuMixin, ImageDataItem, abstract=True):
     _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
 
     _schema = {

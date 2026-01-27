@@ -72,7 +72,7 @@ class PipelineInput:
     @abstractmethod
     def _load_frameset_specific(self, frameset: cpl.ui.FrameSet) -> None:
         """
-        Actually load the associated frames. Implementation differs between derived classes.
+        Load the associated frames. Implementation differs between derived classes.
         """
         pass
 
@@ -118,24 +118,33 @@ class PipelineInput:
             f"Data item {self.Item.__qualname__} has no defined frame group"
 
         # Match all frames that can be processed by this PipelineInput.
+        Msg.debug(self.__class__.__qualname__,
+                  f"Initializing an input {self.Item.name()}")
+
         for tag, frames in self.preprocess_frameset(frameset).items():
             cls = DataItem.find(tag)
-
             if cls is None:
                 Msg.warning(self.__class__.__qualname__,
                             f"Found a frame with tag '{tag}', which is not a registered data item. Ignoring.")
                 continue
             else:
+                Msg.debug(self.__class__.__qualname__,
+                          f"Found {cls.__name__} with tag {tag}, "
+                          f"but we are {self.Item.__qualname__} ({self.Item.name()})")
                 if cls == self.Item:
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a fully specialized class {cls.__qualname__} for {tag}, instantiating directly")
                     self.load_frameset(frames)
-                elif cls in self.Item.__subclasses__():
+                elif issubclass(cls, self.Item):
+                    # If there is a more specialized class, use it instead
                     Msg.debug(self.__class__.__qualname__,
                               f"Found a specialized class {cls.__qualname__} for {tag}, "
                               f"subclassing this {self.Item.__qualname__} and instantiating")
                     self.Item = cls
                     self.load_frameset(frames)
+                else:
+                    Msg.debug(self.__class__.__qualname__,
+                              f"Could not specialize class {self.Item.__qualname__} for {tag}")
 
     @abstractmethod
     def validate(self) -> None:
@@ -147,13 +156,13 @@ class PipelineInput:
     @abstractmethod
     def load_structure(self) -> None:
         """
-        Load the input structure and store as items without data yet.
+        Load the input structure and store as data items, but without data yet.
         """
 
     @abstractmethod
     def load_data(self, extension: int | str = None) -> Union[cpl.core.ImageList, cpl.core.Image, cpl.core.Table]:
         """
-        Load the actual data and return it.
+        Load the actual data content and return it.
         """
 
     def print_debug(self, *, offset: int = 0) -> None:

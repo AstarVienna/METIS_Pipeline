@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import copy
 import inspect
 import re
 
@@ -26,11 +26,11 @@ from typing import Any, Callable, Optional
 import cpl
 from cpl.core import Msg
 
+from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
-from pymetis.classes.mixins.base import Parametrizable, KeywordMixin
 
 
-class PipelineInputSet(Parametrizable, ABC):
+class PipelineInputSet(ABC):
     """
     The `PipelineInputSet` class is a utility class for a recipe dealing with the input data.
     It reads and filters the input FrameSet, categorizes the frames by their metadata,
@@ -75,12 +75,40 @@ class PipelineInputSet(Parametrizable, ABC):
         self.tag_matches: dict[str, str] = {}
 
         # Now iterate over all defined Inputs, instantiate them and feed them the frameset to filter.
+        Msg.debug(self.__class__.__qualname__, "Instantiating inputs")
         for (name, input_class) in self.list_input_classes():
             inp = input_class(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
             self.__setattr__(self.__make_snake.sub('_', self.__cut_input.sub('', name)).lower(), inp)
             # Add to the set of inputs (for easy iteration over all inputs)
             self.inputs |= {inp}
+
+        for inp in self.inputs:
+            Msg.debug(self.__class__.__qualname__,
+                      f" - {inp.Item.name()}")
+
+    @classmethod
+    def specialize(cls, **parameters) -> None:
+        """
+        Specialize all input classes within this input set, based on tunable parameters.
+        """
+        Msg.debug(cls.__qualname__, f"Now specializing {cls.__qualname__} for {parameters}")
+
+        for name, inp in cls.list_input_classes():
+            old_class = inp.Item
+            # Copy the entire type so that we do not mess up the original one
+            new_class = type(inp.Item.__name__, inp.Item.__bases__, dict(inp.Item.__dict__))
+            new_class.specialize(**parameters)
+
+            if (klass := DataItem.find(new_class._name_template)) is None:
+                inp.Item = new_class
+                Msg.debug(cls.__qualname__, f" ! Cannot specialize {old_class.__qualname__} ({old_class.name()}) "
+                                            f"for {parameters}, {inp.Item.__qualname__} is now {new_class.__qualname__} ({new_class.name()})")
+            else:
+                inp.Item = klass
+                Msg.debug(cls.__qualname__,
+                          f" - {inp.__qualname__} data item specialized to "
+                          f"{klass.__qualname__} ({klass.name()})")
 
     @classmethod
     def list_input_classes(cls) -> list[tuple[str, type[PipelineInput]]]:
@@ -106,48 +134,11 @@ class PipelineInputSet(Parametrizable, ABC):
         if len(self.inputs) == 0:
             raise NotImplementedError("PipelineInputSet must define at least one input.")
 
-
         for inp in self.inputs:
             inp.validate()
+            Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
+            self.tag_matches |= inp.Item.tag_parameters()
 
-        # Validate that tag parameters match the keyword mixin from which the data items are derived
-        for attr, klass in KeywordMixin.registry().items():
-            self._validate_attr(lambda x: x.Item.tag_parameters()[attr] if issubclass(x.Item, klass) else None, attr)
-
-    def _validate_attr(self, _func: Callable, attr: str) -> Optional[str]:
-        """
-        Helper method: validate the input attribute (detector, band, source or target).
-
-        Return
-            None, if the attribute cannot be identified (this usually is not an error if it is not defined).
-            The attribute value, if the attribute only has the same value everywhere.
-        Raise
-            ValueError if the attribute has multiple different values.
-        """
-        Msg.debug(self.__class__.__qualname__, f"--- Validating the {attr} parameters ---")
-        self.tag_matches[attr] = self.tag_parameters()[attr] if attr in self.tag_parameters() else None
-        total = list(set([_func(inp) for inp in self.inputs]) - {None})
-
-        for inp in self.inputs:
-            value = _func(inp)
-            det = "---" if value is None else value
-            Msg.debug(self.__class__.__qualname__,
-                      f"{attr:<15s} in {inp.__class__.__qualname__:<54} {det}")
-
-        if (count := len(total)) == 0:
-            # If there are no identifiable tag parameters, just emit a debug message
-            # (not a warning -- this is OK for items that are not attribute-specific).
-            Msg.debug(self.__class__.__qualname__,
-                      f"No {attr} could be identified from the SOF")
-        elif count == 1:
-            # If there is exactly one unique value, the input is consistent, so set it as an InputSet tag parameter
-            result = total[0]
-            Msg.debug(self.__class__.__qualname__,
-                      f"Correctly identified {attr} from the SOF: {result}")
-            self.tag_matches[attr] = result
-        else:
-            # If there is more than one unique value, the input is inconsistent, raise an exception
-            raise ValueError(f"Data from more than one {attr} found in inputset: {total}!")
 
     def print_debug(self, *, offset: int = 0) -> None:
         Msg.debug(self.__class__.__qualname__, f"{' ' * offset}--- Detailed class info ---")

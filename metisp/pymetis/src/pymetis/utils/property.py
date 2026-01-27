@@ -103,4 +103,4 @@ def make_cpl_property(name: str, value: Any) -> cpl.core.Property:
         If the type of the variable is not a Python type convertible to a CPL type.
 
     """
-    return CplProperty(name, python_to_cpl_type(type(value)), value)
+    return cpl.core.Property(name, python_to_cpl_type(type(value)), value)

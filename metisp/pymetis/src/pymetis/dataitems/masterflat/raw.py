@@ -21,11 +21,11 @@ import cpl
 from cpl.core import Image
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins.band import BandNMixin, BandLmMixin, BandSpecificMixin
-from pymetis.classes.mixins.source import SourceSpecificMixin, SourceLampMixin, SourceTwilightMixin
+from pymetis.classes.mixins.band import BandNMixin, BandLmMixin
+from pymetis.classes.mixins.source import SourceLampMixin, SourceTwilightMixin
 
 
-class FlatRaw(BandSpecificMixin, SourceSpecificMixin, Raw, abstract=True):
+class FlatRaw(Raw, abstract=True):
     _name_template = r'{band}_FLAT_{source}_RAW'
     _title_template = r'{band} flat {source} raw'
     _description_template = r'Flat raw'
@@ -38,25 +38,26 @@ class FlatRaw(BandSpecificMixin, SourceSpecificMixin, Raw, abstract=True):
         'DET1.DATA': Image,
     }
 
-
-class LmFlatLampRaw(BandLmMixin, SourceLampMixin, FlatRaw):
+class LmFlatRaw(BandLmMixin, FlatRaw):
     pass
 
 
-class LmFlatTwilightRaw(BandLmMixin, SourceTwilightMixin, FlatRaw):
+class LmFlatLampRaw(SourceLampMixin, LmFlatRaw):
     pass
 
 
-class NFlatLampRaw(BandNMixin, SourceLampMixin, FlatRaw):
-    _schema = {
-        'PRIMARY': None,
-        'DET1.DATA': Image,
-    }
+class LmFlatTwilightRaw(SourceTwilightMixin, LmFlatRaw):
+    pass
 
 
-class NFlatTwilightRaw(BandNMixin, SourceTwilightMixin, FlatRaw):
-    _schema = {
-        'PRIMARY': None,
-        'DET1.DATA': Image,
-    }
+class NFlatRaw(BandNMixin, FlatRaw):
+    pass
+
+
+class NFlatLampRaw(SourceLampMixin, NFlatRaw):
+    pass
+
+
+class NFlatTwilightRaw(SourceTwilightMixin, NFlatRaw):
+    pass
 

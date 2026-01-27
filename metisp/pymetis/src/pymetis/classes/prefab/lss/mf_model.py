@@ -20,17 +20,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.dataitems.lss.science import LssSciFlux1d, LssSci1d
 from pymetis.dataitems.molecfit.model import MfBestFitTable
-from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.inputs.mixins import AtmProfileInputSetMixin, AtmLineCatInputSetMixin, LsfKernelInputSetMixin
+from pymetis.classes.inputs import (PipelineInputSet, SinglePipelineInput,
+                                    AtmLineCatInput, AtmProfileInput, LsfKernelInput)
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLssMfModelImpl(MetisRecipeImpl):
-    class InputSet(AtmProfileInputSetMixin,
-                   AtmLineCatInputSetMixin,
-                   LsfKernelInputSetMixin,
-                   PipelineInputSet):
+    class InputSet(PipelineInputSet):
+        class AtmLineCatInput(AtmLineCatInput):
+            pass
+
+        class AtmProfileInput(AtmProfileInput):
+            pass
+
+        class LsfKernelInput(LsfKernelInput):
+            pass
+
         # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
         class LssSciFlux1dInput(SinglePipelineInput):

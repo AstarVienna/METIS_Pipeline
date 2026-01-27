@@ -17,35 +17,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Optional
-
 from cpl.core import Image
 
-from pymetis.classes.mixins.base import KeywordMixin
+from pymetis.classes.mixins.base import Parametrizable
 
 
-class DetectorSpecificMixin(KeywordMixin, keyword='detector'):
-    _detector = None
-
-    def __init_subclass__(cls, *, detector: Optional[str] = None, **kwargs):
-        if detector is not None:
-            cls._detector = detector
-        super().__init_subclass__(**kwargs)
-
-    @classmethod
-    def tag_parameters(cls):
-        return super().tag_parameters() | {'detector': cls._detector}
-
-
-class Detector2rgMixin(DetectorSpecificMixin, detector='2RG'):
+class Detector2rgMixin(Parametrizable, detector='2RG'):
     pass
 
 
-class DetectorGeoMixin(DetectorSpecificMixin, detector='GEO'):
+class DetectorGeoMixin(Parametrizable, detector='GEO'):
     pass
 
 
-class DetectorIfuMixin(DetectorSpecificMixin, detector='IFU'):
+class DetectorIfuMixin(Parametrizable, detector='IFU'):
     _schema = {
         r'PRIMARY': None,
     } | {

@@ -19,5 +19,5 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from .background import Background, LmStdBackground, LmSciBackground, NStdBackground, NSciBackground
 from .subtracted import (BackgroundSubtracted,
-                         StdBackgroundSubtracted, LmStdBackgroundSubtracted, NStdBackgroundSubtracted,
-                         SciBackgroundSubtracted, LmSciBackgroundSubtracted, NSciBackgroundSubtracted)
+                         LmStdBackgroundSubtracted, NStdBackgroundSubtracted,
+                         LmSciBackgroundSubtracted, NSciBackgroundSubtracted)

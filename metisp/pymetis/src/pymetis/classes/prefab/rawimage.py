@@ -125,7 +125,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         return combined_image, error
 
 
-    def correct_gain(self, raw_images: ImageList) -> ImageList:
+    def correct_gain(self, raw_images: ImageList, gain: Image) -> ImageList:
         """
         Correct the raw image list for gain.
 
@@ -142,28 +142,18 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
             List of gain-corrected images
         """
         Msg.info(self.__class__.__qualname__,
-                 f"Correcting raw images for gain")
+                 f"Pretending to correct raw images for gain")
 
-        gain = cpl.core.Image.zeros_like(raw_images[0])
-        gain.add_scalar(1)
         raw_images.divide_image(gain)
 
         return raw_images
 
-    def correct_persistence(self, raw_images: ImageList) -> ImageList:
-        """
-        Correct the raw image list for persistence.
-
-        # FixMe Currently only a mockup, does not do anything.
-        """
-        Msg.info(self.__class__.__qualname__, f"Pretending to do persistence correction")
-        return raw_images
 
     def correct_nonlinearity(self, raw_images: ImageList, linearity_map: Image) -> ImageList:
         """
         Correct the raw image list for non-linearity.
 
-        # FixMe Currently only a mockup, does not do anything.
+        # FixMe Currently only a mockup, does not actually do anything.
 
         Parameters
         ----------
@@ -184,8 +174,8 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
                            kappa_low: int,
                            kappa_high: int) -> tuple[cpl.core.Mask, cpl.core.Mask]:
         """
-        Calculate masks for outlier pixels, with kappa-sigma clipping
-        whose values are outside [median - kappa_low * sigma, median + kappa_high * sigma].
+        Calculate masks for outlier pixels, with kappa-sigma clipping:
+        mask those values are outside [median - kappa_low * sigma, median + kappa_high * sigma].
         """
         Msg.info(self.__class__.__qualname__,
                  f"Identifying outlier pixels ({kappa_low=}, {kappa_high=})")
@@ -199,7 +189,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
 
         # ToDo: why is this not the other way around? Set everything above threshold to 0...
         mask_hot = cpl.core.Mask.threshold_image(image, 0, image_median + kappa_high * image_rms, 1)
-        # ToDo ...and then here everything below threshold to 0 too. Would be more consistent.
+        # ToDo ...and then here everything below threshold to 0 too. Would be more consistent maybe?
         mask_cold = cpl.core.Mask.threshold_image(image, 0, image_median - kappa_low * image_rms, 0)
 
         return mask_hot, mask_cold
@@ -212,7 +202,7 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
         """
         Calculate mask for outlier pixels based on high/low thresholds based on the frame to frame variation of a pixel.
 
-        ToDo description
+        ToDo detailed description
 
         Parameters
         ----------
