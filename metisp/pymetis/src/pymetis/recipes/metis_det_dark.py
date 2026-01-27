@@ -44,7 +44,7 @@ from pymetis.qc.dark import DarkMean, DarkMedian, DarkRms, DarkNColdpix, DarkNHo
 import numpy as np
 
 from pymetis.functions.image import zeros_like
-from pymetis.utils.dummy import create_dummy_header, python_to_cpl_type
+from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisDetDarkImpl(RawImageProcessor, ABC):
