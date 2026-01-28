@@ -83,7 +83,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         return self.Impl.ProductSet.list_classes()
 
     def _list_qc_parameters(self) -> list[tuple[str, type[QcParameter]]]:
-        return self.Impl.Qc.list_parameters()
+        return self.Impl.Qc.list_classes()
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:

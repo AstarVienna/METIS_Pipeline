@@ -23,50 +23,50 @@ from pymetis.classes.qc.parameter import QcParameter
 
 
 class LinGainMean(QcParameter):
-    _name = "QC LIN GAIN MEAN"
+    _name_template = "QC LIN GAIN MEAN"
     _type = cpl.core.Type.DOUBLE
     _unit = "e / adu"
-    _description = "Mean value of the gain"
+    _description_template = "Mean value of the gain"
 
 
 class LinGainRms(QcParameter):
-    _name = "QC LIN GAIN RMS"
+    _name_template = "QC LIN GAIN RMS"
     _type = cpl.core.Type.DOUBLE
     _unit = "e / adu"
-    _description = "Root mean square of the gain values"
+    _description_template = "Root mean square of the gain values"
 
 
 class LinMinFlux(QcParameter):
-    _name = "QC LIN MIN FLUX"
+    _name_template = "QC LIN MIN FLUX"
     _type = cpl.core.Type.DOUBLE
     _unit = "e / adu"
-    _description = "Minimum flux in images"
+    _description_template = "Minimum flux in images"
 
 
 class LinMaxFlux(QcParameter):
-    _name = "QC LIN MAX FLUX"
+    _name_template = "QC LIN MAX FLUX"
     _type = cpl.core.Type.DOUBLE
     _unit = "e / adu"
-    _description = "Maximum flux in images"
+    _description_template = "Maximum flux in images"
 
 
 class LinNumBadpix(QcParameter):
-    _name = "QC LIN NUM BADPIX"
+    _name_template = "QC LIN NUM BADPIX"
     _type = cpl.core.Type.INT
     _unit = "counts"
-    _description = "Number of bad pixels"
+    _description_template = "Number of bad pixels"
 
 
 class GainLin(QcParameter):
-    _name = "QC GAIN LIN"
+    _name_template = "QC GAIN LIN"
     _type = cpl.core.Type.DOUBLE
     _unit = "e / adu"
-    _description = "Effective linearity"
+    _description_template = "Effective linearity"
 
 
 class GainCoeff(QcParameter):
-    _name = "QC CAL CHOPHOME SNR"
+    _name_template = "QC CAL CHOPHOME SNR"
     _type = cpl.core.Type.DOUBLE
     _unit = "e / adu"
-    _description = "Linearity coefficients"
+    _description_template = "Linearity coefficients"
 

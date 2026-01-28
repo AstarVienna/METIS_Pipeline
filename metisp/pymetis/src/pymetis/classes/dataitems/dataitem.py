@@ -31,13 +31,13 @@ from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
 from pymetis.classes.dataitems.hdu import Hdu
-from pymetis.classes.mixins.base import Parametrizable
+from pymetis.classes.mixins.base import Parametrizable, ParametrizableItem
 from pymetis.utils.format import partial_format
 
 PIPELINE = rf'METIS/1'
 
 
-class DataItem(Parametrizable):
+class DataItem(ParametrizableItem):
     """
     The `DataItem` class encapsulates a single data item:
     the smallest standalone unit of detector data or a product of a recipe.
@@ -80,29 +80,6 @@ class DataItem(Parametrizable):
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
 
-    def __init_subclass__(cls,
-                          *,
-                          abstract: bool = False,
-                          **kwargs):
-        """
-        Register every subclass of DataItem in a global registry based on their tags.
-        """
-
-        super().__init_subclass__(**kwargs)
-
-        cls.__abstract = abstract
-
-        if cls.name() in DataItem._registry:
-            # If the class is already registered, warn about it and do nothing.
-            Msg.debug(cls.__qualname__,
-                      f"A class with tag {cls.name()} is already registered, "
-                      f"skipping: {DataItem._registry[cls.name()].__qualname__}")
-        else:
-            # Otherwise add the class to the global registry
-            Msg.debug(cls.__qualname__,
-                      f"Registered a new class {cls.name()}: {cls}")
-            DataItem._registry[cls.name()] = cls
-
     @classmethod
     @final
     def schema(cls) -> dict[str, Union[None, type[Image], type[Table]]]:
@@ -122,54 +99,14 @@ class DataItem(Parametrizable):
             return None
 
     @classmethod
-    def specialize(cls, **parameters: str) -> str:
-        """
-        Specialize the data item's name template with given parameters
-        """
-        cls._name_template = partial_format(cls._name_template, **parameters)
-        return cls._name_template
-
-    @staticmethod
-    def __replace_empty_tags(**parameters):
-        """
-        Replace all `None` parameters with placeholders.
-        Intended for human-readable output in not-fully-specialized recipes, such as man pages.
-        For instance, `MASTER_DARK_{detector}_{source}` with parameters `{'source': 'STD', 'detector': None}`
-        gets rendered literally as "MASTER_DARK_{detector}_STD".
-
-        ToDo: Change to proper t-strings once Python 3.14 is supported.
-        """
-        return {key: (f'{{{key}}}' if value is None else value) for key, value in parameters.items()}
-
-    @classmethod
     def title(cls) -> str:
         """
         Return a human-readable title of this data item, e.g. "2RG linearity raw"
         """
         assert cls._title_template is not None, \
             f"{cls.__name__} title template is None"
-        return partial_format(cls._title_template, **cls.__replace_empty_tags(**cls.tag_parameters()))
+        return partial_format(cls._title_template, **cls._replace_empty_tags(**cls.tag_parameters()))
 
-    @classmethod
-    def name(cls) -> str:
-        """
-        Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
-        """
-        assert cls._name_template is not None, \
-            f"{cls.__name__} name template is None"
-        return partial_format(cls._name_template, **cls.__replace_empty_tags(**cls.tag_parameters()))
-
-    @classmethod
-    def description(cls) -> str:
-        """
-        Return the description of the data item.
-        By default, this just returns the protected internal attribute,
-        but can be overridden to build the description from other data, such as band or target.
-        """
-        assert cls._description_template is not None, \
-            f"{cls.__name__} description template is None"
-        description = partial_format(cls._description_template, **cls.__replace_empty_tags(**cls.tag_parameters()))
-        return description
 
     @classmethod
     @final
@@ -218,7 +155,7 @@ class DataItem(Parametrizable):
                  primary_header: CplPropertyList = CplPropertyList(),
                  *hdus: Hdu,
                  filename: Optional[Path] = None):
-        if self.__abstract or not self.__regex_pattern.match(self.name()):
+        if self._abstract or not self.__regex_pattern.match(self.name()):
             raise TypeError(f"Tried to instantiate an abstract data item "
                             f"{self.__class__.__qualname__} for {self.name()}")
 

@@ -16,15 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-import inspect
 
 from .parameter import QcParameter
+from ..mixins.base import ParametrizableContainer
 
 
-class QcParameterSet:
+class QcParameterSet(ParametrizableContainer):
     """ A simple encapsulation of a set of QC parameters. """
+    class Meta:
+        _T = QcParameter
 
-    @classmethod
-    def list_parameters(cls):
-        """ List all available QC parameters """
-        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, QcParameter))

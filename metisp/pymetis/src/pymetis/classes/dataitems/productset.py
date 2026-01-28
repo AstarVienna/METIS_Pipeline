@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import inspect
 
+from cpl.core import Msg
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.mixins.base import ParametrizableContainer
 
 
-class PipelineProductSet:
+class PipelineProductSet(ParametrizableContainer):
     """ A set of recipe implementation products. """
+    class Meta:
+        _T = DataItem
 
-    @classmethod
-    def list_classes(cls) -> list[tuple[str, type[DataItem]]]:
-        """ List all available product classes """
-        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, DataItem))

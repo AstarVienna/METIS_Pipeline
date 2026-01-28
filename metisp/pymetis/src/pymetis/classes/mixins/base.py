@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import inspect
+from typing import ClassVar, Self, Optional, final
+
+from cpl.core import Msg
+
+from pymetis.utils.format import partial_format
 
 
 class Parametrizable:
@@ -31,7 +37,7 @@ class Parametrizable:
     Currently applies to DataItems, PipelineInputSets and their Mixins.
     """
 
-    _tag_parameters: dict[str, str] = {}
+    _tag_parameters: ClassVar[dict[str, str]] = {}
 
     @classmethod
     def tag_parameters(cls) -> dict[str, str]:
@@ -51,3 +57,120 @@ class Parametrizable:
         merged.update(kwargs)
 
         cls._tag_parameters = merged
+
+
+class ParametrizableContainer(Parametrizable):
+    class Meta:
+        _T: ClassVar[type] = None
+
+    @classmethod
+    def list_classes(cls):
+        """ List all available QC parameters """
+        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, cls.Meta._T))
+
+
+    @classmethod
+    def specialize(cls, **parameters) -> None:
+        for name, item_class in cls.list_classes():
+            old_class = item_class
+            # Copy the entire type so that we do not mess up the original one
+            new_class: cls.Meta._T = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
+            new_class.specialize(**parameters)
+
+            if (klass := cls.Meta._T.find(new_class._name_template)) is None:
+                setattr(cls, name, new_class)
+                Msg.debug(cls.__qualname__,
+                          f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {parameters}, "
+                          f"had to create a new class {new_class.__qualname__}")
+            else:
+                setattr(cls, name, klass)
+                Msg.debug(cls.__qualname__,
+                          f" - {old_class.__qualname__} specialized to {klass.__qualname__} ({klass.name()})")
+
+
+class ParametrizableItem(Parametrizable):
+    """
+    Abstract base class for all items parametrizable by tags, such as data items and QC parameters.
+    """
+
+    _name_template: ClassVar[str] = None
+    _registry: ClassVar[dict[str, type[Self]]] = {}
+
+    def __init_subclass__(cls,
+                          *,
+                          abstract: bool = False,
+                          **kwargs):
+        """
+        Register every subclass of DataItem in a global registry based on their tags.
+        """
+
+        super().__init_subclass__(**kwargs)
+
+        cls._abstract = abstract
+        if cls.name() in cls._registry:
+            # If the class is already registered, warn about it and do nothing.
+            Msg.debug(cls.__qualname__,
+                      f"A class with tag {cls.name()} is already registered, "
+                      f"skipping: {cls._registry[cls.name()].__qualname__}")
+        else:
+            # Otherwise add the class to the global registry
+            Msg.debug(cls.__qualname__,
+                      f"Registered a new class {cls.name()}: {cls}")
+            cls._registry[cls.name()] = cls
+
+    @staticmethod
+    def _replace_empty_tags(**parameters):
+        """
+        Replace all `None` parameters with placeholders.
+        Intended for human-readable output in not-fully-specialized recipes, such as man pages.
+        For instance, `MASTER_DARK_{detector}_{source}` with parameters `{'source': 'STD', 'detector': None}`
+        gets rendered literally as "MASTER_DARK_{detector}_STD".
+
+        ToDo: Change to proper t-strings once Python 3.14 is supported.
+        """
+        return {key: (f'{{{key}}}' if value is None else value) for key, value in parameters.items()}
+
+    @classmethod
+    @final
+    def find(cls, key: str) -> Optional[type[Self]]:
+        """
+        Try to retrieve the DataItem subclass with tag ``key`` from the global registry.
+
+        If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
+        """
+        if key in cls._registry:
+            return cls._registry[key]
+        else:
+            return None
+
+    @classmethod
+    def specialize(cls, **parameters: str) -> str:
+        """
+        Specialize the data item's name template with given parameters
+        """
+        old = cls._name_template
+        cls._name_template = partial_format(cls._name_template, **parameters)
+        #print(f"Specializing {cls.__name__} with {parameters}: {old} -> {cls._name_template}")
+        return cls._name_template
+
+    @classmethod
+    def name(cls) -> str:
+        """
+        Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
+        """
+        assert cls._name_template is not None, \
+            f"{cls.__name__} name template is None"
+        return partial_format(cls._name_template, **cls._replace_empty_tags(**cls.tag_parameters()))
+
+
+    @classmethod
+    def description(cls) -> str:
+        """
+        Return the description of the data item.
+        By default, this just returns the protected internal attribute,
+        but can be overridden to build the description from other data, such as band or target.
+        """
+        assert cls._description_template is not None, \
+            f"{cls.__name__} description template is None"
+        description = partial_format(cls._description_template, **cls._replace_empty_tags(**cls.tag_parameters()))
+        return description

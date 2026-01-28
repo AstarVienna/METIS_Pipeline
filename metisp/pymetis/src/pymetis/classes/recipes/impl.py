@@ -84,21 +84,8 @@ class MetisRecipeImpl(Parametrizable, ABC):
         """
         Msg.debug(cls.__qualname__, f"Specializing {cls.__qualname__} with {cls.tag_parameters()}")
         cls.InputSet.specialize(**cls.tag_parameters())
-
-        for name, item_class in cls.ProductSet.list_classes():
-            old_class = item_class
-            # Copy the entire type so that we do not mess up the original one
-            new_class: DataItem = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
-            new_class.specialize(**cls.tag_parameters())
-
-            if (klass := DataItem.find(new_class._name_template)) is None:
-                setattr(cls, name, new_class)
-                Msg.debug(cls.__qualname__, f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {cls.tag_parameters()}, had to create a new class {new_class.__qualname__}")
-            else:
-                setattr(cls, name, klass)
-                Msg.debug(cls.__qualname__,
-                         f" - {old_class.__qualname__} specialized to "
-                         f"{klass.__qualname__} ({klass.name()})")
+        cls.ProductSet.specialize(**cls.tag_parameters())
+        cls.Qc.specialize(**cls.tag_parameters())
 
     @classmethod
     def promote(cls, **parameters) -> None:

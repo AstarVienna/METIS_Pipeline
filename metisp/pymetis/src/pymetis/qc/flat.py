@@ -27,226 +27,222 @@ from pymetis.classes.qc.parameter import QcParameter
 # MFLAT base classes (LM/N merged)
 # -------------------------------
 
-class MFlatRmsBase(QcParameter):
-    _name = "QC {band} MFLAT RMS"
+class MFlatRms(QcParameter):
+    _name_template = "QC {band} MFLAT RMS"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "RMS of the {band} master flat"
+    _description_template = "RMS of the {band} master flat"
 
-class MFlatMedianBase(QcParameter):
-    _name = "QC {band} MFLAT MEDIAN"
+class MFlatMedian(QcParameter):
+    _name_template = "QC {band} MFLAT MEDIAN"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "Median of the {band} master flat"
+    _description_template = "Median of the {band} master flat"
 
-class MFlatNbadpixBase(QcParameter):
-    _name = "QC {band} MFLAT NBADPIX"
+class MFlatNbadpix(QcParameter):
+    _name_template = "QC {band} MFLAT NBADPIX"
     _type = cpl.core.Type.INT
     _unit = None
-    _description = "Number of bad pixels in the {band} master flat"
+    _description_template = "Number of bad pixels in the {band} master flat"
 
 # -------------------------------
 # MFLAT LM/N variants
 # -------------------------------
 
-class LmMFlatRms(BandLmMixin, MFlatRmsBase):
+class LmMFlatRms(BandLmMixin, MFlatRms):
     pass
 
-class NMFlatRms(BandNMixin, MFlatRmsBase):
+class NMFlatRms(BandNMixin, MFlatRms):
     pass
 
-class LmMFlatMedian(BandLmMixin, MFlatMedianBase):
+class LmMFlatMedian(BandLmMixin, MFlatMedian):
     pass
 
-class NMFlatMedian(BandNMixin, MFlatMedianBase):
+class NMFlatMedian(BandNMixin, MFlatMedian):
     pass
 
-class LmMFlatNbadpix(BandLmMixin, MFlatNbadpixBase):
+class LmMFlatNbadpix(BandLmMixin, MFlatNbadpix):
     pass
 
-class NMFlatNbadpix(BandNMixin, MFlatNbadpixBase):
+class NMFlatNbadpix(BandNMixin, MFlatNbadpix):
     pass
 
 # -------------------------------
 # MLFLAT base classes
 # -------------------------------
 
-class MlFlatRmsBase(QcParameter):
-    _name = "QC {band} MLFLAT RMS"
+class MlFlatRms(QcParameter):
+    _name_template = "QC {band} MLFLAT RMS"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "RMS of the {band} lamp master flat"
+    _description_template = "RMS of the {band} lamp master flat"
 
-class MlFlatMedianBase(QcParameter):
-    _name = "QC {band} MLFLAT MEDIAN"
+class MlFlatMedian(QcParameter):
+    _name_template = "QC {band} MLFLAT MEDIAN"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "Median of the {band} lamp master flat"
+    _description_template = "Median of the {band} lamp master flat"
 
-class MlFlatNbadpixBase(QcParameter):
-    _name = "QC {band} MLFLAT NBADPIX"
+class MlFlatNbadpix(QcParameter):
+    _name_template = "QC {band} MLFLAT NBADPIX"
     _type = cpl.core.Type.INT
     _unit = None
-    _description = "Number of bad pixels in the {band} lamp master flat"
+    _description_template = "Number of bad pixels in the {band} lamp master flat"
 
 # -------------------------------
 # MLFLAT LM/N variants
 # -------------------------------
 
-class LmMlFlatRms(BandLmMixin, MlFlatRmsBase):
+class LmMlFlatRms(BandLmMixin, MlFlatRms):
     pass
 
 
-class NMlFlatRms(BandNMixin, MlFlatRmsBase):
+class NMlFlatRms(BandNMixin, MlFlatRms):
     pass
 
 
-class LmMlFlatMedian(BandLmMixin, MlFlatMedianBase):
+class LmMlFlatMedian(BandLmMixin, MlFlatMedian):
     pass
 
 
-class NMlFlatMedian(BandNMixin, MlFlatMedianBase):
+class NMlFlatMedian(BandNMixin, MlFlatMedian):
     pass
 
 
-class LmMlFlatNbadpix(BandLmMixin, MlFlatNbadpixBase):
+class LmMlFlatNbadpix(BandLmMixin, MlFlatNbadpix):
     pass
 
 
-class NMlFlatNbadpix(BandNMixin, MlFlatNbadpixBase):
+class NMlFlatNbadpix(BandNMixin, MlFlatNbadpix):
     pass
 
 # -------------------------------
 # MTFLAT base classes
 # -------------------------------
 
-class MtFlatRmsBase(QcParameter):
-    _name = "QC {band} MTFLAT RMS"
+class MtFlatRms(QcParameter):
+    _name_template = "QC {band} MTFLAT RMS"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "RMS of the {band} twilight master flat"
+    _description_template = "RMS of the {band} twilight master flat"
 
 
-class MtFlatMedianBase(QcParameter):
-    _name = "QC {band} MTFLAT MEDIAN"
+class MtFlatMedian(QcParameter):
+    _name_template = "QC {band} MTFLAT MEDIAN"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "Median of the {band} twilight master flat"
+    _description_template = "Median of the {band} twilight master flat"
 
 
-class MtFlatNbadpixBase(QcParameter):
-    _name = "QC {band} MTFLAT NBADPIX"
+class MtFlatNbadpix(QcParameter):
+    _name_template = "QC {band} MTFLAT NBADPIX"
     _type = cpl.core.Type.INT
     _unit = None
-    _description = "Number of bad pixels in the {band} twilight master flat"
+    _description_template = "Number of bad pixels in the {band} twilight master flat"
 
 # -------------------------------
 # MTFLAT LM/N variants
 # -------------------------------
 
-class LmMtFlatRms(BandLmMixin, MtFlatRmsBase):
+class LmMtFlatRms(BandLmMixin, MtFlatRms):
     pass
 
 
-class NMtFlatRms(BandNMixin, MtFlatRmsBase):
+class NMtFlatRms(BandNMixin, MtFlatRms):
     pass
 
 
-class LmMtFlatMedian(BandLmMixin, MtFlatMedianBase):
+class LmMtFlatMedian(BandLmMixin, MtFlatMedian):
     pass
 
 
-class NMtFlatMedian(BandNMixin, MtFlatMedianBase):
+class NMtFlatMedian(BandNMixin, MtFlatMedian):
     pass
 
 
-class LmMtFlatNbadpix(BandLmMixin, MtFlatNbadpixBase):
+class LmMtFlatNbadpix(BandLmMixin, MtFlatNbadpix):
     pass
 
 
-class NMtFlatNbadpix(BandNMixin, MtFlatNbadpixBase):
+class NMtFlatNbadpix(BandNMixin, MtFlatNbadpix):
     pass
 
 # -------------------------------
 # Flat general base class
 # -------------------------------
 
-class FlatMeanBase(QcParameter):
-    _name = "QC {band} FLAT MEAN"
+class FlatMean(QcParameter):
+    _name_template = "QC {band} FLAT MEAN"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "Mean value of a single flat field image"
+    _description_template = "Mean value of a single flat field image"
 
-class FlatRmsBase(QcParameter):
-    _name = "QC {band} FLAT RMS"
+class FlatRms(QcParameter):
+    _name_template = "QC {band} FLAT RMS"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "RMS value of a single flat field image"
+    _description_template = "RMS value of a single flat field image"
 
-class FlatMedianMeanBase(QcParameter):
-    _name = "QC {band} FLAT MEDIAN MEAN"
+class FlatMedianMean(QcParameter):
+    _name_template = "QC {band} FLAT MEDIAN MEAN"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "Mean value of the medians of input flat frames"
+    _description_template = "Mean value of the medians of input flat frames"
 
-class FlatMedianMinBase(QcParameter):
-    _name = "QC {band} FLAT MEDIAN MIN"
+class FlatMedianMin(QcParameter):
+    _name_template = "QC {band} FLAT MEDIAN MIN"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "Minimum value of the medians of input flat frames"
+    _description_template = "Minimum value of the medians of input flat frames"
 
-class FlatMedianMaxBase(QcParameter):
-    _name = "QC {band} FLAT MEDIAN MAX"
+class FlatMedianMax(QcParameter):
+    _name_template = "QC {band} FLAT MEDIAN MAX"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "Maximum value of the medians of input flat frames"
+    _description_template = "Maximum value of the medians of input flat frames"
 
-class FlatMedianRmsBase(QcParameter):
-    _name = "QC {band} FLAT MEDIAN RMS"
+class FlatMedianRms(QcParameter):
+    _name_template = "QC {band} FLAT MEDIAN RMS"
     _type = cpl.core.Type.DOUBLE
     _unit = "Counts"
-    _description = "RMS value of the medians of input flat frames"
+    _description_template = "RMS value of the medians of input flat frames"
 
 # -------------------------------
 # Flat LM/N variants
 # -------------------------------
 
-class LmFlatMean(BandLmMixin, FlatMeanBase):
+class LmFlatMean(BandLmMixin, FlatMean):
     pass
 
-class NFlatMean(BandNMixin, FlatMeanBase):
+class NFlatMean(BandNMixin, FlatMean):
     pass
 
-class LmFlatRms(BandLmMixin, FlatRmsBase):
+class LmFlatRms(BandLmMixin, FlatRms):
     pass
 
-class NFlatRms(BandNMixin, FlatRmsBase):
+class NFlatRms(BandNMixin, FlatRms):
     pass
 
-class LmFlatMedianMean(BandLmMixin, FlatMedianMeanBase):
+class LmFlatMedianMean(BandLmMixin, FlatMedianMean):
     pass
 
-class NFlatMedianMean(BandNMixin, FlatMedianMeanBase):
+class NFlatMedianMean(BandNMixin, FlatMedianMean):
     pass
 
-class LmFlatMedianMin(BandLmMixin, FlatMedianMinBase):
+class LmFlatMedianMin(BandLmMixin, FlatMedianMin):
     pass
 
-class NFlatMedianMin(BandNMixin, FlatMedianMinBase):
+class NFlatMedianMin(BandNMixin, FlatMedianMin):
     pass
 
-class LmFlatMedianMax(BandLmMixin, FlatMedianMaxBase):
+class LmFlatMedianMax(BandLmMixin, FlatMedianMax):
     pass
 
-class NFlatMedianMax(BandNMixin, FlatMedianMaxBase):
+class NFlatMedianMax(BandNMixin, FlatMedianMax):
     pass
 
-class LmFlatMedianRms(BandLmMixin, FlatMedianRmsBase):
+class LmFlatMedianRms(BandLmMixin, FlatMedianRms):
     pass
 
-class NFlatMedianRms(BandNMixin, FlatMedianRmsBase):
+class NFlatMedianRms(BandNMixin, FlatMedianRms):
     pass
-
-# -------------------------------
-# QC CalChophome parameters
-# -------------------------------

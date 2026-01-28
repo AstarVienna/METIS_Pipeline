@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems import DataItem, Hdu
@@ -31,7 +30,7 @@ from pymetis.classes.inputs import RawInput, MasterDarkInput, OptionalInputMixin
     LinearityInput
 
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.qc.flat import LmMFlatRms, LmMFlatNbadpix, LmFlatMean, LmFlatRms, LmFlatMedianMin, LmFlatMedianMax, LmFlatMedianRms
+from pymetis.qc.flat import MFlatRms, MFlatNbadpix, FlatMean, FlatRms, FlatMedianMin, FlatMedianMax, FlatMedianRms
 from pymetis.utils.dummy import create_dummy_header
 
 
@@ -59,13 +58,13 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         MasterFlat = MasterImgFlat
 
     class Qc(QcParameterSet):
-        LmMflatRms = LmMFlatRms
-        LmMflatNBadpix = LmMFlatNbadpix
-        LmFlatMean = LmFlatMean
-        LmFlatRms = LmFlatRms
-        LmFlatMedianMin = LmFlatMedianMin
-        LmFlatMedianMax = LmFlatMedianMax
-        LmFlatMedianRms = LmFlatMedianRms
+        MflatRms = MFlatRms
+        MflatNBadpix = MFlatNbadpix
+        FlatMean = FlatMean
+        FlatRms = FlatRms
+        FlatMedianMin = FlatMedianMin
+        FlatMedianMax = FlatMedianMax
+        FlatMedianRms = FlatMedianRms
 
     def process(self) -> set[DataItem]:
         """
