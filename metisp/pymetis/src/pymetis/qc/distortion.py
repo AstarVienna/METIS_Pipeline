@@ -16,15 +16,35 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
-import cpl
-
-from pymetis.classes.qc.parameter import QcParameter
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
+from pymetis.classes.qc import QcParameter
 
 
-class IfuTelluric(QcParameter):
-    _name_template = "QC IFU REDUCE NBADPIX"
+class QcDistortRms(QcParameter):
+    _name_template = "QC {band} DISTORT RMS"
+    _type = float
+    _unit = "pixels"
+    _description_template = "RMS of deviation of the distortion fit from expected values"
+
+
+class QcDistortNSource(QcParameter):
+    _name_template = "QC {band} DISTORT NSOURCE"
     _type = int
     _unit = "1"
-    _description_template = "Number of bad pixels"
+    _description_template = "Number of positions used to fit the distortion polynomial"
 
+
+class QcLmDistortRms(BandLmMixin, QcDistortRms):
+    pass
+
+
+class QcNDistortRms(BandNMixin, QcDistortRms):
+    pass
+
+
+class QcLmDistortNSource(BandLmMixin, QcDistortNSource):
+    pass
+
+
+class QcNDistortNSource(BandNMixin, QcDistortNSource):
+    pass

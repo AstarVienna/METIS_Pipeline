@@ -107,20 +107,23 @@ class MetisRecipe(cpl.ui.PyRecipe):
         if self._matched_keywords is None:
             matched_keywords = '<not defined>'
         elif len(self._matched_keywords) == 0:
-            matched_keywords = '(none)'
+            matched_keywords = '--- none ---'
         else:
             matched_keywords = '\n    '.join(self._matched_keywords)
 
         self.Impl.specialize()
 
+        if len(qcs := self._list_qc_parameters()) == 0:
+            qc_parameters = '    --- none ---'
+        else:
+            qc_parameters = '\n'.join([qcp_type.extended_description_line() for (name, qcp_type) in qcs])
+
         inputs = '\n'.join(sorted([input_type.extended_description_line(name)
                                    for (name, input_type) in self._list_inputs()]))
         products = '\n'.join(sorted([product_type.extended_description_line(name)
                                      for (name, product_type) in self._list_products()]))
-        qc_parameters = '\n'.join(sorted([qcp_type.extended_description_line()
-                                          for (name, qcp_type) in self._list_qc_parameters()]))
-        description = self._format_spacing(self._description, 'description', 2)
         algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
+        description = self._format_spacing(self._description, 'description', 2)
 
         return f"""{self.synopsis}\n\n{description}\n
   Matched keywords

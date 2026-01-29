@@ -20,6 +20,8 @@ import copy
 from abc import ABC
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameter, QcParameterSet
 from pymetis.dataitems.distortion.map import DistortionMap
 from pymetis.dataitems.distortion.raw import DistortionRaw
 from pymetis.dataitems.distortion.reduced import DistortionReduced
@@ -28,6 +30,7 @@ from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput, PinholeTableInput, GainMapInput, LinearityInput, \
     OptionalInputMixin, PersistenceMapInput
+from pymetis.qc.distortion import QcDistortRms, QcDistortNSource
 from pymetis.utils.dummy import create_dummy_table, create_dummy_image, create_dummy_header
 
 
@@ -51,9 +54,14 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         class PinholeTableInput(PinholeTableInput):
             pass
 
-    ProductDistortionTable = DistortionTable
-    ProductDistortionMap = DistortionMap
-    ProductDistortionReduced = DistortionReduced
+    class ProductSet(PipelineProductSet):
+        DistortionTable = DistortionTable
+        DistortionMap = DistortionMap
+        DistortionReduced = DistortionReduced
+
+    class Qc(QcParameterSet):
+        Rms = QcDistortRms
+        NSource = QcDistortNSource
 
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')
@@ -69,15 +77,15 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         image = create_dummy_image()
 
         return {
-            self.ProductDistortionTable(
+            self.ProductSet.DistortionTable(
                 copy.deepcopy(primary_header),
                 Hdu(header_distortion_table, table, name='TABLE'),
             ),
-            self.ProductDistortionMap(
+            self.ProductSet.DistortionMap(
                 copy.deepcopy(primary_header),
                 Hdu(header_distortion_map, combined_image, name='DET1.DATA'),
             ),
-            self.ProductDistortionReduced(
+            self.ProductSet.DistortionReduced(
                 copy.deepcopy(primary_header),
                 Hdu(header_distortion_reduced, image, name='IMAGE'),
             ),

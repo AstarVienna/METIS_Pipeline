@@ -17,23 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
-from cpl.core import Msg
-
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
 from pymetis.classes.mixins import BandNMixin
-from pymetis.dataitems.distortion.raw import NDistortionRaw
-from pymetis.dataitems.raw.wcuoff import NWcuOffRaw
-from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
-from pymetis.utils.dummy import create_dummy_table
+from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNImgDistortionImpl(MetisBaseImgDistortionImpl):
-    class InputSet(BandNMixin, MetisBaseImgDistortionImpl.InputSet):
+class MetisNImgDistortionImpl(BandNMixin, DetectorGeoMixin, MetisBaseImgDistortionImpl):
+    class InputSet(MetisBaseImgDistortionImpl.InputSet):
         pass
+
 
 class MetisNImgDistortion(MetisRecipe):
     _name: str = "metis_n_img_distortion"
