@@ -24,6 +24,8 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 import numpy as np
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameter, QcParameterSet
 from pymetis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
 from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
@@ -53,7 +55,38 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
         class DistortionTableInput(DistortionTableInput):
             pass
 
-    ProductIfuWavecal = IfuWavecal
+    class ProductSet(PipelineProductSet):
+        IfuWavecal = IfuWavecal
+
+    class Qc(QcParameterSet):
+        class NLines(QcParameter):
+            _name_template = "QC IFU WAVECAL NLINES"
+            _type = int
+            _unit = "1"
+            _default = None
+            _description_template = "Number of detected laser lines; should be constant"
+
+        class Rms(QcParameter):
+            _name_template = "QC IFU WAVECAL RMS"
+            _type = float
+            _unit = "Å"
+            _default = None
+            _description_template = "Root mean square of the residuals of the wavelength calibration fit"
+
+        class PeakCounts(QcParameter):
+            _name_template = "QC IFU WAVECAL PEAK CNTS"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Peak counts of the laser line"
+
+        class LineWidth(QcParameter):
+            _name_template = "QC IFU WAVECAL LINE WIDTH"
+            _type = float
+            _unit = "pixels"
+            _default = None
+            _description_template = "FWHM of the laser line as measured by fitting a Gaussian profile to it"
+            _comment = "This fulfils METIS-6073"
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> Hdu:
         det = rf'DET{detector:1d}'
@@ -104,7 +137,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
     def process(self) -> set[DataItem]:
         primary_header = cpl.core.PropertyList()
 
-        product_wavecal = self.ProductIfuWavecal(
+        product_wavecal = self.ProductSet.IfuWavecal(
             primary_header,
             *map(self._process_single_detector, [1, 2, 3, 4])
         )

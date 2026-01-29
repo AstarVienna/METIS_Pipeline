@@ -19,10 +19,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.common import FluxCalTable
 from pymetis.classes.mixins import BandNMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.img.std_process import MetisImgStdProcessImpl
+from pymetis.qc.std_process import (QcImgStdBackgroundRms, QcStdPeakCounts, QcStdApertureCounts, QcStdStrehl,
+                                    QcStdFwhm, QcStdEllipticity, QcStdFluxConversion, QcSensitivity, QcAreaSensitivity)
 
 
 class MetisNImgStdProcessImpl(BandNMixin, MetisImgStdProcessImpl):
@@ -30,8 +34,19 @@ class MetisNImgStdProcessImpl(BandNMixin, MetisImgStdProcessImpl):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             pass
 
-    ProductFluxcalTab = FluxCalTable
+    class ProductSet(PipelineProductSet):
+        FluxcalTab = FluxCalTable
 
+    class Qc(QcParameterSet):
+        BackgroundRms = QcImgStdBackgroundRms
+        PeakCounts = QcStdPeakCounts
+        ApertureCounts = QcStdApertureCounts
+        Strehl = QcStdStrehl
+        Fwhm = QcStdFwhm
+        Ellipticity = QcStdEllipticity
+        FluxConversion = QcStdFluxConversion
+        Sensitivity = QcSensitivity
+        AreaSensitivity = QcAreaSensitivity
 
 class MetisNImgStdProcess(MetisRecipe):
     # FixMe This can be probably also largely deduplicated

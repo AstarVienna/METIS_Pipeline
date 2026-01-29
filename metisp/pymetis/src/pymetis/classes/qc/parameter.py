@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
-from typing import Optional, Any, final, Self
+from types import NoneType
+from typing import Any, ClassVar
 
 import cpl
 
@@ -26,11 +26,11 @@ from pymetis.utils.property import python_to_cpl_type
 
 
 class QcParameter(ParametrizableItem):
-    _name_template = "none"
-    _class = None
-    _type = None
-    _description_template = "Mean level of the frame"
-    _comment = None
+    _name_template: ClassVar[str] = "none"
+    _type: ClassVar[type] = NoneType
+    _default: ClassVar[Any] = None
+    _description_template: ClassVar[str] = "Mean level of the frame"
+    _comment: ClassVar[str] = ""
 
     def __init__(self, value: Any):
         assert isinstance(value, self._type), \
@@ -48,7 +48,8 @@ class QcParameter(ParametrizableItem):
         Return a formatted description line for the man page.
         """
         # [5:] is there to get rid of "Type." prefix
-        return f"    {cls.name():<31s} {f'{python_to_cpl_type(cls._type)}'[5:]:<14s} {cls.description()}"
+        return (f"    {cls.name():<31s} {f'{python_to_cpl_type(cls._type)}'[5:]:<7s} "
+                f"[{str(cls._default):4}] {cls.description()}")
 
     def as_property(self) -> cpl.core.Property:
         return cpl.core.Property(self.name(), self._type, self.value, self.description())

@@ -19,11 +19,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameter, QcParameterSet
 from pymetis.dataitems.combined import LmStdCombined
 from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab.img.std_process import MetisImgStdProcessImpl
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.dataitems.background.subtracted import LmStdBackgroundSubtracted
+from pymetis.qc.std_process import (QcImgStdBackgroundRms, QcStdPeakCounts, QcStdApertureCounts, QcStdStrehl,
+                                    QcStdFwhm, QcStdEllipticity, QcStdFluxConversion, QcSensitivity, QcAreaSensitivity)
 
 
 class MetisLmImgStdProcessImpl(BandLmMixin, MetisImgStdProcessImpl):
@@ -31,7 +35,19 @@ class MetisLmImgStdProcessImpl(BandLmMixin, MetisImgStdProcessImpl):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             Item = LmStdBackgroundSubtracted
 
-    ProductImgStdCombined = LmStdCombined
+    class ProductSet(PipelineProductSet):
+        ImgStdCombined = LmStdCombined
+
+    class Qc(QcParameterSet):
+        BackgroundRms = QcImgStdBackgroundRms
+        PeakCounts = QcStdPeakCounts
+        ApertureCounts = QcStdApertureCounts
+        Strehl = QcStdStrehl
+        Fwhm = QcStdFwhm
+        Ellipticity = QcStdEllipticity
+        FluxConversion = QcStdFluxConversion
+        Sensitivity = QcSensitivity
+        AreaSensitivity = QcAreaSensitivity
 
 
 class MetisLmImgStdProcess(MetisRecipe):

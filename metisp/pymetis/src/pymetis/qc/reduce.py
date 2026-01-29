@@ -26,6 +26,7 @@ class IfuReduceNbadpix(QcParameter):
     _name_template = "QC IFU REDUCE NBADPIX"
     _type = int
     _unit = "1"
+    _default = None
     _description_template = "Number of bad pixels"
 
 
@@ -39,5 +40,6 @@ class IfuReduceMeanBkg(QcParameter):
 class IfuReduceMeanStray(QcParameter):
     _name_template = "QC IFU REDUCE MEANSTRY"
     _type = float
+    _default = None
     _unit = "counts"
     _description_template = "Mean value of measured stray light"

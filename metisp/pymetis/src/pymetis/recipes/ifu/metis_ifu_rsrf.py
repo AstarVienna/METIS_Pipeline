@@ -45,6 +45,7 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin,
                                     SinglePipelineInput, PersistenceMapInput)
+from pymetis.qc.reduce import IfuReduceMeanStray, IfuReduceNbadpix, IfuReduceMeanBkg
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 ma = np.ma
@@ -95,9 +96,12 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor):
         class NBadPix(QcParameter):
             _name_template = "QC IFU RSRF NBADPIX"
             _type = int
-            _unit = 'px'
             _default = None
             _description_template = "Number of bad pixels in the image mask"
+
+        NBadPix = IfuReduceNbadpix
+        MeanBkg = IfuReduceMeanBkg
+        MeanStray = IfuReduceMeanStray
 
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:

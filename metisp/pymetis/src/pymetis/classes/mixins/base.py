@@ -109,9 +109,9 @@ class ParametrizableItem(Parametrizable):
         cls._abstract = abstract
         if cls.name() in cls._registry:
             # If the class is already registered, warn about it and do nothing.
-            Msg.warning(cls.__qualname__,
-                        f"A class with tag {cls.name()} is already registered, "
-                        f"skipping: {cls._registry[cls.name()].__qualname__}")
+            Msg.debug(cls.__qualname__,
+                      f"A class with tag {cls.name()} is already registered, "
+                      f"skipping: {cls._registry[cls.name()].__qualname__}")
         else:
             # Otherwise add the class to the global registry
             Msg.debug(cls.__qualname__,
