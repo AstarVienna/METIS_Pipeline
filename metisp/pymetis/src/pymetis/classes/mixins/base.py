@@ -94,6 +94,7 @@ class ParametrizableItem(Parametrizable):
     """
 
     _name_template: ClassVar[str] = None
+    _description_template: ClassVar[str] = None
     _registry: ClassVar[dict[str, type[Self]]] = {}
 
     def __init_subclass__(cls,
@@ -162,11 +163,10 @@ class ParametrizableItem(Parametrizable):
             f"{cls.__name__} name template is None"
         return partial_format(cls._name_template, **cls._replace_empty_tags(**cls.tag_parameters()))
 
-
     @classmethod
     def description(cls) -> str:
         """
-        Return the description of the data item.
+        Return the description of the item.
         By default, this just returns the protected internal attribute,
         but can be overridden to build the description from other data, such as band or target.
         """

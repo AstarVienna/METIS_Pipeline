@@ -24,7 +24,8 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
-from pymetis.classes.mixins import BandLmMixin
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.dataitems.img.basicreduced import BasicReduced
 from pymetis.dataitems.img.raw import ImageRaw
 from pymetis.dataitems.masterflat import MasterImgFlat
@@ -35,7 +36,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisLmImgBasicReduceImpl(BandLmMixin, DarkImageProcessor):
+class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class
@@ -85,7 +86,8 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, DarkImageProcessor):
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
 
-    ProductBasicReduced = BasicReduced
+    class ProductSet(PipelineProductSet):
+        BasicReduced = BasicReduced
 
     def process(self) -> set[DataItem]:
         """
@@ -152,7 +154,7 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, DarkImageProcessor):
             header_reduced.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] max value of image"))
 
-            product = self.ProductBasicReduced(
+            product = self.ProductSet.BasicReduced(
                 copy.deepcopy(primary_header),
                 Hdu(header_reduced, image, name='DET1.DATA'),
             )
