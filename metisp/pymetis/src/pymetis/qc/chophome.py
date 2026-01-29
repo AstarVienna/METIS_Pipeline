@@ -25,55 +25,55 @@ from pymetis.classes.qc.parameter import QcParameter
 
 class CalChophomeXcen(QcParameter):
     _name_template = "QC CAL CHOPHOME XCEN"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "pixel"
     _description_template = "Centroid of point source in x"
 
 
 class CalChophomeXcenStdev(QcParameter):
     _name_template = "QC CAL CHOPHOME XCEN STDEV"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "pixel"
     _description_template = "Uncertainty of centroid in x"
 
 
 class CalChophomeYcen(QcParameter):
     _name_template = "QC CAL CHOPHOME YCEN"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "pixel"
     _description_template = "Centroid of point source in y"
 
 
 class CalChophomeYcenStdev(QcParameter):
     _name_template = "QC CAL CHOPHOME YCEN STDEV"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "pixel"
     _description_template = "Uncertainty of centroid in y"
 
 
 class CalChophomeFwhm(QcParameter):
     _name_template = "QC CAL CHOPHOME FWHM"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "pixel"
     _description_template = "FWHM of point source"
 
 
 class CalChophomeSnr(QcParameter):
     _name_template = "QC CAL CHOPHOME SNR"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "pixel"
     _description_template = "Signal-to-noise ratio of point source"
 
 
 class CalChophomeOffx(QcParameter):
     _name_template = "QC CAL CHOPHOME OFFX"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "pixel"
     _description_template = "Chopper offset in x"
 
 
 class CalChophomeOffy(QcParameter):
     _name_template = "QC CAL CHOPHOME OFFY"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "mas" # ToDo this is inconsistent (thanks ChatGPT)
     _description_template = "Chopper offset in y"

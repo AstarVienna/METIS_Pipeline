@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from types import NoneType
 from typing import Any
 
 import cpl
@@ -76,6 +77,7 @@ def cpl_to_python_type(what: cpl.core.Type) -> type:
             cpl.core.Type.DOUBLE: float,
             cpl.core.Type.STRING: str,
             cpl.core.Type.ARRAY: list,
+            cpl.core.Type.UNSPECIFIED: NoneType,
         }[what]
     except KeyError as exc:
         raise TypeError(f"CPL type {what} cannot be converted to a Python type.") from exc

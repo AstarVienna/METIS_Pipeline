@@ -16,11 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.common import FluxCalTable, IfuTelluric
 from pymetis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined
 from pymetis.dataitems.ifu.raw import IfuRaw
@@ -68,11 +71,33 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
     # We therefore need to define transmission spectrum and response curve class
     # Note that these should not be used directly if there is any chance of promotion.
 
-    ProductTelluricTransmission = IfuTelluric
-    ProductResponseFunction = IfuReduced1d
-    ProductFluxcalTab = FluxCalTable
+    class ProductSet(PipelineProductSet):
+        TelluricTransmission = IfuTelluric
+        ResponseFunction = IfuReduced1d
+        FluxcalTab = FluxCalTable
 
-# TODO: Define input type for the paramfile in common.py
+    class Qc(QcParameterSet):
+        # QCs are apprently not very reusable, so we can define them here
+        class Chi2(QcParameter):
+            _name_template = "QC IFU TELLURIC CHI2"
+            _type = float
+            _unit = "1"
+            _description_template = "Chi-squared of telluric fit from molecfit"
+
+        class NpThreshold(QcParameter):
+            _name_template = "QC IFU TELLURIC NPTHRESH"
+            _type = float
+            _unit = "1"
+            _description_template = "Number of pixels above the threshold used to calculate the spectrum"
+
+        class Conversion(QcParameter):
+            _name_template = "QC IFU TELLURIC CONV"
+            _type = float
+            _unit = "Jansky / counts" # ToDO WTF
+            _description_template = "Calculated conversion factor"
+
+
+    # TODO: Define input type for the paramfile in common.py
 
     # ++++++++++++++ Defining functions +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

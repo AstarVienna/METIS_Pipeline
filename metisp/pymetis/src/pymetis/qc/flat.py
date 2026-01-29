@@ -29,19 +29,19 @@ from pymetis.classes.qc.parameter import QcParameter
 
 class MFlatRms(QcParameter):
     _name_template = "QC {band} MFLAT RMS"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "RMS of the {band} master flat"
 
 class MFlatMedian(QcParameter):
     _name_template = "QC {band} MFLAT MEDIAN"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "Median of the {band} master flat"
 
 class MFlatNbadpix(QcParameter):
     _name_template = "QC {band} MFLAT NBADPIX"
-    _type = cpl.core.Type.INT
+    _type = int
     _unit = None
     _description_template = "Number of bad pixels in the {band} master flat"
 
@@ -73,19 +73,19 @@ class NMFlatNbadpix(BandNMixin, MFlatNbadpix):
 
 class MlFlatRms(QcParameter):
     _name_template = "QC {band} MLFLAT RMS"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "RMS of the {band} lamp master flat"
 
 class MlFlatMedian(QcParameter):
     _name_template = "QC {band} MLFLAT MEDIAN"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "Median of the {band} lamp master flat"
 
 class MlFlatNbadpix(QcParameter):
     _name_template = "QC {band} MLFLAT NBADPIX"
-    _type = cpl.core.Type.INT
+    _type = int
     _unit = None
     _description_template = "Number of bad pixels in the {band} lamp master flat"
 
@@ -122,21 +122,21 @@ class NMlFlatNbadpix(BandNMixin, MlFlatNbadpix):
 
 class MtFlatRms(QcParameter):
     _name_template = "QC {band} MTFLAT RMS"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "RMS of the {band} twilight master flat"
 
 
 class MtFlatMedian(QcParameter):
     _name_template = "QC {band} MTFLAT MEDIAN"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "Median of the {band} twilight master flat"
 
 
 class MtFlatNbadpix(QcParameter):
     _name_template = "QC {band} MTFLAT NBADPIX"
-    _type = cpl.core.Type.INT
+    _type = int
     _unit = None
     _description_template = "Number of bad pixels in the {band} twilight master flat"
 
@@ -173,37 +173,37 @@ class NMtFlatNbadpix(BandNMixin, MtFlatNbadpix):
 
 class FlatMean(QcParameter):
     _name_template = "QC {band} FLAT MEAN"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "Mean value of a single flat field image"
 
 class FlatRms(QcParameter):
     _name_template = "QC {band} FLAT RMS"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "RMS value of a single flat field image"
 
 class FlatMedianMean(QcParameter):
     _name_template = "QC {band} FLAT MEDIAN MEAN"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "Mean value of the medians of input flat frames"
 
 class FlatMedianMin(QcParameter):
     _name_template = "QC {band} FLAT MEDIAN MIN"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "Minimum value of the medians of input flat frames"
 
 class FlatMedianMax(QcParameter):
     _name_template = "QC {band} FLAT MEDIAN MAX"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "Maximum value of the medians of input flat frames"
 
 class FlatMedianRms(QcParameter):
     _name_template = "QC {band} FLAT MEDIAN RMS"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "Counts"
     _description_template = "RMS value of the medians of input flat frames"
 

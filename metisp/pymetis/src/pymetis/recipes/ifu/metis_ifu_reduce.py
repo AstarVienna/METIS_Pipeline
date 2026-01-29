@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 import copy
 from typing import Literal
 
@@ -23,7 +24,9 @@ import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.distortion.table import IfuDistortionTable
 from pymetis.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
 from pymetis.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
@@ -33,7 +36,7 @@ from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, WavecalInput,
                                     OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
-
+from ...qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNbadpix
 from pymetis.utils.dummy import create_dummy_header
 
 
@@ -63,10 +66,16 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
         class RsrfInput(SinglePipelineInput):
             Item = RsrfIfu
 
-    ProductReduced = IfuReduced
-    ProductBackground = IfuBackground
-    ProductReducedCube = IfuReducedCube
-    ProductCombined = IfuCombined
+    class ProductSet(PipelineProductSet):
+        Reduced = IfuReduced
+        Background = IfuBackground
+        ReducedCube = IfuReducedCube
+        Combined = IfuCombined
+
+    class Qc(QcParameterSet):
+        Nbadpix = IfuReduceNbadpix
+        MeanBkg = IfuReduceMeanBkg
+        MeanStray = IfuReduceMeanStray
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         """

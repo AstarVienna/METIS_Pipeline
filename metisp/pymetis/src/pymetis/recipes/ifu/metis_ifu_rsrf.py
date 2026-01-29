@@ -29,7 +29,9 @@ from astropy.table import QTable
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.mixins import DetectorIfuMixin, BandIfuMixin
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.badpixmap import BadPixMapIfu
 from pymetis.dataitems.gainmap import GainMapIfu
 from pymetis.dataitems.linearity.linearity import LinearityMapIfu
@@ -83,10 +85,20 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor):
         # TBD: schema to be defined
         WavecalInput = WavecalInput
 
-    ProductRsrfBackground = IfuRsrfBackground
-    ProductMasterFlat = MasterFlatIfu
-    ProductRsrfIfu = RsrfIfu
-    ProductBadPixMap = BadPixMapIfu
+    class ProductSet(PipelineProductSet):
+        RsrfBackground = IfuRsrfBackground
+        MasterFlat = MasterFlatIfu
+        RsrfIfu = RsrfIfu
+        BadPixMap = BadPixMapIfu
+
+    class Qc(QcParameterSet):
+        class NBadPix(QcParameter):
+            _name_template = "QC IFU RSRF NBADPIX"
+            _type = int
+            _unit = 'px'
+            _default = None
+            _description_template = "Number of bad pixels in the image mask"
+
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         """
