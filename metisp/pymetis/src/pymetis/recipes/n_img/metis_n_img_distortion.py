@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandNMixin
+from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
 from pymetis.classes.recipes import MetisRecipe
 

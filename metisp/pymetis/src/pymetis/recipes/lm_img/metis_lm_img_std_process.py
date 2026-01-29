@@ -19,11 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.qc import QcParameter, QcParameterSet
-from pymetis.dataitems.combined import LmStdCombined
 from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab.img.std_process import MetisImgStdProcessImpl
+from pymetis.classes.qc import QcParameterSet
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.dataitems.background.subtracted import LmStdBackgroundSubtracted
 from pymetis.qc.std_process import (QcImgStdBackgroundRms, QcStdPeakCounts, QcStdApertureCounts, QcStdStrehl,
@@ -34,9 +32,6 @@ class MetisLmImgStdProcessImpl(BandLmMixin, MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             Item = LmStdBackgroundSubtracted
-
-    class ProductSet(PipelineProductSet):
-        ImgStdCombined = LmStdCombined
 
     class Qc(QcParameterSet):
         BackgroundRms = QcImgStdBackgroundRms

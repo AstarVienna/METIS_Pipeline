@@ -16,9 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 import copy
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.mixins import TargetStdMixin
 from pymetis.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.dataitems.combined import Combined
@@ -37,8 +39,9 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor):
         class FluxstdCatalogInput(FluxstdCatalogInput):
             pass
 
-    ProductImgStdCombined = Combined
-    ProductImgFluxCalTable = FluxCalTable
+    class ProductSet(PipelineProductSet):
+        ImgStdCombined = Combined
+        ImgFluxCalTable = FluxCalTable
 
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')
@@ -50,13 +53,13 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor):
         header_combined = create_dummy_header()
         table = create_dummy_table()
 
-        product_fluxcal = self.ProductImgFluxCalTable(
-            copy.deepcopy(primary_header),
-            Hdu(header_table, table, name='TABLE')
-        )
-        product_combined = self.ProductImgStdCombined(
+        product_combined = self.ProductSet.ImgStdCombined(
             copy.deepcopy(primary_header),
             Hdu(header_combined, combined_image, name='IMAGE'),
+        )
+        product_fluxcal = self.ProductSet.ImgFluxCalTable(
+            copy.deepcopy(primary_header),
+            Hdu(header_table, table, name='TABLE')
         )
 
         return {product_fluxcal, product_combined}

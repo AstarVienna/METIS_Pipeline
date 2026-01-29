@@ -24,13 +24,13 @@ from pymetis.classes.qc.parameter import QcParameter
 
 class QcLmImgBkgMedian(QcParameter):
     _name_template = "QC LM IMG BKG MEDIAN"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "counts"
     _description_template = "Median value of the background removed LM image"
 
 
 class QcLmImgBkgMedianDeviation(QcParameter):
     _name_template = "QC LM IMG BKG MEDIAN DEVIATION"
-    _type = cpl.core.Type.DOUBLE
+    _type = float
     _unit = "counts"
     _description_template = "Median deviation of the background removed LM image"
