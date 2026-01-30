@@ -77,7 +77,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
         return self.implementation.run()
 
     def _list_inputs(self) -> list[tuple[str, type[PipelineInput]]]:
-        return self.Impl.InputSet.list_input_classes()
+        return self.Impl.InputSet.list_classes()
 
     def _list_products(self) -> list[tuple[str, type[DataItem]]]:
         return self.Impl.ProductSet.list_classes()
@@ -113,15 +113,10 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
         self.Impl.specialize()
 
-        if len(qcs := self._list_qc_parameters()) == 0:
-            qc_parameters = '    --- none ---'
-        else:
-            qc_parameters = '\n'.join([qcp_type.extended_description_line() for (name, qcp_type) in qcs])
-
         inputs = '\n'.join(sorted([input_type.extended_description_line(name)
                                    for (name, input_type) in self._list_inputs()]))
-        products = '\n'.join(sorted([product_type.extended_description_line(name)
-                                     for (name, product_type) in self._list_products()]))
+        products = self._format_spacing(self.Impl.ProductSet.list_descriptions(), 6)
+        qc_parameters = self._format_spacing(self.Impl.Qc.list_descriptions(), 6)
         algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
         description = self._format_spacing(self._description, 'description', 2)
 

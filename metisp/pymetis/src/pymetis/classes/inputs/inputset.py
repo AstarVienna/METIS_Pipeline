@@ -76,7 +76,7 @@ class PipelineInputSet(ABC):
 
         # Now iterate over all defined Inputs, instantiate them and feed them the frameset to filter.
         Msg.debug(self.__class__.__qualname__, "Instantiating inputs")
-        for (name, input_class) in self.list_input_classes():
+        for (name, input_class) in self.list_classes():
             inp = input_class(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
             self.__setattr__(self.__make_snake.sub('_', self.__cut_input.sub('', name)).lower(), inp)
@@ -94,7 +94,7 @@ class PipelineInputSet(ABC):
         """
         Msg.debug(cls.__qualname__, f"Now specializing {cls.__qualname__} for {parameters}")
 
-        for name, inp in cls.list_input_classes():
+        for name, inp in cls.list_classes():
             old_class = inp.Item
             # Copy the entire type so that we do not mess up the original one
             new_class = type(inp.Item.__name__, inp.Item.__bases__, dict(inp.Item.__dict__))
@@ -111,13 +111,19 @@ class PipelineInputSet(ABC):
                           f"{klass.__qualname__} ({klass.name()})")
 
     @classmethod
-    def list_input_classes(cls) -> list[tuple[str, type[PipelineInput]]]:
+    def list_classes(cls) -> list[tuple[str, type[PipelineInput]]]:
         """
         List all input classes within this input set.
 
         Warning: uses introspection, feels hacky. # ToDo Maybe make this more explicit someday?
         """
         return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
+
+    @classmethod
+    def list_descriptions(cls) -> str:
+        return '\n'.join(
+            sorted([product_type.extended_description_line(name) for (name, product_type) in cls.list_classes()])
+        )
 
     def validate(self) -> None:
         """

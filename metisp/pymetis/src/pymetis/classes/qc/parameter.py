@@ -43,12 +43,12 @@ class QcParameter(ParametrizableItem):
         return self._value
 
     @classmethod
-    def extended_description_line(cls) -> str:
+    def extended_description_line(cls, name=None) -> str:
         """
         Return a formatted description line for the man page.
         """
         # [5:] is there to get rid of "Type." prefix
-        return (f"    {cls.name():<31s} {f'{python_to_cpl_type(cls._type)}'[5:]:<7s} "
+        return (f"{cls.name():<31s} {f'{python_to_cpl_type(cls._type)}'[5:]:<7s} "
                 f"[{str(cls._default):4}] {cls.description()}")
 
     def as_property(self) -> cpl.core.Property:

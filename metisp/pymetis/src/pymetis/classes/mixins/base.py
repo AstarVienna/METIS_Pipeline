@@ -65,9 +65,19 @@ class ParametrizableContainer(Parametrizable):
 
     @classmethod
     def list_classes(cls):
-        """ List all available QC parameters """
+        """ List all available inner items """
         return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, cls.Meta._T))
 
+    @classmethod
+    def list_descriptions(cls) -> str:
+        """ Print formatted descriptions of all available inner items (for man page and such) """
+        items = [product_type.extended_description_line(name) for (name, product_type) in cls.list_classes()]
+        if len(items) == 0:
+            return "--- none ---"
+        else:
+            return '\n'.join(
+                sorted(items)
+            )
 
     @classmethod
     def specialize(cls, **parameters) -> None:

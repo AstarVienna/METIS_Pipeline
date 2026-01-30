@@ -18,7 +18,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs.common import WcuOffInput, BadPixMapInput
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.adc.adc import AdcSlitloss, AdcSlitlossRaw
 from pymetis.classes.inputs import RawInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput
 from pymetis.classes.prefab import DarkImageProcessor
@@ -45,7 +47,11 @@ class MetisAdcSlitlossImpl(DarkImageProcessor):
         class WcuOffInput(WcuOffInput):
             pass
 
-    ProductAdcSlitloss = AdcSlitloss
+    class ProductSet(PipelineProductSet):
+        AdcSlitloss = AdcSlitloss
+
+    class Qc(QcParameterSet):
+        pass # ToDo finish
 
     # =========================================================================================
     #    Methods
@@ -60,7 +66,7 @@ class MetisAdcSlitlossImpl(DarkImageProcessor):
         header = create_dummy_header()
         table = create_dummy_table()
         return {
-            self.ProductAdcSlitloss(
+            self.ProductSet.AdcSlitloss(
                 primary_header,
                 Hdu(header, table, name='TABLE')
             ),
