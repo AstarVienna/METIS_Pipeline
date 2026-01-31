@@ -124,31 +124,31 @@ class MetisLssSciImpl(DarkImageProcessor):
 
         # Write files
         return {
-            self.ProductLssSci1d(
+            self.ProductSet.LssSci1d(
                 copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_1d, table, name='TABLE')
             ),
-            self.ProductLssSci2d(
+            self.ProductSet.LssSci2d(
                 copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_2d, image, name='IMAGE')
             ),
-            self.ProductLssSciFlux1d(
+            self.ProductSet.LssSciFlux1d(
                 copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_flux_1d, table, name='TABLE')
             ),
-            self.ProductLssSciFlux2d(
+            self.ProductSet.LssSciFlux2d(
                 copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_flux_2d, image, name='IMAGE')
             ),
-            self.ProductLssSciFluxTellCorr1d(
+            self.ProductSet.LssSciFluxTellCorr1d(
                 copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_flux_tell_corr1d, table, name='TABLE')
             ),
-            self.ProductLssSciObjMap(
+            self.ProductSet.LssSciObjMap(
                 copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_obj_map, image, name='IMAGE')
             ),
-            self.ProductLssSciSkyMap(
+            self.ProductSet.LssSciSkyMap(
                 copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_sky_map, image, name='IMAGE'),
             ),

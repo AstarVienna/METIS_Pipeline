@@ -138,15 +138,15 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
 
         combined = self.inputset.combined.load_data('DET1.DATA')
 
-        product_telluric_transmission = self.ProductTelluricTransmission(
+        product_telluric_transmission = self.ProductSet.TelluricTransmission(
             create_dummy_header(),
             Hdu(header_transmission, table, name='TABLE'),
         )
-        product_reduced_1d = self.ProductResponseFunction(
+        product_reduced_1d = self.ProductSet.ResponseFunction(
             create_dummy_header(),
             Hdu(header_reduced_1d, image, name='DET1.DATA'),
         )
-        product_fluxcal_tab = self.ProductFluxcalTab(
+        product_fluxcal_tab = self.ProductSet.FluxcalTab(
             create_dummy_header(),
             Hdu(header_fluxcal_tab, table, name='TABLE'),
         )

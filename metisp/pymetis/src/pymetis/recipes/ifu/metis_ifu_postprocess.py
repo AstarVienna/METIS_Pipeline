@@ -97,7 +97,7 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
 
         coadded = self.coadd_cubes()
 
-        product = self.ProductSciCoadd(
+        product = self.ProductSet.SciCoadd(
             primary_header,
             Hdu(header_coadd, coadded, name='IMAGE')
         )

@@ -44,7 +44,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
         primary_header = self.inputset.raw.items[0].primary_header
         header_combined = create_dummy_header()
 
-        product_coadd = self.ProductLmImgSciCoadd(
+        product_coadd = self.ProductSet.LmImgSciCoadd(
             primary_header,
             Hdu(header_combined, combined_image, name='IMAGE')
         )

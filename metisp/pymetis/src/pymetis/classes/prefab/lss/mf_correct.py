@@ -18,6 +18,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.lss.science import LssSciFlux1d, LssSciFluxTellCorr1d
 from pymetis.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
@@ -33,7 +35,11 @@ class MetisLssMfCorrectImpl(MetisRecipeImpl):
         class TransmissionInput(SinglePipelineInput):
             Item = LssSynthTrans
 
-    ProductTellCorrFinal = LssSciFluxTellCorr1d
+    class ProductSet(PipelineProductSet):
+        TellCorrFinal = LssSciFluxTellCorr1d
+
+    class Qc(QcParameterSet):
+        pass
 
     def mf_correct(self):
         """
@@ -56,7 +62,7 @@ class MetisLssMfCorrectImpl(MetisRecipeImpl):
         table = create_dummy_table()
 
         return {
-            self.ProductTellCorrFinal(
+            self.ProductSet.TellCorrFinal(
                 primary_header,
                 Hdu(header_corr, table, name='TABLE'),
             ),

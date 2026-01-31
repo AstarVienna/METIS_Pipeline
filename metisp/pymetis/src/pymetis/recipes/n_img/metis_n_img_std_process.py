@@ -34,9 +34,6 @@ class MetisNImgStdProcessImpl(BandNMixin, MetisImgStdProcessImpl):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             pass
 
-    class ProductSet(PipelineProductSet):
-        FluxCalTable = FluxCalTable
-
     class Qc(QcParameterSet):
         BackgroundRms = QcImgStdBackgroundRms
         PeakCounts = QcStdPeakCounts

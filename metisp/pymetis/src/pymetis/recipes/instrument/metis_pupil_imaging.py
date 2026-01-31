@@ -136,7 +136,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         primary_header = create_dummy_header()
         header_image = create_dummy_header()
 
-        product = self.ProductReduced(
+        product = self.ProductSet.Reduced(
             primary_header,
             Hdu(header_image, combined_image, name='IMAGE')
         )

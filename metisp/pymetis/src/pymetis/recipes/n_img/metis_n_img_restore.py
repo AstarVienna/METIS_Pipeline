@@ -41,7 +41,7 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
         header = self.inputset.calibrated.item.primary_header
         image = create_dummy_image()
 
-        product = self.ProductRestored(
+        product = self.ProductSet.Restored(
             header,
             Hdu(header, image, name='DET1.DATA')
         )

@@ -119,12 +119,12 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
         raw_images = self.inputset.raw.load_data('DET1.DATA')
         image = self.combine_images(raw_images, "add")
 
-        product_reduced = self.ProductReduced(
+        product_reduced = self.ProductSet.Reduced(
             header_reduced,
             *[out['IMAGE'] for out in output],
         )
 
-        product_background = self.ProductBackground(
+        product_background = self.ProductSet.Background(
             header_background,
             *[out['BACKGROUND'] for out in output],
         )
@@ -136,11 +136,11 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
         return {
             product_reduced,
             product_background,
-            self.ProductReducedCube(
+            self.ProductSet.ReducedCube(
                 copy.deepcopy(primary_header),
                 Hdu(header_reduced_cube, combined_image, name='IMAGE'),
             ),
-            self.ProductCombined(
+            self.ProductSet.Combined(
                 copy.deepcopy(primary_header),
                 Hdu(header_combined_cube, image, name='DET1.DATA'),
             ),

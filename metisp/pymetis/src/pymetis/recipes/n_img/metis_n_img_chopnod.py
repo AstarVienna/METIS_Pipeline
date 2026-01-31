@@ -90,7 +90,6 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor):
         Reduced = NStdBackgroundSubtracted
         Background = NStdBackground
 
-
     def process(self) -> set[DataItem]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
@@ -116,11 +115,11 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor):
 
         self.target = self.inputset.tag_matches['target']
 
-        product_reduced = self.ProductReduced(
+        product_reduced = self.ProductSet.Reduced(
             copy.deepcopy(primary_header),
             Hdu(header_reduced, combined_image, name='DET1.DATA')
         )
-        product_background = self.ProductBackground(
+        product_background = self.ProductSet.Background(
             copy.deepcopy(primary_header),
             Hdu(header_background, combined_image, name='DET1.DATA')
         )

@@ -94,7 +94,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         header_master_flat = create_dummy_header()
         # ToDo actually produce the flat
 
-        product = self.ProductMasterFlat(
+        product = self.ProductSet.MasterFlat(
             primary_header,
             Hdu(header_master_flat, combined_image, name='DET1.SCI'),
         )

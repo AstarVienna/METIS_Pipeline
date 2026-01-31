@@ -22,6 +22,8 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 
 # import the dataitems we use
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameter, QcParameterSet
 from pymetis.dataitems.distortion import LmDistortionTable
 from pymetis.dataitems.img.basicreduced import LmSciCalibrated
 #from pymetis.dataitems.hci import LmOffAxisPsfRaw, LmOnAxisPsfTemplate
@@ -49,100 +51,101 @@ class MetisLmRavcSciCalibrateImpl(RawImageProcessor):
         #class LmOnAxisPsfTemplate(RawInput):
         #    Item = OnAxisPsfTemplate
 
-        
+    class ProductSet(PipelineProductSet):
+        LmSciCalibrated = LmRavcCalibrated
+        LmSciCentred = LmRavcSciCentred
+        LmCentroidTab = LmRavcCentroidTab
+        LmSciSpeckle = LmRavcSciSpeckle
+        LmSciHifilt = LmRavcSciHifilt
+        LmSciDerotatedPsfsub = LmRavcSciDerotatedPsfsub
+        LmSciDerotated = LmRavcSciDerotated
+        LmSciContrastRadprof = LmRavcSciContrastRadprof
+        LmSciContrastAdi = LmRavcSciContrastAdi
+        LmSciThroughput = LmRavcSciThroughput
+        LmSciCoverage = LmRavcSciCoverage
+        LmSciSnr = LmRavcSciSnr
+        LmSciPsfMedian = LmRavcPsfMedian
 
-    ProductLmSciCalibrated = LmRavcCalibrated
-    ProductLmSciCentred = LmRavcSciCentred
-    ProductLmCentroidTab = LmRavcCentroidTab
-    ProductLmSciSpeckle = LmRavcSciSpeckle
-    ProductLmSciHifilt = LmRavcSciHifilt
-    ProductLmSciDerotatedPsfsub = LmRavcSciDerotatedPsfsub
-    ProductLmSciDerotated = LmRavcSciDerotated
-    ProductLmSciContrastRadprof = LmRavcSciContrastRadprof
-    ProductLmSciContrastAdi = LmRavcSciContrastAdi
-    ProductLmSciThroughput = LmRavcSciThroughput
-    ProductLmSciCoverage = LmRavcSciCoverage
-    ProductLmSciSnr = LmRavcSciSnr
-    ProductLmSciPsfMedian = LmRavcPsfMedian
-    
+    class Qc(QcParameterSet):
+        pass
+
     def process(self) -> set[DataItem]:
-        
-            image = self.inputset.raw.load_data('DET1.DATA')[0]
-            #image = create_dummy_image()
-            table = create_dummy_table()
+        image = self.inputset.raw.load_data('DET1.DATA')[0]
+        #image = create_dummy_image()
+        table = create_dummy_table()
 
-            primary_header = create_dummy_header()
-            header_lmSciCalibrated = create_dummy_header()
-            header_lmSciCentred = create_dummy_header()
-            header_lmCentroidTable = create_dummy_header()
-            header_lmSciSpeckle = create_dummy_header()
-            header_lmSciHifilt = create_dummy_header()
-            header_lmSciDerotatedPsfsub = create_dummy_header()
-            header_lmSciDerotated = create_dummy_header()
-            header_lmSciContrastRadprof = create_dummy_header()
-            header_lmSciContrastAdi = create_dummy_header()
-            header_lmSciThroughput = create_dummy_header()
-            header_lmSciCoverage = create_dummy_header()
-            header_lmSciSnr = create_dummy_header()
-            header_lmSciPsfMedian = create_dummy_header()
-        
-            
-            product_lmSciCalibrated = self.ProductLmSciCalibrated(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciCalibrated, image, name='DET1.DATA'),
-            )
-            product_lmSciCentred = self.ProductLmSciCentred(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciCentred, image, name='DET1.DATA'),
-            )
-            product_lmCentroidTable = self.ProductLmCentroidTab(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmCentroidTable, table, name='DET1.DATA'),
-            )
-            product_lmSciSpeckle = self.ProductLmSciSpeckle(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciSpeckle, image, name='DET1.DATA'),
-            )
-            product_lmSciHifilt = self.ProductLmSciHifilt(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciHifilt, image, name='DET1.DATA'),
-            )
-            product_lmSciDerotatedPsfsub = self.ProductLmSciDerotatedPsfsub(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciDerotatedPsfsub, image, name='DET1.DATA'),
-            )
-            product_lmSciDerotated = self.ProductLmSciDerotated(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciDerotated, image, name='DET1.DATA'),
-            )
-            product_lmSciContrastRadprof = self.ProductLmSciContrastRadprof(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciContrastRadprof, table, name='DET1.DATA'),
-            )
-            product_lmSciContrastAdi = self.ProductLmSciContrastAdi(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciContrastAdi, table, name='DET1.DATA'),
-            )
-            product_lmSciThroughput = self.ProductLmSciThroughput(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciThroughput, table, name='DET1.DATA'),
-            )
-            product_lmSciCoverage = self.ProductLmSciCoverage(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciCoverage, image, name='DET1.DATA'),
-            )
-            product_lmSciSnr = self.ProductLmSciSnr(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciSnr, image, name='DET1.DATA'),
-            )
-            product_lmSciPsfMedian = self.ProductLmSciPsfMedian(
-                    copy.deepcopy(primary_header),
-                    Hdu(header_lmSciPsfMedian, image, name='DET1.DATA'),
-            )
+        primary_header = create_dummy_header()
+        header_lmSciCalibrated = create_dummy_header()
+        header_lmSciCentred = create_dummy_header()
+        header_lmCentroidTable = create_dummy_header()
+        header_lmSciSpeckle = create_dummy_header()
+        header_lmSciHifilt = create_dummy_header()
+        header_lmSciDerotatedPsfsub = create_dummy_header()
+        header_lmSciDerotated = create_dummy_header()
+        header_lmSciContrastRadprof = create_dummy_header()
+        header_lmSciContrastAdi = create_dummy_header()
+        header_lmSciThroughput = create_dummy_header()
+        header_lmSciCoverage = create_dummy_header()
+        header_lmSciSnr = create_dummy_header()
+        header_lmSciPsfMedian = create_dummy_header()
 
 
-        
-            return {product_lmSciCalibrated, product_lmSciCentred, product_lmSciCentred, product_lmCentroidTable, product_lmSciHifilt, product_lmSciDerotatedPsfsub, product_lmSciDerotated, product_lmSciContrastRadprof, product_lmSciContrastAdi, product_lmSciThroughput, product_lmSciCoverage, product_lmSciSnr, product_lmSciPsfMedian}
+        product_lmSciCalibrated = self.ProductSet.LmSciCalibrated(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciCalibrated, image, name='DET1.DATA'),
+        )
+        product_lmSciCentred = self.ProductSet.LmSciCentred(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciCentred, image, name='DET1.DATA'),
+        )
+        product_lmCentroidTable = self.ProductSet.LmCentroidTab(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmCentroidTable, table, name='DET1.DATA'),
+        )
+        product_lmSciSpeckle = self.ProductSet.LmSciSpeckle(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciSpeckle, image, name='DET1.DATA'),
+        )
+        product_lmSciHifilt = self.ProductSet.LmSciHifilt(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciHifilt, image, name='DET1.DATA'),
+        )
+        product_lmSciDerotatedPsfsub = self.ProductSet.LmSciDerotatedPsfsub(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciDerotatedPsfsub, image, name='DET1.DATA'),
+        )
+        product_lmSciDerotated = self.ProductSet.LmSciDerotated(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciDerotated, image, name='DET1.DATA'),
+        )
+        product_lmSciContrastRadprof = self.ProductSet.LmSciContrastRadprof(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciContrastRadprof, table, name='DET1.DATA'),
+        )
+        product_lmSciContrastAdi = self.ProductSet.LmSciContrastAdi(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciContrastAdi, table, name='DET1.DATA'),
+        )
+        product_lmSciThroughput = self.ProductSet.LmSciThroughput(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciThroughput, table, name='DET1.DATA'),
+        )
+        product_lmSciCoverage = self.ProductSet.LmSciCoverage(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciCoverage, image, name='DET1.DATA'),
+        )
+        product_lmSciSnr = self.ProductSet.LmSciSnr(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciSnr, image, name='DET1.DATA'),
+        )
+        product_lmSciPsfMedian = self.ProductSet.LmSciPsfMedian(
+                copy.deepcopy(primary_header),
+                Hdu(header_lmSciPsfMedian, image, name='DET1.DATA'),
+        )
+
+
+
+        return {product_lmSciCalibrated, product_lmSciCentred, product_lmSciCentred, product_lmCentroidTable, product_lmSciHifilt, product_lmSciDerotatedPsfsub, product_lmSciDerotated, product_lmSciContrastRadprof, product_lmSciContrastAdi, product_lmSciThroughput, product_lmSciCoverage, product_lmSciSnr, product_lmSciPsfMedian}
 
 
 class MetisLmRavcSciCalibrated(MetisRecipe):

@@ -286,19 +286,19 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor):
         header_1drsrf = create_dummy_header()
         header_badpixmap = create_dummy_header()
 
-        product_background = self.ProductRsrfBackground(
+        product_background = self.ProductSet.RsrfBackground(
             header_background,
             *[out['BACKGROUND'] for out in output],
         )
-        product_master_flat_ifu = self.ProductMasterFlat(
+        product_master_flat_ifu = self.ProductSet.MasterFlat(
             header_mflat,
             *[out['MASTERFLAT'] for out in output],
         )
-        product_rsrf_ifu = self.ProductRsrfIfu(
+        product_rsrf_ifu = self.ProductSet.RsrfIfu(
             header_1drsrf,
             *[out['1DRSRF'] for out in output],
         )
-        product_badpix_map_ifu = self.ProductBadPixMap(
+        product_badpix_map_ifu = self.ProductSet.BadPixMap(
             header_badpixmap,
             *[out['BADPIXMAP'] for out in output],
         )

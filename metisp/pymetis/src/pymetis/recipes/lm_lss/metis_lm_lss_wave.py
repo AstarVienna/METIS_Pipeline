@@ -21,6 +21,8 @@ import copy
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.trace import LssTrace
@@ -63,11 +65,15 @@ class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor):
         class LaserTableInput(LaserTableInput):
             pass
 
-    # ++++++++++++ Intermediate / QC products ++++++++++++
-    ProductLssCurve = LssCurve
-    # ++++++++++++++++++ Final products ++++++++++++++++++
-    ProductLssDistSol = LssDistSol
-    ProductLssWaveGuess = LssWaveGuess
+    class ProductSet(PipelineProductSet):
+        # ++++++++++++ Intermediate / QC products ++++++++++++
+        LssCurve = LssCurve
+        # ++++++++++++++++++ Final products ++++++++++++++++++
+        LssDistSol = LssDistSol
+        LssWaveGuess = LssWaveGuess
+
+    class Qc(QcParameterSet):
+        pass
 
 #   Method for processing
     def process(self) -> set[DataItem]:
@@ -83,15 +89,15 @@ class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor):
         lm_lss_wave_guess_hdr = create_dummy_header()
 
         return {
-            self.ProductLssCurve(
+            self.ProductSet.LssCurve(
                 copy.deepcopy(primary_header),
                 Hdu(lm_lss_curve_header, table, name='TABLE')
             ),
-            self.ProductLssDistSol(
+            self.ProductSet.LssDistSol(
                 copy.deepcopy(primary_header),
                 Hdu(lm_lss_dist_sol_hdr, table, name='TABLE')
             ),
-            self.ProductLssWaveGuess(
+            self.ProductSet.LssWaveGuess(
                 copy.deepcopy(primary_header),
                 Hdu(lm_lss_wave_guess_hdr, table, name='TABLE')
             ),
