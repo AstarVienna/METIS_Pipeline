@@ -20,9 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import datetime
 import inspect
 import re
-from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Generator, Self, Any, final, Union
+from typing import Optional, Generator, Self, final, Union
 
 import cpl
 
@@ -528,3 +527,4 @@ class DataItem(ParametrizableItem):
         for name, hdu in self._hdus.items():
             if self._hdus[name].extno == index:
                 return name
+

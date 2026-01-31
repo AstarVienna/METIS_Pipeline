@@ -22,6 +22,7 @@ import cpl
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRsrf, MeanLssRsrf, MasterLssRsrf
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.inputs import RawInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput, \
@@ -55,6 +56,36 @@ class MetisLssRsrfImpl(DarkImageProcessor):
         MeanLssRsrf = MeanLssRsrf
         MasterLssRsrf = MasterLssRsrf
 
+    class Qc(QcParameterSet):
+        class MeanLevel(QcParameter):
+            _name_template = "QC {band} LSS RSRF MEAN LEVEL"
+            _type = float
+            _unit = 'counts'
+            _description_template = "Mean level of the RSRF"
+
+        class MedianLevel(QcParameter):
+            _name_template = "QC {band} LSS RSRF MEDIAN LEVEL"
+            _type = float
+            _unit = 'counts'
+            _description_template = "Median level of the RSRF"
+
+        class InterorderLevel(QcParameter):
+            _name_template = "QC {band} LSS RSRF INTORDR LEVEL"
+            _type = float
+            _unit = 'counts'
+            _description_template = "Flux level of the interorder background"
+
+        class NormStdev(QcParameter):
+            _name_template = "QC {band} LSS RSRF NORM STDEV"
+            _type = float
+            _unit = 'counts'
+            _description_template = "Standard deviation of the normalized RSRF"
+
+        class NormSnr(QcParameter):
+            _name_template = "QC {band} LSS RSRF NORM SNR"
+            _type = float
+            _unit = '1'
+            _description_template = "SNR of the normalized RSRF"
 
     def process(self) -> set[DataItem]:
         """do something more fancy in the future"""

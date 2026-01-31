@@ -143,9 +143,20 @@ class MetisLmRavcSciCalibrateImpl(RawImageProcessor):
                 Hdu(header_lmSciPsfMedian, image, name='DET1.DATA'),
         )
 
-
-
-        return {product_lmSciCalibrated, product_lmSciCentred, product_lmSciCentred, product_lmCentroidTable, product_lmSciHifilt, product_lmSciDerotatedPsfsub, product_lmSciDerotated, product_lmSciContrastRadprof, product_lmSciContrastAdi, product_lmSciThroughput, product_lmSciCoverage, product_lmSciSnr, product_lmSciPsfMedian}
+        return {
+            product_lmSciCalibrated,
+            product_lmSciCentred,
+            product_lmCentroidTable,
+            product_lmSciHifilt,
+            product_lmSciDerotatedPsfsub,
+            product_lmSciDerotated,
+            product_lmSciContrastRadprof,
+            product_lmSciContrastAdi,
+            product_lmSciThroughput,
+            product_lmSciCoverage,
+            product_lmSciSnr,
+            product_lmSciPsfMedian
+        }
 
 
 class MetisLmRavcSciCalibrated(MetisRecipe):
