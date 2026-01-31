@@ -35,7 +35,7 @@ class MetisNImgStdProcessImpl(BandNMixin, MetisImgStdProcessImpl):
             pass
 
     class ProductSet(PipelineProductSet):
-        FluxcalTab = FluxCalTable
+        FluxCalTable = FluxCalTable
 
     class Qc(QcParameterSet):
         BackgroundRms = QcImgStdBackgroundRms

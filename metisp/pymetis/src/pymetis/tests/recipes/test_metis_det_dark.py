@@ -24,7 +24,7 @@ import cpl
 from pymetis.recipes.metis_det_dark import (MetisDetDark as Recipe,
                                             MetisDetDarkImpl as Impl)
 from pymetis.tests.classes import BandParamRecipeTest, RawInputSetTest
-from pymetis.tests.classes.product import ImageProductTest
+from pymetis.tests.classes.product import ImageProductSetTest
 
 recipe_name = r'metis_det_dark'
 
@@ -61,7 +61,7 @@ class TestInputSet(RawInputSetTest):
     Impl = Impl
 
 
-class TestProduct(ImageProductTest):
-    Product = Impl.ProductMasterDark
+class TestProduct(ImageProductSetTest):
+    Product = Impl.ProductSet.MasterDark
 
 

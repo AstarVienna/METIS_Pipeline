@@ -22,7 +22,7 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.ifu.metis_ifu_postprocess import (MetisIfuPostprocess as Recipe,
                                                        MetisIfuPostprocessImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_ifu_postprocess'
@@ -46,5 +46,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    Product = Impl.ProductSciCoadd
+class TestProductSet(BaseProductSetTest):
+    Product = Impl.ProductSet.SciCoadd

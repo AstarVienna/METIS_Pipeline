@@ -96,23 +96,8 @@ class MetisRecipeImpl(Parametrizable, ABC):
         For instance, `recipe_{band}_{target}` can specify band=LM, but no target,
         resulting in a partial specialiation. The target has to be supplied from the actual data.)
         """
-
-        Msg.info(cls.__qualname__,
-                 f"Promoting the recipe implementation {cls.__qualname__} with {parameters}")
-
-        for name, item in cls.ProductSet.list_classes():
-            # Try to find a promoted class in the registry
-            old_class = item.__qualname__
-            old_class_name = item.name()
-            if (new_class := DataItem.find(tag := item.specialize(**parameters))) is None:
-                raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
-            else:
-                Msg.debug(cls.__qualname__,
-                          f" - {old_class} ({old_class_name}) => "
-                          f"{new_class.__qualname__} ({new_class.name()})")
-
-            # Replace the product attribute with the new class
-            cls.__class__.__setattr__(cls, name, new_class)
+        cls.ProductSet.promote(**parameters)
+        cls.Qc.promote(**parameters)
 
     def run(self) -> cpl.ui.FrameSet:
         """

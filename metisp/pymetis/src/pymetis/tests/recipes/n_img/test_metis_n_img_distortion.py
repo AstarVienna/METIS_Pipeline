@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.n_img.metis_n_img_distortion import (MetisNImgDistortion as Recipe,
                                                           MetisNImgDistortionImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_n_img_distortion'
@@ -45,13 +45,13 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductLmDistortionTable(BaseProductTest):
-    Product = Impl.ProductDistortionTable
+class TestProductSetLmDistortionTable(BaseProductSetTest):
+    Product = Impl.ProductSet.DistortionTable
 
 
-class TestProductLmDistortionMap(BaseProductTest):
-    Product = Impl.ProductDistortionMap
+class TestProductSetLmDistortionMap(BaseProductSetTest):
+    Product = Impl.ProductSet.DistortionMap
 
 
-class TestProductLmDistortionReduced(BaseProductTest):
-    Product = Impl.ProductDistortionReduced
+class TestProductSetLmDistortionReduced(BaseProductSetTest):
+    Product = Impl.ProductSet.DistortionReduced

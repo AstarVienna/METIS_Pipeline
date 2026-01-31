@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pyesorex.parameter import ParameterList, ParameterValue
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.dataitems.img.basicreduced import NSciCalibrated, NSciRestored
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
@@ -31,7 +32,8 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
         class CalibratedInput(SinglePipelineInput):
             Item = NSciCalibrated
 
-    ProductRestored = NSciRestored
+    class ProductSet(PipelineProductSet):
+        Restored = NSciRestored
 
     def process(self) -> set[DataItem]:
         calibrated = self.inputset.calibrated.load_data('DET1.DATA')

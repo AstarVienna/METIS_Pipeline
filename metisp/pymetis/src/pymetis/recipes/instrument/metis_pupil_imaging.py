@@ -31,6 +31,7 @@ from cpl.core import Msg, Image, Table
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.dataitems.pupil import PupilRaw
 from pymetis.dataitems.pupil.pupil import PupilImagingReduced
@@ -66,7 +67,8 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
 
-    ProductReduced = PupilImagingReduced
+    class ProductSet(PipelineProductSet):
+        Reduced = PupilImagingReduced
 
     def prepare_flat(self, flat: Image, bias: Optional[Image]):
         """ Flat field preparation: subtract bias and normalize it to median 1 """

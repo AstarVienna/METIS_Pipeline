@@ -62,7 +62,6 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         class PinholeTableInput(OptionalInputMixin, PinholeTableInput):
             pass
 
-
     class ProductSet(PipelineProductSet):
         Combined = LmChophomeCombined
         Background = LmChophomeBackground
@@ -186,6 +185,8 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             "ycen": ycen,
             "fwhm_x": fwhm_x,
             "fwhm_y": fwhm_y,
+            "xcenstd": 0, # ToDo fix
+            "ycenstd": 0, # ToDo fix
             "snr": flux / noise
         }
 

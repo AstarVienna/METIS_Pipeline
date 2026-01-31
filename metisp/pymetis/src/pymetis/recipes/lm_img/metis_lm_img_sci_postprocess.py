@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.dataitems.coadd import LmSciCoadd
 from pymetis.dataitems.img.basicreduced import LmSciCalibrated
 from pymetis.classes.recipes import MetisRecipe
@@ -33,7 +34,8 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
         class RawInput(RawInput):
             Item = LmSciCalibrated
 
-    ProductLmImgSciCoadd = LmSciCoadd
+    class ProductSet(PipelineProductSet):
+        LmImgSciCoadd = LmSciCoadd
 
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')

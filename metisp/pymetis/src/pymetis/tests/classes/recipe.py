@@ -142,6 +142,12 @@ class BaseRecipeTest(ABC):
         recipe = self.Recipe()
         assert recipe._build_description() is not None
 
+    @pytest.mark.metadata
+    def test_does_is_have_a_product_set(self):
+        assert self.Recipe.Impl.ProductSet is not None, \
+            f"Recipe {self.Recipe._name} does not have a ProductSet defined"
+
+    @pytest.mark.external
     def test_all_inputs(self, frameset):
         """
         Test that all inputs are valid. Note that this is an *instance* test, and depends on the data supplied.

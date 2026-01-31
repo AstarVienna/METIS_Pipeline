@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_lss.metis_lm_lss_mf_calctrans import (MetisLmLssMfCalctrans as Recipe,
                                                               MetisLmLssMfCalctransImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_lss_mf_calctrans'
@@ -45,5 +45,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    Product = Impl.ProductTransmission
+class TestProductSet(BaseProductSetTest):
+    Product = Impl.ProductSet.Transmission

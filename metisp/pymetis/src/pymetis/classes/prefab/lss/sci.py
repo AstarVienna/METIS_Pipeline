@@ -21,6 +21,7 @@ import copy
 import cpl
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.dataitems.adc.adc import AdcSlitloss
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.raw import LssRaw
@@ -89,23 +90,14 @@ class MetisLssSciImpl(DarkImageProcessor):
         # CHECK THE AO PSF MODEL - why not included? forgotten????
         # --------------------------------------------------------------------
 
-    class ProductLssSciObjMap(LssObjMap, abstract=True):
-        pass
-
-    class ProductLssSciSkyMap(LssSkyMap, abstract=True):
-        pass
-
-    class ProductLssSci1d(LssSci1d, abstract=True):
-        pass
-
-    class ProductLssSci2d(LssSci2d, abstract=True):
-        pass
-
-    class ProductLssSciFlux1d(LssSciFlux1d, abstract=True):
-        pass
-
-    ProductLssSciFlux2d = LssSciFlux2d
-    ProductLssSciFluxTellCorr1d = LssSciFluxTellCorr1d
+    class ProductSet(PipelineProductSet):
+        LssSciObjMap = LssObjMap
+        LssSciSkyMap = LssSkyMap
+        LssSci2d = LssSci2d
+        LssSci1d = LssSci1d
+        LssSciFlux2d = LssSciFlux2d
+        LssSciFlux1d = LssSciFlux1d
+        LssSciFluxTellCorr1d = LssSciFluxTellCorr1d
 
     # CAVEAT: Dummy routine only! Will be replaced with functionality -------
     # Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -21,6 +21,7 @@ import copy
 import cpl
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRsrf, MeanLssRsrf, MasterLssRsrf
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.inputs import RawInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput, \
@@ -49,9 +50,10 @@ class MetisLssRsrfImpl(DarkImageProcessor):
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw
 
-    ProductMedianLssRsrf = MedianLssRsrf
-    ProductMeanLssRsrf = MeanLssRsrf
-    ProductMasterLssRsrf = MasterLssRsrf
+    class ProductSet(PipelineProductSet):
+        MedianLssRsrf = MedianLssRsrf
+        MeanLssRsrf = MeanLssRsrf
+        MasterLssRsrf = MasterLssRsrf
 
 
     def process(self) -> set[DataItem]:
@@ -74,15 +76,15 @@ class MetisLssRsrfImpl(DarkImageProcessor):
         combined_median_img = self.combine_images(raw_images, "median")
 
         return {
-            self.ProductMasterLssRsrf(
+            self.ProductSet.MasterLssRsrf(
                 copy.deepcopy(primary_header),
                 Hdu(combined_master_hdr, combined_master_img, name='DET1.DATA'),
             ),
-            self.ProductMeanLssRsrf(
+            self.ProductSet.MeanLssRsrf(
                 copy.deepcopy(primary_header),
                 Hdu(combined_mean_hdr, combined_mean_img, name='DET1.DATA'),
             ),
-            self.ProductMedianLssRsrf(
+            self.ProductSet.MedianLssRsrf(
                 copy.deepcopy(primary_header),
                 Hdu(combined_median_hdr, combined_median_img, name='DET1.DATA'),
             ),

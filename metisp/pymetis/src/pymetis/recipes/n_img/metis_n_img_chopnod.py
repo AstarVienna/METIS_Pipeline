@@ -24,6 +24,7 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.mixins import DetectorGeoMixin, BandNMixin
 from pymetis.dataitems.background.background import NStdBackground
 from pymetis.dataitems.background.subtracted import NStdBackgroundSubtracted
@@ -85,9 +86,9 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor):
         class LinearityInput(LinearityInput):
             pass
 
-
-    ProductReduced = NStdBackgroundSubtracted
-    ProductBackground = NStdBackground
+    class ProductSet(PipelineProductSet):
+        Reduced = NStdBackgroundSubtracted
+        Background = NStdBackground
 
 
     def process(self) -> set[DataItem]:

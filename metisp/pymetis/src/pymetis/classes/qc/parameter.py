@@ -52,4 +52,4 @@ class QcParameter(ParametrizableItem):
                 f"[{str(cls._default):4}] {cls.description()}")
 
     def as_property(self) -> cpl.core.Property:
-        return cpl.core.Property(self.name(), self._type, self.value, self.description())
+        return cpl.core.Property(self.name(), python_to_cpl_type(self._type), self.value, self.description())

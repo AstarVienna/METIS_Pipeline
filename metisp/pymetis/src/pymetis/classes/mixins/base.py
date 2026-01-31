@@ -98,6 +98,35 @@ class ParametrizableContainer(Parametrizable):
                           f" - {old_class.__qualname__} specialized to {klass.__qualname__} ({klass.name()})")
 
 
+    @classmethod
+    def promote(cls, **parameters) -> None:
+        """
+        Promote the products of this class to appropriate subclasses, as determined from the input data.
+        This may be only called after the recipe is initialized.
+
+        May also contain template variables that are notmixed in during class creation.
+        For instance, `recipe_{band}_{target}` can specify band=LM, but no target,
+        resulting in a partial specialiation. The target has to be supplied from the actual data.)
+        """
+        Msg.info(cls.__qualname__,
+                 f"Promoting {cls.__qualname__} with {parameters}")
+
+        for name, item in cls.list_classes():
+            # Try to find a promoted class in the registry
+            old_class = item.__qualname__
+            old_class_name = item.name()
+
+            if (new_class := cls.Meta._T.find(tag := item.specialize(**parameters))) is None:
+                raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
+            else:
+                Msg.debug(cls.__qualname__,
+                          f" - {old_class} ({old_class_name}) => "
+                          f"{new_class.__qualname__} ({new_class.name()})")
+
+            # Replace the product attribute with the new class
+            cls.__class__.__setattr__(cls, name, new_class)
+
+
 class ParametrizableItem(Parametrizable):
     """
     Abstract base class for all items parametrizable by tags, such as data items and QC parameters.

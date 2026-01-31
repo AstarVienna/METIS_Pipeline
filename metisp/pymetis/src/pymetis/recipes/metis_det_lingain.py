@@ -30,6 +30,8 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.badpixmap import BadPixMap
 from pymetis.dataitems.gainmap import GainMap
 from pymetis.dataitems.linearity.linearity import LinearityMap
@@ -52,17 +54,19 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             Item = BadPixMap
 
-    ProductGainMap = GainMap
-    ProductLinearity = LinearityMap
-    ProductBadPixMap = BadPixMap
+    class ProductSet(PipelineProductSet):
+        GainMap = GainMap
+        Linearity = LinearityMap
+        BadPixMap = BadPixMap
 
-    QcLinGainMean = LinGainMean
-    QcLinGainRms = LinGainRms
-    QcLinNumBadpix = LinNumBadpix
-    QcLinMinFlux = LinMinFlux
-    QcLinMaxFlux = LinMaxFlux
-    QcGainLin = GainLin
-    QcGainCoeff = GainCoeff
+    class Qc(QcParameterSet):
+        LinGainMean = LinGainMean
+        LinGainRms = LinGainRms
+        LinNumBadpix = LinNumBadpix
+        LinMinFlux = LinMinFlux
+        LinMaxFlux = LinMaxFlux
+        GainLin = GainLin
+        GainCoeff = GainCoeff
 
     def __init__(self,
                  recipe: 'MetisRecipe',
@@ -118,15 +122,15 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
 
         all_hdus = [self._process_single_detector(detector) for detector in range(1, detector_count + 1)]
 
-        product_gain_map = self.ProductGainMap(
+        product_gain_map = self.ProductSet.GainMap(
             primary_header_gain_map,
             *[output['gain_map'] for output in all_hdus]
         )
-        product_linearity = self.ProductLinearity(
+        product_linearity = self.ProductSet.Linearity(
             primary_header_linearity,
             *[output['linearity_map'] for output in all_hdus]
         )
-        product_badpix_map = self.ProductBadPixMap(
+        product_badpix_map = self.ProductSet.BadPixMap(
             primary_header_badpix_map,
             *[output['badpix_map'] for output in all_hdus]
         )

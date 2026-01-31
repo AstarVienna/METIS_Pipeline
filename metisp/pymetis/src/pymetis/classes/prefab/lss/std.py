@@ -21,6 +21,7 @@ import copy
 import cpl
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.dataitems.adc.adc import AdcSlitloss
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.raw import LssRaw
@@ -89,12 +90,13 @@ class MetisLssStdImpl(DarkImageProcessor):
 
     # ++++++++++++ Intermediate / QC products ++++++++++++
 
-    ProductLssStdObjMap = LssObjMap
-    ProductLssStdSkyMap = LssSkyMap
-    ProductMasterResponse = MasterResponse
-    ProductStdTransmission = StdTransmission
-    ProductLssWave = LssWaveGuess
-    ProductLssStd1d = LssStd1d
+    class ProductSet(PipelineProductSet):
+        LssStdObjMap = LssObjMap
+        LssStdSkyMap = LssSkyMap
+        MasterResponse = MasterResponse
+        StdTransmission = StdTransmission
+        LssWave = LssWaveGuess
+        LssStd1d = LssStd1d
 
     def process(self) -> set[DataItem]:
         # Load raw image
@@ -117,23 +119,23 @@ class MetisLssStdImpl(DarkImageProcessor):
 
         # Write files
         return {
-            self.ProductMasterResponse(
+            self.ProductSet.MasterResponse(
                 copy.deepcopy(primary_header),
                 Hdu(product_master_response_hdr, table, name='TABLE')
             ),
-            self.ProductStdTransmission(
+            self.ProductSet.StdTransmission(
                 copy.deepcopy(primary_header),
                 Hdu(product_std_transmission_hdr, table, name='TABLE')
             ),
-            self.ProductLssStd1d(
+            self.ProductSet.LssStd1d(
                 copy.deepcopy(primary_header),
                 Hdu(product_lss_std1d_hdr, table, name='TABLE')
             ),
-            self.ProductLssStdObjMap(
+            self.ProductSet.LssStdObjMap(
                 copy.deepcopy(primary_header),
                 Hdu(product_lss_std_obj_map_hdr, image, name='IMAGE')
             ),
-            self.ProductLssStdSkyMap(
+            self.ProductSet.LssStdSkyMap(
                 copy.deepcopy(primary_header),
                 Hdu(product_lss_std_sky_map_hdr, image, name='IMAGE')
             ),

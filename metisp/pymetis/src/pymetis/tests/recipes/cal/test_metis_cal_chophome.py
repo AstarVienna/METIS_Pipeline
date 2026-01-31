@@ -25,8 +25,8 @@ import cpl
 
 from pymetis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
                                                     MetisCalChophomeImpl as Impl)
-from pymetis.tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductTest
-from pymetis.tests.classes.product import ImageProductTest
+from pymetis.tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductSetTest
+from pymetis.tests.classes.product import ImageProductSetTest
 
 recipe_name = r'metis_cal_chophome'
 
@@ -50,12 +50,12 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductCombined(BaseProductTest):
-    Product = Impl.ProductCombined
+class TestProductSetCombined(BaseProductSetTest):
+    Product = Impl.ProductSet.Combined
 
 
-class TestProductBackground(ImageProductTest):
-    Product = Impl.ProductBackground
+class TestProductBackground(ImageProductSetTest):
+    Product = Impl.ProductSet.Background
 
 
 class TestLocatePinhole():

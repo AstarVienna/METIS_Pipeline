@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_lss.metis_lm_lss_wave import (MetisLmLssWave as Recipe,
                                                       MetisLmLssWaveImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_lss_wave'
@@ -45,14 +45,14 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductLssCurve(BaseProductTest):
+class TestProductSetLssCurve(BaseProductSetTest):
     Product = Impl.ProductLssCurve
 
 
-class TestProductLssDistSol(BaseProductTest):
+class TestProductSetLssDistSol(BaseProductSetTest):
     Product = Impl.ProductLssDistSol
 
 
-class TestProductLssWaveGuess(BaseProductTest):
+class TestProductSetLssWaveGuess(BaseProductSetTest):
     Product = Impl.ProductLssWaveGuess
 

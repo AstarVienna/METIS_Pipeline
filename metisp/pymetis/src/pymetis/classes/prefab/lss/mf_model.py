@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.dataitems.lss.science import LssSciFlux1d, LssSci1d
 from pymetis.dataitems.molecfit.model import MfBestFitTable
 from pymetis.classes.inputs import (PipelineInputSet, SinglePipelineInput,
@@ -46,7 +47,8 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         class LssSci1dInput(SinglePipelineInput):
             Item = LssSci1d
 
-    ProductMfBestFitTable = MfBestFitTable
+    class ProductSet(PipelineProductSet):
+        MfBestFitTable = MfBestFitTable
 
     #   Method for processing
     def process(self) -> set[DataItem]:
@@ -62,7 +64,7 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         header_mf_best_fit = create_dummy_header()
         table = create_dummy_table()
         return {
-            self.ProductMfBestFitTable(
+            self.ProductSet.MfBestFitTable(
                 primary_header,
                 Hdu(header_mf_best_fit, table, name='TABLE'),
             ),

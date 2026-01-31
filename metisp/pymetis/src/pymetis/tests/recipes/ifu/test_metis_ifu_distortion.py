@@ -22,7 +22,7 @@ import pytest
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe,
                                                       MetisIfuDistortionImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_ifu_distortion'
@@ -46,9 +46,9 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductDistortionTable(BaseProductTest):
-    Product = Impl.ProductDistortionTable
+class TestProductSetDistortionTable(BaseProductSetTest):
+    Product = Impl.ProductSet.DistortionTable
 
 
-class TestProductDistortionReduced(BaseProductTest):
-    Product = Impl.ProductDistortionReduced
+class TestProductSetDistortionReduced(BaseProductSetTest):
+    Product = Impl.ProductSet.DistortionReduced

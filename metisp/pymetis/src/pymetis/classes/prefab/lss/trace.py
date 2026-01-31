@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.dataitems.lss.rsrf import LssRsrfPinholeRaw, MasterLssRsrf
 from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
@@ -52,7 +53,8 @@ class MetisLssTraceImpl(DarkImageProcessor):
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
 
-    ProductTraceTable = LssTrace
+    class ProductSet(PipelineProductSet):
+        TraceTable = LssTrace
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
@@ -65,7 +67,7 @@ class MetisLssTraceImpl(DarkImageProcessor):
         trace_tab_data = create_dummy_table()
 
         return {
-            self.ProductTraceTable(
+            self.ProductSet.TraceTable(
                 primary_header,
                 Hdu(trace_tab_header, trace_tab_data, name='TABLE'))
         }

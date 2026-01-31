@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.ifu.metis_ifu_wavecal import (MetisIfuWavecal as Recipe,
                                                    MetisIfuWavecalImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_ifu_wavecal'
@@ -45,5 +45,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    Product = Impl.ProductIfuWavecal
+class TestProductSet(BaseProductSetTest):
+    Product = Impl.ProductSet.IfuWavecal

@@ -30,7 +30,6 @@ from pymetis.dataitems.ifu.raw import IfuRaw
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet, RawInput, MasterDarkInput
 from pymetis.classes.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
-from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
@@ -93,7 +92,7 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         class Conversion(QcParameter):
             _name_template = "QC IFU TELLURIC CONV"
             _type = float
-            _unit = "Jansky / counts" # ToDO WTF
+            _unit = "Jansky / counts"
             _description_template = "Calculated conversion factor"
 
 

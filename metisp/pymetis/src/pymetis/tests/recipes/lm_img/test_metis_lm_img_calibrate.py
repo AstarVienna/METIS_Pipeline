@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_img.metis_lm_img_calibrate import (MetisLmImgCalibrate as Recipe,
                                                            MetisLmImgCalibrateImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_img_calibrate'
@@ -45,5 +45,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    Product = Impl.ProductSciCalibrated
+class TestProductSet(BaseProductSetTest):
+    Product = Impl.ProductSet.SciCalibrated

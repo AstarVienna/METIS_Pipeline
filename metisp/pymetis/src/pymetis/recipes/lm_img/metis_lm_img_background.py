@@ -48,8 +48,8 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
         ObjectCatalog = ObjectCatalog
 
     class Qc(QcParameterSet):
-        LmImgBkgMedian = QcLmImgBkgMedian
-        LmImgBkgMedianDev = QcLmImgBkgMedianDeviation
+        Median = QcLmImgBkgMedian
+        MedianDev = QcLmImgBkgMedianDeviation
 
     def process(self) -> set[DataItem]:
         image = self.inputset.basic_reduced.load_data('DET1.DATA')

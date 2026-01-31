@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_lss.metis_lm_lss_sci import (MetisLmLssSci as Recipe,
                                                      MetisLmLssSciImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_lss_sci'
@@ -45,29 +45,29 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductLssSciObjMap(BaseProductTest):
-    Product = Impl.ProductLssSciObjMap
+class TestProductSetLssSciObjMap(BaseProductSetTest):
+    Product = Impl.ProductSet.LssSciObjMap
 
 
-class TestProductLssSciSkyMap(BaseProductTest):
-    Product = Impl.ProductLssSciSkyMap
+class TestProductSetLssSciSkyMap(BaseProductSetTest):
+    Product = Impl.ProductSet.LssSciSkyMap
 
 
-class TestProductLssSci1d(BaseProductTest):
-    Product = Impl.ProductLssSci1d
+class TestProductSetLssSci1D(BaseProductSetTest):
+    Product = Impl.ProductSet.LssSci1d
 
 
-class TestProductLssSci2d(BaseProductTest):
-    Product = Impl.ProductLssSci2d
+class TestProductSetLssSci2D(BaseProductSetTest):
+    Product = Impl.ProductSet.LssSci2d
 
 
-class TestProductLssSciFlux1d(BaseProductTest):
-    Product = Impl.ProductLssSciFlux1d
+class TestProductSetLssSciFlux1D(BaseProductSetTest):
+    Product = Impl.ProductSet.LssSciFlux1d
 
 
-class TestProductLssSciFlux2d(BaseProductTest):
-    Product = Impl.ProductLssSciFlux2d
+class TestProductSetLssSciFlux2D(BaseProductSetTest):
+    Product = Impl.ProductSet.LssSciFlux2d
 
 
-class TestProductSciFluxTellCorr1d(BaseProductTest):
-    Product = Impl.ProductLssSciFluxTellCorr1d   # TODO: What about the 2d version?
+class TestProductSetSciFluxTellCorr1D(BaseProductSetTest):
+    Product = Impl.ProductSet.LssSciFluxTellCorr1d   # TODO: What about the 2d version?

@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_lss.metis_lm_lss_std import (MetisLmLssStd as Recipe,
                                                      MetisLmLssStdImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_lss_std'
@@ -45,23 +45,23 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductLmLssStdObjMap(BaseProductTest):
-    Product = Impl.ProductLssStdObjMap
+class TestProductSetLmLssStdObjMap(BaseProductSetTest):
+    Product = Impl.ProductSet.LssStdObjMap
 
 
-class TestProductLmLssStdSkyMap(BaseProductTest):
-    Product = Impl.ProductLssStdSkyMap
+class TestProductSetLmLssStdSkyMap(BaseProductSetTest):
+    Product = Impl.ProductSet.LssStdSkyMap
 
 
-class TestProductLmResponse(BaseProductTest):
-    Product = Impl.ProductMasterResponse
+class TestProductSetLmResponse(BaseProductSetTest):
+    Product = Impl.ProductSet.MasterResponse
 
 
-class TestProductStdTransmission(BaseProductTest):
-    Product = Impl.ProductStdTransmission
+class TestProductSetStdTransmission(BaseProductSetTest):
+    Product = Impl.ProductSet.StdTransmission
 
 
-class TestProductLmLssStd1d(BaseProductTest):
-    Product = Impl.ProductLssStd1d
+class TestProductSetLmLssStd1D(BaseProductSetTest):
+    Product = Impl.ProductSet.LssStd1d
 
 
