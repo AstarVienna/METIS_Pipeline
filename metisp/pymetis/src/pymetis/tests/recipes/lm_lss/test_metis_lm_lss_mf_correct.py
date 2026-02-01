@@ -46,4 +46,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductSet(BaseProductSetTest):
-    Product = Impl.ProductTellCorrFinal
+    Product = Impl.ProductSet.TellCorrFinal

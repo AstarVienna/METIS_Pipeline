@@ -46,4 +46,4 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductSetNImgFluxcalTable(BaseProductSetTest):
-    Product = Impl.ProductSet.FluxCalTable
+    Product = Impl.ProductSet.ImgFluxCalTable

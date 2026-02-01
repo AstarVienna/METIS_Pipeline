@@ -46,13 +46,13 @@ class TestInputSet(BaseInputSetTest):
 
 
 class TestProductSetLssCurve(BaseProductSetTest):
-    Product = Impl.ProductLssCurve
+    Product = Impl.ProductSet.LssCurve
 
 
 class TestProductSetLssDistSol(BaseProductSetTest):
-    Product = Impl.ProductLssDistSol
+    Product = Impl.ProductSet.LssDistSol
 
 
 class TestProductSetLssWaveGuess(BaseProductSetTest):
-    Product = Impl.ProductLssWaveGuess
+    Product = Impl.ProductSet.LssWaveGuess
 

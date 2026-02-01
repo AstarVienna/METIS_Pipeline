@@ -177,16 +177,16 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         if fwhm_x is None or fwhm_y is None:
             Msg.warning(cls.__qualname__,
                         "Detection of pinhole failed")
-            fwhm_x = 999
-            fwhm_y = 999
+            fwhm_x = 999.0
+            fwhm_y = 999.0
 
         return {
             "xcen": xcen,
             "ycen": ycen,
             "fwhm_x": fwhm_x,
             "fwhm_y": fwhm_y,
-            "xcenstd": 0, # ToDo fix
-            "ycenstd": 0, # ToDo fix
+            "xcenstd": 0.0, # ToDo fix
+            "ycenstd": 0.0, # ToDo fix
             "snr": flux / noise
         }
 
