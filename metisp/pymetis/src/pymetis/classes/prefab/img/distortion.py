@@ -29,7 +29,7 @@ from pymetis.dataitems.distortion.table import DistortionTable
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.classes.inputs import RawInput, SinglePipelineInput, PinholeTableInput, GainMapInput, LinearityInput, \
-    OptionalInputMixin, PersistenceMapInput
+    OptionalInputMixin, PersistenceMapInput, MultiplePipelineInput
 from pymetis.qc.distortion import QcDistortRms, QcDistortNSource
 from pymetis.utils.dummy import create_dummy_table, create_dummy_image, create_dummy_header
 
@@ -48,7 +48,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
         class LinearityInput(LinearityInput):
             pass
 
-        class DistortionInput(SinglePipelineInput):
+        class DistortionInput(MultiplePipelineInput):
             Item = DistortionRaw
 
         class PinholeTableInput(PinholeTableInput):

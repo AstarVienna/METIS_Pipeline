@@ -81,17 +81,17 @@ class ParametrizableContainer(Parametrizable):
 
     @classmethod
     def specialize(cls, **parameters) -> None:
+        Msg.debug(cls.__qualname__,
+                  f"Specializing {cls.__qualname__} with {parameters} | {cls.tag_parameters()}")
+
         for name, item_class in cls.list_classes():
             old_class = item_class
             # Copy the entire type so that we do not mess up the original one
             new_class: cls.Meta._T = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
-            new_class.specialize(**parameters)
+            new_class.specialize(**(item_class.tag_parameters() | parameters))
 
             if (klass := cls.Meta._T.find(new_class._name_template)) is None:
                 setattr(cls, name, new_class)
-                print(cls.__qualname__,
-                          f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {parameters}, "
-                          f"had to create a new class {new_class.__qualname__} ({new_class.name()})")
                 Msg.debug(cls.__qualname__,
                           f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {parameters}, "
                           f"had to create a new class {new_class.__qualname__}")
@@ -119,7 +119,7 @@ class ParametrizableContainer(Parametrizable):
             old_class = item.__qualname__
             old_class_name = item.name()
 
-            if (new_class := cls.Meta._T.find(tag := item.specialize(**parameters))) is None:
+            if (new_class := cls.Meta._T.find(tag := item.specialize(**(item.tag_parameters() | parameters)))) is None:
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:
                 Msg.debug(cls.__qualname__,
@@ -193,7 +193,6 @@ class ParametrizableItem(Parametrizable):
         """
         old = cls._name_template
         cls._name_template = partial_format(cls._name_template, **parameters)
-        #print(f"Specializing {cls.__name__} with {parameters}: {old} -> {cls._name_template}")
         return cls._name_template
 
     @classmethod
@@ -202,7 +201,7 @@ class ParametrizableItem(Parametrizable):
         Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
         """
         assert cls._name_template is not None, \
-            f"{cls.__name__} name template is None"
+            f"{cls.__qualname__} name template is None"
         return partial_format(cls._name_template, **cls._replace_empty_tags(**cls.tag_parameters()))
 
     @classmethod

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-from pymetis.classes.mixins import BandLmMixin, BandNMixin
+
 from pymetis.classes.qc import QcParameter
 
 
@@ -50,11 +50,11 @@ class QcStdStrehl(QcParameter):
     _description_template = "Strehl ratio of the standard star"
 
 
-class QcStdFwhm(QcParameter):
+class QcStdAirmass(QcParameter):
     _name_template = "QC {band} STD FWHM"
     _type = float
-    _unit = "pixels"
-    _description_template = "FWHM of the standard star PSF"
+    _unit = "1"
+    _description_template = "Ellipticity of the standard star PSF"
 
 
 class QcStdEllipticity(QcParameter):

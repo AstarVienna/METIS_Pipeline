@@ -17,13 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from cpl.core import Msg
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.mixins.base import ParametrizableContainer
+from pymetis.classes.qc import QcParameter
 
 
-class PipelineProductSet(ParametrizableContainer):
-    """ A set of recipe implementation products. """
-    class Meta:
-        _T = DataItem
-
+class QcStdFwhm(QcParameter):
+    _name_template = "QC {band} STD FWHM"
+    _type = float
+    _unit = "pixels"
+    _description_template = "FWHM of the standard star PSF"

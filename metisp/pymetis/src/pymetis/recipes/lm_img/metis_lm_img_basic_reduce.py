@@ -26,6 +26,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.img.basicreduced import BasicReduced
 from pymetis.dataitems.img.raw import ImageRaw
 from pymetis.dataitems.masterflat import MasterImgFlat
@@ -88,6 +89,28 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
 
     class ProductSet(PipelineProductSet):
         BasicReduced = BasicReduced
+
+    class Qc(QcParameterSet):
+        class Median(QcParameter):
+            _name_template = "QC LM IMG MEDIAN"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Median level of the LM image"
+
+        class StandardDeviation(QcParameter):
+            _name_template = "QC LM IMG STANDARD DEVIATION"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Standard deviation of the LM image"
+
+        class Peak(QcParameter):
+            _name_template = "QC LM IMG PEAK"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Peak value of the LM image"
 
     def process(self) -> set[DataItem]:
         """

@@ -30,7 +30,7 @@ class QcParameter(ParametrizableItem):
     _type: ClassVar[type] = NoneType
     _unit: ClassVar[str] = "undefined"
     _default: ClassVar[Any] = None
-    _description_template: ClassVar[str] = "Mean level of the frame"
+    _description_template: ClassVar[str] = "<no description provided>"
     _comment: ClassVar[str] = ""
 
     def __init__(self, value: Any):

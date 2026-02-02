@@ -26,6 +26,7 @@ from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.dataitems.masterflat.raw import FlatRaw
+from pymetis.dataitems.badpixmap import BadPixMap
 from pymetis.classes.inputs import RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
     LinearityInput
 
@@ -56,6 +57,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
 
     class ProductSet(PipelineProductSet):
         MasterFlat = MasterImgFlat
+        BadPixMap = BadPixMap
 
     class Qc(QcParameterSet):
         MflatRms = MFlatRms

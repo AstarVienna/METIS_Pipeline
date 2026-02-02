@@ -21,6 +21,7 @@ from abc import ABC
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import TargetSciMixin
 from pymetis.classes.qc import QcParameter, QcParameterSet
 from pymetis.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.dataitems.distortion.table import DistortionTable
@@ -31,7 +32,7 @@ from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
+class MetisImgCalibrateImpl(TargetSciMixin, MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
             Item = BackgroundSubtracted
