@@ -26,8 +26,7 @@ import cpl
 from cpl.core import Msg, Image, ImageList
 
 from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.classes.inputs import PipelineInputSet, RawInput
-
+from pymetis.classes.inputs import PipelineInputSet, RawInput, BadPixMapInput, OptionalInputMixin
 
 CombineMethodType = Literal['add', 'average', 'median', 'sigclip']
 
@@ -40,6 +39,9 @@ class RawImageProcessor(MetisRecipeImpl, ABC):
 
     class InputSet(PipelineInputSet):
         RawInput: type[RawInput] = RawInput
+
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
+            pass
 
     @classmethod
     def combine_images(cls,

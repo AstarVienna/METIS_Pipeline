@@ -89,6 +89,9 @@ class ParametrizableContainer(Parametrizable):
 
             if (klass := cls.Meta._T.find(new_class._name_template)) is None:
                 setattr(cls, name, new_class)
+                print(cls.__qualname__,
+                          f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {parameters}, "
+                          f"had to create a new class {new_class.__qualname__} ({new_class.name()})")
                 Msg.debug(cls.__qualname__,
                           f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {parameters}, "
                           f"had to create a new class {new_class.__qualname__}")
@@ -174,7 +177,7 @@ class ParametrizableItem(Parametrizable):
     @final
     def find(cls, key: str) -> Optional[type[Self]]:
         """
-        Try to retrieve the DataItem subclass with tag ``key`` from the global registry.
+        Try to retrieve the ParametrizableItem subclass with tag ``key`` from the global registry.
 
         If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
         """

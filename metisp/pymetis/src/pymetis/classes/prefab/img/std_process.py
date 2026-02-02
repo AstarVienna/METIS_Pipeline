@@ -22,12 +22,15 @@ import copy
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.mixins import TargetStdMixin
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.dataitems.combined import Combined
 from pymetis.classes.inputs import RawInput
 from pymetis.classes.inputs import FluxstdCatalogInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 from pymetis.dataitems.common import FluxCalTable
+from pymetis.qc.std_process import QcImgStdBackgroundRms, QcStdPeakCounts, QcStdApertureCounts, QcStdStrehl, QcStdFwhm, \
+    QcStdEllipticity, QcStdFluxConversion, QcSensitivity, QcAreaSensitivity
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
@@ -42,6 +45,17 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor):
     class ProductSet(PipelineProductSet):
         ImgStdCombined = Combined
         ImgFluxCalTable = FluxCalTable
+
+    class Qc(QcParameterSet):
+        BackgroundRms = QcImgStdBackgroundRms
+        PeakCounts = QcStdPeakCounts
+        ApertureCounts = QcStdApertureCounts
+        Strehl = QcStdStrehl
+        Fwhm = QcStdFwhm
+        Ellipticity = QcStdEllipticity
+        FluxConversion = QcStdFluxConversion
+        Sensitivity = QcSensitivity
+        AreaSensitivity = QcAreaSensitivity
 
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')

@@ -21,28 +21,14 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab.img.std_process import MetisImgStdProcessImpl
-from pymetis.classes.qc import QcParameterSet
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.dataitems.background.subtracted import LmStdBackgroundSubtracted
-from pymetis.qc.std_process import (QcImgStdBackgroundRms, QcStdPeakCounts, QcStdApertureCounts, QcStdStrehl,
-                                    QcStdFwhm, QcStdEllipticity, QcStdFluxConversion, QcSensitivity, QcAreaSensitivity)
 
 
 class MetisLmImgStdProcessImpl(BandLmMixin, MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             Item = LmStdBackgroundSubtracted
-
-    class Qc(QcParameterSet):
-        BackgroundRms = QcImgStdBackgroundRms
-        PeakCounts = QcStdPeakCounts
-        ApertureCounts = QcStdApertureCounts
-        Strehl = QcStdStrehl
-        Fwhm = QcStdFwhm
-        Ellipticity = QcStdEllipticity
-        FluxConversion = QcStdFluxConversion
-        Sensitivity = QcSensitivity
-        AreaSensitivity = QcAreaSensitivity
 
 
 class MetisLmImgStdProcess(MetisRecipe):

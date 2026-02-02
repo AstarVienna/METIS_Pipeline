@@ -83,7 +83,11 @@ class MetisRecipeImpl(Parametrizable, ABC):
         """
         Msg.debug(cls.__qualname__, f"Specializing {cls.__qualname__} with {cls.tag_parameters()}")
         cls.InputSet.specialize(**cls.tag_parameters())
+
+        # FixMe -- Surely it must be possible to do this in a more elegant way
+        cls.ProductSet = type("ProductSet", (cls.ProductSet,), {})
         cls.ProductSet.specialize(**cls.tag_parameters())
+        cls.Qc = type("Qc", (cls.Qc,), {})
         cls.Qc.specialize(**cls.tag_parameters())
 
     @classmethod

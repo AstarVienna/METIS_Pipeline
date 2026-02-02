@@ -24,6 +24,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
 from pymetis.dataitems.raw.wcuoff import LmWcuOffRaw
@@ -36,7 +37,7 @@ from pymetis.qc.chophome import CalChophomeXcen, CalChophomeXcenStdev, CalChopho
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
+class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
 
     class InputSet(RawImageProcessor.InputSet):

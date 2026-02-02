@@ -67,7 +67,47 @@ class MetisLmRavcSciCalibrateImpl(RawImageProcessor):
         LmSciPsfMedian = LmRavcPsfMedian
 
     class Qc(QcParameterSet):
-        pass
+        class SciNExp(QcParameter):
+            _name_template = "QC {detector} {cgrph} SCI NEXP"
+            _type = int
+            _unit = "1"
+            _default = None
+            _description_template = "Effective number of exposures used to create the ADI data products"
+
+        class SciSnrMean(QcParameter):
+            _name_template = "QC {detector} {cgrph} SCI SNR MEAN"
+            _type = float
+            _unit = "1"
+            _default = None
+            _description_template = "Mean value in ADI SNR map"
+
+        class SciSnrPeak(QcParameter):
+            _name_template = "QC {detector} {cgrph} SCI SNR PEAK"
+            _type = float
+            _unit = "1"
+            _default = None
+            _description_template = "Peak value in ADI SNR map"
+
+        class SciContrastRawLamd(QcParameter):
+            _name_template = "QC {detector} {cgrph} SCI CONTRAST RAW LAMD"
+            _type = float
+            _unit = "mag"
+            _default = None
+            _description_template = "Raw contrast curve value at separation LAMD LDD"
+
+        class SciContrastAdiLamd(QcParameter):
+            _name_template = "QC {detector} {cgrph} SCI CONTRAST ADI LAMD"
+            _type = float
+            _unit = "mag"
+            _default = None
+            _description_template = "Post-ADI contrast curve value at separation LAMD LDD"
+
+        class SciFwhm(QcParameter):
+            _name_template = "QC {detector} {cgrph} SCI FWHM {nn}"
+            _type = float
+            _unit = "pixels"
+            _default = None
+            _description_template = "FWHM of the PSF in frame {nn}"
 
     def process(self) -> set[DataItem]:
         image = self.inputset.raw.load_data('DET1.DATA')[0]
