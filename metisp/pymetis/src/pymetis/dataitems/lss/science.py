@@ -177,7 +177,7 @@ class LssSciFluxTellCorr1d(TableDataItem, abstract=True):
     """
     Final flux calibrated, telluric corrected 1D spectrum of standard star
     """
-    _name_template = r'{band}_LSS_SCI_FLUX_TELL_1D'
+    _name_template = r'{band}_LSS_SCI_FLUX_TELLCORR_1D'
     _title_template = "{band} LSS science flux-calibrated telluric-corrected"
     _description_template = "Extracted, flux-calibrated, telluric-corrected 1D science spectrum"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL

@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.lss.science import LssSciFlux1d, LssSci1d
 from pymetis.dataitems.molecfit.model import MfBestFitTable
 from pymetis.classes.inputs import (PipelineInputSet, SinglePipelineInput,
@@ -49,6 +50,9 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
 
     class ProductSet(PipelineProductSet):
         MfBestFitTable = MfBestFitTable
+
+    class Qc(QcParameterSet):
+        pass # RD17 from DRLD (finish)
 
     #   Method for processing
     def process(self) -> set[DataItem]:

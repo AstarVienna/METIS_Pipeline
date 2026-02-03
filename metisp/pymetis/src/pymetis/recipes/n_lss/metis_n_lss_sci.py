@@ -22,11 +22,15 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin, TargetSciMixin
 from pymetis.classes.prefab.lss.sci import MetisLssSciImpl
 from pymetis.classes.recipes import MetisRecipe
+from pymetis.dataitems.lss.science import LssSciFluxTellCorr1d
 
 
 class MetisNLssSciImpl(BandNMixin, DetectorGeoMixin, TargetSciMixin, MetisLssSciImpl):
     class InputSet(MetisLssSciImpl.InputSet):
         pass
+
+    class ProductSet(MetisLssSciImpl.ProductSet):
+        LssSciFluxTellCorr1d = LssSciFluxTellCorr1d
 
 
 class MetisNLssSci(MetisRecipe):

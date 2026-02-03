@@ -22,7 +22,7 @@ from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.qc import QcParameterSet
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.trace import LssTrace
@@ -73,7 +73,44 @@ class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor):
         LssWaveGuess = LssWaveGuess
 
     class Qc(QcParameterSet):
-        pass
+        class PolyDeg(QcParameter):
+            _name_template = "QC LM LSS WAVE POLYDEG"
+            _type = int
+            _unit = "1"
+            _default = None
+            _description_template = "Degree of the first guess polynomial"
+            _comment = None
+
+        class CoeffN(QcParameter):
+            _name_template = "QC LM LSS WAVE COEFF{i}"
+            _type = float
+            _unit = "pixels ^ (1 - i)"
+            _default = None
+            _description_template = "{i}-th coefficient of the first guess polynomial"
+            _comment = None
+
+        class NLines(QcParameter):
+            _name_template = "QC LM LSS WAVE NLINES"
+            _type = int
+            _unit = "1"
+            _default = None
+            _description_template = "Number of detected laser lines; should be constant"
+
+        class LineFwhmAvg(QcParameter):
+            _name_template = "QC LM LSS WAVE LINEFWHMAVG"
+            _type = float
+            _unit = "Å"
+            _default = None
+            _description_template = "Average of the FWHM of the detected lines (should be widely constant)"
+            _comment = None
+
+        class InterorderLevel(QcParameter):
+            _name_template = "QC LM LSS WAVE INTORDR LEVEL"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Flux level of the interorder background"
+            _comment = None
 
 #   Method for processing
     def process(self) -> set[DataItem]:

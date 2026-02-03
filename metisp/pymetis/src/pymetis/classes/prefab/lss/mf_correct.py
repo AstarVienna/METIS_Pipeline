@@ -39,7 +39,7 @@ class MetisLssMfCorrectImpl(MetisRecipeImpl):
         TellCorrFinal = LssSciFluxTellCorr1d
 
     class Qc(QcParameterSet):
-        pass
+        pass # RD17 from DRLD (finish)
 
     def mf_correct(self):
         """

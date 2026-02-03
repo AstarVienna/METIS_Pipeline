@@ -51,7 +51,7 @@ class MetisAdcSlitlossImpl(DarkImageProcessor):
         AdcSlitloss = AdcSlitloss
 
     class Qc(QcParameterSet):
-        pass # ToDo finish
+        pass # Nothing here
 
     # =========================================================================================
     #    Methods

@@ -19,14 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
+from pymetis.classes.inputs import SinglePipelineInput
 from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin, TargetStdMixin
 from pymetis.classes.prefab.lss.std import MetisLssStdImpl
 from pymetis.classes.recipes import MetisRecipe
+from pymetis.dataitems.lss.trace import LssTrace
 
 
 class MetisNLssStdImpl(BandNMixin, DetectorGeoMixin, TargetStdMixin, MetisLssStdImpl):
     class InputSet(MetisLssStdImpl.InputSet):
-        pass
+        class MasterLssTrace(SinglePipelineInput):
+            Item = LssTrace
 
 
 class MetisNLssStd(MetisRecipe):

@@ -43,7 +43,7 @@ class MetisLmLssMfCalctrans(MetisRecipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of transmission function"
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

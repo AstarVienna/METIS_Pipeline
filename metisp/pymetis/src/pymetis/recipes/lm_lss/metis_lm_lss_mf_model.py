@@ -36,7 +36,7 @@ class MetisLmLssMfModel(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _synopsis: str = "Calculation of molecfit model"
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DRS.SLIT'}
     _algorithm = """Fit of telluric features visible in the science input spectrum
     Determination of best-fit parameter set"""
 

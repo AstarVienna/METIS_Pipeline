@@ -22,18 +22,20 @@ import cpl
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.inputs import RawInput, \
+    SinglePipelineInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
+    LinearityInput, BadPixMapInput
+from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.adc.adc import AdcSlitloss
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.raw import LssRaw
 from pymetis.dataitems.lss.response import MasterResponse, StdTransmission
 from pymetis.dataitems.lss.rsrf import MasterLssRsrf
-from pymetis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, \
-    LssSciFlux2d, LssSciFluxTellCorr1d
+from pymetis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, LssSciFlux2d
 from pymetis.dataitems.lss.std import AoPsfModel
-from pymetis.classes.inputs import RawInput, \
-    SinglePipelineInput, AtmLineCatInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
-    LinearityInput, BadPixMapInput
-from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.qc.lss import LssInterorderLevel, LssWaveCalDevMean, LssWaveCalFwhm, LssWaveCalNIdent, LssWaveCalNMatch, \
+    LssWaveCalPolyDeg, LssWaveCalPolyCoeffN
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
@@ -66,7 +68,7 @@ class MetisLssSciImpl(DarkImageProcessor):
         class MasterLssResponseInput(SinglePipelineInput):
             Item = MasterResponse
 
-        class MasterStdTransmissionInput(SinglePipelineInput):
+        class MasterStdTransmissionInput(OptionalInputMixin, SinglePipelineInput):
             Item = StdTransmission
 
         class MasterAdcSlitlossInput(SinglePipelineInput):
@@ -97,7 +99,47 @@ class MetisLssSciImpl(DarkImageProcessor):
         LssSci1d = LssSci1d
         LssSciFlux2d = LssSciFlux2d
         LssSciFlux1d = LssSciFlux1d
-        LssSciFluxTellCorr1d = LssSciFluxTellCorr1d
+
+    class Qc(QcParameterSet):
+        class Snr(QcParameter):
+            _name_template = "QC {band} LSS SCI SNR"
+            _type = float
+            _unit = "1"
+            _description_template = "Signal-to-noise ratio of science spectrum"
+            _comment = None
+
+        class NoiseLevel(QcParameter):
+            _name_template = "QC {band} LSS SCI NOISELEV"
+            _type = float
+            _unit = "Jansky"
+            _description_template = "Noise level of science spectrum"
+            _comment = None
+
+        class FluxSnr(QcParameter):
+            _name_template = "QC {band} LSS SCI FLUX SNR"
+            _type = float
+            _unit = "1"
+            _description_template = "Signal-to-noise ratio of flux calibrated science spectrum"
+            _comment = None
+
+        class FluxNoiseLevel(QcParameter):
+            _name_template = "QC {band} LSS SCI FLUX NOISELEV"
+            _type = float
+            _unit = "Jansky"
+            _default = None
+            _description_template = "Noise level of flux calibrated science spectrum"
+            _comment = None
+
+        InterorderLevel = LssInterorderLevel
+        WaveCalDevMean = LssWaveCalDevMean
+        WaveCalFwhm = LssWaveCalFwhm
+        WaveCalNIdent = LssWaveCalNIdent
+        WaveCalNMatch = LssWaveCalNMatch
+        WaveCalPolyDeg = LssWaveCalPolyDeg
+        WaveCalPolyCoeffN = LssWaveCalPolyCoeffN
+
+
+
 
     # CAVEAT: Dummy routine only! Will be replaced with functionality -------
     # Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++
