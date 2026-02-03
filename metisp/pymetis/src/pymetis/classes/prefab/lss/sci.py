@@ -170,10 +170,10 @@ class MetisLssSciImpl(DarkImageProcessor):
                 copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_flux_2d, image, name='IMAGE')
             ),
-            self.ProductSet.LssSciFluxTellCorr1d(
-                copy.deepcopy(primary_header),
-                Hdu(header_lss_sci_flux_tell_corr1d, table, name='TABLE')
-            ),
+            #self.ProductSet.LssSciFluxTell1d(
+            #    copy.deepcopy(primary_header),
+            #    Hdu(header_lss_sci_flux_tell_corr1d, table, name='TABLE')
+            #),
             self.ProductSet.LssSciObjMap(
                 copy.deepcopy(primary_header),
                 Hdu(header_lss_sci_obj_map, image, name='IMAGE')

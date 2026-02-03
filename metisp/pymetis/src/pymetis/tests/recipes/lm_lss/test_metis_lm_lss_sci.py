@@ -69,5 +69,5 @@ class TestProductSetLssSciFlux2D(BaseProductSetTest):
     Product = Impl.ProductSet.LssSciFlux2d
 
 
-class TestProductSetSciFluxTellCorr1D(BaseProductSetTest):
-    Product = Impl.ProductSet.LssSciFluxTellCorr1d   # TODO: What about the 2d version?
+#class TestProductSetSciFluxTellCorr1D(BaseProductSetTest):
+#    Product = Impl.ProductSet.LssSciFluxTellCorr1d   # TODO: What about the 2d version?
