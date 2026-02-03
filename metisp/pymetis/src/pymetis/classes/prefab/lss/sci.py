@@ -35,7 +35,7 @@ from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, LssSciFlux2d
 from pymetis.dataitems.lss.std import AoPsfModel
 from pymetis.qc.lss import LssInterorderLevel, LssWaveCalDevMean, LssWaveCalFwhm, LssWaveCalNIdent, LssWaveCalNMatch, \
-    LssWaveCalPolyDeg, LssWaveCalPolyCoeffN
+    LssWaveCalPolyDeg, LssWaveCalPolyCoeffN, LssSnr, LssNoiseLevel
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
@@ -101,20 +101,6 @@ class MetisLssSciImpl(DarkImageProcessor):
         LssSciFlux1d = LssSciFlux1d
 
     class Qc(QcParameterSet):
-        class Snr(QcParameter):
-            _name_template = "QC {band} LSS SCI SNR"
-            _type = float
-            _unit = "1"
-            _description_template = "Signal-to-noise ratio of science spectrum"
-            _comment = None
-
-        class NoiseLevel(QcParameter):
-            _name_template = "QC {band} LSS SCI NOISELEV"
-            _type = float
-            _unit = "Jansky"
-            _description_template = "Noise level of science spectrum"
-            _comment = None
-
         class FluxSnr(QcParameter):
             _name_template = "QC {band} LSS SCI FLUX SNR"
             _type = float
@@ -130,6 +116,8 @@ class MetisLssSciImpl(DarkImageProcessor):
             _description_template = "Noise level of flux calibrated science spectrum"
             _comment = None
 
+        Snr = LssSnr
+        NoiseLevel = LssNoiseLevel
         InterorderLevel = LssInterorderLevel
         WaveCalDevMean = LssWaveCalDevMean
         WaveCalFwhm = LssWaveCalFwhm

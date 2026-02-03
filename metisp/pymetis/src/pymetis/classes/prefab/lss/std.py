@@ -36,7 +36,7 @@ from pymetis.classes.inputs import RawInput, MasterDarkInput, \
     LinearityInput, AtmLineCatInput
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.qc.lss import LssWaveCalPolyCoeffN, LssWaveCalPolyDeg, LssWaveCalNMatch, LssWaveCalNIdent, LssWaveCalFwhm, \
-    LssWaveCalDevMean, LssInterorderLevel
+    LssWaveCalDevMean, LssInterorderLevel, LssSnr, LssNoiseLevel
 from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
@@ -121,22 +121,6 @@ class MetisLssStdImpl(DarkImageProcessor):
             _description_template = "Standard deviation value of background"
             _comment = None
 
-        class Snr(QcParameter):
-            _name_template = "QC {band} LSS STD SNR"
-            _type = float
-            _unit = "1"
-            _default = None
-            _description_template = "Signal-to-noise ratio of flux standard star spectrum"
-            _comment = None
-
-        class NoiseLevel(QcParameter):
-            _name_template = "QC {band} LSS STD NOISELEV"
-            _type = float
-            _unit = "counts"
-            _default = None
-            _description_template = "Noise level of flux standard star spectrum"
-            _comment = None
-
         class Fwhm(QcParameter):
             _name_template = "QC {band} LSS STD FWHM"
             _type = float
@@ -153,6 +137,8 @@ class MetisLssStdImpl(DarkImageProcessor):
             _description_template = "" # FixMe missing in DRLD
             _comment = None
 
+        Snr = LssSnr
+        NoiseLevel = LssNoiseLevel
         InterorderLevel = LssInterorderLevel
         WaveCalDevMean = LssWaveCalDevMean
         WaveCalFwhm = LssWaveCalFwhm
