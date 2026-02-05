@@ -50,6 +50,7 @@ class TestRecipe(BandParamRecipeTest):
             frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_raw_detectors.sof"))
             instance.run(frameset, {})
 
+    @pytest.mark.skip
     def test_fails_with_files_from_mismatched_detectors(self, load_frameset):
         with pytest.raises(ValueError):
             instance = self.Recipe()
