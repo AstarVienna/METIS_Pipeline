@@ -41,9 +41,9 @@ Homepage = "https://www.eso.org/sci/software/pipelines/"
 doc = [
     "sphinx",
 ]
-test = [
-    "pytest",
-]
+
+[dependency-groups]
+dev = ["pytest"]
 
 [tool.setuptools]
 zip-safe = false
