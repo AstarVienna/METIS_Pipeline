@@ -70,8 +70,8 @@ class MetisRecipe(cpl.ui.PyRecipe):
     def run(self, frameset: cpl.ui.FrameSet, settings: dict[str, Any]) -> cpl.ui.FrameSet:
         """
         The main method, as required by PyCPL.
-        Instantiates the decoupled implementation, fills it with supplied frameset,
-        optionally promotes the class to the proper child class and then runs it.
+        Instantiates the decoupled implementation, fills it with the supplied frameset,
+        optionally promotes the class to the proper derived class and then runs it.
         """
         self.implementation = self.Impl(self, frameset, settings)
         return self.implementation.run()

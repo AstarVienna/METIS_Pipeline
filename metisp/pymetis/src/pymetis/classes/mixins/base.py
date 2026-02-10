@@ -107,7 +107,7 @@ class ParametrizableContainer(Parametrizable):
         Promote the products of this class to appropriate subclasses, as determined from the input data.
         This may be only called after the recipe is initialized.
 
-        May also contain template variables that are notmixed in during class creation.
+        May also contain template variables that are not mixed in during class creation.
         For instance, `recipe_{band}_{target}` can specify band=LM, but no target,
         resulting in a partial specialiation. The target has to be supplied from the actual data.)
         """
