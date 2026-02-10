@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from typing import Optional, Any
+from cpl.core import Msg
 
 import cpl
 
@@ -32,8 +33,9 @@ class QcParameter(Parametrizable):
     _comment: Optional[str] = None
 
     def __init__(self, value: Any):
-        assert isinstance(value, self._type), \
-            f"{self.__class__.__qualname__} expected a {self._type} value, but got {value} ({type(value)}) instead"
+
+        #assert isinstance(value, self._type), \
+        #    f"{self.__class__.__qualname__} expected a {self._type} value, but got {value} ({type(value)}) instead"
         self._value = value
 
     @property
@@ -50,4 +52,5 @@ class QcParameter(Parametrizable):
         return f"    {cls._name:<23s} {f'{cls._type}'[5:]:<14s} {cls._description}"
 
     def as_property(self) -> cpl.core.Property:
+        Msg.info(self.__class__.__qualname__, f"PARAM {self._name} {self._type}, self.")
         return cpl.core.Property(self._name, self._type, self.value, self._description)
