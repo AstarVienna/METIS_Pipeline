@@ -21,27 +21,71 @@ import copy
 import cpl
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRsrf, MeanLssRsrf, MasterLssRsrf
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
-from pymetis.classes.inputs import RawInput, PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, \
-    LinearityInputSetMixin
+from pymetis.classes.inputs import RawInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput, \
+    BadPixMapInput
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisLssRsrfImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-                   DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssRsrfRaw
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class BadPixMapInput(BadPixMapInput):
+            pass
 
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw
 
-    ProductMedianLssRsrf = MedianLssRsrf
-    ProductMeanLssRsrf = MeanLssRsrf
-    ProductMasterLssRsrf = MasterLssRsrf
+    class ProductSet(PipelineProductSet):
+        MedianLssRsrf = MedianLssRsrf
+        MeanLssRsrf = MeanLssRsrf
+        MasterLssRsrf = MasterLssRsrf
 
+    class Qc(QcParameterSet):
+        class MeanLevel(QcParameter):
+            _name_template = "QC {band} LSS RSRF MEAN LEVEL"
+            _type = float
+            _unit = 'counts'
+            _description_template = "Mean level of the RSRF"
+
+        class MedianLevel(QcParameter):
+            _name_template = "QC {band} LSS RSRF MEDIAN LEVEL"
+            _type = float
+            _unit = 'counts'
+            _description_template = "Median level of the RSRF"
+
+        class InterorderLevel(QcParameter):
+            _name_template = "QC {band} LSS RSRF INTORDR LEVEL"
+            _type = float
+            _unit = 'counts'
+            _description_template = "Flux level of the interorder background"
+
+        class NormStdev(QcParameter):
+            _name_template = "QC {band} LSS RSRF NORM STDEV"
+            _type = float
+            _unit = 'counts'
+            _description_template = "Standard deviation of the normalized RSRF"
+
+        class NormSnr(QcParameter):
+            _name_template = "QC {band} LSS RSRF NORM SNR"
+            _type = float
+            _unit = '1'
+            _description_template = "SNR of the normalized RSRF"
 
     def process(self) -> set[DataItem]:
         """do something more fancy in the future"""
@@ -63,15 +107,15 @@ class MetisLssRsrfImpl(DarkImageProcessor):
         combined_median_img = self.combine_images(raw_images, "median")
 
         return {
-            self.ProductMasterLssRsrf(
+            self.ProductSet.MasterLssRsrf(
                 copy.deepcopy(primary_header),
                 Hdu(combined_master_hdr, combined_master_img, name='DET1.DATA'),
             ),
-            self.ProductMeanLssRsrf(
+            self.ProductSet.MeanLssRsrf(
                 copy.deepcopy(primary_header),
                 Hdu(combined_mean_hdr, combined_mean_img, name='DET1.DATA'),
             ),
-            self.ProductMedianLssRsrf(
+            self.ProductSet.MedianLssRsrf(
                 copy.deepcopy(primary_header),
                 Hdu(combined_median_hdr, combined_median_img, name='DET1.DATA'),
             ),

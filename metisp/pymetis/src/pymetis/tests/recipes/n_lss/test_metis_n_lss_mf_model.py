@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.n_lss.metis_n_lss_mf_model import (MetisNLssMfModel as Recipe,
                                                       MetisNLssMfModelImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_n_lss_mf_model'
@@ -45,5 +45,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    Product = Impl.ProductMfBestFitTable
+class TestProductSet(BaseProductSetTest):
+    Product = Impl.ProductSet.MfBestFitTable

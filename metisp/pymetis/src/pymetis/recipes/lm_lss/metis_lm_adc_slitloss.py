@@ -25,8 +25,8 @@ from pymetis.classes.prefab.lss.adc import MetisAdcSlitlossImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisLmAdcSlitlossImpl(MetisAdcSlitlossImpl):
-    class InputSet(BandLmMixin, MetisAdcSlitlossImpl.InputSet):
+class MetisLmAdcSlitlossImpl(BandLmMixin, MetisAdcSlitlossImpl):
+    class InputSet(MetisAdcSlitlossImpl.InputSet):
         pass
 
 
@@ -39,7 +39,7 @@ class MetisLmAdcSlitloss(MetisRecipe):
     _synopsis: str = "Determines ADC slitlosses"
     # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Incredible fancy description of algorithm follows... ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

@@ -21,11 +21,12 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import (TargetSpecificMixin, TargetSciMixin, TargetStdMixin,
-                                    BandSpecificMixin, BandLmMixin, BandNMixin)
+from pymetis.classes.mixins import (TargetSciMixin, TargetStdMixin,
+                                    BandLmMixin, BandNMixin)
+from pymetis.dataitems.img.basicreduced import Calibrated
 
 
-class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
+class BackgroundSubtracted(ImageDataItem, abstract=True):
     _name_template = r'{band}_{target}_BKG_SUBTRACTED'
     _title_template = "{band} background-subtracted"
     _description_template = r"Thermal background subtracted images of science {band} {target} exposures."
@@ -39,34 +40,27 @@ class BackgroundSubtracted(BandSpecificMixin, TargetSpecificMixin, ImageDataItem
     }
 
 
-class StdBackgroundSubtracted(TargetStdMixin, BackgroundSubtracted, abstract=True):
-    _schema = {
-        'PRIMARY': None,
-        'DET1.DATA': Image,
-    }
-
-
-
-class LmStdBackgroundSubtracted(BandLmMixin, StdBackgroundSubtracted):
+class LmBackgroundSubtracted(BandLmMixin, BackgroundSubtracted):
     pass
 
 
-class NStdBackgroundSubtracted(BandNMixin, StdBackgroundSubtracted):
+class LmStdBackgroundSubtracted(TargetStdMixin, LmBackgroundSubtracted):
     pass
 
 
-class SciBackgroundSubtracted(TargetSciMixin, BackgroundSubtracted, abstract=True):
-    _schema = {
-        'PRIMARY': None,
-        'DET1.DATA': Image,
-    }
-
-
-class LmSciBackgroundSubtracted(BandLmMixin, SciBackgroundSubtracted):
+class LmSciBackgroundSubtracted(TargetSciMixin, LmBackgroundSubtracted):
     pass
 
 
-class NSciBackgroundSubtracted(BandNMixin, SciBackgroundSubtracted):
+class NBackgroundSubtracted(BandNMixin, BackgroundSubtracted):
+    pass
+
+
+class NStdBackgroundSubtracted(TargetStdMixin, NBackgroundSubtracted):
+    pass
+
+
+class NSciBackgroundSubtracted(TargetSciMixin, NBackgroundSubtracted):
     pass
 
 

@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_img.metis_lm_img_sci_postprocess import (MetisLmImgSciPostProcess as Recipe,
                                                                  MetisLmImgSciPostProcessImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_img_sci_postprocess'
@@ -45,5 +45,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductCoadd(BaseProductTest):
-    Product = Impl.ProductLmImgSciCoadd
+class TestProductSetCoadd(BaseProductSetTest):
+    Product = Impl.ProductSet.LmImgSciCoadd

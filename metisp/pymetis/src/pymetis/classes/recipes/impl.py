@@ -17,9 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import inspect
 from abc import abstractmethod, ABC
-from typing import Dict, Any, final
+from typing import Dict, Any, final, Optional
 
 import cpl
 from cpl.core import Msg
@@ -27,17 +26,21 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
+from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs.inputset import PipelineInputSet
-from pymetis.classes.qc.parameter import QcParameter
+from pymetis.classes.mixins.base import Parametrizable
+from pymetis.classes.qc import QcParameterSet, QcParameter
 
 
-class MetisRecipeImpl(ABC):
+class MetisRecipeImpl(Parametrizable, ABC):
     """
     An abstract base class for all METIS recipe implementations.
     Contains central data flow control and also provides abstract methods to be overridden
     by particular pipeline recipe implementations.
     """
-    InputSet: type[PipelineInputSet] | None = None
+    InputSet: Optional[type[PipelineInputSet]] = None
+    ProductSet: Optional[type[PipelineProductSet]] = PipelineProductSet
+    Qc: Optional[type[QcParameterSet]] = QcParameterSet
 
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = ParameterList([])
@@ -62,38 +65,43 @@ class MetisRecipeImpl(ABC):
         self.frameset: cpl.ui.FrameSet = frameset
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
         self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
-        self.promote(**self.inputset.tag_matches)
+
+        # Promote the implementation to the correct subclass, based on
+        # - tag parameters (from defined mixins, class-based)
+        # - tag matches (from the loaded frameset, instance-based)
+        # ToDo: Decide what to do in case of a conflict between those two
+        self.promote(**(self.tag_parameters() | self.inputset.tag_matches))
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
         Msg.debug(self.__class__.__qualname__,
                   f"{'-' * 40} Recipe initialization complete {'-' * 40}")
 
     @classmethod
-    def specialize(cls, **parameters) -> None:
-        Msg.info(cls.__qualname__,
-                 f"Specializing {cls.__qualname__} with parameters: {parameters}")
+    def specialize(cls) -> None:
+        """
+        Specialize the recipe implementation to the current class parameters.
+        """
+        Msg.debug(cls.__qualname__, f"Specializing Implementation {cls.__qualname__} with {cls.tag_parameters()}")
+        cls.InputSet.specialize(**cls.tag_parameters())
+
+        # FixMe -- Surely it must be possible to do this in a more elegant way
+        cls.ProductSet = type("ProductSet", (cls.ProductSet,), {})
+        cls.ProductSet.specialize(**cls.tag_parameters())
+        cls.Qc = type("Qc", (cls.Qc,), {})
+        cls.Qc.specialize(**cls.tag_parameters())
 
     @classmethod
     def promote(cls, **parameters) -> None:
         """
         Promote the products of this class to appropriate subclasses, as determined from the input data.
         This may be only called after the recipe is initialized.
+
+        May also contain template variables that are notmixed in during class creation.
+        For instance, `recipe_{band}_{target}` can specify band=LM, but no target,
+        resulting in a partial specialiation. The target has to be supplied from the actual data.)
         """
-
-        Msg.info(cls.__qualname__,
-                 f"Promoting the recipe implementation {cls.__qualname__} with {parameters}")
-
-        for name, item in cls.list_product_classes():
-            # Try to find a promoted class in the registry
-            if (new_class := DataItem.find(tag := item.specialize(**parameters))) is None:
-                raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
-            else:
-                Msg.debug(cls.__class__.__qualname__,
-                          f"Promoting {item.__qualname__} ({item.name()}) "
-                          f"to {new_class.__qualname__} ({new_class.name()})")
-
-            # Replace the product attribute with the new class
-            cls.__class__.__setattr__(cls, name, new_class)
+        cls.ProductSet.promote(**parameters)
+        cls.Qc.promote(**parameters)
 
     def run(self) -> cpl.ui.FrameSet:
         """
@@ -106,7 +114,7 @@ class MetisRecipeImpl(ABC):
         """
 
         try:
-            self.products = self.process()           # Do all the actual processing
+            self.products: set[DataItem] = self.process()   # Do all the actual processing
             self._save_products()                           # Save the output products
 
             return self.build_product_frameset()            # Return the output as a pycpl FrameSet
@@ -133,26 +141,29 @@ class MetisRecipeImpl(ABC):
         """
         The core method of the recipe implementation. It should contain all the processing logic.
         At its entry point, the `InputSet` class must be already loaded and validated.
+        This should not be a concern of the author of a recipe, as long as everything is declared correctly.
 
-        All pixel manipulation should happen inside this function (or something it calls from within).
+        All pixel manipulation should happen inside this function (or private subroutines it calls from within).
         Put explicitly, this means
             - no pixel manipulation *before* entering `process`,
             - and no pixel manipulation *after* exiting `process`.
 
         The basic workflow inside this function should be as follows:
 
-        1.  Load the CPL structures associated with `Input` frames.
+        1.  Load the CPL structures associated with `PipelineInput` frames.
+            To conserve resources, most importantly memory, defer the `load_data` call
+            until the data are actually needed.
         2.  Do the preprocessing (dark, bias, flat, persistence...) as needed.
             When implementing this function, please always use the topmost applicable method:
-                - Use the functions provided in the pipeline if possible (derive or override).
-                  Much of the functionality is common to many recipes, and we should not repeat ourselves.
+                - Use the functions provided by the pipeline package if possible (derive or override).
+                  Much of the functionality is trivially common to many recipes, and we should not repeat ourselves.
                   Some classes / functions are provided in ``prefab``.
                 - Use HDRL functions, if available.
                 - Use CPL functions, if available.
-                - Implement what you need yourself.
+                - Implement what you need yourself as a subroutine.
         3.  Build the output images as specified in the DRLD.
             Each product should be a ``DataItem`` and there should be exactly one for every file produced.
-        4.  Return a set of ``DataItem``.
+        4.  Return a set of ``DataItem`` instance.
 
         The resulting products set is then passed to `save_products()` (see `run`).
         """
@@ -164,7 +175,6 @@ class MetisRecipeImpl(ABC):
             out.append(qcparam.as_property())
 
         return out
-
 
     @final
     def _save_products(self) -> None:
@@ -213,11 +223,3 @@ class MetisRecipeImpl(ABC):
     @property
     def used_frames(self) -> cpl.ui.FrameSet:
         return self.inputset.used_frames
-
-    @classmethod
-    def list_product_classes(cls) -> list[tuple[str, type[DataItem]]]:
-        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, DataItem))
-
-    @classmethod
-    def list_qc_parameters(cls) -> list[tuple[str, type[QcParameter]]]:
-        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, QcParameter))

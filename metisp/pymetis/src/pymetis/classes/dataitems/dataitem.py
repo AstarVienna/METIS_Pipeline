@@ -20,9 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import datetime
 import inspect
 import re
-from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Generator, Self, Any, final, Union
+from typing import Optional, Generator, Self, final, Union
 
 import cpl
 
@@ -31,13 +30,13 @@ from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
 from pymetis.classes.dataitems.hdu import Hdu
-from pymetis.classes.mixins.base import Parametrizable
+from pymetis.classes.mixins.base import Parametrizable, ParametrizableItem
 from pymetis.utils.format import partial_format
 
 PIPELINE = rf'METIS/1'
 
 
-class DataItem(Parametrizable, ABC):
+class DataItem(ParametrizableItem):
     """
     The `DataItem` class encapsulates a single data item:
     the smallest standalone unit of detector data or a product of a recipe.
@@ -48,13 +47,13 @@ class DataItem(Parametrizable, ABC):
     Multiple files with the same tag should correspond to multiple instances of the same DataItem class.
     """
     # Class registry: all derived classes are automatically registered here (unless declared abstract)
-    __registry: dict[str, type['DataItem']] = {}
+    _registry: dict[str, type['DataItem']] = {}
 
     # Printable title of the data item. Not used internally, only for human-oriented output
     _title_template: str = None                     # No universal title makes sense
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
-    _name_template: str = None                      # No universal name makes sense
-    # Description for man page
+    _name_template: str = "DataItem"                # No universal name makes sense
+    # A long description that will be used in the man page
     _description_template: Optional[str] = None     # A verbose string; should correspond to the DRLD description
 
     # CPL frame group and level
@@ -80,39 +79,10 @@ class DataItem(Parametrizable, ABC):
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
 
-    def __init_subclass__(cls,
-                          *,
-                          abstract: bool = False,
-                          **kwargs):
-        """
-        Register every subclass of DataItem in a global registry.
-        Classes marked as abstract are not registered and should never be instantiated.
-        # FixMe: Hugo says it might be useful for database views and such. But for now it is so.
-        """
-        cls.__abstract = abstract
-
-        if cls.__abstract:
-            # If the class is not fully specialized, skip it
-            Msg.debug(cls.__qualname__,
-                      f"Class is abstract, skipping registration")
-        else:
-            # Otherwise, add it to the global registry
-            assert cls.__regex_pattern.match(cls.name()) is not None, \
-                (f"Tried to register {cls.__name__} ({cls.name()}) which is not fully specialized "
-                 f"(did you mean to set `abstract=True` in the class declaration?)")
-
-            if cls.name().format() in DataItem.__registry:
-                # If the class is already registered, warn about it and do nothing
-                Msg.debug(cls.__qualname__,
-                          f"A class with tag {cls.name()} is already registered, "
-                          f"skipping: {DataItem.__registry[cls.name()]}")
-            else:
-                # Otherwise add it to the registry
-                Msg.debug(cls.__qualname__,
-                          f"Registered a new class {cls.name()}: {cls}")
-                DataItem.__registry[cls.name()] = cls
-
-        super().__init_subclass__(**kwargs)
+    @classmethod
+    @final
+    def schema(cls) -> dict[str, Union[None, type[Image], type[Table]]]:
+        return cls._schema
 
     @classmethod
     @final
@@ -122,31 +92,10 @@ class DataItem(Parametrizable, ABC):
 
         If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
         """
-        if key in DataItem.__registry:
-            return DataItem.__registry[key]
+        if key in DataItem._registry:
+            return DataItem._registry[key]
         else:
             return None
-
-    @classmethod
-    def name_template(cls) -> str:
-        return cls._name_template
-
-    @classmethod
-    def specialize(cls, **parameters) -> str:
-        cls._name_template = partial_format(cls._name_template, **parameters)
-        return cls._name_template
-
-    @staticmethod
-    def __replace_empty_tags(**parameters):
-        """
-        Replace all `None` parameters with placeholders.
-        Intended for human-readable output in not-fully-specialized recipes, such as man pages.
-        For instance, `MASTER_DARK_{detector}_{source}` with parameters `{'source': 'STD', 'detector': None}`
-        gets rendered literally as "MASTER_DARK_{detector}_STD".
-
-        ToDo: Change to proper t-strings once Python 3.14 is supported.
-        """
-        return {key: (f'{{{key}}}' if value is None else value) for key, value in parameters.items()}
 
     @classmethod
     def title(cls) -> str:
@@ -155,27 +104,8 @@ class DataItem(Parametrizable, ABC):
         """
         assert cls._title_template is not None, \
             f"{cls.__name__} title template is None"
-        return cls._title_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
+        return partial_format(cls._title_template, **cls._replace_empty_tags(**cls.tag_parameters()))
 
-    @classmethod
-    def name(cls) -> str:
-        """
-        Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
-        """
-        assert cls._name_template is not None, \
-            f"{cls.__name__} name template is None"
-        return cls._name_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
-
-    @classmethod
-    def description(cls) -> str:
-        """
-        Return the description of the data item.
-        By default, this just returns the protected internal attribute,
-        but can be overridden to build the description from other data, such as band or target.
-        """
-        assert cls._description_template is not None, \
-            f"{cls.__name__} description template is None"
-        return cls._description_template.format(**cls.__replace_empty_tags(**cls.tag_parameters()))
 
     @classmethod
     @final
@@ -224,8 +154,9 @@ class DataItem(Parametrizable, ABC):
                  primary_header: CplPropertyList = CplPropertyList(),
                  *hdus: Hdu,
                  filename: Optional[Path] = None):
-        if self.__abstract:
-            raise TypeError(f"Tried to instantiate an abstract data item {self.__class__.__qualname__}")
+        if self._abstract or not self.__regex_pattern.match(self.name()):
+            raise TypeError(f"Tried to instantiate an abstract data item "
+                            f"{self.__class__.__qualname__} for {self.name()}")
 
         # Check if the title is defined
         if self.title() is None:
@@ -234,7 +165,7 @@ class DataItem(Parametrizable, ABC):
         if self.name() is None:
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no name defined!")
 
-        # Check if frame_group is defined (if not, this gives rise to strange errors deep within CPL
+        # Check if frame_group is defined (if not, it gives rise to strange errors deep within CPL
         # that you really do not want to deal with)
         if self.frame_group() is None:
             raise NotImplementedError(f"DataItem {self.__class__.__qualname__} has no group defined!")
@@ -245,15 +176,16 @@ class DataItem(Parametrizable, ABC):
         # Internal usage marker (for used_frames)
         self._used: bool = False
 
-        self.primary_header = primary_header
-
         self.filename = filename
+        self.primary_header = primary_header
+        # Currently all items are expected to have an empty primary HDU
         self._hdus: dict[str, Hdu] = {}
 
         for index, hdu in enumerate(hdus, start=1):
-            assert hdu.name in self._schema, \
-                (f"Schema for {self.__class__.__qualname__} does not specify HDU '{hdu.name}'. "
-                 f"Accepted extension names are {list(self._schema.keys())}.")
+            if hdu.name not in self._schema:
+                Msg.error(self.__class__.__qualname__,
+                          f"Found a HDU '{hdu.name}', which is not defined by the schema for {self.__class__.__qualname__}. "
+                          f"Accepted extension names are {list(self._schema.keys())}.")
 
             assert hdu.klass == self._schema[hdu.name], \
                 (f"Schema for {self.__class__.__qualname__} specifies that HDU '{hdu.name}' "
@@ -307,6 +239,7 @@ class DataItem(Parametrizable, ABC):
                         extname = header['EXTNAME'].value
                     except KeyError:
                         try:
+                            # FixMe: this is not reliable but XTENSION is sometimes found in the simulated data
                             extname = header['XTENSION'].value
                         except KeyError:
                             extname = 'PRIMARY'
@@ -350,9 +283,9 @@ class DataItem(Parametrizable, ABC):
     def load_data(self,
                   extension: int | str) -> Image | Table | None:
         """
-        Actually load the associated data (image or a table).
+        Load the associated data (image or a table).
 
-        This might be expensive and therefore the call is better deferred until actually needed.
+        This might be an expensive operation and therefore the call is better deferred until actually needed.
 
         Parameters
         ----------
@@ -367,11 +300,8 @@ class DataItem(Parametrizable, ABC):
         Raises
         ------
         KeyError
-            If requested extension is not available
+            If the requested extension is not available
         """
-
-        if self[extension].klass is None:
-            self[extension].klass = Image
 
         try:
             if self[extension].klass == Image:
@@ -380,7 +310,7 @@ class DataItem(Parametrizable, ABC):
                 return self[extension].klass.load(self.filename, self._hdus[extension].extno)
         except cpl.core.DataNotFoundError as exc:
             Msg.error(self.__class__.__qualname__,
-                      f"Failed to load data from extension '{extension}' in file {self.filename}")
+                      f"Failed to load data from extension '{extension}' from file {self.filename}")
             raise exc
 
     @property
@@ -408,11 +338,10 @@ class DataItem(Parametrizable, ABC):
     def add_properties(self) -> None:
         """
         Hook for adding custom properties.
-        Currently only adds ESO PRO CATG to every product,
+
+        Currently only adds/replaces ESO PRO CATG to/in every product,
         but derived classes are more than welcome to add their own stuff.
         Do not forget to call super().add_properties() then.
-
-        #ToDo: this should not be called for raws, those do not have a PRO CATG.
         """
         # Some data products actually have FrameGroup RAW because they are
         # input to other recipes (to prevent the cryptic empty set-of-frames
@@ -518,39 +447,6 @@ class DataItem(Parametrizable, ABC):
             'group': self.frame_group().name,
         }
 
-    def _verify_same_detector_from_header(self) -> None:
-        """
-        Verification for headers, currently disabled
-        """
-        detectors = []
-        for frame in self.frameset:
-            header = cpl.core.PropertyList.load(frame.file, 0)
-            try:
-                det = header['ESO DPR TECH'].value
-                try:
-                    detectors.append({
-                        'IMAGE,LM': '2RG',
-                        'IMAGE,N': 'GEO',
-                        'IFU': 'IFU',
-                    }[det])
-                except KeyError as e:
-                    raise KeyError(f"Invalid detector name! In {frame.file}, ESO DPR TECH is '{det}'") from e
-            except KeyError:
-                Msg.warning(self.__class__.__qualname__, "No detector (ESO DPR TECH) set!")
-
-        # Check if all the raws have the same detector, if not, we have a problem
-        if (detector_count := len(unique := list(set(detectors)))) == 1:
-            self._detector = unique[0]
-            Msg.debug(self.__class__.__qualname__,
-                      f"Detector determined: {self._detector}")
-        elif detector_count == 0:
-            Msg.warning(self.__class__.__qualname__,
-                        "No detectors specified (this is probably fine in skeleton stage)")
-        else:
-            # raise ValueError(f"Frames from more than one detector found: {set(detectors)}!")
-            Msg.warning(self.__class__.__qualname__,
-                        f"Frames from more than one detector found: {unique}!")
-
     @classmethod
     def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:
         """
@@ -582,13 +478,13 @@ class DataItem(Parametrizable, ABC):
 
     @classmethod
     @final
-    def _extended_description_line(cls, name: str = None) -> str:
+    def extended_description_line(cls, name: str = None) -> str:
         """
         Generate a description line for ``pyesorex --man-page``.
 
         Includes leading space.
         """
-        return f"    {cls.name():39s}{cls.description() or '<no description defined>'}"
+        return f"    {cls.name():47s}{cls.description() or '<no description defined>'}"
 
     def __str__(self):
         return f"{self.name()}"
@@ -631,3 +527,4 @@ class DataItem(Parametrizable, ABC):
         for name, hdu in self._hdus.items():
             if self._hdus[name].extno == index:
                 return name
+

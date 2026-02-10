@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe,
                                                 MetisIfuRsrfImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseProductTest, RawInputSetTest
+from pymetis.tests.classes import BaseRecipeTest, BaseProductSetTest, RawInputSetTest
 from pymetis.recipes.ifu.metis_ifu_rsrf import create_ifu_blackbody_image, extract_ifu_1d_spectra
 
 from pytest import approx
@@ -42,7 +42,6 @@ def sof(name: str) -> str:
 
 
 @pytest.mark.slow
-@pytest.mark.xfail(reason="Testing data mismatch")
 class TestRecipe(BaseRecipeTest):
     """A bunch of extremely simple and stupid test cases... just to see if it does something."""
     Recipe = Recipe
@@ -52,20 +51,20 @@ class TestInputSet(RawInputSetTest):
     Impl = Impl
 
 
-class TestProductRsrfBackground(BaseProductTest):
-    Product = Impl.ProductRsrfBackground
+class TestProductSetRsrfBackground(BaseProductSetTest):
+    Product = Impl.ProductSet.RsrfBackground
 
 
-class TestProductMasterFlatIfu(BaseProductTest):
-    Product = Impl.ProductMasterFlat
+class TestProductSetMasterFlatIfu(BaseProductSetTest):
+    Product = Impl.ProductSet.MasterFlat
 
 
-class TestProductRsrfIfu(BaseProductTest):
-    Product = Impl.ProductRsrfIfu
+class TestProductSetRsrfIfu(BaseProductSetTest):
+    Product = Impl.ProductSet.RsrfIfu
 
 
-class TestProductBadPixMap(BaseProductTest):
-    Product = Impl.ProductBadPixMap
+class TestProductSetBadPixMap(BaseProductSetTest):
+    Product = Impl.ProductSet.BadPixMap
 
 
 class TestBlackBodyImg:

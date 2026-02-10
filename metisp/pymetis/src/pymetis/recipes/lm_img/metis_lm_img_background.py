@@ -22,26 +22,34 @@ import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.background import Background, BackgroundSubtracted
 from pymetis.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced
 from pymetis.dataitems.objectcatalog import ObjectCatalog
 from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.utils.dummy import create_dummy_image, create_dummy_table, create_dummy_header
+from pymetis.qc.background import QcLmImgBkgMedian, QcLmImgBkgMedianDeviation
+from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
-class MetisLmImgBackgroundImpl(MetisRecipeImpl):
-    class InputSet(BandLmMixin, Detector2rgMixin, PipelineInputSet):
+class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
+    class InputSet(PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
             Item = BasicReduced
 
         class SkyBasicReducedInput(SinglePipelineInput):
             Item = LmSkyBasicReduced
 
-    ProductBkg = Background
-    ProductBkgSubtracted = BackgroundSubtracted
-    ProductObjectCatalog = ObjectCatalog
+    class ProductSet(PipelineProductSet):
+        Bkg = Background
+        BkgSubtracted = BackgroundSubtracted
+        ObjectCatalog = ObjectCatalog
+
+    class Qc(QcParameterSet):
+        Median = QcLmImgBkgMedian
+        MedianDev = QcLmImgBkgMedianDeviation
 
     def process(self) -> set[DataItem]:
         image = self.inputset.basic_reduced.load_data('DET1.DATA')
@@ -51,15 +59,15 @@ class MetisLmImgBackgroundImpl(MetisRecipeImpl):
         header_bkg_subtracted = create_dummy_header()
         header_object_cat = create_dummy_header()
 
-        product_bkg = self.ProductBkg(
+        product_bkg = self.ProductSet.Bkg(
             create_dummy_header(),
             Hdu(header_bkg, image, name='DET1.DATA'),
         )
-        product_bkg_subtracted = self.ProductBkgSubtracted(
+        product_bkg_subtracted = self.ProductSet.BkgSubtracted(
             primary_header,
             Hdu(header_bkg_subtracted, image, name='DET1.DATA'),
         )
-        product_object_cat = self.ProductObjectCatalog(
+        product_object_cat = self.ProductSet.ObjectCatalog(
             create_dummy_header(),
             Hdu(header_object_cat, table, name='TABLE'),
         )
@@ -73,7 +81,8 @@ class MetisLmImgBackground(MetisRecipe):
     _author = "Chi-Hung Yan, A*"
     _email = "chyan@asiaa.sinica.edu.tw"
     _copyright = "GPL-3.0-or-later"
-    _synopsis = "Basic reduction of raw exposures from the LM-band imager"
+    _synopsis = "Basic reduction of raw exposures from the {band} imager"
+    _description = "Something"
 
     parameters = ParameterList([
         ParameterEnum(

@@ -21,27 +21,37 @@ import copy
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
 from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.lss.wave import LssWaveRaw
-from pymetis.classes.inputs import (SinglePipelineInput, RawInput,
-                                    LaserTableInput,
-                                    PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin,
-                                    LinearityInputSetMixin)
-from pymetis.classes.inputs.common import WcuOffInput
+from pymetis.classes.inputs import SinglePipelineInput, RawInput, LaserTableInput
+from pymetis.classes.inputs.common import WcuOffInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
+    LinearityInput, BadPixMapInput
 from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
-class MetisLmLssWaveImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-                   BandLmMixin,
-                   DarkImageProcessor.InputSet):
+class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssWaveRaw
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class BadPixMapInput(BadPixMapInput):
+            pass
 
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
@@ -49,14 +59,58 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
         class LssTraceInput(SinglePipelineInput):
             Item = LssTrace
 
-        WcuOffInput = WcuOffInput
-        LaserTableInput = LaserTableInput
+        class WcuOffInput(WcuOffInput):
+            pass
 
-    # ++++++++++++ Intermediate / QC products ++++++++++++
-    ProductLssCurve = LssCurve
-    # ++++++++++++++++++ Final products ++++++++++++++++++
-    ProductLssDistSol = LssDistSol
-    ProductLssWaveGuess = LssWaveGuess
+        class LaserTableInput(LaserTableInput):
+            pass
+
+    class ProductSet(PipelineProductSet):
+        # ++++++++++++ Intermediate / QC products ++++++++++++
+        LssCurve = LssCurve
+        # ++++++++++++++++++ Final products ++++++++++++++++++
+        LssDistSol = LssDistSol
+        LssWaveGuess = LssWaveGuess
+
+    class Qc(QcParameterSet):
+        class PolyDeg(QcParameter):
+            _name_template = "QC LM LSS WAVE POLYDEG"
+            _type = int
+            _unit = "1"
+            _default = None
+            _description_template = "Degree of the first guess polynomial"
+            _comment = None
+
+        class CoeffN(QcParameter):
+            _name_template = "QC LM LSS WAVE COEFF{i}"
+            _type = float
+            _unit = "pixels ^ (1 - i)"
+            _default = None
+            _description_template = "{i}-th coefficient of the first guess polynomial"
+            _comment = None
+
+        class NLines(QcParameter):
+            _name_template = "QC LM LSS WAVE NLINES"
+            _type = int
+            _unit = "1"
+            _default = None
+            _description_template = "Number of detected laser lines; should be constant"
+
+        class LineFwhmAvg(QcParameter):
+            _name_template = "QC LM LSS WAVE LINEFWHMAVG"
+            _type = float
+            _unit = "Å"
+            _default = None
+            _description_template = "Average of the FWHM of the detected lines (should be widely constant)"
+            _comment = None
+
+        class InterorderLevel(QcParameter):
+            _name_template = "QC LM LSS WAVE INTORDR LEVEL"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Flux level of the interorder background"
+            _comment = None
 
 #   Method for processing
     def process(self) -> set[DataItem]:
@@ -72,15 +126,15 @@ class MetisLmLssWaveImpl(DarkImageProcessor):
         lm_lss_wave_guess_hdr = create_dummy_header()
 
         return {
-            self.ProductLssCurve(
+            self.ProductSet.LssCurve(
                 copy.deepcopy(primary_header),
                 Hdu(lm_lss_curve_header, table, name='TABLE')
             ),
-            self.ProductLssDistSol(
+            self.ProductSet.LssDistSol(
                 copy.deepcopy(primary_header),
                 Hdu(lm_lss_dist_sol_hdr, table, name='TABLE')
             ),
-            self.ProductLssWaveGuess(
+            self.ProductSet.LssWaveGuess(
                 copy.deepcopy(primary_header),
                 Hdu(lm_lss_wave_guess_hdr, table, name='TABLE')
             ),
@@ -133,7 +187,7 @@ class MetisLmLssWave(MetisRecipe):
         LM_LSS_WAVE_GUESS: First guess of the wavelength solution
     """
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

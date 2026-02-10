@@ -17,12 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
-from cpl.core import ImageList as CplImageList
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.coadd import IfuSciCoadd
 from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
@@ -30,12 +31,50 @@ from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput, Multip
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisIfuPostprocessImpl(MetisRecipeImpl):
+class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(MultiplePipelineInput):
             Item = IfuScienceCubeCalibrated
 
-    ProductSciCoadd = IfuSciCoadd
+    class ProductSet(PipelineProductSet):
+        SciCoadd = IfuSciCoadd
+
+    class Qc(QcParameterSet):
+        # QCs are apprently not very reusable, so we can define them here
+        class GridRange(QcParameter):
+            _name_template = "QC IFU POSTPROC GRIDRNG"
+            _type = float
+            _unit = "pixels"
+            _description_template = "Maximum - minimum values of the interpolated grids"
+            _comment = None
+
+        class MedMean(QcParameter):
+            _name_template = "QC IFU POSTPROC MEDMEAN"
+            _type = float
+            _unit = "Jy"
+            _description_template = "Mean of medians of regridded images"
+            _comment = None
+
+        class MedRms(QcParameter):
+            _name_template = "QC IFU POSTPROC MEDRMS"
+            _type = float
+            _unit = "Jy"
+            _description_template = "Root-mean-square of the medians of the regridded images"
+            _comment = None
+
+        class MedMed(QcParameter):
+            _name_template = "QC IFU POSTPROC MEDMED"
+            _type = float
+            _unit = "Jy"
+            _description_template = "Median of the medians of the regridded images"
+            _comment = None
+
+        class DeltaC(QcParameter):
+            _name_template = "QC IFU POSTPROC DELTAC"
+            _type = float
+            _unit = "pixels"
+            _default = None
+            _description_template = "Range of shifts in the center position for regridding"
 
     def determine_output_grid(self):
         pass
@@ -58,7 +97,7 @@ class MetisIfuPostprocessImpl(MetisRecipeImpl):
 
         coadded = self.coadd_cubes()
 
-        product = self.ProductSciCoadd(
+        product = self.ProductSet.SciCoadd(
             primary_header,
             Hdu(header_coadd, coadded, name='IMAGE')
         )

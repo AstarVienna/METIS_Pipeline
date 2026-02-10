@@ -24,18 +24,21 @@ from cpl.core import Msg
 from pyesorex.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.img.basicreduced import BasicReduced
 from pymetis.dataitems.img.raw import ImageRaw
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
-                                    PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
+                                    OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisLmImgBasicReduceImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
+class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class
         that wraps all the recipe inputs. It encapsulates the entire input and
@@ -68,13 +71,46 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
         # Now we need a master dark frame. Since nothing is changed and the tag is always the same,
         # we just point to the provided MasterDarkInput. Note that we do not have to instantiate
         # it explicitly anywhere, `MasterDarkInput` takes care of that for us.
-        MasterDarkInput = MasterDarkInput
+        class MasterDarkInput(MasterDarkInput):
+            pass
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
 
         # Also, one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
 
-    ProductBasicReduced = BasicReduced
+    class ProductSet(PipelineProductSet):
+        BasicReduced = BasicReduced
+
+    class Qc(QcParameterSet):
+        class Median(QcParameter):
+            _name_template = "QC LM IMG MEDIAN"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Median level of the LM image"
+
+        class StandardDeviation(QcParameter):
+            _name_template = "QC LM IMG STANDARD DEVIATION"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Standard deviation of the LM image"
+
+        class Peak(QcParameter):
+            _name_template = "QC LM IMG PEAK"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Peak value of the LM image"
 
     def process(self) -> set[DataItem]:
         """
@@ -141,7 +177,7 @@ class MetisLmImgBasicReduceImpl(DarkImageProcessor):
             header_reduced.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
                                             image.get_median(), "[ADU] max value of image"))
 
-            product = self.ProductBasicReduced(
+            product = self.ProductSet.BasicReduced(
                 copy.deepcopy(primary_header),
                 Hdu(header_reduced, image, name='DET1.DATA'),
             )

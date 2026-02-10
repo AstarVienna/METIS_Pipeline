@@ -16,10 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.common import IfuTelluric
 from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated, IfuSciReduced
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
@@ -28,7 +32,7 @@ from pymetis.classes.inputs.common import FluxCalTableInput
 from pymetis.utils.dummy import create_dummy_image, create_dummy_header
 
 
-class MetisIfuCalibrateImpl(MetisRecipeImpl):
+class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class ReducedInput(SinglePipelineInput):
             Item = IfuSciReduced
@@ -38,7 +42,25 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
 
         FluxCalTableInput = FluxCalTableInput
 
-    ProductSciCubeCalibrated = IfuScienceCubeCalibrated
+    class ProductSet(PipelineProductSet):
+        SciCubeCalibrated = IfuScienceCubeCalibrated
+
+    class Qc(QcParameterSet):
+        # QCs are apprently not very reusable, so we can define them here
+        class MinFlux(QcParameter):
+            _name_template = "QC IFU CALIB MINFLUX"
+            _type = float
+            _unit = "1"
+            _description_template = "Minimum pixel flux in the calibrated image"
+            _comment = None
+
+        class MaxFlux(QcParameter):
+            _name_template = "QC IFU CALIB MAXFLUX"
+            _type = float
+            _unit = "1"
+            _description_template = "Maximum pixel flux in the calibrated image"
+            _comment = None
+
 
     def process(self) -> set[DataItem]:
         reduced = self.inputset.reduced.load_data(extension='DET1.DATA')
@@ -48,7 +70,7 @@ class MetisIfuCalibrateImpl(MetisRecipeImpl):
         header_scc = create_dummy_header()
         image = create_dummy_image()
 
-        product_scc = self.ProductSciCubeCalibrated(
+        product_scc = self.ProductSet.SciCubeCalibrated(
             primary_header,
             Hdu(header_scc, image, name='IMAGE'),
         )

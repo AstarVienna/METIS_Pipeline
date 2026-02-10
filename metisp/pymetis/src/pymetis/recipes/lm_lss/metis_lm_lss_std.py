@@ -19,12 +19,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin, TargetStdMixin
 from pymetis.classes.prefab.lss.std import MetisLssStdImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisLmLssStdImpl(MetisLssStdImpl):
+class MetisLmLssStdImpl(BandLmMixin, Detector2rgMixin, TargetStdMixin, MetisLssStdImpl):
     class InputSet(BandLmMixin, Detector2rgMixin, MetisLssStdImpl.InputSet):
         pass
 
@@ -43,7 +43,7 @@ class MetisLmLssStd(MetisRecipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Reduction of the standard star frames for determining the response function (flux calibration) and/or the transmission (telluric correction)"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

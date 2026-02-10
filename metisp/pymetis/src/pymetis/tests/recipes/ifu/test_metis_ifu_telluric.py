@@ -19,10 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluric as Recipe,
                                                     MetisIfuTelluricImpl as Impl)
-from pymetis.tests.classes import TargetParamRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import TargetParamRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_ifu_telluric'
@@ -47,13 +46,13 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductFluxcalTab(BaseProductTest):
-    Product = Impl.ProductFluxcalTab
+class TestProductSetFluxcalTab(BaseProductSetTest):
+    Product = Impl.ProductSet.FluxcalTab
 
 
-class TestProductTelluric(BaseProductTest):
-    Product = Impl.ProductTelluricTransmission
+class TestProductSetTelluric(BaseProductSetTest):
+    Product = Impl.ProductSet.TelluricTransmission
 
 
-class TestProductResponseFunction(BaseProductTest):
-    Product = Impl.ProductResponseFunction
+class TestProductSetResponseFunction(BaseProductSetTest):
+    Product = Impl.ProductSet.ResponseFunction

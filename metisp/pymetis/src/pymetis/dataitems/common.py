@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 from cpl.core import Image, Table
 
-from pymetis.classes.dataitems import ImageDataItem, TableDataItem
+from ..classes.dataitems import ImageDataItem, TableDataItem
 
 
 class PersistenceMap(ImageDataItem):
@@ -34,9 +34,8 @@ class PersistenceMap(ImageDataItem):
 
     _schema = {
         'PRIMARY': None,
-        'DET1.DATA': Image,
+        'PERSISTENCE_MAP': Image,
     }
-
 
 
 class FluxCalTable(TableDataItem): # FixMe this should be a table, right?

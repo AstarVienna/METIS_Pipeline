@@ -20,11 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, \
-    BandSpecificMixin, BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.classes.mixins import DetectorIfuMixin, BandIfuMixin
 
 
-class RsrfRaw(DetectorSpecificMixin, BandSpecificMixin, Raw, abstract=True):
+class RsrfRaw(Raw, abstract=True):
     _name_template = r'{band}_LSS_RSRF_RAW'
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW

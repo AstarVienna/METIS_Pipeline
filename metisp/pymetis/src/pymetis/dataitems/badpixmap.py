@@ -21,10 +21,10 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins.detector import DetectorSpecificMixin, Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class BadPixMap(DetectorSpecificMixin, ImageDataItem, abstract=True):
+class BadPixMap(ImageDataItem, abstract=True):
     _title_template = "bad pixel map"
     _name_template = r'BADPIX_MAP_{detector}'
     _description_template = "Bad pixel map. Warning: may contain detector masks."

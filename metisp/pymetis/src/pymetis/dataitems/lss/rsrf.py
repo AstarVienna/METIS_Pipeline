@@ -22,10 +22,10 @@ from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandSpecificMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 
-class LssRsrfRaw(BandSpecificMixin, Raw, abstract=True):
+class LssRsrfRaw(Raw, abstract=True):
     _name_template = r'{band}_LSS_RSRF_RAW'
     _title_template = "{band} LSS RSRF raw"
     _description_template = "Raw exposure of the WCU flat field lamp through the LSS to achieve the RSRF."
@@ -48,7 +48,7 @@ class NLssStdRaw(BandNMixin, LssRsrfRaw):
     pass
 
 
-class MedianLssRsrf(BandSpecificMixin, ImageDataItem, abstract=True):
+class MedianLssRsrf(ImageDataItem, abstract=True):
     _name_template = r'MEDIAN_{band}_LSS_RSRF'
     _title_template = "median {band} LSS RSRF image"
     _description_template = "Median {band} RSRF pixel map"
@@ -70,7 +70,7 @@ class MedianNLssRsrf(BandNMixin, MedianLssRsrf):
     pass
 
 
-class MeanLssRsrf(BandSpecificMixin, ImageDataItem, abstract=True):
+class MeanLssRsrf(ImageDataItem, abstract=True):
     _name_template = r'MEAN_{band}_LSS_RSRF'
     _title_template = "mean {band} LSS RSRF image"
     _description_template = "Mean {band} RSRF pixel map"
@@ -92,7 +92,7 @@ class MeanNLssRsrf(BandNMixin, MeanLssRsrf):
     pass
 
 
-class MasterLssRsrf(BandSpecificMixin, ImageDataItem, abstract=True):
+class MasterLssRsrf(ImageDataItem, abstract=True):
     _name_template = r'MASTER_{band}_LSS_RSRF'
     _title_template = "master {band} LSS RSRF"
     _description_template = "Master {band} RSRF pixel map"
@@ -114,7 +114,7 @@ class MasterNLssRsrfImg(BandNMixin, MasterLssRsrf):
     pass
 
 
-class LssRsrfPinholeRaw(BandSpecificMixin, ImageDataItem, abstract=True):
+class LssRsrfPinholeRaw(ImageDataItem, abstract=True):
     _name_template = r'{band}_LSS_RSRF_PINH_RAW'
     _title_template = "{band} LSS RSRF pinhole raw"
     _description_template = "Raw flats taken with black-body calibration lamp through the pinhole mask."

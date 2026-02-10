@@ -19,24 +19,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 from cpl.core import Msg
-from cpl.core import ImageList
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
-from pymetis.dataitems.gainmap import GainMap2rg
-from pymetis.dataitems.linearity.linearity import LinearityMap2rg
 from pymetis.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
                                     PinholeTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.classes.prefab import RawImageProcessor
+from pymetis.qc.chophome import CalChophomeXcen, CalChophomeXcenStdev, CalChophomeYcen, CalChophomeYcenStdev, \
+    CalChophomeFwhm, CalChophomeSnr, CalChophomeOffx, CalChophomeOffy
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
+class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
+
     class InputSet(RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
@@ -46,12 +49,13 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
             Item = LmWcuOffRaw
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
-            Item = GainMap2rg
+            pass
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
-            Item = LinearityMap2rg
+            pass
 
-        PersistenceMapInput = PersistenceMapInput
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
 
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             pass
@@ -59,8 +63,19 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         class PinholeTableInput(OptionalInputMixin, PinholeTableInput):
             pass
 
-    ProductCombined = LmChophomeCombined
-    ProductBackground = LmChophomeBackground
+    class ProductSet(PipelineProductSet):
+        Combined = LmChophomeCombined
+        Background = LmChophomeBackground
+
+    class Qc(QcParameterSet):
+        Xcen = CalChophomeXcen
+        XcenStdev = CalChophomeXcenStdev
+        Ycen = CalChophomeYcen
+        YcenStdev = CalChophomeYcenStdev
+        Fwhm = CalChophomeFwhm
+        Snr = CalChophomeSnr
+        OffX = CalChophomeOffx
+        OffY = CalChophomeOffy
 
     def process(self) -> set[DataItem]:
         """This function processes the input images
@@ -79,7 +94,7 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         raw_images = self.inputset.raw.load_data(extension='DET1.DATA')
         self.inputset.raw.use()
 
-        # I think there's a bit of confusion abotu different sources of persistence maps that's
+        # I think there's a bit of confusion about different sources of persistence maps that's
         # causing the workflow to crash. For now, I'll comment out the two lines, to be
         # uncommented after the workflow demonstration in Koln
         # persistence_map = self.inputset.persistence_map.load_data(extension='DET1.DATA')
@@ -91,33 +106,22 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         # Locate the pinhole image
         pinhole_loc = self.locate_pinhole(combined_img, hwidth)
 
-
-        # Extract QC parameters
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME XCEN",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["xcen"],
-                                              "[pix] x position of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME YCEN",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["ycen"],
-                                              "[pix] y position of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME FWHMX",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["fwhm_x"],
-                                              "[pix] fwhm in x of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME FWHMY",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["fwhm_y"],
-                                              "[pix] fwhm in y of pinhole"))
-        combined_hdr.append(cpl.core.Property("QC CAL CHOPHOME SNR",
-                                              cpl.core.Type.DOUBLE,
-                                              pinhole_loc["snr"],
-                                              "signal-to-noise ratio of pinhole image"))
+        combined_hdr.append(
+            self.collect_qc_parameters(
+                self.Qc.Xcen(pinhole_loc['xcen']),
+                self.Qc.Ycen(pinhole_loc['ycen']),
+                self.Qc.XcenStdev(pinhole_loc['xcenstd']),
+                self.Qc.YcenStdev(pinhole_loc['ycenstd']),
+                self.Qc.Fwhm(pinhole_loc['fwhm_x']),
+                # FixMe: FWHM should be 2D?
+                self.Qc.Snr(pinhole_loc['snr']),
+            )
+        )
 
         return {
-            self.ProductCombined(combined_hdr,
+            self.ProductSet.Combined(combined_hdr,
                                  Hdu(create_dummy_header(), combined_img, name='IMAGE')),
-            self.ProductBackground(background_hdr,
+            self.ProductSet.Background(background_hdr,
                                    Hdu(create_dummy_header(), background_img, name='IMAGE')),
         }
 
@@ -174,14 +178,16 @@ class MetisCalChophomeImpl(RawImageProcessor):  # TODO replace parent class?
         if fwhm_x is None or fwhm_y is None:
             Msg.warning(cls.__qualname__,
                         "Detection of pinhole failed")
-            fwhm_x = 999
-            fwhm_y = 999
+            fwhm_x = 999.0
+            fwhm_y = 999.0
 
         return {
             "xcen": xcen,
             "ycen": ycen,
             "fwhm_x": fwhm_x,
             "fwhm_y": fwhm_y,
+            "xcenstd": 0.0, # ToDo fix
+            "ycenstd": 0.0, # ToDo fix
             "snr": flux / noise
         }
 

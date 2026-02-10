@@ -19,10 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe,
                                                   MetisIfuReduceImpl as Impl, MetisIfuReduceImpl)
-from pymetis.tests.classes import BaseInputSetTest, TargetParamRecipeTest, BaseProductTest
+from pymetis.tests.classes import BaseInputSetTest, TargetParamRecipeTest, BaseProductSetTest
 
 
 recipe_name = r'metis_ifu_reduce'
@@ -38,7 +37,6 @@ def sof(name: str) -> str:
     return f'{name}.std.sof'
 
 
-@pytest.mark.xfail(reason="Current testing data are of mismatched size")
 class TestRecipe(TargetParamRecipeTest):
     Recipe = Recipe
 
@@ -47,17 +45,17 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductReduced(BaseProductTest):
-    Product = Impl.ProductReduced
+class TestProductSetReduced(BaseProductSetTest):
+    Product = Impl.ProductSet.Reduced
 
 
-class TestProductBackground(BaseProductTest):
-    Product = Impl.ProductBackground
+class TestProductSetBackground(BaseProductSetTest):
+    Product = Impl.ProductSet.Background
 
 
-class TestProductReducedCube(BaseProductTest):
-    Product = Impl.ProductReducedCube
+class TestProductSetReducedCube(BaseProductSetTest):
+    Product = Impl.ProductSet.ReducedCube
 
 
-class TestProductCombined(BaseProductTest):
-    Product = Impl.ProductCombined
+class TestProductSetCombined(BaseProductSetTest):
+    Product = Impl.ProductSet.Combined

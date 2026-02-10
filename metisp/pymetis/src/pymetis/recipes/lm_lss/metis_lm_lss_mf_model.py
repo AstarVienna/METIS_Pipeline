@@ -24,8 +24,8 @@ from pymetis.classes.prefab.lss.mf_model import MetisLssMfModelImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisLmLssMfModelImpl(MetisLssMfModelImpl):
-    class InputSet(BandLmMixin, MetisLssMfModelImpl.InputSet):
+class MetisLmLssMfModelImpl(BandLmMixin, MetisLssMfModelImpl):
+    class InputSet(MetisLssMfModelImpl.InputSet):
         pass
 
 
@@ -34,10 +34,9 @@ class MetisLmLssMfModel(MetisRecipe):
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"
     _email: str = "wolfgang.kausch@uibk.ac.at"
-    _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of molecfit model"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DRS.SLIT'}
     _algorithm = """Fit of telluric features visible in the science input spectrum
     Determination of best-fit parameter set"""
 

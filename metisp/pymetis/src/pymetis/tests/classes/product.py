@@ -25,7 +25,7 @@ from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem
 
 
 @pytest.mark.product
-class BaseProductTest(ABC):
+class BaseProductSetTest(ABC):
     Product: type[DataItem] = None
 
     @pytest.mark.metadata
@@ -48,7 +48,7 @@ class BaseProductTest(ABC):
             f"Product frame type is not defined for {self.Product.__qualname__}"
 
 
-class ImageProductTest(BaseProductTest):
+class ImageProductSetTest(BaseProductSetTest):
     def test_does_product_type_match(self):
         assert issubclass(self.Product, ImageDataItem), \
             f"{self.Product} is not an ImageDataItem"
@@ -56,7 +56,7 @@ class ImageProductTest(BaseProductTest):
             f"{self.Product} frame type is not a IMAGE, but {self.Product.frame_type()}"
 
 
-class TableProductTest(BaseProductTest):
+class TableProductSetTest(BaseProductSetTest):
     def test_does_product_type_match(self):
         assert issubclass(self.Product, TableDataItem), \
             f"{self.Product} is not an TableDataItem"

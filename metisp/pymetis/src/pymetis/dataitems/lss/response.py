@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import TableDataItem
-from pymetis.classes.mixins import BandSpecificMixin, BandLmMixin, BandNMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin
 
 
-class MasterResponse(BandSpecificMixin, TableDataItem, abstract=True):
+class MasterResponse(TableDataItem, abstract=True):
     _name_template = r'MASTER_{band}_RESPONSE'
     _title_template = r'master {band}-band response'
     _description_template = "Master {band}-band response function for absolute flux calibration"

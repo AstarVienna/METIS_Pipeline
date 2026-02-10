@@ -17,26 +17,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
-from cpl.core import Msg
-
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.prefab import MetisBaseImgDistortionImpl
+from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisLmImgDistortionImpl(MetisBaseImgDistortionImpl):
+class MetisLmImgDistortionImpl(BandLmMixin, Detector2rgMixin, MetisBaseImgDistortionImpl):
     class InputSet(MetisBaseImgDistortionImpl.InputSet):
         class RawInput(MetisBaseImgDistortionImpl.InputSet.RawInput):
             pass
 
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
             pass
-
-    def process(self) -> set[DataItem]:
-        return super().process()
 
 
 class MetisLmImgDistortion(MetisRecipe):

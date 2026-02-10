@@ -19,39 +19,54 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-import cpl
 from cpl.core import Msg
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.dataitems.masterflat.raw import FlatRaw
-from pymetis.classes.inputs import RawInput, MasterDarkInput
+from pymetis.dataitems.badpixmap import BadPixMap
+from pymetis.classes.inputs import RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
+    LinearityInput
 
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.inputs import PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin
-from pymetis.qc.flat import LmMFlatRms, LmMFlatNbadpix, LmFlatMean, LmFlatRms, LmFlatMedianMin, LmFlatMedianMax, LmFlatMedianRms
+from pymetis.qc.flat import MFlatRms, MFlatNbadpix, FlatMean, FlatRms, FlatMedianMin, FlatMedianMax, FlatMedianRms
 from pymetis.utils.dummy import create_dummy_header
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
-    class InputSet(PersistenceInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin, DarkImageProcessor.InputSet):
+    class InputSet(DarkImageProcessor.InputSet):
         """
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
-        MasterDarkInput = MasterDarkInput
+        class MasterDarkInput(MasterDarkInput):
+            pass
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
 
         class RawInput(RawInput):
             Item = FlatRaw
 
-    ProductMasterFlat = MasterImgFlat
+    class ProductSet(PipelineProductSet):
+        MasterFlat = MasterImgFlat
+        BadPixMap = BadPixMap
 
-    QcLmMflatRms = LmMFlatRms
-    QcLmMflatNBadpix = LmMFlatNbadpix
-    QcLmFlatMean = LmFlatMean
-    QcLmFlatRms = LmFlatRms
-    QcLmFlatMedianMin = LmFlatMedianMin
-    QcLmFlatMedianMax = LmFlatMedianMax
-    QcLmFlatMedianRms = LmFlatMedianRms
+    class Qc(QcParameterSet):
+        MflatRms = MFlatRms
+        MflatNBadpix = MFlatNbadpix
+        FlatMean = FlatMean
+        FlatRms = FlatRms
+        FlatMedianMin = FlatMedianMin
+        FlatMedianMax = FlatMedianMax
+        FlatMedianRms = FlatMedianRms
 
     def process(self) -> set[DataItem]:
         """
@@ -81,7 +96,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
         header_master_flat = create_dummy_header()
         # ToDo actually produce the flat
 
-        product = self.ProductMasterFlat(
+        product = self.ProductSet.MasterFlat(
             primary_header,
             Hdu(header_master_flat, combined_image, name='DET1.SCI'),
         )

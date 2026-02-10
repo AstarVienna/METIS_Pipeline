@@ -24,8 +24,8 @@ from pymetis.classes.prefab.lss.mf_model import MetisLssMfModelImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNLssMfModelImpl(MetisLssMfModelImpl):
-    class InputSet(BandNMixin, MetisLssMfModelImpl.InputSet):
+class MetisNLssMfModelImpl(BandNMixin, MetisLssMfModelImpl):
+    class InputSet(MetisLssMfModelImpl.InputSet):
         pass
 
 
@@ -36,24 +36,8 @@ class MetisNLssMfModel(MetisRecipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of molecfit model"
-    _description: str = """\
-    Calculation of molecfit model
 
-    Inputs
-        N_LSS_SCI_FLUX_1D: Coadded, wavelength + flux calibrated, collapsed 1D spectrum of the science object
-        N_LSS_STD_1D: Coadded, wavelength calibrated, collapsed 1D spectrum of the standard star
-        LSF_KERNEL:         LSF Kernel file
-        ATM_LINE_CAT:       Catalogue of atmospheric lines
-        ATMP_PROFILE:       Atmospheric input profile
-
-     Matched Keywords
-        DRS.SLIT    ***TBChecked***
-
-    Outputs
-        MF_BEST_FIT_TAB: Table with best-fit parameters
-    """
-
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
@@ -61,7 +45,7 @@ class MetisNLssMfModel(MetisRecipe):
     # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.parameter1",
             context=_name,
             description="Description of parameter 1",
             default="value1",

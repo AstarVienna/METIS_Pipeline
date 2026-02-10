@@ -70,6 +70,7 @@ class BaseInputSetTest(ABC):
                 f"Registered input is not an Input: {inp}"
 
     @staticmethod
+    @pytest.mark.external
     def test_can_load_and_verify(instance):
         assert instance.validate() is None, \
             f"InputSet {instance} did not validate"

@@ -21,7 +21,7 @@ from typing import Any, Optional, Self
 
 import cpl
 
-from cpl.core import Msg, Image, ImageList, PropertyList
+from cpl.core import Msg, Image, ImageList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.inputs.input import PipelineInput
@@ -57,6 +57,8 @@ class MultiplePipelineInput(PipelineInput):
         -------
         None
         """
+        Msg.info(self.__class__.__name__,
+                 f"Loading {self.Item.__qualname__} items")
         if len(self.items) != 0:
             Msg.debug(self.__class__.__qualname__,
                       f"Input already loaded, skipping")
@@ -65,11 +67,11 @@ class MultiplePipelineInput(PipelineInput):
 
             for idx, frame in enumerate(self.frameset):
                 Msg.info(self.__class__.__qualname__,
-                         f"Loading input frame #{idx}: {frame.file!r}")
+                         f" - loading input frame #{idx}: {frame.file!r}")
                 self.items.append(self.Item.load(frame))
 
             Msg.info(self.__class__.__qualname__,
-                     f"Items are now {self.items}")
+                     f"Input Items loaded: {self.items}")
 
             self.use() # FixMe: for now anything that is actually loaded is marked as used
 
@@ -95,7 +97,7 @@ class MultiplePipelineInput(PipelineInput):
         self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
-                 f"Loading multiple input frames for extension: {extension}")
+                 f"Loading extension '{extension}' from multiple frames {self.frameset}")
 
         images = [item.load_data(extension) for item in self.items]
         return ImageList(images)

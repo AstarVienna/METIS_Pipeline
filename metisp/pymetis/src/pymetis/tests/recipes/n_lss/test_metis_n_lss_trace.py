@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.n_lss.metis_n_lss_trace import (MetisNLssTrace as Recipe,
                                                       MetisNLssTraceImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_n_lss_trace'
@@ -49,6 +49,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    Product = Impl.ProductTraceTable
-
+class TestProductSet(BaseProductSetTest):
+    Product = Impl.ProductSet.TraceTable

@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_lss.metis_lm_lss_rsrf import (MetisLmLssRsrf as Recipe,
                                                       MetisLmLssRsrfImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_lss_rsrf'
@@ -45,13 +45,13 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    Product = Impl.ProductMedianLssRsrf
+class TestProductSet(BaseProductSetTest):
+    Product = Impl.ProductSet.MedianLssRsrf
 
 
-class TestProductMeanLmLss(BaseProductTest):
-    Product = Impl.ProductMeanLssRsrf
+class TestProductSetMeanLmLss(BaseProductSetTest):
+    Product = Impl.ProductSet.MeanLssRsrf
 
 
-class TestProductMasterLmLssRsrf(BaseProductTest):
-    Product = Impl.ProductMasterLssRsrf
+class TestProductSetMasterLmLssRsrf(BaseProductSetTest):
+    Product = Impl.ProductSet.MasterLssRsrf

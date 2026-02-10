@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import inspect
 import re
 from typing import Any
 
@@ -25,8 +24,8 @@ import cpl
 
 from pyesorex.parameter import ParameterList
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.qc.parameter import QcParameter
+from ..dataitems import DataItem
+from ..qc import QcParameter
 from pymetis.classes.recipes.impl import MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInput
 
@@ -50,7 +49,8 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _copyright: str = "GPL-3.0-or-later"                         # I guess we are using the same copyright everywhere
     _synopsis: str = "Abstract-like base class for METIS recipes"
     _description: str = ("This class serves as the base class for all METIS recipes. "
-                         "Bonus points if it is not visible from pyesorex.")
+                         "Bonus points if it is not visible from pyesorex "
+                         "(if it is, override the _description attribute in the final class).")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
     _matched_keywords: set[str] = set()
@@ -70,20 +70,20 @@ class MetisRecipe(cpl.ui.PyRecipe):
     def run(self, frameset: cpl.ui.FrameSet, settings: dict[str, Any]) -> cpl.ui.FrameSet:
         """
         The main method, as required by PyCPL.
-        Instantiates the decoupled implementation, fills it with supplied frameset,
-        optionally promotes the class to the proper child class and then runs it.
+        Instantiates the decoupled implementation, fills it with the supplied frameset,
+        optionally promotes the class to the proper derived class and then runs it.
         """
         self.implementation = self.Impl(self, frameset, settings)
         return self.implementation.run()
 
     def _list_inputs(self) -> list[tuple[str, type[PipelineInput]]]:
-        return self.Impl.InputSet.list_input_classes()
+        return self.Impl.InputSet.list_classes()
 
     def _list_products(self) -> list[tuple[str, type[DataItem]]]:
-        return self.Impl.list_product_classes()
+        return self.Impl.ProductSet.list_classes()
 
     def _list_qc_parameters(self) -> list[tuple[str, type[QcParameter]]]:
-        return self.Impl.list_qc_parameters()
+        return self.Impl.Qc.list_classes()
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:
@@ -102,27 +102,25 @@ class MetisRecipe(cpl.ui.PyRecipe):
     def _build_description(self) -> str:
         """
         Automatically build the `description` attribute from available attributes.
-        This should only depend on the class, never on an instance.
+        Everything inside this should only depend on the class, never on an instance.
         """
         if self._matched_keywords is None:
             matched_keywords = '<not defined>'
         elif len(self._matched_keywords) == 0:
-            matched_keywords = '(none)'
+            matched_keywords = '--- none ---'
         else:
             matched_keywords = '\n    '.join(self._matched_keywords)
 
-        inputs = '\n'.join(sorted([input_type._extended_description_line(name)
+        self.Impl.specialize()
+
+        inputs = '\n'.join(sorted([input_type.extended_description_line(name)
                                    for (name, input_type) in self._list_inputs()]))
-        products = '\n'.join(sorted([product_type._extended_description_line(name)
-                                     for (name, product_type) in self._list_products()]))
-        qc_parameters = '\n'.join(sorted([qcp_type._extended_description_line()
-                                          for (name, qcp_type) in self._list_qc_parameters()]))
-        description = self._format_spacing(self._description, 'description', 2)
+        products = self._format_spacing(self.Impl.ProductSet.list_descriptions(), 6)
+        qc_parameters = self._format_spacing(self.Impl.Qc.list_descriptions(), 6)
         algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
+        description = self._format_spacing(self._description, 'description', 2)
 
-        return \
-            f"""{self.synopsis}\n\n{description}
-
+        return f"""{self.synopsis}\n\n{description}\n
   Matched keywords
     {matched_keywords}
   Inputs\n{inputs}

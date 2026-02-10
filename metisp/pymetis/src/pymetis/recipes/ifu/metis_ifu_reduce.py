@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+
 import copy
 from typing import Literal
 
@@ -23,6 +24,9 @@ import cpl
 from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.distortion.table import IfuDistortionTable
 from pymetis.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
 from pymetis.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
@@ -31,20 +35,30 @@ from pymetis.dataitems.rsrf import RsrfIfu
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, WavecalInput,
-                                    PersistenceInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin)
-
+                                    OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
+from ...qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNbadpix
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisIfuReduceImpl(DarkImageProcessor):
-    class InputSet(GainMapInputSetMixin, PersistenceInputSetMixin, LinearityInputSetMixin, DarkImageProcessor.InputSet):
+class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRaw
 
         class RawSkyInput(RawInput):
             Item = IfuSkyRaw
 
-        WavecalInput = WavecalInput
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class WavecalInput(WavecalInput):
+            pass # We need to create a new class here, not reuse the old one!
 
         class DistortionTableInput(SinglePipelineInput):
             Item = IfuDistortionTable
@@ -52,10 +66,16 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         class RsrfInput(SinglePipelineInput):
             Item = RsrfIfu
 
-    ProductReduced = IfuReduced
-    ProductBackground = IfuBackground
-    ProductReducedCube = IfuReducedCube
-    ProductCombined = IfuCombined
+    class ProductSet(PipelineProductSet):
+        Reduced = IfuReduced
+        Background = IfuBackground
+        ReducedCube = IfuReducedCube
+        Combined = IfuCombined
+
+    class Qc(QcParameterSet):
+        Nbadpix = IfuReduceNbadpix
+        MeanBkg = IfuReduceMeanBkg
+        MeanStray = IfuReduceMeanStray
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         """
@@ -99,12 +119,12 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         raw_images = self.inputset.raw.load_data('DET1.DATA')
         image = self.combine_images(raw_images, "add")
 
-        product_reduced = self.ProductReduced(
+        product_reduced = self.ProductSet.Reduced(
             header_reduced,
             *[out['IMAGE'] for out in output],
         )
 
-        product_background = self.ProductBackground(
+        product_background = self.ProductSet.Background(
             header_background,
             *[out['BACKGROUND'] for out in output],
         )
@@ -116,11 +136,11 @@ class MetisIfuReduceImpl(DarkImageProcessor):
         return {
             product_reduced,
             product_background,
-            self.ProductReducedCube(
+            self.ProductSet.ReducedCube(
                 copy.deepcopy(primary_header),
                 Hdu(header_reduced_cube, combined_image, name='IMAGE'),
             ),
-            self.ProductCombined(
+            self.ProductSet.Combined(
                 copy.deepcopy(primary_header),
                 Hdu(header_combined_cube, image, name='DET1.DATA'),
             ),

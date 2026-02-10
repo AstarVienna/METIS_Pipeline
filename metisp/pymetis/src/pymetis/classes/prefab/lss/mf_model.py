@@ -18,19 +18,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.lss.science import LssSciFlux1d, LssSci1d
 from pymetis.dataitems.molecfit.model import MfBestFitTable
-from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.classes.inputs.mixins import AtmProfileInputSetMixin, AtmLineCatInputSetMixin, LsfKernelInputSetMixin
+from pymetis.classes.inputs import (PipelineInputSet, SinglePipelineInput,
+                                    AtmLineCatInput, AtmProfileInput, LsfKernelInput)
 from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLssMfModelImpl(MetisRecipeImpl):
-    class InputSet(AtmProfileInputSetMixin,
-                   AtmLineCatInputSetMixin,
-                   LsfKernelInputSetMixin,
-                   PipelineInputSet):
+    class InputSet(PipelineInputSet):
+        class AtmLineCatInput(AtmLineCatInput):
+            pass
+
+        class AtmProfileInput(AtmProfileInput):
+            pass
+
+        class LsfKernelInput(LsfKernelInput):
+            pass
+
         # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
         class LssSciFlux1dInput(SinglePipelineInput):
@@ -40,7 +48,11 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         class LssSci1dInput(SinglePipelineInput):
             Item = LssSci1d
 
-    ProductMfBestFitTable = MfBestFitTable
+    class ProductSet(PipelineProductSet):
+        MfBestFitTable = MfBestFitTable
+
+    class Qc(QcParameterSet):
+        pass # RD17 from DRLD (finish)
 
     #   Method for processing
     def process(self) -> set[DataItem]:
@@ -56,7 +68,7 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         header_mf_best_fit = create_dummy_header()
         table = create_dummy_table()
         return {
-            self.ProductMfBestFitTable(
+            self.ProductSet.MfBestFitTable(
                 primary_header,
                 Hdu(header_mf_best_fit, table, name='TABLE'),
             ),

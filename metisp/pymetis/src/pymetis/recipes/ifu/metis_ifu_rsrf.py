@@ -29,6 +29,9 @@ from astropy.table import QTable
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import DetectorIfuMixin, BandIfuMixin
+from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.badpixmap import BadPixMapIfu
 from pymetis.dataitems.gainmap import GainMapIfu
 from pymetis.dataitems.linearity.linearity import LinearityMapIfu
@@ -42,15 +45,15 @@ from pymetis.classes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin,
                                     SinglePipelineInput, PersistenceMapInput)
-from pymetis.classes.inputs import LinearityInputSetMixin
+from pymetis.qc.reduce import IfuReduceMeanStray, IfuReduceNbadpix, IfuReduceMeanBkg
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
 
 
-class MetisIfuRsrfImpl(DarkImageProcessor):
-    class InputSet(LinearityInputSetMixin, DarkImageProcessor.InputSet):
+class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRsrfRaw
 
@@ -83,10 +86,23 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         # TBD: schema to be defined
         WavecalInput = WavecalInput
 
-    ProductRsrfBackground = IfuRsrfBackground
-    ProductMasterFlat = MasterFlatIfu
-    ProductRsrfIfu = RsrfIfu
-    ProductBadPixMap = BadPixMapIfu
+    class ProductSet(PipelineProductSet):
+        RsrfBackground = IfuRsrfBackground
+        MasterFlat = MasterFlatIfu
+        RsrfIfu = RsrfIfu
+        BadPixMap = BadPixMapIfu
+
+    class Qc(QcParameterSet):
+        class NBadPix(QcParameter):
+            _name_template = "QC IFU RSRF NBADPIX"
+            _type = int
+            _default = None
+            _description_template = "Number of bad pixels in the image mask"
+
+        NBadPix = IfuReduceNbadpix
+        MeanBkg = IfuReduceMeanBkg
+        MeanStray = IfuReduceMeanStray
+
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         """
@@ -270,19 +286,19 @@ class MetisIfuRsrfImpl(DarkImageProcessor):
         header_1drsrf = create_dummy_header()
         header_badpixmap = create_dummy_header()
 
-        product_background = self.ProductRsrfBackground(
+        product_background = self.ProductSet.RsrfBackground(
             header_background,
             *[out['BACKGROUND'] for out in output],
         )
-        product_master_flat_ifu = self.ProductMasterFlat(
+        product_master_flat_ifu = self.ProductSet.MasterFlat(
             header_mflat,
             *[out['MASTERFLAT'] for out in output],
         )
-        product_rsrf_ifu = self.ProductRsrfIfu(
+        product_rsrf_ifu = self.ProductSet.RsrfIfu(
             header_1drsrf,
             *[out['1DRSRF'] for out in output],
         )
-        product_badpix_map_ifu = self.ProductBadPixMap(
+        product_badpix_map_ifu = self.ProductSet.BadPixMap(
             header_badpixmap,
             *[out['BADPIXMAP'] for out in output],
         )

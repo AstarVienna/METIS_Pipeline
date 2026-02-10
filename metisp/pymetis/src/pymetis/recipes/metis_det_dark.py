@@ -29,6 +29,9 @@ from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
+from pymetis.classes.prefab.persistence import PersistenceCorrectionMixin
 from pymetis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
@@ -42,12 +45,12 @@ from pymetis.qc.dark import DarkMean, DarkMedian, DarkRms, DarkNColdpix, DarkNHo
 import numpy as np
 
 from pymetis.functions.image import zeros_like
-from pymetis.utils.dummy import create_dummy_header, python_to_cpl_type
+from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisDetDarkImpl(RawImageProcessor, ABC):
+class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, ABC):
     """
-    Implementation class for `metis_det_dark`.
+    Implementation class for the `metis_det_dark` recipe.
     """
 
     # We start by deriving the implementation class from `MetisRecipeImpl`, or in this case, one of its subclasses,
@@ -83,22 +86,24 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
 
-    # Assign product classes. This should be just a data item class.
-    # It is not strictly necessary, and we can create the product directly,
-    # but it enables us to introspect the class for the manpage and DRLD.
-    ProductMasterDark = MasterDark
+    class ProductSet(PipelineProductSet):
+        # Assign product classes. This should be just a data item class.
+        # It is not strictly necessary, and we can create the product directly,
+        # but it enables us to introspect the class for the manpage and DRLD.
+        MasterDark = MasterDark
 
-    QcDarkMedian = DarkMedian
-    QcDarkMean = DarkMean
-    QcDarkRms = DarkRms
-    QcDarkNBadpix = DarkNBadpix
-    QcDarkNColdpix = DarkNColdpix
-    QcDarkNHotpix = DarkNHotpix
-    QcDarkMedianMean = DarkMedianMean
-    QcDarkMedianMedian = DarkMedianMedian
-    QcDarkMedianRms = DarkMedianRms
-    QcDarkMedianMin = DarkMedianMin
-    QcDarkMedianMax = DarkMedianMax
+    class Qc(QcParameterSet):
+        DarkMedian = DarkMedian
+        DarkMean = DarkMean
+        DarkRms = DarkRms
+        DarkNBadpix = DarkNBadpix
+        DarkNColdpix = DarkNColdpix
+        DarkNHotpix = DarkNHotpix
+        DarkMedianMean = DarkMedianMean
+        DarkMedianMedian = DarkMedianMedian
+        DarkMedianRms = DarkMedianRms
+        DarkMedianMin = DarkMedianMin
+        DarkMedianMax = DarkMedianMax
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -163,8 +168,10 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
         badpix_mask = zeros_like(raw_images[0], cpl.core.Type.FLOAT)
 
         # fake the gain at the moment by setting to 1
+        gain = cpl.core.Image.zeros_like(raw_images[0])
+        gain.add_scalar(1)
 
-        raw_images = self.correct_gain(raw_images)
+        raw_images = self.correct_gain(raw_images, gain)
         raw_images = self.correct_persistence(raw_images)
 
         linearity_map = self.inputset.linearity.load_data(extension=rf'DET{detector:1d}.SCI')
@@ -280,7 +287,7 @@ class MetisDetDarkImpl(RawImageProcessor, ABC):
 
         hdus = functools.reduce(operator.add, map(self._process_single_detector, range(1, detector_count + 1)))
 
-        product = self.ProductMasterDark(
+        product = self.ProductSet.MasterDark(
             create_dummy_header(),
             *hdus,
         )
@@ -296,7 +303,7 @@ class MetisDetDark(MetisRecipe):
     _email = "hugo@buddelmeijer.nl"
     _synopsis = "Create master dark"
     _description = (
-        "Prototype to create a METIS masterdark."
+        "Prototype to create a METIS masterdark for {detector} in {2RG, GEO, IFU}"
     )
 
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
@@ -317,7 +324,7 @@ class MetisDetDark(MetisRecipe):
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
-        # ToDo: Maybe these should be user-configurable as well?
+        # ToDo: Maybe these should be user-configurable as well? Added them commented out.
         #ParameterValue(
         #    name=f"{_name}.outliers.kappa_low",
         #    context=_name,

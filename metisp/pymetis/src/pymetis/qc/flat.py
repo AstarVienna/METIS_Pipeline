@@ -17,8 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
-
 from pymetis.classes.mixins import BandLmMixin, BandNMixin
 from pymetis.classes.qc.parameter import QcParameter
 
@@ -27,302 +25,222 @@ from pymetis.classes.qc.parameter import QcParameter
 # MFLAT base classes (LM/N merged)
 # -------------------------------
 
-class MFlatRmsBase(QcParameter):
-    _name = "QC {band} MFLAT RMS"
-    _type = cpl.core.Type.DOUBLE
+class MFlatRms(QcParameter):
+    _name_template = "QC {band} MFLAT RMS"
+    _type = float
     _unit = "Counts"
-    _description = "RMS of the {band} master flat"
+    _description_template = "RMS of the {band} master flat"
 
-class MFlatMedianBase(QcParameter):
-    _name = "QC {band} MFLAT MEDIAN"
-    _type = cpl.core.Type.DOUBLE
+class MFlatMedian(QcParameter):
+    _name_template = "QC {band} MFLAT MEDIAN"
+    _type = float
     _unit = "Counts"
-    _description = "Median of the {band} master flat"
+    _description_template = "Median of the {band} master flat"
 
-class MFlatNbadpixBase(QcParameter):
-    _name = "QC {band} MFLAT NBADPIX"
-    _type = cpl.core.Type.INT
+class MFlatNbadpix(QcParameter):
+    _name_template = "QC {band} MFLAT NBADPIX"
+    _type = int
     _unit = None
-    _description = "Number of bad pixels in the {band} master flat"
+    _description_template = "Number of bad pixels in the {band} master flat"
 
 # -------------------------------
 # MFLAT LM/N variants
 # -------------------------------
 
-class LmMFlatRms(BandLmMixin, MFlatRmsBase):
+class LmMFlatRms(BandLmMixin, MFlatRms):
     pass
 
-class NMFlatRms(BandNMixin, MFlatRmsBase):
+class NMFlatRms(BandNMixin, MFlatRms):
     pass
 
-class LmMFlatMedian(BandLmMixin, MFlatMedianBase):
+class LmMFlatMedian(BandLmMixin, MFlatMedian):
     pass
 
-class NMFlatMedian(BandNMixin, MFlatMedianBase):
+class NMFlatMedian(BandNMixin, MFlatMedian):
     pass
 
-class LmMFlatNbadpix(BandLmMixin, MFlatNbadpixBase):
+class LmMFlatNbadpix(BandLmMixin, MFlatNbadpix):
     pass
 
-class NMFlatNbadpix(BandNMixin, MFlatNbadpixBase):
+class NMFlatNbadpix(BandNMixin, MFlatNbadpix):
     pass
 
 # -------------------------------
 # MLFLAT base classes
 # -------------------------------
 
-class MlFlatRmsBase(QcParameter):
-    _name = "QC {band} MLFLAT RMS"
-    _type = cpl.core.Type.DOUBLE
+class MlFlatRms(QcParameter):
+    _name_template = "QC {band} MLFLAT RMS"
+    _type = float
     _unit = "Counts"
-    _description = "RMS of the {band} lamp master flat"
+    _description_template = "RMS of the {band} lamp master flat"
 
-class MlFlatMedianBase(QcParameter):
-    _name = "QC {band} MLFLAT MEDIAN"
-    _type = cpl.core.Type.DOUBLE
+class MlFlatMedian(QcParameter):
+    _name_template = "QC {band} MLFLAT MEDIAN"
+    _type = float
     _unit = "Counts"
-    _description = "Median of the {band} lamp master flat"
+    _description_template = "Median of the {band} lamp master flat"
 
-class MlFlatNbadpixBase(QcParameter):
-    _name = "QC {band} MLFLAT NBADPIX"
-    _type = cpl.core.Type.INT
+class MlFlatNbadpix(QcParameter):
+    _name_template = "QC {band} MLFLAT NBADPIX"
+    _type = int
     _unit = None
-    _description = "Number of bad pixels in the {band} lamp master flat"
+    _description_template = "Number of bad pixels in the {band} lamp master flat"
 
 # -------------------------------
 # MLFLAT LM/N variants
 # -------------------------------
 
-class LmMlFlatRms(BandLmMixin, MlFlatRmsBase):
+class LmMlFlatRms(BandLmMixin, MlFlatRms):
     pass
 
 
-class NMlFlatRms(BandNMixin, MlFlatRmsBase):
+class NMlFlatRms(BandNMixin, MlFlatRms):
     pass
 
 
-class LmMlFlatMedian(BandLmMixin, MlFlatMedianBase):
+class LmMlFlatMedian(BandLmMixin, MlFlatMedian):
     pass
 
 
-class NMlFlatMedian(BandNMixin, MlFlatMedianBase):
+class NMlFlatMedian(BandNMixin, MlFlatMedian):
     pass
 
 
-class LmMlFlatNbadpix(BandLmMixin, MlFlatNbadpixBase):
+class LmMlFlatNbadpix(BandLmMixin, MlFlatNbadpix):
     pass
 
 
-class NMlFlatNbadpix(BandNMixin, MlFlatNbadpixBase):
+class NMlFlatNbadpix(BandNMixin, MlFlatNbadpix):
     pass
 
 # -------------------------------
 # MTFLAT base classes
 # -------------------------------
 
-class MtFlatRmsBase(QcParameter):
-    _name = "QC {band} MTFLAT RMS"
-    _type = cpl.core.Type.DOUBLE
+class MtFlatRms(QcParameter):
+    _name_template = "QC {band} MTFLAT RMS"
+    _type = float
     _unit = "Counts"
-    _description = "RMS of the {band} twilight master flat"
+    _description_template = "RMS of the {band} twilight master flat"
 
 
-class MtFlatMedianBase(QcParameter):
-    _name = "QC {band} MTFLAT MEDIAN"
-    _type = cpl.core.Type.DOUBLE
+class MtFlatMedian(QcParameter):
+    _name_template = "QC {band} MTFLAT MEDIAN"
+    _type = float
     _unit = "Counts"
-    _description = "Median of the {band} twilight master flat"
+    _description_template = "Median of the {band} twilight master flat"
 
 
-class MtFlatNbadpixBase(QcParameter):
-    _name = "QC {band} MTFLAT NBADPIX"
-    _type = cpl.core.Type.INT
+class MtFlatNbadpix(QcParameter):
+    _name_template = "QC {band} MTFLAT NBADPIX"
+    _type = int
     _unit = None
-    _description = "Number of bad pixels in the {band} twilight master flat"
+    _description_template = "Number of bad pixels in the {band} twilight master flat"
 
 # -------------------------------
 # MTFLAT LM/N variants
 # -------------------------------
 
-class LmMtFlatRms(BandLmMixin, MtFlatRmsBase):
+class LmMtFlatRms(BandLmMixin, MtFlatRms):
     pass
 
 
-class NMtFlatRms(BandNMixin, MtFlatRmsBase):
+class NMtFlatRms(BandNMixin, MtFlatRms):
     pass
 
 
-class LmMtFlatMedian(BandLmMixin, MtFlatMedianBase):
+class LmMtFlatMedian(BandLmMixin, MtFlatMedian):
     pass
 
 
-class NMtFlatMedian(BandNMixin, MtFlatMedianBase):
+class NMtFlatMedian(BandNMixin, MtFlatMedian):
     pass
 
 
-class LmMtFlatNbadpix(BandLmMixin, MtFlatNbadpixBase):
+class LmMtFlatNbadpix(BandLmMixin, MtFlatNbadpix):
     pass
 
 
-class NMtFlatNbadpix(BandNMixin, MtFlatNbadpixBase):
+class NMtFlatNbadpix(BandNMixin, MtFlatNbadpix):
     pass
 
 # -------------------------------
 # Flat general base class
 # -------------------------------
 
-class FlatMeanBase(QcParameter):
-    _name = "QC {band} FLAT MEAN"
-    _type = cpl.core.Type.DOUBLE
+class FlatMean(QcParameter):
+    _name_template = "QC {band} FLAT MEAN"
+    _type = float
     _unit = "Counts"
-    _description = "Mean value of a single flat field image"
+    _description_template = "Mean value of a single flat field image"
 
-class FlatRmsBase(QcParameter):
-    _name = "QC {band} FLAT RMS"
-    _type = cpl.core.Type.DOUBLE
+class FlatRms(QcParameter):
+    _name_template = "QC {band} FLAT RMS"
+    _type = float
     _unit = "Counts"
-    _description = "RMS value of a single flat field image"
+    _description_template = "RMS value of a single flat field image"
 
-class FlatMedianMeanBase(QcParameter):
-    _name = "QC {band} FLAT MEDIAN MEAN"
-    _type = cpl.core.Type.DOUBLE
+class FlatMedianMean(QcParameter):
+    _name_template = "QC {band} FLAT MEDIAN MEAN"
+    _type = float
     _unit = "Counts"
-    _description = "Mean value of the medians of input flat frames"
+    _description_template = "Mean value of the medians of input flat frames"
 
-class FlatMedianMinBase(QcParameter):
-    _name = "QC {band} FLAT MEDIAN MIN"
-    _type = cpl.core.Type.DOUBLE
+class FlatMedianMin(QcParameter):
+    _name_template = "QC {band} FLAT MEDIAN MIN"
+    _type = float
     _unit = "Counts"
-    _description = "Minimum value of the medians of input flat frames"
+    _description_template = "Minimum value of the medians of input flat frames"
 
-class FlatMedianMaxBase(QcParameter):
-    _name = "QC {band} FLAT MEDIAN MAX"
-    _type = cpl.core.Type.DOUBLE
+class FlatMedianMax(QcParameter):
+    _name_template = "QC {band} FLAT MEDIAN MAX"
+    _type = float
     _unit = "Counts"
-    _description = "Maximum value of the medians of input flat frames"
+    _description_template = "Maximum value of the medians of input flat frames"
 
-class FlatMedianRmsBase(QcParameter):
-    _name = "QC {band} FLAT MEDIAN RMS"
-    _type = cpl.core.Type.DOUBLE
+class FlatMedianRms(QcParameter):
+    _name_template = "QC {band} FLAT MEDIAN RMS"
+    _type = float
     _unit = "Counts"
-    _description = "RMS value of the medians of input flat frames"
+    _description_template = "RMS value of the medians of input flat frames"
 
 # -------------------------------
 # Flat LM/N variants
 # -------------------------------
 
-class LmFlatMean(BandLmMixin, FlatMeanBase):
+class LmFlatMean(BandLmMixin, FlatMean):
     pass
 
-class NFlatMean(BandNMixin, FlatMeanBase):
+class NFlatMean(BandNMixin, FlatMean):
     pass
 
-class LmFlatRms(BandLmMixin, FlatRmsBase):
+class LmFlatRms(BandLmMixin, FlatRms):
     pass
 
-class NFlatRms(BandNMixin, FlatRmsBase):
+class NFlatRms(BandNMixin, FlatRms):
     pass
 
-class LmFlatMedianMean(BandLmMixin, FlatMedianMeanBase):
+class LmFlatMedianMean(BandLmMixin, FlatMedianMean):
     pass
 
-class NFlatMedianMean(BandNMixin, FlatMedianMeanBase):
+class NFlatMedianMean(BandNMixin, FlatMedianMean):
     pass
 
-class LmFlatMedianMin(BandLmMixin, FlatMedianMinBase):
+class LmFlatMedianMin(BandLmMixin, FlatMedianMin):
     pass
 
-class NFlatMedianMin(BandNMixin, FlatMedianMinBase):
+class NFlatMedianMin(BandNMixin, FlatMedianMin):
     pass
 
-class LmFlatMedianMax(BandLmMixin, FlatMedianMaxBase):
+class LmFlatMedianMax(BandLmMixin, FlatMedianMax):
     pass
 
-class NFlatMedianMax(BandNMixin, FlatMedianMaxBase):
+class NFlatMedianMax(BandNMixin, FlatMedianMax):
     pass
 
-class LmFlatMedianRms(BandLmMixin, FlatMedianRmsBase):
+class LmFlatMedianRms(BandLmMixin, FlatMedianRms):
     pass
 
-class NFlatMedianRms(BandNMixin, FlatMedianRmsBase):
+class NFlatMedianRms(BandNMixin, FlatMedianRms):
     pass
-
-# -------------------------------
-# QC CalChophome parameters
-# -------------------------------
-
-class CalChophomeXcen(QcParameter):
-    _name = "QC CAL CHOPHOME XCEN"
-    _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
-    _description = "Centroid of point source in x"
-
-class CalChophomeXcenStdev(QcParameter):
-    _name = "QC CAL CHOPHOME XCEN STDEV"
-    _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
-    _description = "Uncertainty of centroid in x"
-
-class CalChophomeYcen(QcParameter):
-    _name = "QC CAL CHOPHOME YCEN"
-    _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
-    _description = "Centroid of point source in y"
-
-class CalChophomeYcenStdev(QcParameter):
-    _name = "QC CAL CHOPHOME YCEN STDEV"
-    _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
-    _description = "Uncertainty of centroid in y"
-
-class CalChophomeFwhm(QcParameter):
-    _name = "QC CAL CHOPHOME FWHM"
-    _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
-    _description = "FWHM of point source"
-
-class CalChophomeSnr(QcParameter):
-    _name = "QC CAL CHOPHOME SNR"
-    _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
-    _description = "Signal-to-noise ratio of point source"
-
-class CalChophomeOffx(QcParameter):
-    _name = "QC CAL CHOPHOME OFFX"
-    _type = cpl.core.Type.DOUBLE
-    _unit = "Pixel"
-    _description = "Chopper offset in x"
-
-class CalChophomeOffy(QcParameter):
-    _name = "QC CAL CHOPHOME OFFY"
-    _type = cpl.core.Type.DOUBLE
-    _unit = "mas"
-    _description = "Chopper offset in y"
-
-# -------------------------------
-# QC Detector linear gain
-# -------------------------------
-
-class LinGainMean(QcParameter):
-    _name = "QC LIN GAIN MEAN"
-    _type = cpl.core.Type.DOUBLE
-    _unit = "e/adu"
-    _description = "Mean value of the gain"
-
-# -------------------------------
-# WARNINGS: Near matches that may indicate issues
-# -------------------------------
-
-# WARNING: Near match detected between "LM MLFLAT MEDIAN" and "N MLFLAT MEDIAN".
-# WARNING: Near match detected between "LM MLFLAT RMS" and "N MLFLAT RMS".
-# WARNING: Near match detected between "LM MTFLAT MEDIAN" and "N MTFLAT MEDIAN".
-# WARNING: Near match detected between "LM MTFLAT RMS" and "N MTFLAT RMS".
-# WARNING: Near match detected between "LM MFLAT NBADPIX" and "N MFLAT NBADPIX".
-# WARNING: Near match detected between "LM MLFLAT NBADPIX" and "N MLFLAT NBADPIX".
-# WARNING: Near match detected between "LM MTFLAT NBADPIX" and "N MTFLAT NBADPIX".
-# WARNING: Near match detected between "LM FLAT MEAN" and "N FLAT MEAN".
-# WARNING: Near match detected between "LM FLAT RMS" and "N FLAT RMS".
-# WARNING: Near match detected between "LM FLAT MEDIAN MEAN" and "N FLAT MEDIAN MEAN".
-# WARNING: Near match detected between "LM FLAT MEDIAN MIN" and "N FLAT MEDIAN MIN".
-# WARNING: Near match detected between "LM FLAT MEDIAN MAX" and "N FLAT MEDIAN MAX".
-# WARNING: Near match detected between "LM FLAT MEDIAN RMS" and "N FLAT MEDIAN RMS".

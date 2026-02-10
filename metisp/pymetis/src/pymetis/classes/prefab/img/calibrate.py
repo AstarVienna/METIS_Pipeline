@@ -20,7 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from pymetis.classes.dataitems import DataItem, Hdu
-from pymetis.dataitems.background.subtracted import SciBackgroundSubtracted
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.mixins import TargetSciMixin
+from pymetis.classes.qc import QcParameter, QcParameterSet
+from pymetis.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.dataitems.distortion.table import DistortionTable
 from pymetis.dataitems.img.basicreduced import Calibrated
 from pymetis.classes.inputs import FluxCalTableInput
@@ -29,25 +32,30 @@ from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.utils.dummy import create_dummy_header
 
 
-class MetisImgCalibrateImpl(MetisRecipeImpl, ABC):
-    class InputSet(PipelineInputSet, abstract=True):
+class MetisImgCalibrateImpl(TargetSciMixin, MetisRecipeImpl, ABC):
+    class InputSet(PipelineInputSet):
         class BackgroundInput(SinglePipelineInput):
-            Item = SciBackgroundSubtracted
+            Item = BackgroundSubtracted
 
-        FluxcalTableInput = FluxCalTableInput
+        class FluxcalTableInput(FluxCalTableInput):
+            pass
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
             Item = DistortionTable
 
-    ProductSciCalibrated = Calibrated
+    class ProductSet(PipelineProductSet):
+        SciCalibrated = Calibrated
+
+    class Qc(QcParameterSet):
+        """ No QC outputs """
 
     def process(self) -> set[DataItem]:
         background = self.inputset.background.load_data('DET1.DATA')
         primary_header = self.inputset.background.item.primary_header
         header = create_dummy_header()
 
-        product_calibrated = self.ProductSciCalibrated(
+        product_calibrated = self.ProductSet.SciCalibrated(
             primary_header,
             Hdu(header, background, name='DET1.DATA'),
         )

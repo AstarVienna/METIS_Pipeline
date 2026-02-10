@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.n_img.metis_n_img_std_process import (MetisNImgStdProcess as Recipe,
                                                            MetisNImgStdProcessImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_n_img_std_process'
@@ -45,9 +45,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductNImgStdCombined(BaseProductTest):
-    Product = Impl.ProductImgStdCombined
-
-
-class TestProductNImgFluxcalTable(BaseProductTest):
-    Product = Impl.ProductImgFluxCalTable
+class TestProductSetNImgFluxcalTable(BaseProductSetTest):
+    Product = Impl.ProductSet.ImgFluxCalTable

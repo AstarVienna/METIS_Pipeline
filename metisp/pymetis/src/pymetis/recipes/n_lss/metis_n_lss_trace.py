@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandNMixin
+from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.classes.prefab.lss.trace import MetisLssTraceImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNLssTraceImpl(MetisLssTraceImpl):
-    class InputSet(BandNMixin, MetisLssTraceImpl.InputSet):
+class MetisNLssTraceImpl(BandNMixin, DetectorGeoMixin, MetisLssTraceImpl):
+    class InputSet(MetisLssTraceImpl.InputSet):
         pass
 
 
@@ -43,7 +43,7 @@ class MetisNLssTrace(MetisRecipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Detection of N order location on the GEO detector"
 
-    _matched_keywords: {str} = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD*** """
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

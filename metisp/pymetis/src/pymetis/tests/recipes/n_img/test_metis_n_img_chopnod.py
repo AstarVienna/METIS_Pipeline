@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.n_img.metis_n_img_chopnod import (MetisNImgChopnod as Recipe,
                                                        MetisNImgChopnodImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_n_img_chopnod'
@@ -41,6 +41,8 @@ def sof(name: str) -> str:
 class TestRecipe(BaseRecipeTest):
     Recipe = Recipe
 
+    @pytest.mark.pyesorex
+    @pytest.mark.external
     @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
@@ -50,5 +52,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductMasterFlat(BaseProductTest):
-    Product = Impl.ProductReduced
+class TestProductSetMasterFlat(BaseProductSetTest):
+    Product = Impl.ProductSet.Reduced

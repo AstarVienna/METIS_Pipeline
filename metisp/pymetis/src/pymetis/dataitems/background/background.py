@@ -21,11 +21,11 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import (TargetSpecificMixin, TargetSciMixin, TargetStdMixin,
-                                    BandNMixin, BandLmMixin, BandSpecificMixin)
+from pymetis.classes.mixins import (TargetSciMixin, TargetStdMixin,
+                                    BandLmMixin, BandNMixin)
 
 
-class Background(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
+class Background(ImageDataItem, abstract=True):
     _name_template = r'{band}_{target}_BKG'
     _title_template = r'{band}_{target} background, subtracted'
     _description_template = r"Thermal background subtracted images of {target} {band} exposures."

@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
                                                               MetisLmImgBasicReduceImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_img_basic_reduce'
@@ -51,5 +51,5 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    Product = Impl.ProductBasicReduced
+class TestProductSet(BaseProductSetTest):
+    Product = Impl.ProductSet.BasicReduced

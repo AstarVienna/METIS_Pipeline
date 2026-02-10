@@ -19,21 +19,35 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.lss.rsrf import LssRsrfPinholeRaw, MasterLssRsrf
 from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
-from pymetis.classes.inputs import (SinglePipelineInput, RawInput, PersistenceInputSetMixin,
-                                    BadPixMapInputSetMixin, LinearityInputSetMixin, GainMapInputSetMixin)
+from pymetis.classes.inputs import SinglePipelineInput, RawInput, PersistenceMapInput, OptionalInputMixin, GainMapInput, \
+    LinearityInput, BadPixMapInput
 from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.qc.trace import QcLssTraceLPolyDeg, QcLssTraceRPolyDeg, QcLssTraceLCoeff, QcLssTraceRCoeff, \
+    QcLssTraceInterorderLevel
 from pymetis.utils.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLssTraceImpl(DarkImageProcessor):
-    class InputSet(PersistenceInputSetMixin, BadPixMapInputSetMixin, GainMapInputSetMixin, LinearityInputSetMixin,
-                   DarkImageProcessor.InputSet):
-
+    class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssRsrfPinholeRaw
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class BadPixMapInput(BadPixMapInput):
+            pass
 
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw
@@ -41,7 +55,15 @@ class MetisLssTraceImpl(DarkImageProcessor):
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
 
-    ProductTraceTable = LssTrace
+    class ProductSet(PipelineProductSet):
+        TraceTable = LssTrace
+
+    class Qc(QcParameterSet):
+        LPolyDeg = QcLssTraceLPolyDeg
+        RPolyDeg = QcLssTraceRPolyDeg
+        LCoeff = QcLssTraceLCoeff
+        RCoeff = QcLssTraceRCoeff
+        InterorderLevel = QcLssTraceInterorderLevel
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
@@ -54,7 +76,7 @@ class MetisLssTraceImpl(DarkImageProcessor):
         trace_tab_data = create_dummy_table()
 
         return {
-            self.ProductTraceTable(
+            self.ProductSet.TraceTable(
                 primary_header,
                 Hdu(trace_tab_header, trace_tab_data, name='TABLE'))
         }

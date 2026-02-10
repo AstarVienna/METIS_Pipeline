@@ -21,11 +21,10 @@ import cpl
 from cpl.core import Table, Image
 
 from pymetis.classes.dataitems import ImageDataItem, TableDataItem
-from pymetis.classes.mixins import BandSpecificMixin, TargetSpecificMixin, BandLmMixin, BandNMixin, TargetSciMixin, \
-    TargetStdMixin
+from pymetis.classes.mixins import BandLmMixin, BandNMixin, TargetSciMixin, TargetStdMixin
 
 
-class LssObjMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
+class LssObjMap(ImageDataItem, abstract=True):
     _name_template = r'{band}_LSS_{target}_OBJ_MAP'
     _title_template = "{band} LSS {target} object map"
     _description_template = "Pixel map of object pixels (QC)"
@@ -55,7 +54,7 @@ class NLssSciObjMap(BandNMixin, TargetSciMixin, LssObjMap):
     pass
 
 
-class LssSkyMap(BandSpecificMixin, TargetSpecificMixin, ImageDataItem, abstract=True):
+class LssSkyMap(ImageDataItem, abstract=True):
     _name_template = r'{band}_LSS_{target}_SKY_MAP'
     _title_template = "{band} LSS {target} sky map"
     _description_template = "Image with detected plain sky pixels of the {target} observation."
@@ -85,7 +84,7 @@ class NLssSciSkyMap(BandNMixin, TargetSciMixin, LssSkyMap):
     pass
 
 
-class LssSci1d(BandSpecificMixin, TableDataItem, abstract=True):
+class LssSci1d(TableDataItem, abstract=True):
     _name_template = r'{band}_LSS_SCI_1D'
     _title_template = "{band} LSS 1D science spectrum"
     _description_template = "Extracted {band} 1D science spectrum."
@@ -102,7 +101,7 @@ class NLssSci1d(BandNMixin, LssSci1d):
     pass
 
 
-class LssSci2d(BandSpecificMixin, ImageDataItem, abstract=True):
+class LssSci2d(ImageDataItem, abstract=True):
     _name_template = r'{band}_LSS_SCI_2D'
     _title_template = "{band} LSS 2D science spectrum"
     _description_template = "Rectified 2D {band} spectrum of science object."
@@ -124,7 +123,7 @@ class NLssSci2d(BandNMixin, LssSci2d):
     pass
 
 
-class LssSciFlux1d(BandSpecificMixin, TableDataItem, abstract=True):
+class LssSciFlux1d(TableDataItem, abstract=True):
     """
     Final flux calibrated 1D spectrum of standard star
     """
@@ -149,7 +148,7 @@ class NLssSciFlux1d(BandNMixin, LssSciFlux1d):
     pass
 
 
-class LssSciFlux2d(BandSpecificMixin, ImageDataItem, abstract=True):
+class LssSciFlux2d(ImageDataItem, abstract=True):
     """
     Final flux calibrated 1D spectrum of standard star
     """
@@ -174,11 +173,11 @@ class NLssSciFlux2d(BandNMixin, LssSciFlux2d):
     pass
 
 
-class LssSciFluxTellCorr1d(BandSpecificMixin, TableDataItem, abstract=True):
+class LssSciFluxTellCorr1d(TableDataItem, abstract=True):
     """
     Final flux calibrated, telluric corrected 1D spectrum of standard star
     """
-    _name_template = r'{band}_LSS_SCI_FLUX_TELL_1D'
+    _name_template = r'{band}_LSS_SCI_FLUX_TELLCORR_1D'
     _title_template = "{band} LSS science flux-calibrated telluric-corrected"
     _description_template = "Extracted, flux-calibrated, telluric-corrected 1D science spectrum"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL

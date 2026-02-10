@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_lss.metis_lm_adc_slitloss import (MetisLmAdcSlitloss as Recipe,
                                                           MetisLmAdcSlitlossImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductTest
+from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_adc_slitloss'
@@ -45,6 +45,6 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProduct(BaseProductTest):
-    Product = Impl.ProductAdcSlitloss
+class TestProductSet(BaseProductSetTest):
+    Product = Impl.ProductSet.AdcSlitloss
 

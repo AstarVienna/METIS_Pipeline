@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.recipes.lm_img.metis_lm_img_background import (MetisLmImgBackground as Recipe,
                                                             MetisLmImgBackgroundImpl as Impl)
-from pymetis.tests.classes import BaseInputSetTest, BaseProductTest, BaseRecipeTest
+from pymetis.tests.classes import BaseInputSetTest, BaseProductSetTest, BaseRecipeTest
 
 
 recipe_name = r'metis_lm_img_background'
@@ -51,13 +51,13 @@ class TestInputSet(BaseInputSetTest):
     Impl = Impl
 
 
-class TestProductBkg(BaseProductTest):
-    Product = Impl.ProductBkg
+class TestProductSetBkg(BaseProductSetTest):
+    Product = Impl.ProductSet.Bkg
 
 
-class TestProductBkgSubtracted(BaseProductTest):
-    Product = Impl.ProductBkgSubtracted
+class TestProductSetBkgSubtracted(BaseProductSetTest):
+    Product = Impl.ProductSet.BkgSubtracted
 
 
-class TestProductObjectCat(BaseProductTest):
-    Product = Impl.ProductObjectCatalog
+class TestProductSetObjectCat(BaseProductSetTest):
+    Product = Impl.ProductSet.ObjectCatalog
