@@ -24,16 +24,17 @@ from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs import FluxstdCatalogInput
 from pymetis.classes.inputs import RawInput, PipelineInputSet
 from pymetis.classes.mixins import TargetStdMixin
+from pymetis.classes.prefab import RawImageProcessor
 from pymetis.classes.qc import QcParameterSet
-from pymetis.classes.recipes import MetisRecipeImpl
 from pymetis.dataitems.background.subtracted import BackgroundSubtracted
+from pymetis.dataitems.combined import Combined
 from pymetis.dataitems.common import FluxCalTable
 from pymetis.qc.std_process import QcImgStdBackgroundRms, QcStdPeakCounts, QcStdApertureCounts, QcStdStrehl, \
     QcStdEllipticity, QcStdFluxConversion, QcSensitivity, QcAreaSensitivity
 from pymetis.utils.dummy import create_dummy_table, create_dummy_header
 
 
-class MetisImgStdProcessImpl(TargetStdMixin, MetisRecipeImpl):
+class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor):
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
             Item = BackgroundSubtracted
@@ -43,6 +44,7 @@ class MetisImgStdProcessImpl(TargetStdMixin, MetisRecipeImpl):
 
     class ProductSet(PipelineProductSet):
         ImgFluxCalTable = FluxCalTable
+        ImgStdCombined = Combined
 
     class Qc(QcParameterSet):
         BackgroundRms = QcImgStdBackgroundRms

@@ -29,7 +29,7 @@ from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.lss.wave import LssWaveRaw
 from pymetis.classes.inputs import SinglePipelineInput, RawInput, LaserTableInput
 from pymetis.classes.inputs.common import WcuOffInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
-    LinearityInput, BadPixMapInput
+    LinearityInput, BadPixMapInput, MasterDarkInput
 from pymetis.classes.mixins import BandLmMixin
 from pymetis.classes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
@@ -40,6 +40,9 @@ class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssWaveRaw
+
+        class MasterDarkInput(MasterDarkInput):
+            pass
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass

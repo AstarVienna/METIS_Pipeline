@@ -57,7 +57,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, ABC):
     # namely `RawImageProcessor, as this recipe processes raw images and we would like to reuse the functionality.
 
     # First of all, we need to define the input set. Since we are deriving from `RawImageProcessor`,
-    # we mayreuse the `InputSet` class from it too. This automatically adds a `RawInput` for us.
+    # we may reuse the `InputSet` class from it too. This automatically adds a `RawInput` for us.
     class InputSet(RawImageProcessor.InputSet):
         """
         InputSet class for `metis_det_dark`.
@@ -141,7 +141,6 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, ABC):
             settings: Dict[str, Any]) -> None:
         super().__init__(recipe, frameset, settings)
         self.stacking_method = self.parameters["metis_det_dark.stacking.method"].value
-
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> list[Hdu]:
         assert detector in [1, 2, 3, 4], \

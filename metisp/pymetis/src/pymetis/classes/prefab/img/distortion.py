@@ -68,7 +68,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
 
         combined_image = self.combine_images(raw_images, "average")
         distortion = self.inputset.distortion.load_data('DET1.DATA')
-        primary_header = self.inputset.distortion.item.primary_header
+        primary_header = self.inputset.distortion.items[0].primary_header
 
         header_distortion_table = create_dummy_header()
         header_distortion_map = create_dummy_header()

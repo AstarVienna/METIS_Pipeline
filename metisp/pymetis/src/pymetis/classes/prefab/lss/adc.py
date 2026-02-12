@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.inputs.common import WcuOffInput, BadPixMapInput
+from pymetis.classes.inputs.common import WcuOffInput, BadPixMapInput, MasterDarkInput
 from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.adc.adc import AdcSlitloss, AdcSlitlossRaw
 from pymetis.classes.inputs import RawInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput
@@ -31,6 +31,9 @@ class MetisAdcSlitlossImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = AdcSlitlossRaw
+
+        class MasterDarkInput(MasterDarkInput):
+            pass
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
