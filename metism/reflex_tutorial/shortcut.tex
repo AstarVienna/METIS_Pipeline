@@ -1,0 +1,77 @@
+%% $Id: shortcut.tex,v 1.10 2013-03-27 10:13:54 cgarcia Exp $
+%% Abbreviations and extra command definitions
+%%
+
+%%
+%% Release information
+%%
+
+\newcommand{\releasedate}{June 2020}
+\newcommand{\releaseday}{2020-06-02}
+\newcommand{\releasetime}{06/June/2019}
+\newcommand{\pipelinevers}{0.1.12}
+\newcommand{\pipelinemanualvers}{0.1.12}
+
+\newcommand{\cplvers}{7.1.2}
+\newcommand{\cfitsiovers}{3450}
+\newcommand{\esorexvers}{3.13.3}
+\newcommand{\gasganovers}{2.4.8}
+\newcommand{\reflexvers}{2.11.0}
+
+%%
+%% Abbreviations
+%%
+
+\newcommand{\eg}{{e.g.~}}
+\newcommand{\ie}{{i.e.~}}
+
+\newcommand{\degr}{\hbox{$^\circ$}}
+\newcommand{\arcmin}{\hbox{$^\prime$}}
+\newcommand{\arcsec}{\hbox{$^{\prime\prime}$}}
+
+\newcommand{\CPL}{\textit{Common Pipeline Library}}
+
+\newcommand{\tcen}{\raisebox{-7pt}[7pt][0pt]}
+
+\newcommand{\instname}{METIS}
+\newcommand{\pipename}{metis}
+\newcommand{\wkfinstname}{METIS}
+\newcommand{\wkfname}{METIS}
+\newcommand{\wkfn}{{\tt metis}}
+\newcommand{\reflex}{{\tt esoreflex}}
+\newcommand{\Reflex}{{\tt Esoreflex}}
+
+%%
+%% Additional commands
+%%
+
+\newcommand{\cm}[1]{\marginpar{\scriptsize #1}}
+
+\newcommand{\tbspa}{\rule[1ex]{0pt}{1.1ex}}
+\newcommand{\tbspb}{\rule[-1.0ex]{0pt}{1.0ex}}
+
+\newcommand{\http}[1]{\href{http://#1}{\textit{http://#1}}}
+\newcommand{\ftp}[1]{\href{ftp://#1}{\textit{ftp://#1}}}
+\newcommand{\mail}[1]{\href{mailto:#1}{\textit{#1}}}
+
+
+\newcommand{\putgraph}[4]{
+    \begin{figure}[ht]
+        \begin{center}
+    \includegraphics[width=#1truecm]{#2}
+    \end{center}
+    \caption{\it #4.}
+    \label{fig:#3}
+    \end{figure}
+}
+
+\newcommand{\putgraphhere}[4]{
+    \begin{figure}[h!]
+        \begin{center}
+    \includegraphics[width=#1truecm]{#2}
+    \end{center}
+    \caption{\it #4.}
+    \label{fig:#3}
+    \end{figure}
+}
+

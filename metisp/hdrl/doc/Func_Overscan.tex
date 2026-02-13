@@ -1,0 +1,462 @@
+\subsection{Overscan}
+\label{overscan:main}
+
+The overscan (or prescan) region on a CCD can consist of physical
+pixels on the detector that are not illuminated, or it can consist of a set
+of virtual pixels created by reading out the serial register either before or
+after transferring the charge from the CCD for each column/row. 
+A detector may have multiple regions (amplifiers) and each one usually has 
+an associated overscan region.
+
+This module is intended to be applied to a single overscan region.
+
+In HDRL the overscan correction value for each row/column of pixels is computed
+from a rectangular running sub-region of the full overscan region of the
+detector.
+
+A small sub-region will increase the uncertainty of the correction but can
+account for rapid spatial changes in the bias level, while a large sub-region
+will decrease the uncertainty but smooth out spatial changes.
+
+The actual correction value can be computed by estimating the
+\textit{location/first moment} of the pixel value distribution within
+the sub-region.  Several estimation methods, like mean, median, mode
+or sigma/minmax-clipped\footnote{For convenience we denote the minmax
+clipping algorithm and the kappa sigma clipping algorithm as
+sigma/minmax-clipped whenever the statement applies to both algorithm}
+mean, are available.
+
+A typical overscan correction may be essentially independent of row/column,
+or it may vary smoothly or with abrupt gradient changes. Hence the 
+implementation of a location estimation method as opposed to the fitting of an
+analytical function.
+
+When choosing the overscan region, note that the first few rows/columns
+that are read out after the image area will have an artificially high bias 
+level due to the charge transfer efficiency not being 100\%. It is 
+recommended therefore not to include the 2-3 rows/columns right next 
+to the image region in the overscan region.
+
+An interesting phenomenon is that a very bright star/object may increase the
+bias level for the few rows/columns that it covers. Hence it is not advisable
+to set the size of the sub-region to a value that is much larger than the image
+point-spread-function FWHM.
+
+This module allows the computation of the overscan correction for an image 
+from a predefined overscan region. It also provides a function that applies 
+the overscan correction to the image, using the result of the overscan 
+computation.
+
+\subsubsection{Overscan Computation}
+\label{overscan:computation}
+
+The Overscan is computed using the following function call:
+
+\begin{lstlisting}
+hdrl_overscan_compute_result * oscan_result = hdrl_overscan_compute(
+        const cpl_image         *   source,
+        const hdrl_parameter    *   params) ;
+\end{lstlisting}
+
+\paragraph{Inputs}
+
+The input parameters that need to be passed to the function are created with:
+
+\begin{lstlisting}
+hdrl_parameter * params = 
+    hdrl_overscan_parameter_create(hdrl_direction  correction_direction,
+                                   double          ccd_ron,
+                                   int             box_hsize,
+                                   hdrl_parameter  collapse,
+                                   hdrl_parameter  rect_region) ;
+\end{lstlisting}
+
+The collapsing parameters are created with one of the following function calls:
+
+\begin{lstlisting}
+hdrl_parameter * collapse = 
+    hdrl_collapse_mean_parameter_create(void) ;
+    hdrl_collapse_median_parameter_create(void) ;
+    hdrl_collapse_weighted_mean_parameter_create(void) ;
+    hdrl_collapse_sigclip_parameter_create(double      kappa_low,
+                                           double      kappa_high,
+                                           int         niter) ;
+                                           
+    hdrl_collapse_minmax_parameter_create(double       nlow,
+                                          double       nhigh) ;
+    
+    hdrl_collapse_mode_parameter_create(double         histo_min,
+                                        double         histo_max,
+                                        double         bin_size,
+                                        hdrl_mode_type mode_method,
+                                        cpl_size       error_niter) ;
+\end{lstlisting}
+
+The Overscan region specification is done with:
+\begin{lstlisting}
+hdrl_parameter * rect_region =
+    hdrl_rect_region_parameter_create(cpl_size llx, 
+                                      cpl_size lly,
+                                      cpl_size urx, 
+                                      cpl_size ury) ;
+\end{lstlisting}
+
+\paragraph{Outputs}
+
+The results of the Overscan computation (mostly 1D CPL or HDRL images of
+type DOUBLE) are contained in a structure that can be accessed with the 
+following functions:
+
+\begin{lstlisting}
+hdrl_image * correction =  
+    hdrl_overscan_compute_result_get_correction(oscan_result) ;
+cpl_image * contribution =
+    hdrl_overscan_compute_result_get_contribution(oscan_result) ;
+cpl_image * chi2 = 
+    hdrl_overscan_compute_result_get_chi2(oscan_result) ;
+cpl_image * red_chi2 = 
+    hdrl_overscan_compute_result_get_red_chi2(oscan_result) ;
+cpl_image * sigclip_reject_low = 
+    hdrl_overscan_compute_result_get_sigclip_reject_low(oscan_result) ;
+cpl_image * sigclip_reject_high = 
+    hdrl_overscan_compute_result_get_sigclip_reject_high(oscan_result) ;
+cpl_image * minmax_reject_low = 
+    hdrl_overscan_compute_result_get_minmax_reject_low(oscan_result) ;
+cpl_image * minmax_reject_high = 
+    hdrl_overscan_compute_result_get_minmax_reject_high(oscan_result) ;
+\end{lstlisting}
+
+\paragraph{Algorithm}
+
+Figure~\ref{fig:overscan_algo} gives a general description of the overscan 
+computation method.
+\putgraph{18}{overscan_computation_algorithm.png}{overscan_algo}{Overscan Computation Algorithm description}
+
+The module extracts the pixel data for the overscan region from the
+input image, including the bad pixel map. 
+
+The source image may contain more than the overscan region that is actually 
+needed by the computation.
+\verb+rect_region+ defines the overscan region in the source image. The bad pixels 
+that might be present in the image are taken into account (i.e. excluded 
+from the computations). 
+
+Each pixel of the resulting 1D images are computed from a 
+running sub-window of the overscan region (see Figure~\ref{fig:overscan}). 
+\verb+box_hsize+ defines the half size of the sub-window used for the 
+computation (in the direction orthogonal to \verb+correction_direction+). 
+If \verb+box_hsize+ value is \verb+HDRL_OVERSCAN_FULL_BOX+, the calculation is
+done on the whole overscan region instead of a running sub-window. 
+In this case, all pixels of the resulting 1D images will be identical.
+
+The running sub-window defined by \verb+box_hsize+ is used to compute
+the output pixel of the different 1D images.
+When reaching the edges, the sub-window is shrinking such that the
+current pixels stays in the center of the sub-window.
+
+\verb+correction_direction+ is \verb+HDRL_X_AXIS+
+(resp. \verb+HDRL_Y_AXIS+) if the overscan region has to be collapsed
+along the X (resp. Y) axis in order to create the 1D resulting images
+(correction, error, contribution, the $\chi^{2}$ (chi2) and the
+reduced $\chi^{2}$ (\verb+red_chi2+), additionally
+\verb+sigclip_reject_low+, \verb+_high+, and \verb+niter+ if the
+collapsing method is sigma/minmax-clipping rejection as well as
+\verb+histo_min+, \verb+histo_max+, \verb+bin_size+,
+\verb+mode_method+, and \verb+error_niter+ if the collapsing method is
+the mode).
+
+The possible collapsing methods can be mean, median, weighted mean,
+mode, sigma clipping, or minmax rejection. The appropriate function
+needs to be used at the creation of the collapse parameters.
+
+In case the collapsing method used is sigma-clipping, an iterative 
+(niter iterations) rejection is applied in the sub-window before the 
+computation of the results. \verb+kappa_low+ and \verb+kappa_high+ are used to
+define what pixels need to be rejected.
+
+The uncertainty on each pixel value is assumed to be \verb+ccd_ron+. 
+\verb+ccd_ron+ is the CCD read-out noise. The parameter is mandatory, 
+must be strictly non-negative. It is used for the error, the chi2 and 
+the \verb+red_chi2+ computation.
+
+The output \verb+hdrl_overscan_compute_result+ object contains the Overscan 
+computation results that can be accessed with dedicated accessor
+functions (see the 'Output' section):
+
+correction is a 1D HDRL image of type double.
+
+Its image part contains the Overscan correction values computed from the 
+good pixels of the running sub-window (mean, weighted mean, median or mean 
+after rejection, depending on the collapsing method used).
+
+Its error part contains $\frac{ccd\_ron}{\sqrt{contribution}}$ for
+mean, weighted mean, and sigma/minmax-clipping collapsing methods.  In
+case of the median collapsing, it contains
+$\sqrt{\frac{\pi}{2}}\times\frac{ccd\_ron}{\sqrt{contribution}}$ if
+contribution is strictly greater than 2 pixels and
+$\frac{ccd\_ron}{\sqrt{contribution}}$ when the contribution is 1 or 2
+pixels.  The mode method is special in this case as it
+calculates the error from the data. The calculation depends
+on the parameter \verb+error_niter+. If the parameter is set to 0, it
+is doing an analytically error estimation. If the parameter is larger
+than 0, the error is calculated by a bootstrap Montecarlo simulation
+from the input data with the value of the parameter specifying the
+number of simulations. In this case the input data are perturbed with
+the bootstrap technique and the mode is calculated \verb+error_niter+
+times. From this modes the standard deviation is calculated and
+returned as error.
+
+\verb+contribution+ is a 1D CPL image of type integer.  It contains
+the number of good pixels of the input running sub-window in case the
+collapsing method is mean, weighted mean, mode or median, and the remaining
+pixels after the rejection in case the sigma/minmax-clipping method is
+used.
+
+chi2 is a 1D CPL image of type double.
+It contains $\sum_i{(\frac{source_i - correction}{ccd\_ron})^2}$
+where {\it i} is running over the good pixels of the running sub-window.
+
+\verb+red_chi2+ is a 1D CPL image of type double.
+It contains the reduced $\chi^{2}$, i.e the $\chi^{2}$ divided by the number of
+contributing pixels.
+
+\verb+sigclip_reject_low+ and \verb+_high+ are 1D CPL images of type
+double.  They are only returned in case the sigma/minmax-clipping
+collapsing method is used.  They indicate the final thresholds of the
+siglicp/minmax rejection.
+
+\subsubsection{Overscan Correction}
+
+The Overscan is corrected using the following function call:
+
+\begin{lstlisting}
+
+hdrl_overscan_correct_result * oscan_correct = hdrl_overscan_correct(
+        const hdrl_image                    *   source,
+        const hdrl_parameter                *   region,
+        const hdrl_overscan_compute_result  *   oscan_result) ;
+\end{lstlisting}
+
+\paragraph{Inputs}
+
+The \verb+oscan_result+ parameter is obtained by the Overscan computation 
+(see ~\ref{overscan:computation}).
+
+The \verb+region+ defines the region in source that needs to be corrected. 
+It is created with:
+\begin{lstlisting}
+hdrl_parameter * region =
+    hdrl_rect_region_parameter_create(cpl_size llx, 
+                                      cpl_size lly,
+                                      cpl_size urx, 
+                                      cpl_size ury) ;
+\end{lstlisting}
+
+\paragraph{Outputs}
+
+The results of the Overscan correction are contained in a structure that 
+can be accessed with the following functions:
+
+\begin{lstlisting}
+hdrl_image * corrected =
+    hdrl_overscan_correct_result_get_corrected(oscan_correct) ;
+cpl_image * badmask =
+    hdrl_overscan_correct_result_get_badmask(oscan_correct) ;
+\end{lstlisting}
+
+\verb+hdrl_overscan_correct_result_get_corrected+ returns a copy of the input
+image with the data row or column wise corrected by the overscan values.
+
+\verb+hdrl_overscan_correct_result_get_badmask+ returns an integer image with
+all pixels considered bad by the algorithm set to 1 and all
+good pixels set to 0.
+Pixels of the input image will be considered bad if there is no overscan value
+available to correct it (which is defined by the badpixel mask of the overscan
+values image from \verb+hdrl_overscan_compute+)
+
+\paragraph{Algorithm}
+
+\verb+source+ is the input HDRL image that needs to be corrected. Usually the 
+image part is the one passed to \verb+hdrl_overscan_compute()+ to compute the 
+overscan correction parameters.
+
+\verb+region+ specifies which region of the \verb+source+ image must be 
+corrected. If NULL, the whole image is corrected.
+The size of \verb+region+ must fit the contents of \verb+oscan_result+.
+
+If the \verb+correction_direction+ value is \verb+HDRL_X_AXIS+ (resp.
+\verb+DRL_Y_AXIS+), the correction will be applied row by row (resp. column by
+column) to the input image, ie correction value number i will be subtracted to
+row (resp. column) number i.
+
+The error part of the source HDRL image is used for error propagation.
+Uncertainties in the overscan computation result, if present, are added in
+quadrature to the uncertainties on the input image pixel values. 
+
+\verb+oscan_result+ contains all the parameters for the overscan correction. 
+It has been produced by \\
+\verb+hdrl_overscan_compute()+.
+
+The output \verb+hdrl_overscan_correct_result+ object contains the following 
+members:
+
+corrected is a HDRL image of type double of the same size as source.
+
+Its image part had all its pixels within the specified region subtracted the 
+proper correction. The pixels outside the specified region remain unchanged.
+
+Its error part had all the pixels within the specified region set to 
+$\sqrt{overscan\_computation.error^{2} + source\_error^{2}}$, which is the 
+standard linear error propagation.
+The pixels outside the specified region remain unchanged.
+
+baddmask is a CPL image identifying the bad pixels.
+
+\subsubsection{Examples}
+
+\paragraph{Overscan Computation}
+
+In the following example, we are using a UVES image whose left 24 pixel 
+columns are used for the overscan computation. The image size is 1074x1500.
+
+\putgraph{15}{overscan_example.png}{overscan}{Overscan Computation Example}
+
+The Overscan region is defined with:
+\begin{lstlisting}
+hdrl_parameter * os_region = 
+    hdrl_rect_region_parameter_create(1, 1, 24, 1500) ;
+\end{lstlisting}
+
+We would like for the collapsing method to use a sigma-clipping algorithm 
+with 5 iterations and with 3.0 for the low and high rejection kappa values:
+\begin{lstlisting}
+hdrl_parameter * os_collapse = 
+    hdrl_collapse_sigclip_parameter_create(3.0, 3.0, 5) ;
+\end{lstlisting}
+
+The specified Overscan region needs to be collapsed along the X axis, the
+CCD RON is 10.0, and the running box half size is 5 pixels.
+
+In these conditions, the Overscan computation parameter is created with:
+\begin{lstlisting}
+hdrl_parameter * os_params = 
+    hdrl_overscan_parameter_create(HDRL_X_AXIS, 10.0, 5, 
+                                    os_collapse, os_region);
+\end{lstlisting}
+
+The actual computation occurs here:
+\begin{lstlisting}
+hdrl_overscan_compute_result * os_computation = 
+    hdrl_overscan_compute(image, os_params);
+\end{lstlisting}
+
+Let's not destroy \verb+os_computation+ as we need it to apply the correction
+in the next section. What we do not need any more are the parameters. They are
+deleted with:
+\begin{lstlisting}
+hdrl_parameter_delete(os_region) ;
+hdrl_parameter_delete(os_collapse) ;
+hdrl_parameter_delete(os_params) ;
+\end{lstlisting}
+
+For convenience, a \verb+_destroy+ function is also provided, that
+deletes the parameter and recursively deletes the contained parameters: 
+\begin{lstlisting}
+hdrl_parameter_destroy(os_params) ;
+\end{lstlisting}
+
+\paragraph{Overscan Correction} 
+
+The Overscan Computation result needs now to be used to correct the input
+image. We only want to correct the non-overscan part of the image.
+
+In order to do that, we specify the image region we want the correction to 
+be applied on:
+\begin{lstlisting}
+hdrl_parameter * apply_region = 
+    hdrl_rect_region_parameter_create(25, 1, 1074, 1500) ;
+\end{lstlisting}
+
+The wished bad pixel mask code is 2, the correction function call is:
+\begin{lstlisting}
+hdrl_overscan_correct_result * os_corrected = 
+    hdrl_overscan_correct(image, apply_region, 2, os_computation) ;
+\end{lstlisting}
+
+A number of accessor function give access to the elements of the
+\verb+os_corrected+ result object.
+
+Finally, the used parameters, or the created objects need to be deleted:
+\begin{lstlisting}
+hdrl_overscan_compute_result_delete(os_computation) ;
+hdrl_parameter_delete(apply_region) ;
+hdrl_overscan_correct_result_delete(os_corrected) ;
+\end{lstlisting}
+
+\subsubsection{Overscan Parameters in a Recipe} 
+\label{sec:algorithms:overscan:parameters}
+
+In the context of a recipe, all input parameters needed by the Overscan 
+computation may be provided as input parameters. There is a convenient
+interface for doing this. This avoids to update all recipes whenever a
+new parameter is offered by the Overscan computation.
+
+A function call allows to generate a parameter list, another one allows
+to parse it in order to generate the input Overscan computation
+parameters:
+
+\begin{lstlisting}
+
+/* Create whished default Overscan Computation parameters */
+ hdrl_parameter * rect_region_def =
+     hdrl_rect_region_parameter_create(1, 1, 20, 1000);
+ hdrl_parameter * sigclip_def =
+     hdrl_collapse_sigclip_parameter_create(3., 3., 5);
+ hdrl_parameter * minmax_def =
+     hdrl_collapse_minmax_parameter_create(1., 1.);
+ hdrl_parameter * mode_def =
+     hdrl_collapse_mode_parameter_create(10., 1., 0., HDRL_MODE_MEDIAN, 0);
+ cpl_parameterlist * os_comp = hdrl_overscan_parameter_create_parlist(
+             RECIPE_NAME, "", "alongX", 0, 0., rect_region_def, "MEDIAN",
+             sigclip_def, minmax_def, mode_def);
+ hdrl_parameter_delete(rect_region_def);
+ hdrl_parameter_delete(sigclip_def);
+ hdrl_parameter_delete(minmax_def);
+ hdrl_parameter_delete(mode_def);
+ for (cpl_parameter * p = cpl_parameterlist_get_first(os_comp) ; 
+         p != NULL; p = cpl_parameterlist_get_next(os_comp)) 
+     cpl_parameterlist_append(self, cpl_parameter_duplicate(p));
+ cpl_parameterlist_delete(os_comp);
+
+\end{lstlisting}
+
+The created parameter list \verb+os_comp_parlist+ simply needs to be fully or
+partly appended to the recipe parameter list to make those parameters 
+available to the user:
+{\footnotesize 
+\begin{verbatim}
+esorex --man-page hdrldemo_bias
+...
+--oscan.correction-direction        : Correction Direction. <alongX | alongY> [alongX]
+--oscan.box-hsize                   : Half size of running box in pixel
+--oscan.ccd-ron                     : Readout noise in ADU. [10.0]
+--oscan.calc-llx                    : Lower left x pos. (FITS) defining the region. [1]
+--oscan.calc-lly                    : Lower left y pos. (FITS) defining the region. [1]
+--oscan.calc-urx                    : Upper right x pos. (FITS) defining the region. [20]
+--oscan.calc-ury                    : Upper right y pos. (FITS) defining the region. [0]
+--oscan.collapse.method             : Method used for collapsing the data. [MEDIAN]
+--oscan.collapse.sigclip.kappa-low  : Low kappa factor. [3.0]
+--oscan.collapse.sigclip.kappa-high : High kappa factor. [3.0]
+--oscan.collapse.sigclip.niter      : Maximum number of clipping iterations. [5]
+...
+\end{verbatim}
+}
+If parlist is the recipe parameters list, we also offer a function to 
+generate the Overscan parameters directly from the recipe parameters:
+
+\begin{lstlisting}
+/* Parse the Overscan Parameters */
+hdrl_parameter * os_params = 
+    hdrl_overscan_parameter_parse_parlist(parlist, "hdrldemo_bias");
+\end{lstlisting}
+

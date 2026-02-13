@@ -1,0 +1,86 @@
+%%
+%% Layout definitions
+%%
+
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.91]{helvet}
+\usepackage{sfmath}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{fancyvrb}
+\usepackage[small,bf]{caption}
+\usepackage{lastpage}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{supertabular}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[public]{eso-pdm}
+
+\definecolor{darkblue}{rgb}{0,0,0.80}
+\usepackage[pdftex,
+            pdfstartview=Fit,
+            colorlinks=true,
+            linkcolor=darkblue,
+            citecolor=darkblue,
+            urlcolor=blue,
+            plainpages=false,
+            pdfpagelabels=true,
+            linktocpage=true,
+            pagebackref=true,
+            backref=true]{hyperref}
+
+\hypersetup{
+    pdftitle={METIS Pipeline User Manual},
+    pdfsubject={METIS Data Reduction},
+    pdfkeywords={METIS, Data Reduction, Pipeline, Manual, Cookbook},
+    pdfauthor={METIS Pipeline Team}
+}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+%% Using this it is recommended to start longtable
+%% environments like this:
+%% \begin{lontable}{@{\extracolsep{\fill}} ....}
+
+\setlength\LTleft{0pt}
+\setlength\LTright{0pt}
+
+%\lstnewenvironment{shell}{
+%   \endgraf
+%   \singlespacing
+%   \lstset{
+%      columns=fullflexible,
+%      language=bash,
+%      showstringspaces=false,
+%      basicstyle=\ttfamily,
+%      keywordstyle=\color{black},
+%      commentstyle=\color{black},
+%      stringstyle=\color{black},
+%      numbers=none,
+%      tabsize=4,
+%      breaklines=true,
+%      breakatwhitespace=true,
+%      frame=none}
+%}{}
+
+%% Poor man's shell environment using fancyvrb
+%% when package listings is not available
+
+\DefineVerbatimEnvironment{shell}{Verbatim}{commandchars=\%\{\},formatcom=\setcounter{prompt}{0}}
+\newcounter{prompt}
+\newcommand{\prompt}{\stepcounter{prompt}\theprompt>}
+
+\newcommand{\subsubsubsection}[1]{%
+  \paragraph{#1}%
+  \leavevmode%
+  \vskip\parskip%
+}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

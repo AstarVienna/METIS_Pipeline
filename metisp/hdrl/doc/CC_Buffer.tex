@@ -1,0 +1,74 @@
+In order to help handling datasets larger than the available memory and swap space
+HDRL provides an experimental object \verb+hdrl_buffer+ which can be used to
+allocate disk backed memory maps.
+
+It provides following functions:
+\begin{itemize}
+\item \verb+hdrl_buffer_new()+: create a new buffer object
+\item \verb+hdrl_buffer_allocate(size_t n)+: allocate \verb+n+ bytes of memory
+\item \verb+hdrl_buffer_free(void *p)+: free memory pointed to by \verb+p+,
+    depending on the position in the memory pool it might actually not free the
+    memory.
+\item \verb+hdrl_buffer_delete(hdrl_buffer *)+: delete the buffer object and all memory it
+    allocated.
+\end{itemize}
+
+It is designed to be used like a memory pool (sometimes also called memory arena
+or object stack) which allows fast allocation and deletion of many objects but
+the ability to delete random objects in random order is limited.
+It is not threadsafe so if it is used in a multithreaded environment each
+thread must create and manage its own \verb+hdrl_buffer+.
+
+For good performance usage of this memory should be blocked to chunks of the
+available RAM to avoid unnecessary disk IO.
+
+Note that on 32 bit machines one is still limited to 4GiB of allocations due to
+the address space limitations, on 64 bit machines one is only limited by the
+available disk space.
+
+Memory maps can be slower than swap space backed memory (due to higher
+complexity and the kernel flushing dirty pages to disk periodically).
+In order to help test the impact the buffer object will use \verb+cpl_malloc+
+for memory allocation if the environment variable \verb+HDRL_BUFFER_MALLOC+ is
+set.
+On systems with sufficient amounts of swap space this can be the more efficient
+mode of operation.
+
+\subsubsection{Examples}
+\begin{lstlisting}
+hdrl_buffer * buf = hdrl_buffer_new();
+/* allocate 2 GiB of memory */
+void * mem = hdrl_buffer_allocate(1ull << 31ull);
+void * mem2 = hdrl_buffer_allocate(100);
+do_stuff(mem, mem2);
+/* free all memory again */
+hdrl_buffer_delete(buf);
+\end{lstlisting}
+
+HDRL provides a function \verb+hdrl_image_new_from_buffer+ to allocate a
+\verb+hdrl_image+ from a \verb+hdrl_buffer+ which can be treated like a normal
+image, including deletion with \verb+hdrl_image_delete+ and creation of views.
+
+\begin{lstlisting}
+hdrl_buffer * buf = hdrl_buffer_new();
+hdrl_imagelist * hl = hdrl_imagelist_new()
+for (size_t i = 0; i < 1000; i++) {
+    hdrl_image * img = hdrl_image_new_from_buffer(2000, 2000, buf);
+    hdrl_image_add_scalar(img, 5., 3.);
+    hdrl_imagelist_set(hl, img, i);
+}
+hdrl_image * out; cpl_image * contrib;
+hdrl_imagelist_collapse(hl, HDRL_COLLAPSE_MEDIAN, &out, &contrib);
+
+/* This is very inefficient as it will need to load the data from disk
+   twice, instead one should loop over the images or use the iterator
+   interface to work in RAM sized blocks */
+hdrl_imagelist_add_scalar(hl, 5., 3.);
+hdrl_imagelist_mul_scalar(hl, 5., 3.);
+
+/* free all memory again, note the imagelist has to be explicitly deleted
+   because structure has not been allocated from the buffer */
+hdrl_imagelist_delete(hl);
+hdrl_buffer_delete(buf);
+\end{lstlisting}
+

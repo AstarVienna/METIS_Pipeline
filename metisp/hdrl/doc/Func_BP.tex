@@ -1,0 +1,355 @@
+\subsection{Bad-pixel detection}
+\label{sec:bpm:main}
+
+\subsubsection{Bad-pixel detection on a single image}
+\label{sec:bpm_2d}
+The recipe derives bad pixels on individual images.
+
+\paragraph{Algorithm - short description}
+
+
+The algorithm first smoothes the image by applying the methods
+described below. Then it subtracts the smoothed image and derives bad
+pixels by thresholding the residual image, i.e. all pixels exceeding
+the threshold are considered as bad. To compute the upper and lower
+thresholds, it measures a robust rms (a properly scaled Median Absolute
+Deviation), which is then scaled by the parameters \verb,kappa_low, and
+\verb,kappa_high,. Furthermore, the algorithm is applied iteratively
+for a number of times defined by the parameter \verb,maxiter,. During each iteration the newly found
+bad pixels are ignored. Please note, that the thresholding values are
+applied as median (residual-image) $\pm$ thresholds. This makes the
+algorithm more robust in the case that the methods listed below are
+not able to completely remove the background level, e.g due to an
+exceeding number of bad pixels in the first iteration.
+ 
+Two methods are currently available to derive a smoothed version of
+the image:
+\begin{itemize}
+\item Applying a filter like e.g. a median filter to the image. The
+  filtering can be done by all modes currently supported by cpl and is
+  controlled by the filter-type \verb,filter,, the border-type
+  \verb,border,, and by the kernel size in x and y, i.e.
+  \verb,smooth_x,, and \verb,smooth_y,.
+\item Fitting a Legendre polynomial to the image of order
+  \verb,order_x, in x and \verb,order_y, in y direction.  This method
+  allows you to define \verb,steps_x, $\times$ \verb,steps_y, sampling
+  points (the latter are computed as the median within a box of
+  \verb,filter_size_x, and \verb,filter_size_y,) where the polynomial
+  is fitted. This substantially decreases the fitting time for the
+  Legendre polynomial.
+\end{itemize}
+
+
+\paragraph{Functions}
+
+The bad pixels are computed using the following function call
+
+\begin{lstlisting}
+cpl_mask * bpm_2d = hdrl_bpm_2d_compute(
+        const hdrl_image        *   img_in,
+        const hdrl_parameter    *   params)
+\end{lstlisting}
+                                                                      
+\paragraph{Inputs}
+
+The input parameters that need to be passed to the function for
+smoothing the image by a filter are created by
+\begin{lstlisting}
+hdrl_parameter * params = hdrl_bpm_2d_parameter_create_filtersmooth(
+        double              kappa_low,
+        double              kappa_high,
+        int                 maxiter,
+        cpl_filter_mode     filter,
+        cpl_border_mode     border,
+        int                 smooth_x,
+        int                 smooth_y);
+\end{lstlisting}
+
+The input parameters that need to be passed to the function for
+smoothing the image by  fitting a polynomial 
+
+\begin{lstlisting}
+hdrl_parameter * params = hdrl_bpm_2d_parameter_create_legendresmooth(
+        double              kappa_low,
+        double              kappa_high,
+        int                 maxiter,
+        int                 steps_x,
+        int                 steps_y,
+        int                 filter_size_x,
+        int                 filter_size_y,
+        int                 order_x,
+        int                 order_y);
+\end{lstlisting}
+
+\paragraph{Outputs}
+
+The result is a mask of type cpl\_mask containing the newly found bad
+pixels. Please note that already known bad pixels given to the routine
+will not be included in the output mask.
+
+
+\subsubsection{Bad-pixel detection on a stack of identical images}
+ The recipe derives bad pixels on a stack of (identical) images 
+
+\paragraph{Algorithm  - short description}
+
+This algorithm assumes that the mean level of the different images are
+the same, if this is not the case, the master-image as described below
+will be biased. The algorithm first collapses the stack of images by
+using the median to generate a master-image. Then it subtracts the
+master image from each individual image and derives the bad pixels on
+the residual-images by thresholding, i.e. all pixels exceeding the
+threshold are considered as bad.
+
+Three methods are currently available to derive the bad pixels on the
+residual images:
+
+\begin{itemize}
+\item \verb,method = HDRL_BPM_3D_THRESHOLD_ABSOLUTE,: It uses
+  \verb,kappa_low, and \verb,kappa_high, as absolute threshold.
+\item \verb,method = HDRL_BPM_3D_THRESHOLD_RELATIVE,: It scales the
+  measured rms on the residual-image with \verb,kappa_low, and
+  \verb,kappa_high, and uses it as threshold. For the rms a properly
+  scaled Median Absolute Deviation (MAD) is used.
+\item \verb,method = HDRL_BPM_3D_THRESHOLD_ERROR,: It scales the
+  propagated error of each individual pixel with \verb,kappa_low, and
+  \verb,kappa_high, and uses it as threshold.
+\end{itemize}
+
+\paragraph{Functions}
+
+The bad pixels are computed using the following function call
+
+\begin{lstlisting}
+cpl_imagelist * bpm_3d = hdrl_bpm_3d_compute(
+        const hdrl_imagelist    *   imglist_in,
+        const hdrl_parameter    *   params)
+\end{lstlisting}
+
+\paragraph{Inputs}
+
+The input parameters that need to be passed to the function for are
+created by
+\begin{lstlisting}
+hdrl_parameter * hdrl_bpm_3d_parameter_create(
+        double              kappa_low,
+        double              kappa_high,
+        hdrl_bpm_3d_method  method);
+\end{lstlisting}
+
+\paragraph{Outputs}
+
+The result is a cpl\_imagelist containing the newly found bad pixels
+for each input image with the same pixel coding as for a cpl bad
+pixel mask, i.e. 0 for good pixels and 1 for bad pixels. Please note
+that already known bad pixels given to the routine will not be
+included in the output mask.
+
+
+\subsubsection{Bad-pixel detection on a sequence of images}
+The recipe derives bad pixels on a sequence of images by fitting a
+polynomial along each pixel sequence of the images.
+
+\paragraph{Algorithm - short description}
+
+Three options are available to convert the information from the fit
+into a bad pixel map.
+\begin{itemize}
+\item chi-method: Relative cutoff on the chi distribution of all
+  fits. Pixels with chi values which exceed of \verb,mean, $\pm$
+  \verb,cutoff, $\times$ \verb,standard deviation, are considered bad.
+\item fit-coefficient-method: Relative cutoff on the distribution of
+  the fit coefficients. Pixels with fit coefficients which exceed of
+  \verb,mean, $\pm$ \verb,cutoff, $\times$ \verb,standard deviation,
+  are considered bad.
+\item p-value-method: Pixels with low \verb,p-value,. When the errors
+  of the pixels are correct the \verb,p-value, can be interpreted as
+  the probability with which the pixel response fits the chosen model.
+\end{itemize}
+
+\paragraph{Functions}
+The bad pixels are computed using the following function call
+
+\begin{lstlisting}
+cpl_error_code hdrl_bpm_fit_compute(
+        const hdrl_parameter *  params,
+        const hdrl_imagelist *  imglist_in,
+        const cpl_vector     *  sample_position,
+        cpl_image            ** out_mask)
+\end{lstlisting}
+
+\paragraph{Inputs}
+
+The input parameters that need to be passed to the function when using
+the chi-method are:
+\begin{lstlisting}
+hdrl_parameter * hdrl_bpm_fit_parameter_create_rel_chi(
+        int                 degree,
+        double              rel_chi_low,
+        double              rel_chi_high);
+\end{lstlisting}
+
+The input parameters that need to be passed to the function when using
+the fit-coefficient-method are:
+\begin{lstlisting}
+hdrl_parameter * hdrl_bpm_fit_parameter_create_rel_coef(
+        int                 degree,
+        double              rel_coef_low, 
+        double              rel_coef_high);
+\end{lstlisting}
+
+
+The input parameters that need to be passed to the function when using
+the p-value-method are:
+\begin{lstlisting}
+hdrl_parameter * hdrl_bpm_fit_parameter_create_pval(
+        int                 degree, 
+        double              pval);
+\end{lstlisting}
+
+\paragraph{Outputs}
+
+The result is an integer cpl\_image (denoted out\_mask) containing the newly
+found bad pixels for each input image.\\
+
+For the \verb+rel_coef+ parameter the value of out\_mask encodes the
+coefficient that was outside the relative threshold as a power of two.
+E.g. if coefficient 0 and 3 of the fit where not within the threshold for a
+pixel, it will have the value $2^0 + 2^3 = 9$.
+All other parameters return an out\_mask with nonzero values marking pixels
+outside the selection thresholds.
+
+Please note that already known bad pixels given to the routine will
+not be included in the output mask.
+
+\subsubsection{Cosmic Ray Hits detection}
+
+This recipes determines cosmic-ray-hits and/or bad-pixels on a single
+image.
+
+\paragraph{Algorithm  - short description}
+
+This routine determines cosmic-ray-hits and/or bad-pixels following
+the algorithm (LA-Cosmic) described in van Dokkum,
+PASP,113,2001,p1420-27). HDRL does not use use error model as described in
+the paper but the error image passed to the function. Moreover it does
+several iterations with \verb,max_iter, defining an upper limit for
+the number of iterations, i.e. the iteration stops if no new bad
+pixels are found or \verb,max_iter, is reached. In each iteration this function
+replaces the detected cosmic ray hits by the median of the surroundings
+5x5 pixels taking into account the pixel quality information. The
+input parameter \verb,sigma_lim, and \verb,f_lim, refere to
+$\sigma_{lim}$ and $f_{lim}$ as described in the paper mentioned
+above.
+
+\paragraph{Functions}
+
+The bad pixels/cosmics are computed using the following function call:
+
+\begin{lstlisting}
+cpl_mask * bpm_lacosmic = hdrl_lacosmic_edgedetect(
+        const hdrl_image        *   img_in,
+        const hdrl_parameter    *   params)
+\end{lstlisting}
+                                                                      
+\paragraph{Inputs}
+
+The input parameters that need to be passed to the function for are
+created by:
+
+\begin{lstlisting}
+hdrl_parameter * hdrl_lacosmic_parameter_create(
+        double              sigma_lim,
+        double              f_lim,
+        int                 max_iter);
+\end{lstlisting}
+
+\paragraph{Outputs}
+
+The result is a mask of type cpl\_mask containing the newly found bad
+pixels / cosmic-ray-hits. Please note that already known bad pixels given to the routine
+will not be included in the output mask.
+
+\subsubsection{Examples}
+To follow Overscan layout we need to make an example of how to define
+a bad pixel parameter creation for each supported method.
+
+
+\subsubsection{Bad-Pixel Parameters in a Recipe}
+\paragraph{Bad-pixel detection on a single image}
+
+In the following example, we are using bias or dark images
+where we set the kappa sigma parameters
+kappa\_low and kappa\_high to 3, 3, and
+maxiter to 2, 
+the number of sampling coordinates in X and Y direction,
+step\_x, step\_y to 20, 20,
+the median filter X and Y sizes parameters  
+filter\_size\_x, filter\_size\_y to 11, 11,
+the Legendre polynomial order parameters 
+order\_x, order\_y to 3, 3.
+
+
+\begin{lstlisting}
+hdrl_parameter * bpm_2d_param = 
+    hdrl_bpm_2d_parameter_create_legendresmooth(3., 3., 2, 20, 20, 
+    11, 11, 3, 3) ;
+\end{lstlisting}
+
+Then the bad pixel locations are stored in a mask by the following
+function which receives as inputs an hdrl image, himage, and the 
+previously defined bad pixels:
+
+\begin{lstlisting}
+cpl_mask * mask = hdrl_bpm_2d_compute(himage, bpm_2d_param) ;
+\end{lstlisting}
+
+
+
+\paragraph{Bad-pixel detection on a set of images}
+
+In the following example, we are using linearity flat images
+where we set the kappa sigma parameters
+kappa\_low and kappa\_high to 3,3, and
+maxiter to 2, 
+the filter mode parameter to CPL\_FILTER\_MEDIAN,
+the filter border parameter to 
+CPL\_BORDER\_FILTER,
+the smoothing kernel X and Y size parameters   
+filter\_size\_x,filter\_size\_y to 3,3.
+
+
+\begin{lstlisting}
+hdrl_parameter * bpm_2d_param = 
+    hdrl_bpm_2d_parameter_create_filtersmooth(3, 3, 2, 
+    CPL_FILTER_MEDIAN, CPL_BORDER_FILTER, 3, 3) ;
+\end{lstlisting}
+
+Then the newly detected bad pixel locations are stored in a cpl\_imagelist
+by the following function which receives as inputs an hdrl image,
+himage, and the previously defined bad pixels:
+
+\begin{lstlisting}
+imlist = hdrl_bpm_3d_compute(himlist, bpm_param) ;
+\end{lstlisting}
+
+\paragraph{Cosmic Ray Hits detection}
+
+In the following example, we are using raw frames representing deep exposures
+where we set the sigma\_lim  parameter to 20,
+the f\_lim parameter to 2.0,
+and the max\_iter parameter to 5.
+
+\begin{lstlisting}
+hdrl_parameter * params =
+            hdrl_lacosmic_parameter_create(20., 2.0, 5);
+\end{lstlisting}
+
+Then the cosmic ray hits locations are stored in a mask by the
+following function which receives as inputs an hdrl image, himage, and 
+the previously defined bad pixels:
+
+\begin{lstlisting}
+cpl_mask * mask = hdrl_lacosmic_edgedetect(image, params);
+\end{lstlisting}
+

@@ -1,0 +1,536 @@
+\newpage
+
+\subsection{Image and Cube Resampling}
+\label{resampling:main}
+
+A common problem in astronomy is the resampling of 2D images and 3D cubes onto a
+common grid. Ideally, this is done only once in the data reduction workflow as
+each sub-pixel resampling redistributes the flux and creates correlation. In the
+resampling \HDRL project we would like to address two different
+scenarios. Assuming that one would like to re-grid and stack 10 dithered images/cubes
+with pre-determined World Coordinate System (WCS). Then one should be able to:
+
+\begin{itemize}
+\item Combine all images/cubes in a single cloud of points (we use a
+table for this step - see below) and when creating the resampled output
+image/cube all information is used in a single interpolation step, i.e. no
+image-by-image interpolation is done.
+\item Resample each individual image/cube on the same output grid (image by image
+interpolation) and combine the single resampled images in a second step with
+hdrl stacking methods.
+\end{itemize}
+Both scenarios interpolate only once, but the second scenario is important in
+case not all bad pixels could be properly determined and inserted in the bad
+pixel mask upfront. Then the implemented HDRL pixel resampling function offers the possibility to use a robust pixel
+combination method (median or $\kappa\sigma$~clipping) to combine the
+images/cubes. 
+
+\subsubsection{Algorithm - short description}
+\label{resampling:algorithms}
+
+The implemented interpolation algorithms are based on the MUSE pipeline and work
+for 2D images and 3D cubes. The 2D and 3D interpolation is done in 2-dimensional
+and 3-dimensional spaces, respectively. Currently there are six different
+interpolation methods implemented:
+
+\begin{center}
+\begin{itemize}
+\item {\bf Nearest:} Nearest  resampling
+\item {\bf Linear:} Weighted resampling using an inverse distance weighting function
+\item {\bf Quadratic:} Weighted resampling using a quadratic inverse distance weighting function
+\item {\bf Renka:} Weighted resampling using a Renka weighting function
+\item {\bf Drizzle:} Weighted resampling using a drizzle-like weighting scheme
+\item {\bf Lanczos:} Weighted resampling using a lanczos-like restricted sinc as weighting function
+\end{itemize}
+\end{center}
+
+\paragraph{Nearest Neighbour}
+\label{resampling:algorithms:nearest}
+The algorithm does not use any weighting function but simply uses the value of
+the nearest neighbour inside an output voxel\footnote{In 3D computer graphics, a voxel represents a value on a regular grid in three-dimensional space. See \http{https://en.wikipedia.org/wiki/Voxel} for more information.} centre as the final output value. If
+there is no nearest neighbour inside the voxel (but e.g. only outside), the voxel
+is marked as bad. This speeds up the algorithm considerably. There are no
+control parameter for this method.
+
+\paragraph{Linear}
+\label{resampling:algorithms:linear}
+The algorithm uses a linear inverse distance weighting function ($\frac{1}{r}$)
+for the interpolation. The parameter \verb+loop_distance+ controls the number of
+surrounding pixels that are taken into account on the final grid, e.g. a
+\verb+loop_distance+ of 1 uses 3 pixels (x - 1, x, x + 1) in each dimension,
+i.e.  9 in total for a 2D image and 27 in total for a 3D cube. Moreover, if the
+parameter \verb+use_errorweights+ is set to TRUE, an additional weight, defined
+as 1/variance, is taken into account\footnotemark.
+ 
+\paragraph{Quadratic}
+\label{resampling:algorithms:quadratic}
+The algorithm uses a quadratic inverse distance weighting function
+($\frac{1}{r^2}$) for the interpolation. The parameter \verb+loop_distance+
+controls the number of surrounding pixels that are taken into account on the
+final grid, e.g. a \verb+loop_distance+ of 1 uses 3 pixels (x - 1, x, x + 1) in
+each dimension, i.e.  9 in total for a 2D image and 27 in total for a 3D
+cube. Moreover, if the parameter \verb+use_errorweights+ is set to
+TRUE, an additional weight, defined as 1/variance,
+is taken into account\footnotemark[\value{footnote}].
+ 
+\paragraph{Renka}
+\label{resampling:algorithms:renka}
+The algorithm uses a modified Shepard-like distance weighting function following
+Renka for the interpolation. The parameter \verb+critical_radius+ defines the
+distance beyond which the weights are set to 0 and the pixels are therefore not
+taken into account. The parameter \verb+loop_distance+ controls the number of
+surrounding pixels that are taken into account on the final grid, e.g. a
+\verb+loop_distance+ of 1 uses 3 pixels (x - 1, x, x + 1) in each dimension,
+i.e.  9 in total for a 2D image and 27 in total for a 3D cube. Moreover, if the
+parameter \verb+use_errorweights+ is set to TRUE,
+an additional weight, defined as 1/variance, is taken into account\footnotemark[\value{footnote}].
+
+\paragraph{Drizzle}
+\label{resampling:algorithms:drizzle}
+The algorithm uses a drizzle-like distance weighting function for the
+interpolation. The down-scaling factors \verb+pix_frac_x+, \verb+pix_frac_y+,
+and \verb+pix_frac_lambda+, for x, y, and wavelength direction control the
+percentage of flux of the original pixel/voxel that drizzles into the target
+pixel/voxel. The parameter \verb+loop_distance+ controls the number of
+surrounding pixels that are taken into account on the final grid, e.g. a
+\verb+loop_distance+ of 1 uses 3 pixels (x - 1, x, x + 1) in each dimension,
+i.e.  9 in total for a 2D image and 27 in total for a 3D cube. Moreover, if the
+parameter \verb+use_errorweights+ is set to TRUE,
+an additional weight defined as 1/variance is taken into account\footnotemark[\value{footnote}].
+
+\paragraph{Lanczos}
+\label{resampling:algorithms:lanczos}
+The algorithm uses a restricted $sinc$ distance weighting function
+($\frac{sinc(r)}{sinc(r/kernel\_size)}$) with the kernel size given by the
+parameter \verb+kernel_size+ for the interpolation. The parameter
+\verb+loop_distance+ controls the number of surrounding pixels that are taken
+into account on the final grid, e.g. a \verb+loop_distance+ of 1 uses 3 pixels
+(x - 1, x, x + 1) in each dimension, i.e.  9 in total for a 2D image and 27 in
+total for a 3D cube. Moreover, if the parameter \verb+use_errorweights+ is set
+to TRUE, an additional weight defined as
+1/variance is taken into account\footnotemark[\value{footnote}].
+
+
+
+\footnotetext{Please note that only if the variance of a pixel is $> 0$ this
+  additional weight is applied}
+
+\subsubsection{Functions}
+The input data is resampled using the following function call
+\begin{lstlisting}
+hdrl_resample_result * hdrl_resample_compute(
+        const cpl_table     * restable,
+        hdrl_parameter      * method,
+        hdrl_parameter      * outputgrid,
+        const cpl_wcs       * wcs);
+\end{lstlisting}
+
+The routine is not directly working on an image or a cube but on a table
+(\verb+restable+). For 2D images, the table is created by the function
+\verb+hdrl_resample_image_to_table()+, whereas for a 3D data cube the
+function \verb+hdrl_resample_imagelist_to_table()+ generates the appropriate
+table. In the case that many images/cubes have to be combined into a single
+mosaic, the two functions can be called multiple times and the returned tables
+should be merged into a single table by using \verb+cpl_table_insert()+.
+
+\subsubsection{Inputs}
+The \verb+hdrl_resample_compute+ function has four arguments:
+
+\paragraph*{restable}
+The first function argument \verb+restable+ is a \verb+cpl_table+ with
+information on the data to be resampled.  It can be created in case of a 2D
+image or a 3D data cube with the following function call:
+
+\begin{lstlisting}
+cpl_table * hdrl_resample_image_to_table(
+        const hdrl_image     * hima,
+        const cpl_wcs        * wcs);  
+\end{lstlisting}
+
+\begin{lstlisting}
+cpl_table * hdrl_resample_imagelist_to_table(
+        const hdrl_imagelist * himlist,
+        const cpl_wcs        * wcs);
+\end{lstlisting}
+
+where \verb+ hima+ is a hdrl image containing the 2D image and \verb+ himlist+ a
+hdrl imagelist containing the 3D cube that should be resampled. The \verb+wcs+
+is a cpl wcs object that encodes the world coordinate system of the given
+image/cube. 
+
+
+In case the above mentioned functions can not be used to create the table
+(e.g. the pixel to sky mapping is very complex and can not be encoded by the cpl
+wcs object) the pipeline developer has to create and fill the table. The table should be
+created and initialised as follows:
+
+{
+\footnotesize
+\begin{lstlisting}
+  tab = cpl_table_new(size);
+  
+  /* create the table columns */
+  cpl_table_new_column(tab, HDRL_RESAMPLE_TABLE_RA,     HDRL_RESAMPLE_TABLE_RA_TYPE);
+  cpl_table_new_column(tab, HDRL_RESAMPLE_TABLE_DEC,    HDRL_RESAMPLE_TABLE_DEC_TYPE);
+  cpl_table_new_column(tab, HDRL_RESAMPLE_TABLE_LAMBDA, HDRL_RESAMPLE_TABLE_LAMBDA_TYPE);
+  cpl_table_new_column(tab, HDRL_RESAMPLE_TABLE_DATA,   HDRL_RESAMPLE_TABLE_DATA_TYPE);
+  cpl_table_new_column(tab, HDRL_RESAMPLE_TABLE_BPM,    HDRL_RESAMPLE_TABLE_BPM_TYPE);
+  cpl_table_new_column(tab, HDRL_RESAMPLE_TABLE_ERRORS, HDRL_RESAMPLE_TABLE_ERRORS_TYPE);
+
+  /* init column values */
+  cpl_table_fill_column_window_double(tab, HDRL_RESAMPLE_TABLE_RA,    0, size, 0.);
+  cpl_table_fill_column_window_double(tab, HDRL_RESAMPLE_TABLE_DEC,   0, size, 0.);
+  cpl_table_fill_column_window_double(tab, HDRL_RESAMPLE_TABLE_LAMBDA,0, size, 0.);
+  cpl_table_fill_column_window_double(tab, HDRL_RESAMPLE_TABLE_DATA,  0, size, 0.);
+  cpl_table_fill_column_window_int(tab,    HDRL_RESAMPLE_TABLE_BPM,   0, size, 0);
+  cpl_table_fill_column_window_double(tab, HDRL_RESAMPLE_TABLE_ERRORS,0, size, 0.);
+\end{lstlisting}
+}
+
+Please note that the interpolation function \verb+hdrl_resample_compute()+ was
+only tested with tables created by \verb+hdrl_resample_image_to_table()+ or
+\verb+hdrl_resample_imagelist_to_table()+, i.e. mappings encoded by a cpl wcs
+object. Creating and using a handcrafted table could lead to side effects that the
+interpolation function cannot properly handle.
+
+
+\paragraph*{method}
+Currently six different interpolation methods can be used to resample the data. The corresponding hdrl parameter \verb+method+ is created executing the
+appropriate function call:
+
+\begin{itemize}
+
+\item {\bf Nearest:} Nearest neighbour resampling (see
+section~\ref{resampling:algorithms:nearest}) 
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_nearest(void);
+\end{lstlisting}
+
+\item {\bf Linear:} Weighted resampling using inverse distance weighting
+function (see section~\ref{resampling:algorithms:linear})
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_linear(
+        const int    loop_distance,
+        cpl_boolean  use_errorweights);  
+\end{lstlisting}
+
+\verb+loop_distance+: in pixel units ($>= 0$) \\ 
+\verb+use_errorweights+: cpl\_boolean (CPL\_TRUE or CPL\_FALSE)  
+
+\item {\bf Quadratic:} Weighted resampling using quadratic inverse distance
+        weighting function (see section~\ref{resampling:algorithms:quadratic})
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_quadratic(
+        const int    loop_distance,
+        cpl_boolean  use_errorweights);  
+\end{lstlisting}
+
+\verb+loop_distance+: in pixel units ($>= 0$) \\ 
+\verb+use_errorweights+: cpl\_boolean (CPL\_TRUE or CPL\_FALSE)  
+
+\item {\bf Renka:} Weighted resampling using Renka weighting function (see
+        section~\ref{resampling:algorithms:renka}) 
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_renka(
+        const int    loop_distance,
+        cpl_boolean  use_errorweights,
+        const double critical_radius);  
+\end{lstlisting}
+
+\verb+loop_distance+: in pixel units ($>= 0$) \\ 
+\verb+use_errorweights+: cpl\_boolean (CPL\_TRUE or CPL\_FALSE)\\  
+\verb+critical_radius+: in pixel units ($> 0$) 
+
+\item {\bf Drizzle:} Weighted resampling using a drizzle-like weighting scheme
+        (see section~\ref{resampling:algorithms:drizzle}) 
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_drizzle(
+        const int    loop_distance,
+        cpl_boolean  use_errorweights,
+        const double pix_frac_x,
+        const double pix_frac_y,
+        const double pix_frac_lambda);
+  
+\end{lstlisting}
+      
+\verb+loop_distance+: in pixel units ($>= 0$) \\ 
+\verb+use_errorweights+: cpl\_boolean (CPL\_TRUE or CPL\_FALSE)\\  
+\verb+pix_frac_x+: fraction of pixel/voxel ($> 0$) \\ 
+\verb+pix_frac_y+: fraction of pixel/voxel ($> 0$) \\ 
+\verb+pix_frac_lambda+: fraction of pixel/voxel ($> 0$) \\ 
+
+\item {\bf Lanczos:} Weighted resampling using a lanczos-like restricted sinc
+        for weighting (see section~\ref{resampling:algorithms:lanczos}) 
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_lanczos(
+        const int   loop_distance,
+        cpl_boolean use_errorweights,
+        const int   kernel_size);
+\end{lstlisting}
+
+\verb+loop_distance+: in pixel units ($>= 0$) \\ 
+\verb+use_errorweights+: cpl\_boolean (CPL\_TRUE or CPL\_FALSE)\\  
+\verb+kernel_size+: in pixel units ($> 0$) 
+\end{itemize}
+
+
+\paragraph*{outputgrid}
+The \verb+outputgrid+ parameter defines basic properties of the resampled
+image/cube. Depending on the input data (image or cube) the \verb+outputgrid+
+parameter should be created with the appropriate function call,
+i.e. \\ \verb+hdrl_resample_parameter_create_outgrid2D_userdef()+ for an image
+and \\ \verb+hdrl_resample_parameter_create_outgrid3D_userdef()+ for a
+cube. For convenience, the \verb+outputgrid+ parameter can also be created with
+\verb+hdrl_resample_parameter_create_outgrid2D()+ or
+\verb+hdrl_resample_parameter_create_outgrid3D()+. In this case, only the step
+sizes in right ascension (\verb+delta_ra+), declination (\verb+delta_dec+) and
+wavelength (\verb+delta_lambda+) of the output image/cube have to be given. All
+the rest is automatically derived from the data by the
+\verb+hdrl_resample_compute()+ function. The four functions read as follows:
+
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_outgrid2D_userdef(
+        const double delta_ra,
+        const double delta_dec,
+        const double ra_min,
+        const double ra_max,
+        const double dec_min,
+        const double dec_max,
+        const double fieldmargin);  
+\end{lstlisting}
+
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_outgrid3D_userdef(
+        const double delta_ra,
+        const double delta_dec,
+        const double delta_lambda,
+        const double ra_min,
+        const double ra_max,
+        const double dec_min,
+        const double dec_max,
+        const double lambda_min,
+        const double lambda_max,
+        const double fieldmargin);
+\end{lstlisting}
+
+where \verb+delta_ra+, \verb+delta_dec+, and \verb+delta_lambda+ are the output
+grid steps in right ascension, declination and wavelength. Moreover, these two
+functions allow the user to set the full output grid by defining
+\verb+ra_min+, \verb+ra_max+,  \verb+dec_min+, \verb+dec_max+, and
+\verb+lambda_min+, \verb+lambda_max+. These parameters define the minimum and
+maximum boundaries of the output image in terms of right ascension, declination
+and wavelength. Furthermore, with the parameter \verb+fieldmargin+ one can add a
+margin to the output image in all spacial directions.
+
+The parameters \verb+delta_ra+, \verb+delta_dec+, \verb+ra_min+, \verb+ra_max+,
+\verb+dec_min+, and \verb+dec_max+ have to be given in degrees [deg], whereas the
+parameters \verb+delta_lambda+, \verb+lambda_min+, and \verb+lambda_max+ have to
+be given in meter [m]. The \verb+fieldmargin+ has to be given in percent with 0
+adding no margin to the output image/cube
+
+For convenience, the \HDRL also offers the following convenience functions that
+calculate the boundaries of the output image/cube from the data and
+automatically set the fieldmargin:
+
+
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_outgrid2D(
+        const double delta_ra,
+        const double delta_dec);  
+\end{lstlisting}
+
+\begin{lstlisting}
+hdrl_parameter * hdrl_resample_parameter_create_outgrid3D(
+        const double delta_ra,
+        const double delta_dec,
+        const double delta_lambda);  
+\end{lstlisting}
+
+\paragraph*{wcs}
+This input parameter specifies the World Coordinate System which should be
+representative of the images that are going to be resampled. The resampling
+functions uses the wcs input (CD matrix) mostly do determine the scales between
+the input and output grid. Please note, that in case the user would like to
+combine images/cubes with substantially different pixel sizes into a single
+output image/cube, the single tables have to be properly scaled to the same
+scales before merging them into the final table.
+
+
+\subsubsection{Outputs}
+\label{sec:algorithms:resampling:outputs}
+
+The \verb+hdrl_resample_compute()+ function creates an output
+\verb+hdrl_resample_result+ structure containing the following quantities:
+
+\begin{lstlisting}
+typedef struct {
+        /* cpl propertylist containing the output wcs information */
+        cpl_propertylist * header;
+        /* hdrl imagelist containing the data, the errors, and the bpm */
+        hdrl_imagelist   * himlist;
+} hdrl_resample_result;
+\end{lstlisting}
+
+This structure contains for convenience a cpl propertylist \verb+header+ with
+the output wcs that can directly be used by the cpl saving functions to save the
+image/cube. In case the wcs object itself is needed, the cpl function
+\verb+cpl_wcs_new_from_propertylist(header)+ should be used. Moreover, the
+structure contains the resampled image/cube as hdrl imagelist \verb+himlist+. If
+a 2D image was resampled, the returned imagelist is of size 1 and the resampled
+hdrl image can be accessed with \verb+hdrl_imagelist_get(himlist, 0)+.
+
+The \verb+hdrl_resample_result+ object has to be deleted by the user
+when not required any more by calling the function
+\verb+hdrl_resample_result_delete()+.
+
+Please note that the output is using the Gnomonic projection\footnote{see
+  \url{https://en.wikipedia.org/wiki/Gnomonic_projection}}. The gnomonic
+projection is from the centre of a sphere to a plane tangential to the
+sphere. The sphere and the plane touch at the tangent point. This in encoded in
+the header file by:
+\begin{lstlisting}
+  CTYPE1  = 'RA---TAN'           / Gnomonic projection
+  CTYPE2  = 'DEC--TAN'           / Gnomonic projection
+\end{lstlisting}
+
+\newpage
+\subsubsection{Example}
+\label{sec:algorithms:resampling:example}
+This section briefly describes a typical cube regridding example .
+{\footnotesize
+  \begin{lstlisting}
+  /* Load input data, errors and bpm frames */
+  cpl_imagelist* imlist_data  = cpl_imagelist_load(name, CPL_TYPE_DOUBLE, extension_data);
+  cpl_imagelist* imlist_error = cpl_imagelist_load(name, CPL_TYPE_DOUBLE, extension_error);
+  cpl_imagelist* imlist_bpm   = cpl_imagelist_load(name, CPL_TYPE_INT, extension_bpm);
+  
+  /* Load input wcs */
+  cpl_propertylist *xheader_data = cpl_propertylist_load(name, extension_data);
+  cpl_wcs *wcs = cpl_wcs_new_from_propertylist(xheader_data);
+  cpl_propertylist_delete(xheader_data);
+  
+  /* Add the bad pixel mask to the corresponding cpl image */
+  cpl_size size = cpl_imagelist_get_size(imlist_data);
+  for(cpl_size k = 0; k < size; k++) {
+     cpl_image* data = cpl_imagelist_get(imlist_data, k);
+     cpl_image* bpm  = cpl_imagelist_get(imlist_bpm, k);
+     cpl_mask*  mask = cpl_mask_threshold_image_create(bpm, 0, INT_MAX);
+     cpl_image_reject_from_mask(data, mask);
+     cpl_mask_delete(mask);
+     cpl_imagelist_set(imlist_data, data, k);
+  }
+
+   /* Create the hdrl imagelist and free memory */
+  hdrl_imagelist* hlist = NULL;
+  hlist = hdrl_imagelist_create(imlist_data, imlist_error);
+  hdrl_imagelist_delete(imlist_data);
+  hdrl_imagelist_delete(imlist_error);
+  hdrl_imagelist_delete(imlist_bpm);
+  
+  /* store the imagelist information into the cpl_table and free memory */
+  cpl_table* restable  = hdrl_resample_imagelist_to_table(hlist, wcs);
+  hdrl_imagelist_delete(hlist);
+  
+  /* Define the output grid */
+  hdrl_parameter *outgrid = NULL;
+  outgrid = hdrl_resample_parameter_create_outgrid2D(5.5e-05, 5.5e-05, 2.8e-10);
+
+  /* define the method - here LANCZOS */
+  hdrl_parameter *method = NULL;
+  method = hdrl_resample_parameter_create_lanczos(1, CPL_FALSE, 2);
+  
+  /* Do the resampling */
+  hdrl_resample_result *result = NULL;
+  result = hdrl_resample_compute(restable, method, outgrid, wcs);
+
+   /* save the relevant results */
+...
+   /* Cleanup the memory */
+   hdrl_parameter_delete(method);
+   hdrl_parameter_delete(outgrid);
+   hdrl_resample_result_delete(result);
+   cpl_wcs_delete(wcs);
+   cpl_table_delete(restable);
+\end{lstlisting}
+}
+
+\subsubsection{Additional Information}
+
+As mentioned above, the \verb+hdrl_resample_compute+ function requires as an
+input a cpl table and not hdrl images or an hdrl imagelist. This choice was made
+for flexibility but comes with a cost on the memory consumption.  Moreover, the
+current implementation does not distinguish between a 2D image and a 3D cube in
+the table structure, i.e. the wavelength column is always filled. Furthermore,
+cpl functions are usually used to read the input images and they are then
+inserted into a hdrl image, which implies a small overhead.
+
+We can understand the requirements in term of memory consumption as follows.
+In the typical use case the developer has input three cubes: one containing the data, stored in a float\footnote{usually 4 bytes} data type, one the error, stored in a float data type, and the bad pixels, stored in an integer\footnote{usually 4 bytes} data type.
+Then the \verb+cpl_imagelist+ objects are inserted into a hdrl imagelist
+which has the data and error in double precision and each has a bpm in
+unsigned~char\footnote{usually 1 bytes} precision [see step 2. below].
+Then the information of the hdrl imagelist is stored into a cpl table [see
+step 3. below].
+Finally one has to define and fill the hdrl imagelist containing the
+final resampled image/cube [see step 4. below].
+The size of the resampled image
+[step 4. below] strongly depends on the use-case: i.e. if the input images/cubes
+are mostly stacked, or if a mosaic is created and, if a mosaic is created,
+its size strongly depends on possible gaps between the CCDs.
+
+
+\begin{enumerate}
+\item cpl\_imagelist (read the raw data x, y, $\lambda$)
+\begin{itemize}
+\item data (float) + error (float) + bpm (int) \textbf{[requires $\approx 3 \times float$]}
+\end{itemize}
+\item $\Rightarrow$ hdrl\_imagelist (join the raw data/error/bpm)
+\begin{itemize}
+\item $\Rightarrow$ data ($2\times$ float) + error ($2\times$ float) + bpm
+($2\times$ unsigned char $\approx 0.5 \times float$) \textbf{[requires $\approx 4.5 \times float$]}
+\end{itemize}
+\item $\Rightarrow$ cpl\_table (transform raw data x, y, $\lambda$ $\rightarrow$
+Ra, Dec, $\lambda$)
+\begin{itemize}
+\item Ra ($2\times$ float) + Dec ($2\times$ float) + $\lambda$ ($2\times$ float) + data ($2\times$ float) + error ($2\times$ float) + bpm (int)  \textbf{[requires $\approx 11 \times float$]}
+\end{itemize}
+\item $\Rightarrow$ hdrl\_imagelist (resample Ra, Dec, $\lambda$  $\rightarrow$ x, y, $\lambda$)
+\begin{itemize}
+\item $\Rightarrow$ data ($2\times$ float) + error ($2\times$ float) + bpm
+($2\times$ unsigned char $\approx 0.5 \times float$) \textbf{[requires $\approx 4.5 \times float$]}
+\end{itemize}
+\end{enumerate}
+
+After reading the data [step 1.] and inserting the data into an hdrl imagelist
+[step 2.] the data of step 1. can be deleted. The total image consumption of the
+transition of step 2 and step 3 depends on the data. If you have multi extension
+frames like for VIRCAM you can populate the table extension by extension and
+therefore you are mostly dominated by the size of your table. If you can not
+work extension by extension, e.g. if your input is a MUSE cube you can delete
+the hdrl imagelist of step 2 only after you fully populate the cpl table of
+step 3. This means that you have to keep the data involved in step 2 and
+step 3 in memory at the same time\footnote{see section
+\ref{sec:largedata:buffer} for a possibility to
+address this problem}. Then, once the table is filled, you may delete the hdrl
+imagelist created in step 2. As written above, the size of the resampled image [step 4.]
+strongly depends on the use-case so here we assume that the resampled image is a
+mosaic without gaps in between (no stacking). Then for transition between
+steps 3 and 4 one needs to have the table and the resampled output image in
+memory at the same time.
+
+Usually, memory (RAM) requirements are dominated by the data allocated in step 2~+~3  or step 3~+~4. This means that as a rule of thumb one would
+need \textbf{[$\approx 11 + 4.5 = 15.5 \times float \times \mbox{number of input pixels}$]} of memory.
+
+This shows that if your data requires a certain amount of RAM to be stored as
+raw data you need \textbf{at
+least 6 times more memory}: $3\times$ float $\Rightarrow$ $15.5 \times$
+float, to perform the corresponding resampling. Please note, that in case you
+do not have error images/cubes and/or bpm
+images/cubes in input you have to assume that they also would be there, when you
+calculate the maximum amount of memory consumption as previously described.
+Even if you pass NULL to the hdrl\_imagelist\_create() function, it will
+then create an error and bpm image on the fly. In other words, if you only have
+information on the input data (no error and no bpm), you need
+\textbf{at least 18 times more memory} to do the resampling.
+
+

@@ -1,0 +1,178 @@
+"""
+METIS pupil imaging recipe
+
+This file contains the recipe for reducing pupil imaging raw data for the
+METIS instrument. It will apply dark and flat corrections, and optionally
+gain and persistance corrections. It can be directly via pyesorex,
+or as part of an edps workflow.
+
+This file is part of the METIS Pipeline.
+Copyright (C) 2024 European Southern Observatory
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+"""
+from typing import Optional
+
+import cpl
+from cpl.core import Msg, Image, Table
+
+from pyesorex.parameter import ParameterList, ParameterEnum
+
+from pymetis.classes.dataitems import DataItem, Hdu
+from pymetis.classes.dataitems.productset import PipelineProductSet
+from pymetis.dataitems.masterflat import MasterImgFlat
+from pymetis.dataitems.pupil import PupilRaw
+from pymetis.dataitems.pupil.pupil import PupilImagingReduced
+from pymetis.classes.recipes import MetisRecipe
+from pymetis.classes.inputs import RawInput, MasterDarkInput, MasterFlatInput, GainMapInput, LinearityInput
+from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.utils.dummy import create_dummy_header
+
+
+class MetisPupilImagingImpl(DarkImageProcessor):
+    class InputSet(DarkImageProcessor.InputSet):
+        """
+        Define the input sets and tags.
+        Here, we define dark, flat, linearity, persistence and gain map
+        and the tags for PUPIL_RAW
+
+        TODO; currently works for LM band, need to set up to work for both LM and N with proper filtering.
+        """
+
+        class RawInput(RawInput):
+            Item = PupilRaw
+
+        class GainMapInput(GainMapInput):
+            pass
+
+        class LinearityInput(LinearityInput):
+            pass
+
+        class MasterDarkInput(MasterDarkInput):
+            pass
+
+        # Also, one master flat is required. We use a prefabricated class
+        class MasterFlatInput(MasterFlatInput):
+            Item = MasterImgFlat
+
+    class ProductSet(PipelineProductSet):
+        Reduced = PupilImagingReduced
+
+    def prepare_flat(self, flat: Image, bias: Optional[Image]):
+        """ Flat field preparation: subtract bias and normalize it to median 1 """
+        Msg.info(self.__class__.__qualname__, "Preparing flat field")
+
+        if flat is None:
+            raise RuntimeError("No flat frames found in the frameset.")
+        else:
+            if bias is not None:
+                flat.subtract(bias)
+            median = flat.get_median()
+            return flat
+
+            # return flat.divide_scalar(median)
+
+    def prepare_images(self,
+                       raw_frames: cpl.ui.FrameSet,
+                       bias: Optional[Image] = None,
+                       flat: Optional[Image] = None) -> cpl.core.ImageList:
+        prepared_images = cpl.core.ImageList()
+
+        """Prepare the images; bias subtracting and flat fielding"""
+
+        for index, frame in enumerate(raw_frames):
+            Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
+
+            Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file!r}")
+            raw_image = cpl.core.Image.load(frame.file, extension=1)
+
+            if bias:
+                Msg.debug(self.__class__.__qualname__, "Bias subtracting...")
+                raw_image.subtract(bias)
+
+            if flat:
+                Msg.debug(self.__class__.__qualname__, "Flat fielding...")
+                raw_image.divide(flat)
+
+            prepared_images.append(raw_image)
+
+        return prepared_images
+
+    def process(self) -> set[DataItem]:
+        """
+        Runner for processing images. Currently setup to do dark/bias/flat/gain plus combining images.
+        TODO No actual processing is performed.
+        """
+
+        Msg.info(self.__class__.__qualname__, "Starting processing image attribute.")
+
+        master_flat = self.inputset.master_flat.load_data('DET1.SCI')
+        master_dark = self.inputset.master_dark.load_data('DET1.SCI')
+        gain = self.inputset.gain_map.load_data('DET1.SCI')
+
+        master_flat = self.prepare_flat(master_flat, master_dark)
+        images = self.prepare_images(self.inputset.raw.frameset, master_flat, master_dark)
+        combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
+        # Copying the header from the primary input causes
+        #   TypeMismatchError: CPL error stack trace (most recent error last):
+        #     File "cpl_propertylist.c", line 6884, in cpl_propertylist_copy_filter_
+        #   Type mismatch: name: ESO DET DIT
+        # Because the input MASTERDARK has a DIT of 1 (not 1.), because the
+        # input raws have a DIT of 1. See
+        # https://github.com/AstarVienna/METIS_Simulations/pull/156
+        # primary_header = cpl.core.PropertyList.load(self.inputset.master_flat.frame.file, 0)
+        primary_header = create_dummy_header()
+        header_image = create_dummy_header()
+
+        product = self.ProductSet.Reduced(
+            primary_header,
+            Hdu(header_image, combined_image, name='IMAGE')
+        )
+
+        return {product}
+
+
+class MetisPupilImaging(MetisRecipe):
+    """
+    Wrapper for the recipe for pyesorex, defining the necessary attributes and parameters,
+    plus the implementation class.
+    """
+    # Fill in recipe information
+    _name = "metis_pupil_imaging"
+    _version = "0.1"
+    _author = "Jennifer Karr, A*"
+    _email = "jkarr@asiaa.sinica.edu.tw"
+    _copyright = "GPL-3.0-or-later"
+    _synopsis = "Basic processing of pupil images"
+    _description = """
+        This recipe performs basic reduction (dark current subtraction, flat fielding,
+        optional bias subtraction, persistence and linearity corrections) on engineering
+        images of the pupil masks. This recipe is not expected to be used by observers
+        during regular use."""  # FixMe this is not shown anywhere now
+
+    _matched_keywords = {'DRS.PUPIL'}
+    _algorithm = """Apply dark current and flat field corrections."""
+
+    parameters = ParameterList([
+        ParameterEnum(
+            name="metis_pupil_imaging.stacking.method",
+            context="metis_pupil_imaging",
+            description="Name of the method used to combine the input images",
+            default="add",
+            alternatives=("add", "average", "median"),
+        ),
+    ])
+
+    Impl = MetisPupilImagingImpl

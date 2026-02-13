@@ -1,0 +1,78 @@
+PYTHON_INTERPRETER = python3
+
+PYMODULE_NAME = py$(PACKAGE)
+PYMODULE = $(PYMODULE_NAME)-$(PACKAGE_VERSION)
+PYMODULE_CLEAN_FILES = build $(PYMODULE_NAME).egg-info
+
+pip_args = --force --upgrade --no-deps
+
+python: python-recursive
+
+python-am:
+	@if test -f $(srcdir)/pyproject.toml; then \
+	  echo "$(PYTHON_INTERPRETER) -m build --wheel --outdir=$(builddir)/dist $(srcdir)"; \
+	  d=`pwd`; cd $(srcdir); \
+	  $(PYTHON_INTERPRETER) -m pip wheel --isolated --no-deps --wheel-dir=$(abs_builddir)/dist .; \
+	  test -n "$(PYMODULE_CLEAN_FILES)" && rm -rf $(PYMODULE_CLEAN_FILES); cd $$d; \
+	else \
+	  echo "Nothing to be done for \`$@'."; \
+	fi
+
+clean-python: clean-python-recursive
+
+clean-python-am:
+	@if test -f $(srcdir)/pyproject.toml; then \
+	  echo "Making clean in `basename $(abs_builddir)`"; \
+	  echo "rm -rf $(srcdir)/build"; \
+	  rm -rf $(srcdir)/build; \
+	  echo "rm -rf $(srcdir)/$(PYMODULE_NAME).egg-info"; \
+	  rm -rf $(srcdir)/$(PYMODULE_NAME).egg-info; \
+	  rm -rf $(builddir)/dist \
+	else \
+	  echo "Nothing to be done for \`$@'."; \
+	fi
+
+install-python: install-python-recursive
+install-python-am: python-am install-python-wheel-am
+
+install-python-wheel-am: python-am
+	@$(NORMAL_INSTALL)
+	@if test -f $(srcdir)/pyproject.toml; then \
+	  if test -z "$$VIRTUAL_ENV" && test -z "$$CONDA_PREFIX"; then \
+	    if test $$EUID -ne 0; then \
+	      pip_args="--user $(pip_args)"; \
+	    fi; \
+	  fi; \
+	  list="`ls -1 $(builddir)/dist/$(PYMODULE)*.whl`"; \
+	  for p in $$list; do \
+	    echo " $(PYTHON_INTERPRETER) -m pip install --force --upgrade --no-deps $$p"; \
+	    $(PYTHON_INTERPRETER) -m pip install $(pip_args) $$p; \
+	  done; \
+	fi
+
+uninstall-python: uninstall-python-recursive
+uninstall-python-am:
+	@$(NORMAL_UNINSTALL)
+	@if test -f $(srcdir)/pyproject.toml; then \
+	  $(PYTHON_INTERPRETER) -m pip uninstall --yes $(PYMODULE_NAME); \
+	fi
+
+python-recursive clean-python-recursive install-python-recursive uninstall-python-recursive:
+	@set fnord $(MAKEFLAGS); amf=$$2; \
+	dot_seen=no; \
+	target=`echo $@ | sed s/-recursive//`; \
+	list='$(PYTHON_SUBDIRS)'; \
+	for subdir in $$list; do \
+	  echo "Making $$target in $$subdir"; \
+	  if test "$$subdir" = "."; then \
+	    dot_seen=yes; \
+	    local_target="$$target-am"; \
+	  else \
+	    local_target="$$target"; \
+	  fi; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
+	  || case "$$amf" in *=*) exit 1;; *k*) fail=yes;; *) exit 1;; esac; \
+	done; \
+	if test "$$dot_seen" = "no"; then \
+	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
+	fi; test -z "$$fail"

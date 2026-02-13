@@ -1,0 +1,67 @@
+%%
+%% Abbreviations and extra command definitions
+%%
+
+%%
+%% Release information
+%%
+
+\newcommand{\instrument}{\mbox{METIS}}
+\newcommand{\release}{0.1.12}
+
+%%
+%% Abbreviations
+%%
+
+\newcommand{\eg}{{e.g.~}}
+\newcommand{\ie}{{i.e.~}}
+
+\newcommand{\degr}{\hbox{$^\circ$}}
+\newcommand{\arcmin}{\hbox{$^\prime$}}
+\newcommand{\arcsec}{\hbox{$^{\prime\prime}$}}
+\newcommand{\celsius}{\hbox{$^{\circ}\mathsf{C}$}}
+
+\newcommand{\CPL}{\textit{Common Pipeline Library}\/}
+\newcommand{\esorex}{\mbox{EsoRex}}
+\newcommand{\gasgano}{\mbox{Gasgano}}
+\newcommand{\reflex}{\textit{\mbox{Reflex}}\/}
+
+%%
+%% Additional commands
+%%
+
+\newcommand{\tbspa}{\rule[1ex]{0pt}{1.1ex}}
+\newcommand{\tbspb}{\rule[-1.0ex]{0pt}{1.0ex}}
+\newcommand{\tcen}{\raisebox{-7pt}[7pt][0pt]}
+
+\newcommand{\units}[1]{\ensuremath{\:\mathsf{#1}}}
+
+\newcommand{\figref}[1]{\figurename~\ref{#1}}
+\newcommand{\tabref}[1]{\tablename~\ref{#1}}
+
+\newcommand{\red}[1]{\color{red}{#1}\color{black}}
+
+\newcommand{\putgraph}[4]{
+    \begin{figure}[ht]
+        \begin{center}
+    \includegraphics[width=#1truecm]{#2}
+    \end{center}
+    \caption{\it #4.}
+    \label{fig:#3}
+    \end{figure}
+}
+
+\newcommand{\putgraphhere}[4]{
+    \begin{figure}[h!]
+        \begin{center}
+    \includegraphics[width=#1truecm]{#2}
+    \end{center}
+    \caption{\it #4.}
+    \label{fig:#3}
+    \end{figure}
+}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

@@ -1,0 +1,28 @@
+\subsection{MasterDark}
+
+The master dark creation uses the same functions as the bias creation.  The
+difference is that the additive scaling factor is the masterbias image and a
+multiplicative scaling for the exposure time needs to be applied.
+
+\begin{verbatim}
+hdrl_cube_apply_scaling(data, overscan, ADD)
+    // or
+hdrl_cube_apply_scaling(data, bias, ADD)
+
+    // e.g. exposure time scaling
+hdrl_cube_apply_scaling(data, scaling, MUL)
+hdrl_cube_combine(data,...)
+\end{verbatim}
+
+A high level function equivalent to the bias one should be added.
+
+\begin{verbatim}
+hdrl_frameset_combine_dark(data_frameset, errors_frameset, bpm, bpmmask, 
+                          master_bias_image,
+                          overscan_ctrl,
+                          scaling_hook=[mean/median/sigclip/none],
+                          reduction_method=[mean/median/sigclip])
+\end{verbatim}
+
+All required functionality has been described in previous sections.
+

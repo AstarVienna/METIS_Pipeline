@@ -1,0 +1,17 @@
+# Configuration file for the esorex option --paf-config,
+# which creates paf files for a recipe. Below are listed
+# the PRO CATG of the products from the METIS pipeline, which
+# create QC parameters.
+# The products are separated by PRO CATG entries. These values
+# are a taken as regular expressions.
+# Following the PRO CATG entries are listed the regexp for the extra keywords 
+# that should be written in the paf files. 
+# By default, the following keywords are always written:
+# ESO PRO, QC, INSTRUMENT, MJD-OBS, DATE-OBS, OBS.ID, TPL.ID,
+# ARCFILE, EXTNAME
+#
+PRO CATG = FLAT
+        INS FILT1 NAME
+        INS FILT2 NAME
+PRO CATG = DARK
+        DET DIT

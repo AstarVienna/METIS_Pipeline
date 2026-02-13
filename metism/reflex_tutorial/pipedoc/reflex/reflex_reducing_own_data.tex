@@ -1,0 +1,133 @@
+\section{Reducing your own data}\label{sec:owndataset} 
+
+In this section we describe how to reduce your own data set.
+
+First, we suggest the reader to familiarize with the workflow by
+reducing the demo dataset first (Section \ref{sec:quick_start}), but
+it is not a requirement.
+
+
+\subsection{The {\tt esoreflex} command}\label{sec:esoreflex_command}
+
+We list here some options associated to the \reflex\ command. We
+recommend to try them to familiarize with the system.  In the
+following, we assume the \reflex\ executable is in your path; if not
+you have to provide the full path {\tt <install\_dir>/bin/esoreflex}
+
+To see the available options of the \reflex\ command type:
+\begin{verbatim}
+esoreflex -h
+\end{verbatim}
+The output is the following.
+\begin{verbatim}
+-h | -help             print this help message and exit.
+-v | -version          show installed Reflex version and pipelines and exit.
+-l | -list-workflows   list available installed workflows and from 
+                       ~/KeplerData/workflows.
+-n | -non-interactive  enable non-interactive features.
+-e | -explore          run only the Product Explorer in this workflow
+-p <workflow> | -list-parameters <workflow>
+                       lists the available parameters for the given 
+                       workflow.
+-config <file>         allows to specify a custom esoreflex.rc configuration 
+                       file.
+-create-config <file>  if <file> is TRUE then a new configuration file is 
+                       created in ~/.esoreflex/esoreflex.rc. Alternatively 
+                       a configuration file name can be given to write to. 
+                       Any existing file is backed up to a file with a '.bak' 
+                       extension, or '.bakN' where N is an integer.
+-debug                 prints the environment and actual Reflex launch 
+                       command used.
+\end{verbatim}
+
+
+
+\subsection{Launching the workflow}\label{sec:setup}
+
+We list here the recommended way to reduce your own datasets. Steps 1
+and 2 are optional and one can start from step 3.
+
+\begin{enumerate}
+
+\item Type: {\tt esoreflex -n <parameters>} \wkfname\ to launch the
+  workflow non interactively and reduce all the datasets with default
+  parameters.
+
+  {\tt <parameters>} allows you to specify the workflow parameters,
+  such as the location of your raw data and the final destination of
+  the products.
+
+  For example, type (in a single command line):
+
+{\tt esoreflex -n \\
+\indent ~ -RAW\_DATA\_DIR /home/user/my\_raw\_data \\
+\indent ~ -ROOT\_DATA\_DIR /home/user/my\_reduction \\
+\indent ~ -END\_PRODUCTS\_DIR \$ROOT\_DATA\_DIR/reflex\_end\_products \\
+\indent ~ }\wkfn\
+
+to reduce the complete datasets that are present in the directory {\tt
+  /home/user/my\_raw\_data} and that were not reduced before. Final
+products will be saved in  {\tt
+  /home/user/my\_reduction/reflex\_ end\_products}, while book keeping,
+temporary products, and logs will be saved in sub-directories of {\tt
+  /home/user/my\_reduction/}. If the reduction of a dataset fails, the
+reduction continues to the next dataset. It can take some time,
+depending on the number of datasets present in the input directory.
+For a full list of workflow parameters type {\tt esoreflex -p}
+\wkfname. Note that this command lists only the parameters, but does not
+launch the workflow.
+
+Once the reduction is completed, one can proceed with optimizing the
+results with the next steps.
+
+
+\item Type:
+
+{\tt esoreflex -e} \wkfn\
+
+to launch the Product Explorer. The Product Explorer allows you to
+inspect the data products already reduced by the \wkfname\ \reflex\
+workflow. Only products associated with the workflow default
+bookkeeping database are shown. To visualize products associated to
+given bookkeeping database, pass the full path via the {\tt
+  BOOKKEEPING\_DB} parameter:
+
+
+{\tt esoreflex -e BOOKKEEPING\_DB <database\_path>} \wkfn\
+
+to point the product explorer to a given {\tt <database\_path>}, e.g., {\tt /home/username/reflex/ reflex\_bookkeeping/test.db}
+
+The Product Explorer allows you to inspect the products while the
+reduction is running. Press the button \fbox{\tt Refresh} to update
+the content of the Product Explorer.  This step can be launched in parallel to step 1.
+
+A full description of the Product Explorer will be given in Section \ref{sec:product_explorer}
+
+\item
+Type: 
+
+{\tt esoreflex } \wkfn\ {\tt \&}
+
+to launch the \wkfname\ \reflex\ workflow.  The \wkfname\ workflow
+window will appear (Fig.~\ref{fig:pipe_wkf_layout}). Please configure the
+set-up directories {\tt ROOT\_DATA\_DIR}, {\tt RAW\_DATA\_DIR}, and
+other workflow parameters as needed. Just double-click on them, edit
+the content, and press \fbox{\tt OK}.  Remember to specify the same
+{\tt <database\_path>} as for the Product Explorer, if it has been
+opened at step \#2, to synchronize the two processes.
+
+\item (Recommended, but not mandatory) On the main \reflex\ menu set
+  {\tt Tools} --> {\tt Animate at Runtime} to 1 in order to highlight
+  in red active actors during execution.
+
+\item Press the button
+  \includegraphics[width=0.5cm,height=0.5cm]{reflex_run_button.png} to
+  start the workflow. First, the workflow will highlight and execute
+  the {\tt Initialise} actor, which among other things will clear any
+  previous reductions if required by the user (see
+  Section~\ref{sec:wkf_canvpar}). Secondly, if set, the workflow will
+  open the Product Explorer, allowing the user to inspect previously
+  reduced datasets (see Section \ref{sec:product_explorer} for how to
+  configure this option).
+\end{enumerate}
+ 

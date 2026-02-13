@@ -1,0 +1,55 @@
+\section{Efficiency Calculation}
+\label{chap:algorithms:efficiency}
+
+\subsection{Introduction}
+In order to determine the efficiency of an instrument (including
+telescope and detector) spectrophotometric standard stars are observed
+on photometric nights and with setups that collect as much as possible
+(e.g. wide slits for slit spectrographs). After correcting for atmopsheric
+effects, photon energy, and mirror collecting 
+area the ratio between the observed spectrum and the reference
+spectrum of the standard star will provide the efficiency of the system.
+
+The observed spectra of the standard
+stars are first corrected for atmospheric effects:
+\begin{enumerate}
+\item The continuous {\em atmospheric extinction} is usually corrected
+  with a standard extinction curve obtained for a given observatory,
+  scaled with the airmass of the observation. During non-photometric
+  conditions the actual extinction may be higher than the one
+  tabulated in the extinction curve. The impact of this correction
+  decreases with increasing wavelength. 
+\item Wavelength above about 600\,nm\footnote{Ozone absorption affects
+    the bluest part of ground-based data at about 310--330\,nm, but these are
+    noticeable only in high S/N data.} are affected by {\em telluric
+    absorption lines}. If these are not corrected the efficiency
+  will contain a mixture of instrument response and atmospheric
+  response, especially if the reference spectra are free from telluirc
+  lines (space-based data or model spectra). Reference spectra for
+  many standard stars used for ESO instruments (e.g. UVES, FORS2,
+  VIMOS) contain telluric lines
+  (e.g. \cite{Hamuy+92,Hamuy+94}). For such reference spectra a
+  telluric correction of the observed spectra is useless and one
+  should instead interpolate the efficiency across the regions of
+  significant telluric absorption.
+\end{enumerate}
+
+Possibly the wavelength scale between the observed standard star
+spectrum and the reference one needs to be aligned, either to correct
+differences in radial velocity between the observed and the reference
+spectrum in case of model spectra (e.g. X-shooter, SINFONI) and/or to
+correct shifts introduced by imprecise positioning of the flux
+standard star in the slit (e.g. VIMOS). If the differences in
+wavelength become significant for a given resolution the division of
+the reference spectrum by the observed one will create pseudo-P\,Cyg
+prodiles, which may distort the efficiency.
+
+These requirements results in the algorithmic steps described in
+Sect.\,\ref{efficiency:main}.
+
+\subsection{Testing}
+Once the response determination has been implemented in HDRL and
+incorporated in the SINFONI pipeline QCG tested it by comparing the
+resulting values to the SPIFFI commissioning report
+(VLT-TRE-MPE-14720-8003) and found good agreement. The efficiency is
+trended at \url{http://www.eso.org/observing/dfo/quality/SINFONI/reports/HEALTH/trend_report_EFFICIENCY_HC.html}

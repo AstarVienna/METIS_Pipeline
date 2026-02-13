@@ -1,0 +1,70 @@
+
+
+\subsubsection{DataSetChooser}
+ \label{sec:dataset_chooser}
+
+
+ The {\tt DataSetChooser} displays the DataSets available in the
+ ``Select Data Sets'' window, activating vertical and horizontal
+ scroll bars if necessary (Fig.~\ref{fig:reflex_select_data_sets}). 
+
+ Some properties of the DataSets are displayed: the name, the number
+ of files, a flag indicating if it has been successfully reduced (a
+ green OK), if the reduction attempts have failed or were aborted (a
+ red FAILED), or if it is a new dataset (a black "-"). The column
+ "Descriptions" lists user-provided descriptions (see below), other
+ columns indicate the instrument set-up and a link to the night log.
+
+
+ Sometimes you will want to reduce a subset of these DataSets rather
+ than all DataSets, and for this you may individually select (or
+ de-select) DataSets for processing using the tick boxes in the first
+ column, and the buttons \fbox{\tt Deselect All} and \fbox{\tt Select
+   Complete} at the bottom, or configure the ``Filter'' field at the
+ bottom left. Available filter options are: "New" (datasets not
+ previously reduced will be selected), "Reduced" (datasets previously
+ reduced will be selected), "All" (all datasets will be selected), and
+ "Failed" (dataset with a failed or aborted reduction will be
+ selected).
+
+
+ You may also highlight a single DataSet in blue by clicking on the
+ relevant line. If you subsequently click on \fbox{\tt Inspect
+   Highlighted}, then a ``Select Frames'' window will appear that
+ lists the set of files that make up the highlighted DataSet including
+ the full filename\footnote{keep the mouse pointer on the file
+   name to visualize the full path name.}, the file category
+ (derived from the FITS header), and a selection tick box in the right
+ column. The tick boxes allow you to edit the set of files in the
+ DataSet which is useful if it is known that a certain calibration
+ frame is of poor quality (e.g: a poor raw flat-field frame).  The
+ list of files in the DataSet may also be saved to disk as an {\tt
+   ASCII} file by clicking on \fbox{\tt Save As} and using the file
+ browser that appears.
+
+  By clicking on the line corresponding to a particular file in the
+  ``Select Frames'' window, the file will be highlighted in blue, and
+  the file FITS header will be displayed in the text box on the right,
+  allowing a quick inspection of useful header keywords.  If you then
+  click on \fbox{\tt Inspect}, the workflow will open the file in the
+  selected FITS viewer application defined by the workflow parameter
+  {\tt FITS\_VIEWER}.
+
+To exit from the ``Select Frames'' window, click \fbox{\tt Continue}.
+
+To add a description of the reduction, press the button \fbox{\tt ...}
+associated with the field "Add description to the current execution
+  of the workflow" at the bottom right of the Select Dataset Window; a
+  pop up window will appear. Enter the desired description (e.g. "My
+  first reduction attempt") and then press \fbox{\tt OK}.
+  In this way, all the datasets reduced in this execution, will be
+  flagged with the input description. Description flags can be
+  visualized in the {\tt SelectFrames} window and in the {\tt ProductExplorer},
+  and they can be used to identify different reduction strategies.
+
+
+To exit from the ``Select DataSets'' window, click either \fbox{\tt Continue}
+in order to continue with the workflow reduction, or \fbox{\tt Stop} in
+order to stop the workflow.
+
+

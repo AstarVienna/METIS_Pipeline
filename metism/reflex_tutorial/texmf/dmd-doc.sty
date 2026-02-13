@@ -1,0 +1,279 @@
+%%
+%% This is file `dmd-doc.sty'
+%%
+%% dmd-doc.sty Copyright (C) 1998-2015 Ralf Palsa
+%%
+%% This file provides a LaTeX style for the standard Very Large Telescope
+%% (VLT) project documentation compliant to the specifications for documents
+%% of the European Southern Observatory (ESO).
+%%  
+%% This program can be used, distributed, and modified under the terms
+%% of the LaTeX Project Public License.
+%% 
+\RequirePackage{epsfig}
+\RequirePackage{fancyhdr}
+\RequirePackage{lastpage}
+\RequirePackage{times}
+\RequirePackage{helvet}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\newif\if@dmddraft
+\newif\if@dmdreview
+\newif\if@dmdexternal
+\newif\if@openright
+
+\def\@dmddocpolicy{}
+
+\DeclareOption{public}{\def\@dmddocpolicy{public}}
+\DeclareOption{draft}{\@dmddrafttrue}
+\DeclareOption{review}{\@dmdreviewtrue}
+\DeclareOption{external}{\@dmdexternaltrue}
+\DeclareOption{openright}{\@openrighttrue}
+\DeclareOption{openany}{\@openrightfalse}
+\ProcessOptions
+
+\newlength\LogoWidth
+\newlength\LogoHeight
+\newlength\VLTheadWidth
+
+\setlength{\LogoHeight}{2.25cm}
+\setlength{\LogoWidth}{0.8\LogoHeight}
+\setlength{\VLTheadWidth}{\linewidth minus \LogoWidth}
+
+\setlength{\topmargin}{-1.5cm}
+
+\setlength{\textheight}{21.8cm}
+\setlength{\textwidth}{17.1cm}
+\setlength{\headwidth}{\textwidth}
+\setlength{\headheight}{1.5\LogoHeight}
+
+\setlength{\oddsidemargin}{-3.0mm}
+\setlength{\evensidemargin}{-3.0mm}
+\setlength{\marginparwidth}{1.4cm}
+\setlength{\marginparsep}{1.0mm}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5ex plus 0.1ex minus 0.1ex}
+
+\def\@dmdPreparedBy{}
+\def\@dmdPreparedOn{}
+\def\@dmdApprovedBy{}
+\def\@dmdApprovedOn{}
+\def\@dmdReleasedBy{}
+\def\@dmdReleasedOn{}
+\def\@dmdValidatedBy{}
+\def\@dmdValidatedOn{}
+
+\def\dmdProgram#1{\gdef\@dmdProgram{#1}}
+\def\dmdProject#1{\gdef\@dmdProject{#1}}
+\def\dmdTitle#1{\gdef\@dmdTitle{#1}}
+\def\dmdDocId#1{\gdef\@dmdDocId{#1}}
+\def\dmdDocType#1{\gdef\@dmdDocType{#1}}
+\def\dmdDocVersion#1{\gdef\@dmdDocVersion{#1}}
+\def\dmdDocDate#1{\gdef\@dmdDocDate{#1}}
+
+\def\dmdPreparedBy#1{\gdef\@dmdPreparedBy{#1}}
+\def\dmdPreparedOn#1{\gdef\@dmdPreparedOn{#1}}
+\def\dmdValidatedBy#1{\gdef\@dmdReleasedBy{#1}}
+\def\dmdValidatedOn#1{\gdef\@dmdReleasedBy{#1}}
+\def\dmdApprovedBy#1{\gdef\@dmdApprovedBy{#1}}
+\def\dmdApprovedOn#1{\gdef\@dmdApprovedOn{#1}}
+\def\dmdReleasedBy#1{\gdef\@dmdReleasedBy{#1}}
+\def\dmdReleasedOn#1{\gdef\@dmdReleasedOn{#1}}
+
+\ifx\@dmddocpolicy\empty
+  \def\@dmdDocPolicy{ESO internal}
+  \fancyfoot[L]{%
+    Document Classification: \@dmdDocPolicy
+  }
+  \fancyfoot[CR]{}
+\else
+  \def\@dmdDocPolicy{Public}
+  \fancyfoot{}
+\fi
+
+\fancyhead{}
+\fancyhead[C]{%
+  \setlength{\tabcolsep}{0.125cm}
+  \begin{tabular}{p{1.5cm}p{9.575cm}p{2.55cm}p{2.55cm}}
+    \multirow{4}{1.5cm}{%
+      %\centering{\textbf{\Large ESO}}
+      %\centering{\psfig{file=figures/muse-logo,width=1.25cm}}
+      \centering{\psfig{file=figures/eso-logo-p3005cmyk,width=1.5cm}}
+      } &
+    \multirow{4}{9.375cm}{%
+      \centering{\Large \@dmdTitle}
+      } & Doc.\ Number:\rule[1ex]{0pt}{1.1ex} &
+    \hspace*{\fill}\@dmdDocId                     \\
+    & & Doc.\ Version:\rule[1ex]{0pt}{1.1ex} &
+    \hspace*{\fill}\@dmdDocVersion                \\
+    & & Released on:\rule[1ex]{0pt}{1.1ex}  &
+    \hspace*{\fill}\@dmdDocDate                   \\
+    & & Page:\rule[1ex]{0pt}{1.1ex}  &
+    \hspace*{\fill}\thepage\ of \pageref{LastPage}\\[1.0ex]
+    \hline
+  \end{tabular}
+  }
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\pagestyle{fancy}
+
+\@addtoreset{figure}{section}
+\renewcommand{\thefigure}{
+  \ifnum \c@section>\z@ \thesection.\fi \@arabic\c@figure
+}
+
+\@addtoreset{table}{section}
+\renewcommand{\thetable}{
+  \ifnum \c@section>\z@ \thesection.\fi \@arabic\c@table
+}
+
+\newcommand{\VLThead}{%
+  \vspace*{-\headheight}
+  \vspace*{-\headsep}
+  \vspace*{-\topskip}
+  \hbox{%
+    \parbox{\LogoWidth}{%
+      \psfig{file=figures/eso-logo-p3005cmyk,width=\LogoWidth,height=\LogoHeight}}
+%    \raisebox{0.15\LogoHeight}{%
+%      \hspace*{0.05\VLTheadWidth}
+%      \parbox{\VLTheadWidth}{%
+%        \begin{center}
+%          \begin{footnotesize}
+%            \begin{tabular*}{\VLTheadWidth}{%
+%                p{0.3\VLTheadWidth}p{0.35\VLTheadWidth}p{0.3\VLTheadWidth}}
+%              European Organisation & Organisation Europ\'{e}enne & 
+%              Europ\"aische Organisation \\
+%              for Astronomical & pour des Recherches &
+%              f\"ur astronomische \\
+%              Research in the & Astronomiques &
+%              Forschung in der \\
+%              Southern Hemisphere & dans l'H\'{e}misph\`{e}re Austral &
+%              s\"udlichen Hemisph\"are \\
+%            \end{tabular*}
+%          \end{footnotesize}
+%        \end{center}}}
+    \hspace*{\fill}
+    \raisebox{0.425\LogoHeight}[\LogoHeight][0pt]{%
+      \hspace*{0.025\VLTheadWidth}
+      \begin{normalsize}
+        European Organisation for Astronomical Research in the Southern Hemisphere
+      \end{normalsize}}
+    }
+    \hspace*{\fill}
+    \vspace{0.5cm}
+  \par}
+
+\newcommand{\dmdsignature}{%
+  \tabular{ll}
+   \rule{4.8em}{0pt} & \rule{12.5cm}{0pt} \\
+   Prepared by:      & {\hspace*{0.5em}\@dmdPreparedBy} \\[1cm]
+   Validated by:     & {\hspace*{0.5em}\@dmdApprovedBy} \\[1cm]
+   Approved by:      & {\hspace*{0.5em}\@dmdReleasedBy}  \\[1.5ex]
+                     & {\hspace*{0.5em}\small Name} \\
+  \endtabular}
+
+\newcommand{\emptypage}[1]{%
+  \newpage
+  \thispagestyle{empty}
+  \vspace*{\fill}\par
+  \begin{center}
+    #1
+  \end{center}
+  \vspace*{\fill}
+  \clearpage}
+
+\newcommand{\dmdmaketitle}{%
+  \begin{titlepage}
+    \setlength{\topmargin}{-1.0cm}
+    \setlength{\topsep}{0pt}
+
+    \setlength{\oddsidemargin}{-3.0mm}
+    \setlength{\evensidemargin}{-3.0mm}
+    \setlength{\marginparwidth}{1.4cm}
+    \setlength{\marginparsep}{1.0mm}
+
+    \setlength{\parindent}{0pt}
+
+    \thispagestyle{empty}
+    
+    \begin{sffamily}
+      \VLThead
+      \vspace*{\fill}
+      \begin{center}
+        \normalsize
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Programme:} \@dmdProgram\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Project/WP:} \@dmdProject\end{center}}\par
+        \vspace{1.0cm}
+        \parbox{9.5cm}{\begin{center}\textbf{\huge\@dmdTitle}\end{center}}\par
+        \vspace{1.0cm}        
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Document Number:} \@dmdDocId\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Document Version:} \@dmdDocVersion\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{%
+          \begin{center}\textbf{Document Type:} \@dmdDocType\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{\begin{center}\textbf{Released on:} \@dmdDocDate\end{center}}\par
+        \vspace{0.5cm}
+        \parbox{9.5cm}{\begin{center}\textbf{Document Classification:} \@dmdDocPolicy\end{center}}\par
+        \vspace*{\fill}
+        \if@dmddraft
+        \vskip0.75cm
+        \textbf{\Large -- DRAFT -- }\par
+        \vskip0.5cm
+        \if@dmdreview
+        \if@dmdexternal
+        \textbf{\Large -- DISTRIBUTED FOR REVIEW ONLY --}\par
+        \else
+        \textbf{\Large -- DISTRIBUTED FOR INTERNAL REVIEW --}\par
+        \fi
+        \fi
+        \vskip1.0cm
+        \else
+        \vskip2.5cm
+        \fi
+        \vspace*{\fill}
+        \dmdsignature
+      \end{center}
+      \vspace*{1.75cm}
+      \hrule
+      \begin{center}
+        \begin{small}
+          ESO -- Karl-Schwarzschild-Str.\ 2 -- 85748 Garching bei M\"unchen
+          -- Germany \\
+          www.eso.org
+        \end{small}
+      \end{center}
+    \end{sffamily}
+  \end{titlepage}
+}
+
+\renewcommand{\section}{%
+  \if@openright\cleardoublepage\else\clearpage\fi
+  \@startsection {section}{1}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}%
+  {2.3ex \@plus.2ex}%
+  {\normalfont\Large\bfseries}}
+
+\newcounter{docref}
+\newcommand{\docref}[3]{\refstepcounter{docref}\label{#1}
+{\begin{tabular}{p{7mm}p{75mm}l}[\thedocref]& #3 &{\tt #2}\end{tabular}\\}}
+
+\def\thebibliography#1{\section*{}\list
+ {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus .07em}
+ \sloppy\clubpenalty4000\widowpenalty4000
+ \sfcode`\.=1000\relax}
+\let\endthebibliography=\endlist
+
+%%% End of dmd-title.sty

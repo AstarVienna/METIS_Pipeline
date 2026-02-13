@@ -1,0 +1,91 @@
+\subsection{General Objects and Utilities}
+
+\subsubsection{Image Region}
+
+hdrl\_rect\_t is a structure containing 4 numbers (llx, lly, urx, ury)
+defining an image rectangular region. Coordinates are following the FITS
+convention, i.e start with 1.
+
+\subsubsection{Direction}
+
+hdrl\_direction can be used to specify the 2 images directions
+HDRL\_X\_AXIS and HDRL\_Y\_AXIS corresponding to the FITS directions
+NAXIS1 and NAXIS2.
+
+
+\subsubsection{Sigma-Clipping}
+\label{sigma-clipping:algo}
+
+\begin{comment}
+
+\begin{verbatim}
+cpl_error_code hdrl_kappa_sigma_clip(
+        const cpl_vector  * vec,
+        const cpl_vector  * vec_err,
+        const double        kappa_low,
+        const double        kappa_high,
+        const int           iter,
+        double            * mean_ks,
+        double            * mean_ks_err,
+        cpl_size          * naccepted,
+        double            * reject_low,
+        double            * reject_high)
+\end{verbatim}
+
+\paragraph{Inputs}
+\paragraph{Outputs}
+\paragraph{Algorithm}
+\end{comment}
+
+The sigma-clipping is applied on a vector data ({\it vec}). An error
+vector ({\it vec\_err}) is also passed for the error computation.
+
+An iterative process of rejection of the outlier elements of {\it vec} is 
+applied. {\it iter} specifies the maximum number of iterations.
+At each iteration, the median and sigma values of the vector are computed and 
+used to derive low and high thresholds ($median-kappa\_low \times sigma$ 
+and $median+kappa\_low \times sigma$). The values of {\it vec} outside those
+bounds are rejected and the remaining values are passed to the next
+iteration.
+
+The sigma-clipping function produces the following quantities: {\it mean\_ks}, 
+{\it mean\_ks\_err}, {\it naccepted}, {\it reject\_low} and {\it reject\_high}.
+
+The mean value of the remaining elements is stored into {\it mean\_ks}.
+{\it mean\_ks\_err} contains $\frac{\sum_i{val_i^{2}}}{N}$ where $val_i$
+are the remaining elements of {\it vec\_err} and $N$ the number of
+those elements. The $N$ value is stored in {\it naccepted}.
+
+{\it reject\_low} and {\it reject\_high} are the final thresholds
+differentiating the rejected pixels from the others.
+
+The iterative process is illustrated in Figure~\ref{fig:sigclip}.
+
+\putgraph{18}{sigclip_algorithm.png}{sigclip}{Sigma-Clipping Algorithm description}
+  
+Note that the $\sigma$ used for the thresholding in the different iterations 
+is not the square root of the variance as one would expect, but an 
+estimation computed using the interquartile range (IQR) of the distribution. 
+More precisely, $\sigma = \frac{IQR}{1.349}$ 
+  
+This estimation of the standard deviation is only robust if the
+values obey a gaussian distribution. 
+
+As illustrated in figure~\ref{fig:iqr}, the IQR is the distance between the 
+upper and the lower quartiles of a distribution.
+
+\putgraph{10}{iqr.png}{iqr}{Interquartile Range (IQR) description}
+
+This estimation of the $\sigma$ tends to be better if the number of samples 
+is not too small, and if the distribution is gaussian. The plot in
+Figure~\ref{fig:iqrvsvariance} shows that for a low number of samples, 
+the error on the sigma estimation using the IQR method can be up to 30\%.
+
+\putgraph{10}{iqr_vs_variance.png}{iqrvsvariance}{IQR estimation error}
+
+
+However, an error of 30\% in the sigma estimation would only have 
+limited consequences as this would only impact the threshold for the good 
+pixels selections. The error on the final result would naturally be 
+drastically lower.
+

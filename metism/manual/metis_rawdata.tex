@@ -1,0 +1,30 @@
+\section{\instrument{} Data Description}
+\label{sec:raw-data}
+
+\red{\textit{Description of the different raw frames processed by the
+    pipeline, including data classification and association keywords (cf. example)}}
+
+\subsection{Bias}
+
+Frame tag: \texttt{BIAS} \\
+Processed by: \texttt{metis\_mbias}
+
+\begin{tabularx}{\linewidth}{|X|X|X|}
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Classification Keywords}} &
+  \multicolumn{1}{l|}{\textbf{Association Keywords}} &
+  \multicolumn{1}{l|}{\textbf{Remarks}} \\
+  \hline
+  \tbspa
+  \texttt{DPR.CATG = CALIB} &
+  \texttt{DET.CHIP.ID} & Detector chip identification \\
+  \texttt{DPR.TYPE = BIAS}  &
+  \texttt{SEQ.ARM} & Spectrograph identification \\
+  &
+  \texttt{DET.READ.CURID} & Detector read-out mode
+  \tbspb\\
+  \hline
+\end{tabularx}
+\label{tab:bias-keywords}
+
+An example is shown in \tabref{tab:bias-keywords}.

@@ -1,0 +1,119 @@
+\section{Recipe Reference} 
+\label{sec:recipes-reference}
+
+\red{\textit{Recipe reference with detailed description of input frames,
+    parameters products and provided QC information (see example below).}}
+
+\subsection{metis\_mbias}
+\label{sec:metis_mbias}
+
+\subsubsection{Description}
+
+
+\subsubsection{Input Frames}
+
+\begin{longtable}{@{\extracolsep{\fill}}|p{0.35\linewidth}|p{0.1\linewidth}|p{0.1\linewidth}|p{0.35\linewidth}|}
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Frame Tag}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Type}} &
+  \multicolumn{1}{l|}{\textbf{Count}} &
+  \multicolumn{1}{l|}{\textbf{Description}}\tbspb \\
+  \hline
+  \endfirsthead
+  \hline
+  \multicolumn{4}{|l|}{continued from previous page}\\
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Frame Tag}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Type}} &
+  \multicolumn{1}{l|}{\textbf{Count}} &
+  \multicolumn{1}{l|}{\textbf{Description}}\tbspb \\
+  \hline
+  \endhead
+  \hline
+  \multicolumn{4}{|r|}{continued on next page}\\
+  \hline
+  \endfoot
+  \hline
+  \endlastfoot
+  \tbspa
+  BIAS          & raw   & 3 (min) &
+  Raw bias \\
+  BAD\_PIXEL\_TABLE & calib & 1 (opt) &
+  Table of a priori known bad pixel locations
+  \tbspb\\
+\end{longtable}
+
+
+\subsubsection{Product Frames}
+
+\begin{longtable}{@{\extracolsep{\fill}}|p{0.35\linewidth}|p{0.2\linewidth}|p{0.35\linewidth}|}
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Default File Name}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Frame Tag}} &
+  \multicolumn{1}{l|}{\textbf{Description}}\tbspb \\
+  \hline
+  \endfirsthead
+  \hline
+  \multicolumn{3}{|l|}{continued from previous page}\\
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Default File Name}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Frame Tag}} &
+  \multicolumn{1}{l|}{\textbf{Description}}\tbspb \\
+  \hline
+  \endhead
+  \hline
+  \multicolumn{3}{|r|}{continued on next page}\\
+  \hline
+  \endfoot
+ \hline
+ \endlastfoot
+ \tbspa
+ master\_bias.fits     & MASTER\_BIAS     & Master bias frame \\
+ bad\_pixel\_mask.fits & BAD\_PIXEL\_MASK & Bad pixel mask
+ \tbspb\\
+\end{longtable}
+
+
+\subsubsection{Quality Control Parameters}
+
+\begin{longtable}{@{\extracolsep{\fill}}p{0.25\linewidth}p{0.65\linewidth}}
+  \texttt{QC.BIAS.MASTER.AVG} & Average pixel value of the master bias frame \\
+  \texttt{QC.BIAS.MASTER.MED} & Median pixel value of the master bias frame \\
+  \texttt{QC.BIAS.MASTER.RMS} & RMS of the master bias frame \\
+\end{longtable}
+
+
+\subsubsection{Recipe Parameters}
+
+\begin{longtable}{@{\extracolsep{\fill}}|p{0.35\linewidth}|p{0.1\linewidth}|p{0.1\linewidth}|p{0.35\linewidth}|}
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Parameter}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Type}} &
+  \multicolumn{1}{l|}{\textbf{Values}} &
+  \multicolumn{1}{l|}{\textbf{Description}}\tbspb \\
+  \hline
+  \endfirsthead
+  \hline
+  \multicolumn{4}{|l|}{continued from previous page}\\
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Parameter}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Type}} &
+  \multicolumn{1}{l|}{\textbf{Values}} &
+  \multicolumn{1}{l|}{\textbf{Description}}\tbspb \\
+  \hline
+  \endhead
+  \hline
+  \multicolumn{4}{|r|}{continued on next page}\\
+  \hline
+  \endfoot
+  \hline
+  \endlastfoot
+  \tbspa
+  stack-method & string & average, median, \textbf{\mbox{ksigma}} &
+  Stacking method \\
+  clip-low & double & \textbf{\mbox{3.}} &
+  Low sigma threshold for \textit{ksigma} pixel rejection method \\
+  clip-high & double & \textbf{\mbox{3.}} &
+  High sigma threshold for \textit{ksigma} pixel rejection method
+  \tbspb\\
+\end{longtable}

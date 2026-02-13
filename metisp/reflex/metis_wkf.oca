@@ -1,0 +1,43 @@
+if DPR.CATG like "%SCIENCE%" and DPR.TYPE like "%OBJECT%" then
+{
+  DO.CATG = "RRRECIPE_DOCATG_RAW";
+  REFLEX.CATG = "RRRECIPE_DOCATG_RAW";
+  REFLEX.TARGET = "T";
+}
+
+if DPR.CATG like "%CALIB%" and DPR.TECH like "%IMAGE%" and DPR.TYPE like "%STD%" then
+{
+  DO.CATG = "RRRECIPE_CALIB_DOCATG_RAW";
+  REFLEX.CATG = "RRRECIPE_CALIB_DOCATG_RAW";
+}
+
+if PRO.CATG like "%LINE_INTMON_TABLE%" then
+{
+  DO.CATG = "LINE_INTMON_TABLE";
+  REFLEX.CATG = "LINE_INTMON_TABLE";
+}
+
+
+select execute(ACTION_CALIB_IMG) from inputFiles where DO.CATG == "RRRECIPE_CALIB_DOCATG_RAW"
+  group by INS.FILT1.NAME, OBS.ID, OBS.NAME, OBS.TARG.NAME, TPL.START as (TPL_A,tpl);
+select execute(ACTION_COMBINE_IMG) from inputFiles where DO.CATG == "RRRECIPE_DOCATG_RAW"
+  group by METIS.SETUP,INS.FILT1.NAME, OBS.ID, OBS.NAME, OBS.TARG.NAME, TPL.START as (TPL_A,tpl);
+
+action ACTION_CALIB_IMG
+{
+
+recipe rrrecipe_calib;
+product IMG_CALIBRATED { REFLEX.CATG = "IMG_CALIBRATED"; PRO.CATG = "IMG_CALIBRATED"; PRO.EXT="tpl_0000.fits";}
+}
+
+action ACTION_COMBINE_IMG
+{
+minRet = 1; maxRet = 1;
+select file as IMG_CALIBRATED from calibFiles where PRO.CATG == "IMG_CALIBRATED";
+minRet = 1; maxRet = 1;
+select file as LINE_INTMON_TABLE from calibFiles where DO.CATG == "LINE_INTMON_TABLE" and inputFile.METIS.SETUP==METIS.SETUP;
+
+recipe rrrecipe;
+product IMG_OBJ_COMBINED { PRO.CATG = "IMG_OBJ_COMBINED"; PRO.EXT="tpl_0001.fits";}
+}
+
