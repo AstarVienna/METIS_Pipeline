@@ -22,8 +22,6 @@ from abc import ABC
 import cpl
 from cpl.core import Msg, Image
 
-from pymetis.classes.dataitems import DataItem
-from pymetis.classes.inputs import PipelineInput
 from pymetis.classes.inputs.common import MasterDarkInput
 from pymetis.classes.prefab.rawimage import RawImageProcessor
 

@@ -29,9 +29,8 @@ from pymetis.dataitems.lss.raw import LssRaw
 from pymetis.dataitems.lss.response import MasterResponse, StdTransmission
 from pymetis.dataitems.lss.science import LssSkyMap, LssObjMap
 from pymetis.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
-from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.synth import SynthTrans
-from pymetis.classes.inputs import RawInput, MasterDarkInput, \
+from pymetis.classes.inputs import RawInput, \
     SinglePipelineInput, FluxstdCatalogInput, MasterRsrfInput, PersistenceMapInput, BadPixMapInput, GainMapInput, \
     LinearityInput, AtmLineCatInput
 from pymetis.classes.prefab import DarkImageProcessor
@@ -44,9 +43,6 @@ class MetisLssStdImpl(DarkImageProcessor):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssRaw
-
-        class MasterDarkInput(MasterDarkInput):
-            pass
 
         class MasterRsrfInput(MasterRsrfInput):
             pass

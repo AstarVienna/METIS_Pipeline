@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 # TODO: Check the need for WCU_OFF frames!
 from pyesorex.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandNMixin
+from pymetis.classes.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.classes.prefab.lss.adc import MetisAdcSlitlossImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNAdcSlitlossImpl(BandNMixin, MetisAdcSlitlossImpl):
+class MetisNAdcSlitlossImpl(BandNMixin, DetectorGeoMixin, MetisAdcSlitlossImpl):
     class InputSet(MetisAdcSlitlossImpl.InputSet):
         pass
 
