@@ -25,8 +25,8 @@ from pymetis.classes.prefab.lss.adc import MetisAdcSlitlossImpl
 from pymetis.classes.recipes import MetisRecipe
 
 
-class MetisNAdcSlitlossImpl(MetisAdcSlitlossImpl):
-    class InputSet(BandNMixin, MetisAdcSlitlossImpl.InputSet):
+class MetisNAdcSlitlossImpl(BandNMixin, MetisAdcSlitlossImpl):
+    class InputSet(MetisAdcSlitlossImpl.InputSet):
         pass
 
 

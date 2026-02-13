@@ -70,7 +70,7 @@ class SinglePipelineInput(PipelineInput):
             self.item = self.Item.load(self.frame)
             self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
 
-    def load_data(self, extension: str = None) -> Image | Table:
+    def load_data(self, extension: str = None) -> Union[Image, Table]:
         self.load_structure()
 
         Msg.info(self.__class__.__qualname__,
