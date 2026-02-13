@@ -1,6 +1,18 @@
 # Skip vscode setting
 .vscode
 
+# Claude Code
+.claude
+
+# Pytest cache
+.pytest_cache
+
+# pyesorex log output
+pyesorex.log
+
+# EDPS output (generated at runtime)
+METIS/
+
 # Cache files and directory
 __pycache__
 
