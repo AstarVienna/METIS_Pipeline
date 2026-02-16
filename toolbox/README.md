@@ -5,6 +5,23 @@ METIS pipe line is the data reduction software for ELT early science instrument 
 
 See [`README.md`](../metisp) for manual installation of the pipeline.
 
+## Installation via UV
+
+Clone the installation script and run it
+
+```
+git clone https://github.com/eiseleb47/metis-meta-package.git
+cd metis-meta-package/
+./bootstrap.sh
+```
+
+select `y` to install the pipeline and optionally select to run some simulations for simulated data. Then run use the UV run command to execute pipeline commands...
+
+```
+uv run --env-file .env pyesorex --recipes
+uv run --env-file .env edps -P 4444 -s
+```
+
 ## Installation via Docker
 
 Follow the installation instructions for [Docker Engine](https://docs.docker.com/engine/install/)
