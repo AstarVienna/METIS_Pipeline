@@ -1,0 +1,53 @@
+"""
+This file is part of the METIS Pipeline.
+Copyright (C) 2024 European Southern Observatory
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+"""
+
+from typing import Optional, Any
+
+import cpl
+
+from pymetis.core.param import Parametrizable
+
+
+class QcParameter(Parametrizable):
+    _name: str = None
+    _class: str = None
+    _type: cpl.core.Type = cpl.core.Type.UNSPECIFIED
+    _description: str = "Mean level of the frame"
+    _comment: Optional[str] = None
+
+    def __init__(self, value: Any):
+        assert isinstance(value, self._type), \
+            f"{self.__class__.__qualname__} expected a {self._type} value, but got {value} ({type(value)}) instead"
+        self._value = value
+
+    @property
+    def value(self) -> Any:
+        return self._value
+
+    @classmethod
+    def _extended_description_line(cls) -> str:
+        """
+        Return a formatted description line for the man page.
+
+        """
+        # [5:] is there to get rid of "Type." prefix
+        return f"    {cls._name:<23s} {f'{cls._type}'[5:]:<14s} {cls._description}"
+
+    def as_property(self) -> cpl.core.Property:
+        return cpl.core.Property(self._name, self._type, self.value, self._description)
