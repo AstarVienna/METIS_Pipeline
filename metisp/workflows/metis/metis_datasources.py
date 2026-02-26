@@ -68,13 +68,13 @@ detlin_geo_raw = (data_source()
 
 dark_geo_raw = (data_source()
             .with_classification_rule(dark_geo_raw_class)
-            .with_grouping_keywords(["instrume","tpl.start"])
-            .with_match_keywords(["instrume","det.dit","det.ndit"])
+            #.with_grouping_keywords(["instrume","tpl.start"])
+            .with_match_keywords(["instrume"])
             .build())
 
 n_flat_lamp_raw = (data_source()
             .with_classification_rule(n_flat_lamp_raw_class)
-            .with_grouping_keywords(["instrume","tpl.start"])
+            #.with_grouping_keywords(["instrume","tpl.start"])
             .with_match_keywords(["instrume"])
             .build())
 
