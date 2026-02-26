@@ -1,0 +1,62 @@
+[project]
+name = "eso-pymetis"
+version = "0.1.0"
+description = "METIS pipeline"
+authors = [
+    {name = "martin.balaz@univie.ac.at"}
+]
+import-names = ["pymetis"]
+license = {text = "GPLv3"}
+readme = "README.md"
+requires-python = ">=3.11, <3.14"
+dependencies = [
+  "pycpl==1.0.3.post4",   # prefer ivh's re-packaged pycpl
+  "edps",
+  "pyesorex",
+  "adari_core",
+]
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.1,<10.0.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [
+    { include = "pymetis", from = "src" },
+]
+
+[tool.poetry.dependencies]
+pycpl = { version = "1.0.3.post4", source = "ivh" }
+pyesorex = { source = "eso" }
+edps = { source = "eso" }
+adari_core = { source = "eso" }
+
+[[tool.poetry.source]]
+name = "eso"
+url = "https://ftp.eso.org/pub/dfs/pipelines/repositories/stable/src"
+priority = "explicit"
+
+[[tool.poetry.source]]
+name = "ivh"
+url = "https://ivh.github.io/pycpl/simple/"
+priority = "explicit"
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers"
+markers = [
+    "edps: marks EDPS tests that usually take a long time (deselect with '-m \"not edps\"')",
+    "inputset: marks tests related to `InputSet`",
+    "external: marks test that require external data (usually from simulations)",
+    "dataitem: marks tests related to data items",
+    "product: marks tests related to `PipelineProduct`",
+    "recipe: marks tests related to `MetisRecipe` or `MetisRecipeImpl`",
+    "config: marks global configuration tests",
+    "pyesorex: marks tests that depend on `pyesorex`",
+    "slow: marks tasts with full-size data",
+    "metadata: marks tests that verify recipe metadata",
+]

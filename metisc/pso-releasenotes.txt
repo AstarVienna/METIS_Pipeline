@@ -1,0 +1,26 @@
+RELEASE NOTES for METIS pipeline 0.1.12
+----------------------------------------------
+
+==> DFS COMPONENT NAME: METIS pipeline
+
+==> DFS COMPONENT RELEASE NUMBER: 0.1.0
+
+==> DFS RELEASE TYPE: Example release for testing
+
+==> DELIVERED BY: Firstname Lastname ON: 2020-10-01
+
+==> MAIN REASON OF THE DELIVERY: Template pipeline for development/testing
+
+==> DEADLINE FOR DELIVERY OUTSIDE DFS GROUP:
+
+==> CONFIGURATION REQUIRED FOR INTEGRATION TESTS:
+
+    - Standard VLT pipeline workstation.
+
+    - (Further details to be filled in here in point form.)
+
+==> COMPLETE LIST OF ACTION ITEMS/PROBLEMS REPORTS ADDRESSED BY THIS RELEASE:
+
+    - (Details to be filled in here in point form.)
+
+==> COMPLETE LIST OF ACTION ITEMS/PROBLEMS REPORTS WHICH ARE NOT SOLVED YET:

@@ -1,0 +1,86 @@
+\section{The \instname \ Workflow \label{sec:wkf_general_desc}}
+
+The \instname\,  workflow canvas is organised into a number of areas.
+From top-left to top-right you
+will find general workflow instructions, directory parameters, and
+global parameters.  In the middle row you will find five boxes
+describing the workflow general processing steps in order from left to
+right, and below this the workflow actors themselves are organised
+following the workflow general steps. 
+
+\subsection{Workflow Canvas Parameters \label{sec:wkf_canvpar}}
+
+The workflow canvas displays a number of parameters that may be set by
+the user. Under ``Setup
+Directories'' the user is only required to set the {\tt
+  RAW\_DATA\_DIR} to the working directory for the dataset(s) to be
+reduced, which, by default, is set to the directory containing the
+demo data. The {\tt RAW\_DATA\_DIR}
+is recursively scanned by the {\tt Data Organiser} actor for input raw
+data. The directory {\tt CALIB\_DATA\_DIR}, which is by default within the
+pipeline installation directory, is also scanned by the {\tt Data
+  Organiser} actor to find any static calibrations that may be missing
+in your dataset(s).  If required, the user may edit the directories
+{\tt BOOKKEEPING\_DIR}, {\tt LOGS\_DIR}, {\tt TMP\_PRODUCTS\_DIR}, and
+{\tt END\_PRODUCTS\_DIR}, which correspond to the directories where
+book-keeping files, logs, temporary products and end products are
+stored, respectively (see the Reflex User Manual for further details;
+\cite{REFLEXMAN}).
+
+There is a mode of the {\tt Data Organiser} that skips the built-in
+data organisation and uses instead the data organisation provided by
+the CalSelector tool. To use this mode, click on {\tt Use CalSelector
+  associations} in the {\tt Data Organiser} properties and make sure
+that the input data directory contains the XML file downloaded with
+the CalSelector archive request (note that this does not work for all
+instrument workflows).
+
+Under the ``Global Parameters'' area of the workflow canvas, the user
+may set the {\tt FITS\_VIEWER} parameter to the command used for
+running his/her favourite application for inspecting FITS
+files. Currently this is set by default to {\tt fv}, but other
+applications, such as {\tt ds9}, {\tt skycat} and {\tt gaia} for
+example, may be useful for inspecting image data. Note that
+it is recommended to specify the full path to the visualization
+application (an alias will not work).
+
+By default the {\tt EraseDirs} parameter is set to {\tt false}, which
+means that no directories are cleaned before executing the workflow,
+and the recipe actors will work in Lazy Mode (see
+Section~\ref{sec:lazy_mode}), reusing the previous pipeline recipe outputs
+if input files and parameters are the same as for the previous
+execution, which saves considerable processing time. Sometimes it is
+desirable to set the {\tt EraseDirs} parameter to {\tt true}, which
+forces the workflow to recursively delete the contents of the
+directories specified by {\tt BOOKKEEPING\_DIR}, {\tt LOGS\_DIR}, and
+{\tt TMP\_PRODUCTS\_DIR}. This is useful for keeping disk space usage
+to a minimum and will force the workflow to fully re-reduce the data
+each time the workflow is run.
+
+The parameter {\tt RecipeFailureMode} controls the behaviour in case that
+a recipe fails. If set to {\tt Continue}, the workflow will trigger the next
+recipes as usual, but without the output of the failing recipe, which in most
+of the cases will lead to further failures of other recipes without the user
+actually being aware of it. This mode might be useful for unattended processing
+of large number of datasets. If set to {\tt Ask}, a pop-up window will ask
+whether the workflow should stop or continue. This is the default. 
+Alternatively, the {\tt Stop} mode will stop the workflow execution immediately.
+
+
+\ifx\reflexinteract\undefined
+\else
+The parameter {\tt GlobalPlotInteractivity} controls whether the interactive
+windows will appear for those windows which are {\sl enabled} by default.
+The possible values are {\tt true, false}.
+Take into account that some windows are disabled in the default configuration
+and therefore are not affected by this parameter.
+\fi
+
+The parameter {\tt ProductExplorerMode} controls whether the {\tt
+  ProductExplorer} actor will show its window or not.  The possible
+values are {\tt Enabled},   {\tt Triggered}, and {\tt Disabled}.
+{\tt Enabled} opens the ProductExplorer GUI at the end of the reduction of
+each individual dataset. {\tt Triggered} (default and recommended) opens
+the ProductExplorer GUI when all the selected datasets have been
+reduced. {\tt Disabled} does not display the ProductExplorer GUI.
+

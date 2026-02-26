@@ -1,0 +1,33 @@
+#******************************************************************************
+# E.S.O. - VLT project
+#
+# $Id: ESO-DFS-DIC.METIS_QC,v 1.2 2012-03-14 12:21:03 cgarcia Exp $
+# $Author: cgarcia $
+# $Date: 2012-03-14 12:21:03 $
+# $Revision: 1.2 $
+#                            
+#******************************************************************************
+#   NAME
+#   ESO-DFS-DIC.METIS_QC - Data Interface Dictionary for METIS Quality 
+#                           control (level 1) parameters.
+# -----------------------------------------------------------------------------
+Dictionary Name:   ESO-DFS-DIC.METIS_QC
+Scope:             QC
+Source:            ESO SDD/PSD
+Version Control:   "$Id: ESO-DFS-DIC.METIS_QC,v 1.2 2012-03-14 12:21:03 cgarcia Exp $"
+Revision:          1.0
+Date:              2007-08-20
+Status:            submitted
+Description:	   METIS Quality Control dictionary.
+
+# QC Category
+
+Parameter Name:     QC RON MEAN
+Class:              header|qc-log
+Context:            process
+Type:               double
+Value Format:       %f
+Unit:               ADU
+Comment Field:      Mean of the RONs
+Description:        Mean of the RON (QC RONi) from each input frame
+

@@ -1,0 +1,78 @@
+\documentclass[a4paper,twoside,11pt,usenames,dvipsnames]{article}
+\NeedsTeXFormat{LaTeX2e}
+
+%% Include layout, additional commands and abbreviations
+\input{layout}
+\input{shortcut}
+
+
+\pdmProgram{GEN}
+\pdmProject{Science Operation Software Department}
+\pdmTitle{METIS Pipeline User Manual}
+\pdmDocId{ESO-XXXXXX}
+\pdmDocVersion{0.1}
+\pdmDocType{Manual (MAN)}
+\pdmDocDate{2016-05-02}
+
+\pdmPreparedBy{METIS Pipeline Team}
+\pdmValidatedBy{}
+\pdmApprovedBy{}
+
+\setlongtables
+\makeindex
+
+\bibliographystyle{plain}
+
+\begin{document}
+\pagenumbering{arabic}
+\pdmmaketitle
+\clearpage
+%%\emptypage{This page was intentionally left blank}
+
+\section*{Authors}
+\begin{tabularx}{\linewidth}{|p{0.25\linewidth}|X|}
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Name}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Affiliation}} \tbspb \\
+  \hline
+  \tbspa
+  N.N. & Far out in the uncharted backwaters of the unfashionable end of the western spiral arm of the Galaxy
+  \tbspb\\
+  \hline
+\end{tabularx}
+\clearpage
+%%\emptypage{This page was intentionally left blank}
+
+\section*{Change Record from previous Version}
+\begin{tabularx}{\linewidth}{|p{0.25\linewidth}|X|}
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Affected Section(s)}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Changes/Reason/Remarks}}\tbspb \\
+  \hline
+  \tbspa
+  All                      & First draft
+  \tbspb\\
+  \hline
+\end{tabularx}
+\clearpage
+%%\emptypage{This page was intentionally left blank}
+
+\tableofcontents
+\cleardoublepage
+
+\include{metis_introduction}
+\include{metis_abbreviations}
+\include{metis_overview}
+\include{metis_instrument}
+\include{metis_quickstart}
+\include{metis_knownissues}
+\include{metis_rawdata}
+\include{metis_ancdata}
+\include{metis_reduction}
+\include{metis_recipes}
+\include{metis_algorithms}
+\appendix
+\include{metis_installation}
+\include{metis_troubleshooting}
+
+\end{document}

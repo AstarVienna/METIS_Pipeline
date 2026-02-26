@@ -1,0 +1,56 @@
+\subsection{Images}
+
+In order to handle simple error propagation tasks HDRL provides an
+image class \verb+hdrl_image+ which is similar to \verb+cpl_image+.
+It carries both the data values and their associated errors and also
+contains a bad pixel mask in form of a binary cpl\_mask.  When crating
+a new \verb+hdrl_image+ from two existing cpl images (\textit{image}
+and \textit{error}) by using the function
+\verb+hdrl_image_create(image, error)+, the bad pixel mask of the
+passed error-image (\textit{error}) is completely ignored. The bad
+pixel mask associated with the passed image (\textit{image}) becomes
+the only relevant bad pixel mask. Moreover, \verb+hdrl_image_create+
+creates the relevant \verb+hdrl_image+ by copying the cpl images.
+Basic arithmetic operations, like addition, subtraction,
+multiplication, division, and collapse operations (mean, median, sum,
+...) involving \verb+hdrl_image+ propagate the errors according to
+linear error propagation theory.  Correlations between data is
+currently not accounted for. 
+
+Some operations, e.g division can add new bad pixels when the value
+can not be calculated, e.g. $x \div 0$.  Moreover, if a value can be
+calculated but the corresponding propagated error can not (e.g. the
+propagated error would be $0 \div 0$), the tuple value-error is still
+considered valid, i.e. not marked as a bad pixel.
+ 
+The API of \verb+hdrl_image+ is similar to \verb+cpl_image+, please refer to
+the API reference for details.
+
+\subsubsection{Example usage}
+
+\begin{lstlisting}
+hdrl_image * my_function(cpl_image * input_image,
+                         cpl_image * input_errors
+                         const hdrl_image * bias1,
+                         const hdrl_image * bias2,
+                         double scale)
+{
+    /* create new hdrl_image from input images */
+    hdrl_image * data = hdrl_image_create(input_image, input_errors);
+
+    /* take mean with error propagation
+       equivalent to hdrl_imagelist_collapse */
+    hdrl_image * master_bias = hdrl_image_duplicate(bias1);
+    hdrl_image_add_image(master_bias, bias2);
+    hdrl_image_div_scalar(master_bias, 2., 0.);
+
+    /* subtract bias with error propagation */
+    hdrl_image_sub_image(data, master_bias);
+
+    /* reject a pixel */
+    hdrl_image_reject(data, 1, 1);
+    hdrl_image_delete(master_bias);
+
+    return data;
+}
+\end{lstlisting}

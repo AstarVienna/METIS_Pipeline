@@ -1,0 +1,200 @@
+\subsection{Differential Atmospheric Refraction (DAR)}
+\label{refraction:main}
+
+The effects of atmospheric refraction can be readily seen in any spectrograph or IFU. Atmospheric refraction will displace a source, or its spectrum, 
+by an amount that is dependent on the source wavelength and the angular distance of the source from the zenith.  
+This effect is due to the stratified density structure of our atmosphere, and the displacement will be toward the zenith and will be largest for shorter wavelengths.
+Because of this latter attribute, differential atmospheric refraction is not generally associated with infrared instruments. However, it can be 
+readily seen in SINFONI data cubes observed with the largest wavelength coverage (H+K) and in the smallest pixel scales (25 mas). 
+Here, the shift can be as large as 6 pixels from the beginning of the data cube to its end (see Figures \ref{fig:SINFONI_trace} and \ref{fig:SINFONI_image}).
+
+This module uses an analytical approach to compute the expected differential refraction as a function of wavelength, zenith angle, and the refractive index of air
+which, in turn, depends on temperature, pressure, and water vapour pressure.
+
+The {\tt hdrl\_dar} routines require the following inputs (all of which are, generally, available in the input data headers):
+\begin{itemize}
+\item the ambient atmospheric parameters: temperature, pressure, and humidity as contained in the environmental keyword headers:
+TEL.AMBI.TEMP, TEL.AMBI.PRES.START/END, and TEL.AMBI.RHUM, respectively.
+\item the instrument rotation angle on the sky
+\item the parallactic angle of instrument
+\item and, the world-coordinate system (WCS)
+\end{itemize}
+
+With this input, the differential atmospheric refraction is calculated (optionally, also with an error propagation), and provides an output of the $X$ and $Y$-axis shifts as a function of the
+\verb+cpl_vector+ with the input wavelengths.  The resulting shift corrections can be directly apply to the pixel image in order to correct this effect.
+The next section describes the algorithms used to make this calculation.
+
+
+\subsubsection{Algorithm - short description}
+
+This module contains routines to calculate the refractive index of air \footnote{See: \url{https://emtoolbox.nist.gov/Wavelength/Documentation.asp\#AppendixA}, for the formulae used.}. 
+The main loop compute the differential refractive offset for the input reference wavelengths, and stores the shift in the coordinates, taking into account the instrument rotation angle 
+on the sky and the parallactic angle at the time of observation.
+
+The differential atmospheric refraction is calculated according to the algorithm from Filippenko (1982, PASP, 94, 715). This algorithm uses the Owens formula 
+which converts relative humidity in water vapour pressure. 
+
+
+\paragraph{Owens saturation pressure}
+
+This function computes the saturation pressure using the J.C. Owens calibration (1967, Applied Optics, 6, 51-59). 
+The saturation pressure is given by:
+
+\begin{equation}
+s_p = -10474 +116.43\ T -0.43284\ T^2 +0.00053840\ T^3
+\label{eq:owens}
+\end{equation}
+
+where verb+T+ is the temperature in Kelvins.
+
+
+\paragraph{Filippenko refractive index}
+
+At sea level (P=760 \verb+mm Hg+ , T = 15 $^oC$) the refractive index of dry air is given by (Edl\'en 1953; Coleman, Bozman, and Meggers 1960):
+\begin{equation}
+(n( \lambda )_{15,760}-1)10^6 = 64.328 + \frac{29498.1}{146-(1/ \lambda )^2} +\frac{255.4}{41-(1/ \lambda )^2}
+\end{equation}
+where $\lambda$ is the wavelength of light in vacuum (microns). Since observatories are usually located at high altitudes, the index of refraction must be corrected for the 
+lower ambient temperature and pressure (P) (Barrell 1951):
+\begin{equation}
+(n(\lambda)_{T,P} -1) = (n(\lambda)_{15,760} - 1) \cdot \frac{P[1+(1.049-0.0157\ T) 10^{-6}\ P]}{720.883 (1+0.003661\ T)}
+\end{equation}
+
+In addition, the presence of water vapour in the atmosphere reduces $(n-1)10^6$ by:
+\begin{equation}
+\frac{0.0624-0.000680/\lambda^2}{1 + 0.003661\ T} f
+\end{equation}
+where $f$ is the water vapour pressure in mm of Hg, and T is the air temperature in $^oC$ (Barrell 1951) and is expressed as:
+
+\begin{equation}
+f = 0.75006158 \cdot s_p \cdot h
+\end{equation}
+where $s_p$ is the saturation pressure of equation \ref{eq:owens} and $h$ is the relative humidity in \verb+[%]+.
+
+
+\subsubsection{Function}
+
+The differential atmospheric refraction is computed by the following function:
+\begin{lstlisting}
+cpl_error_code hdrl_dar_compute(
+        const hdrl_parameter * params,
+        const hdrl_value       lambdaRef, 
+        const cpl_vector     * lambdaIn,
+        cpl_vector           * xShift, 
+        cpl_vector           * yShift, 
+        cpl_vector           * xShiftErr, 
+        cpl_vector           * yShiftErr)
+\end{lstlisting}
+
+The output products contain the resulting differential atmospheric refraction, and include the shift in pixels (with their associated error).
+This results can be directly apply to the original image.
+Each output value is associated at each wavelength value included in the \verb+lambdaIn+ [\AA] \verb+cpl_vector+.
+The Filipenko method uses the value \verb+lambdaRef+ [\AA] as the reference wavelength from which the differential atmospheric
+refraction is computed.  In other words, the \verb+xShift and yShift+ values will be zero at \verb+lambdaRef+.   Generally, \verb+lambdaRef+
+is chosen to be the mid-point of the wavelength range covered by the input data.
+
+
+\subsubsection{Inputs}
+\label{sec:algorithms:refraction:inputs}
+The input parameters to be passed to \verb+hdrl_dar_compute+ are created by executing the following function
+
+\begin{lstlisting}
+hdrl_parameter * hdrl_dar_parameter_create(
+        hdrl_value             airmass,
+        hdrl_value             parang,
+        hdrl_value             posang,
+        hdrl_value             temp,
+        hdrl_value             rhum,
+        hdrl_value             pres, 
+        cpl_wcs              * wcs)
+\end{lstlisting}
+
+
+The input parameters of the function are:
+\begin{itemize}
+  \item \verb+airmass+: Air mass.
+  \item \verb+parang+: Parallactic angle during exposure [deg].
+  \item \verb+posang+: Position angle on the sky [deg].
+  \item \verb+temp+: Temperature [$^o$C].
+  \item \verb+rhum+: Relative humidity [\%].
+  \item \verb+pres+: Pressure [mbar].
+  \item \verb+wcs+: World coordinate system [deg].
+\end{itemize}
+Note that every parameter is an \verb+hdrl_value+, hence an error can be also provided and the routine supports error propagation.
+See section \ref{sec:algorithms:refraction:parameters} for a summary of the error input parameters in terms of the esorex call to this recipe.
+
+\textit{Please note that during the testing of the algorithm it was
+  discovered that the propagated errors in the source shifts, computed
+  when the error of the temperature (temp.error) and pressure
+  (pres.error) are specified, are over-estimated.  We are currently
+  investigating the source of this over-estimate and expect to be able
+  to repair it soon.  The core functionality of the algorithm, in
+  computing the expected source shifts due to atmospheric refraction,
+  are not affected by this issue.}
+
+\subsubsection{Outputs}
+\label{sec:algorithms:refraction:outputs}
+
+The function fills several input/output \verb+cpl_vector+ structures that contain the shift and error in each data axis.
+
+This values are associated with each wavelength in the \verb+lambdaIn+ \verb+cpl_vector+ and they can be applied directly to the image.
+The user is free to apply these values either as a continuous corrective shift to the data (requiring, of course, interpolation), or to round the
+shifts to integer values and shift the data to a pixel grid.
+
+
+\subsubsection{Example}
+\label{sec:algorithms:refraction:example}
+This section briefly describes the actual call to the function.
+
+\begin{lstlisting}
+/* Declare and init variables */
+hdrl_value airmass, parang, posang, temp, rhum, pres;
+cpl_wcs *wcs = cpl_wcs_new_from_propertylist(plPri);
+...
+/* Create hdrl_parameter from call the main function */
+hdrl_parameter *h_par = hdrl_dar_parameter_create(
+      airmass, parang, posang, temp, rhum, pres, wcs);
+...
+/* Declare and init the input (lambdaIn) and outputs cpl_vector */
+cpl_vector *lambdaIn, *xShift, *yShift, *xShiftErr, *yShiftErr;
+...
+/* Execute main funtion and clean memory*/
+hdrl_dar_compute(h_par, lambdaRef, lambdaIn,
+      xShift, yShift, xShiftErr, yShiftErr);
+hdrl_parameter_delete(h_par);
+\end{lstlisting}
+
+
+\subsubsection{DAR Parameters in a Recipe}
+\label{sec:algorithms:refraction:parameters}
+
+In the context of a recipe, all input parameters needed by the differential atmospheric refraction computation may be provided as input parameters. 
+This will create a esorex man-page as follows:
+{\footnotesize
+  \begin{verbatim}
+  $ esorex --man-page hdrldemo_dar
+  
+  --maxRatioNaNsInImage : Max ratio [%] between bad pixels (NaNs) and good pixels. [30.0]
+  --lambdaRef-err       : Error [%] of the reference lambda. [0.0]
+  --parang-err          : Error [%] of the parallactic angle. [0.0]
+  --posang-err          : Error [%] of the position angle. [0.0]
+  --temp-err            : Error [%] of the temperature. [0.0]
+  --rhum-err            : Error [%] of the relative humidity. [0.0]
+  --pres-err            : Error [%] of the pressure. [0.0]
+  --airm.method         : Method of approximation to calculate airmass. 
+                                <HARDIE_62 | YOUNG_IRVINE_67 | YOUNG_94> [HARDIE_62]
+  --airm.ra-err         : Error [%] of the right ascension (using for calculate airmass). [0.0]
+  --airm.dec-err        : Error [%] of the declination (using for calculate airmass). [0.0]
+  --airm.lst-err        : Error [%] of the local sideral time (using for calculate airmass). [0.0]
+  --airm.exptime-err    : Error [%] of the integration time (using for calculate airmass). [0.0]
+  --airm.geolat-err     : Error [%] of the latitude (using for calculate airmass). [0.0]
+  \end{verbatim}
+}
+where the parameters listed include:
+\begin{itemize}
+    \item  \verb+--maxRatioNaNsInImage+ allows the selection of valid images.  An image having a ratio of NaNs greater than that specified by \verb+--maxRatioNaNsInImage+ will be excluded
+    from the analysis.
+    \item \verb+--lambdaRef-err+ to \verb+--pres-err+ to set errors to the input parameters for DAR, that allow for the computation of error propagation.
+    \item \verb+--airm.method+ for the selection of the method to used to approximate the airmass (see section \ref{airmass:main} for a more detailed description).
+    \item \verb+--airm.ra-err+ to \verb+--airm.geolat-err+ to set the errors in the airmass calculation, that allow for the computation of error propagation (see section \ref{airmass:main} for a more detailed description).
+\end{itemize}

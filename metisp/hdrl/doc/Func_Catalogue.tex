@@ -1,0 +1,336 @@
+\subsection{Object catalogue generation}
+\label{catalogue:main}
+
+In order to provide astrometric and photometric calibration
+information, the \HDRL implements a functionality to generate a
+catalogue of detected objects (i.e. stars, galaxies).
+
+Objects are detected and parametrised using the processed input image
+(\verb+img+) and confidence map (\verb+cnf+). A confidence map is
+similar to a weight map. It gives an indication of the relative
+quantum efficiency of each pixel, rather than an indication of the
+Poisson uncertainty on the pixel flux and should be normalised to a
+mean of 100. ``Bad'' pixels (either dead or hot) are given a confidence
+value of zero. If stacked images are used, then the confidence map of
+each single image should be propagated in order to get a confidence
+map of the mosaic image. This confidence map should then be
+re-normalized to a mean of 100 and passed to the routine as confidence
+map.
+
+A high-level summary of the implemented data reduction sequence is:
+\begin{itemize}
+\item estimate the local sky background over the image and track any
+    variations at adequate resolution to eventually remove them,
+\item detect objects/blends of objects and keep a list of pixels
+    belonging to each blend for further analysis (see \cite{Irwin85}
+    for details)
+  \item parametrise the detected objects, i.e. perform astrometry,
+    photometry and a shape analysis.
+\end{itemize}
+
+\subsubsection{Algorithm - short description}
+
+
+If requested, (\verb+bkg_estimate+) the possibly-varying sky
+background is estimated and removed automatically, prior to object
+detection, using a combination of robust iteratively-clipped
+estimators.
+
+Any variation in sky level over the frame is dealt with by forming a
+coarsely sampled background map grid (specified by
+\verb+bkg_mesh_size+).  Within each background grid pixel, an
+iteratively k-sigma clipped median value of `sky' is computed based on
+the flux values within the grid pixel zone. A robust estimate of sigma
+is computed by using the Median of the Absolute Deviation (MAD) from
+the median. This will then be further processed to form the frame
+background image.
+
+After removing the (possibly) varying background component, a similar
+robust estimate of the average sky level and sky noise per pixel is
+made. This allows to robustly obtain the detection threshold for
+object analysis.
+
+Individual objects are detected using a ``standard match'' filter
+approach. Since the only sources difficult to locate are those
+marginally above the sky noise, to assume (after factoring in the
+confidence map information) the noise as uniform, is a good
+approximation. The majority of objects detected in this way 
+will have a shape dominated by the point spread function (PSF), 
+which thereby defines the filter to use (controlled by 
+\verb+bkg_smooth_fwhm+.)
+
+To be detected an object should consist of at least
+\verb+obj_min_pixels+ contiguous pixels above a threshold controlled
+by \verb+obj_threshold+ $\times$ sky-rms. Moreover, one can also
+activate a deblending algorithm (\verb+obj_deblending+) in order to
+disentangle overlapping objects.
+
+Pixels are weighted in the catalogue generation according to their
+value in the confidence map.  Hence if a pixel is marked as bad, then
+it is not included in the flux computation over the aperture.  
+The number of bad pixels
+with an aperture is reported in the 'Error\_bit\_flag' column of the
+output table.  The presence of bad pixels will also be reflected in
+the average confidence for the aperture (column 'Av\_conf').
+
+Please note that one also has to specify the effective gain
+(\verb+det_eff_gain+) and the (\verb+det_saturation+) limit to the
+routine. The gain is mainly used for the error estimation of the
+various object measurements whereas the saturation limit is used to
+mark and exclude saturated pixels.
+
+%
+%
+%
+%
+%    \verb+obj_min_pixels+
+%    \verb+obj_threshold+
+%    \verb+obj_deblending+
+%    \verb+obj_core_radius
+%
+%    \verb+bkg_estimate+
+%    \verb+bkg_mesh_size+
+%    \verb+bkg_smooth_fwhm+
+%
+%    \verb+det_eff_gain+
+%    \verb+det_saturation+
+%
+%    resulttype+
+%
+
+A detailed description of the algorithm and the output table can be
+found in appendix~\ref{chap:algorithms:catalogue}
+
+ 
+\subsubsection{Functions}
+\label{catalogue:functions}
+
+The object catalogue, the background and the segmentation map are
+computed by the following function call:
+
+\begin{lstlisting}
+hdrl_catalogue_result * hdrl_catalogue_compute(
+      const cpl_image * image, 
+      const cpl_image * confidence_map,
+        const cpl_wcs * wcs, 
+       hdrl_parameter * param)
+\end{lstlisting}
+             
+where \verb+image+ is the input image, \verb+confidence_map+ is the
+(optional) confidence map, \verb+wcs+ contains the (optional) world
+coordinate system and \verb+params+ is a \verb+hdrl_parameter+
+structure specifying the parameters controlling the catalogue
+generation.
+           
+\subsubsection{Inputs}
+\label{catalogue:inputs}
+
+The input parameter to be passed to the function are created by the
+following function call:
+
+\begin{lstlisting}
+hdrl_parameter * param = hdrl_catalogue_parameter_create(
+      int                    obj_min_pixels,
+      double                 obj_threshold, 
+      cpl_boolean            obj_deblending,
+      double                 obj_core_radius,
+      cpl_boolean            bkg_estimate, 
+      int                    bkg_mesh_size,
+      double                 bkg_smooth_fwhm, 
+      double                 det_eff_gain,
+      double                 det_saturation,
+      hdrl_catalogue_options resulttype);
+\end{lstlisting}
+
+
+where
+  \verb+obj_min_pixels+ is the minimum pixel area for each detected object,
+  \verb+obj_threshold+  is the detection threshold in sigma above sky,
+  \verb+obj_deblending+ is a parameter to switch on/off deblending,\\
+  \verb+obj_core_radius+ is the value of the core radius in pixels,
+  \verb+bkg_estimate+  is the parameter to switch on/off the
+  background estimation from the input image,
+  \verb+bkg_mesh_size+ is the background smoothing box size,
+  \verb+bkg_smooth_gauss_fwhm+ is the FWHM of the Gaussian kernel used
+  in convolution for object detection,
+  \verb+det_eff_gain+ is the detector gain value to convert ADU counts to electron counts,
+  \verb+det_saturation+  is the detector saturation value, and
+  \verb+resulttype+ is the \verb+hdrl_catalogue_options+ parameter which
+controls the different result types. The latter is a bit-map (the
+values can be combined with bitwise or) defining the computed and
+returned results:
+
+\begin{itemize}
+\item \verb+HDRL_CATALOGUE_CAT_COMPLETE+: The full catalogue (see
+  appendix XXX)
+\item \verb+HDRL_CATALOGUE_BKG+: The background map
+\item \verb+HDRL_CATALOGUE_SEGMAP+: The segmentation map
+  \footnote{Contains the pixels attributed to each object, i.e. all
+    pixels belonging to object XXX in the catalogue have a value of
+    XXX in the segmentation map}
+\item \verb+HDRL_CATALOGUE_ALL+:\\  \verb+HDRL_CATALOGUE_CAT_COMPLETE+ |
+  \verb+HDRL_CATALOGUE_BKG+ | \verb+HDRL_CATALOGUE_SEGMAP+  
+\end{itemize}
+
+If a certain result type is not requested by setting the appropriate
+bit-pattern, the function returns a pointer to NULL.
+
+\subsubsection{Outputs}
+
+The function creates an output \verb+hdrl_catalogue_result+ structure
+containing the following quantities (or NULL, depending on the
+hdrl\_catalogue\_options \verb+resulttype+):
+
+\begin{lstlisting}
+typedef struct {
+    /* object catalogue */
+    cpl_table * catalogue;
+    /* segmentation map */
+    cpl_image * segmentation_map;
+    /* background map */
+    cpl_image * background;
+    /* Additional information */
+    cpl_propertylist * qclist;
+} hdrl_catalogue_result;
+\end{lstlisting}
+
+The \verb+hdrl_catalogue_result+ object has to be deleted by the user
+when not required any more by calling the function
+\verb+hdrl_catalogue_result_delete()+.
+
+Currently the following additional informations are returned in the
+cpl\_propertylist \verb+qclist+:
+{\footnotesize
+\begin{verbatim}
+APCOR1   / Stellar aperture correction - 1/2x core flux
+APCOR2   / Stellar aperture correction - core/sqrt(2) flux
+APCOR3   / Stellar aperture correction - 1x core flux
+APCOR4   / Stellar aperture correction - sqrt(2)x core flu
+APCOR5   / Stellar aperture correction - 2x core flux
+APCOR6   / Stellar aperture correction - 2*sqrt(2)x core f
+APCOR7   / Stellar aperture correction - 4x core flux
+APCORPK  / Stellar aperture correction - peak height
+\end{verbatim}
+}
+and \verb+SYMBOL1+ to \verb+SYMBOL9+. 
+
+If the symbol keywords are present in the header of the catalogue
+fitsfile they are used by e.g. skycat or gaia to properly display the
+objects in the image.
+
+The APCOR keywords can be used to convert (for stellar objects) fixed
+aperture fluxes to total magnitudes, as for this an aperture
+correction must be applied. This correction is calculated from the
+curve-of-growth and accounts for missing flux in a particular
+aperture. For example, the magnitude (m) of an object using the flux
+in the third bin ($i = 3$) may be calculated as
+
+\begin{equation}
+m = \tt{MAGZPT} - 2.5log_{10}(\tt{APER\_FLUX\_3/EXPTIME}) - \tt{APCOR3}
+\end{equation}
+
+With {\tt APER\_FLUX\_3} being a column in the catalogue table, {\tt
+  MAGZPT} the zeropoint and EXPTIME the exposure time \footnote{For more information, refer to \url{http://casu.ast.cam.ac.uk/surveys-projects/vst/technical/catalogue-generation}}.
+
+
+
+
+\subsubsection{Examples}
+
+Detect objects on an image (img) with a given confidence map (cnf) and
+wcs informations (wcs):
+
+
+\begin{lstlisting}
+  cpl_image * img;
+  cpl_image * cnf;
+  cpl_wcs * wcs;
+
+  /* initialize the catalogue parameters */
+
+  hdrl_parameter * p =  
+       hdrl_catalogue_parameter_create(5,        /* obj_min_pixel */      
+                                       2.5,      /* obj_threshold */     
+                                       CPL_TRUE, /* obj_deblending */    
+                                       3.0,      /* obj_core_radius */   
+                                       CPL_TRUE, /* bkg_estimate */      
+                                       64,       /* bkg_mesh_size */     
+                                       2.0,      /* bkg_smooth_fwhm */   
+                                       2.8,      /* det_eff_gain */      
+                                       65200,    /* det_saturation */    
+                                       HDRL_CATALOGUE_ALL);
+
+  /* catalogue COMPUTATION */
+
+  hdrl_catalogue_result * res = hdrl_catalogue_compute(img, cnf, wcs, p);
+
+  /* save the catalogue, the background and the segmentation map */
+
+  /* delete the result structure */
+  hdrl_catalogue_result_delete(res);
+\end{lstlisting}
+
+\subsubsection{Catalogue Parameters in a Recipe}
+
+In the context of a recipe, all input parameters needed by the
+catalogue computation may be provided as input parameters.
+
+The creation of \verb+cpl_parameter+ objects for the catalogue recipe interface is
+facilitated by:
+\begin{itemize}
+\item \verb+hdrl_catalogue_parameter_create_parlist+
+\item \verb+hdrl_catalogue_parameter_parse_parlist+
+\end{itemize}
+The former provides a \verb+cpl_parameterlist+ which can be appended
+to the recipe parameter list, the latter parses the recipe parameter
+list for the previously added parameters and creates a ready to use
+catalogue \verb+hdrl_parameter+.
+
+\begin{lstlisting}
+ /* Create catalogue default parameters */
+
+  hdrl_parameter * c_def =
+      hdrl_catalogue_parameter_create(4, 2.5, CPL_TRUE, 5.0, CPL_TRUE, 64,
+                                      2., 3.0, HDRL_SATURATION_INIT, 
+                                      HDRL_CATALOGUE_ALL);
+  cpl_parameterlist * s_param =
+      hdrl_catalogue_parameter_create_parlist(RECIPE_NAME, "", c_def);
+  hdrl_parameter_delete(c_def) ;
+
+  for (cpl_parameter * p = cpl_parameterlist_get_first(s_param);
+          p != NULL; p = cpl_parameterlist_get_next(s_param))
+      cpl_parameterlist_append(self, cpl_parameter_duplicate(p));
+  cpl_parameterlist_delete(s_param);
+\end{lstlisting}
+
+This will create a esorex man-page as follows:
+{\footnotesize
+\begin{verbatim}
+esorex --man-page hdrldemo_catalogue
+...
+  --obj.min-pixels         : Minimum pixel area for each detected object. [4]
+  --obj.threshold          : Detection threshold in sigma above sky. [2.5]
+  --obj.deblending         : Use deblending?. [TRUE]
+  --obj.core-radius        : Value of Rcore in pixels. [5.0]
+  --bkg.estimate           : Estimate background from input, if false it is assumed
+                             into is already background corrected with median 0.
+                             [TRUE]
+  --bkg.mesh-size          : Background smoothing box size. [64]
+  --bkg.smooth-gauss-fwhm  : The FWHM of the Gaussian kernel used in convolution
+                             for object detection. [2.0]
+  --det.effective-gain     : Detector gain value to rescale convert intensity to
+                             electrons. [3.0]
+  --det.saturation         : Detector saturation value. [inf.0]
+...
+\end{verbatim}
+}
+
+If parlist is the recipe parameters list, we also offer a function to 
+generate the Catalogue parameters directly from the recipe parameters:
+
+\begin{lstlisting}
+/* Parse the Catalogue Parameters */
+
+hdrl_parameter * p = 
+   hdrl_catalogue_parameter_parse_parlist(parlist, RECIPE_NAME);
+ \end{lstlisting}

@@ -1,0 +1,80 @@
+name: Run tests
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
+  schedule:
+    # Run every day at 2:30 UTC
+    - cron: "30 2 * * *"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo ./toolbox/install_dependencies_ubuntu.sh
+          # python3 -m venv metispipe
+          # . metispipe/bin/activate
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          ./toolbox/install_edps.sh
+          ./toolbox/create_config.sh
+
+      - name: Fetch test data
+        run: |
+          git clone https://github.com/AstarVienna/METIS_Pipeline_Test_Data.git
+          # Try to checkout a branch in METIS_Pipeline_Test_Data that has
+          # the same name as the branch in METIS_Pipeline that we are testing.
+          git -C METIS_Pipeline_Test_Data checkout "${GITHUB_HEAD_REF}" || true
+
+      - name: Run pytest tests
+        run: |
+          set +x
+          # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+          export PYESOREX_OUTPUT_DIR="$SOF_DATA"
+
+          python -m pytest -m "not external and not inputset and not pyesorex and not recipe"
+
+      - name: Run pyESOREX test
+        run: |
+          set +x
+          # . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+          export PYESOREX_OUTPUT_DIR="$SOF_DATA"
+          
+          # LIST RECIPES
+          pyesorex --recipes
+
+
+      - name: Run EDPS
+        run:  |
+          # . metispipe/bin/activate
+          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYTHONPATH="$(pwd)/metisp/pymetis/src/"
+          export SOF_DATA="$(pwd)/METIS_Pipeline_Test_Data/small202402/outputSmall/"
+          export SOF_DIR="$(pwd)/METIS_Pipeline_Test_Data/small202402/sofFiles/"
+          edps -lw
+          edps -w metis.metis_wkf -i $SOF_DATA -c
+          edps -w metis.metis_wkf -i $SOF_DATA -lt
+          # edps -w metis.metis_wkf -i $SOF_DATA -m all | tee edps.stdout.txt
+          # ! grep "'FAILED'" edps.stdout.txt

@@ -1,0 +1,101 @@
+# Skip vscode setting
+.vscode
+
+# Cache files and directory
+__pycache__
+
+# Get rid off log
+*.log
+
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+.idea
+__pycache__/
+*~
+
+Makefile
+Makefile.in
+.deps
+.libs
+*.log
+*.trs
+*-test
+*.cache
+config.h
+config.h.in
+config.log
+config.status
+config.guess
+config.sub
+configure
+*.m4
+libtool
+stamp-h1
+
+metisp/Doxyfile
+metisp/admin/compile
+metisp/admin/depcomp
+metisp/admin/install-sh
+metisp/admin/ltmain.sh
+metisp/admin/missing
+metisp/admin/test-driver
+metisp/hdrl/admin/
+metisp/reflex/metis.xml
+
+build
+pymetis.egg-info
+metisp/pymetis/setup.cfg
+
+# We do not need FITS files in this repository
+*.fits

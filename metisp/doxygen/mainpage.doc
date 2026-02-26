@@ -1,0 +1,15 @@
+/*----------------------------------------------------------------------------*/
+/* Documentation here will appear in the doxygen Main Page */
+
+/** 
+
+\mainpage Metis Pipeline Introduction
+
+The Metis Pipeline supports the reduction of data coming
+from Metis.
+
+This documentation describes the pipeline C interfaces.
+
+You can also use latex style formulas that will be displayed
+with MATHJAX: \f$ {a \over b} = \int f(x) dx \f$
+*/

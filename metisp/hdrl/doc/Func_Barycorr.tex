@@ -1,0 +1,169 @@
+-----------------------------------------------------------------------------
+\subsection{Barycentric correction}
+\label{sec:algorithms:barycorr:main}
+
+The algorithm derives the barycentric correction of an observation,
+i.e. the wavelength shift to apply to a spectrum to compensate for the
+motion of the observer with respect to the barycenter of the solar
+system, by using the \href{https://github.com/liberfa/erfa}{ERFA}
+(Essential Routines for Fundamental Astronomy) library. ERFA is a C
+library containing key algorithms for astronomy, and is based on the
+\href{http://www.iausofa.org}{SOFA library} published by the
+International Astronomical Union (IAU). \\
+
+\subsubsection{Algorithm - short description}
+\label{sec:algorithms:barycorr:algo}
+
+The implemented algorithm uses the ERFA function
+\href{https://github.com/liberfa/erfa/blob/master/src/apco13.c}{eraApco13()}
+to calculate the barycentric correction of an observation. For details
+on the implemented low level algorithm please visit the above
+mentioned web pages and links therein.
+
+A comparison between the algorithm implemented in the \HDRL and the
+one implemented in the ESPRESSO pipeline shows a very good agreement.
+For this about 7000 IDPs from 2021 were re-analyzed with the \HDRL
+implementation and the differences read as follows:
+\begin{itemize}
+    \item Mean difference : 0.036 m/s
+    \item Median difference: 0.055 m/s
+    \item Standard deviation: 0.281 m/s
+    \item MAD (median absolute deviation): 0.217 m/s
+    \item Maximum deviation: 1.573 m/s
+\end{itemize}
+
+\subsubsection{Functions}
+\label{sec:algorithms:barycorr:functions}
+
+The \HDRL implements the following function to derive the barycentric correction:
+\begin{lstlisting}
+cpl_error_code hdrl_barycorr_compute(
+        double            ra,
+        double            dec,
+        const cpl_table * eop_table,
+        double            mjdobs,
+        double            time_to_mid_exposure,
+        double            longitude,
+        double            latitude,
+        double            elevation,
+        double            pressure,
+        double            temperature,
+        double            humidity,
+        double            wavelength ,
+        double          * barycorr);
+\end{lstlisting}
+
+\subsubsection{Inputs}
+\label{sec:algorithms:barycorr:inputs}
+
+The different \textbf{input} function parameters are described as follows:
+\begin{itemize}\itemsep-1pt \parskip2pt \parsep2pt
+\item \verb+ra+:                     Target right ascension (J2000) in [deg]
+\item \verb+dec+:                    Target declination (J2000) in [deg]
+\item \verb+eop_table+:              cpl\_table containing the earth orientation parameter
+\item \verb+mjdobs+:                 Start of observation in [days]
+\item \verb+time_to_mid_exposure+:   Time to mid exposure, e.g. EXPTIME/2. in [s]
+\item \verb+longitude+:              Telescope geodetic longitude (+ = East ) in [deg]
+\item \verb+latitude+:               Telescope geodetic latitude  (+ = North) in [deg]
+\item \verb+elevation+:              Telescope elevation above sea level in [m]
+\item \verb+pressure+:               Pressure at the observer in [hPa == mbar]
+\item \verb+temperature+:            Ambient temperature at the observer in [deg C]
+\item \verb+humidity+:               Relative humidity at the observer [range 0 - 1]
+\item \verb+wavelength+:             Observing wavelength in [micrometer]
+\end{itemize}
+
+
+Please note that the pressure, temperature, humidity, and the
+wavelength parameters are only tested with a value of 0. No tests with
+other values were performed.
+
+The \verb+eop_table+ contains the
+\href{https://www.iers.org/IERS/EN/Science/EarthRotation/EOP.html}{Earth
+  Orientation Parameter} as a function of time (\verb+MJD-OBS+) and
+can be downloaded from
+\href{https://www.iers.org/IERS/EN/Home/home\_node.html}{IERS}. For
+this purpose the \HDRL offers the 2 functions
+\\ \verb+hdrl_download_url_to_buffer()+ and
+\verb+hdrl_eop_data_totable()+. The first function allows you to
+download the full EOP table from IERS and the second function extracts
+and converts the relevant information into a fits table. The latter
+contains the appropriate columns and can be passed to the\\
+\verb+hdrl_barycorr_compute()+ function.
+
+\begin{lstlisting}
+char * hdrl_download_url_to_buffer(
+       const char * url,
+       size_t     * data_length);  
+\end{lstlisting}
+This function allows you to download a url into a c data buffer with
+\verb+url+ being the url to download from. The length of the buffer
+is stored in the function parameter \verb+data_length+. The url to
+download the EOP data should
+be \verb+https://datacenter.iers.org/products/eop/rapid/standard/finals2000A.data+
+
+Please note, that this function is not threadsafe, to the extent that
+it may only be called from the main thread, with no other threads
+running. So as long as esorex or alike is not using threads it still
+may be called from within a recipe before the the recipe itself, or
+hdrl launches any additional threads.
+
+\begin{lstlisting}
+cpl_table * hdrl_eop_data_totable (
+            const char * eop_data,
+            cpl_size     data_length);
+\end{lstlisting}
+From the above listed
+url\footnote{\url{https://datacenter.iers.org/products/eop/rapid/standard/finals2000A.data}},
+this function extracts the relevant information from the c data buffer
+and converts it into a fitsfile.  In this function, the
+\verb+eop_data+ is the downloaded data buffer and \verb+data_length+
+the length of the buffer.
+
+As the time resolution of the EOP table is only one day, the
+parameters are linearly interpolated to have the most accurate values
+at the time of observation.
+
+\subsubsection{Outputs}
+\label{sec:algorithms:barycorr:outputs}
+
+The \textbf{computed barycentric correction} is stored in the function
+parameter \verb+barycorr+ with the units \verb+[m/s]+.
+
+\subsubsection{Example}
+The following code is a skeleton example on how to use HDRL to compute
+the barycentric correction of an observation. For a detailed
+implementation please see the esotk\_barycorr recipe for the
+barycentric correction computation and the esotk\_eop recipe for
+the EOP table creation.
+
+\begin{lstlisting}
+/* Load EOP file - it was created by another dedicated recipe */
+/* For detail on how to create the EOP file see the esotk_eop recipe */
+
+cpl_table * eop_table =
+            cpl_table_load(cpl_frame_get_filename(eop_frame), 1, 0);
+
+/* Read the primary header */
+ cpl_propertylist * header =
+            cpl_propertylist_load(cpl_frame_get_filename(cur_frame), 0);
+ 
+ double ra        = cpl_propertylist_get_double(header, "RA");
+ double dec       = cpl_propertylist_get_double(header, "DEC");
+ double mjdobs    = cpl_propertylist_get_double(header, "MJD-OBS");
+ double exptime   = cpl_propertylist_get_double(header, "EXPTIME");
+ double longitude = cpl_propertylist_get_double(header, "ESO TEL GEOLON");
+ double latitude  = cpl_propertylist_get_double(header, "ESO TEL GEOLAT");
+ double elevation = cpl_propertylist_get_double(header, "ESO TEL GEOELEV");
+ double pressure    = 0.0
+ double temperature = 0.0
+ double humidity    = 0.0
+ double wavelength  = 0.0
+
+ double barycorr = 0;
+ hdrl_barycorr_compute(ra, dec, eop_table, mjdobs, exptime/2.,
+                       longitude,  latitude, elevation,
+                       pressure, temperature, humidity, wavelength,
+                       &barycorr);
+                                 
+ cpl_msg_info (cpl_func, "Barycentric correction: %g m/s", barycorr);
+\end{lstlisting}

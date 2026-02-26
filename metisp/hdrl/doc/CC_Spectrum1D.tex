@@ -1,0 +1,55 @@
+\subsection{Spectrum}
+The struct \verb+hdrl_spectrum1D+ provides a convenient abstraction representing a 1D spectrum. The 1D spectrum is composed by two elements: the \textit{wavelength} and the \textit{flux}. The \textit{wavelength} contains the wavelengths the flux is defined on. The \textit{flux} contains the values the spectrum reaches for each wavelength. Therefore, a spectrum can be visualized as two sequences of values, wavelengths and fluxes. The  \verb+hdrl_spectrum1D+ defines also a third component, the \textit{wavelength scale}, which can be logarithmic or linear.
+
+The wavelengths are considered error-free, therefore wavelength manipulation functions do not support error propagation. The functions manipulating fluxes, on the other hand, support error propagation. The flux contains also a bad pixel map to signal flux values considered unreliable.
+
+The \verb+hdrl_spectrum1D+ does not require the wavelength to be sorted in a strictly monotonic increasing fashion. However, some operations (e.g. resampling) require the wavelengths to be sorted. The routines having this requirement will detect whether the wavelengths are sorted or not. If they are not sorted a copy of the spectrum's data will be silently sorted and then the operation will be performed on the sorted copy. The original spectrum will not be changed. It is therefore more efficient to provide the flux and wavelengths sorted in order to have better performance.
+
+For an in-depth explanation of the \verb+hdrl_spectrum1D+ please refer to the API reference. Here, we provide the general guidelines. The API mainly consists of:
+\begin{itemize}
+\item Constructors: the key difference between them is in the way they handle the errors values on the flux;
+\item Getters: the functions allow to extract flux, wavelength, scale or the value of the $i$-th elements of the flux or of the wavelength;
+\item Vectorial flux manipulators: given two spectra, an operation (e.g. multiplication) is performed between corresponding elements of the two fluxes. Error propagation is used. The functions can mutate one of the provided spectra to be the output or they can output a new spectrum. We refer to the first as mutator operators. We refer to the latter as creator operators, they do not modify the input spectra, and they end with \verb+_create+.
+These operations can be executed only if the two spectra are defined on the same frequencies, sorted in the same order. If this is not the case, an appropriate error code is set;
+\item Scalar flux manipulators: given a spectrum and a scalar, an operation (e.g. multiplication) is performed between each element of the spectrum and the scalar. Error propagation is used. Also here there are two versions of the operators, like in the vectorial case: mutator and creator operators.
+\item Wavelength manipulators: a set of functions that shift, multiply or divide the wavelength values by a scalar. Also here mutator and creator operators are available;
+\item Wavelength conversions: a set of functions that convert the scale of the wavelength, from logarithmic to linear and vice versa. Also here mutator and creator operators are available;
+\item Wavelength selectors: a subset of the flux is selected based on wavelengths values;
+\item Conversion functions to and from \verb+cpl_table+.
+\end{itemize}
+\subsubsection{Resampling}
+The spectrum resampling routine supports three modes: \textit{interpolation}, \textit{fitting} and \textit{integration}. To switch between the modes a different \verb+hdrl_parameter+ has to be provided. Interpolation supports $5$ interpolation algorithms, and fitting is provided in two variants: normal and windowed. Windowed fitting is experimental: therefore the API is not stable, it is recommended that windowed fitting is not used in production code. Please refer to the APIs documentation for the details.
+\subsubsection{Example usage}
+\begin{lstlisting}
+hdrl_spectrum1D * s1 = /* get first spectrum from the outside */
+hdrl_spectrum1D * s2 = /* get second spectrum from the outside */
+
+const hdrl_spectrum1D_wavelength spec_wav =
+                    hdrl_spectrum1D_get_wavelength(s1);
+
+/* Resample s2 on s1 wavelengths */
+hdrl_parameter * params =
+            hdrl_spectrum1D_resample_interpolate_parameter_create
+            (hdrl_spectrum1D_interp_akima);
+
+
+hdrl_spectrum1D * s3 =
+                hdrl_spectrum1D_resample(s2, &spec_wav, params);
+
+hdrl_parameter_delete(params);
+
+/* Multiply every flux value by 0.4, and write the result in s3 */
+hdrl_spectrum1D_mul_scalar(s3, (hdrl_value){0.4, 0.0});
+
+/* Multiply every flux value by 1.4, and write the result in s4, s3 is 
+ * unchanged */
+hdrl_spectrum1D * s4 = hdrl_spectrum1D_mul_scalar_create
+				(s3, (hdrl_value){1.4, 0.0});
+
+/* Covert s4 to a table, having 4 columns: flux, wavelength, error, bpm
+ * respectively.*/
+cpl_table * table = hdrl_spectrum1D_convert_to_table(s4, "FLUX_COL", 
+					"WAV_COL", "FLUX_ERROR_COL", 
+					"FLUX_BPM_COL");
+
+\end{lstlisting}

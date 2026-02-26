@@ -1,0 +1,31 @@
+# log default parameters
+PreExec:
+    - "esorex --man rrrecipe"
+
+Defaults:
+# defaults that apply to all EsorexTests
+  EsorexTests:
+    recipe: rrrecipe
+    result:
+      fitsdiff:
+
+
+EsorexTests:
+
+  - test1:
+      description: basic test run
+      sof:
+        - ["raw/obsdata.fits", RRRECIPE_DOCATG_RAW]
+      parameters:
+        stropt                : NONE
+        fileopt               : NONE
+        boolopt               : TRUE
+        intopt                : 3
+        floatopt              : 0.5
+        rangeopt              : 3
+        enumopt               : [first,second,third]
+        floatrangeopt         : [-5.5, 3, 5.5]
+      
+fits_diff_tolerance_relative: 3.9e-2
+fits_diff_tolerance_absolute: 1.1e-3
+fits_diff_additional_keywords: ["QC*", "QC2*"]
