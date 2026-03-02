@@ -31,7 +31,7 @@ from pyesorex.parameter import Parameter, ParameterList
 
 import pymetis
 from pymetis.classes.dataitems.hdu import Hdu
-from ppymetis.core.param import Parametrizable
+from pymetis.core.param import Parametrizable
 from pymetis.core.format import partial_format
 
 PIPELINE = rf'METIS/1'
