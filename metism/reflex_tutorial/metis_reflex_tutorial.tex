@@ -1,0 +1,108 @@
+\documentclass[pdftex,a4paper,twoside,11pt]{article}
+\NeedsTeXFormat{LaTeX2e}
+
+%% Include layout, additional commands and abbreviations
+\input{layout}
+\input{shortcut}
+
+
+\dmdProgram{GEN}
+\dmdProject{Science Operation Software Department}
+\dmdTitle{Reflex METIS Tutorial}
+\dmdDocId{ESO-XXXXXX}
+\dmdDocVersion{0.4}
+\dmdDocType{Manual (MAN)}
+\dmdDocDate{2019-05-02}
+
+\dmdPreparedBy{METIS Pipeline Team}
+\dmdValidatedBy{}
+\dmdApprovedBy{}
+
+%% Additional commands and abbreviations
+\graphicspath{{../figures/}{../pipedoc/figures/}}
+
+%% Remember to update shortcut.tex
+\def\reldate{\releasedate}
+\def\pipeno{\pipelinevers}
+\def\kitno{\pipeno}
+\def\docno{\pipelinemanualvers}
+\def\qfitsno{\qfitsvers}
+\def\cplno{\cplvers}
+\def\esorexno{\esorexvers}
+\def\reflexno{\reflexvers}
+\def\gasganono{\gasganovers}
+\def\jdkno{\jdkvers}
+\def\dmdissue{\docno}
+
+\setlongtables
+\makeindex
+\bibliographystyle{plain} 
+
+\begin{document}
+\pagenumbering{arabic}
+\dmdmaketitle
+\emptypage{This page was intentionally left blank}
+
+\section*{Authors}
+\begin{tabularx}{\linewidth}{|p{0.25\linewidth}|X|}
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Name}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Affiliation}} \tbspb \\
+  \hline
+  \tbspa
+  N.N. & Far out in the uncharted backwaters of the unfashionable end of the western spiral arm of the Galaxy
+  \tbspb\\
+  \hline
+\end{tabularx}
+\emptypage{This page was intentionally left blank}
+
+\section*{Change Record from previous Version}
+\begin{tabularx}{\linewidth}{|p{0.25\linewidth}|X|}
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Affected Section(s)}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Changes/Reason/Remarks}}\tbspb \\
+  \hline
+  \tbspa
+  All                      & First draft
+  \tbspb\\
+  \hline
+\end{tabularx}
+\emptypage{This page was intentionally left blank}
+
+\tableofcontents
+\cleardoublepage
+
+\input{reflex_intro_scope.tex} %This file is in the pipedoc directory
+
+Add here some explanation about this specific workflow. Instrument modes supported, etc...
+
+\input{reflex_wkf_installation} %This file is in the pipedoc directory
+
+\section{Demo Data}
+Add some explanation about the demo data used.
+
+\section{Quick Start: Reducing The Demo Data \label{sec:quick_start}}
+
+Add here a two pages maximum explanation on how to quickly reduce the demo data set.
+
+\input{reflex_about_canvas} %This file is in the pipedoc directory
+\input{reflex_wkf_general_desc} %This file is in the pipedoc directory
+\subsection{Workflow Actors}
+\input{reflex_simple_actors} %This file is in the pipedoc directory
+
+Add here a description of this workflow specific actors 
+(probably including some composite actors).
+
+\input{reflex_lazy_mode} %This file is in the pipedoc directory
+
+Add here a description of the workflow steps like Data organisation,
+routing, creation of calibration files and science reduction.
+
+Add here a description on how to optimise the results of the workflow.
+
+\input{reflex_faq.tex}
+
+Add here a section on troubleshooting problems.
+
+%\bibliography{metis_reflex_tutorial}
+\end{document}

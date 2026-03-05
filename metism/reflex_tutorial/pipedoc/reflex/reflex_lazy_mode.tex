@@ -1,0 +1,43 @@
+\subsubsection{Lazy Mode \label{sec:lazy_mode}}
+
+By default, all {\tt RecipeExecuter} actors in a pipeline workflow are
+``Lazy Mode'' enabled. This means that when the workflow attempts to
+execute such an actor, the actor will check whether the relevant
+pipeline recipe has already been executed with the same input files
+and with the same recipe parameters. If this is the case, then the
+actor will not execute the pipeline recipe, and instead it will simply
+broadcast the previously generated products to the output port. The
+purpose of the Lazy Mode is therefore to minimise any reprocessing of
+data by avoiding data re-reduction where it is not necessary.
+  
+One should note that the actor's Lazy Mode depends on the contents of
+the directory specified by the parameter {\tt BOOKKEEPING\_DIR} and the relevant
+FITS file checksums. Any modification to the directory contents and/or
+the file checksums will cause the corresponding actor to run the pipeline
+recipe again when executed, thereby re-reducing the input data.
+
+The re-reduction of data at each execution may sometimes be desirable.
+To force a re-reduction of data for any single {\tt RecipeExecuter} actor in
+the workflow, right-click the actor, select {\tt Configure Actor}, and uncheck
+the Lazy mode parameter tick-box in the ``Edit parameters'' window that is
+displayed. For many workflows the {\tt RecipeExecuter} actors are actually found
+inside the composite actors in the top level workflow. To access such embedded
+{\tt RecipeExecuter} actors you will first need to open the sub-workflow
+by right-clicking on the composite actor and then selecting {\tt Open Actor}.
+
+To force the re-reduction of all data in a workflow (i.e. to disable
+Lazy mode for the whole workflow), you must uncheck the Lazy mode for
+every single {\tt RecipeExecuter} actor in the entire workflow.  It is
+also possible to change the name of the bookkeeping directory, instead
+of modifying any of the Lazy mode parameters. This will also force a
+re-reduction of the given dataset(s). A new reduction will start (with
+the lazy mode still enabled), but the results of previous reduction
+will not be reused.  Alternatively, if there is no need to keep any of
+the previously reduced data, one can simply set the {\tt EraseDirs}
+parameter under the ``Global Parameters'' area of the workflow canvas
+to {\tt true}. This will then remove all previous results that are
+stored in the bookkeeping, temporary, and log directories before
+processing the input data, in effect, starting a new clean data
+reduction and re-processing every input dataset.  {\it Note: The
+  option {\tt EraseDirs} = {\tt true} does not work in \reflex\
+  version 2.9.x and makes the workflow to crash.}

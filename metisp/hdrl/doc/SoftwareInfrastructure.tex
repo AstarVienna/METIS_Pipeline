@@ -1,0 +1,353 @@
+\section{Software Infrastructure}
+
+\subsection{SVN usage and library integration}
+\label{library_integration}
+
+Th \HDRL library should be included into the pipeline library during
+the svn checkout by using the svn::external concept. The external
+should point to a given library release in the tags and not to the
+trunk, i.e. to a sub-directory of
+\verb,http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl, (see
+also sect.~\ref{SoftwareInfrastructure:Releases}). In order to build
+the library one has to add the \textit{hdrl.m4} from the common
+\textit{m4macros} repository (\verb,Pipelines/common/m4macros, in SVN) to the
+pipeline sources.
+Then one has to modify the \textit{configure.ac} and the top-level
+\textit{Makefile.am} as follows:
+\begin{itemize}
+\item \textit{configure.ac}: 
+\begin{verbatim}
+# mark hdrl folder as containing a configurable package
+AC_CONFIG_SUBDIRS([hdrl])
+
+# check and define all required variables to build and
+# link hdrl external located in the hdrl folder
+HDRL_CHECK([hdrl])
+\end{verbatim}
+\item \textit{Makefile.am}:
+\begin{verbatim}
+SUBDIRS = hdrl ...
+\end{verbatim}
+\end{itemize}
+Moreover, the variable
+\verb,$(HDRL_LIBS), must also be added to the link variable,
+\verb,$(HDRL_LDFLAGS), to the linker flag variable, and
+\verb,$(HDRL_INCLUDES), to the \verb,AM_CPPFLAGS, variable in the
+\textit{Makefile.am} of any folder making use of HDRL. As HDRL is
+currently a static library it also needs has to be added as a
+dependency of objects using it so these are relinked when HDRL
+changes. For example:
+
+\begin{verbatim}
+hdrldemo_bias_la_LDFLAGS = $(HDRL_LDFLAGS) ...
+hdrldemo_bias_la_LIBADD = $(HDRL_LIBS) ...
+hdrldemo_bias_la_DEPENDENCY = $(LIBHDRL) ...
+\end{verbatim}
+
+In the source files, the only include needed is:
+
+\begin{lstlisting}
+#include <hdrl.h>
+\end{lstlisting}
+
+
+
+\begingroup
+\let\cleardoublepage\relax
+\let\clearpage\relax
+
+\subsection{Releases}
+\label{SoftwareInfrastructure:Releases}
+
+There is no fixed release cycle for the \HDRL library (as e.g. for
+CPL), but new releases are feature-driven, i.e. if there are new
+functionality/algorithms available and carefully tested a new
+release will be announced and the pipeline developer can change the
+svn::external to this new release. This has the advantage that the
+pipeline developer has more freedom to decide when to update the
+pipeline. On the other hand it allows the developer to incorporate the
+new \HDRL release to his pipeline on a very short timescale and
+prepare a new Paranal/public release. This is only possible as the
+library is not installed in the Data Flow System environment in
+Paranal (like CPL) but delivered inside each pipeline.
+
+\subsubsection{Release version 1.5.0}
+The \HDRL release version 1.5.0 can be included from\\
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-1.5.0
+
+In this release we updated and/or added the following algorithms:
+\begin{itemize}
+\item The computation of the barycenric correction, i.e. the
+  wavelength shift to apply to a spectrum to compensate for the motion
+  of the observer with respect to the barycenter of the solar system.
+  The implemented algorithm derives the barycentric correction of an
+  observation by using the
+  \href{https://github.com/liberfa/erfa}{ERFA} (Essential Routines for
+  Fundamental Astronomy) library. ERFA is a C library containing key
+  algorithms for astronomy, and is based on the
+  \href{http://www.iausofa.org}{SOFA library} published by the
+  International Astronomical Union (IAU).  See
+  section~\ref{sec:algorithms:barycorr:main} for detailed information.
+\item The build system has been modified to include GSL as direct
+   dependency to the hdrl unit-test as direct GSL calls are performed
+   when unit-testing the limiting magnitude module.
+ \item For the barycentric correction algorithm two additional
+   dependencies were added to the \HDRL.
+   \begin{itemize}
+     \item A dependency to the
+       \href{https://github.com/liberfa/erfa}{ERFA} (Essential
+       Routines for Fundamental Astronomy) library
+     \item A dependency to the
+       \href{https://curl.se/libcurl/}{libcurl} (The multiprotocol
+       file transfer library) library
+   \end{itemize}  
+\end{itemize}
+
+\subsubsection{Release version 1.4.0}
+The \HDRL release version 1.4.0 can be included from\\
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-1.4.0
+
+In this release we updated and/or added the following algorithms:
+\begin{itemize}
+\item The computation of the limiting magnitude of an image as defined
+  in the \textit{ESO Phase 3 Standard}. The limiting magnitude
+  characterizes the depth of an observation and is defined as the
+  magnitude of a unresolved source whose flux is 5 times the noise
+  background, i.e. the magnitude of a point like source detected with
+  $\frac{S}{N}=5$. See section~\ref{sec:algorithms:maglim:main} and
+  appendix~\ref{chap:algorithms:maglim} for detailed information.
+\item To the statistical estimators we added the \textbf{mode} of a
+  distribution, i.e. the following algorithms are now supported for
+  collapsing imagelists or deriving statistics on images:
+  \begin{itemize}
+  \item Mean
+  \item Weighted mean
+  \item min-max rejected mean
+  \item $\kappa\sigma$~clipped mean
+  \item Median
+  \item Mode
+  \end{itemize}
+  Please note that all methods but the mode are doing \textbf{error
+    propagation}. The mode method is special in this case as it
+  \textbf{calculates the error from the data}. The error estimation
+  can either be done analytically or based on a bootstrap Montecarlo
+  simulation. In this case the input data are perturbed with the
+  bootstrap technique and the mode is calculated N times (controlled
+  with a parameter). From this N modes the standard deviation is
+  calculated and returned as error. See
+  section~\ref{sec:algorithms:robust_mean:mode} for detailed
+  information on the mode algorithm.
+\item Due to the addition of the mode, the
+  functions\\ \verb+ hdrl_overscan_parameter_create_parlist()+
+  and\\ \verb+hdrl_collapse_parameter_create_parlist()+ have
+  changed. The two functions now require an additional default mode
+  hdrl parameter. See the doxygen information and
+  e.g. section~\ref{sec:algorithms:overscan:parameters} and
+  section~\ref{sec:algorithms:bias:parameters} for more details.
+\end{itemize}
+
+
+\subsubsection{Release version 1.3.0}
+The \HDRL release version 1.3.0 can be included from\\
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-1.3.0
+
+In this release we updated and/or added the following algorithms:
+\begin{itemize}
+\item Resampling of 2-dimensional images and 3-dimensional cubes. A common
+  problem in astronomy is the resampling of images (or cubes) onto a common
+  grid. Ideally, this is done only once in the data reduction workflow as each
+  sub pixel resampling redistributes the flux and leads to correlations. The
+  algorithm provided by the \HDRL is doing the 2D and 3D interpolation in
+  2-dimensional and 3-dimensional spaces, respectively. Currently there are six
+  different interpolation methods implemented:
+\begin{center}
+\begin{itemize}
+\item {\bf Nearest:} Nearest neighbour resampling
+\item {\bf Linear:} Weighted resampling using an inverse distance weighting
+  function
+\item {\bf Quadratic:} Weighted resampling using a quadratic inverse distance
+  weighting function
+\item {\bf Renka:} Weighted resampling using a Renka weighting function
+\item {\bf Drizzle:} Weighted resampling using a drizzle-like weighting scheme
+\item {\bf Lanczos:} Weighted resampling using a lanczos-like restricted sinc as
+  weighting function
+\end{itemize}
+\end{center}
+  See section~\ref{resampling:main} and appendix~\ref{chap:assessing:resampling}
+  for detailed information.
+\item The object catalogue generation code (see section~\ref{catalogue:main})
+  has been updated. In previous releases, pixels with a value of exactly 0 where
+  automatically added to the confidence map as zero\footnote{``Bad'' pixels are
+  given a confidence value of zero.} and excluded in all further
+  computations. This has been removed.
+\end{itemize}
+
+\subsubsection{Release version 1.2.0}
+The \HDRL release version 1.2.0 can be included from\\
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-1.2.0
+
+In this release we updated and/or added the following algorithms:
+\begin{itemize}
+\item Detection of fixed pattern noise. A classical example is pick
+  noise, i.e. low-amplitude, quasi-periodical patterns super-imposed
+  on the normal read-noise. It is due to electronic interference and
+  might show up or disappear on short timescales (days or hours). The
+  algorithms tries to identify it by the usage of the power spectrum.
+  See section~\ref{patternnoise:main} for detailed information.
+\item An error in the documentation of the strehl ratio variable
+  \verb+m1_radius+ and \verb+m2_radius+ was corrected
+  (section~\ref{sec:algorithms:strehl:example}). The code was correct.
+\item In the spectral efficiency computation
+  (section~\ref{efficiency:main}) a sign error in the atmospheric
+  correction (equation~\ref{eq:eff}) was corrected in the
+  documentation as well as in the code.
+\end{itemize}
+
+
+\subsubsection{Release version 1.1.0}
+The \HDRL release version 1.1.0 can be included from\\
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-1.1.0
+
+In this release we added five new algorithms:
+\begin{itemize}
+\item Computation of the Strehl ratio. The Strehl ratio is defined as
+  the ratio of the peak image intensity from a point source compared
+  to the maximum attainable intensity using an ideal optical system
+  limited only by diffraction over the telescope aperture. The Strehl
+  ratio is very frequently used to perform the quality control of the
+  scientific data obtained with the AO assisted instrumentation.
+\item Computation of the \textit{spectral efficiency} as a function of
+  wavelength: The efficiency is used to monitor the system performance
+  and health. It is calculated from observing flux standard stars (in
+  photometric conditions). Then, the observed 1D spectrum is compared
+  with the reference spectrum, as it would be observed outside the
+  Earth's atmosphere. The reference spectrum is provided by the user,
+  usually via a catalog of standard stars. See
+  section~\ref{efficiency:main} for detailed information.
+\item Computation of the \textit{spectral response} as a function of
+  wavelength: The algorithm is divided in two parts: \textit{Telluric
+    correction} and \textit{Response calculation}. In the provided
+  implementation the \textit{Telluric correction} is optional and can
+  be disabled by the user. See section~\ref{response:main} for
+  detailed information.
+\item Computation of the \textit{Differential Atmospheric Refraction}
+  as a function on wavelength. The differential atmospheric refraction
+  is calculated according to the algorithm from Filippenko (1982,
+  PASP, 94, 715) using the Owens formula which converts relative
+  humidity in water vapor pressure. See section~\ref{refraction:main}
+  for detailed information.
+\item Computation of the \textit{effective air mass} of an
+  observation.  See section~\ref{airmass:main} for detailed
+  information.
+\end{itemize}
+
+ 
+
+\subsubsection{Release version 1.0.0}
+The \HDRL release version 1.0.0 can be included from\\
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-1.0.0
+
+In order to provide astrometric and photometric calibration
+information, the \HDRL implements in this release a functionality to
+generate a catalogue of detected objects (i.e. stars, galaxies).
+
+A high-level summary of the implemented data reduction sequence is:
+\begin{itemize}
+\item estimate the local sky background over the image and track any
+    variations at adequate resolution to eventually remove them,
+\item detect objects/blends of objects and keep a list of pixels
+    belonging to each blend for further analysis (see \cite{Irwin85}
+    for details)
+  \item parametrise the detected objects, i.e. perform astrometry,
+    photometry and a shape analysis.
+\end{itemize}
+
+For details see section~\ref{catalogue:main}.
+
+\subsubsection{Release version 0.3.0b1}
+The \HDRL release version 0.3.0b1 can be included from
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-0.3.0b1
+
+In this release we added an algorithm to do fringe correction. In a
+first step the algorithm creates a master-fringe image using a
+Gaussian mixture model. A properly scaled version of the
+master-fringe image is then used to remove the fringes from the single
+images (see section~\ref{fringe:main}).
+
+\subsubsection{Release version 0.2.0}
+The \HDRL release version 0.2.0 can be included from
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-0.2.0
+
+In this release we added two algorithms to derive a master flatfield
+(see section~\ref{flat:main}) and one algorithm to compute the Strehl
+ratio (see section~\ref{strehl:main})
+
+
+\subsubsection{Release version 0.1.5}
+The \HDRL release version 0.1.5 can be included from
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-0.1.5
+
+The sigma clipping algorithm has been changed. It now uses a scaled
+Median Absolute Deviation (MAD) to derive a robust RMS for the
+clipping and not anymore the interquartile range (IQR). The MAD gives
+better results for the case for low number statistics and a high
+fraction of pixels affected by e.g. cosmic ray hits.  Furthermore, the
+library integration in the pipeline slightly changed - see
+section~\ref{library_integration} for details.
+
+\subsubsection{Release version 0.1.0}
+The \HDRL release version 0.1.0 can be included from
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-0.1.0
+
+Various methods for bad pixel detection are added in this release (see
+section~\ref{sec:bpm:main})
+
+\subsubsection{Release version 0.0.3}
+The \HDRL release version 0.0.3 can be included from
+
+http://svnhq2.hq.eso.org/p2/tags/Pipelines/common/hdrl/hdrl-0.0.3
+
+It is the first prototype release.
+
+\subsection{Dependencies}
+\label{library_dependencies}
+
+Relationship with \CPL and other libraries:
+
+The latest hdrl library depends on
+
+\begin{itemize}
+\item The Common Pipeline Library (CPL) version 7.0 or
+  higher. \textbf{Please note that CPL must be compiled with wcs
+    functionality available}
+\item The GSL - GNU Scientific Library version 1.16 or higher.
+\item The \href{https://github.com/liberfa/erfa}{ERFA} (Essential
+  Routines for Fundamental Astronomy) library version 1.3 or
+  higher. ERFA is a C library containing key algorithms for
+  astronomy, and is based on the \href{http://www.iausofa.org}{SOFA
+    library} published by the International Astronomical Union (IAU).
+\item The \href{https://curl.se/libcurl/}{libcurl} (The multiprotocol
+  file transfer library) library - any recent version.
+\end{itemize}
+
+%\subsection{Code Standards}
+%
+%\subsection{Templates}
+%
+%\subsection{Testing}
+%
+%\subsubsection{Unit tests}
+%\subsubsection{Integration tests}
+%\subsubsection{Automatic testing tools}
+
+\endgroup

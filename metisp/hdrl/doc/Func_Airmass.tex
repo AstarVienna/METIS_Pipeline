@@ -1,0 +1,149 @@
+\subsection{Effective air mass}
+\label{airmass:main}
+
+This section explains how the \verb+hdrl_utils+ module can be used to calculate the effective air mass of an observation. It can be calculated using one of three different methods: 
+Hardie (1962), Young \& Irvine (1967) and Young (1994).
+
+
+\subsubsection{Algorithm - short description}
+
+The algorithm calculates the average airmass for the line-of-sight given by the right ascension (aRA) and the declination (aDEC). The latitude (aLatitude) of the observatory site 
+and the local sidereal time (aLST) at the beginning of the observation has to be given, as well as the duration of the observation, i.e. the exposure time (aExptime). 
+If the exposure time is zero then only one value of airmass is computed, instead of weighting the beginning, middle, and end of the exposure according to Stetson (Stetson P., 1987, PASP 99, 191).
+
+This function can calculate three different kinds of approximations to the airmass as specified in the\\ 
+\verb+hdrl_airmass_approx+ parameter\footnote{You can find these and other collections of interpolative approximations formulas in \url{http://en.wikipedia.org/w/index.php?title=Airmass\&oldid=358226579\#Interpolative_formulas}.}:
+\begin{enumerate}
+  \item The formula given by Hardie (Hardie 1962, In: "Astronomical Techniques", ed. Hiltner, p. 184) to compute the airmass as a function of zenith distance.
+  \item The formula of Young and Irvine (Young A. T., Irvine W. M., 1967, Astron. J. 72, 945), where the range of trustworthy airmass outputs is limited to between 1 and 4.
+  \item The formula of Young (Young A. T., 1994 ApOpt, 33, 1108).
+ \end{enumerate}  
+
+This algorithm can take into account the error propagation if the user enters the relative error of the input parameters in a \verb+hdrl_value+ structure \{data,error\}.
+
+
+\paragraph{Zenith distance}
+
+Computes the zenith distance for an observation. It needs the hour angle, declination, and latitude (all in $[rad]$).
+
+\begin{lstlisting}
+hdrl_value hdrl_get_zenith_distance(
+          hdrl_value aHourAngle, 
+          hdrl_value aDelta, 
+          hdrl_value aLatitude)
+\end{lstlisting}
+
+The function computes the cosine of the zenith distance for an observation taken at an hour angle (\verb+aHourAngle+) from the meridian, with valid values in the range extending from $-\pi$ to $\pi$, and the declination (\verb+aDelta+) with possible values between $-0.5\ \pi$ and $0.5\ \pi$. The latitude (\verb+aLatitude+) of the observing site takes values in the range of $0$ to $2\ \pi$.
+
+
+\paragraph{Hardie approximation (1962)}
+
+Compute the airmass with the \verb+Hardie+ approximation. It need the secant of the zenith distance.
+
+\begin{lstlisting}
+hdrl_value hdrl_get_airmass_hardie(hdrl_value hvaSecZ)
+\end{lstlisting}
+
+The function uses the approximation given by Hardie (Hardie 1962, In: "Astronomical Techniques", ed. Hiltner, p. 184) to compute the airmass as a function of zenith angle which is given in terms of its secant (\verb+hvaSecZ+). It is supposedy more accurate than Young \& Irvine (1967), and usable for zenith angles below 80 degrees.
+  
+
+\paragraph{Young \& Irvine approximation (1967)}
+Compute the airmass with the \verb+Young & Irvine+ approximation. It need the secant of the zenith distance.
+
+\begin{lstlisting}
+hdrl_value hdrl_get_airmass_youngirvine(hdrl_value hvaSecZ)
+\end{lstlisting}
+
+This function uses the approximation given by Young \& Irvine (Young A. T., Irvine W. M., 1967, Astron. J. 72, 945) to compute the airmass for a given sec(z) (\verb+hvaSecZ+). 
+This approximation takes into account atmospheric refraction and curvature but is, in principle, only valid at sea level.
+  
+  
+\paragraph{Young approximation (1994)}
+
+Computes the airmass using the \verb+Young+ approximation. It needs the cosine of the true zenith distance.
+
+\begin{lstlisting}
+hdrl_value hdrl_get_airmass_young(hdrl_value hvaCosZt)
+\end{lstlisting}
+
+This function uses the approximation given by Young (Young A. T., 1994 ApOpt, 33, 1108) to compute the relative optical airmass as a function of true, rather than refracted, 
+zenith angle which is given in terms of its cosine (\verb+hvaCosZt+). It is supposedly more accurate than \verb+Young & Irvine+ (1967) but restrictions aren't known.
+
+
+\subsubsection{Functions}
+\label{sec:algorithms:airmass:inputs}
+
+The differential atmospheric refraction is computed by the following function:
+
+\begin{lstlisting}
+hdrl_value hdrl_utils_airmass(
+        hdrl_value          aRA, 
+        hdrl_value          aDEC, 
+        hdrl_value          aLST,
+        hdrl_value          aExptime, 
+        hdrl_value          aLatitude,
+        hdrl_airmass_approx type)
+\end{lstlisting}
+where \verb+type+ is the method of airmass approximation to use.
+
+The input parameters of the function are:
+\begin{itemize}
+  \item \verb+aRA+: right ascension [deg].
+  \item \verb+aDEC+: declination [deg].
+  \item \verb+aLST+: local sideral time elapsed since siderial midnight [s].
+  \item \verb+aExptime+: integration time [s].
+  \item \verb+aLatitude+: latitude of the observatory site [deg].
+  \item \verb+type+: method of airmass approximation.
+\end{itemize}
+
+The valid values for \verb+type+ are:
+\begin{lstlisting}
+typedef enum {
+        HDRL_AIRMASS_APPROX_HARDIE       = 1,	
+        HDRL_AIRMASS_APPROX_YOUNG_IRVINE = 2,
+        HDRL_AIRMASS_APPROX_YOUNG        = 3
+} hdrl_airmass_approx;
+\end{lstlisting}
+
+Note that every parameter is an \verb+hdrl_value+, hence an error can be also provided and the routine supports error propagation.
+
+
+\subsubsection{Outputs}
+\label{sec:algorithms:airmass:outputs}
+The algorithm returns the computed average airmass, or the \verb+hdrl_parameter+ value \{-1,\ 0.\} when an error is encountered.
+
+
+\subsubsection{Example}
+\label{sec:algorithms:airmass:example}
+
+An example of an airmass calculation is given here:
+
+\begin{lstlisting}
+/* Aproximation methods */
+hdrl_airmass_approx type = HDRL_AIRMASS_APPROX_HARDIE;
+
+/* Example of input parameters */
+hdrl_value ra       = {122.994945,   0.};
+hdrl_value dec      = {74.95304,     0.};
+hdrl_value lst      = {25407.072748, 0.};
+hdrl_value exptime  = {120.,         0.};
+hdrl_value geolat   = {37.2236,      0.};
+
+/* Set variation of error in variables */
+double delta        = 1.;
+double deltaRa      = delta/100.;
+double deltaDec     = delta/100.;
+double deltaLst     = delta/100.;
+double deltaExptime = delta/100.;
+double deltaGeolat  = delta/100.;
+
+/* Set error propagation variables */
+ra.error            = deltaRa      * fabs(ra.data);
+dec.error           = deltaDec     * fabs(dec.data);
+lst.error           = deltaLst     * fabs(lst.data);
+exptime.error       = deltaExptime * fabs(exptime.data);
+geolat.error        = deltaGeolat  * fabs(geolat.data);
+
+/* Calcule airmass */
+hdrl_value airm = hdrl_utils_airmass(ra, dec, lst, exptime, geolat, type);
+\end{lstlisting}

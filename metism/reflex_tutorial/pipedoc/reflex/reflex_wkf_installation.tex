@@ -1,0 +1,206 @@
+\section{Software Installation}\label{Sec:Software_Installation}
+
+{\tt Esoreflex} and the workflows can be installed in different ways:
+via package repositories, via the\linebreak {\tt install\_esoreflex}
+script or manually installing the software tar files.
+
+ The recommended way is to use the package repositories if your
+ operating system is supported. The {\tt macports} repositories
+ support macOS 10.14 to 11, while the {\tt rpm/yum} repositories
+ support Fedora 28 to 32, CentOS 7, Scientific Linux 7. For any other
+ operating system it is recommended to use the {\tt
+   install\_esoreflex} script.  
+
+ The installation from package repository requires administrative privileges
+ (typically granted via sudo), as it installs files in system-wide directories 
+ under the control of the package manager. If you want a local
+ installation, or you do not have sudo privileges, or if you want to
+ manage different installations on different directories, then use the
+ {\tt install\_esoreflex} script. Note that the script installation
+ requires that your system fulfill several software prerequisites,
+ which might also need sudo privileges.
+ 
+ Reflex 2.11.x needs java JDK 11 to be installed.
+ 
+ Please note that in case of major or minor (affecting the first two
+ digit numbers) Reflex upgrades, the user should erase the
+ \verb+$HOME/KeplerData+, \verb+$HOME/.kepler+ directories if present,
+ to prevent possible aborts (i.e. a hard crash) of the {\tt esoreflex}
+ process.
+
+ 
+\subsection{Installing Reflex workflows via \texorpdfstring{{\tt macports}}{macports} }
+
+ This method is supported for the macOS operating system. It is assumed that
+ macports\linebreak (\http{www.macports.org}) is installed.
+ Please read the full documentation at \newline
+ \http{www.eso.org/sci/software/pipelines/installation/macports.html}.
+
+\subsection{Installing Reflex workflows via \texorpdfstring{{\tt rpm/yum/dnf}}{rpm/yum/dnf} }
+
+ This method is supported for Fedora 28 to 32, CentOS 7,
+ Scientific Linux 7 operating systems, and requires sudo rights. To install, please follow these steps
+
+\begin{enumerate}
+
+\item Configure the ESO repository (This step is only necessary if the ESO repository has not already been previously configured).
+  \begin{itemize}
+  \item If you are running Fedora, run the following commands:
+\begin{verbatim}
+sudo dnf install dnf-plugins-core
+sudo dnf config-manager --add-repo=ftp://ftp.eso.org/pub/dfs/
+            pipelines/repositories/stable/fedora/esorepo.repo
+\end{verbatim}
+\item If you are running CentOS 7, run the following commands:
+\begin{verbatim}
+sudo yum install yum-utils ca-certificates yum-conf-repos
+sudo yum install epel-release
+sudo yum-config-manager --add-repo=ftp://ftp.eso.org/pub/dfs/
+           pipelines/repositories/stable/centos/esorepo.repo
+\end{verbatim}
+\item If you are running SL 7, run the following commands:
+\begin{verbatim}
+sudo yum install yum-utils ca-certificates yum-conf-repos
+sudo yum install yum-conf-epel
+sudo yum-config-manager --add-repo=ftp://ftp.eso.org/pub/dfs/
+    pipelines/repositories/stable/sl/esorepo.repo
+\end{verbatim}
+  \end{itemize}
+
+\item Install the pipelines
+\begin{itemize}
+\item The list of available top level packages for different instruments is given by:
+\begin{verbatim}
+sudo dnf list esopipe-\*-all # (Fedora)
+sudo yum list esopipe-\*-all # (CentOS 7, SL 7)
+\end{verbatim}
+ 
+\item To install an individual pipeline use the following (This example is for X-Shooter. Adjust the package name to the instrument you require.):
+\begin{verbatim}
+sudo dnf install esopipe-xshoo-all # (Fedora)
+sudo yum install esopipe-xshoo-all # (CentOS 7, SL 7)
+\end{verbatim}
+
+\item To install all pipelines use:
+\begin{verbatim}
+sudo dnf install esopipe-\*-all # (Fedora)
+sudo yum install esopipe-\*-all # (CentOS 7, SL 7)
+\end{verbatim}
+
+
+\end{itemize}
+
+\end{enumerate}
+
+
+ For further information, please read the full documentation at \newline
+ \http{www.eso.org/sci/software/pipelines/installation/rpm.html}.
+ 
+
+
+\subsection{Installing Reflex workflows via \texorpdfstring{{\tt install\_esoreflex}}{install\_esoreflex}}
+
+This method is recommended for operating systems other than what
+indicated above, or if the user has no sudo rights. Software
+dependencies are not fulfilled by the installation script, therefore
+the user has to install all the prerequisites before running the
+installation script.
+
+The software pre-requisites for {\tt Reflex \reflexvers} may be found at:\newline
+  \http{www.eso.org/sci/software/pipelines/reflex\_workflows}
+
+To install the {\tt Reflex \reflexvers} software and demo data, 
+please follow these instructions:
+\begin{enumerate}
+  \item From any directory, download the installation script:
+        {\small
+        \begin{verbatim}
+        wget https://ftp.eso.org/pub/dfs/reflex/install_esoreflex
+        \end{verbatim}
+        }
+
+  \item Make the installation script executable:
+        {\small
+        \begin{verbatim}
+        chmod u+x install_esoreflex
+        \end{verbatim}
+        }
+
+  \item Execute the installation script:
+        {\small
+        \begin{verbatim}
+        ./install_esoreflex
+        \end{verbatim}
+        }
+        and the script will ask you to specify three directories: the download
+        directory {\tt \verb|<|download\_dir\verb|>|}, the software
+        installation directory {\tt \verb|<|install\_dir\verb|>|}, 
+        and the directory to be used to store the demo data 
+        {\tt \verb|<|data\_dir\verb|>|}.
+        If you do not specify these directories, then the installation script 
+        will create them in the current directory with default names.
+        
+      \item Follow all the script instructions; you will be asked
+        whether to use your Internet connection (recommended: yes),
+        the pipelines and demo-datasets to install (note that the
+        installation will remove all previously installed pipelines
+        that are found in the same installation directory).
+ % \item You will be asked whether you want to use your Internet connection.
+ %       Unless you want to reuse already downloaded packages (only advanced
+ %       users), use the default Yes.
+
+%  \item You will be given a choice of pipelines (with the corresponding 
+ %       workflows) to install. Please specify the numbers for the pipelines 
+ %       you require, separated by a space, or type ``A'' for all pipelines.
+
+ % \item For the pipelines to be installed you will be prompted for the 
+ %       demo data sets to be installed. Type ``A'' for all demo datasets.
+ %       Take into account that if you are installing in a directory that 
+ %       already contains data, it won't be removed.
+
+ % \item The script will also detect whether previous versions of the 
+ %       workflows or Reflex were installed and in this case you have the
+ %       option to update links or remove obsolete cache directories. It is 
+ %       advised to use the defaults.
+
+ % \item If some of the prerequisite binaries for {\tt Reflex} are not under one
+ %       of the paths indicated by the command,
+ %       {\small
+ %       \begin{verbatim}
+ %       getconf PATH
+ %       \end{verbatim}
+ %       }
+ %       then you will need to add the appropriate paths as a colon separated
+ %       list to the {\tt esoreflex.path} parameter in the configuration file
+ %       {\tt \verb|<|install\_dir\verb|>|/etc/esoreflex.rc}. This will usually
+ %       be necessary when the FITS viewer ({\tt fv}) is installed outside of
+ %       {\tt /usr/bin}. As an example, assume {\tt fv} is installed into the
+ %       directory {\tt /usr/local/fv5.4}, the file {\tt esoreflex.rc} should
+ %       then have the line setting {\tt esoreflex.path} look similar to the
+ %       following:
+ %       {\small
+ %       \begin{verbatim}
+ %       esoreflex.path=/usr/local/fv5.4
+ %       \end{verbatim}
+ %       }
+ %       In the case of OS~X {\tt /Applications/fv.app/Contents/MacOS/} is the
+ %       typically installation directory. Thus, this should be similar to the
+ %       following line instead:
+ %       {\small
+ %       \begin{verbatim}
+ %       esoreflex.path=/opt/local/bin:/Applications/fv.app/Contents/MacOS
+ %       \end{verbatim}
+ %       }
+%%
+  \item To start {\tt Reflex}, issue the command:
+        {\small
+        \begin{verbatim}
+        <install_dir>/bin/esoreflex
+        \end{verbatim}
+        }
+        It may also be desirable to set up an alias command for starting the 
+        {\tt Reflex} software, using the shell command {\tt alias}. 
+        Alternatively, the {\tt PATH} variable can be updated to contain the
+        {\tt \verb|<|install\_dir\verb|>|/bin} directory.
+\end{enumerate}
+

@@ -1,0 +1,64 @@
+0.3
+---
+Added Quality Control Framework 
+Skeleton recipes added:
+- lm_adi_app (HCI)
+- img_adi_cgrph (HCI)
+Workflows added:
+- lm_ravc_wkf (HCI)
+- lm_app_wkf (HCI)
+Simulated Test Data
+- Unique filenames with updated tpl_start
+- HCI test dataset added
+Pipeline now installable through poetry and uv
+
+0.2.3
+---
+Reduction of content of delivery document to emphasis changes to the pipeline and what needs to be reviewed
+
+0.2.2
+---
+Functional recipes added:
+- det_dark
+Functional recipes updated:
+- cal_chophome
+- ifu_rsrf
+- lm_img_basic_reduce
+Skeleton recipes added:
+- LM + N LSS
+Workflow added:
+- LM + N LSS
+Updated small frame test data for skeleton recipes
+Additional full frame test data to improve test functional recipes
+
+0.2.1
+---
+Functional recipes added:
+- cal_chophome
+- ifu_rsrf
+- lm_img_basic_reduce
+Skeleton recipes added:
+- IMG_N recipes
+Workflow update:
+- IMG_N workflow added
+
+0.2
+---
+Recipes added:
+- IFU
+- IMG_LM
+- some calibration recipes
+Workflows added:
+- IFU
+- IMG_LM
+- pupil imaging
+GitHub repo for test data and SOF files
+
+0.1
+---
+
+Recipes added:
+- Subset of IMG_LM
+Workflow added:
+- IMG_LM
+Google drive with test data and SOF files

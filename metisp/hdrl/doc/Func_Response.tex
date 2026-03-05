@@ -1,0 +1,217 @@
+\subsection{Response}
+\label{response:main}
+
+This section deals with the HDRL module estimating the response as a 1D function of wavelength.
+
+\subsubsection{Algorithm - short description}
+The algorithm is divided in two parts: \textit{Telluric correction} and \textit{Response calculation}. In the provided implementation the \textit{Telluric correction} is optional and can be disabled by the user.
+
+\paragraph{Telluric Correction}
+
+The Telluric Correction functionality tries to find the best telluric model among the ones provided and uses it to correct the observed spectrum.
+The steps of the algorithm are as follows and they are repeated for each telluric model. The steps are grouped in two: \textit{Spectrum correction} and \textit{Quality evaluation}.
+
+\textbf{Spectrum correction: }aims to correct the observed spectrum with the provided telluric model.
+\begin{enumerate}
+\item Convert wavelength scale (in nm) of the telluric model and the
+  observation to natural logarithm if the ration $\lambda$/FWHM is
+  constant. A strong prerequisite is that the sampling step of the
+  logarithmic wavelength scale is very fine for both spectra to
+  provide proper sampling. These resampled spectra are used only for
+  the cross correlation described below;
+\item Extract the range of wavelengths needed to calculate the cross correlation (water vapour feature of medium strength);
+\item Cross correlate the telluric model with the observation spectrum
+  over the extracted range. The cross correlation is needed to
+  determine the shift and difference in resolution between the
+  telluric model spectrum and the observation;
+\item Fit a Gaussian around the cross correlation peak: finding the shift between the two spectra in sub-pixel precision and the FWHM;
+\item Repeat the previous two steps refining the cross-correlation interval around the identified peak position;
+\item Shift the telluric model by the shift obtained by the previous step;
+\item Create a Gaussian kernel of size equal to the measured FWHM;
+\item Convolve the shifted telluric model with the Gaussian kernel
+  (this assumes that the resolution of the telluric model is much
+  higher than that of the observation);
+\item Convert the shifted and convolved telluric model to linear wavelength space (if needed). Resample it using integration to the wavelengths of the observed spectrum;
+\item Divide the observed spectrum by the convolved and shifted telluric model: this is the \textit{corrected observed spectrum};
+\end{enumerate}
+
+\textbf{Quality evaluation: } aims to evaluate the quality of the \textit{corrected observed spectrum} calculated in the previous step.
+\begin{enumerate}
+\item Using the predefined continuum points, fit a spline to the \textit{corrected observed spectrum} without smoothing;
+\item Divide the \textit{corrected observed spectrum} by the continuum fit;
+\item Calculate the mean $m_r$ of this ratio, skipping high absorption
+  areas as well as regions without telluric absorption. 
+\end{enumerate}
+
+The quantity $q = |m_r - 1|$ is used as quality indicator for the fit of the telluric model. The model having the lowest $q$ is deemed the best and its corresponding \textit{corrected observed spectrum} is used in the \textit{Response calculation} step. 
+If telluric correction is disabled by the user, the \textit{Response calculation} step uses the unmodified observed spectrum.
+
+\paragraph{Response Calculation}
+
+\textbf{Velocity compensation: } this step can be disabled by the user and it is divided in two steps.
+\begin{enumerate}
+\item Determine the radial velocity of the observed (possibly telluric- corrected) spectrum by fitting a Gaussian to a known stellar line;
+\item Apply the radial velocity to the stellar model spectrum as $\lambda = \lambda_0(1+\frac{RV}{c})$.
+\end{enumerate}
+
+
+The remaining steps to complete the response calculation are:
+\begin{enumerate}
+\item Calculate the raw response as described in equation \ref{eq:resp};
+\item Define fit points at which the median of the flux within a given window is determined, avoiding region of very {high telluric absorption} as well as the cores of the stellar lines;
+\item Fit a spline through the points determined in the previous step.
+\end{enumerate}
+
+The response is calculated according to 
+
+\begin{equation}
+R(\lambda)=  \frac{I_{std-ref}^{(r)}(\lambda) \cdot 10^{[ 0.4(A_p- A_m)E_x^{(r)}(\lambda)] } \cdot G \cdot T_{ex}}{I_{std}(\lambda)}
+\label{eq:resp}
+\end{equation}
+where:
+
+\begin{itemize}
+
+\item $I_{std}(\lambda)$ is the observed 1D spectrum [ADU] as function of wavelength [nm]. If telluric correction is enabled, 
+
+\item  $E_x^{(r)}(\lambda)$ is the resampled atmospheric extinction [mag/airmass] as function of wavelength [nm]. The corresponding, user-provided spectrum is denoted as $E_x(\lambda)$;
+
+\item $A_m$ is the airmass of the observed standard star spectrum;
+
+\item $A_p$ is a parameter to indicate if the response is computed at $A_m=0$ or at a given value (usually the one at which the reference standard star spectrum may be tabulated);
+
+\item $G$ is the gain  of the detector in [ADU/e];
+
+\item $I_{std-ref}^{(r)}(\lambda)$ resampled reference standard star spectrum. The wavelength is expressed in [nm]. The corresponding, user-provided spectrum is denoted as $I_{std-ref}(\lambda)$; 
+\end{itemize} 
+
+$E_x(\lambda)$  and $I_{std-ref}(\lambda)$ are resampled by the provided routine to match the wavelengths $I_{std}(\lambda)$ is defined on. If they already match the resampling is skipped. $R(\lambda)$ is defined for $\lambda$ only if $\lambda$ is contained in the interval $E_x(\lambda)$  and $I_{std-ref}(\lambda)$ are defined on. 
+
+\subsubsection{Functions}
+The response is computed by the following function call:
+
+\begin{lstlisting}
+hdrl_response_result *
+hdrl_response_compute(
+        const hdrl_spectrum1D * obs_s,
+        const hdrl_spectrum1D * ref_s,
+        const hdrl_spectrum1D * E_x,
+        const hdrl_parameter * telluric_par,
+        const hdrl_parameter * velocity_par,
+        const hdrl_parameter * calc_par,
+        const hdrl_parameter * fit_par)
+\end{lstlisting}
+
+\subsubsection{Inputs}
+\label{sec:algorithms:response:inputs}
+The input parameters to be passed to \verb+hdrl_response_compute+ are created executing the following function calls:
+
+\begin{lstlisting}
+
+hdrl_parameter * telluric_par = 
+hdrl_response_telluric_evaluation_parameter_create(telluric_models,
+        x_corr_w_step, xcorr_half_win, xcorr_normalize, 
+        xcorr_is_shift_in_log, quality_areas, fit_areas, 
+        lmin, lmax);
+\end{lstlisting}
+
+
+\verb+telluric_par+ contains the parameters needed to perform the telluric correction, the parameters can be divided in parameters needed to perform che cross-correlation, and hence determine the shift, and parameters needed to calculate the quality of the fit.
+
+
+
+\begin{lstlisting}
+hdrl_parameter * velocity_par = 
+hdrl_spectrum1D_shift_fit_parameter_create(velocity_wguess,
+    		velocity_range_wmin, velocity_range_wmax, 
+    		velocity_fit_wmin, velocity_fit_wmax, 
+    		velocity_fit_half_win);
+\end{lstlisting}
+
+
+\verb+velocity_par+ contains the parameters needed to perform the velocity correction.
+
+
+
+\begin{lstlisting}
+hdrl_parameter * calc_par = 
+hdrl_response_parameter_create(Ap, Am, G, Tex);
+\end{lstlisting}
+
+
+\verb+calc_par+ contains the parameters needed to calculate the result of \ref{eq:resp}.
+
+
+
+\begin{lstlisting}
+hdrl_parameter * fit_par =
+    hdrl_response_fit_parameter_create(11, fit_points, 
+	fit_wrange, high_abs_regions);
+\end{lstlisting}
+
+
+\verb+fit_par+ contains the parameters needed to execute the final fit, after \ref{eq:resp} is performed.
+
+
+
+
+\subsubsection{Outputs}
+The function returns a struct of type \verb+hdrl_response_result+ containing the response as an \verb+hdrl_spectrum1D+ and other parameters that can be used for QC purposes. For a complete description of such parameters, please, refer to the documentation of \verb+hdrl_response_result+.
+
+\subsubsection{Examples}
+The following listing shows how to calculate the efficiency using the user-provided spectra and parameters.
+The user has already provided the following spectra:
+\begin{itemize}
+\item \verb+I_std+: observed spectrum, wavelength in [nm];
+\item \verb+I_std_ref+: model of the spectrum of the observed star, wavelength in [nm]. If defined on different wavelengths than \verb+I_std+ the function will resample it using \textit{Akima} interpolation;
+\item \verb+E_x+: atmospheric extinction wavelength in [nm]. If defined on different wavelengths than \verb+I_std+ the function will resample it using \textit{Akima} interpolation \footnote{See: \url{https://www.gnu.org/software/gsl/manual/html_node/Interpolation-Types.html}}.
+\end{itemize}
+\begin{lstlisting}
+
+hdrl_parameter * telluric_par = 
+hdrl_response_telluric_evaluation_parameter_create(telluric_models,
+        x_corr_w_step, xcorr_half_win, xcorr_normalize, 
+        xcorr_is_shift_in_log, quality_areas, fit_areas, 
+        lmin, lmax);
+
+hdrl_parameter * velocity_par = 
+hdrl_spectrum1D_shift_fit_parameter_create(velocity_wguess,
+    		velocity_range_wmin, velocity_range_wmax, 
+    		velocity_fit_wmin, velocity_fit_wmax, 
+    		velocity_fit_half_win);
+    		
+hdrl_parameter * calc_par = 
+hdrl_response_parameter_create(Ap, Am, G, Tex);
+
+hdrl_parameter * fit_par =
+    hdrl_response_fit_parameter_create(11, fit_points, 
+	fit_wrange, high_abs_regions);
+
+hdrl_response_result *
+response_res = hdrl_response_compute(
+            		I_std, 
+            		I_std_ref,
+            		E_x,
+            		telluric_par,
+            		velocity_par,
+            		calc_par ,
+            		fit_par);
+
+hdrl_parameter_delete(telluric_par);
+hdrl_parameter_delete(velocity_par);
+hdrl_parameter_delete(calc_par);
+hdrl_parameter_delete(fit_par);
+
+/*... use the content of response_res  */
+
+hdrl_response_result_delete(response_res);
+
+\end{lstlisting}
+
+\subsubsection{Notes}
+\begin{itemize}
+\item The fluxes of the observed and model spectra must be expressed in the same units. Usually the model is given in  erg/s/cm2/Angstrom. Therefore the user should correct the observed spectrum accordingly, by, e.g. a factor equal to the sampling bin size expressed in Angstrom unit;
+\item The response should be determined in optimal (photo-metric) atmospheric conditions.
+Furthermore, in case of different modes, the results of one mode cannot be compared with the results of the other. For example, if the observation facility has support for a Laser Guide Star (LGS) observation can be obtained either using LGS or using a Natural Guide Star (NGS). Results obtained with NGS cannot be compared with the ones obtained with LGS;
+\item Observations should be obtained in the same optical setting mode.
+\end{itemize}

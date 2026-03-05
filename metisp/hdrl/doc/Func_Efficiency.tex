@@ -1,0 +1,93 @@
+\subsection{Efficiency}
+\label{efficiency:main}
+
+This section deals with the HDRL module estimating the efficiency as a 1D function of wavelength.
+
+The efficiency is used to monitor the system performance and health. It is calculated observing flux standard stars (in photometric conditions). Then, the observed 1D spectrum is compared with the reference spectrum, as it would be observed outside the Earth's atmosphere. The reference spectrum is provided by the user, usually via a catalog of standard stars. 
+
+
+\subsubsection{Algorithm - short description}
+The efficiency is calculated according to 
+
+\begin{equation}
+\epsilon(\lambda)=  \frac{I_{std}(\lambda) \cdot 10^{[ -0.4(A_p- A_m)E_x^{(r)}(\lambda)] } \cdot G \cdot E_{ph}(\lambda)}{[ T_{ex} A_{tel} I_{std-ref}^{(r)}(\lambda) ]}
+\label{eq:eff}
+\end{equation}
+where:
+
+\begin{itemize}
+
+\item $I_{std}(\lambda)$ is the observed 1D spectrum [ADU] as function of wavelength [nm];
+
+\item  $E_x^{(r)}(\lambda)$ is the resampled atmospheric extinction as function of wavelength[mag/airmass]. The wavelength is expressed in [nm]. The corresponding, user-provided spectrum will be here indicated as $E_x(\lambda)$;
+
+\item $A_m$ is the airmass of the observed standard star spectrum;
+
+\item $A_p$ is a parameter to indicate if the efficiency is computed at $A_m=0$ or at a given value (usually the one at which the reference standard star spectrum may be tabulated);
+
+\item $G$ is the gain  of the detector in [e/ADU];
+
+\item $E_{ph}(\lambda)$ is the energy of one photon at wavelength $\lambda$. $E_{ph}(\lambda)=\frac{hc}{\lambda} = \frac{1.986\cdot{}10^{-12}}{\lambda }J/{\mu}m$. $\lambda$ is expressed in ${\mu}m$;
+
+\item $I_{std-ref}^{(r)}(\lambda)$ resampled reference standard star spectrum. The wavelength is expressed in [nm]. The corresponding, user-provided spectrum is denoted as $I_{std-ref}(\lambda)$; 
+
+\item $h = 6.62618\cdot 10^{-34}$ Js (Planck constant);
+
+\item $c = 2.998\cdot 10^8$ m/s (Speed of Light);
+
+\end{itemize} 
+
+$E_x(\lambda)$  and $I_{std-ref}(\lambda)$ are resampled by the provided routine to match the wavelengths $I_{std}(\lambda)$ is defined on. If they already match the resampling is skipped.  $\epsilon(\lambda)$ is defined for $\lambda$ only if $\lambda$ is contained in the interval $E_x(\lambda)$  and $I_{std-ref}(\lambda)$ are defined on. 
+
+\subsubsection{Functions}
+The efficiency is computed by the following function call:
+
+\begin{lstlisting}
+hdrl_spectrum1D * hdrl_efficiency_compute(const hdrl_spectrum1D * I_std,
+const hdrl_spectrum1D * I_std_ref,const hdrl_spectrum1D * E_x,
+const hdrl_parameter * pars)
+\end{lstlisting}
+where \verb+I_std+ is $I_{std}(\lambda)$, \verb+I_std_ref+ is $I_{std-ref}(\lambda)$ and \verb+E_x+ is $E_x(\lambda)$. \verb+pars+ is an \verb+hdrl_parameter+ structure containing all the other parameters required by \ref{eq:eff}, e.g. $G$.
+
+\subsubsection{Inputs}
+\label{sec:algorithms:efficiency:inputs}
+The input parameter \verb+pars+ to be passed to \verb+hdrl_efficiency_compute+ is created executing the following function call:
+\begin{lstlisting}
+hdrl_parameter* hdrl_efficiency_parameter_create(
+        const hdrl_value Ap, const hdrl_value Am, const hdrl_value G,
+        const hdrl_value Tex, const hdrl_value Atel)
+\end{lstlisting}
+where the various input parameters are the ones in \ref{eq:eff}. Note that every parameter is an \verb+hdrl_value+, hence an error can be also provided. In that case the routine performs error propagation.
+
+\subsubsection{Outputs}
+\verb+hdrl_efficiency_compute+ creates as output a \verb+hdrl_spectrum1D+ structure, containing the calculated efficiency.
+
+\subsubsection{Examples}
+The following listing shows how the implemented HDRL function calculates the efficiency using the user-provided spectra and parameters.
+The user has already provided the following spectra:
+
+\begin{itemize}
+\item \verb+I_std+: observed spectrum, wavelength in [nm];
+\item \verb+I_std_ref+: model of the spectrum of the observed star, wavelength in [nm]. If defined on different wavelengths than \verb+I_std+ the function will resample it using \textit{Akima} interpolation;
+\item \verb+E_x+: atmospheric extinction wavelength in [nm]. If defined on wavelengths different than \verb+I_std+ the function will resample it using \textit{Akima} interpolation \footnote{See: \url{https://www.gnu.org/software/gsl/manual/html_node/Interpolation-Types.html}}.
+\end{itemize}
+\begin{lstlisting}
+
+hdrl_parameter * pars = hdrl_efficiency_parameter_create(
+            (hdrl_value){1.2, 0.0},
+            (hdrl_value){4.0, 0.0},
+            (hdrl_value){1.0, 0.2},
+            (hdrl_value){1.1, 0.0},
+            (hdrl_value){2.2, 0.0});
+
+hdrl_spectrum1D * sp_eff = hdrl_efficiency_compute(I_std, I_std_ref, 
+                                                   E_x, pars);
+
+hdrl_parameter_delete(pars); 
+
+\end{lstlisting}
+
+\subsubsection{Notes}
+The fluxes of the observed and model spectra must be expressed in the same units. Usually the model is given in  erg/s/cm2/Angstrom. Therefore the user should correct the observed spectrum accordingly, by, e.g. a factor equal to the sampling bin size expressed in Angstrom unit.
+
+

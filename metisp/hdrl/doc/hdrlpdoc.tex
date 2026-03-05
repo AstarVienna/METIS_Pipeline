@@ -1,0 +1,273 @@
+\documentclass[pdftex,a4paper,twoside,11pt]{article}
+\NeedsTeXFormat{LaTeX2e}
+
+
+%% Include layout, additional commands and abbreviations
+\input{layout}
+\input{shortcut}
+
+\pdmProgram{GEN}
+\pdmProject{Science Operation Software Department}
+\pdmTitle{HDRL Pipeline Developer Manual}
+\pdmDocId{ESO-299492}
+\pdmDocVersion{6}
+\pdmSoftwareVersion{1.5.0}
+\pdmDocType{Manual (MAN)}
+\pdmDocDate{\DTMdate{2022-06-01}}
+\pdmPreparedBy{}
+\pdmValidatedBy{}
+\pdmApprovedBy{}
+
+\setlongtables
+\makeindex
+
+\bibliographystyle{plain} 
+
+\begin{document}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{typecol}{rgb}{0.87, 0.36, 0.38}
+
+\lstset{
+    language=C,               % choose the language of the code
+    backgroundcolor=\color{white},  % choose the background color.
+    breakatwhitespace=true, 
+    frame=shadowbox,
+%    rulesepcolor=\color{blue},
+    basicstyle=\ttfamily,
+%    stringstyle=\color{red}\ttfamily,
+    stringstyle=\color{mymauve}\ttfamily,
+    commentstyle=\color{mygreen}\ttfamily,
+    keywordstyle=\color{typecol}\ttfamily,
+    morekeywords={*, hdrl_value, hdrl_image, hdrl_imagelist, hdrl_parameter,
+      hdrl_direction, hdrl_bpm_3d_method, hdrl_mode_type, hdrl_image_extend_method},
+    morekeywords={*, hdrl_overscan_compute_result, hdrl_overscan_correct_result},
+    morekeywords={*, hdrl_strehl_result, hdrl_catalogue_result,
+      hdrl_catalogue_options, hdrl_resample_result},
+    morekeywords={*, hdrl_bitmask_t, HDRL_ITER_OWN_OUTPUT, size_t, hdrl_iter,
+        hdrl_buffer},
+    morekeywords={*, hdrl_spectrum1D, hdrl_spectrum1D_wavelength, hdrl_spectrum1D_interp_akima, hdrl_response_result},
+    morekeywords={*, cpl_image, cpl_table, cpl_mask, cpl_imagelist, cpl_size,
+      cpl_parameterlist, cpl_propertylist,
+        cpl_parameter, cpl_error_code, cpl_filter_mode, cpl_wcs,
+        cpl_border_mode, cpl_vector, cpl_boolean},
+    keywordstyle=[2]{\color{blue}\ttfamily},
+    morekeywords=[2]{hdrl_overscan_compute, hdrl_overscan_parameter_create,
+        hdrl_collapse_mean_parameter_create,
+        hdrl_collapse_median_parameter_create,
+        hdrl_collapse_weighted_mean_parameter_create,
+        hdrl_collapse_sigclip_parameter_create,
+        hdrl_collapse_minmax_parameter_create,
+        hdrl_collapse_mode_parameter_create,
+        hdrl_rect_region_parameter_create,
+        hdrl_overscan_compute_result_get_correction,
+        hdrl_overscan_compute_result_get_contribution,
+        hdrl_overscan_compute_result_get_chi2,
+        hdrl_overscan_compute_result_get_red_chi2,
+        hdrl_overscan_compute_result_get_sigclip_reject_low,
+        hdrl_overscan_compute_result_get_sigclip_reject_high,
+        hdrl_overscan_compute_result_get_minmax_reject_low,
+        hdrl_overscan_compute_result_get_minmax_reject_high,
+        hdrl_overscan_compute_result_delete,
+        hdrl_overscan_correct,
+        hdrl_overscan_compute,
+        hdrl_overscan_correct_result_get_corrected,
+        hdrl_overscan_correct_result_unset_corrected,
+        hdrl_overscan_correct_result_get_badmask,
+        hdrl_overscan_correct_result_delete,
+        hdrl_overscan_parameter_create_parlist,
+        hdrl_overscan_parameter_parse_parlist,
+        hdrl_catalogue_parameter_create_parlist,
+        hdrl_catalogue_parameter_parse_parlist,
+        hdrl_catalogue_result_delete,
+        hdrl_spectrum1D_resample_interpolate_parameter_create,
+        hdrl_efficiency_compute,
+        hdrl_spectrum1D_get_wavelength,
+        hdrl_spectrum1D_resample,
+        hdrl_spectrum1D_mul_scalar,
+        hdrl_spectrum1D_mul_scalar_create,
+        hdrl_spectrum1D_convert_to_table,
+        hdrl_efficiency_parameter_create,
+        hdrl_response_compute,
+        hdrl_response_telluric_evaluation_parameter_create, 
+        hdrl_spectrum1D_shift_fit_parameter_create,
+        hdrl_response_parameter_create,
+        hdrl_response_fit_parameter_create,
+        hdrl_response_result_delete
+    },
+    morekeywords=[2]{hdrl_parameter_destroy, hdrl_parameter_delete},
+    morekeywords=[2]{hdrl_imagelist_collapse_mean,
+        hdrl_imagelist_collapse_median,
+        hdrl_imagelist_collapse_weighted_mean,
+        hdrl_imagelist_collapse_sigclip,
+        hdrl_imagelist_collapse_minmax,
+        hdrl_imagelist_collapse_mode,
+        hdrl_imagelist_collapse,
+        hdrl_imagelist_new,
+        hdrl_imagelist_set,
+        hdrl_imagelist_sub_image,
+        hdrl_collapse_parameter_create_parlist,
+        hdrl_collapse_parameter_parse_parlist,
+        hdrl_collapse_parameter_is_mean,
+        hdrl_collapse_parameter_is_median,
+        hdrl_collapse_parameter_is_weighted_mean,
+        hdrl_collapse_parameter_is_sigclip,
+        hdrl_collapse_sigclip_parameter_get_kappa_low,
+        hdrl_collapse_sigclip_parameter_get_kappa_high,
+        hdrl_collapse_sigclip_parameter_get_niter
+    },
+    morekeywords=[2]{hdrl_imagelist_add_scalar,hdrl_imagelist_mul_scalar,
+        hdrl_imagelist_row_view,
+        hdrl_imagelist_create,
+        hdrl_imagelist_delete,
+        hdrl_imagelist_get_iter_row_slices,
+    },
+    morekeywords=[2]{hdrl_image_create, hdrl_image_duplicate,
+        hdrl_image_add_scalar,
+        hdrl_image_add_image,
+        hdrl_image_mul_scalar,
+        hdrl_image_sub_image,
+        hdrl_image_div_scalar,
+        hdrl_image_reject,
+        hdrl_image_delete,
+        hdrl_iter_next,
+        hdrl_iter_delete,
+        process,
+        process_big_data,
+    },
+    morekeywords=[2]{hdrl_spectrum1D_delete,
+    },
+    morekeywords=[2]{
+        hdrl_buffer_allocate,
+        hdrl_buffer_free,
+        hdrl_buffer_delete,
+        hdrl_buffer_new,
+        hdrl_image_new_from_buffer,
+    },
+    morekeywords=[2]{cpl_parameterlist_get_first, cpl_parameterlist_get_next,
+        cpl_parameterlist_append,
+        cpl_parameterlist_delete,
+        cpl_parameterlist_disable,
+    },
+    morekeywords=[2]{hdrl_bpm_2d_compute, hdrl_bpm_3d_compute,
+      hdrl_bpm_fit_compute, hdrl_lacosmic_edgedetect,
+       hdrl_bpm_2d_parameter_create_filtersmooth,
+       hdrl_bpm_2d_parameter_create_legendresmooth,
+       hdrl_bpm_3d_parameter_create,
+       hdrl_bpm_fit_parameter_create_pval,
+       hdrl_bpm_fit_parameter_create_rel_chi,
+       hdrl_bpm_fit_parameter_create_rel_coef,
+       hdrl_lacosmic_parameter_create,   
+    },
+    morekeywords=[2]{hdrl_fringe_compute, hdrl_fringe_correct,   
+    },
+    morekeywords=[2]{hdrl_flat_compute, hdrl_flat_parameter_create,
+    },
+    morekeywords=[2]{hdrl_catalogue_compute, hdrl_catalogue_parameter_create,
+    },
+    morekeywords=[2]{hdrl_strehl_compute, hdrl_strehl_parameter_create,
+    },
+    morekeywords=[2]{hdrl_fpn_compute,
+    },
+    morekeywords=[2]{hdrl_resample_imagelist_to_table,
+      hdrl_resample_image_to_table,
+      hdrl_resample_compute,
+      hdrl_resample_result_delete,
+      hdrl_resample_parameter_create_outgrid2D,
+      hdrl_resample_parameter_create_outgrid3D,
+      hdrl_resample_parameter_create_outgrid2D_userdef,
+      hdrl_resample_parameter_create_outgrid3D_userdef,
+      hdrl_resample_parameter_create_renka,
+      hdrl_resample_parameter_create_drizzle,
+      hdrl_resample_parameter_create_nearest,
+      hdrl_resample_parameter_create_linear,
+      hdrl_resample_parameter_create_quadratic,
+      hdrl_resample_parameter_create_lanczos
+    },
+    morekeywords=[2]{hdrl_download_url_to_buffer,
+      hdrl_download_url_to_file,
+      hdrl_barycorr_compute,
+      hdrl_eop_data_totable
+    },
+    morekeywords=[2]{hdrl_maglim_compute,
+    }
+}
+
+\pagenumbering{arabic}
+\pdmmaketitle
+
+\begin{center}
+  \textbf{\Large Authors}
+  
+\begin{tabularx}{\linewidth}{|p{0.25\linewidth}|X|}
+  \hline
+  \multicolumn{1}{|l|}{\textbf{Name}}\tbspa &
+  \multicolumn{1}{l|}{\textbf{Affiliation}} \tbspb \\
+  \hline
+  \tbspa
+  The HDRL Team & ESO \tbspb\\
+  \hline
+\end{tabularx}
+\end{center}
+
+\begin{center}
+  \textbf{\Large Change record}
+
+  \tablehead{\hline
+    \multicolumn{1}{|c|}{Issue/Rev.}\tbspa &
+    \multicolumn{1}{|c|}{Date} &
+    \multicolumn{1}{|c|}{Section/Parag.\ affected} &
+    \multicolumn{1}{|c|}{Reason/Initiation/Documents/Remarks}\tbspb \\
+    \hline}
+  \tabletail{\hline}
+
+  \begin{supertabular}{|l|l|l|l|}
+    0.0.1\tbspa   & 26/04/2013 & All & Overscan Computation \& Correction \\
+    0.0.2\tbspa   & 09/08/2013 & All & Master Bias \& Master Dark \\
+    0.0.3\tbspa   & 29/11/2013 & All & First Release \\
+    0.1.0\tbspa   & 17/09/2014 & \ref{sec:bpm:main} & Bad Pixel Detection \\
+    0.1.5\tbspa   & 15/12/2014 & All & Clipping Algorithm: IQR $\rightarrow$ MAD, Library Integration \\
+    0.2.0\tbspa   & 01/05/2015 & \ref{flat:main}, \ref{strehl:main} & Master Flatfield, Strehl Ratio \\
+    0.3.0b1\tbspa & 26/11/2015 & \ref{flat:main}, \ref{fringe:main} & Master Flatfield, Master Fringe \\
+    1.0.0\tbspa   & 01/04/2017 & \ref{catalogue:main} & Object catalogue generation \\
+    1.1.0\tbspa   & 01/04/2018 & \ref{strehl:main}, \ref{efficiency:main}, \ref{response:main} & Strehl Ratio, Spectral Efficiency, Spectral Response,\\
+                  &            & \ref{refraction:main} and \ref{chap:DAR}, \ref{airmass:main} & Differential Atmospheric Refraction, Effective air mass \\
+    1.2.0\tbspa   & 01/10/2018 & \ref{patternnoise:main}, \ref{sec:algorithms:strehl:example}, \ref{efficiency:main} & Fixed Pattern Noise, Strehl Ratio, Spectral Efficiency\\
+    1.3.0\tbspa   & 12/02/2021 & \ref{resampling:main} and \ref{chap:assessing:resampling} & Resampling and Assessment of 2D images and 3D cubes \\
+    1.4.0\tbspa   & 30/09/2021 & \ref{sec:algorithms:maglim:main}, \ref{chap:algorithms:maglim}, and \ref{sec:algorithms:robust_mean:mode} & Limiting magnitude and distribution mode \\
+    1.5.0\tbspa   & 01/06/2022 & \ref{sec:algorithms:barycorr:main}, \ref{SoftwareInfrastructure:Releases}, and \ref{library_dependencies} & Barycentric correction and library dependencies \\
+
+  \end{supertabular}
+\end{center}
+
+\clearpage
+
+{\small
+\tableofcontents
+%\cleardoublepage
+}
+\include{Introduction}
+\include{SoftwareInfrastructure}
+\include{CoreConcepts}
+\include{Functionalities}
+\include{Cookbook}
+
+\appendix
+%\include{installation}
+\include{abbreviations}
+\include{Theory_General}
+\include{Theory_BP}
+\include{Theory_Fringing}
+\include{Theory_Catalogue}
+\include{Theory_Efficiency}
+\include{Theory_Response}
+\include{Theory_Refraction}
+\include{Theory_Patternnoise}
+\include{Theory_Resampling}
+\include{Theory_MagLim}
+\begin{center}
+  \bf{--- End of document ---}
+\end{center}
+\end{document}

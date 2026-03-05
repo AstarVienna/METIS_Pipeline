@@ -1,0 +1,147 @@
+\subsection{Strehl}
+\label{strehl:main}
+
+The most commonly used metric for evaluating the AO correction is the Strehl
+ratio. The Strehl ratio is defined as the ratio of the peak image intensity
+from a point source compared to the maximum attainable intensity using an
+ideal optical system limited only by diffraction over the telescope aperture.
+The Strehl ratio is very frequently used to perform the quality control of
+the scientific data obtained with the AO assisted instrumentation.
+
+ 
+\subsubsection{Algorithm - short description}
+
+ The implemented HDRL function assumes that the input raw image
+ contains a single object and it is
+ already pre-processed. This means that the instrument signature (bad pixels,
+CRH detection, bias level and dark current subtraction,  flat fielding
+etc.) has been removed and the contribute from the sky background subtracted.
+ 
+ This function allows also the user to correct a residual
+ local sky background evaluated in an annular region centred on the peak of the
+ (expected single) object PSF, by setting the values of the
+ corresponding parameters, which control the minimum and maximum radii
+ of the annular region,  \verb+bkg_radius_low+,
+ \verb+bkg_radius_high+ (in arcsec units). 
+
+ The PSF is identified and its integrated flux, whose determination is
+ controlled by the parameter \verb+flux_radius+, in arcsec, is normalized to 1. 
+
+ Next the PSF barycentre is computed and used to generate the
+ theoretical normalised PSF. This depends on: 
+
+ i) the telescope pupil
+ characteristics (telescope radius and central obstruction parameters, 
+ \verb+m1_radius+, \verb+m2_radius+); 
+
+ ii) the wavelength (parameter \verb+wavelength+ ) at which the image 
+ has been obtained, all expressed in m units; 
+ 
+ iii) the detector pixel scale on 
+ sky in arcsec (parameters \verb+pixel_scale_x+, \verb+pixel_scale_y+). 
+ 
+ Then the Strehl ratio is obtained by dividing the maximum intensity
+ of the image PSF by the maximum intensity of the ideal PSF. The
+ associated error is finally computed.
+ 
+\subsubsection{Functions}
+
+The Strehl of an image and its error are computed by the following
+function call:
+
+\begin{lstlisting}
+hdrl_strehl_result
+hdrl_strehl_compute(const hdrl_image * himg, hdrl_parameter* params)
+
+\end{lstlisting}
+             
+where \verb+hima+ is the HDRL input image on which the Strehl has to
+be computed, and \verb+params+ is a \verb+hdrl_parameter+ structure
+specifying the parameters controlling the Strehl computation.
+           
+\subsubsection{Inputs}
+\label{sec:algorithms:strehl:inputs}
+The input parameters to be passed to the function to compute the
+Strehl are created by the following function call:
+
+\begin{lstlisting}
+hdrl_parameter * params = hdrl_strehl_parameter_create(
+        double              wavelength, 
+        double              m1_radius, 
+        double              m2_radius, 
+        double              pixel_scale_x, 
+        double              pixel_scale_y, 
+        double              flux_radius, 
+        double              bkg_radius_low, 
+        double              bkg_radius_high);
+\end{lstlisting}
+
+\subsubsection{Outputs}
+
+
+The function creates an output \verb+hdrl_strehl_result+ structure
+containing the following quantities:
+
+\begin{lstlisting}
+typedef struct {
+    /* computed strehl value and its propagated error */
+    hdrl_value strehl_value;
+    /* computed x and y position of the star peak */
+    double star_x, star_y;
+    /* star peak and its propagated error */
+    hdrl_value star_peak;
+    /* star flux and its propagated error */
+    hdrl_value star_flux;
+    /* star background and its propagated error */
+    hdrl_value star_background;
+    /* star background error estimated from image
+     * on normal data sqrt(pi / 2) larger that star_background error as 
+     * it is estimated via a median */
+    double computed_background_error;
+    /* number of pixels used for background estimation */
+    size_t nbackground_pixels;
+} hdrl_strehl_result;
+\end{lstlisting}
+
+\subsubsection{Examples}
+\label{sec:algorithms:strehl:example}
+
+If the user would like to compute the Strehl of an image observed at
+1.635 $\mu$m with a telescope 
+\footnote{The telescope diameter and central
+  obstruction values indicated in this example refer to the Palomar 
+telescope.} 
+of 5.08 m diameter with a central obstruction of 1.8288 m,
+and the detector pixel size on Sky is
+$33.1932 \mbox{ mas} \times 33.1932 \mbox{ mas}$ (1 mas = 0.001 arcsec), 
+integrating the observed image PSF over
+a radius of 1.5 arcsec where the sky background is computed on the
+annular region defined by the internal and external radii respectively
+of 1.5 and 2.5 arcsec, the following function calls would do the job:  
+
+\begin{lstlisting}
+
+  hdrl_strehl_result          strehl;
+
+  hdrl_parameter * params = hdrl_strehl_parameter_create(1.635e-6,
+  5.08/2, 1.8288/2, 0.0331932, 0.0331932, 1.5, 1.5, 2.5);
+
+  strehl = hdrl_strehl_compute(hima, params);
+\end{lstlisting}
+
+Please note that for ESO-VLT instruments, the UT telescope diameter is
+8.115 m, while the central obstruction depends on the instrument used,
+some instrument deploy a buffle, some not. The user is recommended to
+adopt the following obstruction values:
+\begin{itemize}
+\item 1.116m for UT1-3 with no baffle (KMOS, NACO, VISIR, SPHERE)
+\item 1.550m for UT1-3 with baffle (FORS, X-shooter, UVES, FLAMES)
+\item 1.550m for UT4 (all instruments) 
+\end{itemize}
+
+\subsubsection{Strehl Parameters in a Recipe}
+The computation of the Strehl is usually part of a more complex recipe
+to reduce standard stars or science objects. Concerning the parameters
+to be defined to compute this quantity the user has to create a 
+\verb+hdrl_parameter+ object as described in 
+Section~\ref{sec:algorithms:strehl:inputs}.

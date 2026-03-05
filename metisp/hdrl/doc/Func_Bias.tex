@@ -1,0 +1,169 @@
+\subsection{Bias}
+\label{sec:algorithms:bias:main}
+
+Bias frames give the read out of the CCD detector for zero integration 
+time with the shutter closed. That means that any frame acquisition
+with shutter open (either a calibration or a science observation) need
+to be bias corrected. Bias frames are acquired in optical (e.g UVB or
+VIS) domain.
+In order to have a more accurate estimation of the bias, they are typically
+taken as a set of (usually five) bias frames that have to be combined into
+a master to increase the S/N level.
+
+\subsubsection{Algorithm - short description}
+\label{sec:algorithms:bias:algo}
+
+Combining multiple images to one master image is handled by
+\verb+hdrl_imagelist_collapse+~(see
+section~\ref{sec:imagelist:collapsing}).  In order to be robust
+against outliers (like cosmic ray hits) it is recommended to use the
+median or sigma clipping collapse methods. Both methods are robust
+against outliers but the median has a low statistical efficiency so
+its result will have a higher uncertainty than collapsing images with
+few outliers via sigma clipping.
+
+\subsubsection{Functions}
+\label{sec:algorithms:bias:functions}
+
+The master bias is computed by using the general
+\verb+hdrl_imagelist_collapse+ function:
+
+\begin{lstlisting}
+cpl_error_code hdrl_imagelist_collapse(
+        const hdrl_imagelist    *   himlist,
+        const hdrl_parameter    *   param,
+        hdrl_image              **  out,
+        cpl_image               **  contrib)
+\end{lstlisting}
+The \verb+out+ and \verb+contrib+ pointers are filled with allocated
+result images which must be deleted by the user when not required
+anymore.
+
+\subsubsection{Inputs}
+\label{sec:algorithms:bias:inputs}
+
+The input parameter \verb+param+ that needs to be passed to the
+collapse function is a \verb+hdrl_parameter+ who's type defines the
+exact collapse method which is applied. Currently available are:
+\begin{itemize}
+\item \verb+hdrl_collapse_mean_parameter_create()+
+\item \verb+hdrl_collapse_median_parameter_create()+
+\item \verb+hdrl_collapse_weighted_mean_parameter_create()+
+\item \verb+hdrl_collapse_sigclip_parameter_create(kappa_low, kappa_high, niter)+
+\item \verb+hdrl_collapse_minmax_parameter_create(nlow, nhigh)+
+\item \verb+hdrl_collapse_mode_parameter_create(histo_min, histo_max, bin_size,+\\\verb+mode_method, error_niter)+
+
+\end{itemize}
+
+Note that these parameters are dynamically allocated and must be
+deleted again.  For convenience HDRL provides preallocated parameters
+for collapses which do not require any additional parameter. These
+can be used anywhere a regular parameter can be used and deletion with
+\verb+hdrl_parameter_delete+ has no effect on them. See
+section~\ref{sec:imagelist:collapsing} for more details.
+
+\subsubsection{Outputs}
+\label{sec:algorithms:bias:outputs}
+
+In most cases a collapse operation only has one or two outputs, the
+resulting master-image (\verb+out+) and a integer contribution map
+(\verb+contrib+) counting how many values contributed to each pixel of
+the image. The sigma clipping and minmax collapse method can
+additionally return the low and hight rejection thresholds used to
+calculate the mean.  These results can only be obtained with
+\verb+hdrl_imagelist_collapse_sigclip+ and
+\verb+hdrl_imagelist_collapse_minmax+ See
+section~\ref{sec:imagelist:collapsing} for the usage of these
+functions.
+
+\subsubsection{Examples}
+\begin{lstlisting}
+hdrl_image* master;
+cpl_image* contrib_map;
+/* initialize the parameters of a sigma clipping combination */
+hdrl_parameter * sigclip_par;
+sigclip_par = hdrl_collapse_sigclip_parameter_create(3., 3., 5)
+
+/* do the combination */
+hdrl_imagelist_collapse(data, sigclip_par ,&master, &contrib_map);
+
+/* cleanup */
+hdrl_parameter_delete(sigclip_par) ;
+hdrl_imagelist_delete(data);
+\end{lstlisting}
+
+\subsubsection{Master Bias Parameters in a Recipe}
+\label{sec:algorithms:bias:parameters}
+
+In the context of a recipe, all input parameters needed by the master bias
+computation may be provided as input parameters.
+The creation of \verb+cpl_parameter+ objects for the recipe interface is
+facilitated by:
+\begin{itemize}
+\item \verb+hdrl_collapse_parameter_create_parlist+
+\item \verb+hdrl_collapse_parameter_parse_parlist+
+\end{itemize}
+The former provides a \verb+cpl_parameterlist+ which can be appended to the
+recipe parameter list, the latter parses the recipe parameter list for the
+previously added parameters and creates a ready to use \verb+hdrl_parameter+.
+
+\begin{lstlisting}
+/* prepare defaults for recipe */
+
+hdrl_parameter * sigclip_def = 
+    hdrl_collapse_sigclip_parameter_create(3., 3., 5);
+hdrl_parameter * minmax_def =
+    hdrl_collapse_minmax_parameter_create(1., 1.);
+hdrl_parameter * mode_def =
+hdrl_collapse_mode_parameter_create(10., 1., 0., HDRL_MODE_MEDIAN, 0);
+    
+/*create parameters with context RECIPE_NAME under the collapse hierarchy*/
+
+cpl_parameterlist * pbiascollapse =hdrl_collapse_parameter_create_parlist(
+RECIPE_NAME, "collapse", "MEDIAN", sigclip_def, minmax_def, mode_def) ;
+
+hdrl_parameter_delete(sigclip_def); 
+hdrl_parameter_delete(minmax_def);
+hdrl_parameter_delete(mode_def);
+
+/* add to recipe parameter list, change aliases,
+disable not required ones etc. */
+
+for (cpl_parameter * p = cpl_parameterlist_get_first(pbiascollapse) ;
+        p != NULL; p = cpl_parameterlist_get_next(pbiascollapse))
+    cpl_parameterlist_append(self, cpl_parameter_duplicate(p));
+cpl_parameterlist_delete(pbiascollapse);
+
+\end{lstlisting}
+
+This will create a esorex man-page as follows:
+{\footnotesize
+\begin{verbatim}
+esorex --man-page hdrldemo_bias
+...
+
+--collapse.method             : Method used for collapsing the data. <MEAN |
+                                WEIGHTED_MEAN | MEDIAN | SIGCLIP | MINMAX | 
+                                MODE> [MEDIAN]
+--collapse.sigclip.kappa-low  : Low kappa factor for kappa-sigma
+                                clipping algorithm. [3.0]
+--collapse.sigclip.kappa-high : High kappa factor for kappa-sigma
+                                clipping algorithm. [3.0]
+--collapse.sigclip.niter      : Maximum number of clipping iterations for
+                                kappa-sigma clipping. [5]
+--collapse.minmax.nlow        : Low number of pixels to reject for the minmax
+                                clipping algorithm. [1.0]
+--collapse.minmax.nhigh       : High number of pixels to reject for the
+                                minmax clipping algorithm. [1.0]
+--collapse.mode.histo-min     : Minimum pixel value to accept for mode
+                                computation. [10.0]
+--collapse.mode.histo-max     : Maximum pixel value to accept for mode
+                                computation. [1.0]
+--collapse.mode.bin-size      : Binsize of the histogram. [0.0]
+--collapse.mode.method        : Mode method (algorithm) to use. <MEDIAN |
+                                WEIGHTED | FIT> [MEDIAN]
+--collapse.mode.error-niter   : Iterations to compute the mode
+                                error. [0]
+...
+\end{verbatim}
+}

@@ -1,0 +1,149 @@
+\subsection{Fixed Pattern Noise (fpn)}
+\label{patternnoise:main}
+
+This section describes how HDRL identifies regular
+noise on detector data. A classical example is provided by the pick noise,
+i.e. low-amplitude, quasi-periodical patterns super-imposed on the
+normal read-noise. It is due to electronic interference and might show
+up or disappear on short timescales (days or hours).
+
+Those artifacts are visible only on the detector data but of course
+exist also on other calibration data and on science data where they
+may compromise the detector sensitivity.
+
+
+\subsubsection{Algorithm - short description}
+
+The algorithm implements three steps that can be described as follows:
+
+\begin{enumerate}\itemsep-1pt \parskip0pt \parsep0pt\small
+\item Derive the power spectrum of the image using the Fast Fourier
+  Transform (FFT):
+    \begin{eqnarray*}
+      fft                 & = & FFT\_2D(\ img\ ) \\
+      power\_spec         & = & abs(\ fft\ )^2
+    \end{eqnarray*}
+  \item Mask the peak of the power spectrum that corresponds to 
+    the pixel-to-pixel variations. By default only one pixel
+    placed in the corner on the bottom left is masked (the DC
+    component), but more pixels can be masked providing an
+    optional bad pixel mask, e.g. if there is a pixel-to-pixel 
+    cross talk on longer spatial scale).
+    \begin{eqnarray*}
+      power\_spec\_filter & = & filter\_peak(\ power\_spec,\ 1,\ 1\ )
+    \end{eqnarray*}
+  \item Calculate the standard deviation $std$ and the standard
+    deviation based on the Median Absolute Deviation (MAD) $std_{mad}$
+    of the power spectrum by taking the masked regions into account:
+    \begin{eqnarray*}
+      std                  & = & stdev(\ power\_spec\_filter\ ) \\
+      std_{mad}             & = & mad(\ power\_spec\_filter\ ) * 1.4826
+    \end{eqnarray*}
+\end{enumerate}
+
+As mentioned above, when computing the standard deviation and the
+MAD-based standard deviation on the power spectrum the algorithm
+excludes the masked region. For this the user can provide an optional
+mask \verb+mask_in+ or use the \verb+dc_mask_x+ and \verb+dc_mask_y+
+function parameter to create one on the fly. The mask created on the
+fly will start at pixel (1,1) and extend in both direction up to
+(\verb+dc_mask_x+, \verb+dc_mask_y+)\footnote{Please note that in the
+  current implementation the power spectrum contains the DC component
+  (the DC term is the 0 Hz term and is equivalent to the average of
+  all the samples in the window) in pixel (1,1).}. Moreover, the mask
+created on the fly by setting \verb+dc_mask_x+ and \verb+dc_mask_y+
+and the optional mask (\verb+mask_in+) are combined and are both taken
+into account when calculating the statistics (\verb+std+ and
+\verb+std_mad+). Furthermore, the final (combined) mask is attached to
+the returned \verb+power_spectrum+ image as normal cpl\_mask and can
+be retrieved with the CPL function \verb+cpl_image_get_bpm(power_spectrum)+
+
+\newpage
+
+\subsubsection{Function}
+
+The power spectrum and it's statistics are computed by the following
+function:
+\begin{lstlisting}
+cpl_error_code hdrl_fpn_compute(
+        cpl_image       *  img_in,
+        const cpl_mask  *  mask_in,
+        const cpl_size     dc_mask_x,
+        const cpl_size     dc_mask_y,
+        cpl_image       ** power_spectrum,
+        double          *  std,
+        double          *  std_mad)
+\end{lstlisting}
+
+The \verb+power_spectrum+ pointer is filled by the function with an
+allocated image which must be deleted by the user when not required
+anymore.
+
+%
+%Possible #_cpl_error_code_ set in this function:
+%- CPL_ERROR_NULL_INPUT          If img_in is NULL
+%- CPL_ERROR_ILLEGAL_INPUT       If dc_mask_x < 1 or dc_mask_y < 1
+%- CPL_ERROR_ILLEGAL_INPUT       If the power_spectrum is NOT NULL
+%- CPL_ERROR_ILLEGAL_INPUT       If img_in contains bad pixels
+%- CPL_ERROR_INCOMPATIBLE_INPUT  If mask NOT NULL and size(mask) != size(img_in)
+
+
+\subsubsection{Inputs}
+\label{sec:algorithms:fpn:inputs}
+
+The following function parameters have to be passed to the
+hdrl\_fpn\_compute function:
+\begin{itemize}\itemsep-1pt \parskip0pt \parsep0pt\small
+\item \verb+img_in+: the input image. Please note that bad pixels are
+  not allowed
+\item \verb+mask_in+ (or \verb+NULL+): an optional mask which is used
+  when deriving the standard deviations on the power spectrum
+\item \verb+dc_mask_x+: x-pixel window (>= 1) to discard DC component
+  starting form pixel (1, 1)
+\item \verb+dc_mask_y+: y-pixel window (>= 1) to discard DC component
+  starting from pixel (1, 1)
+\end{itemize}
+
+\subsubsection{Outputs}
+\label{sec:algorithms:fpn:outputs}
+
+The result is the computed power spectrum (\verb+power_spectrum+),
+the standard deviation (\verb+std+) of the power spectrum, the MAD
+based standard deviation of the power spectrum (\verb+std_mad+) and
+the final mask used to compute \verb+std+ and \verb+std_mad+ which can
+be retrieved with \verb+cpl_image_get_bpm(power_spectrum)+
+
+Please note that the \verb+power_spectrum+ pointer is filled by the
+function with an allocated image which must be deleted by the user
+when not required anymore.
+
+\subsubsection{Example}
+\label{sec:algorithms:fpn:example}
+This section briefly describes the call to the function. For a more
+detailed implementation please see also the \verb+hdrldemo_fpn+
+example recipe.
+
+{\footnotesize
+\begin{lstlisting}
+/* Load the image and the (optional) mask */
+cpl_mask  *mask_in = cpl_mask_load(...);
+cpl_image *img_in  = cpl_image_load(...);
+
+
+/* Compute the power spectrum and the statistics */
+cpl_image *power_spectrum  = NULL;
+double    std       = -1.;
+double    std_mad   = -1.;
+
+hdrl_fpn_compute(img_in, mask_in, dc_mask_x, dc_mask_y,
+                 &power_spectrum, &std, &std_mad);
+
+/* save the power spectrum and the used mask */
+...
+
+/* Cleanup the memory  */
+cpl_image_delete(power_spectrum);
+cpl_image_delete(img_in);
+cpl_mask_delete(mask_in);
+\end{lstlisting}
+}
