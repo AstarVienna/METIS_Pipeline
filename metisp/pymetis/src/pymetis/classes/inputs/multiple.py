@@ -100,6 +100,11 @@ class MultiplePipelineInput(PipelineInput):
                  f"Loading extension '{extension}' from multiple frames {self.frameset}")
 
         images = [item.load_data(extension) for item in self.items]
+        shapes = [image.shape for image in images]
+        if len(set(shapes)) != 1:
+            msg = f"Image shapes inconsistent: {shapes}"
+            Msg.error(self.__class__.__qualname__, msg)
+            raise cpl.core.BadFileFormatError(msg)
         return ImageList(images)
 
     def set_cpl_attributes(self):
