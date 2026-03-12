@@ -29,9 +29,9 @@ from pymetis.classes.inputs.input import PipelineInput
 
 class SinglePipelineInput(PipelineInput):
     """
-    A pipeline input that expects a single frame to be present.
+    A pipeline input that expects exactly a single frame to be present.
     """
-    _multiplicity: str = '1'
+    _multiplicity = '1'
 
     def __init__(self,
                  frameset: cpl.ui.FrameSet):                       # Any other args

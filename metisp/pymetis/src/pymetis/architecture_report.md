@@ -26,7 +26,7 @@ This reduces testability unit tests on `DataItem` behavior cannot be performed w
 1. `dataitems` depend on `classes`
 - `src/pymetis/dataitems/gainmap.py` imports from `classes`:
 - `from pymetis.classes.dataitems import ImageDataItem`
-- `from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, DetectorSpecificMixin`
+- `from pymetis.core.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, DetectorSpecificMixin`
 2. `classes` depend on `dataitems`
 - `src/pymetis/classes/inputs/common.py` imports from `dataitems`:
 - `from pymetis.dataitems.gainmap import GainMap`

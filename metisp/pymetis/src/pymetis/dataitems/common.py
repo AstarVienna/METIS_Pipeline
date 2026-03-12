@@ -38,7 +38,7 @@ class PersistenceMap(ImageDataItem):
     }
 
 
-class FluxCalTable(TableDataItem): # FixMe this should be a table, right?
+class FluxCalTable(TableDataItem):
     _name_template = r'FLUXCAL_TAB'
     _title_template = "flux table"
     _description_template = "Conversion between instrumental and physical flux units"

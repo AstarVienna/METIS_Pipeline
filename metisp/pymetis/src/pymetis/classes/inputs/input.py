@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from abc import abstractmethod
-from typing import Any, Optional, Generator, final, Union
+from typing import Any, Optional, Generator, final, Union, ClassVar
 
 import cpl
 from cpl.core import Msg
@@ -34,18 +34,18 @@ class PipelineInput:
 
     It is a relatively thin wrapper over the inner `Item`.
     """
-    Item: type[DataItem] = None
+    Item: ClassVar[type[DataItem]] = None   # No universal data item inside
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
 
-    _multiplicity: str = None               # Multiplicity of the input, '1' or 'N'
+    _multiplicity: ClassVar[str] = None     # Multiplicity of the input, '1' or 'N'
 
     @staticmethod
     def preprocess_frameset(frameset: cpl.ui.FrameSet) -> dict[str, cpl.ui.FrameSet]:
         """
         Convert a SOF (which is a `list[tuple[filename, tag]]`) to a mapping `tag: list[filename]`
-        to make it more convenient for Python.
+        to make it more convenient for processing in Python.
         """
         result = {}
 

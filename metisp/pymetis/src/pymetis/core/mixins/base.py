@@ -137,6 +137,8 @@ class ParametrizableItem(Parametrizable):
 
     _name_template: ClassVar[str] = None
     _description_template: ClassVar[str] = None
+
+    # Class registry: all derived classes are automatically registered here (unless declared abstract)
     _registry: ClassVar[dict[str, type[Self]]] = {}
 
     def __init_subclass__(cls,

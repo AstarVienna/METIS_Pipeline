@@ -45,12 +45,12 @@ class DataItem(ParametrizableItem):
 
     Multiple files with the same tag should correspond to multiple instances of the same DataItem class.
     """
-    # Class registry: all derived classes are automatically registered here (unless declared abstract)
-
     # Printable title of the data item. Not used internally, only for human-oriented output
-    _title_template: ClassVar[str] = None                 # No universal title makes sense
+    _title_template: ClassVar[str] = "<untitled>"         # No universal title makes sense
+
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
-    _name_template: ClassVar[str] = "DataItem"            # No universal name makes sense
+    _name_template: ClassVar[str] = "<unknown>"           # No universal name makes sense
+
     # A long description that will be used in the man page
     _description_template: ClassVar[Optional[str]] = None # A verbose string; should correspond to the DRLD description
 
@@ -59,11 +59,11 @@ class DataItem(ParametrizableItem):
     _frame_level: cpl.ui.Frame.FrameLevel = None    # No sensible default; must be provided explicitly
     _frame_type: cpl.ui.Frame.FrameType = None      # Specialised for image / table / multi-extension data
 
-    _oca_keywords: set[str] = set()
+    _oca_keywords: set[str] = set()                 # Set of OCA keywords
 
     # HDU schema: a list of types or None
     # By default, only the primary header is present
-    _schema: dict[str, Union[None, type[Image], type[Table]]] = {'PRIMARY': None}
+    _schema: ClassVar[dict[str, Union[None, type[Image], type[Table]]]] = {'PRIMARY': None}
     # For instance
     # >>> _schema = {
     # >>>     'PRIMARY': None,
@@ -72,7 +72,6 @@ class DataItem(ParametrizableItem):
     # >>>     'DET3.DATA': Image,
     # >>>     'DET4.DATA': Image,
     # >>> }
-
 
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -83,19 +82,6 @@ class DataItem(ParametrizableItem):
         return cls._schema
 
     @classmethod
-    @final
-    def find(cls, key: str) -> Optional[type['DataItem']]:
-        """
-        Try to retrieve the DataItem subclass with tag ``key`` from the global registry.
-
-        If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
-        """
-        if key in DataItem._registry:
-            return DataItem._registry[key]
-        else:
-            return None
-
-    @classmethod
     def title(cls) -> str:
         """
         Return a human-readable title of this data item, e.g. "2RG linearity raw"
@@ -103,7 +89,6 @@ class DataItem(ParametrizableItem):
         assert cls._title_template is not None, \
             f"{cls.__name__} title template is None"
         return partial_format(cls._title_template, **cls._replace_empty_tags(**cls.tag_parameters()))
-
 
     @classmethod
     @final
