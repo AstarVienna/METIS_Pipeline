@@ -19,14 +19,16 @@ instrument_setup = [metis_kwd.instrume] + setup
 
 
 # --- LM IMG Data sources ---
-detlin_2rg_raw = (data_source()
+detlin_2rg_raw = (data_source("DETECTOR_LINGAIN")
             .with_classification_rule(detlin_2rg_raw_class)
-            .with_match_keywords(["instrume"])
+            .with_grouping_keywords(["tpl.start"])
+            .with_match_keywords(["ins.mode"])
             .build())
 
-dark_2rg_raw = (data_source()
+dark_2rg_raw = (data_source("DARK")
             .with_classification_rule(dark_2rg_raw_class)
-            .with_match_keywords(["instrume"])
+            .with_grouping_keywords(["tpl.start"])
+            .with_match_keywords(["ins.mode"])
             .build())
 
 lm_flat_lamp_raw = (data_source()
@@ -41,7 +43,7 @@ lm_distortion_raw = (data_source()
 
 lm_wcu_off_raw = (data_source()
             .with_classification_rule(lm_wcu_off_raw_class)
-            .with_match_keywords(["instrume"])
+            .with_match_keywords(["ins.mode", "tpl.start"])
             .build())
 
 lm_image_sci_raw = (data_source()
@@ -160,9 +162,9 @@ ifu_sci_raw = (data_source()
            .with_match_keywords(["instrume"])
            .build())
 
-persistence_map = (data_source()
+persistence_map = (data_source("PERSISTENCE_MAP")
                      .with_classification_rule(persistence_map_class)
-                     .with_match_keywords(["simple"])
+                     .with_match_keywords(["instrume"])
                      .build())
 
 pinhole_table = (data_source()

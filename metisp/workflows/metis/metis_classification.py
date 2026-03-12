@@ -27,8 +27,7 @@ lm_distortion_raw_class = classification_rule("LM_DISTORTION_RAW",
 lm_wcu_off_raw_class = classification_rule("LM_WCU_OFF_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
-     metis_kwd.dpr_type: "DARK,WCUOFF",
-     metis_kwd.dpr_tech: "IMAGE,LM",
+     metis_kwd.dpr_type: "DARK,WCUOFF"
     })
 
 
@@ -238,6 +237,12 @@ ifu_sci_raw_class = classification_rule("IFU_SCI_RAW",
                                  "dpr.tech": "IFU",
                                  "dpr.type": "OBJECT",
                                  })
+
+# Products classification
+GAIN_MAP_2RG = classification_rule("GAIN_MAP_2RG", {"pro.catg": "GAIN_MAP_2RG"})
+BADPIX_MAP_2RG = classification_rule("BADPIX_MAP_2RG",{"pro.catg": "BADPIX_MAP_2RG"})
+LINEARITY_2RG = classification_rule("LINEARITY_2RG", {"pro.catg": "LINEARITY_2RG"})
+
 
 persistence_map_class = classification_rule("PERSISTENCE_MAP",
                                         {"pro.catg": "PERSISTENCE_MAP",

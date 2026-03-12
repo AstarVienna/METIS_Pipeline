@@ -6,13 +6,13 @@ from . import metis_keywords as metis_kwd
 lm_img_lingain_task = (task('metis_lm_img_lingain')
                 .with_recipe("metis_det_lingain")
                 .with_main_input(detlin_2rg_raw)
-                .with_associated_input(lm_wcu_off_raw)
+                .with_associated_input(lm_wcu_off_raw, max_ret=100) #otherwise only 1 is associated: default max_ret=1
                 .build())
 
 lm_img_dark_task = (task('metis_lm_img_dark')
             .with_main_input(dark_2rg_raw)
-            .with_associated_input(lm_img_lingain_task)
-             .with_associated_input(persistence_map)
+            .with_associated_input(lm_img_lingain_task, [GAIN_MAP_2RG, BADPIX_MAP_2RG, LINEARITY_2RG])
+            .with_associated_input(persistence_map, min_ret=0) # optional
             .with_recipe("metis_det_dark")
             .build())
 
