@@ -23,12 +23,12 @@ from typing import Dict, Any, final, Optional
 import cpl
 from cpl.core import Msg
 
-from pyesorex.parameter import ParameterList
+from pymetis.core.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs.inputset import PipelineInputSet
-from pymetis.classes.mixins.base import Parametrizable
+from pymetis.core.mixins.base import Parametrizable
 from pymetis.classes.qc import QcParameterSet, QcParameter
 
 

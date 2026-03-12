@@ -23,8 +23,8 @@ from pymetis.classes.inputs.common import WcuOffInput, BadPixMapInput, MasterDar
 from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.adc.adc import AdcSlitloss, AdcSlitlossRaw
 from pymetis.classes.inputs import RawInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput
-from pymetis.classes.prefab import DarkImageProcessor
-from pymetis.utils.dummy import create_dummy_header, create_dummy_table
+from pymetis.recipes.prefab import DarkImageProcessor
+from pymetis.core.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisAdcSlitlossImpl(DarkImageProcessor):

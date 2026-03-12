@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.core.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
 class BadPixMap(ImageDataItem, abstract=True):

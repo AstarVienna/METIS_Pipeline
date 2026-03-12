@@ -26,7 +26,7 @@ from typing import Literal, Dict, Any
 
 import cpl
 from cpl.core import Msg
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
@@ -38,10 +38,10 @@ from pymetis.dataitems.linearity.linearity import LinearityMap
 from pymetis.dataitems.linearity.raw import LinearityRaw
 from pymetis.classes.inputs import RawInput, BadPixMapInput, OptionalInputMixin
 from pymetis.classes.inputs.common import WcuOffInput
-from pymetis.classes.prefab import RawImageProcessor
+from pymetis.recipes.prefab import RawImageProcessor
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.qc.lingain import LinGainMean, LinGainRms, LinNumBadpix, LinMinFlux, LinMaxFlux, GainLin, GainCoeff
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisDetLinGainImpl(RawImageProcessor, ABC):

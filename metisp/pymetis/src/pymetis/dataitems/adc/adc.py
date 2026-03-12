@@ -22,7 +22,7 @@ from cpl.core import Table, Image
 
 from pymetis.classes.dataitems import TableDataItem
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandLmMixin, BandNMixin
+from pymetis.core.mixins import BandLmMixin, BandNMixin
 
 
 class AdcSlitloss(TableDataItem, abstract=True):

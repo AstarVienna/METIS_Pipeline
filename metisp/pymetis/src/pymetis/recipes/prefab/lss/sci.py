@@ -25,7 +25,7 @@ from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs import RawInput, \
     SinglePipelineInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
     LinearityInput, BadPixMapInput
-from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.recipes.prefab import DarkImageProcessor
 from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.adc.adc import AdcSlitloss
 from pymetis.dataitems.lss.curve import LssDistSol, LssWaveGuess
@@ -36,7 +36,7 @@ from pymetis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci
 from pymetis.dataitems.lss.std import AoPsfModel
 from pymetis.qc.lss import LssInterorderLevel, LssWaveCalDevMean, LssWaveCalFwhm, LssWaveCalNIdent, LssWaveCalNMatch, \
     LssWaveCalPolyDeg, LssWaveCalPolyCoeffN, LssSnr, LssNoiseLevel
-from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.core.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLssSciImpl(DarkImageProcessor):

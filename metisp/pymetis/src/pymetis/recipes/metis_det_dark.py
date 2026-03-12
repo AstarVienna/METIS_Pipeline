@@ -25,18 +25,18 @@ from typing import Self, Optional, Literal, Dict, Any
 
 import cpl
 from cpl.core import Msg, ImageList, Image, Mask
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.qc import QcParameterSet
-from pymetis.classes.prefab.persistence import PersistenceCorrectionMixin
+from pymetis.recipes.prefab.persistence import PersistenceCorrectionMixin
 from pymetis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.dataitems.masterdark.raw import DarkRaw
 from pymetis.classes.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
                                     LinearityInput, GainMapInput, OptionalInputMixin)
-from pymetis.classes.prefab import RawImageProcessor
+from pymetis.recipes.prefab import RawImageProcessor
 from pymetis.classes.recipes import MetisRecipe
 
 from pymetis.qc.dark import DarkMean, DarkMedian, DarkRms, DarkNColdpix, DarkNHotpix, DarkNBadpix, DarkMedianMedian, \
@@ -45,7 +45,7 @@ from pymetis.qc.dark import DarkMean, DarkMedian, DarkRms, DarkNColdpix, DarkNHo
 import numpy as np
 
 from pymetis.functions.image import zeros_like
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, ABC):

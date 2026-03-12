@@ -17,18 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
+from pymetis.core.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.coadd import IfuSciCoadd
 from pymetis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput, MultiplePipelineInput
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):

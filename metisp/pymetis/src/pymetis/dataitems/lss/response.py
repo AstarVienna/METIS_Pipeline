@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import TableDataItem
-from pymetis.classes.mixins import BandLmMixin, BandNMixin
+from pymetis.core.mixins import BandLmMixin, BandNMixin
 
 
 class MasterResponse(TableDataItem, abstract=True):

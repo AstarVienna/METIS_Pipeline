@@ -20,7 +20,7 @@ from typing import Literal
 
 import cpl
 from cpl.core import Msg
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.core.parameter import ParameterList, ParameterEnum, ParameterValue
 from astropy.table import QTable
 import numpy as np
 
@@ -28,14 +28,14 @@ from pymetis.classes.dataitems.dataitem import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs.common import GainMapInput, LinearityInput
-from pymetis.classes.mixins import DetectorIfuMixin
+from pymetis.core.mixins import DetectorIfuMixin
 from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput
 from pymetis.classes.inputs import PinholeTableInput
-from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.utils.dummy import create_dummy_table, create_dummy_header
+from pymetis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.core.dummy import create_dummy_table, create_dummy_header
 
 # dummy distortion table
 def create_distortion_table(ext: Literal[1, 2, 3, 4]) -> cpl.core.Table:

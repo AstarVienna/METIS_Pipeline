@@ -17,17 +17,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.mixins.base import Parametrizable
+from cpl.core import Image
+
+from .base import Parametrizable
 
 
-class CgrphRavcMixin(Parametrizable, cgrph='RAVC'):
+class Detector2rgMixin(Parametrizable, detector='2RG'):
     pass
 
 
-class CgrphCvcMixin(Parametrizable, cgrph='CVC'):
+class DetectorGeoMixin(Parametrizable, detector='GEO'):
     pass
 
 
-class CgrphAppMixin(Parametrizable, cgrph='APP'):
-    pass
-
+class DetectorIfuMixin(Parametrizable, detector='IFU'):
+    # Default schema has to work with four detectors
+    _schema = {
+        r'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}.DATA': Image for det in [1, 2, 3, 4] # This is METIS specific and should not be here
+    }

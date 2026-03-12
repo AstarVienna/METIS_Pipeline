@@ -21,20 +21,20 @@ import copy
 
 import cpl
 from cpl.core import Msg
-from pyesorex.parameter import ParameterList, ParameterEnum
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
+from pymetis.core.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.img.basicreduced import BasicReduced
 from pymetis.dataitems.img.raw import ImageRaw
 from pymetis.dataitems.masterflat import MasterImgFlat
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
-from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor):

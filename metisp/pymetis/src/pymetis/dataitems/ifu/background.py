@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.dataitems.ifu.ifu import IfuBase
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.core.mixins import TargetStdMixin, TargetSciMixin
 
 
 class IfuBackground(IfuBase, abstract=True):

@@ -30,9 +30,9 @@ from pymetis.dataitems.badpixmap import BadPixMap
 from pymetis.classes.inputs import RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
     LinearityInput
 
-from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.qc.flat import MFlatRms, MFlatNbadpix, FlatMean, FlatRms, FlatMedianMin, FlatMedianMax, FlatMedianRms
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):

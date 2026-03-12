@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Literal
 
 import cpl
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 import numpy as np
 
@@ -27,12 +27,12 @@ from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.qc import QcParameter, QcParameterSet
 from pymetis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
-from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
+from pymetis.core.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import MasterDarkInput, RawInput, DistortionTableInput, OptionalInputMixin, \
     PersistenceMapInput, GainMapInput, LinearityInput
-from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):

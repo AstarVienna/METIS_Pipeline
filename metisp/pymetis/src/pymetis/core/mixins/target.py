@@ -17,23 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Optional
+from .base import Parametrizable
 
 
-class FormatPlaceholder:
-    def __init__(self, key):
-        self.key = key
-
-    def __format__(self, spec):
-        value = f"{self.key}{f':{spec}' if spec else ''}"
-        return f"{{{value}}}"
+class TargetStdMixin(Parametrizable, target='STD'):
+    pass
 
 
-class FormatDict(dict):
-    def __missing__(self, key):
-        return FormatPlaceholder(key)
+class TargetSciMixin(Parametrizable, target='SCI'):
+    pass
 
 
-def partial_format(template: str, **kwargs) -> str:
-    return template.format_map(FormatDict(**kwargs))
-
+class TargetSkyMixin(Parametrizable, target='SKY'):
+    pass

@@ -17,22 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from cpl.core import Image
-
-from pymetis.classes.mixins.base import Parametrizable
-
-
-class Detector2rgMixin(Parametrizable, detector='2RG'):
-    pass
+from .rawimage import RawImageProcessor
+from .darkimage import DarkImageProcessor
+from pymetis.recipes.prefab.img.calibrate import MetisImgCalibrateImpl
+from pymetis.recipes.prefab.img.distortion import MetisBaseImgDistortionImpl
+from pymetis.recipes.prefab.img.flat import MetisBaseImgFlatImpl
 
 
-class DetectorGeoMixin(Parametrizable, detector='GEO'):
-    pass
-
-
-class DetectorIfuMixin(Parametrizable, detector='IFU'):
-    _schema = {
-        r'PRIMARY': None,
-    } | {
-        fr'DET{det:1d}.DATA': Image for det in [1, 2, 3, 4]
-    }
+__all__ = ['RawImageProcessor', 'DarkImageProcessor',
+           'MetisImgCalibrateImpl', 'MetisBaseImgDistortionImpl', 'MetisBaseImgFlatImpl']

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pyesorex.parameter import ParameterList, ParameterEnum
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
 # import the dataitems we use
 from pymetis.classes.dataitems import DataItem, Hdu
@@ -34,9 +34,9 @@ from pymetis.dataitems.hci.hci import LmAppSciDerotated
 from pymetis.dataitems.hci.hci import LmAppSciContrastRadprof, LmAppSciContrastAdi, LmAppSciThroughput
 from pymetis.dataitems.hci.hci import LmAppSciCoverage, LmAppSciSnr, LmAppPsfMedian
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab import RawImageProcessor
+from pymetis.recipes.prefab import RawImageProcessor
 from pymetis.classes.inputs import RawInput
-from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.core.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLmAppSciCalibrateImpl(RawImageProcessor):

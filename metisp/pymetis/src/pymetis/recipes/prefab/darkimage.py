@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Msg, Image
 
 from pymetis.classes.inputs.common import MasterDarkInput
-from pymetis.classes.prefab.rawimage import RawImageProcessor
+from pymetis.recipes.prefab.rawimage import RawImageProcessor
 
 
 class DarkImageProcessor(RawImageProcessor, ABC):
@@ -55,6 +55,7 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         :return:
             ImageList
         """
+
         # FixMe: This currently works somehow, but only for one detector.
         # The function should take all three (SCI, ERR, DQ) and for all detectors
         # Or maybe have two functions:

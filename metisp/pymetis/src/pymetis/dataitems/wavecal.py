@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import DetectorIfuMixin
+from pymetis.core.mixins import DetectorIfuMixin
 from cpl.core import Table, Image
 
 

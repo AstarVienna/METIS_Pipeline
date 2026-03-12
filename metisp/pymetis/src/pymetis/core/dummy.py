@@ -15,15 +15,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+
+
+These functions are not intended to be used in real recipes past their skeleton stage.
 """
-from typing import Any
 
 import cpl
 import numpy as np
 from astropy.table import QTable
-from cpl.core import PropertyList as CplPropertyList, Property as CplProperty
 
-from pymetis.utils.property import make_cpl_property
+
+from .property import make_cpl_property
 
 
 def create_dummy_header(**kwargs) -> cpl.core.PropertyList:

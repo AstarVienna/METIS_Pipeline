@@ -17,12 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pyesorex.parameter import ParameterList, ParameterEnum
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import Detector2rgMixin
-from pymetis.classes.mixins.band import BandLmMixin
+from pymetis.core.mixins import Detector2rgMixin
+from pymetis.core.mixins.band import BandLmMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab import MetisImgCalibrateImpl
+from pymetis.recipes.prefab import MetisImgCalibrateImpl
 
 
 class MetisLmImgCalibrateImpl(BandLmMixin, Detector2rgMixin, MetisImgCalibrateImpl):

@@ -21,11 +21,15 @@ from typing import Any, ClassVar
 
 import cpl
 
-from pymetis.classes.mixins.base import ParametrizableItem
-from pymetis.utils.property import python_to_cpl_type
+from pymetis.core.mixins.base import ParametrizableItem
+from pymetis.core.property import python_to_cpl_type
 
 
 class QcParameter(ParametrizableItem):
+    """
+    An encapsulation of a QC parameter, as specified in the DRLD.
+    """
+
     _name_template: ClassVar[str] = "none"
     _type: ClassVar[type] = NoneType
     _unit: ClassVar[str] = "undefined"

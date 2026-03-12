@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import BandIfuMixin, BandLmMixin
+from pymetis.core.mixins import BandIfuMixin, BandLmMixin
 
 
 class SciCoadd(ImageDataItem, abstract=True):

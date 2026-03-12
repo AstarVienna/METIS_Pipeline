@@ -21,7 +21,7 @@ from abc import ABC
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.mixins import TargetSciMixin
+from pymetis.core.mixins import TargetSciMixin
 from pymetis.classes.qc import QcParameter, QcParameterSet
 from pymetis.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.dataitems.distortion.table import DistortionTable
@@ -29,7 +29,7 @@ from pymetis.dataitems.img.basicreduced import Calibrated
 from pymetis.classes.inputs import FluxCalTableInput
 from pymetis.classes.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisImgCalibrateImpl(TargetSciMixin, MetisRecipeImpl, ABC):

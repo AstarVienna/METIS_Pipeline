@@ -26,10 +26,10 @@ from pymetis.dataitems.lss.trace import LssTrace
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.inputs import SinglePipelineInput, RawInput, PersistenceMapInput, OptionalInputMixin, GainMapInput, \
     LinearityInput, BadPixMapInput
-from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.recipes.prefab import DarkImageProcessor
 from pymetis.qc.trace import QcLssTraceLPolyDeg, QcLssTraceRPolyDeg, QcLssTraceLCoeff, QcLssTraceRCoeff, \
     QcLssTraceInterorderLevel
-from pymetis.utils.dummy import create_dummy_header, create_dummy_table
+from pymetis.core.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLssTraceImpl(DarkImageProcessor):

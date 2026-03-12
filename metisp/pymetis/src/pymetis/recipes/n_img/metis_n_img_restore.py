@@ -17,14 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pyesorex.parameter import ParameterList, ParameterValue
+from pymetis.core.parameter import ParameterList, ParameterValue
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.dataitems.img.basicreduced import NSciCalibrated, NSciRestored
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.utils.dummy import create_dummy_image, create_dummy_header
+from pymetis.core.dummy import create_dummy_image, create_dummy_header
 
 
 class MetisNImgRestoreImpl(MetisRecipeImpl):

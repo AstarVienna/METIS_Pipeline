@@ -33,10 +33,10 @@ from pymetis.dataitems.synth import SynthTrans
 from pymetis.classes.inputs import RawInput, \
     SinglePipelineInput, FluxstdCatalogInput, MasterRsrfInput, PersistenceMapInput, BadPixMapInput, GainMapInput, \
     LinearityInput, AtmLineCatInput
-from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.recipes.prefab import DarkImageProcessor
 from pymetis.qc.lss import LssWaveCalPolyCoeffN, LssWaveCalPolyDeg, LssWaveCalNMatch, LssWaveCalNIdent, LssWaveCalFwhm, \
     LssWaveCalDevMean, LssInterorderLevel, LssSnr, LssNoiseLevel
-from pymetis.utils.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.core.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLssStdImpl(DarkImageProcessor):

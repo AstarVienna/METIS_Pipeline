@@ -17,16 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.classes.mixins.base import Parametrizable
+from .base import Parametrizable
 
 
-class TargetStdMixin(Parametrizable, target='STD'):
+class CgrphRavcMixin(Parametrizable, cgrph='RAVC'):
     pass
 
 
-class TargetSciMixin(Parametrizable, target='SCI'):
+class CgrphCvcMixin(Parametrizable, cgrph='CVC'):
     pass
 
 
-class TargetSkyMixin(Parametrizable, target='SKY'):
+class CgrphAppMixin(Parametrizable, cgrph='APP'):
     pass
+

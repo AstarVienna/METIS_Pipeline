@@ -19,22 +19,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 from cpl.core import Msg
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
+from pymetis.core.parameter import ParameterList, ParameterEnum, ParameterRange
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin
+from pymetis.core.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
 from pymetis.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
                                     PinholeTableInput, LinearityInput, OptionalInputMixin)
-from pymetis.classes.prefab import RawImageProcessor
+from pymetis.recipes.prefab import RawImageProcessor
 from pymetis.qc.chophome import CalChophomeXcen, CalChophomeXcenStdev, CalChophomeYcen, CalChophomeYcenStdev, \
     CalChophomeFwhm, CalChophomeSnr, CalChophomeOffx, CalChophomeOffy
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor):  # TODO replace parent class?

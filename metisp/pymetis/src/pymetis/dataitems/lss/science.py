@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Table, Image
 
 from pymetis.classes.dataitems import ImageDataItem, TableDataItem
-from pymetis.classes.mixins import BandLmMixin, BandNMixin, TargetSciMixin, TargetStdMixin
+from pymetis.core.mixins import BandLmMixin, BandNMixin, TargetSciMixin, TargetStdMixin
 
 
 class LssObjMap(ImageDataItem, abstract=True):

@@ -21,8 +21,8 @@ import cpl
 from cpl.core import Image, Table
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin 
-from pymetis.classes.mixins import BandLmMixin
+from pymetis.core.mixins import CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin
+from pymetis.core.mixins import BandLmMixin
 
 
 class OffAxisPsfRaw(ImageDataItem, abstract=True):

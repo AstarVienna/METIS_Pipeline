@@ -17,12 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from .rawimage import RawImageProcessor
-from .darkimage import DarkImageProcessor
-from pymetis.classes.prefab.img.calibrate import MetisImgCalibrateImpl
-from pymetis.classes.prefab.img.distortion import MetisBaseImgDistortionImpl
-from pymetis.classes.prefab.img.flat import MetisBaseImgFlatImpl
+from .base import Parametrizable
 
 
-__all__ = ['RawImageProcessor', 'DarkImageProcessor',
-           'MetisImgCalibrateImpl', 'MetisBaseImgDistortionImpl', 'MetisBaseImgFlatImpl']
+class BandLmMixin(Parametrizable, band='LM'):
+    pass
+
+
+class BandNMixin(Parametrizable, band='N'):
+    pass
+
+
+class BandIfuMixin(Parametrizable, band='IFU'):
+    pass

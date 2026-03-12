@@ -21,17 +21,16 @@ import datetime
 import inspect
 import re
 from pathlib import Path
-from typing import Optional, Generator, Self, final, Union
+from typing import Optional, Generator, Self, final, Union, ClassVar
 
 import cpl
-
-from cpl.core import Msg, Image, Table, PropertyList as CplPropertyList, Property as CplProperty
-from pyesorex.parameter import Parameter, ParameterList
+from cpl.core import Msg, Image, Table, PropertyList as CplPropertyList
 
 import pymetis
-from pymetis.classes.dataitems.hdu import Hdu
-from pymetis.classes.mixins.base import Parametrizable, ParametrizableItem
-from pymetis.utils.format import partial_format
+from .hdu import Hdu
+from pymetis.core.format import partial_format
+from pymetis.core.parameter import ParameterList
+from pymetis.core.mixins.base import ParametrizableItem
 
 PIPELINE = rf'METIS/1'
 
@@ -47,14 +46,13 @@ class DataItem(ParametrizableItem):
     Multiple files with the same tag should correspond to multiple instances of the same DataItem class.
     """
     # Class registry: all derived classes are automatically registered here (unless declared abstract)
-    _registry: dict[str, type['DataItem']] = {}
 
     # Printable title of the data item. Not used internally, only for human-oriented output
-    _title_template: str = None                     # No universal title makes sense
+    _title_template: ClassVar[str] = None                 # No universal title makes sense
     # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
-    _name_template: str = "DataItem"                # No universal name makes sense
+    _name_template: ClassVar[str] = "DataItem"            # No universal name makes sense
     # A long description that will be used in the man page
-    _description_template: Optional[str] = None     # A verbose string; should correspond to the DRLD description
+    _description_template: ClassVar[Optional[str]] = None # A verbose string; should correspond to the DRLD description
 
     # CPL frame group and level
     _frame_group: cpl.ui.Frame.FrameGroup = None    # No sensible default; must be provided explicitly
@@ -469,7 +467,7 @@ class DataItem(ParametrizableItem):
         Useful for reconstruction of DRLD input/product cards.
         """
         for (name, klass) in inspect.getmembers(
-                pymetis.recipes,
+                pymetis.recipes,     # FixMe This introduces undesired coupling, remove
                 lambda x: inspect.isclass(x) and x.Impl is not None
         ):
             for (n, kls) in inspect.getmembers(klass.Impl, lambda x: inspect.isclass(x)):

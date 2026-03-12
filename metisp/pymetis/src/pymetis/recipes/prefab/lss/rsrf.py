@@ -27,8 +27,8 @@ from pymetis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRsrf, MeanLssRsrf, M
 from pymetis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.classes.inputs import RawInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput, \
     BadPixMapInput
-from pymetis.classes.prefab import DarkImageProcessor
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.recipes.prefab import DarkImageProcessor
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisLssRsrfImpl(DarkImageProcessor):

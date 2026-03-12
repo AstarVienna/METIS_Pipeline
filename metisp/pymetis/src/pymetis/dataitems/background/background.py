@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import (TargetSciMixin, TargetStdMixin,
+from pymetis.core.mixins import (TargetSciMixin, TargetStdMixin,
                                     BandLmMixin, BandNMixin)
 
 

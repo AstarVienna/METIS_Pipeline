@@ -24,7 +24,7 @@ from pymetis.dataitems.synth import LssSynthTrans
 from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput, AtmLineCatInput, AtmProfileInput, \
     LsfKernelInput
 from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.utils.dummy import create_dummy_table, create_dummy_header
+from pymetis.core.dummy import create_dummy_table, create_dummy_header
 
 
 class MetisLssMfCalctransImpl(MetisRecipeImpl):

@@ -22,7 +22,7 @@ from typing import Any
 
 import cpl
 
-from pyesorex.parameter import ParameterList
+from pymetis.core.parameter import ParameterList
 
 from ..dataitems import DataItem
 from ..qc import QcParameter

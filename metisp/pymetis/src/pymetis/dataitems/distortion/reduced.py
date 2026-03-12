@@ -21,7 +21,7 @@ import cpl.ui
 from cpl.core import Image
 
 from pymetis.classes.dataitems import TableDataItem
-from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.core.mixins import BandLmMixin, BandNMixin, BandIfuMixin
 
 
 class DistortionReduced(TableDataItem, abstract=True):

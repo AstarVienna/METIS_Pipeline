@@ -19,11 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-from pyesorex.parameter import ParameterList, ParameterEnum
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandLmMixin, Detector2rgMixin, SourceLampMixin
+from pymetis.core.mixins import BandLmMixin, Detector2rgMixin, SourceLampMixin
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab import MetisBaseImgFlatImpl
+from pymetis.recipes.prefab import MetisBaseImgFlatImpl
 
 
 class MetisLmImgFlatImpl(BandLmMixin, Detector2rgMixin, MetisBaseImgFlatImpl):

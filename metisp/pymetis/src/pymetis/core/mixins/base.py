@@ -21,7 +21,7 @@ from typing import ClassVar, Self, Optional, final
 
 from cpl.core import Msg
 
-from pymetis.utils.format import partial_format
+from pymetis.core.format import partial_format
 
 
 class Parametrizable:

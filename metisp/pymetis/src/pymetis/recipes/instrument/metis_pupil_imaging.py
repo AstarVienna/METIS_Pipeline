@@ -28,7 +28,7 @@ from typing import Optional
 import cpl
 from cpl.core import Msg, Image, Table
 
-from pyesorex.parameter import ParameterList, ParameterEnum
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
@@ -37,8 +37,8 @@ from pymetis.dataitems.pupil import PupilRaw
 from pymetis.dataitems.pupil.pupil import PupilImagingReduced
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import RawInput, MasterDarkInput, MasterFlatInput, GainMapInput, LinearityInput
-from pymetis.classes.prefab.darkimage import DarkImageProcessor
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisPupilImagingImpl(DarkImageProcessor):

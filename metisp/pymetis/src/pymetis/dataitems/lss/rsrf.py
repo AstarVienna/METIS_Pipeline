@@ -22,7 +22,7 @@ from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandLmMixin, BandNMixin
+from pymetis.core.mixins import BandLmMixin, BandNMixin
 
 
 class LssRsrfRaw(Raw, abstract=True):

@@ -20,56 +20,51 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.qc import QcParameterSet
-from pymetis.dataitems.lss.science import LssSciFlux1d, LssSci1d
-from pymetis.dataitems.molecfit.model import MfBestFitTable
-from pymetis.classes.inputs import (PipelineInputSet, SinglePipelineInput,
-                                    AtmLineCatInput, AtmProfileInput, LsfKernelInput)
+from pymetis.dataitems.lss.science import LssSciFlux1d, LssSciFluxTellCorr1d
+from pymetis.dataitems.synth import LssSynthTrans
+from pymetis.classes.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.utils.dummy import create_dummy_header, create_dummy_table
+from pymetis.core.dummy import create_dummy_header, create_dummy_table
 
 
-class MetisLssMfModelImpl(MetisRecipeImpl):
+class MetisLssMfCorrectImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class AtmLineCatInput(AtmLineCatInput):
-            pass
-
-        class AtmProfileInput(AtmProfileInput):
-            pass
-
-        class LsfKernelInput(LsfKernelInput):
-            pass
-
-        # ++++++++++++ Main input ++++++++++++
-        # Default (Path #2 in DRLD Section CritAlg)
         class LssSciFlux1dInput(SinglePipelineInput):
             Item = LssSciFlux1d
 
-        # Alternative (Path #3 in DRLD Section CritAlg)
-        class LssSci1dInput(SinglePipelineInput):
-            Item = LssSci1d
+        class TransmissionInput(SinglePipelineInput):
+            Item = LssSynthTrans
 
     class ProductSet(PipelineProductSet):
-        MfBestFitTable = MfBestFitTable
+        TellCorrFinal = LssSciFluxTellCorr1d
 
     class Qc(QcParameterSet):
         pass # RD17 from DRLD (finish)
 
-    #   Method for processing
-    def process(self) -> set[DataItem]:
-        """Create a dummy file (should do something more fancy in the future)"""
+    def mf_correct(self):
+        """
+        Correct the science flux image with MolecFit transmission input
 
-        # TODO: Invoke molecfit here
-        # TODO: Check whether the new mf writes out the best-fit param file
+        """
+        pass
+
+    def process(self) -> set[DataItem]:
+        """Create dummy file (should do something more fancy in the future)"""
 
         lss_sci_flux = self.inputset.lss_sci_flux_1d.load_data('TABLE')
+        self.mf_correct()
 
+        # TODO: Check whether calctrans creates the Transmission file - if so, no need to
+        # write it out here again
         primary_header = self.inputset.lss_sci_flux_1d.item.primary_header
 
-        header_mf_best_fit = create_dummy_header()
+        header_corr = create_dummy_header()
         table = create_dummy_table()
+
         return {
-            self.ProductSet.MfBestFitTable(
+            self.ProductSet.TellCorrFinal(
                 primary_header,
-                Hdu(header_mf_best_fit, table, name='TABLE'),
+                Hdu(header_corr, table, name='TABLE'),
             ),
         }
+

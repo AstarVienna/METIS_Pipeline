@@ -21,11 +21,11 @@ import copy
 from typing import Literal
 
 import cpl
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.mixins import BandIfuMixin, DetectorIfuMixin
+from pymetis.core.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.distortion.table import IfuDistortionTable
 from pymetis.dataitems.ifu.raw import IfuSkyRaw, IfuRaw
@@ -33,11 +33,11 @@ from pymetis.dataitems.ifu.ifu import IfuCombined, IfuReduced, IfuReducedCube
 from pymetis.dataitems.ifu.background import IfuBackground
 from pymetis.dataitems.rsrf import RsrfIfu
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (SinglePipelineInput, RawInput, WavecalInput,
                                     OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 from ...qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNbadpix
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
