@@ -242,7 +242,7 @@ ifu_sci_raw_class = classification_rule("IFU_SCI_RAW",
 GAIN_MAP_2RG = classification_rule("GAIN_MAP_2RG", {"pro.catg": "GAIN_MAP_2RG"})
 BADPIX_MAP_2RG = classification_rule("BADPIX_MAP_2RG",{"pro.catg": "BADPIX_MAP_2RG"})
 LINEARITY_2RG = classification_rule("LINEARITY_2RG", {"pro.catg": "LINEARITY_2RG"})
-
+MASTER_DARK_2RG  = classification_rule("MASTER_DARK_2RG",{"pro.catg": "MASTER_DARK_2RG"})
 
 persistence_map_class = classification_rule("PERSISTENCE_MAP",
                                         {"pro.catg": "PERSISTENCE_MAP",

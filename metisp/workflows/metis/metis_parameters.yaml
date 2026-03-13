@@ -2,7 +2,7 @@ default_parameters: &default
   is_default: yes
   recipe_parameters:
     dark_task: 
-      # Overriding the default for stacking
+      # Overriding the default for stacking: will not work because the task name is 'metis_lm_img_dark'
       metis.metis_det_dark.stacking.method: "median"
   
   workflow_parameters:

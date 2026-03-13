@@ -22,17 +22,20 @@ instrument_setup = [metis_kwd.instrume] + setup
 detlin_2rg_raw = (data_source("DETECTOR_LINGAIN")
             .with_classification_rule(detlin_2rg_raw_class)
             .with_grouping_keywords(["tpl.start"])
-            .with_match_keywords(["ins.mode"])
+            .with_match_keywords(["ins.mode"], time_range=ONE_DAY, level=0)
+            .with_match_keywords(["ins.mode"], time_range=ONE_MONTH, level=2)
             .build())
 
 dark_2rg_raw = (data_source("DARK")
             .with_classification_rule(dark_2rg_raw_class)
             .with_grouping_keywords(["tpl.start"])
-            .with_match_keywords(["ins.mode"])
+            .with_match_keywords(["ins.mode", "det.ndit"], time_range=ONE_DAY, level=0)
+            .with_match_keywords(["ins.mode", "det.ndit"], time_range=ONE_MONTH, level=2)
             .build())
 
 lm_flat_lamp_raw = (data_source()
             .with_classification_rule(lm_flat_lamp_raw_class)
+            .with_grouping_keywords(["instrume","tpl.start", "ins.mode"])
             .with_match_keywords(["instrume"])
             .build())
 
