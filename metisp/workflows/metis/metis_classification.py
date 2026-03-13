@@ -10,6 +10,14 @@ detlin_2rg_raw_class = classification_rule("DETLIN_2RG_RAW",
     })
 
 # Dark frame calibration classification
+master_dark_2rg_class = classification_rule("MASTER_DARK_2RG",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.pro_catg: "MASTER_DARK_2RG",
+     metis_kwd.pro_type: "REDUCED",
+     metis_kwd.pro_tech: "IMAGE,LM",
+    })
+
+# Dark frame calibration classification
 dark_2rg_raw_class = classification_rule("DARK_2RG_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",

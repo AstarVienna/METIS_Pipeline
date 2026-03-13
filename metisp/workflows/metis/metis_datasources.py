@@ -17,46 +17,61 @@ from .metis_classification import *
 setup = [metis_kwd.det_binx, metis_kwd.det_biny, metis_kwd.ins_mode]
 instrument_setup = [metis_kwd.instrume] + setup
 
+master_dark_2rg = (data_source()
+            .with_classification_rule(master_dark_2rg_class)
+            .with_grouping_keywords(["instrume","tpl.start"])
+            .with_match_keywords(["instrume"])
+            .build())
+
 
 # --- LM IMG Data sources ---
 detlin_2rg_raw = (data_source()
             .with_classification_rule(detlin_2rg_raw_class)
+            .with_grouping_keywords(["instrume","tpl.start"])
             .with_match_keywords(["instrume"])
             .build())
 
 dark_2rg_raw = (data_source()
             .with_classification_rule(dark_2rg_raw_class)
-            .with_match_keywords(["instrume"])
+            .with_grouping_keywords(["instrume","tpl.start"])
+            .with_match_keywords(["instrume"], time_range=SAME_NIGHT, level=0)
+            .with_match_keywords(["instrume"], time_range=TWO_DAYS, level=1)
             .build())
 
 lm_flat_lamp_raw = (data_source()
             .with_classification_rule(lm_flat_lamp_raw_class)
-            .with_match_keywords(["instrume"])
+            .with_grouping_keywords(["instrume","tpl.start"])
+            .with_match_keywords(["instrume","drs.filter"])
             .build())
 
 lm_distortion_raw = (data_source()
             .with_classification_rule(lm_distortion_raw_class)
+            .with_grouping_keywords(["instrume","tpl.start"])
             .with_match_keywords(["instrume"])
             .build())
 
 lm_wcu_off_raw = (data_source()
             .with_classification_rule(lm_wcu_off_raw_class)
+            .with_grouping_keywords(["instrume","tpl.start"])
             .with_match_keywords(["instrume"])
             .build())
 
 lm_image_sci_raw = (data_source()
             .with_classification_rule(lm_image_sci_raw_class)
-            .with_match_keywords(["instrume"])
+            .with_grouping_keywords(["instrume","tpl.start"])
+            .with_match_keywords(["instrume","drs.filter"])
             .build())
 
 lm_image_sky_raw = (data_source()
             .with_classification_rule(lm_image_sky_raw_class)
-            .with_match_keywords(["instrume"])
+            .with_grouping_keywords(["instrume","tpl.start"])
+            .with_match_keywords(["instrume","drs.filter"])
             .build())
 
 lm_image_std_raw = (data_source()
             .with_classification_rule(lm_image_std_raw_class)
-            .with_match_keywords(["instrume"])
+            .with_grouping_keywords(["instrume","tpl.start"])
+            .with_match_keywords(["instrume","drs.filter"])
             .build())
 
 # ------- N IMG BAND DATA SOURCES ---------
