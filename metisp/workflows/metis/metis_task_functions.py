@@ -5,7 +5,7 @@
 # Version: see Changelog
 #
 
-from edps import JobParameters, get_parameter
+from edps import JobParameters, get_parameter, List, ClassifiedFitsFile
 
 
 ########################################################################################################################
@@ -32,3 +32,22 @@ def on_science (params : JobParameters) -> bool:
 
 def on_standard (params: JobParameters) -> bool:
     return get_parameter(params, "molecfit") == "standard"
+
+def which_detector(files: List[ClassifiedFitsFile]):
+    # Check whether the observation type is EXTENDED or POINT-LIKE
+    ins_mode = files[0].get_keyword_value("ins.mode", None)
+    if "LM" in ins_mode:
+        detector = "LM"
+    if "N" in ins_mode:
+        detector = "N"
+    if "IFU" in ins_mode:
+        detector = "IFU"
+
+    return detector
+
+def is_LM(params: JobParameters) -> bool:
+    return get_parameter(params, "which_detector") == "LM"
+def is_N(params: JobParameters) -> bool:
+    return get_parameter(params, "which_detector") == "N"
+def is_IFU(params: JobParameters) -> bool:
+    return get_parameter(params, "which_detector") == "IFU"

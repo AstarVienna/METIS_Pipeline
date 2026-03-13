@@ -242,7 +242,16 @@ ifu_sci_raw_class = classification_rule("IFU_SCI_RAW",
 GAIN_MAP_2RG = classification_rule("GAIN_MAP_2RG", {"pro.catg": "GAIN_MAP_2RG"})
 BADPIX_MAP_2RG = classification_rule("BADPIX_MAP_2RG",{"pro.catg": "BADPIX_MAP_2RG"})
 LINEARITY_2RG = classification_rule("LINEARITY_2RG", {"pro.catg": "LINEARITY_2RG"})
+GAIN_MAP_GEO = classification_rule("GAIN_MAP_GEO", {"pro.catg": "GAIN_MAP_GEO"})
+BADPIX_MAP_GEO = classification_rule("BADPIX_MAP_GEO",{"pro.catg": "BADPIX_MAP_GEO"})
+LINEARITY_GEO = classification_rule("LINEARITY_GEO", {"pro.catg": "LINEARITY_GEO"})
+GAIN_MAP_IFU = classification_rule("GAIN_MAP_IFU", {"pro.catg": "GAIN_MAP_IFU"})
+BADPIX_MAP_IFU = classification_rule("BADPIX_MAP_IFU",{"pro.catg": "BADPIX_MAP_IFU"})
+LINEARITY_IFU = classification_rule("LINEARITY_IFU", {"pro.catg": "LINEARITY_IFU"})
+
 MASTER_DARK_2RG  = classification_rule("MASTER_DARK_2RG",{"pro.catg": "MASTER_DARK_2RG"})
+MASTER_DARK_GEO  = classification_rule("MASTER_DARK_GEO",{"pro.catg": "MASTER_DARK_GEO"})
+MASTER_DARK_IFU  = classification_rule("MASTER_DARK_IFU",{"pro.catg": "MASTER_DARK_IFU"})
 
 persistence_map_class = classification_rule("PERSISTENCE_MAP",
                                         {"pro.catg": "PERSISTENCE_MAP",
