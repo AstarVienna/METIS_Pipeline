@@ -17,21 +17,31 @@ from .metis_classification import *
 setup = [metis_kwd.det_binx, metis_kwd.det_biny, metis_kwd.ins_mode]
 instrument_setup = [metis_kwd.instrume] + setup
 
-
-# --- LM IMG Data sources ---
-detlin_2rg_raw = (data_source("DETECTOR_LINGAIN")
+# -- Common IMG datasources ---
+detlin_raw = (data_source("DETECTOR_LINGAIN")
             .with_classification_rule(detlin_2rg_raw_class)
-            .with_grouping_keywords(["tpl.start"])
+            .with_classification_rule(detlin_geo_raw_class)
+            .with_grouping_keywords(["tpl.start", "ins.mode"])
             .with_match_keywords(["ins.mode"], time_range=ONE_DAY, level=0)
             .with_match_keywords(["ins.mode"], time_range=ONE_MONTH, level=2)
             .build())
 
-dark_2rg_raw = (data_source("DARK")
+dark_raw = (data_source("DARK")
             .with_classification_rule(dark_2rg_raw_class)
-            .with_grouping_keywords(["tpl.start"])
+            .with_classification_rule(dark_geo_raw_class)
+            .with_grouping_keywords(["tpl.start", "ins.mode"])
             .with_match_keywords(["ins.mode", "det.ndit"], time_range=ONE_DAY, level=0)
             .with_match_keywords(["ins.mode", "det.ndit"], time_range=ONE_MONTH, level=2)
             .build())
+
+wcu_off_raw = (data_source()
+            .with_classification_rule(n_wcu_off_raw_class)
+            .with_classification_rule(lm_wcu_off_raw_class)
+            .with_match_keywords(["instrume", "ins.mode"])
+            .build())
+# --- LM IMG Data sources ---
+
+
 
 lm_flat_lamp_raw = (data_source()
             .with_classification_rule(lm_flat_lamp_raw_class)
@@ -44,10 +54,10 @@ lm_distortion_raw = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-lm_wcu_off_raw = (data_source()
-            .with_classification_rule(lm_wcu_off_raw_class)
-            .with_match_keywords(["ins.mode", "tpl.start"])
-            .build())
+#lm_wcu_off_raw = (data_source()
+#            .with_classification_rule(lm_wcu_off_raw_class)
+#            .with_match_keywords(["ins.mode", "tpl.start"])
+#            .build())
 
 lm_image_sci_raw = (data_source()
             .with_classification_rule(lm_image_sci_raw_class)
@@ -66,16 +76,16 @@ lm_image_std_raw = (data_source()
 
 # ------- N IMG BAND DATA SOURCES ---------
 
-detlin_geo_raw = (data_source()
-            .with_classification_rule(detlin_geo_raw_class)
-            .with_match_keywords(["instrume"])
-            .build())
+#detlin_geo_raw = (data_source()
+#            .with_classification_rule(detlin_geo_raw_class)
+#            .with_match_keywords(["instrume"])
+#            .build())
 
-dark_geo_raw = (data_source()
-            .with_classification_rule(dark_geo_raw_class)
-            .with_grouping_keywords(["instrume","tpl.start"])
-            .with_match_keywords(["instrume"])
-            .build())
+#dark_geo_raw = (data_source()
+#            .with_classification_rule(dark_geo_raw_class)
+#            .with_grouping_keywords(["instrume","tpl.start"])
+#            .with_match_keywords(["instrume"])
+#            .build())
 
 n_flat_lamp_raw = (data_source()
             .with_classification_rule(n_flat_lamp_raw_class)
@@ -88,10 +98,7 @@ n_distortion_raw = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-n_wcu_off_raw = (data_source()
-            .with_classification_rule(n_wcu_off_raw_class)
-            .with_match_keywords(["instrume"])
-            .build())
+
 
 n_image_sci_raw = (data_source()
             .with_classification_rule(n_image_sci_raw_class)        

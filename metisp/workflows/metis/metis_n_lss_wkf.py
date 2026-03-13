@@ -15,7 +15,7 @@ from .metis_classification import *
 from .metis_datasources import *
 from .metis_task_functions import *
 from .metis_n_lss_molecfit import telluric_on_standard, telluric_on_science
-
+from .common_tasks import dark_task, lingain_task
 # ----------------------------------------------------------------------------
 # ------------------------ Processing tasks ----------------------------------
 # ----------------------------------------------------------------------------
@@ -25,47 +25,47 @@ from .metis_n_lss_molecfit import telluric_on_standard, telluric_on_science
 #             .with_recipe("metis_det_persistence")
 #             .build())
 
-n_lss_lingain_task = (task('metis_n_lss_lingain')
-            .with_recipe("metis_det_lingain")
-            .with_main_input(detlin_geo_raw)
-            .with_associated_input(n_wcu_off_raw)        # check how that is exactly delivered by the ICS!
-            .with_meta_targets([QC1_CALIB])
-            .build())
+#n_lss_lingain_task = (task('metis_n_lss_lingain')
+#            .with_recipe("metis_det_lingain")
+#            .with_main_input(detlin_raw)
+#            .with_associated_input(wcu_off_raw)        # check how that is exactly delivered by the ICS!
+#            .with_meta_targets([QC1_CALIB])
+#            .build())
 
-n_lss_dark_task = (task('metis_n_lss_dark')
-            .with_recipe("metis_det_dark")
-            .with_main_input(dark_geo_raw)       # check what the minimum number of raw darks is!
-            .with_associated_input(persistence_map)
-            .with_associated_input(n_lss_lingain_task)
-            .with_meta_targets([QC1_CALIB])
-            .build())
+#n_lss_dark_task = (task('metis_n_lss_dark')
+#            .with_recipe("metis_det_dark")
+#            .with_main_input(dark_raw)       # check what the minimum number of raw darks is!
+#            .with_associated_input(persistence_map)
+#            .with_associated_input(n_lss_lingain_task)
+#            .with_meta_targets([QC1_CALIB])
+#            .build())
 
 n_adc_slitloss_task = (task('metis_n_adc_slitloss')
             .with_recipe("metis_n_adc_slitloss")
             .with_main_input(n_adc_slitloss_raw)
-            .with_associated_input(n_wcu_off_raw)        # check how that is exactly delivered by the ICS!
+            .with_associated_input(wcu_off_raw)        # check how that is exactly delivered by the ICS!
             .with_associated_input(persistence_map)
-            .with_associated_input(n_lss_lingain_task) # Shouldn't this also need a MASTER_IMG_FLAT_LAMP_N as per the DRLD?
-            .with_associated_input(n_lss_dark_task)
+            .with_associated_input(lingain_task) # Shouldn't this also need a MASTER_IMG_FLAT_LAMP_N as per the DRLD?
+            .with_associated_input(dark_task)
             .with_meta_targets([QC1_CALIB])
             .build())
 
 n_lss_rsrf_task = (task('metis_n_lss_rsrf')
             .with_recipe("metis_n_lss_rsrf")
             .with_main_input(n_lss_rsrf_raw)
-            .with_associated_input(n_wcu_off_raw)
-            .with_associated_input(n_lss_dark_task)
+            .with_associated_input(wcu_off_raw)
+            .with_associated_input(dark_task)
             .with_associated_input(persistence_map)
-            .with_associated_input(n_lss_lingain_task)
+            .with_associated_input(lingain_task)
             .with_meta_targets([QC1_CALIB])
             .build())
 
 n_lss_trace_task = (task("metis_n_lss_trace")
             .with_recipe("metis_n_lss_trace")
             .with_main_input(n_lss_rsrf_pinh_raw)
-            .with_associated_input(n_wcu_off_raw)
-            .with_associated_input(n_lss_dark_task)
-            .with_associated_input(n_lss_lingain_task)
+            .with_associated_input(wcu_off_raw)
+            .with_associated_input(dark_task)
+            .with_associated_input(lingain_task)
             .with_associated_input(n_lss_rsrf_task)
             .with_associated_input(persistence_map)
             .with_meta_targets([QC1_CALIB])
@@ -76,9 +76,9 @@ n_lss_std_task = (task('metis_n_lss_std')
             #.with_associated_input(badpix_map_geo)
             #.with_associated_input(gain_map_geo)
             #.with_associated_input(linearity_geo)
-            .with_associated_input(n_lss_lingain_task)
+            .with_associated_input(lingain_task)
             .with_associated_input(persistence_map)
-            .with_associated_input(n_lss_dark_task)
+            .with_associated_input(dark_task)
             .with_associated_input(n_lss_rsrf_task)
             .with_associated_input(n_lss_trace_task)
             # .with_associated_input(wavelength_calibration_task)
@@ -99,9 +99,9 @@ n_lss_sci_task = (task('metis_n_lss_sci')
             #.with_associated_input(badpix_map_geo) # For now these are provided by the ouputs of the following tasks as no Simulation exists yet 
             #.with_associated_input(gain_map_geo)
             #.with_associated_input(linearity_geo)
-            .with_associated_input(n_lss_lingain_task)
+            .with_associated_input(lingain_task)
             .with_associated_input(persistence_map)
-            .with_associated_input(n_lss_dark_task)
+            .with_associated_input(dark_task)
             .with_associated_input(n_lss_rsrf_task)
             .with_associated_input(n_lss_trace_task)
             # .with_associated_input(wavelength_calibration_task)
