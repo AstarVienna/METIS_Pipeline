@@ -34,7 +34,7 @@ def on_standard (params: JobParameters) -> bool:
     return get_parameter(params, "molecfit") == "standard"
 
 def which_detector(files: List[ClassifiedFitsFile]):
-    # Check whether the observation type is EXTENDED or POINT-LIKE
+    # Determines if the first file is LM, N, or IFU
     ins_mode = files[0].get_keyword_value("ins.mode", None)
     if "LM" in ins_mode:
         detector = "LM"
