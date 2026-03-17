@@ -17,30 +17,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-
-class FormatPlaceholder:
-    def __init__(self, key):
-        self.key = key
-
-    def __format__(self, spec):
-        value = f"{self.key}{f':{spec}' if spec else ''}"
-        return f"{{{value}}}"
+from pymetis.core.format import partial_format
 
 
-class FormatDict(dict):
-    def __missing__(self, key):
-        return FormatPlaceholder(key)
+class TestFormat:
+    def test_partial_format_basic(self):
+        assert partial_format("METIS_{det}_DARK", det='2RG') == 'METIS_2RG_DARK'
 
+    def test_partial_format_partial(self):
+        assert partial_format("{det}_BLAH_{undef}", det='GEO') == 'GEO_BLAH_{undef}'
 
-def partial_format(template: str, **kwargs) -> str:
-    """
-    Partially format a string containing template tags.
-    Values found in the template but not defined are retained as placeholders.
-    Values not found in the template but defined as a kwarg are silently ignored.
+    def test_partial_format_double(self):
+        assert partial_format("{foo}_{bar}", foo='qux', bar='baz') == 'qux_baz'
 
-    partial_format('{det}_BLAH_{target}', det='GEO', foo='abc')
-    becomes
-    'GEO_BLAH_{target}'
-    """
-    return template.format_map(FormatDict(**kwargs))
+    def test_partial_format_undefined(self):
+        assert partial_format("{foo}_{bar}", foo='baz', baz='foo') == 'baz_{bar}'
 
+    def test_partial_format_complex(self):
+        assert partial_format("{foo}_ELT_{baz}", foo='FOO', bar='BAR') == 'FOO_ELT_{baz}'

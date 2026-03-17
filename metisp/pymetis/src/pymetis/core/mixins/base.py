@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import inspect
+from abc import ABC
 from typing import ClassVar, Self, Optional, final
 
 from cpl.core import Msg
@@ -24,19 +25,38 @@ from cpl.core import Msg
 from pymetis.core.format import partial_format
 
 
-class Parametrizable:
+class Parametrizable(ABC):
     """
-    Base class for all types parametrizable by tags, such as
+    Abstract base class for all types parametrizable by custom tags
+    (tiny pieces of data, such as short strings or integers).
+
+    The goal is to be able to define generic interfaces for internal structures and algorithms
+    and only override the smallest possible subset of functionality in derived classes.
+
+    The tags can be defined either
+    - statically inside the class (e.g. all LM recipes and data items should specify `band = "LM"`
+      in the class definition). We call this a 'specialization' of the class.
+      Note that partial specialization (defining some of the tags while leaving others unspecified) is possible,
+      one might want to define an abstract intermediate class.
+    - or obtained from the loaded data in the instances of the class
+      (e.g. target can be either "SKY" or "STD" or "SCI", but this is not known until the data are loaded).
+      We call this a 'promotion' of the class.
+
+    The end effect should be the same: tag placeholders (`{tag}`) will be replaced by the defined values.
+    Only fully specialized classes can be instantiated. This also implies that
+    unlike specialization, promotion must be always complete.
+
+    In the context of the pipeline some useful tags may be
         - band: (LM|N|IFU)
         - target: (STD|SCI)
         - detector: (2RG|GEO|IFU)
         - source: (LAMP|TWILIGHT)
 
     Other parameters might be useful for different pipelines.
-
-    Currently applies to DataItems, PipelineInputSets and their Mixins.
+    Any strings or types convertible to strings (!s) may be used.
     """
 
+    # Tag parameters defined for this class.
     _tag_parameters: ClassVar[dict[str, str]] = {}
 
     @classmethod
@@ -59,9 +79,19 @@ class Parametrizable:
         cls._tag_parameters = merged
 
 
-class ParametrizableContainer(Parametrizable):
+class ParametrizableContainer(Parametrizable, ABC):
+    """
+    A ParametrizableContainer is an abstract container class (contains other ParametrizableItem classes)
+    and is itself Parametrizable. If specialized / promoted, it propagates the same operation down
+    to all its attributes of type "Meta._T".
+    """
     class Meta:
-        _T: ClassVar[type] = None
+        """
+        Class for storing class-wide metadata:
+
+        _T: the expected type of the inner items.
+        """
+        _T: ClassVar[type['ParametrizableItem']] = None
 
     @classmethod
     def list_classes(cls):
@@ -75,12 +105,11 @@ class ParametrizableContainer(Parametrizable):
         if len(items) == 0:
             return "--- none ---"
         else:
-            return '\n'.join(
-                sorted(items)
-            )
+            return '\n'.join(sorted(items))
 
     @classmethod
     def specialize(cls, **parameters) -> None:
+        """ Specializa this class statically (class-based, from code). """
         Msg.debug(cls.__qualname__,
                   f"Specializing {cls.__qualname__} with {parameters} | {cls.tag_parameters()}")
 
@@ -104,12 +133,12 @@ class ParametrizableContainer(Parametrizable):
     @classmethod
     def promote(cls, **parameters) -> None:
         """
-        Promote the products of this class to appropriate subclasses, as determined from the input data.
+        Promote the inner items of this class to appropriate subclasses, as determined from the input data.
         This may be only called after the recipe is initialized.
 
         May also contain template variables that are not mixed in during class creation.
         For instance, `recipe_{band}_{target}` can specify band=LM, but no target,
-        resulting in a partial specialiation. The target has to be supplied from the actual data.)
+        resulting in a partial specialiation. The target has to be supplied from the actual data then.)
         """
         Msg.info(cls.__qualname__,
                  f"Promoting {cls.__qualname__} with {parameters}")
@@ -123,8 +152,7 @@ class ParametrizableContainer(Parametrizable):
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:
                 Msg.debug(cls.__qualname__,
-                          f" - {old_class} ({old_class_name}) => "
-                          f"{new_class.__qualname__} ({new_class.name()})")
+                          f" - {old_class} ({old_class_name}) => {new_class.__qualname__} ({new_class.name()})")
 
             # Replace the product attribute with the new class
             cls.__class__.__setattr__(cls, name, new_class)
@@ -135,7 +163,9 @@ class ParametrizableItem(Parametrizable):
     Abstract base class for all items parametrizable by tags, such as data items and QC parameters.
     """
 
+    # Name of this item (machine-oriented)
     _name_template: ClassVar[str] = None
+    # Description of this item (human-readable)
     _description_template: ClassVar[str] = None
 
     # Class registry: all derived classes are automatically registered here (unless declared abstract)
@@ -182,6 +212,7 @@ class ParametrizableItem(Parametrizable):
         Try to retrieve the ParametrizableItem subclass with tag ``key`` from the global registry.
 
         If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
+        # ToDo: Maybe we should raise an exception here instead and let the caller handle it?
         """
         if key in cls._registry:
             return cls._registry[key]
@@ -193,7 +224,6 @@ class ParametrizableItem(Parametrizable):
         """
         Specialize the data item's name template with given parameters
         """
-        old = cls._name_template
         cls._name_template = partial_format(cls._name_template, **parameters)
         return cls._name_template
 
@@ -209,7 +239,7 @@ class ParametrizableItem(Parametrizable):
     @classmethod
     def description(cls) -> str:
         """
-        Return the description of the item.
+        Return the human-readable description of the item.
         By default, this just returns the protected internal attribute,
         but can be overridden to build the description from other data, such as band or target.
         """
