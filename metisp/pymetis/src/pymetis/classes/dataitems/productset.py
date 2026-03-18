@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.classes.dataitems import DataItem
-from pymetis.core.mixins.base import ParametrizableContainer
+from pymetis.core.parametrizable import ParametrizableContainer
 
 
 class PipelineProductSet(ParametrizableContainer):

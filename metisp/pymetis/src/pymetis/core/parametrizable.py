@@ -137,28 +137,28 @@ class ParametrizableContainer(Parametrizable, ABC):
         This may be only called after the recipe is initialized.
 
         May also contain template variables that are not mixed in during class creation.
-        For instance, `recipe_{band}_{target}` can specify band=LM, but no target,
-        resulting in a partial specialiation. The target has to be supplied from the actual data then.)
+        For instance, `recipe_{band}_{target}` can specify band=LM, but no target, resulting in partial specialization.
+        The target has to be supplied from the actual data then.
         """
         Msg.info(cls.__qualname__,
                  f"Promoting {cls.__qualname__} with {parameters}")
 
         for name, item in cls.list_classes():
-            # Try to find a promoted class in the registry
-            old_class = item.__qualname__
-            old_class_name = item.name()
+            # Merge the predefined parameters with the new ones
+            expanded_parameters = item.tag_parameters() | parameters
 
-            if (new_class := cls.Meta._T.find(tag := item.specialize(**(item.tag_parameters() | parameters)))) is None:
+            # Try to find a promoted class in the registry
+            if (new_class := cls.Meta._T.find(tag := item.specialize(**expanded_parameters))) is None:
                 raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
             else:
                 Msg.debug(cls.__qualname__,
-                          f" - {old_class} ({old_class_name}) => {new_class.__qualname__} ({new_class.name()})")
+                          f" - {item.__qualname__} ({item.name()}) => {new_class.__qualname__} ({new_class.name()})")
 
-            # Replace the product attribute with the new class
+            # Replace the corresponding attribute with the new class
             cls.__class__.__setattr__(cls, name, new_class)
 
 
-class ParametrizableItem(Parametrizable):
+class ParametrizableItem(Parametrizable, ABC):
     """
     Abstract base class for all items parametrizable by tags, such as data items and QC parameters.
     """

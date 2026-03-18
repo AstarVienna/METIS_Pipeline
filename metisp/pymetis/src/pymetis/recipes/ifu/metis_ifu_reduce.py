@@ -34,8 +34,8 @@ from pymetis.dataitems.ifu.background import IfuBackground
 from pymetis.dataitems.rsrf import RsrfIfu
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.recipes.prefab.darkimage import DarkImageProcessor
-from pymetis.classes.inputs import (SinglePipelineInput, RawInput, WavecalInput,
-                                    OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
+from pymetis.classes.inputs import SinglePipelineInput, RawInput, WavecalInput, GainMapInput, LinearityInput
+from ...classes.inputs.common import OptionalPersistenceMapInput
 from ...qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNbadpix
 from pymetis.core.dummy import create_dummy_header
 
@@ -48,8 +48,7 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
         class RawSkyInput(RawInput):
             Item = IfuSkyRaw
 
-        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
-            pass
+        PersistenceMapInput = OptionalPersistenceMapInput
 
         class GainMapInput(GainMapInput):
             pass

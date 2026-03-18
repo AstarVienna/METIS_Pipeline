@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from .parameter import QcParameter
-from ...core.mixins.base import ParametrizableContainer
+from pymetis.core.parametrizable import ParametrizableContainer
 
 
 class QcParameterSet(ParametrizableContainer):

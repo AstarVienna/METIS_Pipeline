@@ -21,7 +21,7 @@ from typing import Any, ClassVar
 
 import cpl
 
-from pymetis.core.mixins.base import ParametrizableItem
+from pymetis.core.parametrizable import ParametrizableItem
 from pymetis.core.property import python_to_cpl_type
 
 

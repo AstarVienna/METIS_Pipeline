@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from cpl.core import Image
 
-from .base import Parametrizable
+from ..parametrizable import Parametrizable
 
 
 class Detector2rgMixin(Parametrizable, detector='2RG'):

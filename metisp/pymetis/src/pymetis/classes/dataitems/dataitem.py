@@ -30,7 +30,7 @@ import pymetis
 from .hdu import Hdu
 from pymetis.core.format import partial_format
 from pymetis.core.parameter import ParameterList
-from pymetis.core.mixins.base import ParametrizableItem
+from pymetis.core.parametrizable import ParametrizableItem
 
 PIPELINE = rf'METIS/1'
 
@@ -48,7 +48,7 @@ class DataItem(ParametrizableItem):
     # Printable title of the data item. Not used internally, only for human-oriented output
     _title_template: ClassVar[str] = "<untitled>"         # No universal title makes sense
 
-    # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
+    # Actual ID of the data item, or template superclass. Used internally for identification. Should mirror DRLD `name`.
     _name_template: ClassVar[str] = "<unknown>"           # No universal name makes sense
 
     # A long description that will be used in the man page
@@ -61,7 +61,7 @@ class DataItem(ParametrizableItem):
 
     _oca_keywords: set[str] = set()                 # Set of OCA keywords
 
-    # HDU schema: a list of types or None
+    # HDU schema: a dict of types or None
     # By default, only the primary header is present
     _schema: ClassVar[dict[str, Union[None, type[Image], type[Table]]]] = {'PRIMARY': None}
     # For instance
@@ -169,6 +169,7 @@ class DataItem(ParametrizableItem):
                 Msg.error(self.__class__.__qualname__,
                           f"Found a HDU '{hdu.name}', which is not defined by the schema for {self.__class__.__qualname__}. "
                           f"Accepted extension names are {list(self._schema.keys())}.")
+                raise ValueError(f"Unknown HDU '{hdu.name}'.")
 
             assert hdu.klass == self._schema[hdu.name], \
                 (f"Schema for {self.__class__.__qualname__} specifies that HDU '{hdu.name}' "
