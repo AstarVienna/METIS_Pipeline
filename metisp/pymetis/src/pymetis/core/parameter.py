@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-
 # Just reexport these so that we do not import pyesorex in every file,
 # Maybe this will be once swapped out... and then we can get rid of pyesorex completely.
 # See Pyesorex ParameterList why it is not a good idea to use CPL class directly.

@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import inspect
 from abc import ABC
-from typing import ClassVar, Self, Optional, final
+from typing import ClassVar, Self, Optional, final, Any
 
 from cpl.core import Msg
 
@@ -57,10 +57,10 @@ class Parametrizable(ABC):
     """
 
     # Tag parameters defined for this class.
-    _tag_parameters: ClassVar[dict[str, str]] = {}
+    _tag_parameters: ClassVar[dict[str, Any]] = {}
 
     @classmethod
-    def tag_parameters(cls) -> dict[str, str]:
+    def tag_parameters(cls) -> dict[str, Any]:
         """
         Return the tag parameters for this class.
         By default, there are none, but mixins may add their own.
@@ -185,25 +185,13 @@ class ParametrizableItem(Parametrizable, ABC):
         if cls.name() in cls._registry:
             # If the class is already registered, warn about it and do nothing.
             Msg.debug(cls.__qualname__,
-                      f"A class with tag {cls.name()} is already registered, "
+                      f"A {cls.__qualname__} with tag {cls.name()} is already registered, "
                       f"skipping: {cls._registry[cls.name()].__qualname__}")
         else:
             # Otherwise add the class to the global registry
             Msg.debug(cls.__qualname__,
                       f"Registered a new class {cls.name()}: {cls}")
             cls._registry[cls.name()] = cls
-
-    @staticmethod
-    def _replace_empty_tags(**parameters):
-        """
-        Replace all `None` parameters with placeholders.
-        Intended for human-readable output in not-fully-specialized recipes, such as man pages.
-        For instance, `MASTER_DARK_{detector}_{source}` with parameters `{'source': 'STD', 'detector': None}`
-        gets rendered literally as "MASTER_DARK_{detector}_STD".
-
-        ToDo: Change to proper t-strings once Python 3.14 is supported.
-        """
-        return {key: (f'{{{key}}}' if value is None else value) for key, value in parameters.items()}
 
     @classmethod
     @final
@@ -234,7 +222,7 @@ class ParametrizableItem(Parametrizable, ABC):
         """
         assert cls._name_template is not None, \
             f"{cls.__qualname__} name template is None"
-        return partial_format(cls._name_template, **cls._replace_empty_tags(**cls.tag_parameters()))
+        return partial_format(cls._name_template, **cls.tag_parameters())
 
     @classmethod
     def description(cls) -> str:
@@ -245,5 +233,4 @@ class ParametrizableItem(Parametrizable, ABC):
         """
         assert cls._description_template is not None, \
             f"{cls.__name__} description template is None"
-        description = partial_format(cls._description_template, **cls._replace_empty_tags(**cls.tag_parameters()))
-        return description
+        return partial_format(cls._description_template, **cls.tag_parameters())

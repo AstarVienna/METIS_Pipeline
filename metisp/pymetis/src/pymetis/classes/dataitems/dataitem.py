@@ -88,7 +88,7 @@ class DataItem(ParametrizableItem):
         """
         assert cls._title_template is not None, \
             f"{cls.__name__} title template is None"
-        return partial_format(cls._title_template, **cls._replace_empty_tags(**cls.tag_parameters()))
+        return partial_format(cls._title_template, **cls.tag_parameters())
 
     @classmethod
     @final
@@ -468,7 +468,7 @@ class DataItem(ParametrizableItem):
 
         Includes leading space.
         """
-        return f"    {cls.name():47s}{cls.description() or '<no description defined>'}"
+        return f"    {cls.name():51s}{cls.description() or '<no description defined>'}"
 
     def __str__(self):
         return f"{self.name()}"

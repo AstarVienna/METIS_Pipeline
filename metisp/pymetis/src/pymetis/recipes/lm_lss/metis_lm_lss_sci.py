@@ -36,12 +36,12 @@ class MetisLmLssSci(MetisRecipe):
     # used to identify a particular recipe among all installed recipes.
     # The name of the python source file where this class is defined
     # is not at all used in this context.
-    _name: str = "metis_lm_lss_sci"
-    _version: str = "0.1"
-    _author: str = "Wolfgang Kausch, A*"
-    _email: str = "wolfgang.kausch@uibk.ac.at"
-    _copyright: str = "GPL-3.0-or-later"
-    _synopsis: str = "Reduction of the LSS science star frames"
+    _name = "metis_lm_lss_sci"
+    _version = "0.1"
+    _author = "Wolfgang Kausch, A*"
+    _email = "wolfgang.kausch@uibk.ac.at"
+    _copyright = "GPL-3.0-or-later"
+    _synopsis = "Reduction of the LSS science star frames"
 
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
     _algorithm = """Fancy algorithm description follows ***TBD***"""

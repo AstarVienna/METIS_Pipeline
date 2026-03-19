@@ -49,8 +49,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
     _copyright: str = "GPL-3.0-or-later"                         # I guess we are using the same copyright everywhere
     _synopsis: str = "Abstract-like base class for METIS recipes"
     _description: str = ("This class serves as the base class for all METIS recipes. "
-                         "Bonus points if it is not visible from pyesorex "
-                         "(if it is, override the _description attribute in the final class).")
+                         "If you see this in a recipe, override its `_description` attribute).")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
     _matched_keywords: set[str] = set()
@@ -87,9 +86,7 @@ class MetisRecipe(cpl.ui.PyRecipe):
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:
-        """
-        A kludgy attempt to format the algorithm description to have nice indentation.
-        """
+        """ A kludgy attempt to format the algorithm description to have nice indentation. """
 
         # First, remove all spaces from the beginning of the string.
         fix_first_space = re.compile(r'^\s*')
