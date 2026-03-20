@@ -93,9 +93,6 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
             'gain_map': Hdu(header_gain, gain_image, name=rf'{det}.SCI'),
             'linearity_map': Hdu(header_linearity, linearity_image, name=rf'{det}.SCI'),
             'badpix_map': Hdu(header_badpix, badpix_map, name=rf'{det}.SCI'),
-            #'gain_map': Hdu(header_gain, gain_image, name='PRIMARY'),
-            #'linearity_map': Hdu(header_linearity, linearity_image, name='PRIMARY'),
-            #'badpix_map': Hdu(header_badpix, badpix_map, name='PRIMARY'),
         }
 
     def process(self) -> set[DataItem]:
