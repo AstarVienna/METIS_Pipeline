@@ -26,4 +26,4 @@ class ImageDataItem(DataItem, abstract=True):
     """
     A data item with image data, possibly saved in multiple HDUs
     """
-    _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.IMAGE
+    _frame_type = cpl.ui.Frame.FrameType.IMAGE

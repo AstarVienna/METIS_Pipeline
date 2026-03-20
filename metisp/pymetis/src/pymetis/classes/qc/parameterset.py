@@ -22,7 +22,7 @@ from pymetis.core.parametrizable import ParametrizableContainer
 
 
 class QcParameterSet(ParametrizableContainer):
-    """ A simple encapsulation of a set of QC parameters. """
+    """ An encapsulation of a set of QC parameters. """
     class Meta:
         _T = QcParameter
 

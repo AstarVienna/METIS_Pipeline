@@ -21,11 +21,11 @@ import functools
 import operator
 import re
 from abc import ABC
-from typing import Self, Optional, Literal, Dict, Any
+from typing import Literal, Dict, Any
 
 import cpl
 from cpl.core import Msg, ImageList, Image, Mask
-from pymetis.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
@@ -44,7 +44,7 @@ from pymetis.qc.dark import DarkMean, DarkMedian, DarkRms, DarkNColdpix, DarkNHo
 
 import numpy as np
 
-from pymetis.functions.image import zeros_like
+from pymetis.core.functions.image import zeros_like
 from pymetis.core.dummy import create_dummy_header
 
 

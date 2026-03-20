@@ -177,16 +177,20 @@ class ParametrizableItem(Parametrizable, ABC):
                           **kwargs):
         """
         Register every subclass of ParametrizableItem in a class-global registry, based on its tag parameters.
-        """
 
+        Parameters
+        ----------
+        abstract: bool
+            If abstract, the class is not expected to be instantiated and will raise an exception if this is attempted.
+        """
         super().__init_subclass__(**kwargs)
 
         cls._abstract = abstract
         if cls.name() in cls._registry:
             # If the class is already registered, warn about it and do nothing.
-            Msg.debug(cls.__qualname__,
-                      f"A {cls.__qualname__} with tag {cls.name()} is already registered, "
-                      f"skipping: {cls._registry[cls.name()].__qualname__}")
+            Msg.warning(cls.__qualname__,
+                        f"A {cls.__qualname__} with tag {cls.name()} is already registered, "
+                        f"skipping: {cls._registry[cls.name()].__qualname__}")
         else:
             # Otherwise add the class to the global registry
             Msg.debug(cls.__qualname__,
