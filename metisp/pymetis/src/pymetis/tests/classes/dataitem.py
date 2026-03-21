@@ -21,9 +21,9 @@ import pytest
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.dataitems.common import AtmProfile
-from pymetis.dataitems.raw import WcuOffRaw
+from pymetis.engine.dataitems.dataitem import DataItem
+from pymetis.instruments.metis.dataitems.common import AtmProfile
+from pymetis.instruments.metis.dataitems.raw import WcuOffRaw
 
 OCA_KEYWORDS: set[str] = {
     'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
