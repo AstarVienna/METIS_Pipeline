@@ -22,8 +22,9 @@ from .dataitem import DataItem
 from .image import ImageDataItem
 from .table import TableDataItem
 from .hdu import Hdu
+from .productset import PipelineProductSet
 
 
 __all__ = [
-    'DataItem', 'ImageDataItem', 'TableDataItem', 'Hdu'
+    'DataItem', 'ImageDataItem', 'TableDataItem', 'Hdu', 'PipelineProductSet'
 ]

@@ -22,7 +22,7 @@ from cpl.core import Msg
 import numpy as np
 from typing import Literal
 
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange
+from pymetis.core.parameter import ParameterList, ParameterEnum, ParameterRange
 
 # is this legal?
 from astropy.table import QTable
@@ -30,7 +30,7 @@ from astropy.table import QTable
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.hdu import Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.mixins import DetectorIfuMixin, BandIfuMixin
+from pymetis.core.mixins import DetectorIfuMixin, BandIfuMixin
 from pymetis.classes.qc import QcParameterSet, QcParameter
 from pymetis.dataitems.badpixmap import BadPixMapIfu
 from pymetis.dataitems.gainmap import GainMapIfu
@@ -41,12 +41,12 @@ from pymetis.dataitems.masterflat import MasterFlatIfu
 from pymetis.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
 from pymetis.dataitems.raw.wcuoff import IfuWcuOffRaw
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
-from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.classes.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput,
                                     WavecalInput, DistortionTableInput, LinearityInput, OptionalInputMixin,
                                     SinglePipelineInput, PersistenceMapInput)
 from pymetis.qc.reduce import IfuReduceMeanStray, IfuReduceNbadpix, IfuReduceMeanBkg
-from pymetis.utils.dummy import create_dummy_table, create_dummy_header
+from pymetis.core.dummy import create_dummy_table, create_dummy_header
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer

@@ -17,17 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pyesorex.parameter import ParameterList, ParameterEnum
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs import RawInput, PipelineInputSet
-from pymetis.classes.prefab import RawImageProcessor
+from pymetis.recipes.prefab import RawImageProcessor
 from pymetis.classes.qc import QcParameter, QcParameterSet
 from pymetis.classes.recipes import MetisRecipe, MetisRecipeImpl
 from pymetis.dataitems.coadd import LmSciCoadd
 from pymetis.dataitems.img.basicreduced import LmSciCalibrated
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor):

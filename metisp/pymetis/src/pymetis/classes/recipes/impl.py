@@ -23,12 +23,12 @@ from typing import Dict, Any, final, Optional
 import cpl
 from cpl.core import Msg
 
-from pyesorex.parameter import ParameterList
+from pymetis.core.parameter import ParameterList
 
 from pymetis.classes.dataitems import DataItem
 from pymetis.classes.dataitems.productset import PipelineProductSet
 from pymetis.classes.inputs.inputset import PipelineInputSet
-from pymetis.classes.mixins.base import Parametrizable
+from pymetis.core.parametrizable import Parametrizable
 from pymetis.classes.qc import QcParameterSet, QcParameter
 
 
@@ -87,6 +87,7 @@ class MetisRecipeImpl(Parametrizable, ABC):
         # FixMe -- Surely it must be possible to do this in a more elegant way
         cls.ProductSet = type("ProductSet", (cls.ProductSet,), {})
         cls.ProductSet.specialize(**cls.tag_parameters())
+        # Create our own Qc type
         cls.Qc = type("Qc", (cls.Qc,), {})
         cls.Qc.specialize(**cls.tag_parameters())
 

@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import BandLmMixin, BandNMixin
+from pymetis.core.mixins import BandLmMixin, BandNMixin
 
 """
 The hierarchy is somewhat atypical here by design: no N data item, and only IFU supports STD|SKY target.

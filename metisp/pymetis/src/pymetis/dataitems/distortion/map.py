@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import BandLmMixin, BandNMixin
+from pymetis.core.mixins import BandLmMixin, BandNMixin
 
 
 class DistortionMap(ImageDataItem, abstract=True):

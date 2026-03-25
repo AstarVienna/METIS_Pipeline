@@ -21,11 +21,15 @@ from typing import Any, ClassVar
 
 import cpl
 
-from pymetis.classes.mixins.base import ParametrizableItem
-from pymetis.utils.property import python_to_cpl_type
+from pymetis.core.parametrizable import ParametrizableItem
+from pymetis.core.property import python_to_cpl_type
 
 
 class QcParameter(ParametrizableItem):
+    """
+    An encapsulation of a QC parameter, as specified in the DRLD.
+    """
+
     _name_template: ClassVar[str] = "none"
     _type: ClassVar[type] = NoneType
     _unit: ClassVar[str] = "undefined"
@@ -48,9 +52,14 @@ class QcParameter(ParametrizableItem):
         """
         Return a formatted description line for the man page.
         """
+        name = f"{cls.name():<36s}"
+        unit_default = f"[{str(cls._unit)}, default {str(cls._default)}]"
+        description = f"{cls.description():<60}"
+
         # [5:] is there to get rid of "Type." prefix
-        return (f"{cls.name():<46s} {f'{python_to_cpl_type(cls._type)}'[5:]:<14s} "
-                f"{cls.description():<60} [{str(cls._unit)}, default {str(cls._default)}] ")
+        return (f"{name} {f'{python_to_cpl_type(cls._type)}'[5:]:<13s} "
+                f"{unit_default:<32s}"
+                f"{description} ")
 
     def as_property(self) -> cpl.core.Property:
         return cpl.core.Property(self.name(), python_to_cpl_type(self._type), self.value, self.description())

@@ -38,12 +38,16 @@ from pymetis.dataitems.lss.rsrf import MasterLssRsrf
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
+They are often reused throughout many recipes and it is nice to have them clumped together.
+
+In case they are not enough, you are welcome to add your own. Mind that
+
 You should never derive actual `Input`s directly from `PipelineInput`, but rather from
 
  -  `SinglePipelineInput` (for `Input` classes with a single Frame)
  -  `MultiplePipelineInput` (for `Input` classes with a FrameSet)
 
-You should override class attributes:
+You can override class attributes:
 
  -  `Item`
     points to the data item inside this `Input`
@@ -55,7 +59,7 @@ You should override class attributes:
 
 
 class OptionalInputMixin(PipelineInput, ABC):
-    _required = False     # Many inputs are by default optional, this mixin provides that
+    _required = False     # Many inputs are by default optional, this mixin provides just that
 
 
 class RawInput(MultiplePipelineInput, ABC):

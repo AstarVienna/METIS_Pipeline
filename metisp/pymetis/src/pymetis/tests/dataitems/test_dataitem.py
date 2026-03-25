@@ -31,6 +31,7 @@ from pymetis.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo
 from pymetis.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterFlatIfu
 from pymetis.dataitems.raw import WcuOffRaw
 
+# ToDo This is METIS-specific and should be moved
 OCA_KEYWORDS: set[str] = {
     'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
     'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME',
@@ -77,7 +78,7 @@ class TestDataItem:
             f"Data item {item.__qualname__} does not have a frame group defined!"
 
     @pytest.mark.metadata
-    def test_has_oca_keywords_defined(self, item):
+    def test_has_oca_keywords_defined_and_it_is_a_set(self, item):
         assert isinstance(item._oca_keywords, set), \
             f"Data item {item.__qualname__} OCA keywords are not a set"
         #assert len(item._oca_keywords) > 0, \

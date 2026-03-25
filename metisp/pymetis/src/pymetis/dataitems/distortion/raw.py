@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandIfuMixin, DetectorIfuMixin
+from pymetis.core.mixins import BandLmMixin, BandNMixin, BandIfuMixin, DetectorIfuMixin
 
 
 class DistortionRaw(Raw, abstract=True):

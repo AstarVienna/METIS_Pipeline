@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image, Table
 
 from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem
-from pymetis.classes.mixins import DetectorIfuMixin
+from pymetis.core.mixins import DetectorIfuMixin
 
 
 class Rsrf(DataItem):

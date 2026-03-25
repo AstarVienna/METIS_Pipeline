@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins.band import BandLmMixin, BandNMixin
+from pymetis.core.mixins.band import BandLmMixin, BandNMixin
 
 
 class PupilImagingReduced(ImageDataItem, abstract=True):

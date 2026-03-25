@@ -18,11 +18,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from .parameter import QcParameter
-from ..mixins.base import ParametrizableContainer
+from pymetis.core.parametrizable import ParametrizableContainer
 
 
 class QcParameterSet(ParametrizableContainer):
-    """ A simple encapsulation of a set of QC parameters. """
+    """ An encapsulation of a set of QC parameters. """
     class Meta:
         _T = QcParameter
 

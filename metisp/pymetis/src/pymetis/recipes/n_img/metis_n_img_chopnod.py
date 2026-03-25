@@ -21,11 +21,11 @@ import copy
 import cpl
 from cpl.core import Msg
 
-from pyesorex.parameter import ParameterList, ParameterEnum
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
-from pymetis.classes.mixins import DetectorGeoMixin, BandNMixin
+from pymetis.core.mixins import DetectorGeoMixin, BandNMixin
 from pymetis.classes.qc import QcParameterSet
 from pymetis.dataitems.background.background import NStdBackground
 from pymetis.dataitems.background.subtracted import NStdBackgroundSubtracted, NBackgroundSubtracted
@@ -34,9 +34,9 @@ from pymetis.dataitems.img.raw import ImageRaw
 from pymetis.classes.recipes import MetisRecipe
 from pymetis.classes.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
-from pymetis.classes.prefab.darkimage import DarkImageProcessor
+from pymetis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.qc.std_process import QcStdPeakCounts
-from pymetis.utils.dummy import create_dummy_header
+from pymetis.core.dummy import create_dummy_header
 
 
 class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor):

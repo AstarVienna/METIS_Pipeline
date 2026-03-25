@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import copy
 
-from pyesorex.parameter import ParameterList, ParameterEnum
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.classes.dataitems import DataItem, Hdu
 from pymetis.classes.dataitems.productset import PipelineProductSet
@@ -30,10 +30,10 @@ from pymetis.dataitems.lss.wave import LssWaveRaw
 from pymetis.classes.inputs import SinglePipelineInput, RawInput, LaserTableInput
 from pymetis.classes.inputs.common import WcuOffInput, OptionalInputMixin, PersistenceMapInput, GainMapInput, \
     LinearityInput, BadPixMapInput, MasterDarkInput
-from pymetis.classes.mixins import BandLmMixin
-from pymetis.classes.prefab import DarkImageProcessor
+from pymetis.core.mixins import BandLmMixin
+from pymetis.recipes.prefab import DarkImageProcessor
 from pymetis.classes.recipes import MetisRecipe
-from pymetis.utils.dummy import create_dummy_table, create_dummy_header
+from pymetis.core.dummy import create_dummy_table, create_dummy_header
 
 
 class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor):

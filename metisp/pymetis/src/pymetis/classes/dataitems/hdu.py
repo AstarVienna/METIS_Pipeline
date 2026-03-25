@@ -18,28 +18,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pathlib import Path
-from typing import Union, TypeVar, Generic, Optional
+from typing import Optional
 
 import cpl
 from cpl.core import (Image as CplImage,
                       Table as CplTable,
-                      PropertyList as CplPropertyList, Property, Msg)
+                      PropertyList as CplPropertyList, Msg)
 
-from pymetis.utils.dummy import make_cpl_property
+from pymetis.core.dummy import make_cpl_property
 
 
 class Hdu:
     """
-    A loose association of a header and data
+    A loose association of a header and data.
     """
     def __init__(self,
                  header: CplPropertyList,
                  data: Optional[CplImage | CplTable],
                  *,
-                 name: Optional[str] = None, # FixMe this should not really be optional for creation as opposed to loading
+                 name: Optional[str] = None, # FixMe this should not really be optional for creation (but yes for loading)
                  klass: Optional[type[CplImage | CplTable]] = None,
-                 extno: Optional[int] = 0,
-                ) -> None:
+                 extno: Optional[int] = 0):
         """
 
         Parameters
@@ -83,6 +82,8 @@ class MetisImage:
     """
     A 2D data array, complete with uncertainty and data quality map.
     Contains methods for saving loading and what not.
+
+    ToDo incomplete, but deferred until much later
     """
     def __init__(self,
                  data: CplImage,

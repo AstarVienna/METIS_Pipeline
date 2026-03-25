@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image, PropertyList
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins.band import BandLmMixin
+from pymetis.core.mixins.band import BandLmMixin
 
 
 class LmChophomeCombined(BandLmMixin, ImageDataItem):

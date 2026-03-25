@@ -24,8 +24,9 @@ from pymetis.classes.dataitems import DataItem
 
 
 class TableDataItem(DataItem, abstract=True):
-    _frame_type: cpl.ui.Frame.FrameType = cpl.ui.Frame.FrameType.TABLE
+    _frame_type = cpl.ui.Frame.FrameType.TABLE
 
+    # Default schema: empty primary and one table extension. Feel free to override if needed.
     _schema = {
         'PRIMARY': None,
         'TABLE': Table,

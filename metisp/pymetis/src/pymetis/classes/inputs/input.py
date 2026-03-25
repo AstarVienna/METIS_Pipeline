@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from abc import abstractmethod
-from typing import Any, Optional, Generator, final, Union
+from typing import Any, Optional, final, Union, ClassVar
 
 import cpl
 from cpl.core import Msg
@@ -34,18 +34,18 @@ class PipelineInput:
 
     It is a relatively thin wrapper over the inner `Item`.
     """
-    Item: type[DataItem] = None
+    Item: ClassVar[type[DataItem]] = None   # No universal data item inside
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
 
-    _multiplicity: str = None               # Multiplicity of the input, '1' or 'N'
+    _multiplicity: ClassVar[str] = None     # Multiplicity of the input, '1' or 'N'
 
     @staticmethod
     def preprocess_frameset(frameset: cpl.ui.FrameSet) -> dict[str, cpl.ui.FrameSet]:
         """
         Convert a SOF (which is a `list[tuple[filename, tag]]`) to a mapping `tag: list[filename]`
-        to make it more convenient for Python.
+        to make it more convenient for processing in Python.
         """
         result = {}
 
@@ -194,7 +194,7 @@ class PipelineInput:
         assert cls.Item.name() is not None, f"{cls.Item.__qualname__} has no name"
         assert cls.Item.description() is not None, f"{cls.Item.__qualname__} has no description defined"
 
-        return (f"    {cls.Item.name():<32}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
+        return (f"    {cls.Item.name():<36}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
                 f" {cls.Item.description()}")
 #                f"{f'\n{' ' * 84}'.join([x.__qualname__ for x in set(cls.input_for_recipes())])}")
 

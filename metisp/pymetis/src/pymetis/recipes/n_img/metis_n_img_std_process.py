@@ -17,10 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pyesorex.parameter import ParameterList, ParameterEnum
+from pymetis.core.parameter import ParameterList, ParameterEnum
 
-from pymetis.classes.mixins import BandNMixin
-from pymetis.classes.prefab.img.std_process import MetisImgStdProcessImpl
+from pymetis.core.mixins import BandNMixin
+from pymetis.recipes.prefab.img.std_process import MetisImgStdProcessImpl
 from pymetis.classes.recipes import MetisRecipe
 
 

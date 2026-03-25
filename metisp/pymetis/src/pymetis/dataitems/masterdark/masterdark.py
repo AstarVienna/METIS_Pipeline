@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.core.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
 class MasterDark(ImageDataItem, abstract=True):
@@ -41,7 +41,7 @@ class MasterDark(ImageDataItem, abstract=True):
 
 
 class MasterDark2rg(Detector2rgMixin, MasterDark):
-    _schema ={
+    _schema = {
         'PRIMARY': None,
         'DET1.SCI': Image,
         'DET1.ERR': Image,

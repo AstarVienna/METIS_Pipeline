@@ -23,7 +23,7 @@ import cpl
 from cpl.core import Table
 
 from pymetis.classes.dataitems import TableDataItem
-from pymetis.classes.mixins import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.core.mixins import BandLmMixin, BandNMixin, BandIfuMixin
 
 
 class DistortionTable(TableDataItem, abstract=True):

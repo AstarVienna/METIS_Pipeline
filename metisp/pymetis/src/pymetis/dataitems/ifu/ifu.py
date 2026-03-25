@@ -21,8 +21,8 @@ import cpl
 from cpl.core import Image
 
 from pymetis.classes.dataitems import ImageDataItem
-from pymetis.classes.mixins import TargetStdMixin, TargetSciMixin
-from pymetis.classes.mixins.band import BandIfuMixin
+from pymetis.core.mixins import TargetStdMixin, TargetSciMixin
+from pymetis.core.mixins.band import BandIfuMixin
 
 
 class IfuBase(BandIfuMixin, ImageDataItem, abstract=True):

@@ -20,7 +20,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.dataitems.raw import Raw
-from pymetis.classes.mixins import BandIfuMixin, TargetStdMixin, TargetSciMixin
+from pymetis.core.mixins import BandIfuMixin, TargetStdMixin, TargetSciMixin
 
 
 class IfuRaw(BandIfuMixin, Raw, abstract=True):

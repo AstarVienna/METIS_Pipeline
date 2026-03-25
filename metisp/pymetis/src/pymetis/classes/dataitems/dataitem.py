@@ -21,17 +21,16 @@ import datetime
 import inspect
 import re
 from pathlib import Path
-from typing import Optional, Generator, Self, final, Union
+from typing import Optional, Generator, Self, final, Union, ClassVar
 
 import cpl
-
-from cpl.core import Msg, Image, Table, PropertyList as CplPropertyList, Property as CplProperty
-from pyesorex.parameter import Parameter, ParameterList
+from cpl.core import Msg, Image, Table, PropertyList as CplPropertyList
 
 import pymetis
-from pymetis.classes.dataitems.hdu import Hdu
-from pymetis.classes.mixins.base import Parametrizable, ParametrizableItem
-from pymetis.utils.format import partial_format
+from .hdu import Hdu
+from pymetis.core.format import partial_format
+from pymetis.core.parameter import ParameterList
+from pymetis.core.parametrizable import ParametrizableItem
 
 PIPELINE = rf'METIS/1'
 
@@ -46,26 +45,25 @@ class DataItem(ParametrizableItem):
 
     Multiple files with the same tag should correspond to multiple instances of the same DataItem class.
     """
-    # Class registry: all derived classes are automatically registered here (unless declared abstract)
-    _registry: dict[str, type['DataItem']] = {}
-
     # Printable title of the data item. Not used internally, only for human-oriented output
-    _title_template: str = None                     # No universal title makes sense
-    # Actual ID of the data item. Used internally for identification. Should mirror DRLD `name`.
-    _name_template: str = "DataItem"                # No universal name makes sense
+    _title_template: ClassVar[str] = "<untitled>"         # No universal title makes sense
+
+    # Actual ID of the data item, or template superclass. Used internally for identification. Should mirror DRLD `name`.
+    _name_template: ClassVar[str] = "<unknown>"           # No universal name makes sense
+
     # A long description that will be used in the man page
-    _description_template: Optional[str] = None     # A verbose string; should correspond to the DRLD description
+    _description_template: ClassVar[Optional[str]] = None # A verbose string; should correspond to the DRLD description
 
     # CPL frame group and level
     _frame_group: cpl.ui.Frame.FrameGroup = None    # No sensible default; must be provided explicitly
     _frame_level: cpl.ui.Frame.FrameLevel = None    # No sensible default; must be provided explicitly
     _frame_type: cpl.ui.Frame.FrameType = None      # Specialised for image / table / multi-extension data
 
-    _oca_keywords: set[str] = set()
+    _oca_keywords: set[str] = set()                 # Set of OCA keywords
 
-    # HDU schema: a list of types or None
+    # HDU schema: a dict of types or None
     # By default, only the primary header is present
-    _schema: dict[str, Union[None, type[Image], type[Table]]] = {'PRIMARY': None}
+    _schema: ClassVar[dict[str, Union[None, type[Image], type[Table]]]] = {'PRIMARY': None}
     # For instance
     # >>> _schema = {
     # >>>     'PRIMARY': None,
@@ -74,7 +72,6 @@ class DataItem(ParametrizableItem):
     # >>>     'DET3.DATA': Image,
     # >>>     'DET4.DATA': Image,
     # >>> }
-
 
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -85,27 +82,13 @@ class DataItem(ParametrizableItem):
         return cls._schema
 
     @classmethod
-    @final
-    def find(cls, key: str) -> Optional[type['DataItem']]:
-        """
-        Try to retrieve the DataItem subclass with tag ``key`` from the global registry.
-
-        If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
-        """
-        if key in DataItem._registry:
-            return DataItem._registry[key]
-        else:
-            return None
-
-    @classmethod
     def title(cls) -> str:
         """
         Return a human-readable title of this data item, e.g. "2RG linearity raw"
         """
         assert cls._title_template is not None, \
             f"{cls.__name__} title template is None"
-        return partial_format(cls._title_template, **cls._replace_empty_tags(**cls.tag_parameters()))
-
+        return partial_format(cls._title_template, **cls.tag_parameters())
 
     @classmethod
     @final
@@ -186,6 +169,7 @@ class DataItem(ParametrizableItem):
                 Msg.error(self.__class__.__qualname__,
                           f"Found a HDU '{hdu.name}', which is not defined by the schema for {self.__class__.__qualname__}. "
                           f"Accepted extension names are {list(self._schema.keys())}.")
+                raise ValueError(f"Unknown HDU '{hdu.name}'.")
 
             assert hdu.klass == self._schema[hdu.name], \
                 (f"Schema for {self.__class__.__qualname__} specifies that HDU '{hdu.name}' "
@@ -469,7 +453,7 @@ class DataItem(ParametrizableItem):
         Useful for reconstruction of DRLD input/product cards.
         """
         for (name, klass) in inspect.getmembers(
-                pymetis.recipes,
+                pymetis.recipes,     # FixMe This introduces undesired coupling, remove
                 lambda x: inspect.isclass(x) and x.Impl is not None
         ):
             for (n, kls) in inspect.getmembers(klass.Impl, lambda x: inspect.isclass(x)):
@@ -484,7 +468,7 @@ class DataItem(ParametrizableItem):
 
         Includes leading space.
         """
-        return f"    {cls.name():47s}{cls.description() or '<no description defined>'}"
+        return f"    {cls.name():51s}{cls.description() or '<no description defined>'}"
 
     def __str__(self):
         return f"{self.name()}"
