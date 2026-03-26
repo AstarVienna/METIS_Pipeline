@@ -68,7 +68,11 @@ class Parametrizable(ABC):
         return cls._tag_parameters
 
     def __init_subclass__(cls, **kwargs):
+        """
+        Merge tag parameters from all base classes.
+        """
         merged = {}
+        # ToDo: Does this really do what we want it to do? What is the desired order of preference?
         for base in reversed(cls.__mro__):
             params = base.__dict__.get('_tag_parameters')
             if isinstance(params, dict):
@@ -109,7 +113,7 @@ class ParametrizableContainer(Parametrizable, ABC):
 
     @classmethod
     def specialize(cls, **parameters) -> None:
-        """ Specializa this class statically (class-based, from code). """
+        """ Specialize this class statically (class-based, from code). """
         Msg.debug(cls.__qualname__,
                   f"Specializing {cls.__qualname__} with {parameters} | {cls.tag_parameters()}")
 
@@ -238,3 +242,26 @@ class ParametrizableItem(Parametrizable, ABC):
         assert cls._description_template is not None, \
             f"{cls.__name__} description template is None"
         return partial_format(cls._description_template, **cls.tag_parameters())
+
+
+class KeywordMixin(Parametrizable, ABC):
+    """
+    Base class for keyword-parametrizable mixins.
+
+    Contains a global registry of such classes, with placeholders as keys
+    """
+
+    # Global registry of parametrizable tags in the form {keyword: class},
+    # e.g. {'detector': DetectorSpecificMixin, ...}
+    # Filled automatically with __init_subclass__.
+    _registry: dict[str, type[Self]] = {}
+
+    def __init_subclass__(cls, *, keyword: str = None, **kwargs):
+        if keyword is not None:
+            cls._registry[keyword] = cls
+        super().__init_subclass__(**kwargs)
+
+    @classmethod
+    def registry(cls) -> dict[str, type[Self]]:
+        """ Class property to access the global registry """
+        return cls._registry

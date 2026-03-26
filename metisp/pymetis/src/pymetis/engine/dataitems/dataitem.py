@@ -390,7 +390,7 @@ class DataItem(ParametrizableItem):
         # parameters = cpl.ui.ParameterList([Parameter.to_cplui(p) for p in parameters])
 
         Msg.info(self.__class__.__qualname__,
-                 f"Saving image {self._get_file_name(output_file_name)}")
+                 f"Saving the data item to {self._get_file_name(output_file_name)}")
         Msg.debug(self.__class__.__qualname__,
                   f"Used {len(recipe.used_frames)} frames")
         for frame in recipe.used_frames:
