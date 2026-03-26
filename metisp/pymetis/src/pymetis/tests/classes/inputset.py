@@ -23,8 +23,8 @@ import inspect
 from abc import ABC
 from typing import Optional
 
-from pymetis.classes.recipes import MetisRecipeImpl
-from pymetis.classes.inputs import PipelineInputSet, PipelineInput, MultiplePipelineInput
+from pymetis.engine.recipes import MetisRecipeImpl
+from pymetis.engine.inputs import PipelineInputSet, PipelineInput, MultiplePipelineInput
 
 
 @pytest.mark.inputset
