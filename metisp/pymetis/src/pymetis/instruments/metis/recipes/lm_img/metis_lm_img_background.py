@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.core.dummy import create_dummy_table, create_dummy_header
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
 
 from pymetis.instruments.metis.dataitems.background import Background, BackgroundSubtracted
@@ -31,7 +31,7 @@ from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.qc.background import QcLmImgBkgMedian, QcLmImgBkgMedianDeviation
 
 
-class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
+class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, RecipeImpl):
     class InputSet(PipelineInputSet):
         class BasicReducedInput(SinglePipelineInput):
             Item = BasicReduced
@@ -72,7 +72,7 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
         return {product_bkg, product_bkg_subtracted, product_object_cat}
 
 
-class MetisLmImgBackground(MetisRecipe):
+class MetisLmImgBackground(Recipe):
     _name = "metis_lm_img_background"
     _version = "0.1"
     _author = "Chi-Hung Yan, A*"

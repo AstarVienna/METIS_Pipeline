@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
@@ -29,7 +29,7 @@ class MetisNImgFlatImpl(BandNMixin, DetectorGeoMixin, MetisBaseImgFlatImpl):
         pass
 
 
-class MetisNImgFlat(MetisRecipe):
+class MetisNImgFlat(Recipe):
     _name = "metis_n_img_flat"
     _version = "0.1"
     _author = "A*"

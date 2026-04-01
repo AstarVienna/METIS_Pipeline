@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.inputs import PipelineInputSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.dummy import create_dummy_header
 
 from pymetis.instruments.metis.inputs import RawInput
@@ -97,7 +97,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor):
         return {product_coadd}
 
 
-class MetisLmImgSciPostProcess(MetisRecipe):
+class MetisLmImgSciPostProcess(Recipe):
     _name: str = "metis_lm_img_sci_postprocess"
     _version: str = "0.1"
     _author: str = "Chi-Hung Yan, A*"

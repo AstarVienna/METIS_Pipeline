@@ -31,7 +31,7 @@ from cpl.core import Msg, Image, Table
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.core.dummy import create_dummy_header
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
 from pymetis.instruments.metis.dataitems.pupil import PupilRaw, PupilImagingReduced
@@ -142,7 +142,7 @@ class MetisPupilImagingImpl(DarkImageProcessor):
         return {product}
 
 
-class MetisPupilImaging(MetisRecipe):
+class MetisPupilImaging(Recipe):
     """
     Wrapper for the recipe for pyesorex, defining the necessary attributes and parameters,
     plus the implementation class.

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import Detector2rgMixin
@@ -30,7 +30,7 @@ class MetisLmImgCalibrateImpl(BandLmMixin, Detector2rgMixin, MetisImgCalibrateIm
         pass
 
 
-class MetisLmImgCalibrate(MetisRecipe):
+class MetisLmImgCalibrate(Recipe):
     _name = "metis_lm_img_calibrate"
     _version = "0.1"
     _author = "Chi-Hung Yan, A*"

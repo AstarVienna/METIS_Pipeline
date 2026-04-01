@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandLmMixin
@@ -29,7 +29,7 @@ class MetisLmLssMfModelImpl(BandLmMixin, MetisLssMfModelImpl):
         pass
 
 
-class MetisLmLssMfModel(MetisRecipe):
+class MetisLmLssMfModel(Recipe):
     _name: str = "metis_lm_lss_mf_model"
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"

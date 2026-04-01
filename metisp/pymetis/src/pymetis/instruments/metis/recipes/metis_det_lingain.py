@@ -28,7 +28,7 @@ from cpl.core import Msg
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.dummy import create_dummy_header
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
@@ -67,7 +67,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         GainCoeff = GainCoeff
 
     def __init__(self,
-                 recipe: 'MetisRecipe',
+                 recipe: 'Recipe',
                  frameset: cpl.ui.FrameSet,
                  settings: Dict[str, Any]) -> None:
         super().__init__(recipe, frameset, settings)
@@ -133,7 +133,7 @@ class MetisDetLinGainImpl(RawImageProcessor, ABC):
         return {product_gain_map, product_linearity, product_badpix_map}
 
 
-class MetisDetLinGain(MetisRecipe):
+class MetisDetLinGain(Recipe):
     # Fill in recipe information
     _name = "metis_det_lingain"
     _version = "0.1"

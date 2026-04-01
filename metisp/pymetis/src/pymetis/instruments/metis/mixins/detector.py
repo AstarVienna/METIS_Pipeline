@@ -31,9 +31,9 @@ class DetectorGeoMixin(Parametrizable, detector='GEO'):
 
 
 class DetectorIfuMixin(Parametrizable, detector='IFU'):
-    # Default schema has to work with four detectors
+    # Default schema has to work with four detectors in METIS
     _schema = {
         r'PRIMARY': None,
     } | {
-        fr'DET{det:1d}.DATA': cpl.core.Image for det in [1, 2, 3, 4] # This is METIS specific and should not be here
+        fr'DET{det:1d}.DATA': cpl.core.Image for det in [1, 2, 3, 4]
     }

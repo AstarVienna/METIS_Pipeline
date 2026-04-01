@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.mixins import BandNMixin
 from pymetis.instruments.metis.recipes.prefab.img.std_process import MetisImgStdProcessImpl
@@ -30,7 +30,7 @@ class MetisNImgStdProcessImpl(BandNMixin, MetisImgStdProcessImpl):
             pass
 
 
-class MetisNImgStdProcess(MetisRecipe):
+class MetisNImgStdProcess(Recipe):
     # FixMe This can be probably also largely deduplicated
     _name: str = "metis_n_img_std_process"
     _version: str = "0.1"

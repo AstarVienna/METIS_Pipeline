@@ -29,7 +29,7 @@ from pymetis.engine.core.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.engine.recipes import Recipe, RecipeImpl
 
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMapIfu
 from pymetis.instruments.metis.dataitems.distortion import IfuDistortionTable
@@ -382,7 +382,7 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
     return rsrf_1d_list
 
 
-class MetisIfuRsrf(MetisRecipe):
+class MetisIfuRsrf(Recipe):
     _name: str = "metis_ifu_rsrf"
     _version: str = "0.1"
     _author: str = "Janus Brink, A*"
@@ -427,4 +427,4 @@ class MetisIfuRsrf(MetisRecipe):
         ),
     ])
 
-    Impl: type[MetisRecipeImpl] = MetisIfuRsrfImpl
+    Impl: type[RecipeImpl] = MetisIfuRsrfImpl

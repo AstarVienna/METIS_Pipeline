@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.engine.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.instruments.metis.recipes.n_lss.metis_n_lss_mf_correct import (MetisNLssMfCorrect as Recipe,
                                                       MetisNLssMfCorrectImpl as Impl)
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest

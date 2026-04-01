@@ -25,11 +25,11 @@ import cpl
 from ..core.parameter import ParameterList
 from ..dataitems import DataItem
 from ..qc import QcParameter
-from ..recipes.impl import MetisRecipeImpl
+from ..recipes.impl import RecipeImpl
 from ..inputs import PipelineInput
 
 
-class MetisRecipe(cpl.ui.PyRecipe):
+class Recipe(cpl.ui.PyRecipe):
     """
     The abstract base class for all METIS recipes.
     In an ideal world it would also be abstract (derived from ABC, or metaclass=abc.ABCMeta),
@@ -60,13 +60,13 @@ class MetisRecipe(cpl.ui.PyRecipe):
     # By default, a recipe does not have any parameters.
     parameters: ParameterList = ParameterList([])
     # Default implementation class. This will not work, because it is abstract, but this is an abstract class too.
-    Impl: type[MetisRecipeImpl] = MetisRecipeImpl
+    Impl: type[RecipeImpl] = RecipeImpl
 
     def __init__(self):
         super().__init__()
         # Build a fancy description from attributes
         self._description: str = self._build_description()
-        self.implementation: MetisRecipeImpl | None = None
+        self.implementation: RecipeImpl | None = None
 
     def run(self, frameset: cpl.ui.FrameSet, settings: dict[str, Any]) -> cpl.ui.FrameSet:
         """

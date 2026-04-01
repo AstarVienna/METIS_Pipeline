@@ -26,11 +26,11 @@ from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.dataitems.ifu import IfuTelluric, IfuScienceCubeCalibrated, IfuSciReduced
-from pymetis.engine.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.instruments.metis.inputs.common import FluxCalTableInput
 
 
-class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
+class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, RecipeImpl):
     class InputSet(PipelineInputSet):
         class ReducedInput(SinglePipelineInput):
             Item = IfuSciReduced
@@ -76,7 +76,7 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         return {product_scc}
 
 
-class MetisIfuCalibrate(MetisRecipe):
+class MetisIfuCalibrate(Recipe):
     _name = "metis_ifu_calibrate"
     _version = "0.1"
     _author = "Martin Baláž, A*"

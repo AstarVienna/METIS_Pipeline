@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.core.parameter import ParameterList, ParameterValue
 from pymetis.engine.core.dummy import create_dummy_image
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
 
 from pymetis.instruments.metis.dataitems.img.basicreduced import NSciCalibrated, NSciRestored
 
-class MetisNImgRestoreImpl(MetisRecipeImpl):
+class MetisNImgRestoreImpl(RecipeImpl):
     class InputSet(PipelineInputSet):
         class CalibratedInput(SinglePipelineInput):
             Item = NSciCalibrated
@@ -47,7 +47,7 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
         return {product}    # ToDo is just a dummy for now
 
 
-class MetisNImgRestore(MetisRecipe):
+class MetisNImgRestore(Recipe):
     _name = "metis_n_img_restore"
     _version = "0.1"
     _author = "Martin Baláž, A*"

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
@@ -37,7 +37,7 @@ class MetisNLssRsrfImpl(BandNMixin, DetectorGeoMixin, MetisLssRsrfImpl):
 
 # Define recipe main function as a class which inherits from
 # the PyCPL class cpl.ui.PyRecipe
-class MetisNLssRsrf(MetisRecipe):
+class MetisNLssRsrf(Recipe):
     # The information about the recipe needs to be set. The base class
     # cpl.ui.PyRecipe provides the class variables to be set.
     # The recipe name must be unique, because it is this name which is

@@ -28,7 +28,7 @@ from pathlib import Path
 
 import cpl
 
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 
 root = Path(os.path.expandvars("$SOF_DIR"))
 
@@ -41,7 +41,7 @@ class BaseRecipeTest(ABC):
     """
     Integration / regression tests for verifying that the recipe can be run
     """
-    Recipe: type[MetisRecipe] = None
+    Recipe: type[Recipe] = None
 
     @pytest.fixture(autouse=True)
     def frameset(self, load_frameset, sof) -> cpl.ui.FrameSet:

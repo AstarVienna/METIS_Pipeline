@@ -25,7 +25,7 @@ import cpl
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import SinglePipelineInput
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.dummy import create_dummy_header
 
@@ -146,7 +146,7 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
         }
 
 
-class MetisIfuReduce(MetisRecipe):
+class MetisIfuReduce(Recipe):
     _name: str = "metis_ifu_reduce"
     _version: str = "0.1"
     _author: str = "Martin Baláž, A*"

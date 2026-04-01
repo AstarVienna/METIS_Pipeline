@@ -33,7 +33,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.image import zeros_like
 from pymetis.engine.core.dummy import create_dummy_header
 
@@ -137,9 +137,9 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, ABC):
     #########################################################################
 
     def __init__(self,
-            recipe: 'MetisRecipe',
-            frameset: cpl.ui.FrameSet,
-            settings: Dict[str, Any]) -> None:
+                 recipe: 'Recipe',
+                 frameset: cpl.ui.FrameSet,
+                 settings: Dict[str, Any]) -> None:
         super().__init__(recipe, frameset, settings)
         self.stacking_method = self.parameters["metis_det_dark.stacking.method"].value
 
@@ -295,7 +295,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, ABC):
 
 
 # This is the actual recipe class that is visible by `pyesorex`.
-class MetisDetDark(MetisRecipe):
+class MetisDetDark(Recipe):
     # Fill in recipe information for `pyesorex`. These are required and checked by `pyesorex`.
     _name = "metis_det_dark"
     _version = "0.1"

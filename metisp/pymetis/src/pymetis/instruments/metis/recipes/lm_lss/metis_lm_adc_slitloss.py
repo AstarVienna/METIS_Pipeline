@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 # TODO: Check the need for WCU_OFF frames!
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.prefab.lss.adc import MetisAdcSlitlossImpl
@@ -31,7 +31,7 @@ class MetisLmAdcSlitlossImpl(BandLmMixin, Detector2rgMixin, MetisAdcSlitlossImpl
         pass
 
 
-class MetisLmAdcSlitloss(MetisRecipe):
+class MetisLmAdcSlitloss(Recipe):
     _name: str = "metis_lm_adc_slitloss"
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"

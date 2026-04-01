@@ -23,7 +23,7 @@ from cpl.core import Msg
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import DetectorGeoMixin, BandNMixin
@@ -131,7 +131,7 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor):
         return {product_reduced}#, product_background}
 
 
-class MetisNImgChopnod(MetisRecipe):
+class MetisNImgChopnod(Recipe):
     """
     Apart from our own recipe implementation, we have to provide the actual recipe for PyEsoRex.
     This is very simple: just the

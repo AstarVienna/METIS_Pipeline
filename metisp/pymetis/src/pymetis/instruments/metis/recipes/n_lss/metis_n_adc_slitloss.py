@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 # TODO: Check the need for WCU_OFF frames!
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
@@ -30,7 +30,7 @@ class MetisNAdcSlitlossImpl(BandNMixin, DetectorGeoMixin, MetisAdcSlitlossImpl):
         pass
 
 
-class MetisNAdcSlitloss(MetisRecipe):
+class MetisNAdcSlitloss(Recipe):
     _name: str = "metis_n_adc_slitloss"
     _version: str = "0.1"
     _author: str = "Wolfgang Kausch, A*"

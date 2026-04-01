@@ -26,7 +26,7 @@ import numpy as np
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
 from pymetis.engine.core.dummy import create_dummy_header
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
@@ -145,7 +145,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
         return {product_wavecal}
 
 
-class MetisIfuWavecal(MetisRecipe):
+class MetisIfuWavecal(Recipe):
     _name: str = "metis_ifu_wavecal"
     _version: str = "0.1"
     _author: str = "Martin Baláž, A*"

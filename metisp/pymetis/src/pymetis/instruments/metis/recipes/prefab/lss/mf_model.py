@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import MetisRecipeImpl
+from pymetis.engine.recipes import RecipeImpl
 from pymetis.engine.core.dummy import create_dummy_header, create_dummy_table
 
 from pymetis.instruments.metis.dataitems.lss.science import LssSciFlux1d, LssSci1d
@@ -28,7 +28,7 @@ from pymetis.instruments.metis.dataitems.molecfit.model import MfBestFitTable
 from pymetis.instruments.metis.inputs import AtmLineCatInput, AtmProfileInput, LsfKernelInput
 
 
-class MetisLssMfModelImpl(MetisRecipeImpl):
+class MetisLssMfModelImpl(RecipeImpl):
     class InputSet(PipelineInputSet):
         class AtmLineCatInput(AtmLineCatInput):
             pass

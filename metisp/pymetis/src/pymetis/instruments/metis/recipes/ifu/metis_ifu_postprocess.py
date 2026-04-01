@@ -22,14 +22,14 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.engine.recipes import Recipe, RecipeImpl
 
 from pymetis.instruments.metis.dataitems.coadd import IfuSciCoadd
 from pymetis.instruments.metis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 
 
-class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
+class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, RecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(MultiplePipelineInput):
             Item = IfuScienceCubeCalibrated
@@ -103,7 +103,7 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         return {product}  # ToDo is just a dummy for now
 
 
-class MetisIfuPostprocess(MetisRecipe):
+class MetisIfuPostprocess(Recipe):
     _name: str = "metis_ifu_postprocess"
     _version: str = "0.1"
     _author: str = "Martin Baláž, A*"

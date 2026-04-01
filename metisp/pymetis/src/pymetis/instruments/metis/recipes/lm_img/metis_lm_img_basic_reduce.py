@@ -25,7 +25,7 @@ from cpl.core import Msg
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
@@ -186,7 +186,7 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
         return product_set
 
 
-class MetisLmImgBasicReduce(MetisRecipe):
+class MetisLmImgBasicReduce(Recipe):
     """
     Apart from our own recipe implementation, we have to provide the actual recipe for PyEsoRex.
     This is very simple: just the

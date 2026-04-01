@@ -31,9 +31,9 @@ from pymetis.engine.inputs.inputset import PipelineInputSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
 
 
-class MetisRecipeImpl(Parametrizable, ABC):
+class RecipeImpl(Parametrizable, ABC):
     """
-    An abstract base class for all METIS recipe implementations.
+    An abstract base class for all recipe implementations.
     Contains central data flow control and also provides abstract methods to be overridden
     by particular pipeline recipe implementations.
     """

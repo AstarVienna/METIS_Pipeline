@@ -35,7 +35,7 @@ from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciSpeckle, LmRavc
 from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciDerotated
 from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciContrastRadprof, LmRavcSciContrastAdi, LmRavcSciThroughput
 from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciCoverage, LmRavcSciSnr, LmRavcPsfMedian
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.engine.inputs import RawInput
 from pymetis.engine.core.dummy import create_dummy_header, create_dummy_image, create_dummy_table
@@ -198,7 +198,7 @@ class MetisLmRavcSciCalibrateImpl(RawImageProcessor):
         }
 
 
-class MetisLmRavcSciCalibrated(MetisRecipe):
+class MetisLmRavcSciCalibrated(Recipe):
     _name: str = "metis_img_adi_cgrph"
     _version: str = "0.1"
     _author: str = "Jennifer Karr, A*"

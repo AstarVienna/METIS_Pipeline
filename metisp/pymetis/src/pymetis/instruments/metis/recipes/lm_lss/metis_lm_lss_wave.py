@@ -22,7 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.core.dummy import create_dummy_table, create_dummy_header
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import SinglePipelineInput
 
 from pymetis.instruments.metis.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
@@ -151,7 +151,7 @@ class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor):
 
 # Define recipe main function as a class which inherits from
 # the PyCPL class cpl.ui.PyRecipe
-class MetisLmLssWave(MetisRecipe):
+class MetisLmLssWave(Recipe):
     # The information about the recipe needs to be set. The base class
     # cpl.ui.PyRecipe provides the class variables to be set.
     # The recipe name must be unique, because it is this name which is

@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.mixins import BandLmMixin
 from pymetis.instruments.metis.recipes.prefab.img.std_process import MetisImgStdProcessImpl
@@ -35,7 +35,7 @@ class MetisLmImgStdProcessImpl(BandLmMixin, MetisImgStdProcessImpl):
         ImgStdCombined = Combined
 
 
-class MetisLmImgStdProcess(MetisRecipe):
+class MetisLmImgStdProcess(Recipe):
     _name: str = "metis_lm_img_std_process"
     _version: str = "0.1"
     _author: str = "Chi-Hung Yan, A*"

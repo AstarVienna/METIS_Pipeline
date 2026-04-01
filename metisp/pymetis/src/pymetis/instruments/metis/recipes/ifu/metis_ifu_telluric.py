@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
-from pymetis.engine.recipes import MetisRecipe, MetisRecipeImpl
+from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
@@ -38,7 +38,7 @@ from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput
 # Note that there will be most probably a redesign / split into more recipes to follow the approach
 # implemented already in other ESO pipelines
 
-class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
+class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, RecipeImpl):
     """Implementation class for metis_ifu_telluric"""
 
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -152,7 +152,7 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}
 
 
-class MetisIfuTelluric(MetisRecipe):
+class MetisIfuTelluric(Recipe):
     _name: str = "metis_ifu_telluric"
     _version: str = "0.1"
     _author: str = "Martin Baláž, A*"

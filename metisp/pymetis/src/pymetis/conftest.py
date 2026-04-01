@@ -25,7 +25,7 @@ from typing import Type
 
 import cpl
 from pyesorex.pyesorex import Pyesorex
-from pymetis.engine.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 
 
 root = Path(os.path.expandvars("$SOF_DIR"))
@@ -33,7 +33,7 @@ root = Path(os.path.expandvars("$SOF_DIR"))
 
 @pytest.fixture
 def create_pyesorex():
-    def inner(cls: Type[MetisRecipe]):
+    def inner(cls: Type[Recipe]):
         p = Pyesorex()
         p.recipe = cls._name
         return p
