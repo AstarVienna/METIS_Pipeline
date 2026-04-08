@@ -46,7 +46,7 @@ class TestConfigured:
             "Could not import the pipeline, review your PYTHONPATH"
 
     def test_can_we_import_at_least_raw_input(self):
-        from pymetis.engine.inputs import RawInput
+        from pymetis.instruments.metis.inputs import RawInput
         assert RawInput.__name__ == 'RawInput', \
             "Could not import the pipeline, review your PYTHONPATH"
 
