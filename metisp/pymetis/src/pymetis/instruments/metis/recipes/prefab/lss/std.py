@@ -35,13 +35,14 @@ from pymetis.instruments.metis.dataitems.synth import SynthTrans
 from pymetis.instruments.metis.inputs import (RawInput, FluxstdCatalogInput, MasterRsrfInput,
                                               PersistenceMapInput, BadPixMapInput, GainMapInput, LinearityInput,
                                               AtmLineCatInput)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis.qc.lss import (LssWaveCalPolyCoeffN, LssWaveCalPolyDeg,
                                               LssWaveCalNMatch, LssWaveCalNIdent, LssWaveCalFwhm, LssWaveCalDevMean,
                                               LssInterorderLevel, LssSnr, LssNoiseLevel)
 
 
-class MetisLssStdImpl(DarkImageProcessor):
+class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssRaw

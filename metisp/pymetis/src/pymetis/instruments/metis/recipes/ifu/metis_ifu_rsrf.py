@@ -44,13 +44,14 @@ from pymetis.instruments.metis.inputs import (BadPixMapInput, MasterDarkInput, R
                                               PersistenceMapInput)
 from pymetis.instruments.metis.mixins import DetectorIfuMixin, BandIfuMixin
 from pymetis.instruments.metis.qc.reduce import IfuReduceMeanStray, IfuReduceNbadpix, IfuReduceMeanBkg
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
 
 
-class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor):
+class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRsrfRaw

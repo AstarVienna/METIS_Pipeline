@@ -1,5 +1,5 @@
 """
-This file is part of the METIS Pipeline.
+This file is part of an A* Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
@@ -31,19 +31,17 @@ from ..inputs import PipelineInput
 
 class Recipe(cpl.ui.PyRecipe):
     """
-    The abstract base class for all METIS recipes.
+    The abstract base class for all recipes.
     In an ideal world it would also be abstract (derived from ABC, or metaclass=abc.ABCMeta),
     but `pyesorex` tries to instantiate all recipes it finds and would crash if it were an abstract class.
 
     The underscored _fields must be present but should be overwritten
     by every child class (`pyesorex` actually checks for their presence).
-
-    # FixMe: remove Metis from the name, as it is no longer specific to Metis.
     """
 
     # Seven mandatory attributes follow. These are required by pyesorex and not negotiable.
     # Some of them do not have to be overwritten as they are always the same.
-    _name: str = "metis_abstract_base"
+    _name: str = "recipe_abstract_base"
     _version: str = "0.0.1"
     _author: str = "A* PIP team"
     _email: str = "astar.vienna@univie.ac.at"                    # ToDo is this a sensible default?
@@ -52,7 +50,7 @@ class Recipe(cpl.ui.PyRecipe):
     _description: str = ("This class serves as the base class for all A* recipes. "
                          "If you see this in a recipe, override its `_description` attribute.")
 
-    # More internal attributes follow. These are **not** required by pyesorex and are specific to METIS / A*.
+    # More internal attributes follow. These are **not** required by pyesorex and are specific to A*.
     _matched_keywords: set[str] = set()
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"

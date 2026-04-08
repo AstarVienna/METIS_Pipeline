@@ -25,12 +25,13 @@ from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.dummy import create_dummy_header
 
 from pymetis.instruments.metis.inputs import RawInput
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.dataitems.coadd import LmSciCoadd
 from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
 
 
-class MetisLmImgSciPostProcessImpl(RawImageProcessor):
+class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
             Item = LmSciCalibrated

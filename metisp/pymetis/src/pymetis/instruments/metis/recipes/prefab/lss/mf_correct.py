@@ -20,14 +20,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
-from pymetis.engine.recipes import RecipeImpl
 from pymetis.engine.core.dummy import create_dummy_header, create_dummy_table
 
 from pymetis.instruments.metis.dataitems.lss.science import LssSciFlux1d, LssSciFluxTellCorr1d
 from pymetis.instruments.metis.dataitems.synth import LssSynthTrans
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 
-class MetisLssMfCorrectImpl(RecipeImpl):
+class MetisLssMfCorrectImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class LssSciFlux1dInput(SinglePipelineInput):
             Item = LssSciFlux1d

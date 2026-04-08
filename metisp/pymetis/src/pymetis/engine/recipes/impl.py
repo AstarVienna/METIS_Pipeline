@@ -1,5 +1,5 @@
 """
-This file is part of the METIS Pipeline.
+This file is part of an A* Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,7 @@ class RecipeImpl(Parametrizable, ABC):
     parameters = ParameterList([])
 
     def __init__(self,
-                 recipe: 'MetisRecipe',
+                 recipe: 'Recipe',
                  frameset: cpl.ui.FrameSet,
                  settings: Dict[str, Any]) -> None:
         """

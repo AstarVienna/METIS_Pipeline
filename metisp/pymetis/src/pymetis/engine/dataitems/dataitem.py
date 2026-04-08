@@ -1,5 +1,5 @@
 """
-This file is part of the METIS Pipeline.
+This file is part of an A* Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
@@ -31,8 +31,6 @@ from .hdu import Hdu
 from pymetis.engine.core.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
-
-PIPELINE = rf'METIS/1'
 
 
 class DataItem(ParametrizableItem):
@@ -405,6 +403,9 @@ class DataItem(ParametrizableItem):
         assert len(recipe.used_frames) > 0, \
             f"Recipe {recipe.name()} did not use any frames"
 
+        assert isinstance(recipe.instrument, str), \
+            f"Recipe {recipe} has no instrument set"
+
         # Save the header to the primary HDU
         cpl.dfs.save_propertylist(
             recipe.frameset,
@@ -412,7 +413,7 @@ class DataItem(ParametrizableItem):
             recipe.used_frames,
             recipe.name,
             self.primary_header,
-            PIPELINE,
+            recipe.instrument,
             filename,
         )
 

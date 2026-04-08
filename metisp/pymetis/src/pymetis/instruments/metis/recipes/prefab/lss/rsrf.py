@@ -27,10 +27,11 @@ from pymetis.instruments.metis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRs
 from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
                                               GainMapInput, LinearityInput, BadPixMapInput)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 
 
-class MetisLssRsrfImpl(DarkImageProcessor):
+class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssRsrfRaw

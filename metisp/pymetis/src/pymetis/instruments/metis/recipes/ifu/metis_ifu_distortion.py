@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Literal
 
 import cpl
-from cpl.core import Msg
 from astropy.table import QTable
 import numpy as np
 
@@ -34,6 +33,7 @@ from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, Optiona
                                               PinholeTableInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
 from pymetis.instruments.metis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
 # dummy distortion table
@@ -141,7 +141,7 @@ def create_distortion_table(ext: Literal[1, 2, 3, 4]) -> cpl.core.Table:
     return table
 
 
-class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor):
+class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class MasterDarkInput(MasterDarkInput):
             pass

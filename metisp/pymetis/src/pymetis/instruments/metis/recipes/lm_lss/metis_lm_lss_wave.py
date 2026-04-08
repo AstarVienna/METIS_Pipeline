@@ -33,10 +33,11 @@ from pymetis.instruments.metis.inputs import RawInput, LaserTableInput
 from pymetis.instruments.metis.inputs.common import (WcuOffInput, OptionalInputMixin, PersistenceMapInput,
                                                      GainMapInput, LinearityInput, BadPixMapInput, MasterDarkInput)
 from pymetis.instruments.metis.mixins import BandLmMixin
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 
 
-class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor):
+class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssWaveRaw

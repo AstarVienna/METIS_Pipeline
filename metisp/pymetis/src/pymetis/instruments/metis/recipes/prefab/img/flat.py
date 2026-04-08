@@ -29,12 +29,13 @@ from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat, FlatRa
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
 from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, OptionalInputMixin,
                                               PersistenceMapInput, GainMapInput, LinearityInput)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis.qc.flat import (MFlatRms, MFlatNbadpix, FlatMean, FlatRms,
                                                FlatMedianMin, FlatMedianMax, FlatMedianRms)
 
 
-class MetisBaseImgFlatImpl(DarkImageProcessor, ABC):
+class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
     class InputSet(DarkImageProcessor.InputSet):
         """
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.

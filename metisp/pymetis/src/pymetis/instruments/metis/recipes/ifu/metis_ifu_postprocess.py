@@ -27,9 +27,10 @@ from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.instruments.metis.dataitems.coadd import IfuSciCoadd
 from pymetis.instruments.metis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 
-class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, RecipeImpl):
+class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(MultiplePipelineInput):
             Item = IfuScienceCubeCalibrated

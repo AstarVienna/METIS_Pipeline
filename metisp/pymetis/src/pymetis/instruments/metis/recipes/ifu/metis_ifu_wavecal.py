@@ -32,10 +32,11 @@ from pymetis.instruments.metis.dataitems.wavecal import IfuWavecalRaw, IfuWaveca
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.inputs import (MasterDarkInput, RawInput, DistortionTableInput, OptionalInputMixin,
                                               PersistenceMapInput, GainMapInput, LinearityInput)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
 
-class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
+class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuWavecalRaw

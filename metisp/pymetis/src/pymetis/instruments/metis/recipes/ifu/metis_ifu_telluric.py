@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
-from pymetis.engine.recipes import Recipe, RecipeImpl
+from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
@@ -30,6 +30,8 @@ from pymetis.instruments.metis.dataitems.common import FluxCalTable
 from pymetis.instruments.metis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined, IfuTelluric
 from pymetis.instruments.metis.dataitems.ifu.raw import IfuRaw
 from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput, RawInput
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+
 
 # The aim of this recipe is twofold:
 #   (a) to determine the transmission function for telluric absorption correction
@@ -38,7 +40,7 @@ from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput
 # Note that there will be most probably a redesign / split into more recipes to follow the approach
 # implemented already in other ESO pipelines
 
-class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, RecipeImpl):
+class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
     """Implementation class for metis_ifu_telluric"""
 
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

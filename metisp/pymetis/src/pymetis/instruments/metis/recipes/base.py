@@ -1,5 +1,5 @@
 """
-This file is part of an A* Pipeline.
+This file is part of the METIS Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
@@ -17,8 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from .recipe import Recipe
-from .impl import RecipeImpl
+from pymetis.engine.recipes import RecipeImpl
 
 
-__all__ = ['Recipe', 'RecipeImpl']
+class MetisRecipeImpl(RecipeImpl):
+    instrument: str = "METIS/1"

@@ -36,10 +36,11 @@ from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
 from pymetis.instruments.metis.dataitems.pupil import PupilRaw, PupilImagingReduced
 from pymetis.instruments.metis.inputs import RawInput, MasterDarkInput, MasterFlatInput, GainMapInput, LinearityInput
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
 
-class MetisPupilImagingImpl(DarkImageProcessor):
+class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         """
         Define the input sets and tags.

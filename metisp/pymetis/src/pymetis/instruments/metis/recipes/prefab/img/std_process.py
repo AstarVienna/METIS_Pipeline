@@ -27,6 +27,7 @@ from pymetis.engine.core.dummy import create_dummy_table, create_dummy_header
 from pymetis.instruments.metis.inputs import FluxstdCatalogInput
 from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis.mixins import TargetStdMixin
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.instruments.metis.dataitems.combined import Combined
@@ -36,7 +37,7 @@ from pymetis.instruments.metis.qc.std_process import (QcImgStdBackgroundRms, QcS
                                                       QcSensitivity, QcAreaSensitivity)
 
 
-class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor):
+class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
             Item = BackgroundSubtracted

@@ -1,5 +1,5 @@
 """
-This file is part of the METIS Pipeline.
+This file is part of an A* Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
@@ -192,9 +192,9 @@ class ParametrizableItem(Parametrizable, ABC):
         cls._abstract = abstract
         if cls.name() in cls._registry:
             # If the class is already registered, warn about it and do nothing.
-            Msg.warning(cls.__qualname__,
-                        f"A {cls.__qualname__} with tag {cls.name()} is already registered, "
-                        f"skipping: {cls._registry[cls.name()].__qualname__}")
+            Msg.debug(cls.__qualname__,
+                      f"A {cls.__qualname__} with tag {cls.name()} is already registered, "
+                      f"skipping: {cls._registry[cls.name()].__qualname__}")
         else:
             # Otherwise add the class to the global registry
             Msg.debug(cls.__qualname__,

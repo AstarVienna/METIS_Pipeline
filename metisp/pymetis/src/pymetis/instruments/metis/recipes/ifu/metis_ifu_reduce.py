@@ -34,13 +34,14 @@ from pymetis.instruments.metis.dataitems.distortion.table import IfuDistortionTa
 from pymetis.instruments.metis.dataitems.ifu import (IfuSkyRaw, IfuRaw, IfuCombined,
                                                      IfuReduced, IfuReducedCube, IfuBackground)
 from pymetis.instruments.metis.dataitems.rsrf import RsrfIfu
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis.inputs import RawInput, WavecalInput, GainMapInput, LinearityInput
 from pymetis.instruments.metis.inputs.common import OptionalPersistenceMapInput
 from pymetis.instruments.metis.qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNbadpix
 
 
-class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor):
+class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = IfuRaw

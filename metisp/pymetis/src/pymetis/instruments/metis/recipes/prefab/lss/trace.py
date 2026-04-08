@@ -28,12 +28,13 @@ from pymetis.instruments.metis.dataitems.lss.trace import LssTrace
 from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, PersistenceMapInput, OptionalInputMixin,
                                               GainMapInput, LinearityInput, BadPixMapInput)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis.qc.trace import (QcLssTraceLPolyDeg, QcLssTraceRPolyDeg,
                                                 QcLssTraceLCoeff, QcLssTraceRCoeff, QcLssTraceInterorderLevel)
 
 
-class MetisLssTraceImpl(DarkImageProcessor):
+class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssRsrfPinholeRaw

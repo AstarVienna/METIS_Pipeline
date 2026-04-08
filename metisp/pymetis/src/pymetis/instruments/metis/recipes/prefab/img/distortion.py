@@ -27,13 +27,14 @@ from pymetis.engine.core.dummy import create_dummy_table, create_dummy_image, cr
 from pymetis.instruments.metis.dataitems.distortion import (DistortionMap, DistortionRaw,
                                                             DistortionReduced, DistortionTable)
 from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.rawimage import RawImageProcessor
 from pymetis.instruments.metis.inputs import (RawInput, PinholeTableInput, GainMapInput, LinearityInput,
                                               OptionalInputMixin, PersistenceMapInput)
 from pymetis.instruments.metis.qc.distortion import QcDistortRms, QcDistortNSource
 
 
-class MetisBaseImgDistortionImpl(RawImageProcessor, ABC):
+class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = WcuOffRaw

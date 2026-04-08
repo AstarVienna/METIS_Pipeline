@@ -31,13 +31,14 @@ from pymetis.instruments.metis.dataitems.chophome import LmChophomeRaw, LmChopho
 from pymetis.instruments.metis.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
                                               PinholeTableInput, LinearityInput, OptionalInputMixin)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.qc.chophome import (CalChophomeXcen, CalChophomeXcenStdev,
                                                    CalChophomeYcen, CalChophomeYcenStdev,
                                                    CalChophomeFwhm, CalChophomeSnr, CalChophomeOffx, CalChophomeOffy)
 
 
-class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor):  # TODO replace parent class?
+class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, MetisRecipeImpl):  # TODO replace parent class?
     """Implementation class for metis_cal_chophome"""
 
     class InputSet(RawImageProcessor.InputSet):

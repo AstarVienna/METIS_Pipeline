@@ -34,10 +34,11 @@ from pymetis.instruments.metis.dataitems.img.raw import ImageRaw
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
 from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
                                     OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
 
-class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor):
+class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         """
         The first step of writing a recipe is to define an InputSet: the one-to-one class

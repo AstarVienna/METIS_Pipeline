@@ -18,16 +18,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.recipes import RecipeImpl
 from pymetis.engine.core.dummy import create_dummy_table, create_dummy_header
 from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
 
 from pymetis.instruments.metis.dataitems.molecfit.model import MfBestFitTable
 from pymetis.instruments.metis.dataitems.synth import LssSynthTrans
 from pymetis.instruments.metis.inputs import AtmLineCatInput, AtmProfileInput, LsfKernelInput
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 
-class MetisLssMfCalctransImpl(RecipeImpl):
+class MetisLssMfCalctransImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class MfBestFitTableInput(SinglePipelineInput):
             Item = MfBestFitTable

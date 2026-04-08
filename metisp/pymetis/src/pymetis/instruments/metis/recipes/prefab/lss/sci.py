@@ -27,6 +27,7 @@ from pymetis.engine.core.dummy import create_dummy_header, create_dummy_image, c
 
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
                                               GainMapInput, LinearityInput, BadPixMapInput)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss
 from pymetis.instruments.metis.dataitems.lss.curve import LssDistSol, LssWaveGuess
@@ -40,7 +41,7 @@ from pymetis.instruments.metis.qc.lss import (LssInterorderLevel, LssWaveCalDevM
                                               LssWaveCalPolyCoeffN, LssSnr, LssNoiseLevel)
 
 
-class MetisLssSciImpl(DarkImageProcessor):
+class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssRaw
