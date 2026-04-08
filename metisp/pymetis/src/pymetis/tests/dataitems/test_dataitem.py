@@ -20,16 +20,16 @@ import pytest
 
 import cpl
 
-from pymetis.classes.dataitems.dataitem import DataItem
-from pymetis.dataitems.background import LmStdBackground, NStdBackground, LmSciBackground, \
+from pymetis.engine.dataitems.dataitem import DataItem
+from pymetis.instruments.metis.dataitems.background import LmStdBackground, NStdBackground, LmSciBackground, \
     NSciBackground, LmStdBackgroundSubtracted, LmSciBackgroundSubtracted, NStdBackgroundSubtracted, \
     NSciBackgroundSubtracted
-from pymetis.dataitems.distortion import DistortionRaw, DistortionTable
-from pymetis.dataitems.adc.adc import LmAdcSlitloss, NAdcSlitloss, LmAdcSlitlossRaw, NAdcSlitlossRaw
-from pymetis.dataitems.common import AtmProfile
-from pymetis.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo, MasterDarkIfu
-from pymetis.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterFlatIfu
-from pymetis.dataitems.raw import WcuOffRaw
+from pymetis.instruments.metis.dataitems.distortion import DistortionRaw, DistortionTable
+from pymetis.instruments.metis.dataitems.adc.adc import LmAdcSlitloss, NAdcSlitloss, LmAdcSlitlossRaw, NAdcSlitlossRaw
+from pymetis.instruments.metis.dataitems.common import AtmProfile
+from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo, MasterDarkIfu
+from pymetis.instruments.metis.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterFlatIfu
+from pymetis.instruments.metis.dataitems.raw import WcuOffRaw
 
 # ToDo This is METIS-specific and should be moved
 OCA_KEYWORDS: set[str] = {

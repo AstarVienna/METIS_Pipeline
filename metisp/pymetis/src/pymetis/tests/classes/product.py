@@ -21,7 +21,7 @@ import pytest
 
 from abc import ABC
 
-from pymetis.classes.dataitems import DataItem, ImageDataItem, TableDataItem
+from pymetis.engine.dataitems import DataItem, ImageDataItem, TableDataItem
 
 
 @pytest.mark.product
