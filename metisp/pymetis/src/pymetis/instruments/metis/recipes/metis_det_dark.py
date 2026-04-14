@@ -42,6 +42,7 @@ from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.instruments.metis.dataitems.masterdark.raw import DarkRaw
 from pymetis.instruments.metis.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
                                               LinearityInput, GainMapInput, OptionalInputMixin)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
 from pymetis.instruments.metis.qc.dark import (DarkMean, DarkMedian, DarkRms, DarkNColdpix, DarkNHotpix, DarkNBadpix,
@@ -49,7 +50,7 @@ from pymetis.instruments.metis.qc.dark import (DarkMean, DarkMedian, DarkRms, Da
                                                DarkMedianRms, DarkMedianMin, DarkMedianMax)
 
 
-class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, ABC):
+class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecipeImpl):
     """
     Implementation class for the `metis_det_dark` recipe.
     """

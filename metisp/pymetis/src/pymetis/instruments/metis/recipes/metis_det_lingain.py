@@ -37,12 +37,13 @@ from pymetis.instruments.metis.dataitems.linearity.linearity import LinearityMap
 from pymetis.instruments.metis.dataitems.linearity.raw import LinearityRaw
 from pymetis.instruments.metis.inputs import RawInput, BadPixMapInput, OptionalInputMixin
 from pymetis.instruments.metis.inputs.common import WcuOffInput
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.qc.lingain import (LinGainMean, LinGainRms, LinNumBadpix, LinMinFlux, LinMaxFlux,
                                                   GainLin, GainCoeff)
 
 
-class MetisDetLinGainImpl(RawImageProcessor, ABC):
+class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LinearityRaw
