@@ -23,6 +23,7 @@ from typing import Any, Optional, final, Union, ClassVar
 import cpl
 from cpl.core import Msg
 
+from pymetis.engine.core.functions.frameset import preprocess_frameset
 from pymetis.engine.dataitems.dataitem import DataItem
 
 
@@ -40,25 +41,6 @@ class PipelineInput:
     _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
 
     _multiplicity: ClassVar[str] = None     # Multiplicity of the input, '1' or 'N'
-
-    @staticmethod
-    def preprocess_frameset(frameset: cpl.ui.FrameSet) -> dict[str, cpl.ui.FrameSet]:
-        """
-        Convert a SOF (which is a `list[tuple[filename, tag]]`) to a mapping `tag: list[filename]`
-        to make it more convenient for processing in Python.
-        """
-        result = {}
-
-        for frame in frameset:
-            if frame.tag in result:
-                result[frame.tag] += [frame]
-            else:
-                result[frame.tag] = [frame]
-
-        return {
-            tag: cpl.ui.FrameSet(frames)
-            for tag, frames in result.items()
-        }
 
     def load_frameset(self, frameset: cpl.ui.FrameSet) -> None:
         """
@@ -121,7 +103,7 @@ class PipelineInput:
         Msg.debug(self.__class__.__qualname__,
                   f"Initializing an input {self.Item.name()}")
 
-        for tag, frames in self.preprocess_frameset(frameset).items():
+        for tag, frames in preprocess_frameset(frameset).items():
             cls = DataItem.find(tag)
             if cls is None:
                 Msg.warning(self.__class__.__qualname__,

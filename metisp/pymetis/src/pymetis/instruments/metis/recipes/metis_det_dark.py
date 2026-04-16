@@ -36,6 +36,7 @@ from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.image import zeros_like
 from pymetis.engine.core.dummy import create_dummy_header
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
 from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark
