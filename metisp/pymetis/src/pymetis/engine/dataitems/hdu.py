@@ -23,6 +23,7 @@ from typing import Optional
 import cpl
 from cpl.core import (Image as CplImage,
                       Table as CplTable,
+                      ImageList as CplImageList,
                       PropertyList as CplPropertyList, Msg)
 
 from pymetis.engine.core.dummy import make_cpl_property
@@ -34,10 +35,10 @@ class Hdu:
     """
     def __init__(self,
                  header: CplPropertyList,
-                 data: Optional[CplImage | CplTable],
+                 data: Optional[CplImage | CplTable | CplImageList],
                  *,
                  name: Optional[str] = None, # FixMe this should not really be optional for creation (but yes for loading)
-                 klass: Optional[type[CplImage | CplTable]] = None,
+                 klass: Optional[type[CplImage | CplTable | CplImageList]] = None,
                  extno: Optional[int] = 0):
         """
 
@@ -76,6 +77,8 @@ class Hdu:
             # Here the signature is (primary_header, header, filename, mode) for whatever reason...
             # FixMe What if there are multiple tables? Is primary header overwritten or what?
             self.data.save(self.header, self.header, filename, cpl.core.io.EXTEND)
+        elif self.klass == CplImageList:
+            self.data.save(filename, self.header, cpl.core.io.EXTEND)
 
 
 class MetisImage:
