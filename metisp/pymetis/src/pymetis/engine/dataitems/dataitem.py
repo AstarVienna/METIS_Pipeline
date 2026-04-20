@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Optional, Generator, Self, final, Union, ClassVar
 
 import cpl
-from cpl.core import Msg, Image, Table, PropertyList as CplPropertyList
+from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyList
 
 import pymetis
 from .hdu import Hdu
@@ -61,7 +61,7 @@ class DataItem(ParametrizableItem):
 
     # HDU schema: a dict of types or None
     # By default, only the primary header is present
-    _schema: ClassVar[dict[str, Union[None, type[Image], type[Table]]]] = {'PRIMARY': None}
+    _schema: ClassVar[dict[str, Union[None, type[Image], type[Table], type[ImageList]]]] = {'PRIMARY': None}
     # For instance
     # >>> _schema = {
     # >>>     'PRIMARY': None,
@@ -76,7 +76,7 @@ class DataItem(ParametrizableItem):
 
     @classmethod
     @final
-    def schema(cls) -> dict[str, Union[None, type[Image], type[Table]]]:
+    def schema(cls) -> dict[str, Union[None, type[Image], type[Table], type[ImageList]]]:
         return cls._schema
 
     @classmethod
