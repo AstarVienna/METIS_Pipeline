@@ -81,7 +81,7 @@ class Parametrizable(ABC):
         merged.update(kwargs)
 
         cls._tag_parameters = merged
-        super().__init_subclass__(**kwargs)
+        super().__init_subclass__()
 
 
 class ParametrizableContainer(Parametrizable, ABC):

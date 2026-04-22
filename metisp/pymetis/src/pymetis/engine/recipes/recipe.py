@@ -51,7 +51,7 @@ class Recipe(cpl.ui.PyRecipe):
                          "If you see this in a recipe, override its `_description` attribute.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to A*.
-    _matched_keywords: set[str] = set()
+    _matched_keywords: set[str] = None
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"
 
@@ -75,14 +75,17 @@ class Recipe(cpl.ui.PyRecipe):
         self.implementation = self.Impl(self, frameset, settings)
         return self.implementation.run()
 
-    def _list_inputs(self) -> list[tuple[str, type[PipelineInput]]]:
-        return self.Impl.InputSet.list_classes()
+    @classmethod
+    def _list_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:
+        return cls.Impl.InputSet.list_classes()
 
-    def _list_products(self) -> list[tuple[str, type[DataItem]]]:
-        return self.Impl.ProductSet.list_classes()
+    @classmethod
+    def _list_products(cls) -> list[tuple[str, type[DataItem]]]:
+        return cls.Impl.ProductSet.list_classes()
 
-    def _list_qc_parameters(self) -> list[tuple[str, type[QcParameter]]]:
-        return self.Impl.Qc.list_classes()
+    @classmethod
+    def _list_qc_parameters(cls) -> list[tuple[str, type[QcParameter]]]:
+        return cls.Impl.Qc.list_classes()
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:
@@ -96,28 +99,29 @@ class Recipe(cpl.ui.PyRecipe):
         return fix_spacing.sub('\n' + ' ' * offset, fix_first_space.sub(' ' * offset, text)) \
             if text is not None else f'<no {title} defined>'
 
-    def _build_description(self) -> str:
+    @classmethod
+    def _build_description(cls) -> str:
         """
         Automatically build the `description` attribute from available attributes.
         Everything inside this should only depend on the class, never on an instance.
         """
-        if self._matched_keywords is None:
+        if cls._matched_keywords is None:
             matched_keywords = '<not defined>'
-        elif len(self._matched_keywords) == 0:
+        elif len(cls._matched_keywords) == 0:
             matched_keywords = '--- none ---'
         else:
-            matched_keywords = '\n    '.join(self._matched_keywords)
+            matched_keywords = '\n    '.join(cls._matched_keywords)
 
-        self.Impl.specialize()
+        cls.Impl.specialize()
 
         inputs = '\n'.join(sorted([input_type.extended_description_line(name)
-                                   for (name, input_type) in self._list_inputs()]))
-        products = self._format_spacing(self.Impl.ProductSet.list_descriptions(), 6)
-        qc_parameters = self._format_spacing(self.Impl.Qc.list_descriptions(), 6)
-        algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
-        description = self._format_spacing(self._description, 'description', 2)
+                                   for (name, input_type) in cls._list_inputs()]))
+        products = cls._format_spacing(cls.Impl.ProductSet.list_descriptions(), 'products', 6)
+        qc_parameters = cls._format_spacing(cls.Impl.Qc.list_descriptions(), 'QC parameters', 6)
+        algorithm = cls._format_spacing(cls._algorithm, 'algorithm', 4)
+        description = cls._format_spacing(cls._description, 'description', 2)
 
-        return f"""{self.synopsis}\n\n{description}\n
+        return f"""{cls.synopsis}\n\n{description}\n
   Matched keywords
     {matched_keywords}
   Inputs\n{inputs}
