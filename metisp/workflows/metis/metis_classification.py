@@ -168,11 +168,11 @@ detlin_ifu_raw_class = classification_rule("DETLIN_IFU_RAW",
                                     })
 
 gain_map_ifu_class = classification_rule("GAIN_MAP_IFU",
-                                     {"pro.catg": "GAIN_MAP_det",
+                                     {"pro.catg": "GAIN_MAP_IFU",
                                       })
 
 linearity_ifu_class = classification_rule("LINEARITY_IFU",
-                                    {"pro.catg": "LINEARITY_det",
+                                    {"pro.catg": "LINEARITY_IFU",
                                     })
 
 dark_ifu_raw_class = classification_rule("DARK_IFU_RAW",
