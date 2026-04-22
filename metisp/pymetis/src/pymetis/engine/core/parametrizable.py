@@ -81,6 +81,7 @@ class Parametrizable(ABC):
         merged.update(kwargs)
 
         cls._tag_parameters = merged
+        super().__init_subclass__(**kwargs)
 
 
 class ParametrizableContainer(Parametrizable, ABC):
@@ -159,7 +160,7 @@ class ParametrizableContainer(Parametrizable, ABC):
                           f" - {item.__qualname__} ({item.name()}) => {new_class.__qualname__} ({new_class.name()})")
 
             # Replace the corresponding attribute with the new class
-            cls.__class__.__setattr__(cls, name, new_class)
+            setattr(cls, name, new_class)
 
 
 class ParametrizableItem(Parametrizable, ABC):
@@ -188,7 +189,6 @@ class ParametrizableItem(Parametrizable, ABC):
             If abstract, the class is not expected to be instantiated and will raise an exception if this is attempted.
         """
         super().__init_subclass__(**kwargs)
-
         cls._abstract = abstract
         if cls.name() in cls._registry:
             # If the class is already registered, warn about it and do nothing.
@@ -240,7 +240,7 @@ class ParametrizableItem(Parametrizable, ABC):
         but can be overridden to build the description from other data, such as band or target.
         """
         assert cls._description_template is not None, \
-            f"{cls.__name__} description template is None"
+            f"{cls.__qualname__} description template is None"
         return partial_format(cls._description_template, **cls.tag_parameters())
 
 

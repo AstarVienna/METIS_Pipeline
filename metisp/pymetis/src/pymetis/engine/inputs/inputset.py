@@ -53,6 +53,7 @@ class PipelineInputSet(ABC):
 
     def __init_subclass__(cls, abstract=False, **params):
         cls.__abstract = abstract
+        super().__init_subclass__(**params)
 
         #if cls.__abstract:
         #    pass

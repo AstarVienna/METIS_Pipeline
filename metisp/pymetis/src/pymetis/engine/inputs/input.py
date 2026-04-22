@@ -157,7 +157,7 @@ class PipelineInput:
     def as_dict(self) -> dict[str, Any]:
         return {
             'item': self.Item,
-            'required': self.required,
+            'required': self.required(),
         }
 
     @classmethod

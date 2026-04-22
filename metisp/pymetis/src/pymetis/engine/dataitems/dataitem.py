@@ -132,7 +132,7 @@ class DataItem(ParametrizableItem):
         return self._hdus
 
     def __init__(self,
-                 primary_header: CplPropertyList = CplPropertyList(),
+                 primary_header: Optional[CplPropertyList],
                  *hdus: Hdu,
                  filename: Optional[Path] = None):
         if self._abstract or not self.__regex_pattern.match(self.name()):
@@ -158,7 +158,7 @@ class DataItem(ParametrizableItem):
         self._used: bool = False
 
         self.filename = filename
-        self.primary_header = primary_header
+        self.primary_header = primary_header if primary_header is not None else CplPropertyList()
         # Currently all items are expected to have an empty primary HDU
         self._hdus: dict[str, Hdu] = {}
 
@@ -260,7 +260,7 @@ class DataItem(ParametrizableItem):
 
         primary_header = cpl.core.PropertyList.load(frame.file, 0)
 
-        return klass(primary_header, filename=frame.file, *hdus)
+        return klass(primary_header, *hdus, filename=frame.file)
 
     def load_data(self,
                   extension: int | str) -> Image | Table | None:
@@ -290,6 +290,10 @@ class DataItem(ParametrizableItem):
                 return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
             elif self[extension].klass == Table:
                 return self[extension].klass.load(self.filename, self._hdus[extension].extno)
+            elif self[extension].klass == ImageList:
+                return self[extension].klass.load(self.filename, self._hdus[extension].extno)
+            else:
+                raise KeyError
         except cpl.core.DataNotFoundError as exc:
             Msg.error(self.__class__.__qualname__,
                       f"Failed to load data from extension '{extension}' from file {self.filename}")
@@ -512,4 +516,4 @@ class DataItem(ParametrizableItem):
         for name, hdu in self._hdus.items():
             if self._hdus[name].extno == index:
                 return name
-
+        raise KeyError(f"HDU '{index}' not found in {self.filename}")

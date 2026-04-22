@@ -53,6 +53,8 @@ def represent_frameset(frameset: cpl.ui.FrameSet) -> dict[str, str]:
 def from_filenames(frames: dict[str, str]) -> cpl.ui.FrameSet:
     """
     Create a CPL FrameSet from a mapping `{filename: tag}`
+
+    FixMe: This is not all-powerful! You cannot reuse the same file with multiple tags unlike with `from_tags`!
     """
     return cpl.ui.FrameSet([
         cpl.ui.Frame(os.path.expandvars(frame),
