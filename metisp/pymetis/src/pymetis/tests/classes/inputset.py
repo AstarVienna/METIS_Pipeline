@@ -52,8 +52,8 @@ class BaseInputSetTest(ABC):
                 f"Input {inp.__class__.__qualname__} has not item defined"
 
     @staticmethod
-    def test_has_inputs_and_it_is_a_set(instance):
-        assert isinstance(instance.inputs, set), \
+    def test_has_inputs_and_it_is_a_frozenset(instance):
+        assert isinstance(instance.inputs, frozenset), \
             f"Inputs are not a set: {instance.inputs}"
 
     @staticmethod

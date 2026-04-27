@@ -51,7 +51,7 @@ class Recipe(cpl.ui.PyRecipe):
                          "If you see this in a recipe, override its `_description` attribute.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to A*.
-    _matched_keywords: set[str] = None
+    _matched_keywords: frozenset[str] = None
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"
 

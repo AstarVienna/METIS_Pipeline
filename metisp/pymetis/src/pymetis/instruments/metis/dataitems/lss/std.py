@@ -29,7 +29,7 @@ class LssStd1d(TableDataItem, abstract=True):
     _description_template = "Extracted {band} 1D standard star spectrum."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = {'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'})
 
 
 class LmLssStd1d(BandLmMixin, LssStd1d):
@@ -46,7 +46,7 @@ class RefStdCat(TableDataItem):
     _description_template = "Catalogue with spectra of standard reference stars"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG'}
+    _oca_keywords = frozenset({'PRO.CATG'})
 
 
 class AoPsfModel(TableDataItem):
@@ -55,4 +55,4 @@ class AoPsfModel(TableDataItem):
     _description_template = "Model of the AO induced PSF."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG'}
+    _oca_keywords = frozenset({'PRO.CATG'})

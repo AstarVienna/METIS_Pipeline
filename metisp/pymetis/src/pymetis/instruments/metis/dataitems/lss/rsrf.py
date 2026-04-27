@@ -54,7 +54,7 @@ class MedianLssRsrf(ImageDataItem, abstract=True):
     _description_template = "Median {band} RSRF pixel map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'DRS.SLIT'})
 
     _schema = {
         'PRIMARY': None,
@@ -76,7 +76,7 @@ class MeanLssRsrf(ImageDataItem, abstract=True):
     _description_template = "Mean {band} RSRF pixel map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
 
     _schema = {
         'PRIMARY': None,
@@ -98,7 +98,7 @@ class MasterLssRsrf(ImageDataItem, abstract=True):
     _description_template = "Master {band} RSRF pixel map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
 
     _schema = {
         'PRIMARY': None,

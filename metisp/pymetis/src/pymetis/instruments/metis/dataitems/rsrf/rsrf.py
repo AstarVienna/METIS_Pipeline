@@ -29,7 +29,7 @@ class Rsrf(DataItem):
     _title_template = "RSRF"
     _description_template = "2D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
 
     _schema = {
         'PRIMARY': None,

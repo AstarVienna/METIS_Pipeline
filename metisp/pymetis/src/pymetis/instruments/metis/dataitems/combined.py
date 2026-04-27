@@ -33,7 +33,7 @@ class Combined(ImageDataItem, abstract=True):
     _description_template = r"Stacked {band} band exposures."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
     _schema = {
         'PRIMARY': None,
