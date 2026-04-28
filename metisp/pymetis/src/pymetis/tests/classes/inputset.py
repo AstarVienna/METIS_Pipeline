@@ -54,7 +54,7 @@ class BaseInputSetTest(ABC):
     @staticmethod
     def test_has_inputs_and_it_is_a_frozenset(instance):
         assert isinstance(instance.inputs, frozenset), \
-            f"Inputs are not a set: {instance.inputs}"
+            f"Inputs are not a frozenset: {instance.inputs}"
 
     @staticmethod
     def test_all_inputs_are_registered(instance):

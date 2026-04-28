@@ -69,7 +69,7 @@ class PipelineInputSet(ABC):
         By default, there is nothing: no inputs, no tag_parameters.
         This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
         """
-        self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
+        self.inputs: frozenset[PipelineInput] = frozenset() # All inputs for this InputSet.
         self.frameset: cpl.ui.FrameSet = frameset
 
         # Tag parameter matching this instance of InputSet. Might come from DataItem matches or hard-coded from mixins.
