@@ -18,11 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import inspect
 import re
-from typing import Any, Generator
+from typing import Any, Generator, Self, ClassVar
 
 import cpl
 
-import pymetis
 from ..core.parameter import ParameterList
 from ..dataitems import DataItem
 from ..qc import QcParameter
@@ -61,11 +60,17 @@ class Recipe(cpl.ui.PyRecipe):
     # Default implementation class. This will not work, because it is abstract, but this is an abstract class too.
     Impl: type[RecipeImpl] = RecipeImpl
 
+    _registry: ClassVar[dict[str, type[Self]]] = {}
+
     def __init__(self):
         super().__init__()
         # Build a fancy description from attributes
         self._description: str = self._build_description()
         self.implementation: RecipeImpl | None = None
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._registry[cls._name] = cls
 
     def run(self, frameset: cpl.ui.FrameSet, settings: dict[str, Any]) -> cpl.ui.FrameSet:
         """
@@ -77,54 +82,34 @@ class Recipe(cpl.ui.PyRecipe):
         return self.implementation.run()
 
     @classmethod
-    def _list_dataitem_inputs(cls, dataitem_class: type[DataItem]) -> Generator['PipelineRecipe', None, None]:
+    def _list_dataitems_input(cls, dataitem_class: type[DataItem]) -> Generator[Self, None, None]:
         """
-        List all PipelineRecipe classes that use a particular DataItem as an input.
+        List all Recipe classes that use a particular DataItem as an input.
         Warning: heavy introspection.
         Useful for reconstruction of DRLD input/product cards.
         """
-        for (name, klass) in inspect.getmembers(
-                pymetis.recipes,  # FixMe This introduces undesired coupling, remove
-                lambda x: inspect.isclass(x) and x.Impl.InputSet is not None):
-            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
+        for (name, klass) in cls._registry.items():
+            for (n, kls) in inspect.getmembers(klass.Impl.InputSet,
+                                               lambda x: (inspect.isclass(x) and issubclass(x, PipelineInput))):
+                if issubclass(kls.Item, dataitem_class):
+                    yield klass
+
+    @classmethod
+    def _list_dataitems_product(cls, dataitem_class: type[DataItem]) -> Generator[Self, None, None]:
+        """
+        List all Recipe classes that have a particular DataItem as a product.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in cls._registry.items():
+            for (n, kls) in inspect.getmembers(klass.Impl.ProductSet,
+                                               lambda x: inspect.isclass(x)):
                 if issubclass(kls, dataitem_class):
                     yield klass
 
-# --------------------------------------------------------------------------------------------------------
-    @classmethod
-    def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:
-        """
-        List all PipelineRecipe classes that use this Input.
-        Warning: heavy introspection.
-        Useful for reconstruction of DRLD input/product cards.
-        """
-        for (name, klass) in inspect.getmembers(
-                pymetis.recipes,  # FixMe This introduces undesired coupling, remove
-                lambda x: inspect.isclass(x) and x.Impl.InputSet is not None):
-            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
-                if issubclass(kls, cls):
-                    yield klass
-
-    @classmethod
-    def product_of_recipes(cls) -> Generator['PipelineRecipe', None, None]:
-        """
-        List all PipelineRecipe classes that output this as a product.
-        Warning: heavy introspection.
-        Useful for reconstruction of DRLD input/product cards.
-        """
-        for (name, klass) in inspect.getmembers(
-                pymetis.recipes,     # FixMe This introduces undesired coupling, remove
-                lambda x: inspect.isclass(x) and x.Impl is not None
-        ):
-            for (n, kls) in inspect.getmembers(klass.Impl, lambda x: inspect.isclass(x)):
-                if issubclass(kls, cls):
-                    yield klass
-
-# --------------------------------------------------------------------------------------------------------
-
     @classmethod
     def _list_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:
-        return cls.Impl.InputSet.list_classes()
+        return cls.Impl.InputSet.list_input_classes()
 
     @classmethod
     def _list_products(cls) -> list[tuple[str, type[DataItem]]]:
@@ -157,24 +142,24 @@ class Recipe(cpl.ui.PyRecipe):
         elif len(cls._matched_keywords) == 0:
             matched_keywords = '--- none ---'
         else:
-            matched_keywords = '\n    '.join(cls._matched_keywords)
+            matched_keywords = '\n  '.join(cls._matched_keywords)
 
         cls.Impl.specialize()
 
         inputs = '\n'.join(sorted([input_type.extended_description_line(name)
                                    for (name, input_type) in cls._list_inputs()]))
-        products = cls._format_spacing(cls.Impl.ProductSet.list_descriptions(), 'products', 6)
-        qc_parameters = cls._format_spacing(cls.Impl.Qc.list_descriptions(), 'QC parameters', 6)
-        algorithm = cls._format_spacing(cls._algorithm, 'algorithm', 4)
-        description = cls._format_spacing(cls._description, 'description', 2)
+        products = cls._format_spacing(cls.Impl.ProductSet.list_descriptions(), 'products', 2)
+        qc_parameters = cls._format_spacing(cls.Impl.Qc.list_descriptions(), 'QC parameters', 2)
+        algorithm = cls._format_spacing(cls._algorithm, 'algorithm', 2)
+        description = cls._format_spacing(cls._description, 'description', 0)
 
-        return f"""{cls.synopsis}\n\n{description}\n
-  Matched keywords
-    {matched_keywords}
-  Inputs\n{inputs}
-  Outputs\n{products}
-  QC parameters\n{qc_parameters}
-  Algorithm\n{algorithm}
+        return f"""{cls._synopsis}\n\n{description}\n
+Matched keywords
+  {matched_keywords}
+Inputs\n{inputs}
+Outputs\n{products}
+QC parameters\n{qc_parameters}
+Algorithm\n{algorithm}
 """
 
     @property

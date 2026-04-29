@@ -60,8 +60,8 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         BadPixMap = BadPixMap
 
     class Qc(QcParameterSet):
-        MflatRms = MFlatRms
-        MflatNBadpix = MFlatNbadpix
+        MFlatRms = MFlatRms
+        MFlatNBadpix = MFlatNbadpix
         FlatMean = FlatMean
         FlatRms = FlatRms
         FlatMedianMin = FlatMedianMin
