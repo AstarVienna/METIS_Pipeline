@@ -16,12 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import inspect
 import re
-from typing import Any
+from typing import Any, Generator
 
 import cpl
 
+import pymetis
 from ..core.parameter import ParameterList
 from ..dataitems import DataItem
 from ..qc import QcParameter
@@ -74,6 +75,52 @@ class Recipe(cpl.ui.PyRecipe):
         """
         self.implementation = self.Impl(self, frameset, settings)
         return self.implementation.run()
+
+    @classmethod
+    def _list_dataitem_inputs(cls, dataitem_class: type[DataItem]) -> Generator['PipelineRecipe', None, None]:
+        """
+        List all PipelineRecipe classes that use a particular DataItem as an input.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in inspect.getmembers(
+                pymetis.recipes,  # FixMe This introduces undesired coupling, remove
+                lambda x: inspect.isclass(x) and x.Impl.InputSet is not None):
+            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
+                if issubclass(kls, dataitem_class):
+                    yield klass
+
+# --------------------------------------------------------------------------------------------------------
+    @classmethod
+    def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:
+        """
+        List all PipelineRecipe classes that use this Input.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in inspect.getmembers(
+                pymetis.recipes,  # FixMe This introduces undesired coupling, remove
+                lambda x: inspect.isclass(x) and x.Impl.InputSet is not None):
+            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
+                if issubclass(kls, cls):
+                    yield klass
+
+    @classmethod
+    def product_of_recipes(cls) -> Generator['PipelineRecipe', None, None]:
+        """
+        List all PipelineRecipe classes that output this as a product.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in inspect.getmembers(
+                pymetis.recipes,     # FixMe This introduces undesired coupling, remove
+                lambda x: inspect.isclass(x) and x.Impl is not None
+        ):
+            for (n, kls) in inspect.getmembers(klass.Impl, lambda x: inspect.isclass(x)):
+                if issubclass(kls, cls):
+                    yield klass
+
+# --------------------------------------------------------------------------------------------------------
 
     @classmethod
     def _list_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:

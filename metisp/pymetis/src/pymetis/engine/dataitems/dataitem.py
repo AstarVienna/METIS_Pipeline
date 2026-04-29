@@ -26,7 +26,6 @@ from typing import Optional, Generator, Self, final, Union, ClassVar
 import cpl
 from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyList
 
-import pymetis
 from .hdu import Hdu
 from pymetis.engine.core.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
@@ -263,7 +262,7 @@ class DataItem(ParametrizableItem):
         return klass(primary_header, *hdus, filename=frame.file)
 
     def load_data(self,
-                  extension: int | str) -> Image | Table | None:
+                  extension: int | str) -> Image | Table | ImageList | None:
         """
         Load the associated data (image or a table).
 
@@ -291,7 +290,7 @@ class DataItem(ParametrizableItem):
             elif self[extension].klass == Table:
                 return self[extension].klass.load(self.filename, self._hdus[extension].extno)
             elif self[extension].klass == ImageList:
-                return self[extension].klass.load(self.filename, self._hdus[extension].extno)
+                return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
             else:
                 raise KeyError
         except cpl.core.DataNotFoundError as exc:
@@ -436,34 +435,6 @@ class DataItem(ParametrizableItem):
             'group': self.frame_group().name,
         }
 
-    @classmethod
-    def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:
-        """
-        List all PipelineRecipe classes that use this Input.
-        Warning: heavy introspection.
-        Useful for reconstruction of DRLD input/product cards.
-        """
-        for (name, klass) in inspect.getmembers(
-            pymetis.recipes,
-            lambda x: inspect.isclass(x) and x.Impl.InputSet is not None):
-            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
-                if issubclass(kls, cls):
-                    yield klass
-
-    @classmethod
-    def product_of_recipes(cls) -> Generator['PipelineRecipe', None, None]:
-        """
-        List all PipelineRecipe classes that output this as a product.
-        Warning: heavy introspection.
-        Useful for reconstruction of DRLD input/product cards.
-        """
-        for (name, klass) in inspect.getmembers(
-                pymetis.recipes,     # FixMe This introduces undesired coupling, remove
-                lambda x: inspect.isclass(x) and x.Impl is not None
-        ):
-            for (n, kls) in inspect.getmembers(klass.Impl, lambda x: inspect.isclass(x)):
-                if issubclass(kls, cls):
-                    yield klass
 
     @classmethod
     @final
