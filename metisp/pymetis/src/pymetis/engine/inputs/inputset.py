@@ -96,21 +96,24 @@ class PipelineInputSet(ABC):
         Msg.debug(cls.__qualname__, f"Now specializing {cls.__qualname__} for {parameters}")
 
         for name, inp in cls.list_input_classes():
+            new_input = type(inp.__name__, (inp,), {})
             old_class = inp.Item
             # Copy the entire type so that we do not mess up the original one
             new_class = type(inp.Item.__name__, inp.Item.__bases__, dict(inp.Item.__dict__))
             new_class.specialize(**(new_class.tag_parameters() | parameters))
 
             if (klass := DataItem.find(new_class._name_template)) is None:
-                inp.Item = new_class
+                new_input.Item = new_class
                 Msg.debug(cls.__qualname__,
                           f" ! Cannot specialize {old_class.__qualname__} ({old_class.name()}) for {parameters}, "
                           f"{inp.Item.__qualname__} is now {new_class.__qualname__} ({new_class.name()})")
             else:
-                inp.Item = klass
+                new_input.Item = klass
                 Msg.debug(cls.__qualname__,
                           f" - {inp.__qualname__} data item {inp.Item.__qualname__} specialized to "
                           f"{klass.__qualname__} ({klass.name()})")
+
+            setattr(cls, name, new_input)
 
     @classmethod
     def list_input_classes(cls) -> list[tuple[str, type[PipelineInput]]]:

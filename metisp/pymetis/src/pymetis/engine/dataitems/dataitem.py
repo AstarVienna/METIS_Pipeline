@@ -32,7 +32,7 @@ from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
 
 
-class DataItem(ParametrizableItem):
+class DataItem(ParametrizableItem, abstract=True):
     """
     The `DataItem` class encapsulates a single data item:
     the smallest standalone unit of detector data or a product of a recipe.
@@ -69,6 +69,8 @@ class DataItem(ParametrizableItem):
     # >>>     'DET3.DATA': Image,
     # >>>     'DET4.DATA': Image,
     # >>> }
+
+    _registry: ClassVar[dict[str, type[Self]]] = {}
 
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
