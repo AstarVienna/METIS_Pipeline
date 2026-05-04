@@ -29,7 +29,7 @@ class LinearityRaw(Raw, abstract=True):
     _description_template = r"Raw data for non-linearity determination for {detector} observations"
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
+    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'})
 
 
 class LinearityRaw2rg(Detector2rgMixin, LinearityRaw):

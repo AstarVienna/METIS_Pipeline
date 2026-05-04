@@ -52,12 +52,12 @@ class QcParameter(ParametrizableItem):
         """
         Return a formatted description line for the man page.
         """
-        name = f"{cls.name():<36s}"
+        name = f"{cls.name():<35s}"
         unit_default = f"[{str(cls._unit)}, default {str(cls._default)}]"
         description = f"{cls.description():<60}"
 
         # [5:] is there to get rid of "Type." prefix
-        return (f"{name} {f'{python_to_cpl_type(cls._type)}'[5:]:<13s} "
+        return (f"{name} {f'{python_to_cpl_type(cls._type)}'[5:]:<14s} "
                 f"{unit_default:<32s}"
                 f"{description} ")
 

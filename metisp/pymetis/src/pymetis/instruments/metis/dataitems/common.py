@@ -29,7 +29,7 @@ class PersistenceMap(ImageDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description_template = "Persistence map"
-    _oca_keywords = {'PRO.CATG'}
+    _oca_keywords = frozenset({'PRO.CATG'})
     _pro_catg = r'PERSISTENCE_MAP'
 
     _schema = {
@@ -44,7 +44,7 @@ class FluxCalTable(TableDataItem):
     _description_template = "Conversion between instrumental and physical flux units"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG'}
+    _oca_keywords = frozenset({'PRO.CATG'})
 
     _schema = {
         'PRIMARY': None,
@@ -58,7 +58,7 @@ class PinholeTable(TableDataItem):
     _description_template = "Table of pinhole locations"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG'}
+    _oca_keywords = frozenset({'PRO.CATG'})
     _pro_catg = r'PINHOLE_TABLE'
 
     _schema = {
@@ -74,6 +74,7 @@ class AtmProfile(TableDataItem):
                              "pressure and molecular abundances")
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _oca_keywords = frozenset({'PRO.CATG'})
 
     _schema = {
         'PRIMARY': None,
@@ -95,7 +96,7 @@ class FluxStdCatalog(TableDataItem):
     _description_template = "Catalog of standard stars"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = set()
+    _oca_keywords = frozenset()
 
 
 class AtmLineCatalog(TableDataItem):
@@ -104,7 +105,7 @@ class AtmLineCatalog(TableDataItem):
     _description_template = "Catalogue containing a line list of atmospheric molecular lines"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG'}
+    _oca_keywords = frozenset({'PRO.CATG'})
 
 
 class LaserTable(TableDataItem):

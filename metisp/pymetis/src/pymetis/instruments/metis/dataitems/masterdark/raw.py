@@ -29,7 +29,7 @@ class DarkRaw(Raw, abstract=True):
     _description_template = r"Raw data for creating a {detector} master dark."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT'}
+    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT'})
 
 
 class Dark2rgRaw(Detector2rgMixin, DarkRaw):

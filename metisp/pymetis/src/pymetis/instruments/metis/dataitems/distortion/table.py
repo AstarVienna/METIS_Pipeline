@@ -33,7 +33,7 @@ class DistortionTable(TableDataItem, abstract=True):
     _description_template = r"Table of distortion coefficients for a {band} band data set"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
 
     _schema = {
         'PRIMARY': None,

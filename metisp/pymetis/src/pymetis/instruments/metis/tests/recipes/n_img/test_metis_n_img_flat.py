@@ -19,9 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.engine.recipes import Recipe, RecipeImpl
+from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_flat import (MetisNImgFlat as Recipe,
-                                                    MetisNImgFlatImpl as Impl)
+                                                                      MetisNImgFlatImpl as Impl)
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
@@ -42,6 +42,7 @@ def sof(name: str) -> str:
 class TestRecipe(BaseRecipeTest):
     Recipe = Recipe
 
+    @pytest.mark.external
     @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
     def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
         super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)

@@ -145,6 +145,7 @@ class MetisDetLinGain(Recipe):
         "Prototype to create a METIS linear gain map."
     )
 
+    _matched_keywords: frozenset[str] = frozenset()
     _algorithm = """Subtract instrument dark (hdrl_imagelist_sub_image).
     Compute mean and variance for each frame.
     Gain is determined as the slope of variance against mean (metis_derive_gain).

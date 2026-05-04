@@ -7,7 +7,7 @@ import inspect
 from cpl.core import Msg
 
 from metisp.pyrecipes import metis_recipes
-from pymetis.classes.recipes import MetisRecipe
+from pymetis.engine.recipes import Recipe
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     recipes = {
         recipe._name: recipe
         for name, recipe in inspect.getmembers(metis_recipes)
-        if inspect.isclass(recipe) and issubclass(recipe, MetisRecipe)
+        if inspect.isclass(recipe) and issubclass(recipe, Recipe)
     }
 
     if args.debug:

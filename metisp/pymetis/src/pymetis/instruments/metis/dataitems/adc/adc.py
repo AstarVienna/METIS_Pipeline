@@ -31,7 +31,7 @@ class AdcSlitloss(TableDataItem, abstract=True):
     _description_template = "Table with ADC induced {band} slitlosses"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
 
 
 class LmAdcSlitloss(BandLmMixin, AdcSlitloss):
@@ -47,6 +47,7 @@ class AdcSlitlossRaw(Raw, abstract=True):
     _title_template = r'{band} ADC slit loss raw'
     _description_template = "Raw files for ADC slitloss determination (TBD)."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = frozenset({'PRO.CATG'})
 
     _schema = {
         'PRIMARY': None,
