@@ -2,3 +2,4 @@ sphinx>=7.0,<10.0
 sphinx-rtd-theme>=3.0          # requires >=3.0 for Sphinx 9.x compatibility
 sphinx-autodoc-typehints>=1.25
 sphinxcontrib-jquery>=4.0      # required by sphinx-rtd-theme 3.x
+astropy>=5.0                   # needed: mb/depths adds top-level `from astropy.utils import classproperty`

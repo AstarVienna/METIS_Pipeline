@@ -5,10 +5,11 @@ Sphinx configuration for the pymetis documentation.
 import os
 import sys
 
+_docs_dir = os.path.dirname(os.path.abspath(__file__))
 # Make the pymetis source importable for autodoc
-sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.join(_docs_dir, '../src'))
 # Make the local extensions importable
-sys.path.insert(0, os.path.abspath('_ext'))
+sys.path.insert(0, os.path.join(_docs_dir, '_ext'))
 
 # -- Project information -----------------------------------------------------
 project = 'pymetis'
