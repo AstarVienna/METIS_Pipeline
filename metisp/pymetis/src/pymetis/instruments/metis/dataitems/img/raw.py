@@ -31,8 +31,8 @@ class ImageRaw(Raw, abstract=True):
     _title_template = "{band} image {target} raw"
     _description_template = "Raw exposure of a {target} in the {band} image mode."
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
-                     "INS.OPTI9.NAME", "INS.OPTI10.NAME", "DRS.FILTER"}
+    _oca_keywords = frozenset({"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
+                               "INS.OPTI9.NAME", "INS.OPTI10.NAME", "DRS.FILTER"})
 
 
 class LmImageRaw(BandLmMixin, ImageRaw):
