@@ -1,7 +1,7 @@
 """
 autorecipe — Custom Sphinx extension for pymetis recipe and data-item documentation.
 
-Provides two directives:
+Provides three directives:
 
     .. autorecipe:: pymetis.instruments.metis.recipes.metis_det_dark.MetisDetDark
 
@@ -14,10 +14,24 @@ Provides two directives:
         Generates a data-product reference block mirroring the DRLD ``datastructdef``
         block: PRO.CATG tag, FITS HDU schema, frame level/group, OCA keywords.
 
-At build time both directives also write machine-readable JSON manifests to
+    .. autorecipe-all::
+
+        Generates reference pages for every Recipe subclass registered in
+        ``Recipe._registry`` (available after the mb/depths branch is merged).
+        Silently skips if the registry is not yet present.
+
+At build time all directives also write machine-readable JSON manifests to
 ``<BUILDDIR>/drld_manifest/recipes/`` and ``<BUILDDIR>/drld_manifest/dataitems/``
 respectively.  A future LaTeX-generation script can read these manifests and render
 them into DRLD ``.tex`` files.
+
+API note
+--------
+When ``Recipe._list_inputs()``, ``Recipe._list_products()``, and
+``Recipe._list_qc_parameters()`` class-methods are available (mb/depths branch),
+they are used directly.  Otherwise the extension falls back to scanning inner
+classes via ``inspect.getmembers``.  The same graceful-fallback approach is used
+for ``Recipe._registry`` and the ``Recipe.description`` classproperty.
 """
 
 from __future__ import annotations
@@ -55,7 +69,10 @@ def _import_class(dotted_path: str):
 
 
 def _get_inner_classes(container_class, base_class):
-    """Return (attr_name, cls) pairs for inner classes that subclass *base_class*."""
+    """Return (attr_name, cls) pairs for inner classes that subclass *base_class*.
+
+    Fallback used when the Recipe classmethods from mb/depths are not yet merged.
+    """
     if container_class is None:
         return []
     return [
@@ -92,63 +109,85 @@ def _extract_recipe_manifest(recipe_class) -> dict[str, Any]:
     """
     Extract all DRLD-relevant fields from a Recipe class and its Impl.
 
+    Prefers the classmethods added in the mb/depths branch
+    (``_list_inputs``, ``_list_products``, ``_list_qc_parameters``) and falls
+    back to inner-class scanning when those methods are not present.
+
     Returns a dict that mirrors the fields of a DRLD ``recipedef`` block.
     """
     impl = getattr(recipe_class, 'Impl', None)
 
     # --- inputs ---
     inputs = []
-    if impl is not None and getattr(impl, 'InputSet', None) is not None:
-        try:
+    try:
+        if hasattr(recipe_class, '_list_inputs'):
+            raw_inputs = recipe_class._list_inputs()
+        elif impl is not None and getattr(impl, 'InputSet', None) is not None:
             from pymetis.engine.inputs import PipelineInput
-            for name, cls in _get_inner_classes(impl.InputSet, PipelineInput):
-                item_cls = getattr(cls, 'Item', None)
-                item_name = item_cls.name() if item_cls is not None else '<unknown>'
-                item_title = getattr(item_cls, '_title_template', '') or ''
-                required = getattr(cls, '_required', True)
-                multiplicity = getattr(cls, '_multiplicity', '1')
-                inputs.append({
-                    'name': name,
-                    'item': item_name,
-                    'title': item_title,
-                    'required': required,
-                    'multiplicity': multiplicity,
-                })
-        except Exception as exc:
-            logger.debug(f"autorecipe: failed to extract inputs for {recipe_class}: {exc}")
+            raw_inputs = _get_inner_classes(impl.InputSet, PipelineInput)
+        else:
+            raw_inputs = []
+
+        for name, cls in raw_inputs:
+            item_cls = getattr(cls, 'Item', None)
+            item_name = item_cls.name() if item_cls is not None else '<unknown>'
+            item_title = getattr(item_cls, '_title_template', '') or ''
+            required = getattr(cls, '_required', True)
+            multiplicity = getattr(cls, '_multiplicity', '1')
+            inputs.append({
+                'name': name,
+                'item': item_name,
+                'title': item_title,
+                'required': required,
+                'multiplicity': multiplicity,
+            })
+    except Exception as exc:
+        logger.debug(f"autorecipe: failed to extract inputs for {recipe_class}: {exc}")
 
     # --- outputs ---
     outputs = []
-    if impl is not None and getattr(impl, 'ProductSet', None) is not None:
-        try:
+    try:
+        if hasattr(recipe_class, '_list_products'):
+            raw_products = recipe_class._list_products()
+        elif impl is not None and getattr(impl, 'ProductSet', None) is not None:
             from pymetis.engine.dataitems import DataItem
-            for name, cls in _get_inner_classes(impl.ProductSet, DataItem):
-                schema = getattr(cls, '_schema', {})
-                outputs.append({
-                    'name': name,
-                    'item': cls.name() if hasattr(cls, 'name') else name,
-                    'title': cls.title() if hasattr(cls, 'title') else '',
-                    'schema': {k: (v.__name__ if v else None) for k, v in schema.items()},
-                    'frame_level': str(getattr(cls, '_frame_level', '')),
-                    'frame_group': str(getattr(cls, '_frame_group', '')),
-                })
-        except Exception as exc:
-            logger.debug(f"autorecipe: failed to extract outputs for {recipe_class}: {exc}")
+            raw_products = _get_inner_classes(impl.ProductSet, DataItem)
+        else:
+            raw_products = []
+
+        for name, cls in raw_products:
+            schema = getattr(cls, '_schema', {})
+            outputs.append({
+                'name': name,
+                'item': cls.name() if hasattr(cls, 'name') else name,
+                'title': cls.title() if hasattr(cls, 'title') else '',
+                'schema': {k: (v.__name__ if v else None) for k, v in schema.items()},
+                'frame_level': str(getattr(cls, '_frame_level', '')),
+                'frame_group': str(getattr(cls, '_frame_group', '')),
+            })
+    except Exception as exc:
+        logger.debug(f"autorecipe: failed to extract outputs for {recipe_class}: {exc}")
 
     # --- QC parameters ---
     qc_params = []
-    if impl is not None and getattr(impl, 'Qc', None) is not None:
-        try:
+    try:
+        if hasattr(recipe_class, '_list_qc_parameters'):
+            raw_qc = recipe_class._list_qc_parameters()
+        elif impl is not None and getattr(impl, 'Qc', None) is not None:
             from pymetis.engine.qc import QcParameter
-            for name, cls in _get_inner_classes(impl.Qc, QcParameter):
-                qc_params.append({
-                    'name': cls.name() if hasattr(cls, 'name') else name,
-                    'description': cls.description() if hasattr(cls, 'description') else '',
-                    'unit': getattr(cls, '_unit', ''),
-                    'dtype': getattr(cls, '_dtype', ''),
-                })
-        except Exception as exc:
-            logger.debug(f"autorecipe: failed to extract QC params for {recipe_class}: {exc}")
+            raw_qc = _get_inner_classes(impl.Qc, QcParameter)
+        else:
+            raw_qc = []
+
+        for name, cls in raw_qc:
+            qc_params.append({
+                'name': cls.name() if hasattr(cls, 'name') else name,
+                'description': cls.description() if hasattr(cls, 'description') else '',
+                'unit': getattr(cls, '_unit', ''),
+                'dtype': getattr(cls, '_dtype', ''),
+            })
+    except Exception as exc:
+        logger.debug(f"autorecipe: failed to extract QC params for {recipe_class}: {exc}")
 
     # --- recipe parameters ---
     parameters = []
@@ -165,6 +204,19 @@ def _extract_recipe_manifest(recipe_class) -> dict[str, Any]:
         except Exception as exc:
             logger.debug(f"autorecipe: failed to extract parameters for {recipe_class}: {exc}")
 
+    # --- man-page description (mb/depths: Recipe.description classproperty) ---
+    # Returns the pre-built plain-text man-page string; empty string if not yet available.
+    man_page = ''
+    try:
+        desc = recipe_class.__dict__.get('description') or getattr(type(recipe_class), 'description', None)
+        if desc is not None:
+            # description may be a classproperty or a plain string attribute
+            val = desc.__get__(recipe_class) if hasattr(desc, '__get__') else desc
+            if isinstance(val, str):
+                man_page = val
+    except Exception:
+        pass
+
     return {
         'class': f"{recipe_class.__module__}.{recipe_class.__qualname__}",
         'name': getattr(recipe_class, '_name', ''),
@@ -179,6 +231,7 @@ def _extract_recipe_manifest(recipe_class) -> dict[str, Any]:
         'outputs': outputs,
         'qc_parameters': qc_params,
         'parameters': parameters,
+        'man_page': man_page,
     }
 
 
@@ -357,6 +410,18 @@ def _recipe_to_rst(manifest: dict) -> list[str]:
         lines.append('*(none defined)*')
     lines.append('')
 
+    # pyesorex man-page (available after mb/depths branch merges)
+    if manifest.get('man_page'):
+        lines += [
+            '**pyesorex man-page**',
+            '',
+            '.. code-block:: text',
+            '',
+        ]
+        for line in manifest['man_page'].splitlines():
+            lines.append(f'   {line}')
+        lines.append('')
+
     # Source cross-reference
     cls_path = manifest['class']
     lines += [
@@ -503,8 +568,49 @@ class AutoDataItemDirective(SphinxDirective):
         return _rst_to_nodes(self, rst_lines)
 
 
+class AutoRecipeAllDirective(SphinxDirective):
+    """
+    ``.. autorecipe-all::``
+
+    Generates reference pages for every ``Recipe`` subclass registered in
+    ``Recipe._registry``.  This requires the mb/depths branch to be merged;
+    the directive is silently skipped when ``_registry`` is not yet present.
+    """
+    required_arguments = 0
+    optional_arguments = 0
+    has_content = False
+
+    def run(self) -> list[nodes.Node]:
+        try:
+            from pymetis.engine.recipes.recipe import Recipe
+        except ImportError as exc:
+            logger.warning(f"autorecipe-all: cannot import Recipe base class: {exc}")
+            return []
+
+        registry = getattr(Recipe, '_registry', None)
+        if registry is None:
+            logger.info(
+                "autorecipe-all: Recipe._registry not available — "
+                "skipping (requires mb/depths branch to be merged)"
+            )
+            return []
+
+        all_nodes: list[nodes.Node] = []
+        for recipe_name in sorted(registry):
+            recipe_class = registry[recipe_name]
+            try:
+                manifest = _extract_recipe_manifest(recipe_class)
+                _write_manifest(self.env.app, 'recipes', manifest['name'], manifest)
+                all_nodes.extend(_rst_to_nodes(self, _recipe_to_rst(manifest)))
+            except Exception as exc:
+                logger.warning(
+                    f"autorecipe-all: failed to process {recipe_name!r}: {exc}"
+                )
+        return all_nodes
+
+
 # ---------------------------------------------------------------------------
-# RST → docutils nodes helper
+# RST -> docutils nodes helper
 # ---------------------------------------------------------------------------
 
 def _rst_to_nodes(directive: Directive, rst_lines: list[str]) -> list[nodes.Node]:
@@ -547,9 +653,10 @@ def setup(app: Sphinx) -> dict:
 
     app.add_directive('autorecipe', AutoRecipeDirective)
     app.add_directive('autodataitem', AutoDataItemDirective)
+    app.add_directive('autorecipe-all', AutoRecipeAllDirective)
 
     return {
-        'version': '0.1',
+        'version': '0.2',
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
