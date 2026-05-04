@@ -144,7 +144,7 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
         WaveCalNIdent = LssWaveCalNIdent
         WaveCalNMatch = LssWaveCalNMatch
         WaveCalPolyDeg = LssWaveCalPolyDeg
-        WaveCalPolyCoeffN = LssWaveCalPolyCoeffN
+        # WaveCalPolyCoeffN = LssWaveCalPolyCoeffN # ToDo This does not work now (undefined keyword mixin)
 
     def process(self) -> set[DataItem]:
         # Load raw image

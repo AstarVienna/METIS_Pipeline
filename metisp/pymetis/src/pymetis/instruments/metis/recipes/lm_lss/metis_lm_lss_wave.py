@@ -85,13 +85,14 @@ class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor, MetisRecipeImpl):
             _description_template = "Degree of the first guess polynomial"
             _comment = None
 
-        class CoeffN(QcParameter):
-            _name_template = "QC LM LSS WAVE COEFF{i}"
-            _type = float
-            _unit = "pixels ^ (1 - i)"
-            _default = None
-            _description_template = "{i}-th coefficient of the first guess polynomial"
-            _comment = None
+        #class CoeffN(QcParameter):
+        #    _name_template = "QC LM LSS WAVE COEFF{i}"
+        #    _type = float
+        #    _unit = "pixels ^ (1 - i)"
+        #    _default = None
+        #    _description_template = "{i}-th coefficient of the first guess polynomial"
+        #    _comment = None
+        # FixMe: undefined keyword mixin
 
         class NLines(QcParameter):
             _name_template = "QC LM LSS WAVE NLINES"

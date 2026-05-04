@@ -195,7 +195,15 @@ class ParametrizableContainer(Parametrizable, ABC):
             # Copy the entire type so that we do not mess up the original one
             new_class: cls.Meta._T = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
             new_class.specialize(**(item_class.tag_parameters() | parameters))
-            Msg.debug(cls.__qualname__, f"{item_class.__name__} => {item_class.__bases__} {new_class.name()}")
+
+            # Re-attempt registration now that the template may be fully resolved
+            if "{" not in new_class._name_template:
+                registry = next(
+                    (b.__dict__["_registry"] for b in new_class.__mro__ if "_registry" in b.__dict__),
+                    None,
+                )
+                if registry is not None and new_class._name_template not in registry:
+                    registry[new_class._name_template] = new_class
 
             if (klass := cls.Meta._T.find(new_class._name_template)) is None:
                 setattr(cls, name, new_class)

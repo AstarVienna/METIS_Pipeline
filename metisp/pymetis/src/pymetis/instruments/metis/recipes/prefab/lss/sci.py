@@ -126,7 +126,7 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         WaveCalNIdent = LssWaveCalNIdent
         WaveCalNMatch = LssWaveCalNMatch
         WaveCalPolyDeg = LssWaveCalPolyDeg
-        WaveCalPolyCoeffN = LssWaveCalPolyCoeffN
+        # WaveCalPolyCoeffN = LssWaveCalPolyCoeffN # ToDo This does not work now (undefined keyword mixin)
 
 
 
