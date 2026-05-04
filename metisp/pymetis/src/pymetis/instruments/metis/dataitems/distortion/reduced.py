@@ -40,15 +40,15 @@ class DistortionReduced(TableDataItem, abstract=True):
 
 
 class LmDistortionReduced(BandLmMixin, DistortionReduced):
-    _oca_keywords = DistortionReduced._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = DistortionReduced._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class NDistortionReduced(BandNMixin, DistortionReduced):
-    _oca_keywords = DistortionReduced._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = DistortionReduced._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class IfuDistortionReduced(BandIfuMixin, DistortionReduced):
-    _oca_keywords = DistortionReduced._oca_keywords | {'DRS.IFU'}
+    _oca_keywords = DistortionReduced._oca_keywords | frozenset({'DRS.IFU'})
 
     _schema = {
         'PRIMARY': None,

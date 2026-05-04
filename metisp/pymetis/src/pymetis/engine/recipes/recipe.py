@@ -156,7 +156,7 @@ class Recipe(cpl.ui.PyRecipe):
         products = cls._format_spacing(cls.Impl.ProductSet.list_descriptions(), 'products', 2)
         qc_parameters = cls._format_spacing(cls.Impl.Qc.list_descriptions(), 'QC parameters', 2)
         algorithm = cls._format_spacing(cls._algorithm, 'algorithm', 2)
-        description = cls._format_spacing(cls._description, 'description', 0)
+        description = cls._format_spacing(cls.description, 'description', 0)
 
         return f"""{cls._synopsis}\n\n{description}\n
 Matched keywords

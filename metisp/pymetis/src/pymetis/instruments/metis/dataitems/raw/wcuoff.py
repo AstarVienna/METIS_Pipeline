@@ -54,4 +54,4 @@ class NWcuOffRaw(BandNMixin, WcuOffRaw):
 
 
 class IfuWcuOffRaw(BandIfuMixin, WcuOffRaw):
-    _oca_keywords = WcuOffRaw._oca_keywords | {'DRS.IFU'}
+    _oca_keywords = WcuOffRaw._oca_keywords | frozenset({'DRS.IFU'})

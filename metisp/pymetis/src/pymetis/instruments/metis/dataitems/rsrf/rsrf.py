@@ -43,6 +43,7 @@ class RsrfIfu(DetectorIfuMixin, TableDataItem):
     _description_template = "1D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
 
     _schema = {
         'PRIMARY': None,

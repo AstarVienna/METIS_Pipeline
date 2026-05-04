@@ -33,12 +33,12 @@ class LinearityRaw(Raw, abstract=True):
 
 
 class LinearityRaw2rg(Detector2rgMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class LinearityRawGeo(DetectorGeoMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class LinearityRawIfu(DetectorIfuMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.IFU'}
+    _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.IFU'})
