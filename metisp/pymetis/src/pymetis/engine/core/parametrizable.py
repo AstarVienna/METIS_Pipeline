@@ -73,6 +73,7 @@ class ParametrizableMeta(ABCMeta):
             Msg.debug(cls.__qualname__, f"{tag} already registered, skipping")
         else:
             registry[tag] = cls
+            Msg.debug(cls.__qualname__, f"New {cls.__name__} registered as {tag}")
         return cls
 
     # Class-level helpers — accessed as DataItem.find(...), no @classmethod needed
@@ -132,9 +133,32 @@ class ParametrizableItem(Parametrizable, abstract=True):
     _description_template: ClassVar[Optional[str]] = None
 
     @classmethod
+    def specialize(cls, **parameters: str) -> str:
+        """
+        Specialize the data item's name template with given parameters
+        """
+        cls._name_template = partial_format(cls._name_template, **parameters)
+        return cls._name_template
+
+    @classmethod
     def name(cls) -> str:
-        assert cls._name_template is not None
+        """
+        Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
+        """
+        assert cls._name_template is not None, \
+            f"{cls.__qualname__} name template is None"
         return partial_format(cls._name_template, **cls.tag_parameters())
+
+    @classmethod
+    def description(cls) -> str:
+        """
+        Return the human-readable description of the item.
+        By default, this just returns the protected internal attribute,
+        but can be overridden to build the description from other data, such as band or target.
+        """
+        assert cls._description_template is not None, \
+            f"{cls.__qualname__} description template is None"
+        return partial_format(cls._description_template, **cls.tag_parameters())
 
 
 class ParametrizableContainer(Parametrizable, ABC):
@@ -171,12 +195,13 @@ class ParametrizableContainer(Parametrizable, ABC):
             # Copy the entire type so that we do not mess up the original one
             new_class: cls.Meta._T = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
             new_class.specialize(**(item_class.tag_parameters() | parameters))
+            Msg.debug(cls.__qualname__, f"{item_class.__name__} => {item_class.__bases__} {new_class.name()}")
 
             if (klass := cls.Meta._T.find(new_class._name_template)) is None:
                 setattr(cls, name, new_class)
                 Msg.debug(cls.__qualname__,
                           f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {parameters}, "
-                          f"had to create a new class {new_class.__qualname__}")
+                          f"had to create a new class {new_class.__qualname__} ({new_class.name()})")
             else:
                 setattr(cls, name, klass)
                 Msg.debug(cls.__qualname__,
@@ -206,7 +231,7 @@ class ParametrizableContainer(Parametrizable, ABC):
                 raise TypeError(
                     f"Could not promote {item.__qualname__}: "
                     f"tag '{tag}' is not registered. "
-                    f"Known tags matching: {[k for k in cls.Meta._T._registry if k.startswith(tag.split('{')[0])]}"
+                    f"Known tags matching: {cls.Meta._T._registry}"
                 )
             setattr(cls, name, new_class)
 
@@ -225,48 +250,6 @@ class ParametrizableContainer(Parametrizable, ABC):
 
             # Replace the corresponding attribute with the new class
             setattr(cls, name, new_class)
-
-
-class ParametrizableItem(Parametrizable, ABC):
-    """
-    Abstract base class for all items parametrizable by tags, such as data items and QC parameters.
-    """
-
-    # Name of this item (machine-oriented)
-    _name_template: ClassVar[str] = None
-    # Description of this item (human-readable)
-    _description_template: ClassVar[str] = None
-
-    # Class registry: all derived classes are automatically registered here (unless declared abstract)
-    _registry: ClassVar[dict[str, type[Self]]] = {}
-
-    @classmethod
-    def specialize(cls, **parameters: str) -> str:
-        """
-        Specialize the data item's name template with given parameters
-        """
-        cls._name_template = partial_format(cls._name_template, **parameters)
-        return cls._name_template
-
-    @classmethod
-    def name(cls) -> str:
-        """
-        Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
-        """
-        assert cls._name_template is not None, \
-            f"{cls.__qualname__} name template is None"
-        return partial_format(cls._name_template, **cls.tag_parameters())
-
-    @classmethod
-    def description(cls) -> str:
-        """
-        Return the human-readable description of the item.
-        By default, this just returns the protected internal attribute,
-        but can be overridden to build the description from other data, such as band or target.
-        """
-        assert cls._description_template is not None, \
-            f"{cls.__qualname__} description template is None"
-        return partial_format(cls._description_template, **cls.tag_parameters())
 
 
 class KeywordMixin(Parametrizable, ABC):

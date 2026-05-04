@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import inspect
+import pprint
 import re
 
 from abc import ABC
@@ -26,11 +27,11 @@ from typing import Any, Callable, Optional
 import cpl
 from cpl.core import Msg
 
-from pymetis.engine.dataitems import DataItem
+from pymetis.engine.core.parametrizable import ParametrizableMeta, ParametrizableContainer
 from pymetis.engine.inputs.input import PipelineInput
 
 
-class PipelineInputSet(ABC):
+class PipelineInputSet(ParametrizableContainer):
     """
     The `PipelineInputSet` class is a utility class for a recipe dealing with the input data.
     It reads and filters the input FrameSet, categorizes the frames by their metadata,
@@ -89,33 +90,6 @@ class PipelineInputSet(ABC):
                       f" - {inp.Item.name()}")
 
     @classmethod
-    def specialize(cls, **parameters) -> None:
-        """
-        Specialize all input classes within this input set, based on tunable parameters.
-        """
-        Msg.debug(cls.__qualname__, f"Now specializing {cls.__qualname__} for {parameters}")
-
-        for name, inp in cls.list_input_classes():
-            new_input = type(inp.__name__, (inp,), {})
-            old_class = inp.Item
-            # Copy the entire type so that we do not mess up the original one
-            new_class = type(inp.Item.__name__, inp.Item.__bases__, dict(inp.Item.__dict__))
-            new_class.specialize(**(new_class.tag_parameters() | parameters))
-
-            if (klass := DataItem.find(new_class._name_template)) is None:
-                new_input.Item = new_class
-                Msg.debug(cls.__qualname__,
-                          f" ! Cannot specialize {old_class.__qualname__} ({old_class.name()}) for {parameters}, "
-                          f"{inp.Item.__qualname__} is now {new_class.__qualname__} ({new_class.name()})")
-            else:
-                new_input.Item = klass
-                Msg.debug(cls.__qualname__,
-                          f" - {inp.__qualname__} data item {inp.Item.__qualname__} specialized to "
-                          f"{klass.__qualname__} ({klass.name()})")
-
-            setattr(cls, name, new_input)
-
-    @classmethod
     def list_input_classes(cls) -> list[tuple[str, type[PipelineInput]]]:
         """
         List all input classes within this input set.
@@ -140,15 +114,18 @@ class PipelineInputSet(ABC):
                 - and assign their values as attributes of the inputset
         """
         Msg.debug(self.__class__.__qualname__,
-                  f"Validating the inputset {self.inputs}")
+                  f"Validating the inputset {pprint.pformat(self.inputs)}")
 
         if len(self.inputs) == 0:
             raise NotImplementedError("PipelineInputSet must define at least one input.")
 
-        for inp in self.inputs:
-            inp.validate()
-            Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
-            self.tag_matches |= inp.Item.tag_parameters()
+        try:
+            for inp in self.inputs:
+                inp.validate()
+                Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
+                self.tag_matches |= inp.Item.tag_parameters()
+        except cpl.core.DataNotFoundError as e:
+            Msg.error(self.__class__.__qualname__, e)
 
 
     def print_debug(self, *, offset: int = 0) -> None:
