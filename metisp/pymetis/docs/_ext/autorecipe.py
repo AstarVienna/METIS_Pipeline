@@ -40,6 +40,7 @@ import importlib
 import inspect
 import json
 import os
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -52,6 +53,24 @@ from sphinx.util.docutils import SphinxDirective
 
 logger = logging.getLogger(__name__)
 
+# Populated in setup() from app.config.autodoc_mock_imports so that
+# _import_class can apply the same mocks as autodoc.
+_mock_imports: list[str] = []
+
+
+@contextmanager
+def _apply_mocks():
+    """Temporarily install autodoc-style mocks for C-extension dependencies."""
+    try:
+        from sphinx.ext.autodoc.mock import mock as sphinx_mock
+    except ImportError:
+        # Sphinx internal API unavailable — best-effort import without mocks.
+        yield
+        return
+
+    with sphinx_mock(_mock_imports):
+        yield
+
 
 # ---------------------------------------------------------------------------
 # Helper utilities
@@ -61,8 +80,9 @@ def _import_class(dotted_path: str):
     """Import a class from a dotted module path, e.g. ``a.b.c.MyClass``."""
     module_path, _, class_name = dotted_path.rpartition('.')
     try:
-        module = importlib.import_module(module_path)
-        return getattr(module, class_name)
+        with _apply_mocks():
+            module = importlib.import_module(module_path)
+            return getattr(module, class_name)
     except (ImportError, AttributeError) as exc:
         logger.warning(f"autorecipe: cannot import {dotted_path!r}: {exc}")
         return None
@@ -205,15 +225,13 @@ def _extract_recipe_manifest(recipe_class) -> dict[str, Any]:
             logger.debug(f"autorecipe: failed to extract parameters for {recipe_class}: {exc}")
 
     # --- man-page description (mb/depths: Recipe.description classproperty) ---
-    # Returns the pre-built plain-text man-page string; empty string if not yet available.
+    # Simply access recipe_class.description; the classproperty descriptor on Recipe
+    # returns the pre-built plain-text man-page string when available.
     man_page = ''
     try:
-        desc = recipe_class.__dict__.get('description') or getattr(type(recipe_class), 'description', None)
-        if desc is not None:
-            # description may be a classproperty or a plain string attribute
-            val = desc.__get__(recipe_class) if hasattr(desc, '__get__') else desc
-            if isinstance(val, str):
-                man_page = val
+        val = recipe_class.description
+        if isinstance(val, str):
+            man_page = val
     except Exception:
         pass
 
@@ -262,23 +280,26 @@ def _extract_dataitem_manifest(dataitem_class) -> dict[str, Any]:
 # RST generation helpers
 # ---------------------------------------------------------------------------
 
-def _recipe_to_rst(manifest: dict) -> list[str]:
-    """Convert a recipe manifest dict to a list of RST lines."""
+def _recipe_to_rst(manifest: dict, include_title: bool = False) -> list[str]:
+    """Convert a recipe manifest dict to a list of RST lines.
+
+    *include_title* — set True when rendering standalone pages (``autorecipe-all``)
+    where no surrounding document title exists.  Leave False (default) when the
+    directive is used inside a page that already provides a section title.
+    """
     lines: list[str] = []
     name = manifest['name']
 
-    lines += [
-        f".. _{name}:",
-        '',
-        name,
-        '=' * len(name),
-        '',
-        f"**Synopsis:** {manifest['synopsis']}",
-        '',
-    ]
+    if include_title:
+        lines += [
+            f".. _{name}:",
+            '',
+            name,
+            '=' * len(name),
+            '',
+        ]
 
-    if manifest['description']:
-        lines += [manifest['description'].strip(), '']
+    lines += [f"**Synopsis:** {manifest['synopsis']}", '']
 
     # Requirements
     if manifest['requirements']:
@@ -582,7 +603,8 @@ class AutoRecipeAllDirective(SphinxDirective):
 
     def run(self) -> list[nodes.Node]:
         try:
-            from pymetis.engine.recipes.recipe import Recipe
+            with _apply_mocks():
+                from pymetis.engine.recipes.recipe import Recipe
         except ImportError as exc:
             logger.warning(f"autorecipe-all: cannot import Recipe base class: {exc}")
             return []
@@ -601,7 +623,7 @@ class AutoRecipeAllDirective(SphinxDirective):
             try:
                 manifest = _extract_recipe_manifest(recipe_class)
                 _write_manifest(self.env.app, 'recipes', manifest['name'], manifest)
-                all_nodes.extend(_rst_to_nodes(self, _recipe_to_rst(manifest)))
+                all_nodes.extend(_rst_to_nodes(self, _recipe_to_rst(manifest, include_title=True)))
             except Exception as exc:
                 logger.warning(
                     f"autorecipe-all: failed to process {recipe_name!r}: {exc}"
@@ -633,7 +655,7 @@ def _rst_to_nodes(directive: Directive, rst_lines: list[str]) -> list[nodes.Node
 def _write_manifest(app: Sphinx, category: str, name: str, data: dict) -> None:
     """Write a JSON manifest file for a recipe or data item."""
     try:
-        manifest_dir = Path(app.outdir).parent / app.config.autorecipe_manifest_dir / category
+        manifest_dir = Path(app.srcdir) / app.config.autorecipe_manifest_dir / category
         manifest_dir.mkdir(parents=True, exist_ok=True)
         safe_name = (name or 'unknown').replace('/', '_').replace('{', '').replace('}', '')
         out_path = manifest_dir / f"{safe_name}.json"
@@ -647,9 +669,17 @@ def _write_manifest(app: Sphinx, category: str, name: str, data: dict) -> None:
 # Sphinx setup
 # ---------------------------------------------------------------------------
 
+def _sync_mock_imports(app: Sphinx) -> None:
+    """Copy autodoc_mock_imports into the module-level list so _import_class can use them."""
+    global _mock_imports
+    _mock_imports = list(getattr(app.config, 'autodoc_mock_imports', []))
+
+
 def setup(app: Sphinx) -> dict:
     app.add_config_value('autorecipe_root_module', 'pymetis.instruments.metis', 'env')
     app.add_config_value('autorecipe_manifest_dir', os.path.join('_build', 'drld_manifest'), 'env')
+
+    app.connect('builder-inited', _sync_mock_imports)
 
     app.add_directive('autorecipe', AutoRecipeDirective)
     app.add_directive('autodataitem', AutoDataItemDirective)

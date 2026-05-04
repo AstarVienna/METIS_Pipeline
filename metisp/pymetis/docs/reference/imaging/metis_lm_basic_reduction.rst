@@ -1,4 +1,4 @@
-metis\_lm\_basic\_reduction
-============================
+metis\_lm\_img\_basic\_reduce
+==============================
 
-.. autorecipe:: pymetis.instruments.metis.recipes.lm_img.metis_lm_basic_reduction.MetisLmBasicReduction
+.. autorecipe:: pymetis.instruments.metis.recipes.lm_img.metis_lm_img_basic_reduce.MetisLmImgBasicReduce
