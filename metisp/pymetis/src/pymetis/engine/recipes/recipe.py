@@ -21,6 +21,7 @@ import re
 from typing import Any, Generator, Self, ClassVar
 
 import cpl
+from astropy.utils import classproperty
 
 from ..core.parameter import ParameterList
 from ..dataitems import DataItem
@@ -65,12 +66,16 @@ class Recipe(cpl.ui.PyRecipe):
     def __init__(self):
         super().__init__()
         # Build a fancy description from attributes
-        self._description: str = self._build_description()
         self.implementation: RecipeImpl | None = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+        cls._description: str = cls._build_description()
         cls._registry[cls._name] = cls
+
+    @classproperty
+    def description(cls) -> str:
+        return cls._description
 
     def run(self, frameset: cpl.ui.FrameSet, settings: dict[str, Any]) -> cpl.ui.FrameSet:
         """
