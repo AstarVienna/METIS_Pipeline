@@ -1,0 +1,385 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>engine.core — Tag / Parametrization System &mdash; pymetis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="METIS Data Items" href="metis_dataitems.html" />
+    <link rel="prev" title="engine.qc" href="engine_qc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pymetis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../concepts/index.html">Concepts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../data_formats/index.html">Data Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Recipe Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Recipe Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-To Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/index.html">How-To Guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="engine_recipes.html">engine.recipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engine_dataitems.html">engine.dataitems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engine_inputs.html">engine.inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engine_qc.html">engine.qc</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">engine.core — Tag / Parametrization System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pymetis.engine.core.parametrizable.Parametrizable"><code class="docutils literal notranslate"><span class="pre">Parametrizable</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.Parametrizable.tag_parameters"><code class="docutils literal notranslate"><span class="pre">Parametrizable.tag_parameters()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableItem"><code class="docutils literal notranslate"><span class="pre">ParametrizableItem</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableItem.find"><code class="docutils literal notranslate"><span class="pre">ParametrizableItem.find()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableItem.specialize"><code class="docutils literal notranslate"><span class="pre">ParametrizableItem.specialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableItem.name"><code class="docutils literal notranslate"><span class="pre">ParametrizableItem.name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableItem.description"><code class="docutils literal notranslate"><span class="pre">ParametrizableItem.description()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableContainer"><code class="docutils literal notranslate"><span class="pre">ParametrizableContainer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.Meta"><code class="docutils literal notranslate"><span class="pre">ParametrizableContainer.Meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.list_classes"><code class="docutils literal notranslate"><span class="pre">ParametrizableContainer.list_classes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.list_descriptions"><code class="docutils literal notranslate"><span class="pre">ParametrizableContainer.list_descriptions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.specialize"><code class="docutils literal notranslate"><span class="pre">ParametrizableContainer.specialize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.promote"><code class="docutils literal notranslate"><span class="pre">ParametrizableContainer.promote()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pymetis.engine.core.format.FormatPlaceholder"><code class="docutils literal notranslate"><span class="pre">FormatPlaceholder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pymetis.engine.core.format.FormatPlaceholder.__init__"><code class="docutils literal notranslate"><span class="pre">FormatPlaceholder.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pymetis.engine.core.format.FormatDict"><code class="docutils literal notranslate"><span class="pre">FormatDict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pymetis.engine.core.format.partial_format"><code class="docutils literal notranslate"><span class="pre">partial_format()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="metis_dataitems.html">METIS Data Items</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metis_mixins.html">METIS Mixins</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pymetis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">engine.core — Tag / Parametrization System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/engine_core.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="engine-core-tag-parametrization-system">
+<h1>engine.core — Tag / Parametrization System<a class="headerlink" href="#engine-core-tag-parametrization-system" title="Link to this heading"></a></h1>
+<p>Internals of the tag-based specialization and promotion system.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.Parametrizable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymetis.engine.core.parametrizable.</span></span><span class="sig-name descname"><span class="pre">Parametrizable</span></span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#Parametrizable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.Parametrizable" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>Abstract base class for all types parametrizable by custom tags
+(tiny pieces of data, such as short strings or integers).</p>
+<p>The goal is to be able to define generic interfaces for internal structures and algorithms
+and only override the smallest possible subset of functionality in derived classes.</p>
+<p>The tags can be defined either
+- statically inside the class (e.g. all LM recipes and data items should specify <cite>band = “LM”</cite></p>
+<blockquote>
+<div><p>in the class definition). We call this a ‘specialization’ of the class.
+Note that partial specialization (defining some of the tags while leaving others unspecified) is possible,
+one might want to define an abstract intermediate class.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>or obtained from the loaded data in the instances of the class
+(e.g. target can be either “SKY” or “STD” or “SCI”, but this is not known until the data are loaded).
+We call this a ‘promotion’ of the class.</p></li>
+</ul>
+<p>The end effect should be the same: tag placeholders (<cite>{tag}</cite>) will be replaced by the defined values.
+Only fully specialized classes can be instantiated. This also implies that
+unlike specialization, promotion must be always complete.</p>
+<dl class="simple">
+<dt>In the context of the pipeline some useful tags may be</dt><dd><ul class="simple">
+<li><p>band: (LM|N|IFU)</p></li>
+<li><p>target: (STD|SCI)</p></li>
+<li><p>detector: (2RG|GEO|IFU)</p></li>
+<li><p>source: (LAMP|TWILIGHT)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Other parameters might be useful for different pipelines.
+Any strings or types convertible to strings (!s) may be used.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.Parametrizable.tag_parameters">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tag_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#Parametrizable.tag_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.Parametrizable.tag_parameters" title="Link to this definition"></a></dt>
+<dd><p>Return the tag parameters for this class.
+By default, there are none, but mixins may add their own.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableItem">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymetis.engine.core.parametrizable.</span></span><span class="sig-name descname"><span class="pre">ParametrizableItem</span></span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableItem" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymetis.engine.core.parametrizable.Parametrizable" title="pymetis.engine.core.parametrizable.Parametrizable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parametrizable</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>Abstract base class for all items parametrizable by tags, such as data items and QC parameters.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableItem.find">
+<span class="property"><span class="k"><span class="pre">final</span></span><span class="w"> </span><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableItem.find"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableItem.find" title="Link to this definition"></a></dt>
+<dd><p>Try to retrieve the ParametrizableItem subclass with tag <code class="docutils literal notranslate"><span class="pre">key</span></code> from the global registry.</p>
+<p>If not found, return <code class="docutils literal notranslate"><span class="pre">None</span></code> instead (and leave it to the caller to raise an exception if this is not desired).
+# ToDo: Maybe we should raise an exception here instead and let the caller handle it?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code>]]</span></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableItem.specialize">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">specialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableItem.specialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableItem.specialize" title="Link to this definition"></a></dt>
+<dd><p>Specialize the data item’s name template with given parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>parameters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableItem.name">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableItem.name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableItem.name" title="Link to this definition"></a></dt>
+<dd><p>Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. “DETLIN_2RG_RAW”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableItem.description">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableItem.description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableItem.description" title="Link to this definition"></a></dt>
+<dd><p>Return the human-readable description of the item.
+By default, this just returns the protected internal attribute,
+but can be overridden to build the description from other data, such as band or target.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableContainer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymetis.engine.core.parametrizable.</span></span><span class="sig-name descname"><span class="pre">ParametrizableContainer</span></span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableContainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableContainer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymetis.engine.core.parametrizable.Parametrizable" title="pymetis.engine.core.parametrizable.Parametrizable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parametrizable</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>A ParametrizableContainer is an abstract container class (contains other ParametrizableItem classes)
+and is itself Parametrizable. If specialized / promoted, it propagates the same operation down
+to all its attributes of type “Meta._T”.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableContainer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableContainer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class for storing class-wide metadata:</p>
+<p>_T: the expected type of the inner items.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableContainer.list_classes">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">list_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableContainer.list_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.list_classes" title="Link to this definition"></a></dt>
+<dd><p>List all available inner items</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableContainer.list_descriptions">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">list_descriptions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableContainer.list_descriptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.list_descriptions" title="Link to this definition"></a></dt>
+<dd><p>Print formatted descriptions of all available inner items (for man page and such)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableContainer.specialize">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">specialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableContainer.specialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.specialize" title="Link to this definition"></a></dt>
+<dd><p>Specialize this class statically (class-based, from code).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.parametrizable.ParametrizableContainer.promote">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">promote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/parametrizable.html#ParametrizableContainer.promote"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.parametrizable.ParametrizableContainer.promote" title="Link to this definition"></a></dt>
+<dd><p>Promote the inner items of this class to appropriate subclasses, as determined from the input data.
+This may be only called after the recipe is initialized.</p>
+<p>May also contain template variables that are not mixed in during class creation.
+For instance, <cite>recipe_{band}_{target}</cite> can specify band=LM, but no target, resulting in partial specialization.
+The target has to be supplied from the actual data then.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-pymetis.engine.core.format">This file is part of an A* Pipeline.
+Copyright (C) 2024 European Southern Observatory</p>
+<p>This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymetis.engine.core.format.FormatPlaceholder">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymetis.engine.core.format.</span></span><span class="sig-name descname"><span class="pre">FormatPlaceholder</span></span><a class="reference internal" href="../_modules/pymetis/engine/core/format.html#FormatPlaceholder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.format.FormatPlaceholder" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymetis.engine.core.format.FormatPlaceholder.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/format.html#FormatPlaceholder.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.format.FormatPlaceholder.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymetis.engine.core.format.FormatDict">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pymetis.engine.core.format.</span></span><span class="sig-name descname"><span class="pre">FormatDict</span></span><a class="reference internal" href="../_modules/pymetis/engine/core/format.html#FormatDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.format.FormatDict" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymetis.engine.core.format.partial_format">
+<span class="sig-prename descclassname"><span class="pre">pymetis.engine.core.format.</span></span><span class="sig-name descname"><span class="pre">partial_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pymetis/engine/core/format.html#partial_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymetis.engine.core.format.partial_format" title="Link to this definition"></a></dt>
+<dd><p>Partially format a string containing template tags.
+Values found in the template but not defined are retained as placeholders.
+Values not found in the template but defined as a kwarg are silently ignored.</p>
+<p>partial_format(‘{det}_BLAH_{target}’, det=’GEO’, foo=’abc’)
+becomes
+‘GEO_BLAH_{target}’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>template</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="engine_qc.html" class="btn btn-neutral float-left" title="engine.qc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="metis_dataitems.html" class="btn btn-neutral float-right" title="METIS Data Items" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, A* Pipeline Team / European Southern Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Add a New DataItem &mdash; pymetis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Testing Recipes" href="testing.html" />
+    <link rel="prev" title="How to Add a New Recipe Implementation (Algorithm)" href="add_algorithm.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pymetis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../concepts/index.html">Concepts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../data_formats/index.html">Data Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Recipe Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Recipe Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-To Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How-To Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ait_data_reduction.html">Using the Pipeline for AIT Data Reduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_recipe.html">How to Add a New Recipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_algorithm.html">How to Add a New Recipe Implementation (Algorithm)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">How to Add a New DataItem</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-choose-the-base-class">Step 1: Choose the base class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-create-the-file">Step 2: Create the file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-write-the-abstract-base-class">Step 3: Write the abstract base class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-add-drld-traceability-attributes-optional-but-recommended">Step 4: Add DRLD-traceability attributes (optional but recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-5-create-concrete-specializations">Step 5: Create concrete specializations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-6-export-the-new-classes">Step 6: Export the new classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-7-use-the-new-dataitem-in-a-recipe">Step 7: Use the new DataItem in a recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-8-document-the-new-dataitem">Step 8: Document the new DataItem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary-checklist">Summary checklist</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing Recipes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pymetis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">How-To Guides</a></li>
+      <li class="breadcrumb-item active">How to Add a New DataItem</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/how_to/add_data_item.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="how-to-add-a-new-dataitem">
+<h1>How to Add a New DataItem<a class="headerlink" href="#how-to-add-a-new-dataitem" title="Link to this heading"></a></h1>
+<p>This guide walks through defining a new <code class="docutils literal notranslate"><span class="pre">DataItem</span></code> subclass — the Python
+class that describes a FITS file type (input or output) in the pipeline.</p>
+<p>You need a new <code class="docutils literal notranslate"><span class="pre">DataItem</span></code> whenever you are introducing a new kind of FITS file:
+a new calibration product, a new intermediate product, or a new raw frame type.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>You understand <a class="reference internal" href="../concepts/data_items.html"><span class="doc">Data Items</span></a> and
+<a class="reference internal" href="../concepts/parametrization.html"><span class="doc">The Tag / Parametrization System</span></a>.</p></li>
+<li><p>You know the FITS extension structure of the new product (from the DRLD or your
+own design).</p></li>
+</ul>
+</section>
+<section id="step-1-choose-the-base-class">
+<h2>Step 1: Choose the base class<a class="headerlink" href="#step-1-choose-the-base-class" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Base class</p></th>
+<th class="head"><p>Use when</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ImageDataItem</span></code></p></td>
+<td><p>All or most extensions contain image data (<code class="docutils literal notranslate"><span class="pre">cpl.core.Image</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TableDataItem</span></code></p></td>
+<td><p>The primary data extension is a binary table (<code class="docutils literal notranslate"><span class="pre">cpl.core.Table</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DataItem</span></code></p></td>
+<td><p>Mixed content, or if you need full control</p></td>
+</tr>
+</tbody>
+</table>
+<p>All three are in <code class="docutils literal notranslate"><span class="pre">pymetis.engine.dataitems</span></code>.</p>
+</section>
+<section id="step-2-create-the-file">
+<h2>Step 2: Create the file<a class="headerlink" href="#step-2-create-the-file" title="Link to this heading"></a></h2>
+<p>Put the new class in a sensible location under:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">src</span><span class="o">/</span><span class="n">pymetis</span><span class="o">/</span><span class="n">instruments</span><span class="o">/</span><span class="n">metis</span><span class="o">/</span><span class="n">dataitems</span><span class="o">/&lt;</span><span class="n">category</span><span class="o">&gt;/&lt;</span><span class="n">product_name</span><span class="o">&gt;.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>For example, a new background map product:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">src</span><span class="o">/</span><span class="n">pymetis</span><span class="o">/</span><span class="n">instruments</span><span class="o">/</span><span class="n">metis</span><span class="o">/</span><span class="n">dataitems</span><span class="o">/</span><span class="n">background</span><span class="o">/</span><span class="n">background</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-write-the-abstract-base-class">
+<h2>Step 3: Write the abstract base class<a class="headerlink" href="#step-3-write-the-abstract-base-class" title="Link to this heading"></a></h2>
+<p>Start with an abstract base that uses template placeholders for the parts that
+vary by detector, band, or target:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cpl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpl.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymetis.engine.dataitems.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImageDataItem</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BackgroundMap</span><span class="p">(</span><span class="n">ImageDataItem</span><span class="p">,</span> <span class="n">abstract</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">_name_template</span>        <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;LM_BACKGROUND_MAP_</span><span class="si">{detector}</span><span class="s1">&#39;</span>
+    <span class="n">_title_template</span>       <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;</span><span class="si">{detector}</span><span class="s1"> LM-band background map&#39;</span>
+    <span class="n">_description_template</span> <span class="o">=</span> <span class="s1">&#39;Background map derived from LM-band science frames (</span><span class="si">{detector}</span><span class="s1">)&#39;</span>
+
+    <span class="n">_frame_group</span> <span class="o">=</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">FrameGroup</span><span class="o">.</span><span class="n">CALIB</span>
+    <span class="n">_frame_level</span> <span class="o">=</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">Frame</span><span class="o">.</span><span class="n">FrameLevel</span><span class="o">.</span><span class="n">INTERMEDIATE</span>
+
+    <span class="n">_oca_keywords</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;PRO.CATG&#39;</span><span class="p">,</span> <span class="s1">&#39;DRS.FILTER&#39;</span><span class="p">}</span>
+
+    <span class="n">_schema</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;PRIMARY&#39;</span><span class="p">:</span>  <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;DET1.SCI&#39;</span><span class="p">:</span> <span class="n">Image</span><span class="p">,</span>
+        <span class="s1">&#39;DET1.ERR&#39;</span><span class="p">:</span> <span class="n">Image</span><span class="p">,</span>
+        <span class="s1">&#39;DET1.DQ&#39;</span><span class="p">:</span>  <span class="n">Image</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>Rules for <code class="docutils literal notranslate"><span class="pre">_name_template</span></code>:</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">{detector}</span></code>, <code class="docutils literal notranslate"><span class="pre">{band}</span></code>, <code class="docutils literal notranslate"><span class="pre">{target}</span></code>, <code class="docutils literal notranslate"><span class="pre">{source}</span></code> as placeholders.</p></li>
+<li><p>Only UPPER-CASE letters, digits, and underscores are allowed in the final
+resolved name (the regex <code class="docutils literal notranslate"><span class="pre">^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$</span></code> is checked at
+instantiation time).</p></li>
+<li><p>Keep names consistent with the DRLD data-item table.</p></li>
+</ul>
+<p>Rules for <code class="docutils literal notranslate"><span class="pre">_schema</span></code>:</p>
+<ul class="simple">
+<li><p>Every extension your recipe produces <strong>must</strong> appear in <code class="docutils literal notranslate"><span class="pre">_schema</span></code>.</p></li>
+<li><p>Extensions not listed will cause a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> at instantiation.</p></li>
+<li><p>The data type (<code class="docutils literal notranslate"><span class="pre">Image</span></code>, <code class="docutils literal notranslate"><span class="pre">Table</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>) must match what you pass
+to the constructor.</p></li>
+</ul>
+</section>
+<section id="step-4-add-drld-traceability-attributes-optional-but-recommended">
+<h2>Step 4: Add DRLD-traceability attributes (optional but recommended)<a class="headerlink" href="#step-4-add-drld-traceability-attributes-optional-but-recommended" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">_dpr_catg</span> <span class="o">=</span> <span class="s1">&#39;CALIB&#39;</span>
+<span class="n">_dpr_tech</span> <span class="o">=</span> <span class="s1">&#39;IMAGE&#39;</span>
+<span class="n">_dpr_type</span> <span class="o">=</span> <span class="s1">&#39;BACKGROUND&#39;</span>
+</pre></div>
+</div>
+<p>These mirror the FITS DPR keyword triplet from the DRLD and are used by the
+<code class="docutils literal notranslate"><span class="pre">autorecipe</span></code> Sphinx extension to generate the DRLD JSON manifest.</p>
+</section>
+<section id="step-5-create-concrete-specializations">
+<h2>Step 5: Create concrete specializations<a class="headerlink" href="#step-5-create-concrete-specializations" title="Link to this heading"></a></h2>
+<p>For each detector (or band / target) variant, create a concrete subclass by
+mixing in the appropriate mixin:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymetis.instruments.metis.mixins.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">Detector2rgMixin</span><span class="p">,</span> <span class="n">DetectorGeoMixin</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BackgroundMap2rg</span><span class="p">(</span><span class="n">Detector2rgMixin</span><span class="p">,</span> <span class="n">BackgroundMap</span><span class="p">):</span>
+    <span class="k">pass</span>   <span class="c1"># name() → &#39;LM_BACKGROUND_MAP_2RG&#39;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BackgroundMapGeo</span><span class="p">(</span><span class="n">DetectorGeoMixin</span><span class="p">,</span> <span class="n">BackgroundMap</span><span class="p">):</span>
+    <span class="k">pass</span>   <span class="c1"># name() → &#39;LM_BACKGROUND_MAP_GEO&#39;</span>
+</pre></div>
+</div>
+<p>If the schema differs between variants (e.g. the IFU has four detector
+quadrants), override <code class="docutils literal notranslate"><span class="pre">_schema</span></code> in the concrete subclass:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pymetis.instruments.metis.mixins.detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">DetectorIfuMixin</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BackgroundMapIfu</span><span class="p">(</span><span class="n">DetectorIfuMixin</span><span class="p">,</span> <span class="n">BackgroundMap</span><span class="p">):</span>
+    <span class="n">_schema</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;PRIMARY&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s1">&#39;DET</span><span class="si">{</span><span class="n">d</span><span class="si">:</span><span class="s1">1d</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">Image</span>
+           <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+           <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;SCI&#39;</span><span class="p">,</span> <span class="s1">&#39;ERR&#39;</span><span class="p">,</span> <span class="s1">&#39;DQ&#39;</span><span class="p">]},</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="step-6-export-the-new-classes">
+<h2>Step 6: Export the new classes<a class="headerlink" href="#step-6-export-the-new-classes" title="Link to this heading"></a></h2>
+<p>Add an import to the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> of your category directory so the classes
+are reachable and auto-register themselves:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># src/pymetis/instruments/metis/dataitems/background/__init__.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.background</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackgroundMap</span><span class="p">,</span> <span class="n">BackgroundMap2rg</span><span class="p">,</span> <span class="n">BackgroundMapGeo</span><span class="p">,</span> <span class="n">BackgroundMapIfu</span>
+</pre></div>
+</div>
+<p>Also ensure the parent <code class="docutils literal notranslate"><span class="pre">dataitems/__init__.py</span></code> imports the sub-package.</p>
+</section>
+<section id="step-7-use-the-new-dataitem-in-a-recipe">
+<h2>Step 7: Use the new DataItem in a recipe<a class="headerlink" href="#step-7-use-the-new-dataitem-in-a-recipe" title="Link to this heading"></a></h2>
+<p>Reference the new class in your <code class="docutils literal notranslate"><span class="pre">RecipeImpl.ProductSet</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ProductSet</span><span class="p">(</span><span class="n">PipelineProductSet</span><span class="p">):</span>
+    <span class="n">Background</span> <span class="o">=</span> <span class="n">BackgroundMap</span>   <span class="c1"># will be promoted to BackgroundMap2rg etc. at runtime</span>
+</pre></div>
+</div>
+</section>
+<section id="step-8-document-the-new-dataitem">
+<h2>Step 8: Document the new DataItem<a class="headerlink" href="#step-8-document-the-new-dataitem" title="Link to this heading"></a></h2>
+<p>Add an entry to <a class="reference internal" href="../data_formats/data_item_catalog.html"><span class="doc">Data Item Catalog</span></a>.</p>
+<p>To auto-generate a reference page using the <code class="docutils literal notranslate"><span class="pre">autorecipe</span></code> extension, add:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..</span> <span class="n">autodataitem</span><span class="p">::</span> <span class="n">pymetis</span><span class="o">.</span><span class="n">instruments</span><span class="o">.</span><span class="n">metis</span><span class="o">.</span><span class="n">dataitems</span><span class="o">.</span><span class="n">background</span><span class="o">.</span><span class="n">background</span><span class="o">.</span><span class="n">BackgroundMap2rg</span>
+</pre></div>
+</div>
+<p>to any RST page in <code class="docutils literal notranslate"><span class="pre">docs/reference/</span></code> or <code class="docutils literal notranslate"><span class="pre">docs/data_formats/</span></code>.</p>
+</section>
+<section id="summary-checklist">
+<h2>Summary checklist<a class="headerlink" href="#summary-checklist" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>☐ Abstract base class with <code class="docutils literal notranslate"><span class="pre">_name_template</span></code>, <code class="docutils literal notranslate"><span class="pre">_title_template</span></code>,
+<code class="docutils literal notranslate"><span class="pre">_description_template</span></code>, <code class="docutils literal notranslate"><span class="pre">_frame_group</span></code>, <code class="docutils literal notranslate"><span class="pre">_frame_level</span></code>, <code class="docutils literal notranslate"><span class="pre">_schema</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>☐ Concrete subclasses for each detector/band/target variant (via mixins)</p></td>
+</tr>
+<tr class="row-odd"><td><p>☐ DRLD attributes: <code class="docutils literal notranslate"><span class="pre">_dpr_catg</span></code>, <code class="docutils literal notranslate"><span class="pre">_dpr_tech</span></code>, <code class="docutils literal notranslate"><span class="pre">_dpr_type</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>☐ Imported in the <code class="docutils literal notranslate"><span class="pre">dataitems</span></code> sub-package <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>☐ Referenced in <code class="docutils literal notranslate"><span class="pre">RecipeImpl.ProductSet</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>☐ Entry added to <a class="reference internal" href="../data_formats/data_item_catalog.html"><span class="doc">Data Item Catalog</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>☐ Tests verify the schema contract (correct extension names and types)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="add_algorithm.html" class="btn btn-neutral float-left" title="How to Add a New Recipe Implementation (Algorithm)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="testing.html" class="btn btn-neutral float-right" title="Testing Recipes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, A* Pipeline Team / European Southern Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

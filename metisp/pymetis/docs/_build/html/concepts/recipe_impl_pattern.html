@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Recipe / RecipeImpl Pattern &mdash; pymetis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data Items" href="data_items.html" />
+    <link rel="prev" title="Architecture Overview" href="architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pymetis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Concepts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="architecture.html">Architecture Overview</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The Recipe / RecipeImpl Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-two-classes">Why two classes?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-recipe-class">The Recipe class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-recipeimpl-class">The RecipeImpl class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-three-nested-classes">The three nested classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-process-method">The <code class="docutils literal notranslate"><span class="pre">process()</span></code> method</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mro-and-prefab-mixins">MRO and prefab mixins</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="data_items.html">Data Items</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs.html">Pipeline Inputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parametrization.html">The Tag / Parametrization System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qc_parameters.html">QC Parameters</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../data_formats/index.html">Data Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Recipe Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Recipe Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-To Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/index.html">How-To Guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pymetis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Concepts</a></li>
+      <li class="breadcrumb-item active">The Recipe / RecipeImpl Pattern</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/concepts/recipe_impl_pattern.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-recipe-recipeimpl-pattern">
+<h1>The Recipe / RecipeImpl Pattern<a class="headerlink" href="#the-recipe-recipeimpl-pattern" title="Link to this heading"></a></h1>
+<p>Every pipeline recipe in <code class="docutils literal notranslate"><span class="pre">pymetis</span></code> is split into two classes:</p>
+<ul class="simple">
+<li><p><strong>Recipe</strong> — a thin shell that satisfies the <code class="docutils literal notranslate"><span class="pre">pyesorex</span></code> plugin interface.
+Contains only metadata and a reference to the implementation.</p></li>
+<li><p><strong>RecipeImpl</strong> — contains all the reduction logic, nested input/output
+declarations, and the abstract <code class="docutils literal notranslate"><span class="pre">process()</span></code> method.</p></li>
+</ul>
+<section id="why-two-classes">
+<h2>Why two classes?<a class="headerlink" href="#why-two-classes" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pyesorex</span></code> discovers recipes by scanning Python modules for subclasses of
+<code class="docutils literal notranslate"><span class="pre">cpl.ui.PyRecipe</span></code>.  It instantiates every class it finds, including abstract
+base classes.  This makes it impossible to use <code class="docutils literal notranslate"><span class="pre">ABC</span></code> / <code class="docutils literal notranslate"><span class="pre">abstractmethod</span></code> on
+the <code class="docutils literal notranslate"><span class="pre">Recipe</span></code> class itself.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">RecipeImpl</span></code> side has no such constraint.  It derives from <code class="docutils literal notranslate"><span class="pre">ABC</span></code>, so
+<code class="docutils literal notranslate"><span class="pre">process()</span></code> is a proper abstract method that Python enforces.</p>
+<p>An additional benefit: <code class="docutils literal notranslate"><span class="pre">RecipeImpl</span></code> can be instantiated and tested independently
+of <code class="docutils literal notranslate"><span class="pre">pyesorex</span></code>, which makes unit testing significantly easier.</p>
+</section>
+<section id="the-recipe-class">
+<h2>The Recipe class<a class="headerlink" href="#the-recipe-class" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MetisDetDark</span><span class="p">(</span><span class="n">Recipe</span><span class="p">):</span>
+    <span class="n">_name</span>        <span class="o">=</span> <span class="s2">&quot;metis_det_dark&quot;</span>
+    <span class="n">_version</span>     <span class="o">=</span> <span class="s2">&quot;0.1&quot;</span>
+    <span class="n">_author</span>      <span class="o">=</span> <span class="s2">&quot;Hugo Buddelmeijer, A*&quot;</span>
+    <span class="n">_email</span>       <span class="o">=</span> <span class="s2">&quot;hugo@buddelmeijer.nl&quot;</span>
+    <span class="n">_synopsis</span>    <span class="o">=</span> <span class="s2">&quot;Create master dark&quot;</span>
+    <span class="n">_description</span> <span class="o">=</span> <span class="s2">&quot;Prototype to create a METIS masterdark for </span><span class="si">{detector}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># DRLD traceability fields (used by the autorecipe Sphinx extension</span>
+    <span class="c1"># and the DRLD JSON manifest generator):</span>
+    <span class="n">_matched_keywords</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">_algorithm</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        - Group files by detector and DIT</span>
+<span class="s2">        - Call metis_determine_dark for each set of files</span>
+<span class="s2">        - Call metis_update_dark_mask to flag deviant pixels</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">_requirements</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>   <span class="c1"># e.g. {&quot;METIS-5997&quot;}</span>
+    <span class="n">_templates</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>       <span class="c1"># e.g. {&quot;METIS_cal_DetDark&quot;}</span>
+
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">ParameterList</span><span class="p">([</span>
+        <span class="n">ParameterEnum</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;metis_det_dark.stacking.method&quot;</span><span class="p">,</span>
+            <span class="n">context</span><span class="o">=</span><span class="s2">&quot;metis_det_dark&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Stacking method for combining input images&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span>
+            <span class="n">alternatives</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;sigclip&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">])</span>
+
+    <span class="c1"># The only connection between Recipe and RecipeImpl:</span>
+    <span class="n">Impl</span> <span class="o">=</span> <span class="n">MetisDetDarkImpl</span>
+</pre></div>
+</div>
+<p>Notable mandatory attributes (checked by <code class="docutils literal notranslate"><span class="pre">pyesorex</span></code>):</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_name</span></code></p></td>
+<td><p>Recipe identifier used in SOF files and EDPS workflow definitions</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_version</span></code></p></td>
+<td><p>Version string</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_author</span></code>, <code class="docutils literal notranslate"><span class="pre">_email</span></code></p></td>
+<td><p>Contact information</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_copyright</span></code></p></td>
+<td><p>Licence string (defaults to <code class="docutils literal notranslate"><span class="pre">GPL-3.0-or-later</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_synopsis</span></code></p></td>
+<td><p>One-line summary shown by <code class="docutils literal notranslate"><span class="pre">pyesorex</span> <span class="pre">--recipes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_description</span></code></p></td>
+<td><p>Full description shown by <code class="docutils literal notranslate"><span class="pre">pyesorex</span> <span class="pre">--man-page</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Additional pymetis-specific attributes:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_matched_keywords</span></code></p></td>
+<td><p>FITS header keywords used to match/group input frames</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_algorithm</span></code></p></td>
+<td><p>Human-readable algorithm description (used in the man page and DRLD)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_requirements</span></code></p></td>
+<td><p>Set of requirement IDs from the METIS requirements database</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_templates</span></code></p></td>
+<td><p>Set of observation template names that trigger this recipe</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-recipeimpl-class">
+<h2>The RecipeImpl class<a class="headerlink" href="#the-recipeimpl-class" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MetisDetDarkImpl</span><span class="p">(</span><span class="n">PersistenceCorrectionMixin</span><span class="p">,</span> <span class="n">RawImageProcessor</span><span class="p">,</span> <span class="n">MetisRecipeImpl</span><span class="p">):</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">InputSet</span><span class="p">(</span><span class="n">RawImageProcessor</span><span class="o">.</span><span class="n">InputSet</span><span class="p">):</span>
+        <span class="k">class</span><span class="w"> </span><span class="nc">RawInput</span><span class="p">(</span><span class="n">RawInput</span><span class="p">):</span>
+            <span class="n">Item</span> <span class="o">=</span> <span class="n">DarkRaw</span>             <span class="c1"># which DataItem class this input wraps</span>
+
+        <span class="k">class</span><span class="w"> </span><span class="nc">PersistenceMapInput</span><span class="p">(</span><span class="n">OptionalInputMixin</span><span class="p">,</span> <span class="n">PersistenceMapInput</span><span class="p">):</span>
+            <span class="k">pass</span>                       <span class="c1"># optional: present only if supplied</span>
+
+        <span class="k">class</span><span class="w"> </span><span class="nc">BadPixMapInput</span><span class="p">(</span><span class="n">OptionalInputMixin</span><span class="p">,</span> <span class="n">BadPixMapInput</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">ProductSet</span><span class="p">(</span><span class="n">PipelineProductSet</span><span class="p">):</span>
+        <span class="n">MasterDark</span> <span class="o">=</span> <span class="n">MasterDark</span>        <span class="c1"># which DataItem class to produce</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Qc</span><span class="p">(</span><span class="n">QcParameterSet</span><span class="p">):</span>
+        <span class="n">DarkMean</span>   <span class="o">=</span> <span class="n">DarkMean</span>
+        <span class="n">DarkMedian</span> <span class="o">=</span> <span class="n">DarkMedian</span>
+        <span class="n">DarkRms</span>    <span class="o">=</span> <span class="n">DarkRms</span>
+        <span class="c1"># ... more QC params</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">DataItem</span><span class="p">]:</span>
+        <span class="c1"># Load pixel data (lazy — only happens here, not in __init__)</span>
+        <span class="n">raw_images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputset</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;DET1.DATA&#39;</span><span class="p">)</span>
+
+        <span class="c1"># ... reduction logic ...</span>
+
+        <span class="n">product</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ProductSet</span><span class="o">.</span><span class="n">MasterDark</span><span class="p">(</span><span class="n">primary_header</span><span class="p">,</span> <span class="o">*</span><span class="n">hdus</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">product</span><span class="p">}</span>
+</pre></div>
+</div>
+<section id="the-three-nested-classes">
+<h3>The three nested classes<a class="headerlink" href="#the-three-nested-classes" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">InputSet</span></code>, <code class="docutils literal notranslate"><span class="pre">ProductSet</span></code>, and <code class="docutils literal notranslate"><span class="pre">Qc</span></code> are discovered introspectively — you
+declare them as nested class attributes and the framework picks them up
+automatically.  No registration step is needed.</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">InputSet</span></code></dt><dd><p>One <code class="docutils literal notranslate"><span class="pre">PipelineInput</span></code> attribute per frame type consumed by the recipe.
+See <a class="reference internal" href="inputs.html"><span class="doc">Pipeline Inputs</span></a> for details.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">ProductSet</span></code></dt><dd><p>One <code class="docutils literal notranslate"><span class="pre">DataItem</span></code> attribute per output file produced by the recipe.
+The framework calls <code class="docutils literal notranslate"><span class="pre">DataItem.save()</span></code> on each after <code class="docutils literal notranslate"><span class="pre">process()</span></code> returns.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">Qc</span></code></dt><dd><p>One <code class="docutils literal notranslate"><span class="pre">QcParameter</span></code> attribute per QC value computed by the recipe.
+QC values are written to the product primary header.</p>
+</dd>
+</dl>
+</section>
+<section id="the-process-method">
+<h3>The <code class="docutils literal notranslate"><span class="pre">process()</span></code> method<a class="headerlink" href="#the-process-method" title="Link to this heading"></a></h3>
+<p>This is the only method you <strong>must</strong> implement.  Its contract is:</p>
+<ul class="simple">
+<li><p>At entry, <code class="docutils literal notranslate"><span class="pre">self.inputset</span></code> has been populated and validated.</p></li>
+<li><p>Pixel data must be loaded lazily inside <code class="docutils literal notranslate"><span class="pre">process()</span></code> via <code class="docutils literal notranslate"><span class="pre">load_data(extension)</span></code>.</p></li>
+<li><p>Return a <code class="docutils literal notranslate"><span class="pre">set[DataItem]</span></code> — one instance per output file.</p></li>
+<li><p>The framework handles saving, provenance headers, and FrameSet construction.</p></li>
+</ul>
+</section>
+<section id="mro-and-prefab-mixins">
+<h3>MRO and prefab mixins<a class="headerlink" href="#mro-and-prefab-mixins" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">MetisDetDarkImpl</span></code> inherits from three classes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PersistenceCorrectionMixin</span></code> — adds persistence correction logic</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RawImageProcessor</span></code> — provides <code class="docutils literal notranslate"><span class="pre">combine_images_with_error()</span></code>, a shared
+<code class="docutils literal notranslate"><span class="pre">InputSet</span></code> base with common calibration inputs, and other utilities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MetisRecipeImpl</span></code> — the METIS-specific base (sets <code class="docutils literal notranslate"><span class="pre">instrument</span> <span class="pre">=</span> <span class="pre">&quot;METIS/1&quot;</span></code>)</p></li>
+</ul>
+<p>Python’s method resolution order (MRO) ensures that mixin methods are found
+before base-class methods, so <code class="docutils literal notranslate"><span class="pre">RawImageProcessor.InputSet</span></code> is the correct
+starting point for <code class="docutils literal notranslate"><span class="pre">InputSet</span></code> inheritance.</p>
+<p>See <a class="reference internal" href="../how_to/add_algorithm.html"><span class="doc">How to Add a New Recipe Implementation (Algorithm)</span></a> for a step-by-step guide to writing a new
+<code class="docutils literal notranslate"><span class="pre">RecipeImpl</span></code>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="architecture.html" class="btn btn-neutral float-left" title="Architecture Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data_items.html" class="btn btn-neutral float-right" title="Data Items" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, A* Pipeline Team / European Southern Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

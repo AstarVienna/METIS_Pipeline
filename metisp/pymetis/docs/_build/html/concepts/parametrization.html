@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Tag / Parametrization System &mdash; pymetis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="QC Parameters" href="qc_parameters.html" />
+    <link rel="prev" title="Pipeline Inputs" href="inputs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pymetis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Concepts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="architecture.html">Architecture Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recipe_impl_pattern.html">The Recipe / RecipeImpl Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_items.html">Data Items</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputs.html">Pipeline Inputs</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The Tag / Parametrization System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-concepts">Core concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-specialization-works">How specialization works</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#querying-tag-parameters">Querying tag parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#the-global-registry">The global registry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-promotion-works">How promotion works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#partial-specialization">Partial specialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#available-metis-tags">Available METIS tags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qc_parameters.html">QC Parameters</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../data_formats/index.html">Data Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Recipe Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Recipe Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-To Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/index.html">How-To Guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pymetis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Concepts</a></li>
+      <li class="breadcrumb-item active">The Tag / Parametrization System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/concepts/parametrization.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-tag-parametrization-system">
+<h1>The Tag / Parametrization System<a class="headerlink" href="#the-tag-parametrization-system" title="Link to this heading"></a></h1>
+<p>Many pipeline components in <code class="docutils literal notranslate"><span class="pre">pymetis</span></code> exist in multiple variants: one for
+each detector (<code class="docutils literal notranslate"><span class="pre">2RG</span></code>, <code class="docutils literal notranslate"><span class="pre">GEO</span></code>, <code class="docutils literal notranslate"><span class="pre">IFU</span></code>), one for each band (<code class="docutils literal notranslate"><span class="pre">LM</span></code>, <code class="docutils literal notranslate"><span class="pre">N</span></code>),
+one per reduction target (<code class="docutils literal notranslate"><span class="pre">SCI</span></code>, <code class="docutils literal notranslate"><span class="pre">STD</span></code>), etc.</p>
+<p>Rather than duplicating classes, <code class="docutils literal notranslate"><span class="pre">pymetis</span></code> uses a <strong>tag-based parametrization
+system</strong> that lets you define a generic class once and then derive concrete
+variants via lightweight mixins.</p>
+<section id="core-concepts">
+<h2>Core concepts<a class="headerlink" href="#core-concepts" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><strong>Tag parameters</strong></dt><dd><p>Short key-value pairs that identify a variant, e.g.
+<code class="docutils literal notranslate"><span class="pre">detector='2RG'</span></code>, <code class="docutils literal notranslate"><span class="pre">band='LM'</span></code>, <code class="docutils literal notranslate"><span class="pre">target='SCI'</span></code>.</p>
+</dd>
+<dt><strong>Name template</strong></dt><dd><p>A string with <code class="docutils literal notranslate"><span class="pre">{placeholder}</span></code> slots, e.g.
+<code class="docutils literal notranslate"><span class="pre">MASTER_DARK_{detector}</span></code>.  Filling all placeholders gives the final
+machine-readable name / PRO.CATG tag.</p>
+</dd>
+<dt><strong>Specialization</strong> (static, at class-definition time)</dt><dd><p>A mixin injects a tag value at class creation.
+<code class="docutils literal notranslate"><span class="pre">MasterDark2rg(Detector2rgMixin,</span> <span class="pre">MasterDark)</span></code> fills <code class="docutils literal notranslate"><span class="pre">{detector}</span></code> = <code class="docutils literal notranslate"><span class="pre">2RG</span></code>,
+producing the name <code class="docutils literal notranslate"><span class="pre">MASTER_DARK_2RG</span></code>.</p>
+</dd>
+<dt><strong>Promotion</strong> (dynamic, at runtime from loaded data)</dt><dd><p>When a frame arrives whose tag is partially known (e.g. the target type
+<code class="docutils literal notranslate"><span class="pre">SCI</span></code> vs <code class="docutils literal notranslate"><span class="pre">STD</span></code> can only be determined from the data header),
+<code class="docutils literal notranslate"><span class="pre">promote()</span></code> looks up the fully-resolved name in the global registry and
+returns the correct class.</p>
+</dd>
+</dl>
+</section>
+<section id="how-specialization-works">
+<h2>How specialization works<a class="headerlink" href="#how-specialization-works" title="Link to this heading"></a></h2>
+<p>Every class that participates in the tag system inherits from
+<a class="reference internal" href="../api/engine_core.html#pymetis.engine.core.parametrizable.Parametrizable" title="pymetis.engine.core.parametrizable.Parametrizable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parametrizable</span></code></a>.</p>
+<p>Mixins inject tag values by passing keyword arguments to the class definition:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Detector2rgMixin</span><span class="p">(</span><span class="n">Parametrizable</span><span class="p">,</span> <span class="n">detector</span><span class="o">=</span><span class="s1">&#39;2RG&#39;</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BandLmMixin</span><span class="p">(</span><span class="n">Parametrizable</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="s1">&#39;LM&#39;</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TargetSciMixin</span><span class="p">(</span><span class="n">Parametrizable</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;SCI&#39;</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Concrete classes inherit from a combination of mixins and a generic base:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MasterFlat2rgLm</span><span class="p">(</span><span class="n">Detector2rgMixin</span><span class="p">,</span> <span class="n">BandLmMixin</span><span class="p">,</span> <span class="n">MasterFlat</span><span class="p">):</span>
+    <span class="k">pass</span>
+<span class="c1"># name() → &#39;MASTER_FLAT_2RG_LM&#39;</span>
+</pre></div>
+</div>
+<p>Python’s MRO ensures that each mixin’s <code class="docutils literal notranslate"><span class="pre">_tag_parameters</span></code> dict is merged
+correctly.  Tags defined further up the inheritance chain can be overridden
+by more derived classes.</p>
+<section id="querying-tag-parameters">
+<h3>Querying tag parameters<a class="headerlink" href="#querying-tag-parameters" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MasterDark2rg</span><span class="o">.</span><span class="n">tag_parameters</span><span class="p">()</span>
+<span class="c1"># → {&#39;detector&#39;: &#39;2RG&#39;}</span>
+
+<span class="n">MasterFlat2rgLm</span><span class="o">.</span><span class="n">tag_parameters</span><span class="p">()</span>
+<span class="c1"># → {&#39;detector&#39;: &#39;2RG&#39;, &#39;band&#39;: &#39;LM&#39;}</span>
+
+<span class="n">MasterDark</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+<span class="c1"># → &#39;MASTER_DARK_{detector}&#39;   (placeholder still present → abstract)</span>
+
+<span class="n">MasterDark2rg</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+<span class="c1"># → &#39;MASTER_DARK_2RG&#39;          (fully resolved → concrete)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="the-global-registry">
+<h2>The global registry<a class="headerlink" href="#the-global-registry" title="Link to this heading"></a></h2>
+<p>Every <code class="docutils literal notranslate"><span class="pre">ParametrizableItem</span></code> subclass (<code class="docutils literal notranslate"><span class="pre">DataItem</span></code>, <code class="docutils literal notranslate"><span class="pre">QcParameter</span></code>, …)
+is registered in a class-level dict:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DataItem</span><span class="o">.</span><span class="n">_registry</span>
+<span class="c1"># → {&#39;MASTER_DARK_2RG&#39;: MasterDark2rg,</span>
+<span class="c1">#    &#39;MASTER_DARK_GEO&#39;: MasterDarkGeo,</span>
+<span class="c1">#    &#39;MASTER_DARK_IFU&#39;: MasterDarkIfu,</span>
+<span class="c1">#    ...}</span>
+</pre></div>
+</div>
+<p>Registration is automatic and happens in <code class="docutils literal notranslate"><span class="pre">__init_subclass__</span></code> at import time.
+To look up a class by tag name:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">cls</span> <span class="o">=</span> <span class="n">DataItem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;MASTER_DARK_2RG&#39;</span><span class="p">)</span>   <span class="c1"># returns MasterDark2rg or None</span>
+</pre></div>
+</div>
+</section>
+<section id="how-promotion-works">
+<h2>How promotion works<a class="headerlink" href="#how-promotion-works" title="Link to this heading"></a></h2>
+<p>Promotion is used when the final tag value can only be determined at runtime
+(typically from the header of a loaded frame).</p>
+<p>After the <code class="docutils literal notranslate"><span class="pre">InputSet</span></code> has loaded its frames, <code class="docutils literal notranslate"><span class="pre">RecipeImpl.__init__</span></code> calls:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">promote</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">inputset</span><span class="o">.</span><span class="n">tag_matches</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">tag_matches</span></code> is a dict like <code class="docutils literal notranslate"><span class="pre">{'target':</span> <span class="pre">'SCI'}</span></code> inferred from the loaded
+frames.  <code class="docutils literal notranslate"><span class="pre">promote()</span></code> propagates this to the <code class="docutils literal notranslate"><span class="pre">ProductSet</span></code> and <code class="docutils literal notranslate"><span class="pre">Qc</span></code>
+containers, which swap their generic product/QC classes for the matching
+specialized subclasses from the registry.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Before promotion:
+self.ProductSet.MasterFlat  -&gt;  MasterFlat   (has {band}, {detector} templates)
+
+# After promote(band=&#39;LM&#39;, detector=&#39;2RG&#39;):
+self.ProductSet.MasterFlat  -&gt;  MasterFlat2rgLm   (fully resolved)
+</pre></div>
+</div>
+</section>
+<section id="partial-specialization">
+<h2>Partial specialization<a class="headerlink" href="#partial-specialization" title="Link to this heading"></a></h2>
+<p>It is valid for a class to have some — but not all — placeholders filled.
+Such a class is considered <strong>partially specialized</strong> (and therefore abstract).
+Attempting to instantiate it raises a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.</p>
+<p>Partial specialization is useful for defining intermediate abstract bases, e.g.
+an LM-band base class where the detector is still generic:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MasterFlatLm</span><span class="p">(</span><span class="n">BandLmMixin</span><span class="p">,</span> <span class="n">MasterFlat</span><span class="p">,</span> <span class="n">abstract</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">pass</span>
+<span class="c1"># name() → &#39;MASTER_FLAT_{detector}_LM&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="available-metis-tags">
+<h2>Available METIS tags<a class="headerlink" href="#available-metis-tags" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Tag key</p></th>
+<th class="head"><p>Values</p></th>
+<th class="head"><p>Mixins</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">detector</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2RG</span></code>, <code class="docutils literal notranslate"><span class="pre">GEO</span></code>, <code class="docutils literal notranslate"><span class="pre">IFU</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Detector2rgMixin</span></code>, <code class="docutils literal notranslate"><span class="pre">DetectorGeoMixin</span></code>, <code class="docutils literal notranslate"><span class="pre">DetectorIfuMixin</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">band</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LM</span></code>, <code class="docutils literal notranslate"><span class="pre">N</span></code>, <code class="docutils literal notranslate"><span class="pre">IFU</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BandLmMixin</span></code>, <code class="docutils literal notranslate"><span class="pre">BandNMixin</span></code>, <code class="docutils literal notranslate"><span class="pre">BandIfuMixin</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SCI</span></code>, <code class="docutils literal notranslate"><span class="pre">STD</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TargetSciMixin</span></code>, <code class="docutils literal notranslate"><span class="pre">TargetStdMixin</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">source</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LAMP</span></code>, <code class="docutils literal notranslate"><span class="pre">TWILIGHT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SourceLampMixin</span></code>, <code class="docutils literal notranslate"><span class="pre">SourceTwilightMixin</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cgrph</span></code></p></td>
+<td><p>coronagraph variant</p></td>
+<td><p>Various coronagraph mixins</p></td>
+</tr>
+</tbody>
+</table>
+<p>All mixins live in <code class="docutils literal notranslate"><span class="pre">pymetis.instruments.metis.mixins</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="inputs.html" class="btn btn-neutral float-left" title="Pipeline Inputs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="qc_parameters.html" class="btn btn-neutral float-right" title="QC Parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, A* Pipeline Team / European Southern Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

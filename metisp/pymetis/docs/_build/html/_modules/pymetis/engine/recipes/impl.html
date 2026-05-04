@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymetis.engine.recipes.impl &mdash; pymetis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            pymetis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/index.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../concepts/index.html">Concepts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../data_formats/index.html">Data Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Recipe Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/index.html">Recipe Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-To Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/index.html">How-To Guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pymetis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pymetis.engine.recipes.impl</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pymetis.engine.recipes.impl</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This file is part of an A* Pipeline.</span>
+<span class="sd">Copyright (C) 2024 European Southern Observatory</span>
+
+<span class="sd">This program is free software; you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation; either version 2 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program; if not, write to the Free Software</span>
+<span class="sd">Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">ABC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cpl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpl.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">Msg</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymetis.engine.core.parameter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParameterList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymetis.engine.core.parametrizable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parametrizable</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymetis.engine.dataitems</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataItem</span><span class="p">,</span> <span class="n">Hdu</span><span class="p">,</span> <span class="n">PipelineProductSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymetis.engine.inputs.inputset</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineInputSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pymetis.engine.qc</span><span class="w"> </span><span class="kn">import</span> <span class="n">QcParameterSet</span><span class="p">,</span> <span class="n">QcParameter</span>
+
+
+<div class="viewcode-block" id="RecipeImpl">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RecipeImpl</span><span class="p">(</span><span class="n">Parametrizable</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An abstract base class for all recipe implementations.</span>
+<span class="sd">    Contains central data flow control and also provides abstract methods to be overridden</span>
+<span class="sd">    by particular pipeline recipe implementations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">InputSet</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">PipelineInputSet</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ProductSet</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">PipelineProductSet</span><span class="p">]]</span> <span class="o">=</span> <span class="n">PipelineProductSet</span>
+    <span class="n">Qc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">QcParameterSet</span><span class="p">]]</span> <span class="o">=</span> <span class="n">QcParameterSet</span>
+
+    <span class="c1"># Available parameters are a class variable. This must be present, even if empty.</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">ParameterList</span><span class="p">([])</span>
+
+<div class="viewcode-block" id="RecipeImpl.__init__">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">recipe</span><span class="p">:</span> <span class="s1">&#39;Recipe&#39;</span><span class="p">,</span>
+                 <span class="n">frameset</span><span class="p">:</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">FrameSet</span><span class="p">,</span>
+                 <span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the recipe implementation object with parameters from the recipe</span>
+<span class="sd">        and sets internal attributes to None / empty as needed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">recipe</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">recipe</span><span class="o">.</span><span class="n">version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">recipe</span><span class="o">.</span><span class="n">parameters</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">:</span> <span class="n">cpl</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">PropertyList</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">DataItem</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">product_frames</span> <span class="o">=</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">FrameSet</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">frameset</span><span class="p">:</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">FrameSet</span> <span class="o">=</span> <span class="n">frameset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputset</span><span class="p">:</span> <span class="n">PipelineInputSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">InputSet</span><span class="p">(</span><span class="n">frameset</span><span class="p">)</span>         <span class="c1"># Create an appropriate InputSet object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputset</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>                        <span class="c1"># Verify that they are valid (maybe with `schema` too?)</span>
+
+        <span class="c1"># Promote the implementation to the correct subclass, based on</span>
+        <span class="c1"># - tag parameters (from defined mixins, class-based)</span>
+        <span class="c1"># - tag matches (from the loaded frameset, instance-based)</span>
+        <span class="c1"># ToDo: Decide what to do in case of a conflict between those two</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">promote</span><span class="p">(</span><span class="o">**</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tag_parameters</span><span class="p">()</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputset</span><span class="o">.</span><span class="n">tag_matches</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">import_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>                  <span class="c1"># Import and process the provided settings dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputset</span><span class="o">.</span><span class="n">print_debug</span><span class="p">()</span>
+        <span class="n">Msg</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span>
+                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">40</span><span class="si">}</span><span class="s2"> Recipe initialization complete </span><span class="si">{</span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">40</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RecipeImpl.specialize">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl.specialize">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">specialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Specialize the recipe implementation to the current class parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Msg</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Specializing Implementation </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">tag_parameters</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">InputSet</span><span class="o">.</span><span class="n">specialize</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">tag_parameters</span><span class="p">())</span>
+
+        <span class="c1"># FixMe -- Surely it must be possible to do this in a more elegant way</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">ProductSet</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;ProductSet&quot;</span><span class="p">,</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">ProductSet</span><span class="p">,),</span> <span class="p">{})</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">ProductSet</span><span class="o">.</span><span class="n">specialize</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">tag_parameters</span><span class="p">())</span>
+        <span class="c1"># Create our own Qc type</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">Qc</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;Qc&quot;</span><span class="p">,</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">Qc</span><span class="p">,),</span> <span class="p">{})</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">Qc</span><span class="o">.</span><span class="n">specialize</span><span class="p">(</span><span class="o">**</span><span class="bp">cls</span><span class="o">.</span><span class="n">tag_parameters</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="RecipeImpl.promote">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl.promote">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">promote</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Promote the products of this class to appropriate subclasses, as determined from the input data.</span>
+<span class="sd">        This may be only called after the recipe is initialized.</span>
+
+<span class="sd">        May also contain template variables that are notmixed in during class creation.</span>
+<span class="sd">        For instance, `recipe_{band}_{target}` can specify band=LM, but no target,</span>
+<span class="sd">        resulting in a partial specialiation. The target has to be supplied from the actual data.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">ProductSet</span><span class="o">.</span><span class="n">promote</span><span class="p">(</span><span class="o">**</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">Qc</span><span class="o">.</span><span class="n">promote</span><span class="p">(</span><span class="o">**</span><span class="n">parameters</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RecipeImpl.run">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl.run">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">FrameSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The main function of the recipe implementation. It mirrors the signature of `Recipe.run`</span>
+<span class="sd">        and is meant to be called directly by the owner recipe.</span>
+<span class="sd">        All recipe implementations should follow this schema</span>
+<span class="sd">        (and hence it does not have to be repeated or overridden anywhere).</span>
+
+<span class="sd">        ToDo: At least Martin thinks so now. It might change, but needs compelling arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">DataItem</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>   <span class="c1"># Do all the actual processing</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_products</span><span class="p">()</span>                           <span class="c1"># Save the output products</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_product_frameset</span><span class="p">()</span>            <span class="c1"># Return the output as a pycpl FrameSet</span>
+        <span class="k">except</span> <span class="n">cpl</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">DataNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">Msg</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Data not found error: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span></div>
+
+
+<div class="viewcode-block" id="RecipeImpl.import_settings">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl.import_settings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">import_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the recipe parameters with the values requested by the user.</span>
+<span class="sd">        Warn if any of the parameters is not recognized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">Msg</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">&quot;Settings include &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;but class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2"> &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;has no parameter named </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RecipeImpl.process">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl.process">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">DataItem</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The core method of the recipe implementation. It should contain all the processing logic.</span>
+<span class="sd">        At its entry point, the `InputSet` class must be already loaded and validated.</span>
+<span class="sd">        This should not be a concern of the author of a recipe, as long as everything is declared correctly.</span>
+
+<span class="sd">        All pixel manipulation should happen inside this function (or private subroutines it calls from within).</span>
+<span class="sd">        Put explicitly, this means</span>
+<span class="sd">            - no pixel manipulation *before* entering `process`,</span>
+<span class="sd">            - and no pixel manipulation *after* exiting `process`.</span>
+
+<span class="sd">        The basic workflow inside this function should be as follows:</span>
+
+<span class="sd">        1.  Load the CPL structures associated with `PipelineInput` frames.</span>
+<span class="sd">            To conserve resources, most importantly memory, defer the `load_data` call</span>
+<span class="sd">            until the data are actually needed.</span>
+<span class="sd">        2.  Do the preprocessing (dark, bias, flat, persistence...) as needed.</span>
+<span class="sd">            When implementing this function, please always use the topmost applicable method:</span>
+<span class="sd">                - Use the functions provided by the pipeline package if possible (derive or override).</span>
+<span class="sd">                  Much of the functionality is trivially common to many recipes, and we should not repeat ourselves.</span>
+<span class="sd">                  Some classes / functions are provided in ``prefab``.</span>
+<span class="sd">                - Use HDRL functions, if available.</span>
+<span class="sd">                - Use CPL functions, if available.</span>
+<span class="sd">                - Implement what you need yourself as a subroutine.</span>
+<span class="sd">        3.  Build the output images as specified in the DRLD.</span>
+<span class="sd">            Each product should be a ``DataItem`` and there should be exactly one for every file produced.</span>
+<span class="sd">        4.  Return a set of ``DataItem`` instance.</span>
+
+<span class="sd">        The resulting products set is then passed to `save_products()` (see `run`).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="RecipeImpl.collect_qc_parameters">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl.collect_qc_parameters">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">collect_qc_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">qc_parameters</span><span class="p">:</span> <span class="n">QcParameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cpl</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">PropertyList</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cpl</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">PropertyList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">qcparam</span> <span class="ow">in</span> <span class="n">qc_parameters</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qcparam</span><span class="o">.</span><span class="n">as_property</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+
+    <span class="nd">@final</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_products</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save and register the created products.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Products have not been created yet!&quot;</span>
+
+        <span class="n">Msg</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span>
+                  <span class="sa">f</span><span class="s2">&quot;Saving </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">)</span><span class="si">}</span><span class="s2"> products:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">:</span>
+            <span class="n">Msg</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span>
+                      <span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">product</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="si">:</span><span class="s2">&lt;40</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">product</span><span class="o">.</span><span class="n">_get_file_name</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">product</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">recipe</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RecipeImpl.build_product_frameset">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl.build_product_frameset">[docs]</a>
+    <span class="nd">@final</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_product_frameset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">FrameSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gather all the products and build a FrameSet from their frames so that it can be returned from `run`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Msg</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span>
+                  <span class="s2">&quot;Building the product frameset&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">FrameSet</span><span class="p">([</span><span class="n">product</span><span class="o">.</span><span class="n">as_frame</span><span class="p">()</span> <span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RecipeImpl.as_dict">
+<a class="viewcode-back" href="../../../../api/engine_recipes.html#pymetis.engine.recipes.recipe.RecipeImpl.as_dict">[docs]</a>
+    <span class="nd">@final</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the object and its related data into a dictionary representation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, Any]: A dictionary that contains the serialized representation</span>
+<span class="sd">            of the object&#39;s data, including both input set data and product data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;inputset&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputset</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(),</span>
+            <span class="s1">&#39;products&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">product</span><span class="o">.</span><span class="n">name</span><span class="p">()):</span> <span class="n">product</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span>
+            <span class="p">}</span>
+        <span class="p">}</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">valid_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">FrameSet</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputset</span><span class="o">.</span><span class="n">valid_frames</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">used_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cpl</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">FrameSet</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputset</span><span class="o">.</span><span class="n">used_frames</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, A* Pipeline Team / European Southern Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

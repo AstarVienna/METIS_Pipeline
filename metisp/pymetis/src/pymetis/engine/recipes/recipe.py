@@ -54,6 +54,11 @@ class Recipe(cpl.ui.PyRecipe):
     _matched_keywords: set[str] = set()
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"
+    # DRLD traceability: requirement IDs and observation template names.
+    # These are not used at runtime but are consumed by the autorecipe Sphinx
+    # extension to generate the DRLD JSON manifest and recipe reference pages.
+    _requirements: set[str] = set()
+    _templates: set[str] = set()
 
     # By default, a recipe does not have any parameters.
     parameters: ParameterList = ParameterList([])

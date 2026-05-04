@@ -1,0 +1,265 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>First Data Reduction (AIT Quick-Start) &mdash; pymetis 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Concepts" href="../concepts/index.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pymetis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Getting Started</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">First Data Reduction (AIT Quick-Start)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-prepare-your-input-data">Step 1: Prepare your input data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-create-a-sof-file">Step 2: Create a SOF file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-run-the-recipe">Step 3: Run the recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-examine-the-output">Step 4: Examine the output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-with-edps">Running with EDPS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../concepts/index.html">Concepts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Data Formats</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../data_formats/index.html">Data Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Recipe Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">Recipe Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-To Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/index.html">How-To Guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pymetis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Getting Started</a></li>
+      <li class="breadcrumb-item active">First Data Reduction (AIT Quick-Start)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/getting_started/first_reduction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="first-data-reduction-ait-quick-start">
+<h1>First Data Reduction (AIT Quick-Start)<a class="headerlink" href="#first-data-reduction-ait-quick-start" title="Link to this heading"></a></h1>
+<p>This guide walks an AIT engineer through running a single pipeline recipe on
+real detector data.  We use <code class="docutils literal notranslate"><span class="pre">metis_det_dark</span></code> — the master dark recipe — as the
+example, since it requires only raw dark frames and no prior calibration products.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure you have completed the <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a> steps first.</p>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The pipeline is driven by a <strong>Set-Of-Frames (SOF) file</strong> — a plain-text file that
+lists the input FITS files and their roles.  You pass this to <code class="docutils literal notranslate"><span class="pre">pyesorex</span></code>, which
+runs the recipe and writes output products to the current directory.</p>
+<p>For automated multi-recipe workflows (e.g. running the full calibration cascade)
+use EDPS; see <a class="reference internal" href="#running-with-edps"><span class="std std-ref">Running with EDPS</span></a> below.</p>
+</section>
+<section id="step-1-prepare-your-input-data">
+<h2>Step 1: Prepare your input data<a class="headerlink" href="#step-1-prepare-your-input-data" title="Link to this heading"></a></h2>
+<p>Collect your raw dark frames in a directory, e.g. <code class="docutils literal notranslate"><span class="pre">/data/darks/</span></code>.  Each file
+must have the correct FITS header keyword <code class="docutils literal notranslate"><span class="pre">ESO</span> <span class="pre">DPR</span> <span class="pre">TYPE</span> <span class="pre">=</span> <span class="pre">DARK</span></code>.</p>
+</section>
+<section id="step-2-create-a-sof-file">
+<h2>Step 2: Create a SOF file<a class="headerlink" href="#step-2-create-a-sof-file" title="Link to this heading"></a></h2>
+<p>A SOF file has one line per frame:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">darks</span><span class="o">/</span><span class="n">dark_001</span><span class="o">.</span><span class="n">fits</span>   <span class="n">DARK_2RG_RAW</span>
+<span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">darks</span><span class="o">/</span><span class="n">dark_002</span><span class="o">.</span><span class="n">fits</span>   <span class="n">DARK_2RG_RAW</span>
+<span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">darks</span><span class="o">/</span><span class="n">dark_003</span><span class="o">.</span><span class="n">fits</span>   <span class="n">DARK_2RG_RAW</span>
+</pre></div>
+</div>
+<p>The second column is the frame <strong>tag</strong> (<code class="docutils literal notranslate"><span class="pre">PRO.CATG</span></code>).  Valid tags for
+<code class="docutils literal notranslate"><span class="pre">metis_det_dark</span></code> are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DARK_2RG_RAW</span></code> — 2RG detector (LM/N band imaging)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DARK_GEO_RAW</span></code> — GEO detector (N band imaging)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DARK_IFU_RAW</span></code> — IFU detector</p></li>
+</ul>
+</section>
+<section id="step-3-run-the-recipe">
+<h2>Step 3: Run the recipe<a class="headerlink" href="#step-3-run-the-recipe" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyesorex</span> <span class="n">metis_det_dark</span> <span class="n">my_darks</span><span class="o">.</span><span class="n">sof</span>
+</pre></div>
+</div>
+<p>By default the recipe stacks frames using the average.  To use median stacking:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyesorex</span> <span class="o">--</span><span class="n">recipe</span><span class="o">-</span><span class="n">config</span><span class="o">=</span><span class="n">metis_det_dark</span><span class="o">.</span><span class="n">stacking</span><span class="o">.</span><span class="n">method</span><span class="o">=</span><span class="n">median</span> \
+    <span class="n">metis_det_dark</span> <span class="n">my_darks</span><span class="o">.</span><span class="n">sof</span>
+</pre></div>
+</div>
+<p>To list all available parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyesorex</span> <span class="o">--</span><span class="n">man</span><span class="o">-</span><span class="n">page</span> <span class="n">metis_det_dark</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-examine-the-output">
+<h2>Step 4: Examine the output<a class="headerlink" href="#step-4-examine-the-output" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pyesorex</span></code> writes the master dark to a FITS file in the current directory, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MASTER_DARK_2RG_2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">01</span><span class="n">T12</span><span class="o">-</span><span class="mi">00</span><span class="o">-</span><span class="mi">00</span><span class="o">-</span><span class="mf">000000.</span><span class="n">fits</span>
+</pre></div>
+</div>
+<p>The file has the following FITS extension structure (see
+<a class="reference internal" href="../reference/detector/metis_det_dark.html"><span class="doc">metis_det_dark</span></a> for the full data-format specification):</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Extension</p></th>
+<th class="head"><p>Content</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PRIMARY</span></code></p></td>
+<td><p>Empty data; header carries provenance keywords (<code class="docutils literal notranslate"><span class="pre">ESO</span> <span class="pre">PRO</span> <span class="pre">CATG</span></code>, etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DET1.SCI</span></code></p></td>
+<td><p>Combined dark image (counts, float32)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DET1.ERR</span></code></p></td>
+<td><p>Propagated noise estimate</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DET1.DQ</span></code></p></td>
+<td><p>Bad-pixel mask (0 = good, non-zero = flagged)</p></td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">ESO</span> <span class="pre">PRO</span> <span class="pre">CATG</span></code> keyword in the primary header will be set to
+<code class="docutils literal notranslate"><span class="pre">MASTER_DARK_2RG</span></code>, which is the tag the pipeline uses when it looks for this
+product as an input to subsequent recipes.</p>
+<p>QC parameter values are written to the primary header under <code class="docutils literal notranslate"><span class="pre">ESO</span> <span class="pre">QC</span></code> keywords,
+e.g. <code class="docutils literal notranslate"><span class="pre">ESO</span> <span class="pre">QC</span> <span class="pre">DARK</span> <span class="pre">MEAN</span></code>.</p>
+</section>
+<section id="running-with-edps">
+<span id="id1"></span><h2>Running with EDPS<a class="headerlink" href="#running-with-edps" title="Link to this heading"></a></h2>
+<p>For full-cascade reduction (dark → flat → science) use EDPS:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">edps</span> <span class="o">-</span><span class="n">w</span> <span class="n">metis</span><span class="o">.</span><span class="n">metis_lm_img_wkf</span> <span class="o">-</span><span class="n">i</span> <span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">my_sof_dir</span> <span class="o">-</span><span class="n">t</span> <span class="n">metis_det_dark</span>
+</pre></div>
+</div>
+<p>Common EDPS commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># List available recipes in the workflow
+edps -w metis.metis_wkf -i /data/my_sof_dir -lt
+
+# Run the full science chain
+edps -w metis.metis_wkf -i /data/my_sof_dir -m science
+
+# Clear all cached state (useful during debugging)
+edps -shutdown &amp;&amp; rm -rf edps.log pyesorex.log $HOME/EDPS_data/*
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><strong>Recipe not found</strong></dt><dd><p>Check that <code class="docutils literal notranslate"><span class="pre">PYESOREX_PLUGIN_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">PYCPL_RECIPE_DIR</span></code> are set and point
+to <code class="docutils literal notranslate"><span class="pre">metisp/pyrecipes/</span></code>.</p>
+</dd>
+<dt><strong>No frames match</strong></dt><dd><p>Verify the frame tags in your SOF file match what the recipe expects.  Run
+<code class="docutils literal notranslate"><span class="pre">pyesorex</span> <span class="pre">--man-page</span> <span class="pre">metis_det_dark</span></code> to see the accepted tags for each input.</p>
+</dd>
+<dt><strong>Empty output</strong></dt><dd><p>Check that <code class="docutils literal notranslate"><span class="pre">ESO</span> <span class="pre">PRO</span> <span class="pre">CATG</span></code> (for calibration data) or <code class="docutils literal notranslate"><span class="pre">ESO</span> <span class="pre">DPR</span> <span class="pre">TYPE</span></code> (for raw
+data) is set correctly in your FITS headers.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../concepts/index.html" class="btn btn-neutral float-right" title="Concepts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, A* Pipeline Team / European Southern Observatory.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
