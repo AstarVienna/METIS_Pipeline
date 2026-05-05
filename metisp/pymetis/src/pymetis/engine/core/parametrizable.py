@@ -36,10 +36,10 @@ class ParametrizableMeta(ABCMeta):
     """
 
     def __new__(mcs, name, bases, namespace, *, abstract=False, **kwargs):
-        cls = super().__new__(mcs, name, bases, namespace)  # don't forward kwargs to type
+        cls = super().__new__(mcs, name, bases, namespace)
         cls._abstract = abstract
 
-        # Merge _tag_parameters from the MRO, then layer kwargs on top
+        # Merge tag parameters from MRO + class kwargs
         merged = {}
         for base in reversed(cls.__mro__):
             params = base.__dict__.get("_tag_parameters")
@@ -48,36 +48,43 @@ class ParametrizableMeta(ABCMeta):
         merged.update(kwargs)
         cls._tag_parameters = merged
 
-        if abstract:
-            return cls
+        # Resolve template against known parameters
+        template = namespace.get("_name_template")
+        if template is None:
+            template = next(
+                (b.__dict__["_name_template"] for b in cls.__mro__[1:]
+                 if b.__dict__.get("_name_template") is not None),
+                None,
+            )
+        if template is not None and merged:
+            cls._name_template = partial_format(template, **merged)
 
-        # Find the nearest root (a class with its own _registry in __dict__)
+        if not abstract:
+            cls._register()
+
+        return cls
+
+    def __init__(cls, name, bases, namespace, *, abstract=False, **kwargs):
+        super().__init__(name, bases, namespace)
+
+    def _register(cls) -> None:
+        """Register cls under its current _name_template in the nearest _registry up the MRO."""
+        key = getattr(cls, "_name_template", None)
+        if key is None:
+            return
         registry = next(
-            (base.__dict__["_registry"]
-             for base in cls.__mro__
-             if "_registry" in base.__dict__),
+            (b.__dict__["_registry"] for b in cls.__mro__ if "_registry" in b.__dict__),
             None,
         )
         if registry is None:
-            return cls  # cls is itself a root, or no root yet
-
-        # Skip if name() can't be computed or still has placeholders
-        try:
-            tag = cls.name()
-        except (AttributeError, AssertionError):
-            return cls
-        if tag is None or "{" in tag:
-            return cls
-
-        if tag in registry:
-            Msg.debug(cls.__qualname__, f"{tag} already registered, skipping")
+            return
+        if key in registry:
+            if registry[key] is not cls:
+                Msg.debug(cls.__qualname__, f"{key} already registered to {registry[key].__qualname__}, skipping")
         else:
-            registry[tag] = cls
-            Msg.debug(cls.__qualname__, f"New {cls.__name__} registered as {tag}")
-        return cls
+            registry[key] = cls
 
-    # Class-level helpers — accessed as DataItem.find(...), no @classmethod needed
-    def find(cls, key):
+    def find(cls, key: str):
         for base in cls.__mro__:
             reg = base.__dict__.get("_registry")
             if reg is not None:
@@ -135,9 +142,11 @@ class ParametrizableItem(Parametrizable, abstract=True):
     @classmethod
     def specialize(cls, **parameters: str) -> str:
         """
-        Specialize the data item's name template with given parameters
+        Specialize this class for parameters
         """
+        cls._tag_parameters = cls._tag_parameters | parameters
         cls._name_template = partial_format(cls._name_template, **parameters)
+        type(cls)._register(cls)  # call the metaclass method
         return cls._name_template
 
     @classmethod
@@ -197,13 +206,12 @@ class ParametrizableContainer(Parametrizable, ABC):
             new_class.specialize(**(item_class.tag_parameters() | parameters))
 
             # Re-attempt registration now that the template may be fully resolved
-            if "{" not in new_class._name_template:
-                registry = next(
-                    (b.__dict__["_registry"] for b in new_class.__mro__ if "_registry" in b.__dict__),
-                    None,
-                )
-                if registry is not None and new_class._name_template not in registry:
-                    registry[new_class._name_template] = new_class
+            registry = next(
+                (b.__dict__["_registry"] for b in new_class.__mro__ if "_registry" in b.__dict__),
+                None,
+            )
+            if registry is not None and new_class._name_template not in registry:
+                registry[new_class._name_template] = new_class
 
             if (klass := cls.Meta._T.find(new_class._name_template)) is None:
                 setattr(cls, name, new_class)
@@ -241,22 +249,6 @@ class ParametrizableContainer(Parametrizable, ABC):
                     f"tag '{tag}' is not registered. "
                     f"Known tags matching: {cls.Meta._T._registry}"
                 )
-            setattr(cls, name, new_class)
-
-        return
-
-        for name, item in cls.list_classes():
-            # Merge the predefined parameters with the new ones
-            expanded_parameters = item.tag_parameters() | parameters
-
-            # Try to find a promoted class in the registry
-            if (new_class := cls.Meta._T.find(tag := item.specialize(**expanded_parameters))) is None:
-                raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
-            else:
-                Msg.debug(cls.__qualname__,
-                          f" - {item.__qualname__} ({item.name()}) => {new_class.__qualname__} ({new_class.name()})")
-
-            # Replace the corresponding attribute with the new class
             setattr(cls, name, new_class)
 
 

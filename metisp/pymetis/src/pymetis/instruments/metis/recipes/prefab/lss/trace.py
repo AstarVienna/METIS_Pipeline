@@ -63,8 +63,8 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
     class Qc(QcParameterSet):
         LPolyDeg = QcLssTraceLPolyDeg
         RPolyDeg = QcLssTraceRPolyDeg
-        # LCoeff = QcLssTraceLCoeff # ToDo This need more thought, right now it will not subclass
-        # RCoeff = QcLssTraceRCoeff
+        LCoeff = QcLssTraceLCoeff
+        RCoeff = QcLssTraceRCoeff
         InterorderLevel = QcLssTraceInterorderLevel
 
     def process(self) -> set[DataItem]:
