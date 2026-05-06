@@ -55,7 +55,7 @@ class DataItem(ParametrizableItem):
     # CPL frame group and level
     _frame_group: cpl.ui.Frame.FrameGroup = None    # No sensible default; must be provided explicitly
     _frame_level: cpl.ui.Frame.FrameLevel = None    # No sensible default; must be provided explicitly
-    _frame_type: cpl.ui.Frame.FrameType = None      # Specialised for image / table / multi-extension data
+    _frame_type: cpl.ui.Frame.FrameType = None      # Specialised for image / table / imagelist / multi-extension data
 
     _oca_keywords: set[str] = set()                 # Set of OCA keywords
 
@@ -230,6 +230,7 @@ class DataItem(ParametrizableItem):
                 subtype = {
                     'IMAGE': Image,
                     'BINTABLE': Table,
+                    'IMAGELIST': ImageList
                     None: None,
                 }[subschema.get('XTENSION', None)]
 
@@ -242,6 +243,12 @@ class DataItem(ParametrizableItem):
                         subtype = Image
                         Msg.warning(cls.__qualname__,
                                     f"Found that NAXIS = 2, determining that this HDU should be an Image")
+                    elif subschema.get('NAXIS', None) == 3:
+                        subtype = ImageList
+                        Msg.warning(cls.__qualname__,
+                                    f"Found that NAXIS = 3, determining that this HDU should be an ImageList")
+
+
 
                 Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
                 hdus.append(Hdu(header, None, name=extname, klass=subtype, extno=index))
@@ -263,9 +270,9 @@ class DataItem(ParametrizableItem):
         return klass(primary_header, filename=frame.file, *hdus)
 
     def load_data(self,
-                  extension: int | str) -> Image | Table | None:
+                  extension: int | str) -> Image | Table | ImageList | None:
         """
-        Load the associated data (image or a table).
+        Load the associated data (image, imagelist or a table).
 
         This might be an expensive operation and therefore the call is better deferred until actually needed.
 
@@ -276,7 +283,7 @@ class DataItem(ParametrizableItem):
 
         Returns
         -------
-        Image | Table | None
+        Image | ImageList | Table | None
             The associated data (or None if the extension does not contain any, should only happen for the primary one)
 
         Raises
@@ -290,6 +297,8 @@ class DataItem(ParametrizableItem):
                 return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
             elif self[extension].klass == Table:
                 return self[extension].klass.load(self.filename, self._hdus[extension].extno)
+            elif self[extension].klass == ImageList
+                return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
         except cpl.core.DataNotFoundError as exc:
             Msg.error(self.__class__.__qualname__,
                       f"Failed to load data from extension '{extension}' from file {self.filename}")
@@ -489,7 +498,7 @@ class DataItem(ParametrizableItem):
 
         Returns
         -------
-        tuple[str, Optional[Image | Table]]
+        tuple[str, Optional[Image | Table | ImageList]]
 
         Raises
         ------
