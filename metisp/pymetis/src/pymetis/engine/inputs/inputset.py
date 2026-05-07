@@ -21,7 +21,6 @@ import inspect
 import pprint
 import re
 
-from abc import ABC
 from typing import Any, Callable, Optional
 
 import cpl

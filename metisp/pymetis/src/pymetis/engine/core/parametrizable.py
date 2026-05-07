@@ -32,7 +32,7 @@ class ParametrizableMeta(ABCMeta):
     Handles:
       - tag parameter merging across the MRO
       - auto-registration of concrete subclasses into their root's _registry
-      - skipping abstract classes and partially-specialized templates
+      - skipping abstract classes
     """
 
     def __new__(mcs, name, bases, namespace, *, abstract=False, **kwargs):
@@ -69,8 +69,7 @@ class ParametrizableMeta(ABCMeta):
 
     def _register(cls) -> None:
         """Register cls under its current _name_template in the nearest _registry up the MRO."""
-        key = getattr(cls, "_name_template", None)
-        if key is None:
+        if (key := getattr(cls, "_name_template", None)) is None:
             return
         registry = next(
             (b.__dict__["_registry"] for b in cls.__mro__ if "_registry" in b.__dict__),
@@ -78,20 +77,19 @@ class ParametrizableMeta(ABCMeta):
         )
         if registry is None:
             return
-        if key in registry:
+        elif key in registry:
             if registry[key] is not cls:
-                Msg.debug(cls.__qualname__, f"{key} already registered to {registry[key].__qualname__}, skipping")
+                Msg.warning(cls.__qualname__, f"{key} is already registered to {registry[key].__qualname__}, skipping")
         else:
             registry[key] = cls
 
-    def find(cls, key: str):
+    def find(cls, key: str) -> Optional[type]:
         for base in cls.__mro__:
-            reg = base.__dict__.get("_registry")
-            if reg is not None:
+            if (reg := base.__dict__.get("_registry")) is not None:
                 return reg.get(key)
         return None
 
-    def list_classes(cls):
+    def list_classes(cls) -> list[tuple[str, type]]:
         return [
             (n, k) for n, k in inspect.getmembers(cls, inspect.isclass)
             if isinstance(k, ParametrizableMeta) and k is not cls
