@@ -29,16 +29,16 @@ class DarkRaw(Raw, abstract=True):
     _description_template = r"Raw data for creating a {detector} master dark."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT'}
+    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT'})
 
 
 class Dark2rgRaw(Detector2rgMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class DarkGeoRaw(DetectorGeoMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class DarkIfuRaw(DetectorIfuMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | {'DRS.IFU'}
+    _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.IFU'})

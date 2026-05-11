@@ -34,7 +34,7 @@ class WcuOffRaw(ImageDataItem, abstract=True):
     _description_template = "Raw data for dark subtraction in other recipes."
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
+    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'})
 
     _schema = {
         'PRIMARY': None,
@@ -54,4 +54,4 @@ class NWcuOffRaw(BandNMixin, WcuOffRaw):
 
 
 class IfuWcuOffRaw(BandIfuMixin, WcuOffRaw):
-    _oca_keywords = WcuOffRaw._oca_keywords | {'DRS.IFU'}
+    _oca_keywords = WcuOffRaw._oca_keywords | frozenset({'DRS.IFU'})

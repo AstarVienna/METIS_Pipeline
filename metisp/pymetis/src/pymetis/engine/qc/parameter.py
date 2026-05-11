@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 from types import NoneType
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Self
 
 import cpl
 
@@ -37,6 +37,8 @@ class QcParameter(ParametrizableItem):
     _description_template: ClassVar[str] = "<no description provided>"
     _comment: ClassVar[str] = ""
 
+    _registry: ClassVar[dict[str, type[Self]]] = {}
+
     def __init__(self, value: Any):
         assert isinstance(value, self._type), \
             (f"{self.__class__.__qualname__} expected a {self._type} value, "
@@ -52,12 +54,12 @@ class QcParameter(ParametrizableItem):
         """
         Return a formatted description line for the man page.
         """
-        name = f"{cls.name():<36s}"
+        name = f"{cls.name():<35s}"
         unit_default = f"[{str(cls._unit)}, default {str(cls._default)}]"
         description = f"{cls.description():<60}"
 
         # [5:] is there to get rid of "Type." prefix
-        return (f"{name} {f'{python_to_cpl_type(cls._type)}'[5:]:<13s} "
+        return (f"{name} {f'{python_to_cpl_type(cls._type)}'[5:]:<14s} "
                 f"{unit_default:<32s}"
                 f"{description} ")
 

@@ -179,8 +179,8 @@ class BaseRecipeTest(ABC):
             assert isinstance(item.description(), str), \
                 f"Data item {item.__qualname__} does not have a description defined"
 
-            assert isinstance(item.oca_keywords(), set), \
-                f"Data item {item.__qualname__} does not have OCA keywords attribute defined"
+            assert isinstance(item.oca_keywords(), frozenset), \
+                f"Data item {item.__qualname__} has no OCA keywords attribute defined, or they are not a frozenset"
 
             for kw in item.oca_keywords():
                 assert isinstance(kw, str), \

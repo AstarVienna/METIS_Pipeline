@@ -31,7 +31,7 @@ class MasterFlat(ImageDataItem, abstract=True):
     _description_template = "Abstract base class for master flats. Please subclass."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
     _schema = {
         'PRIMARY': None,

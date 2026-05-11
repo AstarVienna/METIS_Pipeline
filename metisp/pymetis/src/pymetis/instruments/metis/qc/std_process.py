@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.qc import QcParameter
+from pymetis.instruments.metis.mixins import BandLmMixin
 
 
 class QcImgStdBackgroundRms(QcParameter):

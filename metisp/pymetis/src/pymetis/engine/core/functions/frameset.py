@@ -53,6 +53,10 @@ def represent_frameset(frameset: cpl.ui.FrameSet) -> dict[str, str]:
 def from_filenames(frames: dict[str, str]) -> cpl.ui.FrameSet:
     """
     Create a CPL FrameSet from a mapping `{filename: tag}`
+
+    Warning: This is not all-powerful! Python will not allow you to reuse
+    the same file with multiple tags unlike with `from_tags`!
+    Consider using `from_tags` if possible.
     """
     return cpl.ui.FrameSet([
         cpl.ui.Frame(os.path.expandvars(frame),
@@ -65,7 +69,9 @@ def from_filenames(frames: dict[str, str]) -> cpl.ui.FrameSet:
 
 def from_tags(**tagged: dict[str, list[str]]) -> cpl.ui.FrameSet:
     """
-    Create a CPL FrameSet from kwargs `{tag: list[filename]}`
+    Create a CPL FrameSet from kwargs in format `{tag: list[filename]}`.
+    This is also used as an internal representation in recipes.
+    Note that you can reuse the same file with different tags.
     """
     return cpl.ui.FrameSet([
         cpl.ui.Frame(os.path.expandvars(frame),

@@ -30,7 +30,7 @@ class MasterDark(ImageDataItem, abstract=True):
     _description_template = "Master dark frame for {detector} data"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
     _schema = {
         'PRIMARY': None,

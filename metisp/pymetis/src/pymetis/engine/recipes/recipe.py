@@ -16,11 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import inspect
 import re
-from typing import Any
+from typing import Any, Generator, Self, ClassVar
 
 import cpl
+from astropy.utils import classproperty
 
 from ..core.parameter import ParameterList
 from ..dataitems import DataItem
@@ -51,7 +52,7 @@ class Recipe(cpl.ui.PyRecipe):
                          "If you see this in a recipe, override its `_description` attribute.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to A*.
-    _matched_keywords: set[str] = set()
+    _matched_keywords: frozenset[str] = None
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"
 
@@ -60,11 +61,21 @@ class Recipe(cpl.ui.PyRecipe):
     # Default implementation class. This will not work, because it is abstract, but this is an abstract class too.
     Impl: type[RecipeImpl] = RecipeImpl
 
+    _registry: ClassVar[dict[str, type[Self]]] = {}
+
     def __init__(self):
         super().__init__()
         # Build a fancy description from attributes
-        self._description: str = self._build_description()
         self.implementation: RecipeImpl | None = None
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._description: str = cls._build_description()
+        cls._registry[cls._name] = cls
+
+    @classproperty
+    def description(cls) -> str:
+        return cls._description
 
     def run(self, frameset: cpl.ui.FrameSet, settings: dict[str, Any]) -> cpl.ui.FrameSet:
         """
@@ -75,14 +86,43 @@ class Recipe(cpl.ui.PyRecipe):
         self.implementation = self.Impl(self, frameset, settings)
         return self.implementation.run()
 
-    def _list_inputs(self) -> list[tuple[str, type[PipelineInput]]]:
-        return self.Impl.InputSet.list_classes()
+    @classmethod
+    def _list_dataitems_input(cls, dataitem_class: type[DataItem]) -> Generator[Self, None, None]:
+        """
+        List all Recipe classes that use a particular DataItem as an input.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in cls._registry.items():
+            for (n, kls) in inspect.getmembers(klass.Impl.InputSet,
+                                               lambda x: (inspect.isclass(x) and issubclass(x, PipelineInput))):
+                if issubclass(kls.Item, dataitem_class):
+                    yield klass
 
-    def _list_products(self) -> list[tuple[str, type[DataItem]]]:
-        return self.Impl.ProductSet.list_classes()
+    @classmethod
+    def _list_dataitems_product(cls, dataitem_class: type[DataItem]) -> Generator[Self, None, None]:
+        """
+        List all Recipe classes that have a particular DataItem as a product.
+        Warning: heavy introspection.
+        Useful for reconstruction of DRLD input/product cards.
+        """
+        for (name, klass) in cls._registry.items():
+            for (n, kls) in inspect.getmembers(klass.Impl.ProductSet,
+                                               lambda x: inspect.isclass(x)):
+                if issubclass(kls, dataitem_class):
+                    yield klass
 
-    def _list_qc_parameters(self) -> list[tuple[str, type[QcParameter]]]:
-        return self.Impl.Qc.list_classes()
+    @classmethod
+    def _list_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:
+        return cls.Impl.InputSet.list_input_classes()
+
+    @classmethod
+    def _list_products(cls) -> list[tuple[str, type[DataItem]]]:
+        return cls.Impl.ProductSet.list_classes()
+
+    @classmethod
+    def _list_qc_parameters(cls) -> list[tuple[str, type[QcParameter]]]:
+        return cls.Impl.Qc.list_classes()
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:
@@ -96,34 +136,35 @@ class Recipe(cpl.ui.PyRecipe):
         return fix_spacing.sub('\n' + ' ' * offset, fix_first_space.sub(' ' * offset, text)) \
             if text is not None else f'<no {title} defined>'
 
-    def _build_description(self) -> str:
+    @classmethod
+    def _build_description(cls) -> str:
         """
         Automatically build the `description` attribute from available attributes.
         Everything inside this should only depend on the class, never on an instance.
         """
-        if self._matched_keywords is None:
+        if cls._matched_keywords is None:
             matched_keywords = '<not defined>'
-        elif len(self._matched_keywords) == 0:
+        elif len(cls._matched_keywords) == 0:
             matched_keywords = '--- none ---'
         else:
-            matched_keywords = '\n    '.join(self._matched_keywords)
+            matched_keywords = '\n  '.join(cls._matched_keywords)
 
-        self.Impl.specialize()
+        cls.Impl.specialize()
 
         inputs = '\n'.join(sorted([input_type.extended_description_line(name)
-                                   for (name, input_type) in self._list_inputs()]))
-        products = self._format_spacing(self.Impl.ProductSet.list_descriptions(), 6)
-        qc_parameters = self._format_spacing(self.Impl.Qc.list_descriptions(), 6)
-        algorithm = self._format_spacing(self._algorithm, 'algorithm', 4)
-        description = self._format_spacing(self._description, 'description', 2)
+                                   for (name, input_type) in cls._list_inputs()]))
+        products = cls._format_spacing(cls.Impl.ProductSet.list_descriptions(), 'products', 2)
+        qc_parameters = cls._format_spacing(cls.Impl.Qc.list_descriptions(), 'QC parameters', 2)
+        algorithm = cls._format_spacing(cls._algorithm, 'algorithm', 2)
+        description = cls._format_spacing(cls.description, 'description', 0)
 
-        return f"""{self.synopsis}\n\n{description}\n
-  Matched keywords
-    {matched_keywords}
-  Inputs\n{inputs}
-  Outputs\n{products}
-  QC parameters\n{qc_parameters}
-  Algorithm\n{algorithm}
+        return f"""{cls._synopsis}\n\n{description}\n
+Matched keywords
+  {matched_keywords}
+Inputs\n{inputs}
+Outputs\n{products}
+QC parameters\n{qc_parameters}
+Algorithm\n{algorithm}
 """
 
     @property

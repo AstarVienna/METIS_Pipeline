@@ -30,7 +30,7 @@ class LinearityMap(ImageDataItem, abstract=True):
     _description_template = "Coefficients for the pixel {detector} non-linearity correction"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG'}
+    _oca_keywords = frozenset({'PRO.CATG'})
 
     _schema = {
         'PRIMARY': None,

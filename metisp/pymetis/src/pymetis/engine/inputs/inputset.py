@@ -18,19 +18,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import inspect
+import pprint
 import re
 
-from abc import ABC
 from typing import Any, Callable, Optional
 
 import cpl
 from cpl.core import Msg
 
-from pymetis.engine.dataitems import DataItem
+from pymetis.engine.core.parametrizable import ParametrizableMeta, ParametrizableContainer
 from pymetis.engine.inputs.input import PipelineInput
 
 
-class PipelineInputSet(ABC):
+class PipelineInputSet(ParametrizableContainer):
     """
     The `PipelineInputSet` class is a utility class for a recipe dealing with the input data.
     It reads and filters the input FrameSet, categorizes the frames by their metadata,
@@ -53,6 +53,7 @@ class PipelineInputSet(ABC):
 
     def __init_subclass__(cls, abstract=False, **params):
         cls.__abstract = abstract
+        super().__init_subclass__(**params)
 
         #if cls.__abstract:
         #    pass
@@ -68,7 +69,7 @@ class PipelineInputSet(ABC):
         By default, there is nothing: no inputs, no tag_parameters.
         This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
         """
-        self.inputs: set[PipelineInput] = set()         # A set of all inputs for this InputSet.
+        self.inputs: frozenset[PipelineInput] = frozenset() # All inputs for this InputSet.
         self.frameset: cpl.ui.FrameSet = frameset
 
         # Tag parameter matching this instance of InputSet. Might come from DataItem matches or hard-coded from mixins.
@@ -76,7 +77,7 @@ class PipelineInputSet(ABC):
 
         # Now iterate over all defined Inputs, instantiate them and feed them the frameset to filter.
         Msg.debug(self.__class__.__qualname__, "Instantiating inputs")
-        for (name, input_class) in self.list_classes():
+        for (name, input_class) in self.list_input_classes():
             inp = input_class(frameset)
             # FixMe: very hacky for now: determine the name of the instance from the name of the class
             self.__setattr__(self.__make_snake.sub('_', self.__cut_input.sub('', name)).lower(), inp)
@@ -88,31 +89,7 @@ class PipelineInputSet(ABC):
                       f" - {inp.Item.name()}")
 
     @classmethod
-    def specialize(cls, **parameters) -> None:
-        """
-        Specialize all input classes within this input set, based on tunable parameters.
-        """
-        Msg.debug(cls.__qualname__, f"Now specializing {cls.__qualname__} for {parameters}")
-
-        for name, inp in cls.list_classes():
-            old_class = inp.Item
-            # Copy the entire type so that we do not mess up the original one
-            new_class = type(inp.Item.__name__, inp.Item.__bases__, dict(inp.Item.__dict__))
-            new_class.specialize(**(new_class.tag_parameters() | parameters))
-
-            if (klass := DataItem.find(new_class._name_template)) is None:
-                inp.Item = new_class
-                Msg.debug(cls.__qualname__,
-                          f" ! Cannot specialize {old_class.__qualname__} ({old_class.name()}) for {parameters}, "
-                          f"{inp.Item.__qualname__} is now {new_class.__qualname__} ({new_class.name()})")
-            else:
-                inp.Item = klass
-                Msg.debug(cls.__qualname__,
-                          f" - {inp.__qualname__} data item {inp.Item.__qualname__} specialized to "
-                          f"{klass.__qualname__} ({klass.name()})")
-
-    @classmethod
-    def list_classes(cls) -> list[tuple[str, type[PipelineInput]]]:
+    def list_input_classes(cls) -> list[tuple[str, type[PipelineInput]]]:
         """
         List all input classes within this input set.
 
@@ -123,7 +100,7 @@ class PipelineInputSet(ABC):
     @classmethod
     def list_descriptions(cls) -> str:
         return '\n'.join(
-            sorted([product_type.extended_description_line(name) for (name, product_type) in cls.list_classes()])
+            sorted([product_type.extended_description_line(name) for (name, product_type) in cls.list_input_classes()])
         )
 
     def validate(self) -> None:
@@ -136,15 +113,18 @@ class PipelineInputSet(ABC):
                 - and assign their values as attributes of the inputset
         """
         Msg.debug(self.__class__.__qualname__,
-                  f"Validating the inputset {self.inputs}")
+                  f"Validating the inputset {pprint.pformat(self.inputs)}")
 
         if len(self.inputs) == 0:
             raise NotImplementedError("PipelineInputSet must define at least one input.")
 
-        for inp in self.inputs:
-            inp.validate()
-            Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
-            self.tag_matches |= inp.Item.tag_parameters()
+        try:
+            for inp in self.inputs:
+                inp.validate()
+                Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
+                self.tag_matches |= inp.Item.tag_parameters()
+        except cpl.core.DataNotFoundError as e:
+            Msg.error(self.__class__.__qualname__, e)
 
 
     def print_debug(self, *, offset: int = 0) -> None:

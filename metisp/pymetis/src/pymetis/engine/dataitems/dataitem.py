@@ -26,14 +26,13 @@ from typing import Optional, Generator, Self, final, Union, ClassVar
 import cpl
 from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyList
 
-import pymetis
 from .hdu import Hdu
 from pymetis.engine.core.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
 
 
-class DataItem(ParametrizableItem):
+class DataItem(ParametrizableItem, abstract=True):
     """
     The `DataItem` class encapsulates a single data item:
     the smallest standalone unit of detector data or a product of a recipe.
@@ -70,6 +69,8 @@ class DataItem(ParametrizableItem):
     # >>>     'DET3.DATA': Image,
     # >>>     'DET4.DATA': Image,
     # >>> }
+
+    _registry: ClassVar[dict[str, type[Self]]] = {}
 
     # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
@@ -132,7 +133,7 @@ class DataItem(ParametrizableItem):
         return self._hdus
 
     def __init__(self,
-                 primary_header: CplPropertyList = CplPropertyList(),
+                 primary_header: Optional[CplPropertyList],
                  *hdus: Hdu,
                  filename: Optional[Path] = None):
         if self._abstract or not self.__regex_pattern.match(self.name()):
@@ -158,7 +159,7 @@ class DataItem(ParametrizableItem):
         self._used: bool = False
 
         self.filename = filename
-        self.primary_header = primary_header
+        self.primary_header = primary_header if primary_header is not None else CplPropertyList()
         # Currently all items are expected to have an empty primary HDU
         self._hdus: dict[str, Hdu] = {}
 
@@ -260,10 +261,10 @@ class DataItem(ParametrizableItem):
 
         primary_header = cpl.core.PropertyList.load(frame.file, 0)
 
-        return klass(primary_header, filename=frame.file, *hdus)
+        return klass(primary_header, *hdus, filename=frame.file)
 
     def load_data(self,
-                  extension: int | str) -> Image | Table | None:
+                  extension: int | str) -> Image | Table | ImageList | None:
         """
         Load the associated data (image or a table).
 
@@ -290,6 +291,10 @@ class DataItem(ParametrizableItem):
                 return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
             elif self[extension].klass == Table:
                 return self[extension].klass.load(self.filename, self._hdus[extension].extno)
+            elif self[extension].klass == ImageList:
+                return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
+            else:
+                raise KeyError
         except cpl.core.DataNotFoundError as exc:
             Msg.error(self.__class__.__qualname__,
                       f"Failed to load data from extension '{extension}' from file {self.filename}")
@@ -432,34 +437,6 @@ class DataItem(ParametrizableItem):
             'group': self.frame_group().name,
         }
 
-    @classmethod
-    def input_for_recipes(cls) -> Generator['PipelineRecipe', None, None]:
-        """
-        List all PipelineRecipe classes that use this Input.
-        Warning: heavy introspection.
-        Useful for reconstruction of DRLD input/product cards.
-        """
-        for (name, klass) in inspect.getmembers(
-            pymetis.recipes,
-            lambda x: inspect.isclass(x) and x.Impl.InputSet is not None):
-            for (n, kls) in inspect.getmembers(klass.Impl.InputSet, lambda x: inspect.isclass(x)):
-                if issubclass(kls, cls):
-                    yield klass
-
-    @classmethod
-    def product_of_recipes(cls) -> Generator['PipelineRecipe', None, None]:
-        """
-        List all PipelineRecipe classes that output this as a product.
-        Warning: heavy introspection.
-        Useful for reconstruction of DRLD input/product cards.
-        """
-        for (name, klass) in inspect.getmembers(
-                pymetis.recipes,     # FixMe This introduces undesired coupling, remove
-                lambda x: inspect.isclass(x) and x.Impl is not None
-        ):
-            for (n, kls) in inspect.getmembers(klass.Impl, lambda x: inspect.isclass(x)):
-                if issubclass(kls, cls):
-                    yield klass
 
     @classmethod
     @final
@@ -512,4 +489,4 @@ class DataItem(ParametrizableItem):
         for name, hdu in self._hdus.items():
             if self._hdus[name].extno == index:
                 return name
-
+        raise KeyError(f"HDU '{index}' not found in {self.filename}")

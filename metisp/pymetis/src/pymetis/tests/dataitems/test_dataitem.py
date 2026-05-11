@@ -78,8 +78,8 @@ class TestDataItem:
             f"Data item {item.__qualname__} does not have a frame group defined!"
 
     @pytest.mark.metadata
-    def test_has_oca_keywords_defined_and_it_is_a_set(self, item):
-        assert isinstance(item._oca_keywords, set), \
+    def test_has_oca_keywords_defined_and_it_is_a_frozenset(self, item):
+        assert isinstance(item._oca_keywords, frozenset), \
             f"Data item {item.__qualname__} OCA keywords are not a set"
         #assert len(item._oca_keywords) > 0, \
         #    f"Data item {item.__qualname__} does not define any OCA keywords" # This is actually OK sometimes

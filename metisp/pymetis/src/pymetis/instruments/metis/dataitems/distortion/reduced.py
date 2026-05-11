@@ -31,7 +31,7 @@ class DistortionReduced(TableDataItem, abstract=True):
     _description_template = r"Table of polynomial coefficients for distortion correction"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG'}
+    _oca_keywords = frozenset({'PRO.CATG'})
 
     _schema = {
         'PRIMARY': None,
@@ -40,15 +40,15 @@ class DistortionReduced(TableDataItem, abstract=True):
 
 
 class LmDistortionReduced(BandLmMixin, DistortionReduced):
-    _oca_keywords = DistortionReduced._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = DistortionReduced._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class NDistortionReduced(BandNMixin, DistortionReduced):
-    _oca_keywords = DistortionReduced._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = DistortionReduced._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class IfuDistortionReduced(BandIfuMixin, DistortionReduced):
-    _oca_keywords = DistortionReduced._oca_keywords | {'DRS.IFU'}
+    _oca_keywords = DistortionReduced._oca_keywords | frozenset({'DRS.IFU'})
 
     _schema = {
         'PRIMARY': None,
