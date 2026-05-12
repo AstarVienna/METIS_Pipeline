@@ -30,7 +30,7 @@ class GainMap(TableDataItem, abstract=True):
     _description_template = "Gain map for the {detector} detector"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG'}
+    _oca_keywords = frozenset({'PRO.CATG'})
 
     _schema = {
         'PRIMARY': None,
