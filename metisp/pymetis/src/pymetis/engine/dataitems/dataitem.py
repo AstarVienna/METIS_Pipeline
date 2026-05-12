@@ -234,15 +234,23 @@ class DataItem(ParametrizableItem, abstract=True):
                     None: None,
                 }[subschema.get('XTENSION', None)]
 
-                structure[extname] = subschema
-                structure['klass'] = subtype
-                structure['extno'] = index
+         
 
-                if subtype is None:
+                if (subtype is None) | (subtype is Image):
                     if subschema.get('NAXIS', None) == 2:
                         subtype = Image
                         Msg.warning(cls.__qualname__,
                                     f"Found that NAXIS = 2, determining that this HDU should be an Image")
+                    elif subschema.get('NAXIS', None) == 3:
+                        subtype = ImageList
+                        Msg.warning(cls.__qualname__,
+                                    f"Found that NAXIS = 3, determining that this HDU should be an ImageList")
+
+                structure[extname] = subschema
+                structure['klass'] = subtype
+                structure['extno'] = index
+
+
 
                 Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
                 hdus.append(Hdu(header, None, name=extname, klass=subtype, extno=index))
@@ -277,7 +285,7 @@ class DataItem(ParametrizableItem, abstract=True):
 
         Returns
         -------
-        Image | Table | None
+        Image | Table | ImageList | None
             The associated data (or None if the extension does not contain any, should only happen for the primary one)
 
         Raises

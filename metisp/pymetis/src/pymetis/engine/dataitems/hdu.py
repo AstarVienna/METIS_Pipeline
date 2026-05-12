@@ -45,7 +45,7 @@ class Hdu:
         Parameters
         ----------
         header: CplPropertyList
-        data: CplImage | CplTable
+        data: CplImage | CplTable | CplImageList
             Data inside this HDU. Might be empty.
         extno:
             Can be used to access data by index.
