@@ -375,17 +375,17 @@ lm_adc_slitloss_class = classification_rule("LM_ADC_SLITLOSS",
 
 # Static GAIN map
 gain_map_h2rg_class = classification_rule("GAIN_MAP_2RG",
-    {metis_kwd.pro_catg: "GAIN_MAP_det",
+    {metis_kwd.pro_catg: "GAIN_MAP_2RG",
     })
 
 # Linearity file
 linearity_h2rg_class = classification_rule("LINEARITY_2RG",
-    {metis_kwd.pro_catg: "LINEARITY_det",
+    {metis_kwd.pro_catg: "LINEARITY_2RG",
     })
 
 # Bad pixel map
 badpix_map_h2rg_class = classification_rule("BADPIX_MAP_2RG",
-    {metis_kwd.pro_catg: "BADPIX_MAP_det",
+    {metis_kwd.pro_catg: "BADPIX_MAP_2RG",
     })
 
 # Synthetic transmission for the LM LSS mode
@@ -488,4 +488,143 @@ badpix_map_geo_class = classification_rule("BADPIX_MAP_GEO",
 # Synthetic transmission for the N LSS mode
 n_synth_trans_class = classification_rule("N_SYNTH_TRANS",
     {metis_kwd.pro_catg: "N_SYNTH_TRANS",
+    })
+
+
+# ----- Master calibration products from processing tasks -----
+
+# Master darks (pipeline products from metis_det_dark)
+master_dark_2rg_class = classification_rule("MASTER_DARK_2RG",
+    {metis_kwd.pro_catg: "MASTER_DARK_2RG",
+    })
+
+master_dark_geo_class = classification_rule("MASTER_DARK_GEO",
+    {metis_kwd.pro_catg: "MASTER_DARK_GEO",
+    })
+
+# Master imaging flats (pipeline products from metis_lm_img_flat / metis_n_img_flat)
+master_img_flat_lamp_lm_class = classification_rule("MASTER_IMG_FLAT_LAMP_LM",
+    {metis_kwd.pro_catg: "MASTER_IMG_FLAT_LAMP_LM",
+    })
+
+master_img_flat_lamp_n_class = classification_rule("MASTER_IMG_FLAT_LAMP_N",
+    {metis_kwd.pro_catg: "MASTER_IMG_FLAT_LAMP_N",
+    })
+
+# IMG distortion tables (pipeline products from metis_lm_img_distortion / metis_n_img_distortion)
+lm_distortion_table_class = classification_rule("LM_DISTORTION_TABLE",
+    {metis_kwd.pro_catg: "LM_DISTORTION_TABLE",
+    })
+
+n_distortion_table_class = classification_rule("N_DISTORTION_TABLE",
+    {metis_kwd.pro_catg: "N_DISTORTION_TABLE",
+    })
+
+# LM IMG intermediate / final products
+lm_sci_basic_reduced_class = classification_rule("LM_SCI_BASIC_REDUCED",
+    {metis_kwd.pro_catg: "LM_SCI_BASIC_REDUCED",
+    })
+
+lm_sky_basic_reduced_class = classification_rule("LM_SKY_BASIC_REDUCED",
+    {metis_kwd.pro_catg: "LM_SKY_BASIC_REDUCED",
+    })
+
+lm_std_basic_reduced_class = classification_rule("LM_STD_BASIC_REDUCED",
+    {metis_kwd.pro_catg: "LM_STD_BASIC_REDUCED",
+    })
+
+lm_sci_bkg_subtracted_class = classification_rule("LM_SCI_BKG_SUBTRACTED",
+    {metis_kwd.pro_catg: "LM_SCI_BKG_SUBTRACTED",
+    })
+
+lm_std_bkg_subtracted_class = classification_rule("LM_STD_BKG_SUBTRACTED",
+    {metis_kwd.pro_catg: "LM_STD_BKG_SUBTRACTED",
+    })
+
+lm_std_combined_class = classification_rule("LM_STD_COMBINED",
+    {metis_kwd.pro_catg: "LM_STD_COMBINED",
+    })
+
+lm_sci_calibrated_class = classification_rule("LM_SCI_CALIBRATED",
+    {metis_kwd.pro_catg: "LM_SCI_CALIBRATED",
+    })
+
+# N IMG intermediate / final products
+n_sci_bkg_subtracted_class = classification_rule("N_SCI_BKG_SUBTRACTED",
+    {metis_kwd.pro_catg: "N_SCI_BKG_SUBTRACTED",
+    })
+
+n_std_bkg_subtracted_class = classification_rule("N_STD_BKG_SUBTRACTED",
+    {metis_kwd.pro_catg: "N_STD_BKG_SUBTRACTED",
+    })
+
+n_std_combined_class = classification_rule("N_STD_COMBINED",
+    {metis_kwd.pro_catg: "N_STD_COMBINED",
+    })
+
+n_sci_calibrated_class = classification_rule("N_SCI_CALIBRATED",
+    {metis_kwd.pro_catg: "N_SCI_CALIBRATED",
+    })
+
+# LSS master / intermediate products
+master_lm_lss_rsrf_class = classification_rule("MASTER_LM_LSS_RSRF",
+    {metis_kwd.pro_catg: "MASTER_LM_LSS_RSRF",
+    })
+
+master_n_lss_rsrf_class = classification_rule("MASTER_N_LSS_RSRF",
+    {metis_kwd.pro_catg: "MASTER_N_LSS_RSRF",
+    })
+
+lm_lss_trace_class = classification_rule("LM_LSS_TRACE",
+    {metis_kwd.pro_catg: "LM_LSS_TRACE",
+    })
+
+n_lss_trace_class = classification_rule("N_LSS_TRACE",
+    {metis_kwd.pro_catg: "N_LSS_TRACE",
+    })
+
+lm_lss_std_1d_class = classification_rule("LM_LSS_STD_1D",
+    {metis_kwd.pro_catg: "LM_LSS_STD_1D",
+    })
+
+n_lss_std_1d_class = classification_rule("N_LSS_STD_1D",
+    {metis_kwd.pro_catg: "N_LSS_STD_1D",
+    })
+
+master_lm_response_class = classification_rule("MASTER_LM_RESPONSE",
+    {metis_kwd.pro_catg: "MASTER_LM_RESPONSE",
+    })
+
+master_n_response_class = classification_rule("MASTER_N_RESPONSE",
+    {metis_kwd.pro_catg: "MASTER_N_RESPONSE",
+    })
+
+std_transmission_class = classification_rule("STD_TRANSMISSION",
+    {metis_kwd.pro_catg: "STD_TRANSMISSION",
+    })
+
+# Synthetic transmission curve produced by molecfit calctrans (distinct from the static LM_SYNTH_TRANS)
+lm_lss_synth_trans_class = classification_rule("LM_LSS_SYNTH_TRANS",
+    {metis_kwd.pro_catg: "LM_LSS_SYNTH_TRANS",
+    })
+
+n_lss_synth_trans_class = classification_rule("N_LSS_SYNTH_TRANS",
+    {metis_kwd.pro_catg: "N_LSS_SYNTH_TRANS",
+    })
+
+lm_lss_sci_flux_tellcorr_1d_class = classification_rule("LM_LSS_SCI_FLUX_TELLCORR_1D",
+    {metis_kwd.pro_catg: "LM_LSS_SCI_FLUX_TELLCORR_1D",
+    })
+
+n_lss_sci_flux_tellcorr_1d_class = classification_rule("N_LSS_SCI_FLUX_TELLCORR_1D",
+    {metis_kwd.pro_catg: "N_LSS_SCI_FLUX_TELLCORR_1D",
+    })
+
+# Engineering products
+lm_chophome_combined_class = classification_rule("LM_CHOPHOME_COMBINED",
+    {metis_kwd.pro_catg: "LM_CHOPHOME_COMBINED",
+    })
+
+lm_pupil_reduced_class = classification_rule("LM_PUPIL_REDUCED",
+    {metis_kwd.pro_catg: "LM_PUPIL_REDUCED",
     })
