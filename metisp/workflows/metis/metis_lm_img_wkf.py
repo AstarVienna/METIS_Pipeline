@@ -2,17 +2,18 @@ from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
 from edps import task, subworkflow, qc1calib, match_rules, FilterMode, calchecker
 from .metis_datasources import *
 from . import metis_keywords as metis_kwd
+from .metis_task_functions import *
 
 lm_img_lingain_task = (task('metis_lm_img_lingain')
-                .with_recipe("metis_det_lingain")
                 .with_main_input(detlin_2rg_raw)
-                .with_associated_input(lm_wcu_off_raw)
+                .with_recipe("metis_det_lingain")
+                .with_job_processing(instrument_to_linlimit)
                 .build())
 
 lm_img_dark_task = (task('metis_lm_img_dark')
             .with_main_input(dark_2rg_raw)
             .with_associated_input(lm_img_lingain_task)
-             .with_associated_input(persistence_map)
+            .with_associated_input(persistence_map)
             .with_recipe("metis_det_dark")
             .build())
 
