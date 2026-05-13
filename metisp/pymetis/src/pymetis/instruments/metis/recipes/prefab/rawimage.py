@@ -191,10 +191,14 @@ class RawImageProcessor(RecipeImpl, ABC):
         image_median = image.get_median()
         image_rms = image.get_stdev()
 
-        # ToDo: why is this not the other way around? Set everything above threshold to 0...
-        mask_hot = cpl.core.Mask.threshold_image(image, 0, image_median + kappa_high * image_rms, 1)
-        # ToDo ...and then here everything below threshold to 0 too. Would be more consistent maybe?
-        mask_cold = cpl.core.Mask.threshold_image(image, 0, image_median - kappa_low * image_rms, 0)
+        # create a cpl.Mask based on thresholds; anything outside the low to high range is set to True (masked)
+        # anything inside it is set to False (unmasked)
+        # no image operation is performed. 
+
+        # hot pixels (set the low value to something well below expected pixels)
+        mask_hot = cpl.core.Mask.threshold_image(image, -1e6, image_median + kappa_high * image_rms, 0)
+        # cold pixels (set the high value to something outside the range of expected values)
+        mask_cold = cpl.core.Mask.threshold_image(image, image_median - kappa_low * image_rms, 1e10, 0)
 
         return mask_hot, mask_cold
 
