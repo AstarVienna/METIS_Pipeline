@@ -30,11 +30,11 @@ def instrument_to_linlimit(job : Job):
     linlimit = f'{job.command}.linlimit'
     subinstrument = job.input_files[0].get_keyword_value("dpr.tech", None)
     if "LM" in subinstrument:
-        job.parameters.recipe_parameters[linlimit] = 20000 # this will also need to be adapted based on readoutmode, as that will change the saturation limit and gain
+        job.parameters.recipe_parameters[linlimit] = 22100 # this will also need to be adapted based on readoutmode, as that will change the saturation limit and gain
     elif "N" in subinstrument:
-        job.parameters.recipe_parameters[linlimit] = 12000
+        job.parameters.recipe_parameters[linlimit] = 13000
     elif "IFU" in subinstrument:
-        job.parameters.recipe_parameters[linlimit] = 21000 # need to verify this value with LMS properties (saturation limit and gain)
+        job.parameters.recipe_parameters[linlimit] = 44000
     else: 
         print("do not recognize instrument, using default value")
     
