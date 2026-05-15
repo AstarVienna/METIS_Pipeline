@@ -103,7 +103,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         images=np.array(images)
         
         uni_on,uni_on_counts=np.unique(dits[(fws != 'closed')],return_counts=True)
-        uni_off,uni_off_counts=np.unique(dits[(fws == 'closed')],return_counts=True) 
+        uni_off,uni_off_counts=np.unique(dits[(fws == 'open')],return_counts=True) # this is a hack because METIS_Simulations overrides the closed position
         
         xx,yy=np.meshgrid(np.arange(2048),np.arange(2048))
         xx2,yy2=np.meshgrid(np.arange(1920),np.arange(1920))
@@ -163,7 +163,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             if uni_on_counts[i_on] >= 2:
                 if uni_off_counts[uni_off == un_on] >= 2:
                     sel_dits_on=((dits == un_on) & (fws != 'closed'))
-                    sel_dits_off=((dits == un_on) & (fws == 'closed'))
+                    sel_dits_off=((dits == un_on) & (fws == 'open'))
 
                     data_on1=images[sel_dits_on][0][sel_mask].reshape([1920,1920]) # not sure why I reshape for the gain calculation.
                     data_on2=images[sel_dits_on][1][sel_mask].reshape([1920,1920])
@@ -213,7 +213,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     if uni_off_counts[uni_off == un_on] >= 2:
 
                         sel_dits_on=((dits == un_on) & (fws != 'closed'))
-                        sel_dits_off=((dits == un_on) & (fws == 'closed'))
+                        sel_dits_off=((dits == un_on) & (fws == 'open'))
 
                         data_on1=images[sel_dits_on][0][sel_mask][window].reshape([1920,1920])
                         data_on2=images[sel_dits_on][1][sel_mask][window].reshape([1920,1920])
