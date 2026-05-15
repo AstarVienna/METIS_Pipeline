@@ -136,7 +136,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             gain=201. #e/ADU
             RN=300./gain #ADU
             DC=1e5/gain #ADU/s
-            sel_mask=(((xx >= 64) & (xx<(2048-64))) & ((yy >= 64) & (yy<(2048-64)))) # a mask to ignore the masked pixels at the edge of the detector. EXTERNAL CALIBRATION, in case of the IFU the mask needs to only cover the visible traces. this needs to depend on detector because the LMS mask varies
+            sel_mask=(((xx >= 28) & (xx<(2048-28))) & ((yy >= 28) & (yy<(2048-28)))) # a mask to ignore the masked pixels at the edge of the detector. EXTERNAL CALIBRATION, in case of the IFU the mask needs to only cover the visible traces. this needs to depend on detector because the LMS mask varies
         elif "IFU" in tech:
             gaincorrection_factor=1.-2*(4*ipc_alpha0+4*ipc_alpha0_prime)+(4*ipc_alpha0+4*ipc_alpha0_prime)**2+(4*(ipc_alpha0)**2+4*(ipc_alpha0_prime)**2) # this needs to depend on detector
             gain=2.0 #e/ADU
