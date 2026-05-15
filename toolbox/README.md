@@ -75,4 +75,4 @@ edps -w metis.metis_lm_img_wkf -i $SOF_DATA
 
 ## Installation via METIS Test Runner, with GUI
 
-follow the instructions here https://github.com/AstarVienna/MTR
+follow the instructions [here](https://github.com/AstarVienna/MTR)
