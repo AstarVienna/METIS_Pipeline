@@ -74,6 +74,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         self.kappa = self.parameters["metis_det_lingain.kappa"].value
         self.fitdegree = self.parameters["metis_det_lingain.fitdegree"].value
         self.linlimit = self.parameters["metis_det_lingain.linlimit"].value
+        self.truelimit = self.parameters["metis_det_lingain.truelimit"].value
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         det = rf'DET{detector:1d}'
@@ -253,14 +254,15 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                 fluxes_x_y=fluxes_x[:,i_y] # this is quicker than directly indexing the whole array
                 
                 sel=(fluxes_x_y<self.linlimit) # only fit pixel values within the linlimit
+                truesel=(fluxes_x_y<self.truelimit)
                 if np.sum(sel) < (self.fitdegree+1):
                     Msg.error(self.__class__.__qualname__, "This pixel does not have enough data within the linlimit to perform a fit at this fitorder") # TODO this might be too restrictive, it probably needs to capture the error in poly fit and then flag these as bad pixels. And then there can be a proper error if too many pixels were flagged in this way, which could indicate that the dataset is bad.
                     # TODO force stop of program
                     
-                # define a weighted average of the pixels below the cutoff
-                trueflux=np.average(fluxes_x_y[sel]/dits_fluxrates[sel],weights=1/(np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[sel]/(2*gain))/dits_fluxrates[sel])**2)
+                # define a weighted average of the pixels below a certain cutoff. this defines a weighted average flux rate to which all flux rates are corrected.
+                trueflux=np.average(fluxes_x_y[truesel]/dits_fluxrates[truesel],weights=1/(np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[truesel]/(2*gain))/dits_fluxrates[truesel])**2)
                 # define standard error on the weighted average
-                e_trueflux=np.sqrt(1./np.sum((1./np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[sel]/(2*gain))/dits_fluxrates[sel])**2))
+                e_trueflux=np.sqrt(1./np.sum((1./np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[truesel]/(2*gain))/dits_fluxrates[truesel])**2))
                 #print("weighted average flux rate and error [adu/s]",trueflux,e_trueflux)
 
                 p,cov_p=np.polyfit(fluxes_x_y[sel],trueflux/(fluxes_x_y[sel]/dits_fluxrates[sel]),deg=self.fitdegree,w=trueflux/(np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[sel]/(2*gain))/dits_fluxrates[sel]),cov='unscaled')
@@ -362,6 +364,12 @@ class MetisDetLinGain(Recipe):
             context=_name,
             description="Limit in ADU above which counts are excluded from both gain calculation and linearity correction function",
             default=22000., # this should be dependent on read out mode and detector
+        ),
+        ParameterValue(
+            name=rf"{_name}.truelimit",
+            context=_name,
+            description="Limit in ADU to consider as true linear. All flux rates will be corrected to the weighted average flux rate defined by the pixel values below this limit.",
+            default=10000., # this should be dependent on read out mode and detector
         ),
     ])
 
