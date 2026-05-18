@@ -18,13 +18,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Image
+from cpl.core import Image, Table
 
-from pymetis.engine.dataitems import ImageDataItem
+from pymetis.engine.dataitems import ImageDataItem, TableDataItem
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class GainMap(ImageDataItem, abstract=True):
+class GainMap(TableDataItem, abstract=True):
     _name_template = r'GAIN_MAP_{detector}'
     _title_template = "gain map for {detector} detector"
     _description_template = "Gain map for the {detector} detector"
@@ -39,26 +39,21 @@ class GainMap(ImageDataItem, abstract=True):
 
 class GainMap2rg(Detector2rgMixin, GainMap):
     _schema = GainMap._schema | {
-        'DET1.SCI': Image,
-        #ToDo ERR and DQ to follow
+        'DET1.SCI': Table,
     }
 
 
 class GainMapGeo(DetectorGeoMixin, GainMap):
     _schema = GainMap._schema | {
-        'DET1.SCI': Image,
-        #ToDo ERR and DQ to follow
+        'DET1.SCI': Table,
     }
 
 
 class GainMapIfu(DetectorIfuMixin, GainMap):
     _schema = {
         'PRIMARY': None,
-        'DET1.SCI': Image,
-        'DET2.SCI': Image,
-        'DET3.SCI': Image,
-        'DET4.SCI': Image,
+        'DET1.SCI': Table,
+        'DET2.SCI': Table,
+        'DET3.SCI': Table,
+        'DET4.SCI': Table,
     }
-    # _schema = {
-    #     'PRIMARY': Image,
-    # }
