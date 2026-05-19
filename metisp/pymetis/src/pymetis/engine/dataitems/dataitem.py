@@ -18,10 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import datetime
-import inspect
+import itertools
 import re
 from pathlib import Path
-from typing import Optional, Generator, Self, final, Union, ClassVar
+from typing import Optional, Self, final, Union, ClassVar
 
 import cpl
 from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyList
@@ -30,6 +30,34 @@ from .hdu import Hdu
 from pymetis.engine.core.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
+
+
+type SchemaType = dict[str, Union[None, type[Image], type[Table], type[ImageList]]]
+
+
+def build_schema(template: str,
+                 typ: type,
+                 **kwargs) -> SchemaType:
+    """
+    Build a schema from a template and a cartesian product of placeholders.
+    For instance
+    >>> build_schema(r'DET{det:1d}.{ext}', Image, det=[1, 2, 3, 4], ext=['SCI', 'ERR', 'DQ'])
+    results in a schema fragment
+    >>> {
+    >>>     'DET1.SCI': Image, 'DET1.ERR': Image, 'DET1.DQ': Image,
+    >>>     'DET2.SCI': Image, 'DET2.ERR': Image, 'DET2.DQ': Image,
+    >>>     'DET3.SCI': Image, 'DET3.ERR': Image, 'DET3.DQ': Image,
+    >>>     'DET4.SCI': Image, 'DET4.ERR': Image, 'DET4.DQ': Image,
+    >>> }
+    To combine various type use | operator.
+    """
+    return {
+        template.format(**comb): typ
+        for comb in [
+            dict(zip(kwargs.keys(), values))
+            for values in itertools.product(*kwargs.values())
+        ]
+    }
 
 
 class DataItem(ParametrizableItem, abstract=True):
@@ -60,7 +88,7 @@ class DataItem(ParametrizableItem, abstract=True):
 
     # HDU schema: a dict of types or None
     # By default, only the primary header is present
-    _schema: ClassVar[dict[str, Union[None, type[Image], type[Table], type[ImageList]]]] = {'PRIMARY': None}
+    _schema: ClassVar[SchemaType] = {'PRIMARY': None}
     # For instance
     # >>> _schema = {
     # >>>     'PRIMARY': None,
@@ -72,12 +100,13 @@ class DataItem(ParametrizableItem, abstract=True):
 
     _registry: ClassVar[dict[str, type[Self]]] = {}
 
-    # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
+    # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class
+    # or something completely broken)
     __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
 
     @classmethod
     @final
-    def schema(cls) -> dict[str, Union[None, type[Image], type[Table], type[ImageList]]]:
+    def schema(cls) -> SchemaType:
         return cls._schema
 
     @classmethod

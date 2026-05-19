@@ -21,6 +21,7 @@ import cpl
 from cpl.core import Image, ImageList
 
 from pymetis.engine.dataitems import ImageDataItem
+from pymetis.engine.dataitems.dataitem import build_schema
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
@@ -63,3 +64,9 @@ class LinearityMapIfu(DetectorIfuMixin, LinearityMap):
     } | {
         rf'DET{det:1d}.DQ': Image for det in [1, 2, 3, 4]
     }
+
+    _schema = {
+        'PRIMARY': None,
+    } | \
+    build_schema(r'DET{det:1d}.{ext}', ImageList, det=[1, 2, 3, 4], ext=['SCI', 'ERR']) | \
+    build_schema(r'DET{det:1d}.DQ', Image, det=[1, 2, 3, 4])
