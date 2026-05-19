@@ -30,7 +30,7 @@ class BasicReduced(ImageDataItem, abstract=True):
     _description_template = "Detrended {target} exposure of the {band} image mode."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
 
     _schema = {
         'PRIMARY': None,
@@ -56,7 +56,7 @@ class LmSkyBasicReduced(ImageDataItem):
     _description_template = "Detrended exposure of the sky."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}
+    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
 
     _schema = {
         'PRIMARY': None,
@@ -71,7 +71,7 @@ class Calibrated(ImageDataItem, abstract=True):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW  # This actually has to be raw as it is "primary input" (rite-of-passage)
-    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
     _schema = {
         'PRIMARY': None,
@@ -102,7 +102,7 @@ class NSciRestored(BandNMixin, ImageDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG', 'DRS.FILTER'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
     _schema = {
         'PRIMARY': None,

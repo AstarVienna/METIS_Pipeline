@@ -32,7 +32,7 @@ class LmChophomeCombined(BandLmMixin, ImageDataItem):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = {'PRO.CATG', 'INS.OPTI20.NAME'}
+    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI20.NAME'})
 
     _schema = {
         'PRIMARY': None,
@@ -50,7 +50,7 @@ class LmChophomeBackground(BandLmMixin, ImageDataItem):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = {'PRO.CATG', 'INS.OPTI19.NAME', 'INS.OPTI20.NAME'}
+    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI19.NAME', 'INS.OPTI20.NAME'})
 
     _schema = {
         'PRIMARY': None,

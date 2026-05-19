@@ -26,7 +26,7 @@ from pymetis.instruments.metis.mixins.band import BandIfuMixin
 
 
 class IfuBase(BandIfuMixin, ImageDataItem, abstract=True):
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
 
     _schema = {
         'PRIMARY': None,
@@ -112,7 +112,7 @@ class IfuScienceCubeCalibrated(BandIfuMixin, ImageDataItem):
     _description_template = "A telluric absorption corrected rectified spectral cube with a linear wavelength grid."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
 
     _schema = {
         'PRIMARY': None,
@@ -126,4 +126,4 @@ class IfuTelluric(TableDataItem):
     _description_template = "Transmission function for the telluric correction."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})

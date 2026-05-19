@@ -157,7 +157,7 @@ class PipelineInput:
     def as_dict(self) -> dict[str, Any]:
         return {
             'item': self.Item,
-            'required': self.required,
+            'required': self.required(),
         }
 
     @classmethod
@@ -176,9 +176,8 @@ class PipelineInput:
         assert cls.Item.name() is not None, f"{cls.Item.__qualname__} has no name"
         assert cls.Item.description() is not None, f"{cls.Item.__qualname__} has no description defined"
 
-        return (f"    {cls.Item.name():<36}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
+        return (f"  {cls.Item.name():<36}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
                 f" {cls.Item.description()}")
-#                f"{f'\n{' ' * 84}'.join([x.__qualname__ for x in set(cls.input_for_recipes())])}")
 
     @property
     @abstractmethod

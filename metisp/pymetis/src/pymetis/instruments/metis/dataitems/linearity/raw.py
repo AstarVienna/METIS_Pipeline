@@ -29,16 +29,16 @@ class LinearityRaw(Raw, abstract=True):
     _description_template = r"Raw data for non-linearity determination for {detector} observations"
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'}
+    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'})
 
 
 class LinearityRaw2rg(Detector2rgMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class LinearityRawGeo(DetectorGeoMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.FILTER'}
+    _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.FILTER'})
 
 
 class LinearityRawIfu(DetectorIfuMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | {'DRS.IFU'}
+    _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.IFU'})

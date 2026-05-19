@@ -129,8 +129,6 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         WaveCalPolyCoeffN = LssWaveCalPolyCoeffN
 
 
-
-
     # CAVEAT: Dummy routine only! Will be replaced with functionality -------
     # Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++
     def process(self) -> set[DataItem]:

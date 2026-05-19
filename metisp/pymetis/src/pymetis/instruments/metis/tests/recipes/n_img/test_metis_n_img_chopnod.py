@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_chopnod import (MetisNImgChopnod as Recipe,
-                                                       MetisNImgChopnodImpl as Impl)
+                                                                         MetisNImgChopnodImpl as Impl)
 from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 

@@ -29,7 +29,7 @@ from typing import Literal, Dict, Any
 import cpl
 from cpl.core import Msg, ImageList, Image, Mask
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum
+from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
@@ -115,7 +115,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
     # and call them from within `process` as needed.
 
 
-    ########################################################################
+    #############################################################################
     # TODO?? and outstanding issues
     #
     # DRLD specifies hdrml_bpm_3d_compute, which implies finding outlying pixels on a stack
@@ -136,7 +136,9 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
     # what exactly do we mean by "bad pixel" compared to hot or cold; check interpretation.
     #
     # Also, persistence and non-linearity to be implemented.
-    #########################################################################
+    #
+    # Once 3 extension IO is implemented, rewrite to utilize pyHDRL functionality 
+    ###############################################################################
 
     def __init__(self,
                  recipe: 'Recipe',
@@ -144,6 +146,8 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
                  settings: Dict[str, Any]) -> None:
         super().__init__(recipe, frameset, settings)
         self.stacking_method = self.parameters["metis_det_dark.stacking.method"].value
+        self.kappa_low = self.parameters["metis_det_dark.outliers.kappa_low"].value
+        self.kappa_high = self.parameters["metis_det_dark.outliers.kappa_high"].value
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> list[Hdu]:
         assert detector in [1, 2, 3, 4], \
@@ -155,12 +159,10 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         raw_images = self.inputset.raw.load_data(extension=f'DET{detector:1d}.DATA')
 
         # load raw data
-        kappa_high = 2  # ToDo This could probably be a recipe parameter
-        kappa_low = 2   # ToDo This too
 
         bad_bit = 1
-        cold_bit = 1
-        hot_bit = 1
+        cold_bit = 2
+        hot_bit = 4
 
         Msg.info(self.__class__.__qualname__, f"Pretending to load DETLIN")
 
@@ -194,9 +196,9 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         Msg.info(self.__class__.__qualname__, f"Combining images using method {self.stacking_method!r}")
 
-        mask_hot, mask_cold = self.calculate_outliers(combined_image, kappa_low=kappa_low, kappa_high=kappa_high)
+        mask_hot, mask_cold = self.calculate_outliers(combined_image, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
         qcnhot, qcncold = mask_hot.count(), mask_cold.count()
-        mask_bad = self.metis_bpm_3d_compute(raw_images, kappa_low=kappa_low, kappa_high=kappa_high)
+        mask_bad = self.metis_bpm_3d_compute(raw_images, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
         qcnbad = mask_bad.count()
 
         Msg.info(self.__class__.__qualname__,
@@ -326,19 +328,18 @@ class MetisDetDark(Recipe):
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
         ),
-        # ToDo: Maybe these should be user-configurable as well? Added them commented out.
-        #ParameterValue(
-        #    name=f"{_name}.outliers.kappa_low",
-        #    context=_name,
-        #    description="Lower bound for bad pixel clipping, in standard deviations",
-        #    default=2,
-        #),
-        #ParameterValue(
-        #    name=f"{_name}.outliers.kappa_high",
-        #    context=_name,
-        #    description="Upper bound for bad pixel clipping, in standard deviations",
-        #    default=2,
-        #),
+        ParameterValue(
+            name=f"{_name}.outliers.kappa_low",
+            context=_name,
+            description="Lower bound for bad pixel clipping, in standard deviations",
+            default=2,
+        ),
+        ParameterValue(
+            name=f"{_name}.outliers.kappa_high",
+            context=_name,
+            description="Upper bound for bad pixel clipping, in standard deviations",
+            default=2,
+        ),
     ])
 
     # Point the `implementation_class` to the *top* class of your recipe hierarchy.

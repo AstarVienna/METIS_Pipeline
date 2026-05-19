@@ -30,7 +30,7 @@ class PupilImagingReduced(ImageDataItem, abstract=True):
     _description_template = "Reduced pupil image in {band} mode."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG', 'DRS.PUPIL'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.PUPIL'})
 
     _schema = {
         'PRIMARY': None,

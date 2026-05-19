@@ -30,7 +30,6 @@ class MetisLmImgFlatImpl(BandLmMixin, Detector2rgMixin, MetisBaseImgFlatImpl):
 
 
 class MetisLmImgFlat(Recipe):
-    # Fill in recipe information
     _name = "metis_lm_img_flat"
     _version = "0.1"
     _author = "A*"

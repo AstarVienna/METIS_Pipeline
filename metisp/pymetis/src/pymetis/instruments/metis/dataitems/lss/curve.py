@@ -32,7 +32,7 @@ class LssCurve(TableDataItem, abstract=True):
     _description_template = "Trace curvature information"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
 
 
 class LmLssCurve(BandLmMixin, LssCurve):
@@ -52,7 +52,7 @@ class LssDistSol(TableDataItem, abstract=True):
     _description_template = "Distortion solution for rectifying"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
 
 
 class LmLssDistSol(BandLmMixin, LssDistSol):
@@ -72,7 +72,7 @@ class LssWaveGuess(TableDataItem, abstract=True):
     _description_template = "First guess of the wavelength solution"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB # TBC
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
 
 
 class LmLssWaveGuess(BandLmMixin, LssWaveGuess):

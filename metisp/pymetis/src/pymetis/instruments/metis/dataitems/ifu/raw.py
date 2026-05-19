@@ -29,9 +29,9 @@ class IfuRaw(BandIfuMixin, Raw, abstract=True):
     _description_template = r"{band} {target} raw image"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
-    _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
-                     "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
-                     "DRS.IFU"}
+    _oca_keywords = frozenset({"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
+                               "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
+                               "DRS.IFU"})
     _schema = {
         'PRIMARY': None,
     } | {
@@ -52,7 +52,7 @@ class IfuSkyRaw(BandIfuMixin, Raw):
     _title_template = r"IFU sky raw"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
-    _oca_keywords = {"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
-                     "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
-                     "DRS.IFU"}
+    _oca_keywords = frozenset({"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
+                               "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
+                               "DRS.IFU"})
     _description_template = "Blank sky image."

@@ -29,7 +29,7 @@ class MasterResponse(TableDataItem, abstract=True):
     _description_template = "Master {band}-band response function for absolute flux calibration"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG', 'INS.MODE', 'INS.SPEC.SETUP', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'INS.MODE', 'INS.SPEC.SETUP', 'DRS.SLIT'})
 
 
 class MasterLmResponse(BandLmMixin, MasterResponse):
@@ -47,4 +47,4 @@ class StdTransmission(TableDataItem):
     _description_template = "Transmission curve derived by means of a standard star"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG', 'INS.MODE', 'INS.SPEC.SETUP', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'INS.MODE', 'INS.SPEC.SETUP', 'DRS.SLIT'})

@@ -30,9 +30,9 @@ class IfuWavecalRaw(DetectorIfuMixin, ImageDataItem):
                              "achieve the first guess of the wavelength calibration.")
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.NONE
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                     'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME',
-                     'DRS.IFU'}
+    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
+                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME',
+                               'DRS.IFU'})
 
 
 class IfuWavecal(DetectorIfuMixin, ImageDataItem):
@@ -41,7 +41,7 @@ class IfuWavecal(DetectorIfuMixin, ImageDataItem):
     _description_template = "Image with wavelength at each pixel."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = {'PRO.CATG', 'DRS.IFU'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
 
     _schema = {
         'PRIMARY': None,

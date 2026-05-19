@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import inspect
-from abc import ABC
+from abc import ABC, ABCMeta
 from typing import ClassVar, Self, Optional, final, Any
 
 from cpl.core import Msg
@@ -25,7 +25,78 @@ from cpl.core import Msg
 from pymetis.engine.core.format import partial_format
 
 
-class Parametrizable(ABC):
+class ParametrizableMeta(ABCMeta):
+    """
+    Metaclass for the Parametrizable hierarchy.
+
+    Handles:
+      - tag parameter merging across the MRO
+      - auto-registration of concrete subclasses into their root's _registry
+      - skipping abstract classes
+    """
+
+    def __new__(mcs, name, bases, namespace, *, abstract=False, **kwargs):
+        cls = super().__new__(mcs, name, bases, namespace)
+        cls._abstract = abstract
+
+        # Merge tag parameters from MRO + class kwargs
+        merged = {}
+        for base in reversed(cls.__mro__):
+            params = base.__dict__.get("_tag_parameters")
+            if isinstance(params, dict):
+                merged.update(params)
+        merged.update(kwargs)
+        cls._tag_parameters = merged
+
+        # Resolve template against known parameters
+        template = namespace.get("_name_template")
+        if template is None:
+            template = next(
+                (b.__dict__["_name_template"] for b in cls.__mro__[1:]
+                 if b.__dict__.get("_name_template") is not None),
+                None,
+            )
+        if template is not None and merged:
+            cls._name_template = partial_format(template, **merged)
+
+        if not abstract:
+            cls._register()
+
+        return cls
+
+    def __init__(cls, name, bases, namespace, *, abstract=False, **kwargs):
+        super().__init__(name, bases, namespace)
+
+    def _register(cls) -> None:
+        """Register cls under its current _name_template in the nearest _registry up the MRO."""
+        if (key := getattr(cls, "_name_template", None)) is None:
+            return
+        registry = next(
+            (b.__dict__["_registry"] for b in cls.__mro__ if "_registry" in b.__dict__),
+            None,
+        )
+        if registry is None:
+            return
+        elif key in registry:
+            if registry[key] is not cls:
+                Msg.warning(cls.__qualname__, f"{key} is already registered to {registry[key].__qualname__}, skipping")
+        else:
+            registry[key] = cls
+
+    def find(cls, key: str) -> Optional[type]:
+        for base in cls.__mro__:
+            if (reg := base.__dict__.get("_registry")) is not None:
+                return reg.get(key)
+        return None
+
+    def list_classes(cls) -> list[tuple[str, type]]:
+        return [
+            (n, k) for n, k in inspect.getmembers(cls, inspect.isclass)
+            if isinstance(k, ParametrizableMeta) and k is not cls
+        ]
+
+
+class Parametrizable(ABC, metaclass=ParametrizableMeta):
     """
     Abstract base class for all types parametrizable by custom tags
     (tiny pieces of data, such as short strings or integers).
@@ -55,32 +126,46 @@ class Parametrizable(ABC):
     Other parameters might be useful for different pipelines.
     Any strings or types convertible to strings (!s) may be used.
     """
-
-    # Tag parameters defined for this class.
     _tag_parameters: ClassVar[dict[str, Any]] = {}
 
     @classmethod
-    def tag_parameters(cls) -> dict[str, Any]:
-        """
-        Return the tag parameters for this class.
-        By default, there are none, but mixins may add their own.
-        """
+    def tag_parameters(cls):
         return cls._tag_parameters
 
-    def __init_subclass__(cls, **kwargs):
-        """
-        Merge tag parameters from all base classes.
-        """
-        merged = {}
-        # ToDo: Does this really do what we want it to do? What is the desired order of preference?
-        for base in reversed(cls.__mro__):
-            params = base.__dict__.get('_tag_parameters')
-            if isinstance(params, dict):
-                merged.update(params)
 
-        merged.update(kwargs)
+class ParametrizableItem(Parametrizable, abstract=True):
+    _name_template: ClassVar[str] = None
+    _description_template: ClassVar[Optional[str]] = None
 
-        cls._tag_parameters = merged
+    @classmethod
+    def specialize(cls, **parameters: str) -> str:
+        """
+        Specialize this class for parameters
+        """
+        cls._tag_parameters = cls._tag_parameters | parameters
+        cls._name_template = partial_format(cls._name_template, **parameters)
+        type(cls)._register(cls)  # call the metaclass method
+        return cls._name_template
+
+    @classmethod
+    def name(cls) -> str:
+        """
+        Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
+        """
+        assert cls._name_template is not None, \
+            f"{cls.__qualname__} name template is None"
+        return partial_format(cls._name_template, **cls.tag_parameters())
+
+    @classmethod
+    def description(cls) -> str:
+        """
+        Return the human-readable description of the item.
+        By default, this just returns the protected internal attribute,
+        but can be overridden to build the description from other data, such as band or target.
+        """
+        assert cls._description_template is not None, \
+            f"{cls.__qualname__} description template is None"
+        return partial_format(cls._description_template, **cls.tag_parameters())
 
 
 class ParametrizableContainer(Parametrizable, ABC):
@@ -96,11 +181,6 @@ class ParametrizableContainer(Parametrizable, ABC):
         _T: the expected type of the inner items.
         """
         _T: ClassVar[type['ParametrizableItem']] = None
-
-    @classmethod
-    def list_classes(cls):
-        """ List all available inner items """
-        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, cls.Meta._T))
 
     @classmethod
     def list_descriptions(cls) -> str:
@@ -123,11 +203,19 @@ class ParametrizableContainer(Parametrizable, ABC):
             new_class: cls.Meta._T = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
             new_class.specialize(**(item_class.tag_parameters() | parameters))
 
+            # Re-attempt registration now that the template may be fully resolved
+            registry = next(
+                (b.__dict__["_registry"] for b in new_class.__mro__ if "_registry" in b.__dict__),
+                None,
+            )
+            if registry is not None and new_class._name_template not in registry:
+                registry[new_class._name_template] = new_class
+
             if (klass := cls.Meta._T.find(new_class._name_template)) is None:
                 setattr(cls, name, new_class)
                 Msg.debug(cls.__qualname__,
                           f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {parameters}, "
-                          f"had to create a new class {new_class.__qualname__}")
+                          f"had to create a new class {new_class.__qualname__} ({new_class.name()})")
             else:
                 setattr(cls, name, klass)
                 Msg.debug(cls.__qualname__,
@@ -148,100 +236,18 @@ class ParametrizableContainer(Parametrizable, ABC):
                  f"Promoting {cls.__qualname__} with {parameters}")
 
         for name, item in cls.list_classes():
-            # Merge the predefined parameters with the new ones
-            expanded_parameters = item.tag_parameters() | parameters
+            # Compute the target tag without mutating `item`
+            tag = partial_format(item._name_template,
+                                 **(item.tag_parameters() | parameters))
 
-            # Try to find a promoted class in the registry
-            if (new_class := cls.Meta._T.find(tag := item.specialize(**expanded_parameters))) is None:
-                raise TypeError(f"Could not promote class {item}: {tag} is not a registered tag")
-            else:
-                Msg.debug(cls.__qualname__,
-                          f" - {item.__qualname__} ({item.name()}) => {new_class.__qualname__} ({new_class.name()})")
-
-            # Replace the corresponding attribute with the new class
-            cls.__class__.__setattr__(cls, name, new_class)
-
-
-class ParametrizableItem(Parametrizable, ABC):
-    """
-    Abstract base class for all items parametrizable by tags, such as data items and QC parameters.
-    """
-
-    # Name of this item (machine-oriented)
-    _name_template: ClassVar[str] = None
-    # Description of this item (human-readable)
-    _description_template: ClassVar[str] = None
-
-    # Class registry: all derived classes are automatically registered here (unless declared abstract)
-    _registry: ClassVar[dict[str, type[Self]]] = {}
-
-    def __init_subclass__(cls,
-                          *,
-                          abstract: bool = False,
-                          **kwargs):
-        """
-        Register every subclass of ParametrizableItem in a class-global registry, based on its tag parameters.
-
-        Parameters
-        ----------
-        abstract: bool
-            If abstract, the class is not expected to be instantiated and will raise an exception if this is attempted.
-        """
-        super().__init_subclass__(**kwargs)
-
-        cls._abstract = abstract
-        if cls.name() in cls._registry:
-            # If the class is already registered, warn about it and do nothing.
-            Msg.debug(cls.__qualname__,
-                      f"A {cls.__qualname__} with tag {cls.name()} is already registered, "
-                      f"skipping: {cls._registry[cls.name()].__qualname__}")
-        else:
-            # Otherwise add the class to the global registry
-            Msg.debug(cls.__qualname__,
-                      f"Registered a new class {cls.name()}: {cls}")
-            cls._registry[cls.name()] = cls
-
-    @classmethod
-    @final
-    def find(cls, key: str) -> Optional[type[Self]]:
-        """
-        Try to retrieve the ParametrizableItem subclass with tag ``key`` from the global registry.
-
-        If not found, return ``None`` instead (and leave it to the caller to raise an exception if this is not desired).
-        # ToDo: Maybe we should raise an exception here instead and let the caller handle it?
-        """
-        if key in cls._registry:
-            return cls._registry[key]
-        else:
-            return None
-
-    @classmethod
-    def specialize(cls, **parameters: str) -> str:
-        """
-        Specialize the data item's name template with given parameters
-        """
-        cls._name_template = partial_format(cls._name_template, **parameters)
-        return cls._name_template
-
-    @classmethod
-    def name(cls) -> str:
-        """
-        Return the machine-oriented name (tag) of the data item as defined in the DRLD, e.g. "DETLIN_2RG_RAW".
-        """
-        assert cls._name_template is not None, \
-            f"{cls.__qualname__} name template is None"
-        return partial_format(cls._name_template, **cls.tag_parameters())
-
-    @classmethod
-    def description(cls) -> str:
-        """
-        Return the human-readable description of the item.
-        By default, this just returns the protected internal attribute,
-        but can be overridden to build the description from other data, such as band or target.
-        """
-        assert cls._description_template is not None, \
-            f"{cls.__name__} description template is None"
-        return partial_format(cls._description_template, **cls.tag_parameters())
+            new_class = cls.Meta._T.find(tag)
+            if new_class is None:
+                raise TypeError(
+                    f"Could not promote {item.__qualname__}: "
+                    f"tag '{tag}' is not registered. "
+                    f"Known tags matching: {cls.Meta._T._registry}"
+                )
+            setattr(cls, name, new_class)
 
 
 class KeywordMixin(Parametrizable, ABC):

@@ -30,9 +30,9 @@ class LssRsrfRaw(Raw, abstract=True):
     _title_template = "{band} LSS RSRF raw"
     _description_template = "Raw exposure of the WCU flat field lamp through the LSS to achieve the RSRF."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                     'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME',
-                     'DRS.SLIT'}
+    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
+                               'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME',
+                               'DRS.SLIT'})
 
     _schema = {
         'PRIMARY': None,
@@ -54,7 +54,7 @@ class MedianLssRsrf(ImageDataItem, abstract=True):
     _description_template = "Median {band} RSRF pixel map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'DRS.SLIT'})
 
     _schema = {
         'PRIMARY': None,
@@ -76,7 +76,7 @@ class MeanLssRsrf(ImageDataItem, abstract=True):
     _description_template = "Mean {band} RSRF pixel map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
 
     _schema = {
         'PRIMARY': None,
@@ -98,7 +98,7 @@ class MasterLssRsrf(ImageDataItem, abstract=True):
     _description_template = "Master {band} RSRF pixel map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'PRO.CATG', 'DRS.SLIT'}
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
 
     _schema = {
         'PRIMARY': None,
@@ -120,9 +120,9 @@ class LssRsrfPinholeRaw(ImageDataItem, abstract=True):
     _description_template = "Raw flats taken with black-body calibration lamp through the pinhole mask."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = {'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                     'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI20.NAME',
-                     'DRS.SLIT'}
+    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
+                              'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI20.NAME',
+                              'DRS.SLIT'})
 
     _schema = {
         'PRIMARY': None,

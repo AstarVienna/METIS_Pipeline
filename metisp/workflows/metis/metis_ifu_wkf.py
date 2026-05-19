@@ -1,5 +1,6 @@
 from edps import task, SCIENCE
 from .metis_datasources import *
+from .metis_task_functions import *
 
 # --- Processing tasks ---
 
@@ -8,7 +9,7 @@ ifu_lingain_task = (task("metis_ifu_lingain")
                 .with_recipe("metis_det_lingain")
                 .with_main_input(detlin_ifu_raw)
                 .with_associated_input(badpix_map_ifu, min_ret=0)
-                .with_associated_input(ifu_wcu_off_raw)
+                .with_job_processing(instrument_to_linlimit)
                 .build())
 
 ifu_dark_task = (task("metis_ifu_dark")
