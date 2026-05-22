@@ -34,7 +34,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.functions.image import zeros_like
+from pymetis.engine.core.functions.polyfit import zeros_like
 from pymetis.engine.core.dummy import create_dummy_header
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
