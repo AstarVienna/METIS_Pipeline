@@ -48,10 +48,8 @@ def _classify_lingain_frames(files):
     """Return (on_indices, off_indices, dits) for a list of DETLIN raw files.
 
     Tries ESO DRS FILTER first ('open' = closed-shutter dark; anything else
-    = illuminated). If every frame reports 'open' (the current METIS_Simulations
-    workaround state), falls back to a median-pixel-flux split using the first
-    image HDU of each file — the same heuristic the IFU branch of the recipe
-    already uses (np.median > 2000 ADU = ON).
+    = illuminated). If every frame reports 'open', fall back to a median-pixel-flux split using the first
+    image HDU of each file
     """
     dits, fws = [], []
     for f in files:
@@ -93,11 +91,7 @@ def prefilter_lingain_inputs(job: Job) -> None:
     """Drop DETLIN raws that cannot participate in a valid (ON, OFF) pair.
 
     The lingain recipe needs, for every DIT used, at least 2 ON frames and
-    2 OFF frames at that DIT. This pre-filter answers the author's "This
-    can be deferred to the workflow?" comment in metis_det_lingain.py:174 —
-    it trims job.input_files to only files at DITs with enough pairs. If
-    nothing survives, the recipe's safe abort raises cpl.core.DataNotFoundError
-    instead of crashing in polyfit.
+    2 OFF frames at that DIT.
     """
     files = list(job.input_files)
     if not files:

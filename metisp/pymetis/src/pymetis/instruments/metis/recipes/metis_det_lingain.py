@@ -171,10 +171,8 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
        
         for i_on,un_on in enumerate(uni_on): # loop over unique dit values
    
-            if uni_on_counts[i_on] >= 2: # check if there are at least 2 frames of each DIT. This can be deferred to the workflow ?
-                # Safe-slice: uni_off_counts[uni_off == un_on] is an
-                # at-most-1-element array; bare ">= 2" on an empty slice
-                # raises "truth value of an empty array is ambiguous".
+            if uni_on_counts[i_on] >= 2: # check if there are at least 2 frames of each DIT.
+                # Safe-slice; otherwise returns "truth value of an array ... is ambiguous" error
                 off_match = uni_off_counts[uni_off == un_on]
                 if off_match.size > 0 and off_match[0] >= 2:
                     sel_dits_on=((dits == un_on) & (fws != 'open')) # this is a hack because there was no proper 'closed' position before. here open represents closed.
@@ -293,12 +291,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     sel=(fluxes_x_y<self.linlimit) # only fit pixel values within the linlimit
                     truesel=(fluxes_x_y<self.truelimit)
                     if np.sum(sel) < (self.fitdegree+1):
-                        # Not enough below-linlimit samples to fit this pixel:
-                        # mark it bad and skip (consistent with the polyfit
-                        # except: bpm[i_x,i_y]=1 path below). A whole-recipe
-                        # abort here would be too aggressive for a single
-                        # pixel; if a *lot* of pixels fall into this branch
-                        # the BPM ratio will surface it downstream.
+                        # If there are not enough below-linlimit samples to fit this pixel mark it bad and skip 
                         Msg.debug(self.__class__.__qualname__, f"Pixel ({i_x},{i_y}): too few below-linlimit samples; marking bad")
                         bpm[i_x,i_y]=1
                         continue
