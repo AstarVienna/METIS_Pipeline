@@ -1,8 +1,5 @@
 from collections import defaultdict
 
-import numpy as np
-from astropy.io import fits
-
 from edps import JobParameters, get_parameter, Job
 
 
@@ -47,43 +44,19 @@ def instrument_to_linlimit(job : Job):
 def _classify_lingain_frames(files):
     """Return (on_indices, off_indices, dits) for a list of DETLIN raw files.
 
-    Tries ESO DRS FILTER first ('open' = closed-shutter dark; anything else
-    = illuminated). If every frame reports 'open', fall back to a median-pixel-flux split using the first
-    image HDU of each file
+    Classification uses the ESO DRS FILTER keyword: 'open' marks a
+    closed-shutter dark (OFF), any other filter value is illuminated (ON).
+    Note: 'open' currently represents the closed position because of the
+    Shutter hack in METIS_Simulations
     """
-    dits, fws = [], []
-    for f in files:
-        dits.append(f.get_keyword_value("det.dit", None))
-        fws.append((f.get_keyword_value("drs.filter", "") or "").strip())
-
-    use_median = (not any(fw and fw != "open" for fw in fws))
-
-    on_idx, off_idx = [], []
-    if not use_median:
-        for i, fw in enumerate(fws):
-            if fw == "open":
-                off_idx.append(i)
-            elif fw:
-                on_idx.append(i)
-        return on_idx, off_idx, dits
-
-    # Median-flux fallback: read the first 2D image HDU of each file.
+    dits, on_idx, off_idx = [], [], []
     for i, f in enumerate(files):
-        median = None
-        try:
-            with fits.open(f.file_path, memmap=True) as hdul:
-                for hdu in hdul[1:]:
-                    if hdu.data is not None and getattr(hdu.data, "ndim", 0) == 2:
-                        median = float(np.median(hdu.data))
-                        break
-        except Exception:
-            median = None
-        if median is None:
-            continue
-        if median > 2000:
-            on_idx.append(i)
-        elif median < 2000:
+        dits.append(f.get_keyword_value("det.dit", None))
+        fw = (f.get_keyword_value("drs.filter", "") or "").strip()
+        if fw == "open":
             off_idx.append(i)
+        elif fw:
+            on_idx.append(i)
     return on_idx, off_idx, dits
 
 
@@ -98,6 +71,11 @@ def prefilter_lingain_inputs(job: Job) -> None:
         return
 
     on_idx, off_idx, dits = _classify_lingain_frames(files)
+
+    # If the FILTER keyword leaves the ON or OFF array empty, don't trim anything.
+    # Otherwise it would require checking pixel data, which is already done in the recipe for IFU inputs (working for LM/N) and would introduce overhead here.
+    if not on_idx or not off_idx:
+        return
 
     by_dit_on = defaultdict(list)
     by_dit_off = defaultdict(list)
