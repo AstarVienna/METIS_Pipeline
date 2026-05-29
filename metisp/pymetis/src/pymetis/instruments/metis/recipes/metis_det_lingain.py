@@ -171,8 +171,10 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
        
         for i_on,un_on in enumerate(uni_on): # loop over unique dit values
    
-            if uni_on_counts[i_on] >= 2: # check if there are at least 2 frames of each DIT. This can be deferred to the workflow ?
-                if uni_off_counts[uni_off == un_on] >= 2:
+            if uni_on_counts[i_on] >= 2: # check if there are at least 2 frames of each DIT.
+                # Safe-slice; otherwise returns "truth value of an array ... is ambiguous" error
+                off_match = uni_off_counts[uni_off == un_on]
+                if off_match.size > 0 and off_match[0] >= 2:
                     sel_dits_on=((dits == un_on) & (fws != 'open')) # this is a hack because there was no proper 'closed' position before. here open represents closed.
                     sel_dits_off=((dits == un_on) & (fws == 'open')) # for a certain DIT this selects all the on and off frames.
 
@@ -201,8 +203,15 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                 Msg.warning(self.__class__.__qualname__, "This combination does not have enough ON frames")
         dits_fluxrates=np.array(dits_fluxrates)
         if np.sum(meanflux < self.linlimit) < 2:
-            Msg.error(self.__class__.__qualname__, "This dataset does not have enough data within the linlimit to determine the gain")
-            # TODO force stop of program
+            msg = ("metis_det_lingain: not enough data points below linlimit "
+                   f"({self.linlimit}) to determine the gain "
+                   f"(meanflux={meanflux.tolist()}, uni_on={uni_on.tolist()}). "
+                   "Cause: no ON/OFF frame pairs at matching DIT, or all "
+                   "frames are above linlimit. If running under EDPS, the "
+                   "workflow's lingain pre-filter should have caught this "
+                   "earlier.")
+            Msg.error(self.__class__.__qualname__, msg)
+            raise cpl.core.DataNotFoundError(msg)
         p,cov_p=np.polyfit(meanflux[meanflux < self.linlimit],varflux[meanflux < self.linlimit],deg=1,cov=True) # this calculates the nominal gain
         Msg.info(self.__class__.__qualname__, f"nominal gain [e/ADU]: {1/p[0]*gaincorrection_factor}")
        
@@ -224,7 +233,9 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             varflux=np.zeros([len(uni_on)])
             for i_on,un_on in enumerate(uni_on):
                 if uni_on_counts[i_on] >= 2:
-                    if uni_off_counts[uni_off == un_on] >= 2:
+                    # Safe-slice: see note at the equivalent check above.
+                    off_match = uni_off_counts[uni_off == un_on]
+                    if off_match.size > 0 and off_match[0] >= 2:
 
                         sel_dits_on=((dits == un_on) & (fws != 'open'))
                         sel_dits_off=((dits == un_on) & (fws == 'open'))
@@ -252,9 +263,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                 else:
                     Msg.warning(self.__class__.__qualname__, "This combination does not have enough ON frames")
             if np.sum(meanflux < self.linlimit) < 2:
-                Msg.error(self.__class__.__qualname__, "This dataset does not have enough data within the linlimit to determine the gain")
-                # TODO force stop of program
-           
+                msg = ("metis_det_lingain (bootstrap iter): not enough data "
+                       f"points below linlimit ({self.linlimit}) to determine "
+                       "the gain in this bootstrap window. See the comment on "
+                       "the equivalent nominal-gain check above.")
+                Msg.error(self.__class__.__qualname__, msg)
+                raise cpl.core.DataNotFoundError(msg)
+
             p,cov_p=np.polyfit(meanflux[meanflux < self.linlimit],varflux[meanflux < self.linlimit],deg=1,cov=True)
             storegain[i_win]=1/p[0]*gaincorrection_factor
 
@@ -276,8 +291,10 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     sel=(fluxes_x_y<self.linlimit) # only fit pixel values within the linlimit
                     truesel=(fluxes_x_y<self.truelimit)
                     if np.sum(sel) < (self.fitdegree+1):
-                        Msg.error(self.__class__.__qualname__, "This pixel does not have enough data within the linlimit to perform a fit at this fitorder") # TODO this might be too restrictive, it probably needs to capture the error in poly fit and then flag these as bad pixels. And then there can be a proper error if too many pixels were flagged in this way, which could indicate that the dataset is bad.
-                    # TODO force stop of program
+                        # If there are not enough below-linlimit samples to fit this pixel mark it bad and skip 
+                        Msg.debug(self.__class__.__qualname__, f"Pixel ({i_x},{i_y}): too few below-linlimit samples; marking bad")
+                        bpm[i_x,i_y]=1
+                        continue
                    
                     # define a weighted average of the pixels below a certain 'true flux' cutoff. this defines a weighted average flux rate to which all flux rates are corrected.
                     trueflux=np.average(fluxes_x_y[truesel]/dits_fluxrates[truesel],weights=1/(np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[truesel]/(2*gain))/dits_fluxrates[truesel])**2)

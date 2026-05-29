@@ -29,6 +29,7 @@ lm_lss_lingain_task = (task('metis_lm_lss_lingain')
             .with_recipe("metis_det_lingain")
             .with_main_input(detlin_2rg_raw)
             .with_associated_input(lm_wcu_off_raw)        # check how that is exactly delivered by the ICS!
+            .with_job_processing(setup_lingain_job)
             .with_meta_targets([QC1_CALIB])
             .build())
 
