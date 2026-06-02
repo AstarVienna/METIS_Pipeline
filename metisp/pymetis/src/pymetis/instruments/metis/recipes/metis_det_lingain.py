@@ -203,12 +203,14 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
         dits_fluxrates = []
 
-        for i_on, un_on in enumerate(uni_on):  # loop over unique dit values
-            # Check if there are at least 2 frames of each DIT. This can be deferred to the workflow ?
-            if uni_on_counts[i_on] >= 2:
-                if uni_off_counts[uni_off == un_on] >= 2:
-                    sel_dits_on = ((dits == un_on) & (fws != 'open'))  # this is a hack because there was no proper 'closed' position before. here open represents closed.
-                    sel_dits_off = ((dits == un_on) & (fws == 'open'))  # for a certain DIT this selects all the on and off frames.
+        for i_on, un_on in enumerate(uni_on): # loop over unique dit values
+
+            if uni_on_counts[i_on] >= 2: # check if there are at least 2 frames of each DIT.
+                # Safe-slice; otherwise returns "truth value of an array ... is ambiguous" error
+                off_match = uni_off_counts[uni_off == un_on]
+                if off_match.size > 0 and off_match[0] >= 2:
+                    sel_dits_on = ((dits == un_on) & (fws != 'open')) # this is a hack because there was no proper 'closed' position before. here open represents closed.
+                    sel_dits_off = ((dits == un_on) & (fws == 'open')) # for a certain DIT this selects all the on and off frames.
 
                     if "IFU" in tech:
                         sel_dits_on = ((dits == un_on) & med_on)  # this is a hack because there was no proper 'closed' position before. here we check the flux levels to determine if it is dark or not. for the IFU both dataproducts have open...
@@ -240,17 +242,27 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         dits_fluxrates = np.array(dits_fluxrates)
 
         if np.sum(meanflux < self.linlimit) < 2:
-            raise cpl.core.IllegalInputError("This dataset does not have enough data "
-                                             "within the linlimit to determine the gain")
+            msg = ("Not enough data points below linlimit "
+                   f"({self.linlimit}) to determine the gain "
+                   f"(meanflux={meanflux.tolist()}, uni_on={uni_on.tolist()}). "
+                   "Cause: no ON/OFF frame pairs at matching DIT, or all "
+                   "frames are above linlimit. If running under EDPS, the "
+                   "workflow's lingain pre-filter should have caught this "
+                   "earlier.")
+            Msg.error(self.__class__.__qualname__, msg)
+            raise cpl.core.IllegalInputError(msg)
 
         p, cov_p = np.polyfit(meanflux[meanflux < self.linlimit],
                               varflux[meanflux < self.linlimit],
-                              deg=1, cov=True)  # this calculates the nominal gain
-        gainval = 1 / p[0] * gaincorrection_factor
-        Msg.info(self.__class__.__qualname__, f"Nominal gain [e/ADU]: {gainval}")
+                              deg=1, cov=True) # this calculates the nominal gain
 
-        linearity = np.zeros(shape=(self.fitdegree + 1, self.detector_size, self.detector_size))
-        err_linearity = np.zeros(shape=(self.fitdegree + 1, self.detector_size, self.detector_size))
+        gainval = 1 / p[0] * gaincorrection_factor
+        Msg.info(self.__class__.__qualname__,
+                 f"Nominal gain [e/ADU]: {gainval}")
+       
+        linearity = np.zeros([self.fitdegree + 1, self.detector_size, self.detector_size])
+        err_linearity = np.zeros([self.fitdegree + 1, self.detector_size, self.detector_size])
+       
 
         # bootstrapping the statistical error on the nominal gain value
         # we redraw the valid pixels and redetermine the gain based on those pixels
@@ -272,10 +284,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
             for i_on, un_on in enumerate(uni_on):
                 if uni_on_counts[i_on] >= 2:
-                    if uni_off_counts[uni_off == un_on] >= 2:
+                    # Safe-slice: see note at the equivalent check above.
+                    off_match = uni_off_counts[uni_off == un_on]
+                    if off_match.size > 0 and off_match[0] >= 2:
+
                         sel_dits_on = ((dits == un_on) & (fws != 'open'))
                         sel_dits_off = ((dits == un_on) & (fws == 'open'))
-
+                       
                         if "IFU" in tech:
                             # This is a hack because there was no proper 'closed' position before.
                             # Here we check the flux levels to determine if it is dark or not. https://xkcd.com/1172/
@@ -299,10 +314,12 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     Msg.warning(self.__class__.__qualname__, "This combination does not have enough ON frames")
 
             if np.sum(meanflux < self.linlimit) < 2:
-                Msg.error(self.__class__.__qualname__,
-                          "This dataset does not have enough data within the linlimit to determine the gain")
-                raise cpl.core.IllegalInputError("This dataset does not have enough data "
-                                                 "within the linlimit to determine the gain")
+                msg = ("metis_det_lingain (bootstrap iter): not enough data "
+                       f"points below linlimit ({self.linlimit}) to determine "
+                       "the gain in this bootstrap window. See the comment on "
+                       "the equivalent nominal-gain check above.")
+                Msg.error(self.__class__.__qualname__, msg)
+                raise cpl.core.IllegalInputError(msg)
 
             p, cov_p = np.polyfit(meanflux[meanflux < self.linlimit],
                                   varflux[meanflux < self.linlimit],
@@ -322,39 +339,31 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
         for i_x in range(0, self.detector_size):
             # TODO additional optional bad pixel masking should go here
-
-            fluxes_x = fluxes_on[:, i_x, :]  # note that for the linearity calculation this is not dark-subtracted.
+           
+            fluxes_x = fluxes_on[:, i_x, :] # note that for the linearity calculation this is not dark-subtracted.
 
             if i_x % 64 == 0:
                 Msg.debug(self.__class__.__qualname__,
                           f"Processed {i_x:4d} / {self.detector_size:4d} rows")
 
             for i_y in range(0, self.detector_size):
-                fluxes_x_y = fluxes_x[:, i_y]  # working on a subarray is faster than directly indexing the 3D array
-                if sel_mask[i_x, i_y] == 1:  # only fit pixels that are not known to be bad
-                    sel = (fluxes_x_y < self.linlimit)  # only fit pixel values within the linlimit
-                    truesel = (fluxes_x_y < self.truelimit)
+                fluxes_x_y=fluxes_x[:,i_y] # working on a subarray is faster than directly indexing the 3D array
+                if sel_mask[i_x,i_y] == 1: # only fit pixels that are not known to be bad
+                    sel=(fluxes_x_y<self.linlimit) # only fit pixel values within the linlimit
+                    truesel=(fluxes_x_y<self.truelimit)
 
                     if np.sum(sel) < self.fitdegree + 1:
-                        Msg.error(self.__class__.__qualname__,
-                                  f"Pixel {i_x}, {i_y} does not have enough data within the linlimit "
-                                  f"to perform a fit at this fit order")
-                        # TODO this might be too restrictive, it probably needs to capture the error in poly fit
-                        # and then flag these as bad pixels. And then there can be a proper error if too many
-                        # pixels were flagged in this way, which could indicate that the dataset is bad.
+                        Msg.debug(self.__class__.__qualname__,
+                                  f"Pixel ({i_x},{i_y}): too few below-linlimit samples; marking bad")
+                        bpm[i_x, i_y]=1
+                        continue
 
-                        # TODO force stop of program
-
-                    # Define a weighted average of the pixels below a certain 'true flux' cutoff.
-                    # This defines a weighted average flux rate to which all flux rates are corrected.
+                    # define a weighted average of the pixels below a certain 'true flux' cutoff. this defines a weighted average flux rate to which all flux rates are corrected.
                     trueflux = np.average(
                         fluxes_x_y[truesel] / dits_fluxrates[truesel],
-                        weights=1 / (
-                                np.sqrt(gaincorrection_factor) *
-                                np.sqrt(RN ** 2 + fluxes_x_y[truesel] / (2 * gain)) / dits_fluxrates[truesel]
-                        ) ** 2
+                        weights=1/(np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[truesel]/(2*gain))/dits_fluxrates[truesel])**2
                     )
-
+                   
                     # define standard error on the weighted average
                     e_trueflux = np.sqrt(
                         1 / np.sum(
@@ -389,7 +398,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         for i in range(self.fitdegree + 1):  # check every polynomial coefficient
             linearity_ma = np.ma.masked_array(linearity[i, :, :],
                                               mask=~sel_mask)  # only consider pixels with good values
-            bpm = bpm + astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask  # reject outliers, TODO: need to investigate the HDRL equivalent
+            bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask  # reject outliers, TODO: need to investigate the HDRL equivalent
             # Truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
             bpm[bpm > 1] = 1
 

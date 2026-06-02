@@ -4,6 +4,8 @@ default_parameters: &default
     dark_task: 
       # Overriding the default for stacking
       metis.metis_det_dark.stacking.method: "median"
+      metis.metis_det_dark.kappa_low: 4
+      metis.metis_det_dark.kappa_high: 4
   
   workflow_parameters:
     molecfit: "science"
