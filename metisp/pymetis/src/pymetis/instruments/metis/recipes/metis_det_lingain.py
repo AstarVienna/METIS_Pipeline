@@ -211,7 +211,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                    "workflow's lingain pre-filter should have caught this "
                    "earlier.")
             Msg.error(self.__class__.__qualname__, msg)
-            raise cpl.core.DataNotFoundError(msg)
+            raise cpl.core.IllegalInputError(msg)
         p,cov_p=np.polyfit(meanflux[meanflux < self.linlimit],varflux[meanflux < self.linlimit],deg=1,cov=True) # this calculates the nominal gain
         Msg.info(self.__class__.__qualname__, f"nominal gain [e/ADU]: {1/p[0]*gaincorrection_factor}")
        
@@ -268,7 +268,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                        "the gain in this bootstrap window. See the comment on "
                        "the equivalent nominal-gain check above.")
                 Msg.error(self.__class__.__qualname__, msg)
-                raise cpl.core.DataNotFoundError(msg)
+                raise cpl.core.IllegalInputError(msg)
 
             p,cov_p=np.polyfit(meanflux[meanflux < self.linlimit],varflux[meanflux < self.linlimit],deg=1,cov=True)
             storegain[i_win]=1/p[0]*gaincorrection_factor
