@@ -37,7 +37,7 @@ dark_raw = (data_source("DARK")
 wcu_off_raw = (data_source()
             .with_classification_rule(n_wcu_off_raw_class)
             .with_classification_rule(lm_wcu_off_raw_class)
-            .with_match_keywords(["instrume", "ins.mode"])
+            .with_match_keywords(["instrume", "ins.mode", "tpl.start"])
             .build())
 # --- LM IMG Data sources ---
 
