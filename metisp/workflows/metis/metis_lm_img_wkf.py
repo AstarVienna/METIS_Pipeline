@@ -3,7 +3,7 @@ from edps import task, subworkflow, qc1calib, match_rules, FilterMode, calchecke
 from .metis_datasources import *
 from . import metis_keywords as metis_kwd
 from .common_tasks import dark_task, lingain_task
-
+from .metis_task_functions import *
 #lm_img_lingain_task = (task('metis_lm_img_lingain')
 #                .with_recipe("metis_det_lingain")
 #                .with_main_input(detlin_raw)

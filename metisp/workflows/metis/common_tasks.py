@@ -1,11 +1,12 @@
 from edps import task
 from .metis_datasources import *
 # dark_raw, persistence_map, detlin_raw, wcu_off_raw
-from .metis_task_functions import which_detector, is_LM, is_N, is_IFU
+from .metis_task_functions import which_detector, is_LM, is_N, is_IFU, setup_lingain_job
 
 lingain_task = (task('metis_lingain')
                 .with_recipe("metis_det_lingain")
                 .with_main_input(detlin_raw)
+                .with_job_processing(setup_lingain_job)
                 .with_associated_input(wcu_off_raw, max_ret=100)  # otherwise only 1 is associated: default max_ret=1
                 .build())
 
