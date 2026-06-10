@@ -130,6 +130,7 @@ class RecipeImpl(Parametrizable, ABC):
         except Exception as e:
             Msg.error(self.__class__.__qualname__,
                       f"Unexpected exception occurred: {e}")
+            raise e
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """

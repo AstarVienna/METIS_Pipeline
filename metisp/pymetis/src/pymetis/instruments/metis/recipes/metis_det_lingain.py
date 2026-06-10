@@ -259,7 +259,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         # we redraw the valid pixels and redetermine the gain based on those pixels
         # the standard deviation of these gains is a measure of the statistical error on the nominal gain calculated above
        
-        draws = 1#00
+        draws = 100
         storegain = np.zeros(draws)
 
         for i_win in np.arange(draws):
