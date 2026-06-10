@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import re
 
-from abc import ABC
 from typing import Literal, Dict, Any
 
 import cpl
@@ -37,7 +36,6 @@ from pymetis.instruments.metis.dataitems.gainmap import GainMap
 from pymetis.instruments.metis.dataitems.linearity.linearity import LinearityMap
 from pymetis.instruments.metis.dataitems.linearity.raw import LinearityRaw
 from pymetis.instruments.metis.inputs import RawInput, BadPixMapInput, OptionalInputMixin
-from pymetis.instruments.metis.inputs.common import WcuOffInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.qc.lingain import (LinGainMean, LinGainRms, LinNumBadpix, LinMinFlux, LinMaxFlux,
@@ -93,6 +91,16 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                 (4 * ipc_alpha0 + 4 * ipc_alpha0_prime) ** 2 +
                 (4 * ipc_alpha0 ** 2 + 4 * ipc_alpha0_prime ** 2))  # this needs to depend on detector
 
+    @staticmethod
+    def split_dits(tech: str, fws: NDArray, dits: NDArray[np.float64], un_on: NDArray[int],
+                   med_on: NDArray, med_off: NDArray) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
+        if "IFU" in tech:
+            return (dits == un_on) & med_on, (dits == un_on) & med_off
+            # This is a hack because there was no proper 'closed' position before.
+            # Here we check the flux levels to determine if it is dark or not. https://xkcd.com/1172/
+        else:
+            return (dits == un_on) & (fws != 'open'), (dits == un_on) & (fws == 'open')
+
     def get_detector_mask(self, tech, detector) -> NDArray[bool]:
         """
         A mask to ignore the masked pixels at the edge of the detector.
@@ -124,13 +132,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         det = rf'DET{detector:1d}'
 
         raw_images = self.inputset.raw.load_data(rf'{det}.DATA') # this is an ImageList
-        length=len(raw_images)
+        length = len(raw_images)
        
         # TODO we would likely need to apply "bias" corrections based on the reference pixels when we read in the data
        
-        fws=[]
-        dits=[]
-        images=[]
+        fws = []
+        dits = []
+        images = []
 
         for i_frame in range(length):
             header_linearity = cpl.core.PropertyList.load(self.inputset.raw.frameset[i_frame].file, 0)
@@ -203,12 +211,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                 off_match = uni_off_counts[uni_off == un_on]
 
                 if off_match.size > 0 and off_match[0] >= 2:
-                    if "IFU" in tech:
-                        sel_dits_on=((dits == un_on) & med_on) # this is a hack because there was no proper 'closed' position before. here we check the flux levels to determine if it is dark or not. for the IFU both dataproducts have open...
-                        sel_dits_off=((dits == un_on) & med_off)
-                    else:
-                        sel_dits_on = ((dits == un_on) & (fws != 'open'))  # this is a hack because there was no proper 'closed' position before. here open represents closed.
-                        sel_dits_off = ((dits == un_on) & (fws == 'open'))  # for a certain DIT this selects all the on and off frames.
+                    sel_dits_on, sel_dits_off = self.split_dits(tech, fws, dits, un_on, med_on, med_off)
 
                     data_on1 = images[sel_dits_on][0][sel_mask]
                     data_on2 = images[sel_dits_on][1][sel_mask]
@@ -256,7 +259,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         # we redraw the valid pixels and redetermine the gain based on those pixels
         # the standard deviation of these gains is a measure of the statistical error on the nominal gain calculated above
        
-        draws = 100
+        draws = 1#00
         storegain = np.zeros(draws)
 
         for i_win in np.arange(draws):
@@ -264,18 +267,16 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             meanflux = np.zeros_like(uni_on)
             varflux = np.zeros_like(uni_on)
 
+            Msg.debug(self.__class__.__qualname__,
+                      f"Bootstrap iteration {i_win:3d} of {draws:3d}")
+
             for i_on, un_on in enumerate(uni_on):
                 if uni_on_counts[i_on] >= 2:
                     # Safe-slice: see note at the equivalent check above.
                     off_match = uni_off_counts[uni_off == un_on]
 
                     if off_match.size > 0 and off_match[0] >= 2:
-                        if "IFU" in tech:
-                            sel_dits_on = (dits == un_on) & med_on # this is a hack because there was no proper 'closed' position before. here we check the flux levels to determine if it is dark or not. https://xkcd.com/1172/
-                            sel_dits_off = (dits == un_on) & med_off
-                        else:
-                            sel_dits_on = (dits == un_on) & (fws != 'open')
-                            sel_dits_off = (dits == un_on) & (fws == 'open')
+                        sel_dits_on, sel_dits_off = self.split_dits(tech, fws, dits, un_on, med_on, med_off)
 
                         data_on1 = images[sel_dits_on][0][sel_mask][window]
                         data_on2 = images[sel_dits_on][1][sel_mask][window]
@@ -309,20 +310,29 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         gain_err = np.std(storegain)
                
         # linearity calculation
-       
-        bpm = ~sel_mask # inverts the selection mask to use as initial BPM, note that at the moment this also includes the reference pixels, which might not be strictly bad pixels.
-       
+
+        # Inverts the selection mask to use as initial BPM.
+        # Note that at the moment this also includes the reference pixels, which might not be strictly bad pixels.
+        bpm = ~sel_mask
+
+        Msg.debug(self.__class__.__qualname__,
+                  f"Now actually determining linearity...")
+
         for i_x in range(0, self.detector_size):
            
             # TODO additional optional bad pixel masking should go here
            
-            fluxes_x=fluxes_on[:, i_x, :] # note that for the linearity calculation this is not dark-subtracted.
+            fluxes_x = fluxes_on[:, i_x, :] # note that for the linearity calculation this is not dark-subtracted.
+
+            if i_x % 64 == 0:
+                Msg.debug(self.__class__.__qualname__,
+                          f"Now processing row {i_x:4d} of {self.detector_size:4d}")
                
             for i_y in range(0, self.detector_size):
                 fluxes_x_y = fluxes_x[:, i_y] # working on a subarray is faster than directly indexing the 3D array
                 if sel_mask[i_x, i_y] == 1: # only fit pixels that are not known to be bad
                     sel = (fluxes_x_y < self.linlimit) # only fit pixel values within the linlimit
-                    truesel= (fluxes_x_y < self.truelimit)
+                    truesel = (fluxes_x_y < self.truelimit)
 
                     if np.sum(sel) < self.fitdegree + 1:
                         # If there are not enough below-linlimit samples to fit this pixel mark it bad and skip 
@@ -366,7 +376,8 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         header_gain = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         header_badpix = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
        
-        gain_table = cpl.core.Table(input=np.rec.fromarrays(np.array([[gainval], [gain_err]]), names=["gain","gain_err"]))
+        gain_table = cpl.core.Table(input=np.rec.fromarrays(np.array([[gainval], [gain_err]]),
+                                                            names=["gain", "gain_err"]))
         linearity_image = cpl.core.ImageList([cpl.core.Image(data=linearity[i,:,:]) for i in range(self.fitdegree+1)])
         err_linearity_image = cpl.core.ImageList([cpl.core.Image(data=err_linearity[i,:,:]) for i in range(self.fitdegree+1)])
         dq_linearity_image = cpl.core.Image(data=np.int32(bpm)) # had to cast to integer, boolean gave CPL error
@@ -398,11 +409,14 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             primary_header_gain_map,
             *[output['gain_map'] for output in all_hdus]
         )
-        items=[output['linearity_map'] for output in all_hdus]+[output['err_linearity_map'] for output in all_hdus]+[output['dq_linearity_map'] for output in all_hdus]
-       
+
+        items = [output['linearity_map'] for output in all_hdus] + \
+                [output['err_linearity_map'] for output in all_hdus] + \
+                [output['dq_linearity_map'] for output in all_hdus]
+
         product_linearity = self.ProductSet.Linearity(
             primary_header_linearity,
-            *items
+            *items,
         )
         product_badpix_map = self.ProductSet.BadPixMap(
             primary_header_badpix_map,
