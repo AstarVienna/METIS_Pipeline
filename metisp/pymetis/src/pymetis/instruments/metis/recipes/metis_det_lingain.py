@@ -16,8 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import itertools
 import re
+from sys import prefix
 
 from typing import Literal, Dict, Any
 
@@ -25,6 +26,7 @@ import cpl
 from cpl.core import Msg
 from numpy._typing import NDArray
 
+from pymetis.engine.core.functions.image import EnhancedImage
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.dummy import create_dummy_header
@@ -87,6 +89,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
     @staticmethod
     def gain_correction_factor(ipc_alpha0, ipc_alpha0_prime):
+        """
+        IPC parameters, probably should be part of an external calibration product. https://ui.adsabs.harvard.edu/abs/2016PASP..128i5001K/abstract for H4RG. see also IRDB METIS.
+        IPC matrix (3x3), equation 8 of https://ui.adsabs.harvard.edu/abs/2016PASP..128i5001K/abstract
+        alpha0_prime, alpha0                    , alpha0_prime
+        alpha0      , 1-4*alpha0_prime-4*alpha0 , alpha0
+        alpha0_prime, alpha0                    , alpha0_prime
+        """
         return (1 - 2 * (4 * ipc_alpha0 + 4 * ipc_alpha0_prime) +
                 (4 * ipc_alpha0 + 4 * ipc_alpha0_prime) ** 2 +
                 (4 * ipc_alpha0 ** 2 + 4 * ipc_alpha0_prime ** 2))  # this needs to depend on detector
@@ -163,18 +172,12 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             uni_off, uni_off_counts = np.unique(dits[med_off], return_counts=True)
         else:
             # This is a hack because METIS_Simulations overrides the closed position
-            uni_on, uni_on_counts = np.unique(dits[(fws != 'open')], return_counts=True)
-            uni_off, uni_off_counts = np.unique(dits[(fws == 'open')], return_counts=True)
+            uni_on, uni_on_counts = np.unique(dits[fws != 'open'], return_counts=True)
+            uni_off, uni_off_counts = np.unique(dits[fws == 'open'], return_counts=True)
 
         meanflux = np.zeros_like(uni_on)
         varflux = np.zeros_like(uni_on)
         dits_fluxrates = []
-       
-        # IPC parameters, probably should be part of an external calibration product. https://ui.adsabs.harvard.edu/abs/2016PASP..128i5001K/abstract for H4RG. see also IRDB METIS.
-        # IPC matrix (3x3), equation 8 of https://ui.adsabs.harvard.edu/abs/2016PASP..128i5001K/abstract
-        # alpha0_prime, alpha0                    , alpha0_prime
-        # alpha0      , 1-4*alpha0_prime-4*alpha0 , alpha0
-        # alpha0_prime, alpha0                    , alpha0_prime
 
         sel_mask = self.get_detector_mask(tech, detector)
 
@@ -259,7 +262,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         # we redraw the valid pixels and redetermine the gain based on those pixels
         # the standard deviation of these gains is a measure of the statistical error on the nominal gain calculated above
        
-        draws = 100
+        draws = 1#00
         storegain = np.zeros(draws)
 
         for i_win in np.arange(draws):
@@ -318,7 +321,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         Msg.debug(self.__class__.__qualname__,
                   f"Now actually determining linearity...")
 
-        for i_x in range(0, self.detector_size):
+        for i_x in range(0, self.detector_size // 100):
            
             # TODO additional optional bad pixel masking should go here
            
@@ -340,14 +343,18 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                                   f"Pixel ({i_x}, {i_y}): too few below-linlimit samples; marking bad")
                         bpm[i_x, i_y] = 1
                         continue
-                   
+
                     # define a weighted average of the pixels below a certain 'true flux' cutoff. this defines a weighted average flux rate to which all flux rates are corrected.
                     trueflux = np.average(fluxes_x_y[truesel] / dits_fluxrates[truesel],
                                           weights=1 / (np.sqrt(gaincorrection_factor) * np.sqrt(RN**2 + fluxes_x_y[truesel] / (2*gain)) / dits_fluxrates[truesel])**2
                     )
                    
                     # define standard error on the weighted average
-                    e_trueflux=np.sqrt(1./np.sum((1./np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[truesel]/(2*gain))/dits_fluxrates[truesel])**2))
+                    e_trueflux = np.sqrt(
+                        1 / np.sum(
+                            (1 / np.sqrt(gaincorrection_factor) * np.sqrt(RN**2 + fluxes_x_y[truesel] / (2*gain)) / dits_fluxrates[truesel])**2
+                        )
+                    )
 
                     # the function that is fit is the correction function (which is ~1 when in the most linear regime) as function of the flux
                     try:
@@ -356,7 +363,6 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                                               deg=self.fitdegree,
                                               w=trueflux/(np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[sel]/(2*gain))/dits_fluxrates[sel]),
                                               cov='unscaled')
-               
                         linearity[:, i_x, i_y] = p
                         err_linearity[:, i_x, i_y] = np.sqrt(np.diag(cov_p)) # this ignores the covariance term, but HDRL error propagation doesn't do covariance and it would be hard to store a covariance matrix per pixel as CPL only does 3D objects per extension.
                     except:
@@ -366,7 +372,8 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         for i in range(self.fitdegree + 1): # check every polynomial coefficient
             linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
             bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
-            bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
+
+        bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
        
         # TODO: QC parameters should be populated here
        
@@ -384,9 +391,16 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
        
         return {
             'gain_map': Hdu(header_gain, gain_table, name=rf'{det}.SCI'),
-            'linearity_map': Hdu(header_linearity, linearity_image, name=rf'{det}.SCI'),
+            'data_linearity_map': Hdu(header_linearity, linearity_image, name=rf'{det}.SCI'),
             'err_linearity_map': Hdu(header_errlinearity, err_linearity_image, name=rf'{det}.ERR'),
             'dq_linearity_map': Hdu(header_dqlinearity, dq_linearity_image, name=rf'{det}.DQ'),
+            'linearity_map': EnhancedImage(
+                linearity_image, err_linearity_image, dq_linearity_image,
+                header_image=header_linearity,
+                header_error=header_errlinearity,
+                header_quality=header_dqlinearity,
+                prefix=rf'{det}',
+            ),
             'badpix_map': Hdu(header_badpix, dq_linearity_image, name=rf'{det}.SCI'),
         }
 
@@ -410,9 +424,10 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             *[output['gain_map'] for output in all_hdus]
         )
 
-        items = [output['linearity_map'] for output in all_hdus] + \
+        items = [output['data_linearity_map'] for output in all_hdus] + \
                 [output['err_linearity_map'] for output in all_hdus] + \
                 [output['dq_linearity_map'] for output in all_hdus]
+        items = list(itertools.chain.from_iterable([output['linearity_map'].as_list() for output in all_hdus]))
 
         product_linearity = self.ProductSet.Linearity(
             primary_header_linearity,

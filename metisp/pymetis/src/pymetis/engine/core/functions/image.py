@@ -22,7 +22,10 @@ from typing import Optional
 
 import cpl
 from cpl.core import (Image as CplImage,
-                      Type as CplType)
+                      Type as CplType,
+                      PropertyList as CplPropertyList)
+
+from pymetis.engine.dataitems import Hdu
 
 
 def zeros_like(image: CplImage, new_type: Optional[CplType] = None):
@@ -37,3 +40,30 @@ def zeros_like(image: CplImage, new_type: Optional[CplType] = None):
         return temp
     else:
         return temp.cast(new_type)
+
+
+class EnhancedImage:
+    """
+    A high-level image object that encapsulates a data layer, error layer and data quality layer.
+    Should be independent of CPL and FITS quirks but support loading and saving.
+    """
+    def __init__(self,
+                 image: CplImage,
+                 error: Optional[CplImage] = None,
+                 quality: Optional[CplImage] = None,
+                 *,
+                 prefix: str,
+                 header_image: Optional[CplPropertyList] = None,
+                 header_error: Optional[CplPropertyList] = None,
+                 header_quality: Optional[CplPropertyList] = None):
+        self.prefix = prefix
+        self.image = Hdu(header_image, image, name=rf'{self.prefix}.SCI')
+        self.error = Hdu(header_error, error, name=rf'{self.prefix}.ERR')
+        self.quality = Hdu(header_quality, quality, name=rf'{self.prefix}.DQ')
+
+    def as_list(self) -> list[Hdu]:
+        return [
+            self.image,
+            self.error,
+            self.quality,
+        ]
