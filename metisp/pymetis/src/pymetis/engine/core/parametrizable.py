@@ -89,7 +89,8 @@ class ParametrizableMeta(ABCMeta):
                 return reg.get(key)
         return None
 
-    def list_classes(cls) -> list[tuple[str, type]]:
+    # This should NOT be a classmethod -- we are in a metaclass!
+    def list_classes(cls) -> list[tuple[str, type[Self]]]:
         return [
             (n, k) for n, k in inspect.getmembers(cls, inspect.isclass)
             if isinstance(k, ParametrizableMeta) and k is not cls
