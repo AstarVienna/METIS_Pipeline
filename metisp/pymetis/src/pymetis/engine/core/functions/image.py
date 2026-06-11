@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 
-from typing import Optional
+from typing import Optional, ClassVar
 
 import cpl
 from cpl.core import (Image as CplImage,
@@ -44,26 +44,31 @@ def zeros_like(image: CplImage, new_type: Optional[CplType] = None):
 
 class EnhancedImage:
     """
-    A high-level image object that encapsulates a data layer, error layer and data quality layer.
+    A high-level image object that encapsulates a data layer, error layer and data dq layer.
     Should be independent of CPL and FITS quirks but support loading and saving.
     """
+
+    sci_prefix: ClassVar[str] = 'SCI'
+    err_prefix: ClassVar[str] = 'ERR'
+    dq_prefix: ClassVar[str] = 'DQ'
+
     def __init__(self,
                  image: CplImage,
                  error: Optional[CplImage] = None,
-                 quality: Optional[CplImage] = None,
+                 dq: Optional[CplImage] = None,
                  *,
                  prefix: str,
                  header_image: Optional[CplPropertyList] = None,
                  header_error: Optional[CplPropertyList] = None,
-                 header_quality: Optional[CplPropertyList] = None):
+                 header_dq: Optional[CplPropertyList] = None):
         self.prefix = prefix
-        self.image = Hdu(header_image, image, name=rf'{self.prefix}.SCI')
-        self.error = Hdu(header_error, error, name=rf'{self.prefix}.ERR')
-        self.quality = Hdu(header_quality, quality, name=rf'{self.prefix}.DQ')
+        self.image = Hdu(header_image, image, name=rf'{self.prefix}.{self.sci_prefix}')
+        self.error = Hdu(header_error, error, name=rf'{self.prefix}.{self.err_prefix}')
+        self.dq = Hdu(header_dq, dq, name=rf'{self.prefix}.{self.dq_prefix}')
 
     def as_list(self) -> list[Hdu]:
         return [
             self.image,
             self.error,
-            self.quality,
+            self.dq,
         ]
