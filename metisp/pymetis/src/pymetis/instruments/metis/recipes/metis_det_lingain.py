@@ -187,8 +187,8 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
        
         images = np.array(images)
 
-        uni_on, uni_on_counts = np.unique(dits[(fws != 'closed')], return_counts=True)
-        uni_off, uni_off_counts = np.unique(dits[(fws == 'closed')], return_counts=True)
+        uni_on, uni_on_counts = np.unique(dits[fws != 'closed'], return_counts=True)
+        uni_off, uni_off_counts = np.unique(dits[fws == 'closed'], return_counts=True)
 
         meanflux = np.zeros_like(uni_on)
         varflux = np.zeros_like(uni_on)
