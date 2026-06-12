@@ -44,16 +44,14 @@ def instrument_to_linlimit(job : Job):
 def _classify_lingain_frames(files):
     """Return (on_indices, off_indices, dits) for a list of DETLIN raw files.
 
-    Classification uses the ESO DRS FILTER keyword: 'open' marks a
+    Classification uses the ESO DRS FILTER keyword: 'closed' marks a
     closed-shutter dark (OFF), any other filter value is illuminated (ON).
-    Note: 'open' currently represents the closed position because of the
-    Shutter hack in METIS_Simulations
     """
     dits, on_idx, off_idx = [], [], []
     for i, f in enumerate(files):
         dits.append(f.get_keyword_value("det.dit", None))
         fw = (f.get_keyword_value("drs.filter", "") or "").strip()
-        if fw == "open":
+        if fw == "closed":
             off_idx.append(i)
         elif fw:
             on_idx.append(i)
