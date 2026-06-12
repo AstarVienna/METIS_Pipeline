@@ -16,8 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
+import itertools
 import re
+from sys import prefix
 
 from typing import Literal, Dict, Any
 
@@ -25,6 +26,7 @@ import cpl
 from cpl.core import Msg
 from numpy._typing import NDArray
 
+from pymetis.engine.core.functions.image import EnhancedImage
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.dummy import create_dummy_header
@@ -85,11 +87,22 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         self.ipc_alpha0 = 0.02  # alpha_edge EXTERNAL CALIBRATION
         self.ipc_alpha0_prime = 0.002  # alpha_corner EXTERNAL CALIBRATION
 
-    @staticmethod
-    def gain_correction_factor(ipc_alpha0, ipc_alpha0_prime):
-        return (1 - 2 * (4 * ipc_alpha0 + 4 * ipc_alpha0_prime) +
-                (4 * ipc_alpha0 + 4 * ipc_alpha0_prime) ** 2 +
-                (4 * ipc_alpha0 ** 2 + 4 * ipc_alpha0_prime ** 2))  # this needs to depend on detector
+    def gain_correction_factor(self, tech):
+        """
+        IPC parameters, probably should be part of an external calibration product.
+        https://ui.adsabs.harvard.edu/abs/2016PASP..128i5001K/abstract for H4RG. see also IRDB METIS.
+        IPC matrix (3x3), equation 8 of https://ui.adsabs.harvard.edu/abs/2016PASP..128i5001K/abstract
+        alpha0_prime, alpha0                    , alpha0_prime
+        alpha0      , 1-4*alpha0_prime-4*alpha0 , alpha0
+        alpha0_prime, alpha0                    , alpha0_prime
+        """
+        if 'LM' in tech or 'IFU' in tech:
+            # equation 9 of https://arxiv.org/abs/2509.08810 (Euclid)
+            return (1 - 2 * (4 * self.ipc_alpha0 + 4 * self.ipc_alpha0_prime) +
+                    (4 * self.ipc_alpha0 + 4 * self.ipc_alpha0_prime) ** 2 +
+                    (4 * self.ipc_alpha0 ** 2 + 4 * self.ipc_alpha0_prime ** 2))  # this needs to depend on detector
+        elif 'N' in tech:
+            return 1
 
     @staticmethod
     def split_dits(tech: str, fws: NDArray, dits: NDArray[np.float64], un_on: NDArray[int]) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
@@ -122,10 +135,35 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         else:
             raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
-        det = rf'DET{detector:1d}'
+    def get_detector_characteristics(self, tech) -> tuple[float, float, float, float]:
+        """
+        Get detector characteristics:
+        - gain correction factor ()
+        - gain (e- / ADU)
+        - read noise (ADU)
+        - dark current (ADU / s)
+        """
+        if 'LM' in tech:
+            gain = 4.0
+            read_noise = 70 / gain
+            dark_current = 0.05 / gain
+        elif 'N' in tech:
+            gain = 201
+            read_noise = 300 / gain
+            dark_current = 1e5 / gain
+        elif 'IFU' in tech:
+            gain = 2.0
+            read_noise = 70 / gain
+            dark_current = 0.1 / gain
+        else:
+            raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
-        raw_images = self.inputset.raw.load_data(rf'{det}.DATA') # this is an ImageList
+        return self.gain_correction_factor(tech), gain, read_noise, dark_current
+
+    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+        det_prefix = rf'DET{detector:1d}'
+
+        raw_images = self.inputset.raw.load_data(rf'{det_prefix}.DATA') # this is an ImageList
         length = len(raw_images)
        
         # TODO we would likely need to apply "bias" corrections based on the reference pixels when we read in the data
@@ -155,36 +193,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         meanflux = np.zeros_like(uni_on)
         varflux = np.zeros_like(uni_on)
         dits_fluxrates = []
-       
-        # IPC parameters, probably should be part of an external calibration product. https://ui.adsabs.harvard.edu/abs/2016PASP..128i5001K/abstract for H4RG. see also IRDB METIS.
-        # IPC matrix (3x3), equation 8 of https://ui.adsabs.harvard.edu/abs/2016PASP..128i5001K/abstract
-        # alpha0_prime, alpha0                    , alpha0_prime
-        # alpha0      , 1-4*alpha0_prime-4*alpha0 , alpha0
-        # alpha0_prime, alpha0                    , alpha0_prime
 
+        gaincorrection_factor, gain, read_noise, dark_current = self.get_detector_characteristics(tech)
         sel_mask = self.get_detector_mask(tech, detector)
 
-        if 'LM' in tech:
-            # equation 9 of https://arxiv.org/abs/2509.08810 (Euclid)
-            gaincorrection_factor = self.gain_correction_factor(self.ipc_alpha0, self.ipc_alpha0_prime)
-            gain=4.0 # EXTERNAL CALIBRATION this needs to depend on detector, gain in electrons/ADU
-            RN=70./gain # EXTERNAL CALIBRATION, readnoise and gain value just used for noise calculation ? this needs to depend on detector, readnoise in ADU
-            DC=0.05/gain # dark current in electrons/s
-        elif 'N' in tech:
-            gaincorrection_factor = 1 # no IPC in scopesim for N band
-            gain=201. #e/ADU
-            RN=300./gain #ADU
-            DC=1e5/gain #ADU/s
-        elif 'IFU' in tech:
-            gaincorrection_factor = self.gain_correction_factor(self.ipc_alpha0, self.ipc_alpha0_prime)
-            gain=2.0 #e/ADU
-            DC=0.1/gain # ADU/s
-            RN=70/gain # ADU
-         
+        if 'IFU' in tech:
             slit_mask = np.percentile(images, 70, axis=0) > 2000
             sel_mask &= slit_mask # TODO additional optional bad pixel masking and windowing should go here
-        else:
-            raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
         fluxes_on = np.zeros(shape=(len(uni_on), self.detector_size, self.detector_size))
        
@@ -312,7 +327,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
             if i_x % 64 == 0:
                 Msg.debug(self.__class__.__qualname__,
-                          f"Now processing row {i_x:4d} of {self.detector_size:4d}")
+                          f"Now at row {i_x:4d} of {self.detector_size:4d}")
                
             for i_y in range(0, self.detector_size):
                 fluxes_x_y = fluxes_x[:, i_y] # working on a subarray is faster than directly indexing the 3D array
@@ -326,23 +341,26 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                                   f"Pixel ({i_x}, {i_y}): too few below-linlimit samples; marking bad")
                         bpm[i_x, i_y] = 1
                         continue
-                   
+
                     # define a weighted average of the pixels below a certain 'true flux' cutoff. this defines a weighted average flux rate to which all flux rates are corrected.
                     trueflux = np.average(fluxes_x_y[truesel] / dits_fluxrates[truesel],
-                                          weights=1 / (np.sqrt(gaincorrection_factor) * np.sqrt(RN**2 + fluxes_x_y[truesel] / (2*gain)) / dits_fluxrates[truesel])**2
+                                          weights=1 / (np.sqrt(gaincorrection_factor) * np.sqrt(read_noise **2 + fluxes_x_y[truesel] / (2*gain)) / dits_fluxrates[truesel])**2
                     )
                    
                     # define standard error on the weighted average
-                    e_trueflux=np.sqrt(1./np.sum((1./np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[truesel]/(2*gain))/dits_fluxrates[truesel])**2))
+                    e_trueflux = np.sqrt(
+                        1 / np.sum(
+                            (1 / np.sqrt(gaincorrection_factor) * np.sqrt(read_noise **2 + fluxes_x_y[truesel] / (2*gain)) / dits_fluxrates[truesel])**2
+                        )
+                    )
 
                     # the function that is fit is the correction function (which is ~1 when in the most linear regime) as function of the flux
                     try:
                         p, cov_p = np.polyfit(fluxes_x_y[sel],
                                               trueflux / (fluxes_x_y[sel] / dits_fluxrates[sel]),
                                               deg=self.fitdegree,
-                                              w=trueflux/(np.sqrt(gaincorrection_factor)*np.sqrt(RN**2+fluxes_x_y[sel]/(2*gain))/dits_fluxrates[sel]),
+                                              w=trueflux/(np.sqrt(gaincorrection_factor)*np.sqrt(read_noise **2+fluxes_x_y[sel]/(2*gain))/dits_fluxrates[sel]),
                                               cov='unscaled')
-               
                         linearity[:, i_x, i_y] = p
                         err_linearity[:, i_x, i_y] = np.sqrt(np.diag(cov_p)) # this ignores the covariance term, but HDRL error propagation doesn't do covariance and it would be hard to store a covariance matrix per pixel as CPL only does 3D objects per extension.
                     except:
@@ -352,7 +370,8 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         for i in range(self.fitdegree + 1): # check every polynomial coefficient
             linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
             bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
-            bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
+
+        bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
        
         # TODO: QC parameters should be populated here
        
@@ -369,11 +388,18 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         dq_linearity_image = cpl.core.Image(data=np.int32(bpm)) # had to cast to integer, boolean gave CPL error
        
         return {
-            'gain_map': Hdu(header_gain, gain_table, name=rf'{det}.SCI'),
-            'linearity_map': Hdu(header_linearity, linearity_image, name=rf'{det}.SCI'),
-            'err_linearity_map': Hdu(header_errlinearity, err_linearity_image, name=rf'{det}.ERR'),
-            'dq_linearity_map': Hdu(header_dqlinearity, dq_linearity_image, name=rf'{det}.DQ'),
-            'badpix_map': Hdu(header_badpix, dq_linearity_image, name=rf'{det}.SCI'),
+            'gain_map': Hdu(header_gain, gain_table, name=rf'{det_prefix}.SCI'),
+            'data_linearity_map': Hdu(header_linearity, linearity_image, name=rf'{det_prefix}.SCI'),
+            'err_linearity_map': Hdu(header_errlinearity, err_linearity_image, name=rf'{det_prefix}.ERR'),
+            'dq_linearity_map': Hdu(header_dqlinearity, dq_linearity_image, name=rf'{det_prefix}.DQ'),
+            'linearity_map': EnhancedImage(
+                linearity_image, err_linearity_image, dq_linearity_image,
+                header_image=header_linearity,
+                header_error=header_errlinearity,
+                header_dq=header_dqlinearity,
+                prefix=rf'{det_prefix}',
+            ),
+            'badpix_map': Hdu(header_badpix, dq_linearity_image, name=rf'{det_prefix}.SCI'),
         }
 
     def process(self) -> set[DataItem]:
@@ -396,9 +422,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             *[output['gain_map'] for output in all_hdus]
         )
 
-        items = [output['linearity_map'] for output in all_hdus] + \
-                [output['err_linearity_map'] for output in all_hdus] + \
-                [output['dq_linearity_map'] for output in all_hdus]
+        items = list(itertools.chain.from_iterable([output['linearity_map'].as_list() for output in all_hdus]))
 
         product_linearity = self.ProductSet.Linearity(
             primary_header_linearity,
