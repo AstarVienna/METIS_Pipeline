@@ -37,7 +37,7 @@ class Hdu:
                  header: CplPropertyList,
                  data: Optional[CplImage | CplTable | CplImageList],
                  *,
-                 name: Optional[str] = None, # FixMe this should not really be optional for creation (but yes for loading)
+                 name: Optional[str] = None,
                  klass: Optional[type[CplImage | CplTable | CplImageList]] = None,
                  extno: Optional[int] = 0):
         """
@@ -55,7 +55,7 @@ class Hdu:
         self.klass = klass if klass is not None else type(data) if data is not None else None
         self.extno = extno
 
-        self.name = name
+        self.name = name if name is not None else 'NONE'
 
         self.header.del_regexp(r'EXTNAME', True)
         self.header.append(make_cpl_property('EXTNAME', name))

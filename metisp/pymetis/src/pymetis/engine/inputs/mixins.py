@@ -1,5 +1,5 @@
 """
-This file is part of an A* Pipeline.
+This file is part of the METIS Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
@@ -16,16 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from abc import ABC
+
+from pymetis.engine.inputs import PipelineInput
 
 
-from .input import PipelineInput
-from .mixins import OptionalInputMixin
-from .single import SinglePipelineInput
-from .multiple import MultiplePipelineInput
-from .inputset import PipelineInputSet
-
-__all__ = [
-    'PipelineInput', 'SinglePipelineInput', 'MultiplePipelineInput',
-    'PipelineInputSet',
-    'OptionalInputMixin',
-]
+class OptionalInputMixin(PipelineInput, ABC):
+    """
+    Mixin for inputs that are optional -- the recipe can proceed without them and still produce meaningful output.
+    Prefer using this to setting `_required = False` directly in the class.
+    """
+    _required = False

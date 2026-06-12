@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from pymetis.engine.inputs import PipelineInput, SinglePipelineInput, MultiplePipelineInput
+from pymetis.engine.inputs.mixins import OptionalInputMixin
 
 from pymetis.instruments.metis.dataitems.common import (PersistenceMap, FluxCalTable, PinholeTable,
                                                         AtmProfile, LsfKernel, FluxStdCatalog,
@@ -55,10 +56,6 @@ You can override class attributes:
     it does not have to be touched. For optional inputs it is enough to define `_required = False`,
     or even better, derive from `OptionalInputMixin` first.
 """
-
-
-class OptionalInputMixin(PipelineInput, ABC):
-    _required = False     # Many inputs are by default optional, this mixin provides just that
 
 
 class RawInput(MultiplePipelineInput, ABC):
