@@ -21,13 +21,13 @@ import datetime
 import inspect
 import re
 from pathlib import Path
-from typing import Optional, Generator, Self, final, Union, ClassVar
+from typing import Optional, Self, final, Union, ClassVar
 
 import cpl
 from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyList
 
 from .hdu import Hdu
-from pymetis.engine.core.format import partial_format
+from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
 
@@ -234,8 +234,6 @@ class DataItem(ParametrizableItem, abstract=True):
                     None: None,
                 }[subschema.get('XTENSION', None)]
 
-         
-
                 if (subtype is None) | (subtype is Image):
                     if subschema.get('NAXIS', None) == 2:
                         subtype = Image
@@ -249,8 +247,6 @@ class DataItem(ParametrizableItem, abstract=True):
                 structure[extname] = subschema
                 structure['klass'] = subtype
                 structure['extno'] = index
-
-
 
                 Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
                 hdus.append(Hdu(header, None, name=extname, klass=subtype, extno=index))

@@ -23,7 +23,7 @@ from cpl.core import Msg
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.core.dummy import create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat, FlatRaw
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap

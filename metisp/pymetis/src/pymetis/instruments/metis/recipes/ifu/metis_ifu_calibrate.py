@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum, Paramete
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.core.dummy import create_dummy_image, create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_image, create_dummy_header
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin

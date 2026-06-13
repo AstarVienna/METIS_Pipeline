@@ -25,7 +25,7 @@ import numpy as np
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
-from pymetis.engine.core.dummy import create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal

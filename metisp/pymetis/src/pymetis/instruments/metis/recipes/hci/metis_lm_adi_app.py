@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 # import the dataitems we use
 from pymetis.engine.dataitems import DataItem, Hdu
-from pymetis.engine.core.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 from pymetis.instruments.metis.dataitems.distortion import LmDistortionTable
 from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated

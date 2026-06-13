@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
-from pymetis.engine.core.dummy import create_dummy_table, create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe

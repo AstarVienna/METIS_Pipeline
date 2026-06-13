@@ -25,7 +25,7 @@ import numpy as np
 from astropy.table import QTable
 from cpl.core import Msg
 
-from pymetis.engine.core.dummy import create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
