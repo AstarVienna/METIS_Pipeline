@@ -105,14 +105,8 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             return 1
 
     @staticmethod
-    def split_dits(tech: str, fws: NDArray, dits: NDArray[np.float64], un_on: NDArray[int],
-                   med_on: NDArray, med_off: NDArray) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
-        if "IFU" in tech:
-            return (dits == un_on) & med_on, (dits == un_on) & med_off
-            # This is a hack because there was no proper 'closed' position before.
-            # Here we check the flux levels to determine if it is dark or not. https://xkcd.com/1172/
-        else:
-            return (dits == un_on) & (fws != 'open'), (dits == un_on) & (fws == 'open')
+    def split_dits(tech: str, fws: NDArray, dits: NDArray[np.float64], un_on: NDArray[int]) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
+        return (dits == un_on) & (fws != 'closed'), (dits == un_on) & (fws == 'closed')
 
     def get_detector_mask(self, tech, detector) -> NDArray[bool]:
         """
@@ -192,17 +186,9 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         fws = np.array(fws)
        
         images = np.array(images)
-        med_on = np.median(images, axis=(1, 2)) > self.median_cutoff
-        med_off = np.median(images, axis=(1, 2)) < self.median_cutoff
 
-        if "IFU" in tech:
-            # This is a hack because METIS_Simulations overrides the closed position
-            uni_on, uni_on_counts = np.unique(dits[med_on], return_counts=True)
-            uni_off, uni_off_counts = np.unique(dits[med_off], return_counts=True)
-        else:
-            # This is a hack because METIS_Simulations overrides the closed position
-            uni_on, uni_on_counts = np.unique(dits[fws != 'open'], return_counts=True)
-            uni_off, uni_off_counts = np.unique(dits[fws == 'open'], return_counts=True)
+        uni_on, uni_on_counts = np.unique(dits[fws != 'closed'], return_counts=True)
+        uni_off, uni_off_counts = np.unique(dits[fws == 'closed'], return_counts=True)
 
         meanflux = np.zeros_like(uni_on)
         varflux = np.zeros_like(uni_on)
@@ -226,7 +212,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                 off_match = uni_off_counts[uni_off == un_on]
 
                 if off_match.size > 0 and off_match[0] >= 2:
-                    sel_dits_on, sel_dits_off = self.split_dits(tech, fws, dits, un_on, med_on, med_off)
+                    sel_dits_on, sel_dits_off = self.split_dits(tech, fws, dits, un_on)
 
                     data_on1 = images[sel_dits_on][0][sel_mask]
                     data_on2 = images[sel_dits_on][1][sel_mask]
@@ -291,7 +277,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     off_match = uni_off_counts[uni_off == un_on]
 
                     if off_match.size > 0 and off_match[0] >= 2:
-                        sel_dits_on, sel_dits_off = self.split_dits(tech, fws, dits, un_on, med_on, med_off)
+                        sel_dits_on, sel_dits_off = self.split_dits(tech, fws, dits, un_on)
 
                         data_on1 = images[sel_dits_on][0][sel_mask][window]
                         data_on2 = images[sel_dits_on][1][sel_mask][window]
