@@ -22,7 +22,7 @@ from typing import ClassVar, Self, Optional, final, Any
 
 from cpl.core import Msg
 
-from pymetis.engine.core.format import partial_format
+from .functions.format import partial_format
 
 
 class ParametrizableMeta(ABCMeta):

@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import itertools
 import re
-from sys import prefix
 
 from typing import Literal, Dict, Any
 
@@ -26,10 +25,10 @@ import cpl
 from cpl.core import Msg
 from numpy._typing import NDArray
 
-from pymetis.engine.core.functions.image import EnhancedImage
+from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.core.dummy import create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
@@ -78,11 +77,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         self.linlimit = self.parameters["metis_det_lingain.linlimit"].value
         self.truelimit = self.parameters["metis_det_lingain.truelimit"].value
 
+        # ToDo Move this out to instrument/metis or even IRDB.
         self.detector_size = 2048
         self.border_2rg = 64
         self.border_geo = 28
         self.border_ifu_x = 64
         self.border_ifu_y = 32
+
         self.median_cutoff = 2000
         self.ipc_alpha0 = 0.02  # alpha_edge EXTERNAL CALIBRATION
         self.ipc_alpha0_prime = 0.002  # alpha_corner EXTERNAL CALIBRATION
@@ -138,7 +139,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
     def get_detector_characteristics(self, tech) -> tuple[float, float, float, float]:
         """
         Get detector characteristics:
-        - gain correction factor ()
+        - gain correction factor (dimensionless)
         - gain (e- / ADU)
         - read noise (ADU)
         - dark current (ADU / s)
@@ -342,15 +343,21 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                         bpm[i_x, i_y] = 1
                         continue
 
-                    # define a weighted average of the pixels below a certain 'true flux' cutoff. this defines a weighted average flux rate to which all flux rates are corrected.
+                    # Define a weighted average of the pixels below a certain 'true flux' cutoff.
+                    # This defines a weighted average flux rate to which all flux rates are corrected.
                     trueflux = np.average(fluxes_x_y[truesel] / dits_fluxrates[truesel],
-                                          weights=1 / (np.sqrt(gaincorrection_factor) * np.sqrt(read_noise **2 + fluxes_x_y[truesel] / (2*gain)) / dits_fluxrates[truesel])**2
+                                          weights=1 / (np.sqrt(gaincorrection_factor) *
+                                                       np.sqrt(read_noise ** 2 + fluxes_x_y[truesel] / (2 * gain)) /
+                                                       dits_fluxrates[truesel]
+                                          )**2
                     )
                    
                     # define standard error on the weighted average
                     e_trueflux = np.sqrt(
                         1 / np.sum(
-                            (1 / np.sqrt(gaincorrection_factor) * np.sqrt(read_noise **2 + fluxes_x_y[truesel] / (2*gain)) / dits_fluxrates[truesel])**2
+                            (1 / np.sqrt(gaincorrection_factor) *
+                             np.sqrt(read_noise **2 + fluxes_x_y[truesel] / (2 * gain)) /
+                             dits_fluxrates[truesel])**2
                         )
                     )
 
@@ -362,9 +369,12 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                                               w=trueflux/(np.sqrt(gaincorrection_factor)*np.sqrt(read_noise **2+fluxes_x_y[sel]/(2*gain))/dits_fluxrates[sel]),
                                               cov='unscaled')
                         linearity[:, i_x, i_y] = p
-                        err_linearity[:, i_x, i_y] = np.sqrt(np.diag(cov_p)) # this ignores the covariance term, but HDRL error propagation doesn't do covariance and it would be hard to store a covariance matrix per pixel as CPL only does 3D objects per extension.
+                        err_linearity[:, i_x, i_y] = np.sqrt(np.diag(cov_p))
+                        # This ignores the covariance term, but HDRL error propagation doesn't do covariance,
+                        # and it would be hard to store a covariance matrix per pixel as CPL only
+                        # does 3D objects per extension.
                     except:
-                        bpm[i_x, i_y]=1 # this pixel failed for some reason, so lets add it to the BPM
+                        bpm[i_x, i_y] = 1 # this pixel failed for some reason, so let's add it to the BPM
        
        
         for i in range(self.fitdegree + 1): # check every polynomial coefficient
@@ -389,15 +399,12 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
        
         return {
             'gain_map': Hdu(header_gain, gain_table, name=rf'{det_prefix}.SCI'),
-            'data_linearity_map': Hdu(header_linearity, linearity_image, name=rf'{det_prefix}.SCI'),
-            'err_linearity_map': Hdu(header_errlinearity, err_linearity_image, name=rf'{det_prefix}.ERR'),
-            'dq_linearity_map': Hdu(header_dqlinearity, dq_linearity_image, name=rf'{det_prefix}.DQ'),
             'linearity_map': EnhancedImage(
                 linearity_image, err_linearity_image, dq_linearity_image,
+                prefix=det_prefix,
                 header_image=header_linearity,
                 header_error=header_errlinearity,
                 header_dq=header_dqlinearity,
-                prefix=rf'{det_prefix}',
             ),
             'badpix_map': Hdu(header_badpix, dq_linearity_image, name=rf'{det_prefix}.SCI'),
         }
@@ -463,7 +470,6 @@ class MetisDetLinGain(Recipe):
     We add pixels with linearity coefficients that are significantly different from the mean to the BPM (astropy.stats.sigma_clip)."""
 
     parameters = ParameterList([
-
         ParameterValue(
             name=rf"{_name}.fitdegree",
             context=_name,
@@ -473,19 +479,22 @@ class MetisDetLinGain(Recipe):
         ParameterValue(
             name=rf"{_name}.kappa",
             context=_name,
-            description="kappa factor for sigma clipping for BPM. Values that deviate more than kappa*sigma from the median linearity are flagged.",
+            description="kappa factor for sigma clipping for BPM. "
+                        "Values that deviate more than kappa*sigma from the median linearity are flagged.",
             default=3,
         ),
         ParameterValue(
             name=rf"{_name}.linlimit",
             context=_name,
-            description="Limit in ADU above which counts are excluded from both gain calculation and linearity correction function",
+            description="Limit in ADU above which counts are excluded from "
+                        "both gain calculation and linearity correction function",
             default=22000., # this should be dependent on read out mode and detector
         ),
         ParameterValue(
             name=rf"{_name}.truelimit",
             context=_name,
-            description="Limit in ADU to consider as true linear. All flux rates will be corrected to the weighted average flux rate defined by the pixel values below this limit.",
+            description="Limit in ADU to consider as true linear. All flux rates will be corrected "
+                        "to the weighted average flux rate defined by the pixel values below this limit.",
             default=10000., # this should be dependent on read out mode and detector
         ),
     ])

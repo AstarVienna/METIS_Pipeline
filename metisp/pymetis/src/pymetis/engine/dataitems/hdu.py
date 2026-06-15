@@ -26,7 +26,7 @@ from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       PropertyList as CplPropertyList, Msg)
 
-from pymetis.engine.core.dummy import make_cpl_property
+from pymetis.engine.core.functions.property import make_cpl_property
 
 
 class Hdu:

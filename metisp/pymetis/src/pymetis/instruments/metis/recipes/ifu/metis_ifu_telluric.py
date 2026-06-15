@@ -23,7 +23,7 @@ from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.core.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.dataitems.common import FluxCalTable

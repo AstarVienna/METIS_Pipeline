@@ -22,7 +22,7 @@ from typing import Any, ClassVar, Self
 import cpl
 
 from ..core.parametrizable import ParametrizableItem
-from ..core.property import python_to_cpl_type
+from pymetis.engine.core.functions.property import python_to_cpl_type
 
 
 class QcParameter(ParametrizableItem):

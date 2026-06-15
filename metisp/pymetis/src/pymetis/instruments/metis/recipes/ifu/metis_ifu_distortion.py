@@ -27,7 +27,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum, Paramete
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.dummy import create_dummy_table, create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
 
 from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput,
                                               PinholeTableInput, GainMapInput, LinearityInput)
