@@ -1,6 +1,6 @@
 """
 workflow definitions specific to the pupil imaging.
-Imports basic image processing from the basic imaging workflow. 
+Imports basic image processing from the basic imaging workflow.
 TODO - need N band version
 """
 
@@ -10,15 +10,15 @@ from .metis_lm_img_wkf import lm_img_lingain_task, lm_img_dark_task, lm_img_flat
 
 
 lm_pupil_class = classification_rule("LM_PUPIL_RAW",
-                                {"instrume":"METIS", 
-                                 "dpr.catg":"TECHNICAL", 
+                                {"instrume":"METIS",
+                                 "dpr.catg":"TECHNICAL",
                                  "dpr.type":"PUPIL",
                                  "dpr.tech":"PUP,LM",
                                  })
 
 
 lm_raw_pupil = (data_source()
-            .with_classification_rule(lm_pupil_class)        
+            .with_classification_rule(lm_pupil_class)
             .with_match_keywords(["instrume"])
             .build())
 
