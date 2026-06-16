@@ -17,6 +17,14 @@ lm_pupil_class = classification_rule("LM_PUPIL_RAW",
                                  })
 
 
+n_pupil_class = classification_rule("N_PUPIL_RAW",
+                                {"instrume":"METIS",
+                                 "dpr.catg":"TECHNICAL",
+                                 "dpr.type":"PUPIL",
+                                 "dpr.tech":"PUP,N",
+                                 })
+
+
 lm_raw_pupil = (data_source()
             .with_classification_rule(lm_pupil_class)
             .with_match_keywords(["instrume"])
