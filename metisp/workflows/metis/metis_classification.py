@@ -58,7 +58,8 @@ lm_image_sci_raw_class = classification_rule("LM_IMAGE_SCI_RAW",
 
 lm_image_sky_raw_class = classification_rule("LM_IMAGE_SKY_RAW",
     {metis_kwd.instrume: "METIS",
-     metis_kwd.dpr_catg: "SCIENCE",
+     # DPR.CATG can be either CALIB or SCIENCE.
+     # metis_kwd.dpr_catg: "SCIENCE",
      metis_kwd.dpr_type: "SKY",
      metis_kwd.dpr_tech: "IMAGE,LM",
     })
@@ -130,7 +131,8 @@ n_image_sci_raw_class = classification_rule("N_IMAGE_SCI_RAW",
 
 n_image_sky_raw_class = classification_rule("N_IMAGE_SKY_RAW",
     {metis_kwd.instrume: "METIS",
-     metis_kwd.dpr_catg: "SCIENCE",
+     # DPR.CATG can be either CALIB or SCIENCE.
+     # metis_kwd.dpr_catg: "SCIENCE",
      metis_kwd.dpr_type: "SKY",
      metis_kwd.dpr_tech: "IMAGE,N",
     })
@@ -331,6 +333,14 @@ lm_lss_sci_raw_class = classification_rule("LM_LSS_SCI_RAW",
      metis_kwd.dpr_tech: "LSS,LM",
     })
 
+lm_lss_sky_raw_class = classification_rule("LM_LSS_SKY_RAW",
+    {metis_kwd.instrume: "METIS",
+     # DPR.CATG can be either CALIB or SCIENCE.
+     # metis_kwd.dpr_catg: "SCIENCE",
+     metis_kwd.dpr_type: "SKY",
+     metis_kwd.dpr_tech: "LSS,LM",
+    })
+
 # LM LSS final product (1D flux)
 lm_lss_sci_flux_1d_class = classification_rule("LM_LSS_SCI_FLUX_1D",
     {metis_kwd.instrume: "METIS",
@@ -446,6 +456,14 @@ n_lss_sci_raw_class = classification_rule("N_LSS_SCI_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "SCIENCE",
      metis_kwd.dpr_type: "OBJECT",
+     metis_kwd.dpr_tech: "LSS,N",
+    })
+
+n_lss_sky_raw_class = classification_rule("N_LSS_SKY_RAW",
+    {metis_kwd.instrume: "METIS",
+     # DPR.CATG can be either CALIB or SCIENCE.
+     # metis_kwd.dpr_catg: "SCIENCE",
+     metis_kwd.dpr_type: "SKY",
      metis_kwd.dpr_tech: "LSS,N",
     })
 
