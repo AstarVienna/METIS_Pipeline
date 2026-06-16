@@ -71,6 +71,13 @@ lm_image_std_raw_class = classification_rule("LM_IMAGE_STD_RAW",
      metis_kwd.dpr_tech: "IMAGE,LM",
     })
 
+lm_off_axis_psf_raw = classification_rule("LM_OFF_AXIS_PSF_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "PSF,OFFAXIS",
+     metis_kwd.dpr_tech: "IMAGE,LM",
+    })
+
 # ------- N BAND CLASSIFICATIONS -----------
 
 
@@ -507,3 +514,4 @@ badpix_map_geo_class = classification_rule("BADPIX_MAP_GEO",
 n_synth_trans_class = classification_rule("N_SYNTH_TRANS",
     {metis_kwd.pro_catg: "N_SYNTH_TRANS",
     })
+
