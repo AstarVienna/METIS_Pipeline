@@ -7,3 +7,4 @@ from .metis_ifu_wkf import *
 from .metis_lm_lss_wkf import *
 from .metis_n_lss_wkf import *
 from .metis_n_img_wkf import *
+from .metis_chophome_wkf import *
