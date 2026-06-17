@@ -22,7 +22,7 @@ from typing import ClassVar, Self, Optional, final, Any
 
 from cpl.core import Msg
 
-from pymetis.engine.core.format import partial_format
+from .functions.format import partial_format
 
 
 class ParametrizableMeta(ABCMeta):
@@ -89,7 +89,8 @@ class ParametrizableMeta(ABCMeta):
                 return reg.get(key)
         return None
 
-    def list_classes(cls) -> list[tuple[str, type]]:
+    # This should NOT be a classmethod -- we are in a metaclass!
+    def list_classes(cls) -> list[tuple[str, type[Self]]]:
         return [
             (n, k) for n, k in inspect.getmembers(cls, inspect.isclass)
             if isinstance(k, ParametrizableMeta) and k is not cls

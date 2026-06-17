@@ -22,7 +22,7 @@ from abc import ABC
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import MultiplePipelineInput
 from pymetis.engine.qc import QcParameter, QcParameterSet
-from pymetis.engine.core.dummy import create_dummy_table, create_dummy_image, create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_image, create_dummy_header
 
 from pymetis.instruments.metis.dataitems.distortion import (DistortionMap, DistortionRaw,
                                                             DistortionReduced, DistortionTable)

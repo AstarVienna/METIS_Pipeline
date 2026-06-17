@@ -22,7 +22,7 @@ import copy
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import PipelineInputSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.core.dummy import create_dummy_table, create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
 
 from pymetis.instruments.metis.inputs import FluxstdCatalogInput
 from pymetis.instruments.metis.inputs import RawInput

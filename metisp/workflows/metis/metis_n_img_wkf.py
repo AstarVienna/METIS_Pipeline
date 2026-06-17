@@ -7,7 +7,7 @@ from .metis_task_functions import *
 n_img_lingain_task = (task('metis_n_img_lingain')
                 .with_recipe("metis_det_lingain")
                 .with_main_input(detlin_geo_raw)
-                .with_job_processing(instrument_to_linlimit)
+                .with_job_processing(setup_lingain_job)
                 .build())
 
 n_img_dark_task = (task('metis_n_img_dark')

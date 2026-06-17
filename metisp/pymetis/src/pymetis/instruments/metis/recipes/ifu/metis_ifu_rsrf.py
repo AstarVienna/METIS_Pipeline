@@ -25,7 +25,7 @@ import numpy as np
 from astropy.table import QTable
 from cpl.core import Msg
 
-from pymetis.engine.core.dummy import create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
@@ -39,9 +39,11 @@ from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.instruments.metis.dataitems.masterflat import MasterFlatIfu
 from pymetis.instruments.metis.dataitems.raw.wcuoff import IfuWcuOffRaw
 from pymetis.instruments.metis.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
+
 from pymetis.instruments.metis.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput, WavecalInput,
                                               DistortionTableInput, LinearityInput, OptionalInputMixin,
                                               PersistenceMapInput)
+
 from pymetis.instruments.metis.mixins import DetectorIfuMixin, BandIfuMixin
 from pymetis.instruments.metis.qc.reduce import IfuReduceMeanStray, IfuReduceNbadpix, IfuReduceMeanBkg
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl

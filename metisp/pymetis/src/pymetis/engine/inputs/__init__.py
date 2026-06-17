@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 from .input import PipelineInput
+from .mixins import OptionalInputMixin
 from .single import SinglePipelineInput
 from .multiple import MultiplePipelineInput
 from .inputset import PipelineInputSet
@@ -26,4 +27,5 @@ from .inputset import PipelineInputSet
 __all__ = [
     'PipelineInput', 'SinglePipelineInput', 'MultiplePipelineInput',
     'PipelineInputSet',
+    'OptionalInputMixin',
 ]

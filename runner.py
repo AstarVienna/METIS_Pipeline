@@ -11,10 +11,20 @@ from pymetis.engine.recipes import Recipe
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Pyesorexless recipe runner')
-    parser.add_argument('recipe', metavar='recipe', type=str)
-    parser.add_argument('sof', type=argparse.FileType('r'))
-    parser.add_argument('--debug', action='store_true')
+    parser = argparse.ArgumentParser(
+        description='Pyesorex-less recipe runner\n\n'
+                    'Should be useful for testing recipes under development.\n'
+                    'It might be good to generate your files with EDPS first, then run\n\n'
+                    './runner.py recipe EDPS_data/<instrument>/<recipe>/<uuid>/input.sof',
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument('recipe', metavar='recipe', type=str,
+                        help='recipe to run')
+    parser.add_argument('sof', type=argparse.FileType('r'),
+                        help='set-of-frames file to process')
+    parser.add_argument('--debug', action='store_true',
+                        help='enable debug mode (sets CPL Msg level to DEBUG, '
+                             'similar to `pyesorex --msg-level DEBUG`)')
     args = parser.parse_args()
 
     recipes = {

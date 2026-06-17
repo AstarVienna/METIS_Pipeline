@@ -1,5 +1,5 @@
 """
-This file is part of an A* Pipeline.
+This file is part of the METIS Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
@@ -16,25 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from abc import ABC
+
+from pymetis.engine.inputs import PipelineInput
 
 
-from typing import Optional
-
-import cpl
-from cpl.core import (Image as CplImage,
-                      Type as CplType,
-                      PropertyList as CplPropertyList)
-
-
-def zeros_like(image: CplImage, new_type: Optional[CplType] = None):
+class OptionalInputMixin(PipelineInput, ABC):
     """
-    Create a new CPL Image with the same size as image, optionally with a new underlying type
-
-    # FixMe [Martin] This should ideally be added to CPL:
-    # FixMe zeros_like that preserves size but allow you to override the type.
+    Mixin for inputs that are optional -- the recipe can proceed without them and still produce meaningful output.
+    Prefer using this to setting `_required = False` directly in the class.
     """
-    temp = cpl.core.Image.zeros_like(image)
-    if new_type is None:
-        return temp
-    else:
-        return temp.cast(new_type)
+    _required = False

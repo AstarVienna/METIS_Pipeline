@@ -22,7 +22,7 @@ from abc import ABC
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
-from pymetis.engine.core.dummy import create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import TargetSciMixin
 from pymetis.instruments.metis.dataitems.background.subtracted import BackgroundSubtracted

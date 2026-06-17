@@ -38,7 +38,7 @@ from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciCoverage, LmRav
 from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.engine.inputs import RawInput
-from pymetis.engine.core.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 
 class MetisLmRavcSciCalibrateImpl(RawImageProcessor):

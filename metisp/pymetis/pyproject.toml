@@ -10,7 +10,7 @@ license = {text = "GPLv3"}
 readme = "README.md"
 requires-python = ">=3.11, <3.14"
 dependencies = [
-  "pycpl==1.0.3.post4",   # prefer ivh's re-packaged pycpl
+  "pycpl==1.0.3.post11",   # prefer ivh's re-packaged pycpl
   "edps",
   "pyesorex",
   "adari_core",

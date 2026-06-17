@@ -35,7 +35,7 @@ from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.image import zeros_like
-from pymetis.engine.core.dummy import create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin

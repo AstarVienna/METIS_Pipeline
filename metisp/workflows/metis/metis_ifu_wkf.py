@@ -9,7 +9,7 @@ ifu_lingain_task = (task("metis_ifu_lingain")
                 .with_recipe("metis_det_lingain")
                 .with_main_input(detlin_ifu_raw)
                 .with_associated_input(badpix_map_ifu, min_ret=0)
-                .with_job_processing(instrument_to_linlimit)
+                .with_job_processing(setup_lingain_job)
                 .build())
 
 ifu_dark_task = (task("metis_ifu_dark")

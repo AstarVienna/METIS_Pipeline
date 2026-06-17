@@ -22,7 +22,7 @@ from pymetis.engine.inputs import PipelineInputSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.dummy import create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl

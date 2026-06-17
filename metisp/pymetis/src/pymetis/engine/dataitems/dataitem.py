@@ -21,13 +21,13 @@ import datetime
 import inspect
 import re
 from pathlib import Path
-from typing import Optional, Generator, Self, final, Union, ClassVar
+from typing import Optional, Self, final, Union, ClassVar
 
 import cpl
 from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyList
 
 from .hdu import Hdu
-from pymetis.engine.core.format import partial_format
+from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
 
@@ -165,10 +165,10 @@ class DataItem(ParametrizableItem, abstract=True):
 
         for index, hdu in enumerate(hdus, start=1):
             if hdu.name not in self._schema:
-                Msg.error(self.__class__.__qualname__,
-                          f"Found a HDU '{hdu.name}', which is not defined by the schema for {self.__class__.__qualname__}. "
-                          f"Accepted extension names are {list(self._schema.keys())}.")
-                raise ValueError(f"Unknown HDU '{hdu.name}'.")
+                raise ValueError(
+                    f"Found a HDU '{hdu.name}', which is not defined by the schema for {self.__class__.__qualname__}. "
+                    f"Accepted extension names are {list(self._schema.keys())}."
+                )
 
             assert hdu.klass == self._schema[hdu.name], \
                 (f"Schema for {self.__class__.__qualname__} specifies that HDU '{hdu.name}' "
@@ -234,8 +234,6 @@ class DataItem(ParametrizableItem, abstract=True):
                     None: None,
                 }[subschema.get('XTENSION', None)]
 
-         
-
                 if (subtype is None) | (subtype is Image):
                     if subschema.get('NAXIS', None) == 2:
                         subtype = Image
@@ -249,8 +247,6 @@ class DataItem(ParametrizableItem, abstract=True):
                 structure[extname] = subschema
                 structure['klass'] = subtype
                 structure['extno'] = index
-
-
 
                 Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
                 hdus.append(Hdu(header, None, name=extname, klass=subtype, extno=index))

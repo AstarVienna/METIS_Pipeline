@@ -124,7 +124,12 @@ class RecipeImpl(Parametrizable, ABC):
 
             return self.build_product_frameset()            # Return the output as a pycpl FrameSet
         except cpl.core.DataNotFoundError as e:
-            Msg.error(self.__class__.__qualname__, f"Data not found error: {e.message}")
+            Msg.error(self.__class__.__qualname__,
+                      f"Data not found error: {e.message}")
+            raise e
+        except Exception as e:
+            Msg.error(self.__class__.__qualname__,
+                      f"Unexpected exception occurred: {e}")
             raise e
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
