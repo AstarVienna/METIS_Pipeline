@@ -19,13 +19,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import itertools
 import re
 
-from typing import Literal, Dict, Any
+from typing import Literal, Dict, Any, Self
 
 import cpl
 from cpl.core import Msg
 from numpy._typing import NDArray
 
 from pymetis.engine.core.classes.image import EnhancedImage
+from pymetis.engine.core.classes.utilities import Stopwatch
+from pymetis.engine.core.functions.polyfit import weighted_polyfit
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
@@ -43,6 +45,7 @@ from pymetis.instruments.metis.qc.lingain import (LinGainMean, LinGainRms, LinNu
                                                   GainLin, GainCoeff)
 import numpy as np
 import astropy.stats
+
 
 
 class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
@@ -88,7 +91,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         self.ipc_alpha0 = 0.02  # alpha_edge EXTERNAL CALIBRATION
         self.ipc_alpha0_prime = 0.002  # alpha_corner EXTERNAL CALIBRATION
 
-    def gain_correction_factor(self, tech):
+    def _gain_correction_factor(self, tech):
         """
         IPC parameters, probably should be part of an external calibration product.
         https://ui.adsabs.harvard.edu/abs/2016PASP..128i5001K/abstract for H4RG. see also IRDB METIS.
@@ -104,12 +107,14 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     (4 * self.ipc_alpha0 ** 2 + 4 * self.ipc_alpha0_prime ** 2))  # this needs to depend on detector
         elif 'N' in tech:
             return 1
+        else:
+            raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
     @staticmethod
-    def split_dits(tech: str, fws: NDArray, dits: NDArray[np.float64], un_on: NDArray[int]) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
+    def split_dits(fws: NDArray, dits: NDArray[np.float64], un_on: NDArray[int]) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
         return (dits == un_on) & (fws != 'closed'), (dits == un_on) & (fws == 'closed')
 
-    def get_detector_mask(self, tech, detector) -> NDArray[bool]:
+    def _get_detector_mask(self, tech, detector) -> NDArray[bool]:
         """
         A mask to ignore the masked pixels at the edge of the detector.
         EXTERNAL CALIBRATION, in case of the IFU the mask needs to only cover the visible traces.
@@ -136,7 +141,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         else:
             raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
-    def get_detector_characteristics(self, tech) -> tuple[float, float, float, float]:
+    def set_detector_characteristics(self, tech) -> Self:
         """
         Get detector characteristics:
         - gain correction factor (dimensionless)
@@ -144,22 +149,246 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         - read noise (ADU)
         - dark current (ADU / s)
         """
+        self.gcf = self._gain_correction_factor(tech)
         if 'LM' in tech:
-            gain = 4.0
-            read_noise = 70 / gain
-            dark_current = 0.05 / gain
+            self.gain = 4.0
+            self.read_noise = 70 / self.gain
+            self.dark_current = 0.05 / self.gain
         elif 'N' in tech:
-            gain = 201
-            read_noise = 300 / gain
-            dark_current = 1e5 / gain
+            self.gain = 201
+            self.read_noise = 300 / self.gain
+            self.dark_current = 1e5 / self.gain
         elif 'IFU' in tech:
-            gain = 2.0
-            read_noise = 70 / gain
-            dark_current = 0.1 / gain
+            self.gain = 2.0
+            self.read_noise = 70 / self.gain
+            self.dark_current = 0.1 / self.gain
         else:
             raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
+        return self
 
-        return self.gain_correction_factor(tech), gain, read_noise, dark_current
+    def bootstrap_gain_error(
+            self,
+            images,
+            fws,
+            dits,
+            sel_mask,
+            *,
+            draws: int = 100,
+    ) -> np.floating[Any]:
+        storegain = np.zeros(draws)
+
+        for i_win in np.arange(draws):
+            window = np.random.choice(np.sum(sel_mask), size=np.sum(sel_mask),
+                                      replace=True)  # this redraws the valid pixels
+            meanflux = np.zeros_like(self.unique_on)
+            varflux = np.zeros_like(self.unique_on)
+
+            Msg.debug(self.__class__.__qualname__,
+                      f"Bootstrap iteration {i_win:3d} of {draws:3d}")
+
+            for i_on, un_on in enumerate(self.unique_on):
+                if self.unique_on_counts[i_on] >= 2:
+                    # Safe-slice: see note at the equivalent check above.
+                    off_match = self.unique_off_counts[self.unique_off == un_on]
+
+                    if off_match.size > 0 and off_match[0] >= 2:
+                        sel_dits_on, sel_dits_off = self.split_dits(fws, dits, un_on)
+
+                        data_on1 = images[sel_dits_on][0][sel_mask][window]
+                        data_on2 = images[sel_dits_on][1][sel_mask][window]
+                        data_off1 = images[sel_dits_off][0][sel_mask][window]
+                        data_off2 = images[sel_dits_off][1][sel_mask][window]
+
+                        # TODO there should likely also be some logic to compensate the gain for the linearity (see the paper on Euclid detector characterization)
+
+                        # Mortara and Fowler mean-variance method. https://ui.adsabs.harvard.edu/abs/1981SPIE..290...28M/abstract
+
+                        meanflux[i_on] = (np.mean(data_on1 - data_off1) + np.mean(data_on2 - data_off2)) / 2
+                        varflux[i_on] = np.array(np.std(data_on1 - data_on2) ** 2 - np.std(data_off1 - data_off2) ** 2) / 2
+                    else:
+                        Msg.warning(self.__class__.__qualname__, "This combination does not have enough OFF frames")
+                else:
+                    Msg.warning(self.__class__.__qualname__, "This combination does not have enough ON frames")
+
+            if np.sum(meanflux < self.linlimit) < 2:
+                raise cpl.core.IllegalInputError(
+                    "metis_det_lingain (bootstrap iter): not enough data "
+                    f"points below linlimit ({self.linlimit}) to determine "
+                    "the gain in this bootstrap window. See the comment on "
+                    "the equivalent nominal-gain check above.")
+
+            p, cov_p = np.polyfit(meanflux[meanflux < self.linlimit],
+                                  varflux[meanflux < self.linlimit],
+                                  deg=1, cov=True)
+            storegain[i_win] = 1 / p[0] * self.gcf
+
+        return np.std(storegain)
+
+    def _fit_linearity_loop(
+        self,
+        fluxes_on: NDArray[np.float64],
+        dits_fluxrates: NDArray[np.float64],
+        sel_mask: NDArray[np.bool_],
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.bool_]]:
+        """
+        Per-pixel linearity fit via an explicit Python loop over the detector.
+
+        For every pixel selected by ``sel_mask`` the correction function (~1 in the linear
+        regime) is fit against flux, using only samples below ``self.linlimit`` and
+        normalising to a weighted-average 'true flux' built from samples below
+        ``self.truelimit``.
+
+        Inputs:
+        - fluxes_on: (N, H, W) on-frame flux cube (not dark-subtracted)
+        - dits_fluxrates: (N,) DIT rate per frame
+        - sel_mask: (H, W) True where the pixel is worth fitting
+        - gaincorrection_factor, gain, read_noise: detector scalars
+
+        Returns ``(linearity, err_linearity, bpm)``:
+        - linearity: (fitdegree+1, H, W) coefficients, highest degree first
+        - err_linearity: (fitdegree+1, H, W) 1-sigma coefficient errors (diagonal only)
+        - bpm: (H, W) bad-pixel mask, initialised from ``~sel_mask`` plus fit failures
+        """
+        n, height, width = fluxes_on.shape
+        linearity = np.zeros((self.fitdegree + 1, height, width))
+        err_linearity = np.zeros((self.fitdegree + 1, height, width))
+        bpm = ~sel_mask
+
+        for i_x in range(0, height):
+
+            # TODO additional optional bad pixel masking should go here
+
+            fluxes_x = fluxes_on[:, i_x, :] # note that for the linearity calculation this is not dark-subtracted.
+
+            if i_x % 64 == 0:
+                Msg.debug(self.__class__.__qualname__,
+                          f"Now at row {i_x:4d} of {height:4d}")
+
+            for i_y in range(0, width):
+                fluxes_x_y = fluxes_x[:, i_y] # working on a subarray is faster than directly indexing the 3D array
+                if sel_mask[i_x, i_y] == 1: # only fit pixels that are not known to be bad
+                    sel = (fluxes_x_y < self.linlimit) # only fit pixel values within the linlimit
+                    truesel = (fluxes_x_y < self.truelimit)
+
+                    if np.sum(sel) < self.fitdegree + 1:
+                        # If there are not enough below-linlimit samples to fit this pixel mark it bad and skip
+                        Msg.debug(self.__class__.__qualname__,
+                                  f"Pixel ({i_x}, {i_y}): too few below-linlimit samples; marking bad")
+                        bpm[i_x, i_y] = 1
+                        continue
+
+                    # Define a weighted average of the pixels below a certain 'true flux' cutoff.
+                    # This defines a weighted average flux rate to which all flux rates are corrected.
+                    trueflux = np.average(
+                        fluxes_x_y[truesel] / dits_fluxrates[truesel],
+                        weights=1 / (np.sqrt(self.gcf) *
+                                     np.sqrt(self.read_noise ** 2 + fluxes_x_y[truesel] / (2 * self.gain)) /
+                                     dits_fluxrates[truesel]
+                        )**2
+                    )
+
+                    # define standard error on the weighted average
+                    e_trueflux = np.sqrt(
+                        1 / np.sum(
+                            (1 / np.sqrt(self.gcf) *
+                             np.sqrt(self.read_noise **2 + fluxes_x_y[truesel] / (2 * self.gain)) /
+                             dits_fluxrates[truesel])**2
+                        )
+                    )
+
+                    # the function that is fit is the correction function (which is ~1 when in the most linear regime) as function of the flux
+                    try:
+                        p, cov_p = np.polyfit(fluxes_x_y[sel],
+                                              trueflux / (fluxes_x_y[sel] / dits_fluxrates[sel]),
+                                              deg=self.fitdegree,
+                                              w=trueflux / (
+                                                  np.sqrt(self.gcf) *
+                                                  np.sqrt(self.read_noise ** 2 + fluxes_x_y[sel] / (2 * self.gain)) /
+                                                  dits_fluxrates[sel]
+                                              ),
+                                              cov='unscaled')
+                        linearity[:, i_x, i_y] = p
+                        err_linearity[:, i_x, i_y] = np.sqrt(np.diag(cov_p))
+                        # This ignores the covariance term, but HDRL error propagation doesn't do covariance,
+                        # and it would be hard to store a covariance matrix per pixel as CPL only
+                        # does 3D objects per extension.
+                    except:
+                        bpm[i_x, i_y] = 1 # this pixel failed for some reason, so let's add it to the BPM
+
+        # Reject pixels whose fitted coefficients are statistical outliers, adding them to the BPM.
+        for i in range(self.fitdegree + 1): # check every polynomial coefficient
+            linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
+            bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
+
+        bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
+
+        return linearity, err_linearity, bpm
+
+    def _fit_linearity_vec(
+        self,
+        fluxes_on: NDArray[np.float64],
+        dits_fluxrates: NDArray[np.float64],
+        sel_mask: NDArray[np.bool_],
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.bool_]]:
+        """
+        Vectorized equivalent of :meth:`_fit_linearity_loop`: fits every pixel in a single
+        :func:`weighted_polyfit` call. Same inputs and outputs.
+
+        The below-linlimit cut is ragged across pixels, so it is applied as zero weight
+        rather than by indexing; non-finite corrections (e.g. zero-flux samples) are
+        likewise dropped so they cannot poison a pixel's fit.
+        """
+        n, height, width = fluxes_on.shape
+        linearity = np.zeros((self.fitdegree + 1, height, width))
+        err_linearity = np.zeros((self.fitdegree + 1, height, width))
+        bpm = ~sel_mask
+
+        dits = dits_fluxrates[:, None, None]                     # (N, 1, 1)
+        flux_rate = fluxes_on / dits                             # (N, H, W)
+        sel = fluxes_on < self.linlimit                          # samples used in the fit
+        truesel = fluxes_on < self.truelimit                     # samples used for the trueflux average
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            # Weighted-average flux rate ('true flux') per pixel, over samples below truelimit.
+            true_w = np.where(
+                truesel,
+                1 / (np.sqrt(self.gcf) *
+                     np.sqrt(self.read_noise ** 2 + fluxes_on / (2 * self.gain)) / dits) ** 2,
+                0.0,
+            )
+            trueflux = np.sum(true_w * flux_rate, axis=0) / np.sum(true_w, axis=0)   # (H, W)
+
+            # standard error on the weighted average (per pixel)
+            e_trueflux = np.sqrt(1 / np.sum(
+                np.where(
+                    truesel,
+                    (1 / np.sqrt(self.gcf) *
+                     np.sqrt(self.read_noise ** 2 + fluxes_on / (2 * self.gain)) / dits) ** 2,
+                    0.0,
+                ),
+                axis=0,
+            ))                                                   # (H, W)
+
+            corr = trueflux[None] / flux_rate                    # (N, H, W)
+            fit_w = trueflux[None] / (np.sqrt(self.gcf) *
+                                      np.sqrt(self.read_noise ** 2 + fluxes_on / (2 * self.gain)) / dits)
+        good = sel & np.isfinite(corr) & np.isfinite(fit_w)
+
+        p, cov_p, ok = weighted_polyfit(fluxes_on, np.where(good, corr, 0.0),
+                                        deg=self.fitdegree, weights=np.where(good, fit_w, 0.0))
+        linearity[:] = p
+        # Per-pixel 1-sigma coefficient errors (diagonal of each pixel's covariance matrix).
+        err_linearity[:] = np.moveaxis(np.sqrt(np.diagonal(cov_p, axis1=0, axis2=1)), -1, 0)
+        bpm[sel_mask & ((good.sum(axis=0) < self.fitdegree + 1) | ~ok)] = 1
+
+        # Reject pixels whose fitted coefficients are statistical outliers, adding them to the BPM.
+        for i in range(self.fitdegree + 1): # check every polynomial coefficient
+            linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
+            bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
+
+        bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
+
+        return linearity, err_linearity, bpm
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         det_prefix = rf'DET{detector:1d}'
@@ -172,48 +401,53 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         fws = []
         dits = []
         images = []
+        headers = []
 
         for i_frame in range(length):
-            header_linearity = cpl.core.PropertyList.load(self.inputset.raw.frameset[i_frame].file, 0)
+            header = cpl.core.PropertyList.load(self.inputset.raw.frameset[i_frame].file, 0)
+            headers.append(header)
             #print(header_linearity['ESO DET1 DIT'].value)
             #print(header_linearity['ESO DRS NDFILTER'].value)
-            fws.append(header_linearity['ESO DRS FILTER'].value)
-            dits.append(header_linearity['ESO DET DIT'].value)
+            fws.append(header['ESO DRS FILTER'].value)
+            dits.append(header['ESO DET DIT'].value)
             images.append(raw_images[i_frame].as_array())
 
-        tech = header_linearity['ESO DPR TECH'].value
-       
+        if len(techs := list(set([header['ESO DPR TECH'].value for header in headers]))) != 1:
+            raise cpl.core.IllegalInputError(f"More than one ESO DPR TECH detected in {headers}: {techs}")
+        else:
+            self.tech = techs[0]
+            self.set_detector_characteristics(self.tech)
+
         dits = np.array(dits)
         fws = np.array(fws)
        
         images = np.array(images)
 
-        uni_on, uni_on_counts = np.unique(dits[fws != 'closed'], return_counts=True)
-        uni_off, uni_off_counts = np.unique(dits[fws == 'closed'], return_counts=True)
+        self.unique_on, self.unique_on_counts = np.unique(dits[fws != 'closed'], return_counts=True)
+        self.unique_off, self.unique_off_counts = np.unique(dits[fws == 'closed'], return_counts=True)
 
-        meanflux = np.zeros_like(uni_on)
-        varflux = np.zeros_like(uni_on)
+        meanflux = np.zeros_like(self.unique_on)
+        varflux = np.zeros_like(self.unique_on)
         dits_fluxrates = []
 
-        gaincorrection_factor, gain, read_noise, dark_current = self.get_detector_characteristics(tech)
-        sel_mask = self.get_detector_mask(tech, detector)
+        sel_mask = self._get_detector_mask(self.tech, detector)
 
-        if 'IFU' in tech:
+        if 'IFU' in self.tech:
             slit_mask = np.percentile(images, 70, axis=0) > 2000
             sel_mask &= slit_mask # TODO additional optional bad pixel masking and windowing should go here
 
-        fluxes_on = np.zeros(shape=(len(uni_on), self.detector_size, self.detector_size))
+        fluxes_on = np.zeros(shape=(len(self.unique_on), self.detector_size, self.detector_size))
        
         # calculation of nominal gain value using all pixels
         # TODO a lot of this code is replicated later, so this should be a function.
 
-        for i_on, un_on in enumerate(uni_on): # loop over unique dit values
-            if uni_on_counts[i_on] >= 2: # check if there are at least 2 frames of each DIT.
+        for i_on, un_on in enumerate(self.unique_on): # loop over unique dit values
+            if self.unique_on_counts[i_on] >= 2: # check if there are at least 2 frames of each DIT.
                 # Safe-slice; otherwise returns "truth value of an array ... is ambiguous" error
-                off_match = uni_off_counts[uni_off == un_on]
+                off_match = self.unique_off_counts[self.unique_off == un_on]
 
                 if off_match.size > 0 and off_match[0] >= 2:
-                    sel_dits_on, sel_dits_off = self.split_dits(tech, fws, dits, un_on)
+                    sel_dits_on, sel_dits_off = self.split_dits(fws, dits, un_on)
 
                     data_on1 = images[sel_dits_on][0][sel_mask]
                     data_on2 = images[sel_dits_on][1][sel_mask]
@@ -241,7 +475,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             raise cpl.core.IllegalInputError(
                 "metis_det_lingain: not enough data points below linlimit "
                 f"({self.linlimit}) to determine the gain "
-                f"(meanflux={meanflux.tolist()}, uni_on={uni_on.tolist()}). "
+                f"(meanflux = {meanflux.tolist()}, self.unique_on = {self.unique_on.tolist()}). "
                 "Cause: no ON/OFF frame pairs at matching DIT, or all "
                 "frames are above linlimit. If running under EDPS, the "
                 "workflow's lingain pre-filter should have caught this earlier.")
@@ -249,140 +483,44 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         p, cov_p = np.polyfit(meanflux[meanflux < self.linlimit],
                               varflux[meanflux < self.linlimit],
                               deg=1, cov=True) # this calculates the nominal gain
-        gainval = 1 / p[0] * gaincorrection_factor
+        gainval = 1 / p[0] * self.gcf
 
         Msg.info(self.__class__.__qualname__,
                  f"Nominal gain [e/ADU]: {gainval}")
-       
-        linearity = np.zeros(shape=(self.fitdegree + 1, self.detector_size, self.detector_size))
-        err_linearity = np.zeros(shape=(self.fitdegree + 1, self.detector_size, self.detector_size))
-       
+
         # bootstrapping the statistical error on the nominal gain value
         # we redraw the valid pixels and redetermine the gain based on those pixels
         # the standard deviation of these gains is a measure of the statistical error on the nominal gain calculated above
-       
-        draws = 100
-        storegain = np.zeros(draws)
-
-        for i_win in np.arange(draws):
-            window = np.random.choice(np.sum(sel_mask), size=np.sum(sel_mask), replace=True) # this redraws the valid pixels
-            meanflux = np.zeros_like(uni_on)
-            varflux = np.zeros_like(uni_on)
-
-            Msg.debug(self.__class__.__qualname__,
-                      f"Bootstrap iteration {i_win:3d} of {draws:3d}")
-
-            for i_on, un_on in enumerate(uni_on):
-                if uni_on_counts[i_on] >= 2:
-                    # Safe-slice: see note at the equivalent check above.
-                    off_match = uni_off_counts[uni_off == un_on]
-
-                    if off_match.size > 0 and off_match[0] >= 2:
-                        sel_dits_on, sel_dits_off = self.split_dits(tech, fws, dits, un_on)
-
-                        data_on1 = images[sel_dits_on][0][sel_mask][window]
-                        data_on2 = images[sel_dits_on][1][sel_mask][window]
-                        data_off1 = images[sel_dits_off][0][sel_mask][window]
-                        data_off2 = images[sel_dits_off][1][sel_mask][window]
-
-                        # TODO there should likely also be some logic to compensate the gain for the linearity (see the paper on Euclid detector characterization)
-
-                        # Mortara and Fowler mean-variance method. https://ui.adsabs.harvard.edu/abs/1981SPIE..290...28M/abstract
-                       
-                        meanflux[i_on] = (np.mean(data_on1 - data_off1) + np.mean(data_on2 - data_off2)) / 2
-                        varflux[i_on] = np.array(np.std(data_on1 - data_on2)**2 - np.std(data_off1 - data_off2)**2) / 2
-                       
-                    else:
-                        Msg.warning(self.__class__.__qualname__, "This combination does not have enough OFF frames")
-                else:
-                    Msg.warning(self.__class__.__qualname__, "This combination does not have enough ON frames")
-
-            if np.sum(meanflux < self.linlimit) < 2:
-                raise cpl.core.IllegalInputError(
-                    "metis_det_lingain (bootstrap iter): not enough data "
-                    f"points below linlimit ({self.linlimit}) to determine "
-                    "the gain in this bootstrap window. See the comment on "
-                    "the equivalent nominal-gain check above.")
-
-            p, cov_p = np.polyfit(meanflux[meanflux < self.linlimit],
-                                  varflux[meanflux < self.linlimit],
-                                  deg=1, cov=True)
-            storegain[i_win] = 1 / p[0] * gaincorrection_factor
-
-        gain_err = np.std(storegain)
-               
-        # linearity calculation
-
-        # Inverts the selection mask to use as initial BPM.
-        # Note that at the moment this also includes the reference pixels, which might not be strictly bad pixels.
-        bpm = ~sel_mask
+        gain_err = self.bootstrap_gain_error(images, fws, dits, sel_mask, draws=100)
+        Msg.info(self.__class__.__qualname__,
+                 f"Gain error [e/ADU]: {gain_err}")
 
         Msg.debug(self.__class__.__qualname__,
                   f"Now actually determining linearity...")
 
-        for i_x in range(0, self.detector_size):
-           
-            # TODO additional optional bad pixel masking should go here
-           
-            fluxes_x = fluxes_on[:, i_x, :] # note that for the linearity calculation this is not dark-subtracted.
+        # Both compute the same fit; the loop is the production path for now.
+        with Stopwatch() as loop_sw:
+            linearity, err_linearity, bpm = \
+                self._fit_linearity_loop(fluxes_on, dits_fluxrates, sel_mask)
 
-            if i_x % 64 == 0:
-                Msg.debug(self.__class__.__qualname__,
-                          f"Now at row {i_x:4d} of {self.detector_size:4d}")
-               
-            for i_y in range(0, self.detector_size):
-                fluxes_x_y = fluxes_x[:, i_y] # working on a subarray is faster than directly indexing the 3D array
-                if sel_mask[i_x, i_y] == 1: # only fit pixels that are not known to be bad
-                    sel = (fluxes_x_y < self.linlimit) # only fit pixel values within the linlimit
-                    truesel = (fluxes_x_y < self.truelimit)
+        with Stopwatch() as vec_sw:
+            linearity_vec, err_linearity_vec, bpm_vec = \
+                self._fit_linearity_vec(fluxes_on, dits_fluxrates, sel_mask)
 
-                    if np.sum(sel) < self.fitdegree + 1:
-                        # If there are not enough below-linlimit samples to fit this pixel mark it bad and skip 
-                        Msg.debug(self.__class__.__qualname__,
-                                  f"Pixel ({i_x}, {i_y}): too few below-linlimit samples; marking bad")
-                        bpm[i_x, i_y] = 1
-                        continue
+        m = sel_mask
+        # A small nonzero bpm mismatch count does not necessarily mean the fits diverge: the
+        # sigma-clip inside each method is a threshold operation, so a pixel sitting right at the
+        # kappa boundary can flip between the two paths purely from the minuscule coefficient difference.
+        Msg.info(self.__class__.__qualname__,
+                 f"Linearity vec-vs-loop: coeff max|d| = {np.max(np.abs(linearity[:, m] - linearity_vec[:, m])):.3e}, "
+                 f"err max|d| = {np.max(np.abs(err_linearity[:, m] - err_linearity_vec[:, m])):.3e}, "
+                 f"bpm mismatches = {int(np.sum(bpm != bpm_vec))}")
+        Msg.info(self.__class__.__qualname__,
+                 f"Linearity timing: "
+                 f"loop = {loop_sw.elapsed:.3f} s, "
+                 f"vectorized = {vec_sw.elapsed:.3f} s, "
+                 f"speedup = {loop_sw.elapsed / vec_sw.elapsed:.2f}×")
 
-                    # Define a weighted average of the pixels below a certain 'true flux' cutoff.
-                    # This defines a weighted average flux rate to which all flux rates are corrected.
-                    trueflux = np.average(fluxes_x_y[truesel] / dits_fluxrates[truesel],
-                                          weights=1 / (np.sqrt(gaincorrection_factor) *
-                                                       np.sqrt(read_noise ** 2 + fluxes_x_y[truesel] / (2 * gain)) /
-                                                       dits_fluxrates[truesel]
-                                          )**2
-                    )
-                   
-                    # define standard error on the weighted average
-                    e_trueflux = np.sqrt(
-                        1 / np.sum(
-                            (1 / np.sqrt(gaincorrection_factor) *
-                             np.sqrt(read_noise **2 + fluxes_x_y[truesel] / (2 * gain)) /
-                             dits_fluxrates[truesel])**2
-                        )
-                    )
-
-                    # the function that is fit is the correction function (which is ~1 when in the most linear regime) as function of the flux
-                    try:
-                        p, cov_p = np.polyfit(fluxes_x_y[sel],
-                                              trueflux / (fluxes_x_y[sel] / dits_fluxrates[sel]),
-                                              deg=self.fitdegree,
-                                              w=trueflux/(np.sqrt(gaincorrection_factor)*np.sqrt(read_noise **2+fluxes_x_y[sel]/(2*gain))/dits_fluxrates[sel]),
-                                              cov='unscaled')
-                        linearity[:, i_x, i_y] = p
-                        err_linearity[:, i_x, i_y] = np.sqrt(np.diag(cov_p))
-                        # This ignores the covariance term, but HDRL error propagation doesn't do covariance,
-                        # and it would be hard to store a covariance matrix per pixel as CPL only
-                        # does 3D objects per extension.
-                    except:
-                        bpm[i_x, i_y] = 1 # this pixel failed for some reason, so let's add it to the BPM
-       
-       
-        for i in range(self.fitdegree + 1): # check every polynomial coefficient
-            linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
-            bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
-
-        bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
-       
         # TODO: QC parameters should be populated here
        
         header_linearity = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
@@ -393,8 +531,8 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
        
         gain_table = cpl.core.Table(input=np.rec.fromarrays(np.array([[gainval], [gain_err]]),
                                                             names=["gain", "gain_err"]))
-        linearity_image = cpl.core.ImageList([cpl.core.Image(data=linearity[i,:,:]) for i in range(self.fitdegree+1)])
-        err_linearity_image = cpl.core.ImageList([cpl.core.Image(data=err_linearity[i,:,:]) for i in range(self.fitdegree+1)])
+        linearity_image = cpl.core.ImageList([cpl.core.Image(data=linearity[i, :, :]) for i in range(self.fitdegree + 1)])
+        err_linearity_image = cpl.core.ImageList([cpl.core.Image(data=err_linearity[i, :, :]) for i in range(self.fitdegree + 1)])
         dq_linearity_image = cpl.core.Image(data=np.int32(bpm)) # had to cast to integer, boolean gave CPL error
        
         return {
