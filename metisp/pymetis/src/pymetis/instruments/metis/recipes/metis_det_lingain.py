@@ -80,7 +80,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         self.linlimit = self.parameters["metis_det_lingain.linlimit"].value
         self.truelimit = self.parameters["metis_det_lingain.truelimit"].value
 
-        # ToDo Move this out to instrument/metis or even IRDB.
+        # ToDo Static description. Move this out to instrument/metis, to a static calibration file or even IRDB.
         self.detector_size = 2048
         self.border_2rg = 64
         self.border_geo = 28
@@ -90,6 +90,11 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         self.median_cutoff = 2000
         self.ipc_alpha0 = 0.02  # alpha_edge EXTERNAL CALIBRATION
         self.ipc_alpha0_prime = 0.002  # alpha_corner EXTERNAL CALIBRATION
+
+        self.gain: float = np.nan
+        self.gain_correction_factor: float = np.nan
+        self.read_noise: float = np.nan
+        self.dark_current: float = np.nan
 
     def _gain_correction_factor(self, tech):
         """
@@ -111,7 +116,10 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
     @staticmethod
-    def split_dits(fws: NDArray, dits: NDArray[np.float64], un_on: NDArray[int]) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
+    def split_dits(fws: NDArray, # Filter wheel setting
+                   dits: NDArray[np.float64],
+                   un_on: NDArray[int]) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
+        """ Split DITs into on and off, depending on the filter wheel setting. """
         return (dits == un_on) & (fws != 'closed'), (dits == un_on) & (fws == 'closed')
 
     def _get_detector_mask(self, tech, detector) -> NDArray[bool]:
@@ -149,7 +157,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         - read noise (ADU)
         - dark current (ADU / s)
         """
-        self.gcf = self._gain_correction_factor(tech)
+        self.gain_correction_factor = self._gain_correction_factor(tech)
         if 'LM' in tech:
             self.gain = 4.0
             self.read_noise = 70 / self.gain
@@ -175,6 +183,9 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             *,
             draws: int = 100,
     ) -> np.floating[Any]:
+        """
+        Bootstrap gain error from actual data.
+        """
         storegain = np.zeros(draws)
 
         for i_win in np.arange(draws):
@@ -220,9 +231,19 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             p, cov_p = np.polyfit(meanflux[meanflux < self.linlimit],
                                   varflux[meanflux < self.linlimit],
                                   deg=1, cov=True)
-            storegain[i_win] = 1 / p[0] * self.gcf
+            storegain[i_win] = 1 / p[0] * self.gain_correction_factor
 
         return np.std(storegain)
+
+    def _reject_outliers(self, linearity, sel_mask, bpm: NDArray) -> NDArray[np.bool_]:
+        # Reject pixels whose fitted coefficients are statistical outliers, adding them to the BPM.
+        for i in range(self.fitdegree + 1): # check every polynomial coefficient
+            linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
+            bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
+
+        bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
+
+        return bpm
 
     def _fit_linearity_loop(
         self,
@@ -281,7 +302,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     # This defines a weighted average flux rate to which all flux rates are corrected.
                     trueflux = np.average(
                         fluxes_x_y[truesel] / dits_fluxrates[truesel],
-                        weights=1 / (np.sqrt(self.gcf) *
+                        weights=1 / (np.sqrt(self.gain_correction_factor) *
                                      np.sqrt(self.read_noise ** 2 + fluxes_x_y[truesel] / (2 * self.gain)) /
                                      dits_fluxrates[truesel]
                         )**2
@@ -290,7 +311,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     # define standard error on the weighted average
                     e_trueflux = np.sqrt(
                         1 / np.sum(
-                            (1 / np.sqrt(self.gcf) *
+                            (1 / np.sqrt(self.gain_correction_factor) *
                              np.sqrt(self.read_noise **2 + fluxes_x_y[truesel] / (2 * self.gain)) /
                              dits_fluxrates[truesel])**2
                         )
@@ -302,7 +323,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                                               trueflux / (fluxes_x_y[sel] / dits_fluxrates[sel]),
                                               deg=self.fitdegree,
                                               w=trueflux / (
-                                                  np.sqrt(self.gcf) *
+                                                  np.sqrt(self.gain_correction_factor) *
                                                   np.sqrt(self.read_noise ** 2 + fluxes_x_y[sel] / (2 * self.gain)) /
                                                   dits_fluxrates[sel]
                                               ),
@@ -312,15 +333,12 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                         # This ignores the covariance term, but HDRL error propagation doesn't do covariance,
                         # and it would be hard to store a covariance matrix per pixel as CPL only
                         # does 3D objects per extension.
-                    except:
+                    except Exception as e:
+                        Msg.debug(self.__class__.__qualname__,
+                                  f"Fitting pixel {i_x}, {i_y} failed: {e}")
                         bpm[i_x, i_y] = 1 # this pixel failed for some reason, so let's add it to the BPM
 
-        # Reject pixels whose fitted coefficients are statistical outliers, adding them to the BPM.
-        for i in range(self.fitdegree + 1): # check every polynomial coefficient
-            linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
-            bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
-
-        bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
+        bpm = self._reject_outliers(linearity, sel_mask, bpm)
 
         return linearity, err_linearity, bpm
 
@@ -339,9 +357,9 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         likewise dropped so they cannot poison a pixel's fit.
         """
         n, height, width = fluxes_on.shape
-        linearity = np.zeros((self.fitdegree + 1, height, width))
-        err_linearity = np.zeros((self.fitdegree + 1, height, width))
-        bpm = ~sel_mask
+        linearity: NDArray[np.float64] = np.zeros((self.fitdegree + 1, height, width))
+        err_linearity: NDArray[np.float64] = np.zeros((self.fitdegree + 1, height, width))
+        bpm: NDArray[np.bool_] = ~sel_mask
 
         dits = dits_fluxrates[:, None, None]                     # (N, 1, 1)
         flux_rate = fluxes_on / dits                             # (N, H, W)
@@ -352,17 +370,18 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             # Weighted-average flux rate ('true flux') per pixel, over samples below truelimit.
             true_w = np.where(
                 truesel,
-                1 / (np.sqrt(self.gcf) *
+                1 / (np.sqrt(self.gain_correction_factor) *
                      np.sqrt(self.read_noise ** 2 + fluxes_on / (2 * self.gain)) / dits) ** 2,
                 0.0,
             )
             trueflux = np.sum(true_w * flux_rate, axis=0) / np.sum(true_w, axis=0)   # (H, W)
 
-            # standard error on the weighted average (per pixel)
+            # Standard error on the weighted average (per pixel)
+            # FixMe This is not used anywhere!
             e_trueflux = np.sqrt(1 / np.sum(
                 np.where(
                     truesel,
-                    (1 / np.sqrt(self.gcf) *
+                    (1 / np.sqrt(self.gain_correction_factor) *
                      np.sqrt(self.read_noise ** 2 + fluxes_on / (2 * self.gain)) / dits) ** 2,
                     0.0,
                 ),
@@ -370,7 +389,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             ))                                                   # (H, W)
 
             corr = trueflux[None] / flux_rate                    # (N, H, W)
-            fit_w = trueflux[None] / (np.sqrt(self.gcf) *
+            fit_w = trueflux[None] / (np.sqrt(self.gain_correction_factor) *
                                       np.sqrt(self.read_noise ** 2 + fluxes_on / (2 * self.gain)) / dits)
         good = sel & np.isfinite(corr) & np.isfinite(fit_w)
 
@@ -379,6 +398,11 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         linearity[:] = p
         # Per-pixel 1-sigma coefficient errors (diagonal of each pixel's covariance matrix).
         err_linearity[:] = np.moveaxis(np.sqrt(np.diagonal(cov_p, axis1=0, axis2=1)), -1, 0)
+
+        # Adds pixels to the bad pixel map, if
+        # - they are in the selection
+        # - are under-determined (there are fewer usable samples than fitdegree + 1)
+        # - or are marked as unfittable by weighted_polyfit
         bpm[sel_mask & ((good.sum(axis=0) < self.fitdegree + 1) | ~ok)] = 1
 
         # Reject pixels whose fitted coefficients are statistical outliers, adding them to the BPM.
@@ -386,7 +410,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
             bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
 
-        bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
+        bpm = self._reject_outliers(linearity, sel_mask, bpm)
 
         return linearity, err_linearity, bpm
 
@@ -483,7 +507,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         p, cov_p = np.polyfit(meanflux[meanflux < self.linlimit],
                               varflux[meanflux < self.linlimit],
                               deg=1, cov=True) # this calculates the nominal gain
-        gainval = 1 / p[0] * self.gcf
+        gainval = 1 / p[0] * self.gain_correction_factor
 
         Msg.info(self.__class__.__qualname__,
                  f"Nominal gain [e/ADU]: {gainval}")
@@ -500,12 +524,10 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
         # Both compute the same fit; the loop is the production path for now.
         with Stopwatch() as loop_sw:
-            linearity, err_linearity, bpm = \
-                self._fit_linearity_loop(fluxes_on, dits_fluxrates, sel_mask)
+            linearity, err_linearity, bpm = self._fit_linearity_loop(fluxes_on, dits_fluxrates, sel_mask)
 
         with Stopwatch() as vec_sw:
-            linearity_vec, err_linearity_vec, bpm_vec = \
-                self._fit_linearity_vec(fluxes_on, dits_fluxrates, sel_mask)
+            linearity_vec, err_linearity_vec, bpm_vec = self._fit_linearity_vec(fluxes_on, dits_fluxrates, sel_mask)
 
         m = sel_mask
         # A small nonzero bpm mismatch count does not necessarily mean the fits diverge: the
@@ -531,6 +553,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
        
         gain_table = cpl.core.Table(input=np.rec.fromarrays(np.array([[gainval], [gain_err]]),
                                                             names=["gain", "gain_err"]))
+
         linearity_image = cpl.core.ImageList([cpl.core.Image(data=linearity[i, :, :]) for i in range(self.fitdegree + 1)])
         err_linearity_image = cpl.core.ImageList([cpl.core.Image(data=err_linearity[i, :, :]) for i in range(self.fitdegree + 1)])
         dq_linearity_image = cpl.core.Image(data=np.int32(bpm)) # had to cast to integer, boolean gave CPL error
