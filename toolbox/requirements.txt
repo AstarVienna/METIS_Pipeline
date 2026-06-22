@@ -13,7 +13,7 @@ notebook==6.4.12
 numpy==1.26.4
 pluggy==1.4.0
 pyerfa==2.0.1.1
-pytest==7.4.4
+pytest==9.0.3
 pytest-arraydiff==0.6.1
 pytest-astropy==0.11.0
 pytest-astropy-header==0.2.2
