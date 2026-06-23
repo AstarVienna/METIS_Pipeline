@@ -7,7 +7,7 @@ from . import metis_keywords as metis_kwd
 from .metis_lm_img_wkf import *
 metis_lm_app_post_task = (task('metis_lm_app_post')
              .with_recipe('metis_img_adi_cgrph')
-             .with_main_input(lm_img_calib_task)
+             .with_main_input(lm_img_calib_task, [lm_sci_calibrated_class])
              .with_meta_targets([SCIENCE])
              .build())
 # QC1
