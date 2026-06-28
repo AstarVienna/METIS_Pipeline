@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-##   This file is part of the ESOTK Toolkit
+##   This file is part of the METIS Pipeline.
 ##   Copyright (C) 2016 European Southern Observatory
 
 ##   This program is free software; you can redistribute it and/or modify
