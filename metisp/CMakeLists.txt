@@ -87,7 +87,6 @@ endif()
 # Find external packages
 find_package(PkgConfig)
 find_package(CPL "7.2" REQUIRED COMPONENTS cplcore cplui cpldfs cpldrs)
-#find_package(HDRL "1.5" REQUIRED COMPONENTS hdrl)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 # Package creation

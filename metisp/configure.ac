@@ -6,7 +6,6 @@ AC_PREREQ([2.59])
 
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_AUX_DIR([admin])
-AC_CONFIG_SUBDIRS([hdrl])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE
@@ -77,9 +76,6 @@ CPL_CHECK_LIBS
 #   e.g. with KMOS: XXCLIPM_CHECK_LIB(kmclipm)
 # Comment in if required!
 # XXCLIPM_CHECK_LIB(xxclipm)
-
-# setup hdrl folder
-HDRL_CHECK([hdrl])
 
 # call after CPL_CHECK_LIBS and XXCLIPM_CHECK_LIB
 METIS_SET_PATHS
