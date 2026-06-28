@@ -93,8 +93,6 @@ AC_CONFIG_FILES(Makefile
                 pymetis/setup.cfg
                 pyrecipes/Makefile
                 workflows/Makefile
-                reflex/Makefile
-                reflex/metis.xml
                 regtests/Makefile
                 regtests/tests/Makefile)
 AC_OUTPUT

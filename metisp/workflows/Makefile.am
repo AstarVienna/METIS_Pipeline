@@ -6,7 +6,7 @@ WORKFLOWFILES = metis/__init__.py metis/metis_lm_img_wkf.py
 #Put here all the recipe parameters associated with the workflow
 PARAMETERFILES = metis/metis_parameters.yaml
 
-#This installs the workflow and the OCA rules in reflexaux directory
+#This installs the workflow
 workflow_DATA = $(WORKFLOWFILES) ${PARAMETERFILES}
 
 EXTRA_DIST = $(WORKFLOWFILES) ${PARAMETERFILES}
