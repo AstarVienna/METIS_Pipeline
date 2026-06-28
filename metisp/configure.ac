@@ -81,15 +81,16 @@ CPL_CHECK_LIBS
 METIS_SET_PATHS
 METIS_CREATE_SYMBOLS
 
-AC_CONFIG_COMMANDS(pymetis/setup.cfg, [
-                    cd pymetis && cp -a setup.cfg $ac_srcdir/setup.cfg
-                ])
+# AC_CONFIG_COMMANDS(pymetis/setup.cfg, [
+#                     cd pymetis && cp -a setup.cfg $ac_srcdir/setup.cfg
+#                 ])
 AC_CONFIG_FILES(Makefile
                 Doxyfile
                 metis/Makefile
                 metis/tests/Makefile
                 recipes/Makefile
                 pymetis/Makefile
+                pymetis/setup.cfg
                 pyrecipes/Makefile
                 workflows/Makefile
                 reflex/Makefile
