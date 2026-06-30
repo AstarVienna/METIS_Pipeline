@@ -6,7 +6,6 @@ AC_PREREQ([2.59])
 
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_AUX_DIR([admin])
-AC_CONFIG_SUBDIRS([hdrl])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE
@@ -78,28 +77,22 @@ CPL_CHECK_LIBS
 # Comment in if required!
 # XXCLIPM_CHECK_LIB(xxclipm)
 
-# setup hdrl folder
-HDRL_CHECK([hdrl])
-
 # call after CPL_CHECK_LIBS and XXCLIPM_CHECK_LIB
 METIS_SET_PATHS
 METIS_CREATE_SYMBOLS
 
-AC_CONFIG_COMMANDS(pymetis/setup.cfg, [
-                    cd pymetis && cp -a setup.cfg $ac_srcdir/setup.cfg
-                ])
+# AC_CONFIG_COMMANDS(pymetis/setup.cfg, [
+#                     cd pymetis && cp -a setup.cfg $ac_srcdir/setup.cfg
+#                 ])
 AC_CONFIG_FILES(Makefile
                 Doxyfile
                 metis/Makefile
                 metis/tests/Makefile
                 recipes/Makefile
                 pymetis/Makefile
+                pymetis/setup.cfg
                 pyrecipes/Makefile
-                irplib/Makefile
-                irplib/tests/Makefile
                 workflows/Makefile
-                reflex/Makefile
-                reflex/metis.xml
                 regtests/Makefile
                 regtests/tests/Makefile)
 AC_OUTPUT
