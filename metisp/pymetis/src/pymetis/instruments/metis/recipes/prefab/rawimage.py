@@ -22,7 +22,7 @@ import numpy as np
 from abc import ABC
 from typing import Literal, Optional
 
-import cpl
+import cpl, hdrl
 from cpl.core import Msg, Image, ImageList
 
 from pymetis.engine.recipes import RecipeImpl
@@ -44,6 +44,117 @@ class RawImageProcessor(RecipeImpl, ABC):
 
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             pass
+
+    @classmethod
+    def estimate_noise(cls,
+                       images: cpl.core.ImageList,
+                       read_noise: float) -> hdrl.core.ImageList:
+
+        """
+        Routine to turn a cpl Imagelist of raw images into a hdrl ImageList with 
+        basic noise estimates.
+        """
+
+        Msg.info(cls.__qualname__,
+                 f"Estimating noise for raw images")
+
+        images_hdrl = hdrl.core.ImageList()
+
+        for im in images:
+            noise = cpl.core.Image.zeros_like(im)
+            noise.copy_into(im, 0, 0)
+
+            # add read noise plus shot noise
+            noise.add_scalar(read_noise ** 2)
+            noise.power(0.5)
+            images_hdrl.append(hdrl.core.Image(im,noise))
+        return images_hdrl
+
+    @classmethod
+    def apply_mask(mask: cpl.core.Image,
+                   image: cpl.core.Image | hdrl.core.Image,
+                   bits: list) -> cpl.core.Image | hdrl.core.Image:
+
+        """ 
+            Given a mask in 32 bit cplImage form, a list of bit values,
+            and an hdrl or cpl image, 
+            extract the bits from the mask, create a cpl mask based on it,
+            and apply to the image. 
+        """
+        maskFrame = cpl.core.Image.zeros_like(image.shape[0],image.shape[1])    
+        mask = cpl.core.Mask(maskFrame.shape[0],maskFrame.shape[1])
+        
+        for bit in bits:
+            temp = cpl.core.Image.zeros_like(maskFrame)
+            temp.copy_into(cplMask,0,0)
+            temp.and_scalar(bit)
+            maskFrame.add(temp)
+        
+        # a bit kludgy, but creating a numpy boolean array with the 
+        # required mask values, then directly assigning it in the way
+        # pycpl accepts indices. TODO get pycpl native way of doing this. 
+        
+        isTrue = maskFrame.as_array().astype(bool)
+        mask[0:image.shape[0]][0:image.shape[1]] = isTrue
+        
+        image.reject_from_mask(mask)
+
+        return image
+
+    @classmethod
+    def update_mask(image: cpl.core.Image | hdrl.core.Image,
+                    bitVal: int,
+                    cplMask: cpl.core.Image) -> cpl.core.Image | hdrl.core.Image:
+
+        """ 
+        take an hdrl or cpl image, extract its mask, and add it to a 32 
+        bit cpl image mask with a specified bit value
+        """
+        
+
+        if(isinstance(image,hdrl.core.Image)):
+           mask = image.image.bpm.as_array()
+        else:
+           mask = image.bpm.as_array()
+
+        
+        # turn it into a CPL image
+        update = cpl.core.Image(mask,dtype=cpl.core.Type.INT)
+
+        # multiply it by the bit value
+
+        update.multiply_scalar(bitVal)
+        cplMask.add(update)
+        
+        return cplMask
+
+    @classmethod
+    def combine_images_hdrl(cls,
+                            images: hdrl.core.ImageList,
+                            method: CombineMethodType) -> hdrl.core.Image:
+
+        """
+        Updated version that handles HDRL images
+        """
+        
+        Msg.info(cls.__qualname__,
+                 f"Combining {len(images)} images using method {method!r}")
+
+        combined_image: Optional[cpl.core.Image] = None
+
+        match method:
+            case "average":
+                combined_image, coverage_map = images.collapse_mean()
+            case "median":
+                combined_image, coverage_map = images.collapse_median()
+            case "sigclip":
+                combined_image, coverage_map = images.collapse_sigclip()
+            case _:
+                Msg.error(cls.__qualname__,
+                          f"Got unknown stacking method {method!r}. Stopping right here!")
+                raise ValueError(f"Unknown stacking method {method!r}")
+            
+        return combined_image
 
     @classmethod
     def combine_images(cls,
