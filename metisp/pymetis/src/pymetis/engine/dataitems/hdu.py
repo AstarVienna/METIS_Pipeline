@@ -50,6 +50,9 @@ class Hdu:
         extno:
             Can be used to access data by index.
         """
+        if not ((type(data) == klass) or (data is None) or (klass is None)):
+            raise TypeError(f"Data type {type(data)} does not match `klass` {klass}")
+
         self.header = header
         self.data = data
         self.klass = klass if klass is not None else type(data) if data is not None else None

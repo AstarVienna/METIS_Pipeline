@@ -131,7 +131,7 @@ class EnhancedImage:
         """
         Reconstruct an `EnhancedImage` from the ``<prefix>.SCI/.ERR/.DQ``
         extensions of a FITS file. The science layer must be present; the
-        error and data quality layers are optional.
+        error and data quality layers are optional and are set to zero if not present.
 
         Each layer is read as an `Image` (NAXIS == 2) or an `ImageList`
         (NAXIS == 3), matching how `DataItem.load` infers the HDU class.
@@ -181,3 +181,15 @@ class EnhancedImage:
                    header_image=header_image,
                    header_error=header_error,
                    header_dq=header_dq)
+
+    def flatten_mask(self) -> CplImage:
+        """
+        Flatten a 32-bit mask into a 1-bit mask for use with HDRL functions (see DRLD section 3.5.3).
+
+        A pixel is bad iff any of the bits in the detailed mask is nonzero,
+        hence only `0x00000000` represents a valid pixel.
+        """
+        return self.dq.data[self.dq.data != 0]
+
+    def to_hdrl_image(self) -> HdrlImage:
+        return HdrlImage(self.image, self.error, self.flatten_mask())
