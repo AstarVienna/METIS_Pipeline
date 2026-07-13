@@ -162,24 +162,28 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # load raw data
 
+        # these should be in a globally defined YAML somewhere TODO
         bad_bit = 1
         cold_bit = 2
         hot_bit = 4
 
         Msg.info(self.__class__.__qualname__, f"Pretending to load DETLIN")
 
+        # TODO add detlin stuff
+        
         Msg.info(self.__class__.__qualname__, f"Faking a gain map and badpix map")
 
+        #TODO optional badpix map
+        
         # fake the bp mask by initializing to zero
-        badpix_mask = zeros_like(raw_images[0], cpl.core.Type.FLOAT)
+        badpix_mask = zeros_like(raw_images[0], cpl.core.Type.INT)
 
-        # fake the gain at the moment by setting to 1
+        # fake the gain at the moment by setting to 1 TODO real version
         gain = cpl.core.Image.zeros_like(raw_images[0])
         gain.add_scalar(1)
     
         raw_images = self.correct_gain(raw_images, gain)
         raw_images = self.correct_persistence(raw_images)
-
 
         #linearity_map = self.inputset.linearity.load_data(extension=rf'DET{detector:1d}.SCI')
         #raw_images = self.correct_nonlinearity(raw_images, linearity_map)
@@ -195,38 +199,34 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
                         f"Cannot calculate actual read noise as there is only one raw image")
             read_noise = (0, 0)
 
-        raw_images_hdrl = self.estimate_noise(raw_images, read_noise[0])
-        combined_image = self.combine_images_hdrl(raw_images_hdrl, self.stacking_method)
+        # turn the raw images into HDRL images with an initial noise estimate
+        raw_images_hdrl = self.estimate_noise_list(raw_images, read_noise[0])
 
-        #combined_image, noise = self.combine_images_with_error(raw_images, self.stacking_method, read_noise[0])
+        # and combine
+        combined_image = self.combine_images(raw_images_hdrl, self.stacking_method)
 
         Msg.info(self.__class__.__qualname__, f"Combining images using method {self.stacking_method!r}")
 
-        mask_hot, mask_cold = self.calculate_outliers(combined_image.image, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
+        # get hot/cold pixels
+        mask_hot, mask_cold = self.calculate_outliers(combined_image, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
         qcnhot, qcncold = mask_hot.count(), mask_cold.count()
-        mask_bad = self.metis_bpm_3d_compute(raw_images, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
+
+        # get noisy pixels: we may need to revisit whether this is a good thing to do later TODO
+        
+        mask_bad = self.calculate_outliers_sequence(raw_images_hdrl, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
         qcnbad = mask_bad.count()
 
         Msg.info(self.__class__.__qualname__,
                  f"Updating mask: {(mask_cold | mask_hot | mask_bad).count()} pixels masked: "
                  f"{qcnbad} bad + {qcnhot} hot + {qcncold} cold")
-        mask_hot = cpl.core.Image(mask_hot, dtype=cpl.core.Type.INT)
-        mask_cold = cpl.core.Image(mask_cold, dtype=cpl.core.Type.INT)
-        mask_bad = cpl.core.Image(mask_bad, dtype=cpl.core.Type.INT)
 
-
-        # multiple masks to the correct bitmask
-        # ToDo [Martin] What does this do? Multiply by one?
-        mask_bad.multiply_scalar(bad_bit)
-        mask_cold.multiply_scalar(cold_bit)
-        mask_hot.multiply_scalar(hot_bit)
-
-        # and update main mask
-        badpix_mask.add(mask_bad)
-        badpix_mask.add(mask_hot)
-        badpix_mask.add(mask_cold)
-
-        ## how to copy mask into image?
+        # add the individual masks to the cpl mask
+        self.update_mask(badpix_mask, bad_bit, badpix_mask)
+        self.update_mask(badpix_mask, cold_bit, badpix_mask)
+        self.update_mask(badpix_mask, hot_bit, badpix_mask)
+        
+        ## copy bad pixel mask to combined_image before calculating QC parameters
+        self.apply_mask(combined_image, badpix_mask, [1,2,4])
 
         Msg.info(self.__class__.__qualname__, "Actually Calculating QC parameters")
 
@@ -237,6 +237,8 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         mins = []
         maxs = []
         for im in raw_images:
+            # mask bad pixels before calculations
+            self.apply_mask(combined_image,badpix_mask,[1,2,4])
             medians.append(im.get_median())
             means.append(im.get_mean())
             stdevs.append(im.get_stdev())
@@ -246,9 +248,14 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         qcmed = combined_image.image.get_median()
         qcmean  = combined_image.image.get_mean()
         qcrms  = combined_image.image.get_stdev()
-
-        Msg.info(self.__class__.__qualname__, f"QC CHECK {qcmed} {qcmean} {qcrms}")
-
+        
+        Msg.info(self.__class__.__qualname__, f"QC DARK N COLDPIX = {qcncold}")
+        Msg.info(self.__class__.__qualname__, f"QC DARK N HOTPIX = {qcnhot}")
+        Msg.info(self.__class__.__qualname__, f"QC DARK N BADPIX = {qcnbad}")
+        
+        Msg.info(self.__class__.__qualname__, f"QC DARK MEAN = {qcmean}")
+        Msg.info(self.__class__.__qualname__, f"QC DARK MED = {qcmed}")
+        Msg.info(self.__class__.__qualname__, f"QC DARK RMS = {qcrms}")
 
         qcncoadd = len(raw_images)
 
@@ -258,11 +265,18 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         qcmedmax = np.median(np.array(maxs))
         qcmedmean = np.median(np.array(means))
 
-        header_image = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
+        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MIN = {qcmedmin}")
+        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MAX = {qcmedmax}")
+        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MED = {qcmedmed}")
+        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MEAN = {qcmedmean}")
+        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN RMS = {qcmedrms}")
+
+        header_image = cpl.core.PropertyList()
+
+        hh = header_image.load(self.inputset.raw.frameset[0].file, 0)
         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
-        header_image.append(
-            self.collect_qc_parameters(
+        gg = self.collect_qc_parameters(
                 DarkMean(qcmean),
                 DarkMedian(qcmed),
                 DarkRms(qcrms),
@@ -275,14 +289,20 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
                 DarkMedianMin(qcmedmin),
                 DarkMedianMax(qcmedmax),
             )
-        )
+
+
+        header_image.append(gg)
+        header_image.append(hh)
+
+        # for the time being append READNOISE to the header
 
         header_image.append(cpl.core.Property("READNOISE",cpl.core.Type.DOUBLE,read_noise[0]))
+        for elem in header_image:
+            Msg.info(self.__class__.__qualname__, f"HEADER IMAGE{elem}")
 
         header_noise = copy.deepcopy(header_image)
         header_mask = copy.deepcopy(header_image)
 
-        
         return [
             Hdu(header_image, combined_image.image, name=rf'DET{detector:1d}.SCI'),
             Hdu(header_noise, combined_image.error, name=rf'DET{detector:1d}.ERR'),
@@ -344,13 +364,13 @@ class MetisDetDark(Recipe):
             name=f"{_name}.outliers.kappa_low",
             context=_name,
             description="Lower bound for bad pixel clipping, in standard deviations",
-            default=2,
+            default=5,
         ),
         ParameterValue(
             name=f"{_name}.outliers.kappa_high",
             context=_name,
             description="Upper bound for bad pixel clipping, in standard deviations",
-            default=2,
+            default=5,
         ),
     ])
 

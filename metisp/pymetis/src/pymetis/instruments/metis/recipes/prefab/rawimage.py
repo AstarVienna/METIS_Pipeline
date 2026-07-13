@@ -46,33 +46,51 @@ class RawImageProcessor(RecipeImpl, ABC):
             pass
 
     @classmethod
-    def estimate_noise(cls,
+    def estimate_noise_list(cls,
                        images: cpl.core.ImageList,
-                       read_noise: float) -> hdrl.core.ImageList:
-
+                       read_noise: float)-> hdrl.core.ImageList:
         """
         Routine to turn a cpl Imagelist of raw images into a hdrl ImageList with 
         basic noise estimates.
         """
-
-        Msg.info(cls.__qualname__,
-                 f"Estimating noise for raw images")
-
         images_hdrl = hdrl.core.ImageList()
 
         for im in images:
-            noise = cpl.core.Image.zeros_like(im)
-            noise.copy_into(im, 0, 0)
+            image_hdrl = cls.estimate_noise(im, read_noise)
 
-            # add read noise plus shot noise
-            noise.add_scalar(read_noise ** 2)
-            noise.power(0.5)
-            images_hdrl.append(hdrl.core.Image(im,noise))
+            images_hdrl.append(image_hdrl)
+
         return images_hdrl
 
+        
     @classmethod
-    def apply_mask(mask: cpl.core.Image,
-                   image: cpl.core.Image | hdrl.core.Image,
+    def estimate_noise(cls,
+                       image: cpl.core.Image,
+                       read_noise: float) -> hdrl.core.Image:
+
+        """
+        Routine to turn a raw cpl image into an hdrl image with 
+        basic noise estimates.
+        """
+
+        Msg.info(cls.__qualname__,
+                 f"Estimating noise for raw image, readnoise = {read_noise}")
+
+        noise = cpl.core.Image.zeros_like(image)
+        noise.copy_into(image, 0, 0)
+
+        # add read noise plus shot noise
+        noise.add_scalar(read_noise ** 2)
+        noise.power(0.5)
+
+        image_hdrl = hdrl.core.Image(image,noise)
+        
+        return image_hdrl
+
+    @classmethod
+    def apply_mask(cls,
+                   cplImage: cpl.core.Image | hdrl.core.Image,
+                   cplMask: cpl.core.Image,
                    bits: list) -> cpl.core.Image | hdrl.core.Image:
 
         """ 
@@ -81,41 +99,52 @@ class RawImageProcessor(RecipeImpl, ABC):
             extract the bits from the mask, create a cpl mask based on it,
             and apply to the image. 
         """
-        maskFrame = cpl.core.Image.zeros_like(image.shape[0],image.shape[1])    
-        mask = cpl.core.Mask(maskFrame.shape[0],maskFrame.shape[1])
-        
+
+        maskFrame = cpl.core.Image.zeros_like(cplMask)
+
+        # go through, get the required bits and add to the mask frame
         for bit in bits:
-            temp = cpl.core.Image.zeros_like(maskFrame)
+            temp = cpl.core.Image.zeros_like(cplMask)
             temp.copy_into(cplMask,0,0)
             temp.and_scalar(bit)
             maskFrame.add(temp)
+
+        # create a mask object
+        mask = cpl.core.Mask(cplImage.width,cplImage.height)
         
         # a bit kludgy, but creating a numpy boolean array with the 
         # required mask values, then directly assigning it in the way
         # pycpl accepts indices. TODO get pycpl native way of doing this. 
         
         isTrue = maskFrame.as_array().astype(bool)
-        mask[0:image.shape[0]][0:image.shape[1]] = isTrue
+        mask[0:temp.width][0:temp.height] = isTrue
         
-        image.reject_from_mask(mask)
+        cplImage.reject_from_mask(mask)
 
-        return image
+        return cplImage
 
     @classmethod
-    def update_mask(image: cpl.core.Image | hdrl.core.Image,
+    def update_mask(cls, mask: cpl.core.Mask,
                     bitVal: int,
-                    cplMask: cpl.core.Image) -> cpl.core.Image | hdrl.core.Image:
+                    cplMask: cpl.core.Image) -> cpl.core.Image:
 
         """ 
-        take an hdrl or cpl image, extract its mask, and add it to a 32 
-        bit cpl image mask with a specified bit value
+        given a cpl image mask, and a bit value, add them to a CPL bit mask. 
+
+        If you're starting with an image that has a mask, pass
+
+            image.bpm: for cpl image
+            image.data.bpm for hdrl image
+
         """
         
 
-        if(isinstance(image,hdrl.core.Image)):
-           mask = image.image.bpm.as_array()
-        else:
-           mask = image.bpm.as_array()
+        mask = mask.as_array()
+        
+        #if(isinstance(image,hdrl.core.Image)):
+        #   mask = image.image.bpm.as_array()
+        #else:
+        #   mask = image.bpm.as_array()
 
         
         # turn it into a CPL image
@@ -127,22 +156,21 @@ class RawImageProcessor(RecipeImpl, ABC):
         cplMask.add(update)
         
         return cplMask
-
+    
     @classmethod
-    def combine_images_hdrl(cls,
-                            images: hdrl.core.ImageList,
-                            method: CombineMethodType) -> hdrl.core.Image:
-
-        """
-        Updated version that handles HDRL images
-        """
-        
-        Msg.info(cls.__qualname__,
-                 f"Combining {len(images)} images using method {method!r}")
+    def _combine_images_hdrl(cls,
+                       images: hdrl.core.ImageList,
+                       method: CombineMethodType) -> cpl.core.Image:
 
         combined_image: Optional[cpl.core.Image] = None
 
         match method:
+            case "add":
+                for idx, image in enumerate(images):
+                    if idx == 0:
+                        combined_image = image
+                    else:
+                        combined_image.add(image)
             case "average":
                 combined_image, coverage_map = images.collapse_mean()
             case "median":
@@ -156,8 +184,9 @@ class RawImageProcessor(RecipeImpl, ABC):
             
         return combined_image
 
+             
     @classmethod
-    def combine_images(cls,
+    def _combine_images_cpl(cls,
                        images: cpl.core.ImageList,
                        method: CombineMethodType) -> cpl.core.Image:
         """
@@ -195,49 +224,44 @@ class RawImageProcessor(RecipeImpl, ABC):
         return combined_image
 
     @classmethod
-    def combine_images_with_error(cls,
-                                  images: ImageList,
-                                  method: CombineMethodType,
-                                  read_noise: float) -> tuple[Image, Image]:
+    def combine_images(cls,
+                            images: hdrl.core.ImageList | cpl.core.ImageList,
+                            method: CombineMethodType) -> hdrl.core.Image | cpl.core.Image:
+
         """
-        Collapse and imagelist of raw frames and propagate the errors
+        Basic helper method to combine images using one of `add`, `average`, `median` or `sigclip`.
+        Probably not a panacea, but it recurs often enough to warrant being here.
 
-        Parameters
-        ----------
-        images : ImageList
-            List of raw images to combine
-        method : CombineMethodType = Literal['add', 'average', 'median', 'sigclip']
-            Method to combine images using one of `add`, `average`, `median` or `sigclip`.
-        read_noise : float
-            Read noise # ToDo what does this mean precisely?
+        Calls one of two sub-methods based on whether it's an HDRL or CPL image, as the 
+        processes are teh same, but the names of the associated methods as different. 
 
-        Returns
-        -------
-        combined_image : Image
-            Combined image
+        Raises
+        ------
+        ValueError
+            If an unknown combine method is used.
+            If the wrong input type is passed
+
         """
-        combined_image = cls.combine_images(images, method)
-        # for each image, calculate the noise (read noise + shot noise, added in quadrature)
-        error = Image.zeros_like(images[0])
+        
+        Msg.info(cls.__qualname__,
+                 f"Combining {len(images)} images using method {method!r}")
 
-        for im in images:
-            # shot noise as sqrt of signal in, after applying gain
-            poisson_noise = cpl.core.Image.zeros_like(im)
-            poisson_noise.copy_into(im, 0, 0)
+        combined_image: Optional[cpl.core.Image] = None
 
-            # add read noise plus shot noise
-            totalNoise = cpl.core.Image.zeros_like(poisson_noise)
-            totalNoise.add(poisson_noise)
-            totalNoise.add_scalar(read_noise ** 2)
+        # separate submethods, because the syntax/method is different for
+        # hdrl and cpl images
+        
+        if(isinstance(images,hdrl.core.ImageList)):
+           combined_image = cls._combine_images_hdrl(images,method)
+        elif(isinstance(images,cpl.core.ImageList)):
+           combined_image = cls._combine_images_hdrl(images,method)
+        else:
+             Msg.error(cls.__qualname__,
+                       f"Unknown input type {type(images)}. Stopping right here!")
+             raise ValueError(f"Unknown input type {type(images)}")
 
-            # this is square of the noise; add to a running total
-            error.add(totalNoise)
+        return combined_image
 
-        # and take the sqrt
-        error.power(0.5)
-        error.divide_scalar(np.sqrt(len(images)))
-
-        return combined_image, error
 
 
     def correct_gain(self, raw_images: ImageList, gain: Image) -> ImageList:
@@ -284,13 +308,12 @@ class RawImageProcessor(RecipeImpl, ABC):
         return raw_images
 
     def calculate_outliers(self,
-                           image: Image,
+                           image: hdrl.core.Image,
                            *,
                            kappa_low: int,
                            kappa_high: int) -> tuple[cpl.core.Mask, cpl.core.Mask]:
         """
-        Calculate masks for outlier pixels, with kappa-sigma clipping:
-        mask those values are outside [median - kappa_low * sigma, median + kappa_high * sigma].
+        Calculate masks for outlier pixels, with kappa-sigma clipping, using HDRL BPM functions.
         """
         Msg.info(self.__class__.__qualname__,
                  f"Identifying outlier pixels ({kappa_low=}, {kappa_high=})")
@@ -302,26 +325,31 @@ class RawImageProcessor(RecipeImpl, ABC):
         image_median = image.get_median()
         image_rms = image.get_stdev()
 
-        # create a cpl.Mask based on thresholds; anything outside the low to high range is set to True (masked)
-        # anything inside it is set to False (unmasked)
-        # no image operation is performed. 
+        # user HDRL function to flag outlier pixels. First create the object
+        # TODO: confirm/explore best input paramters based on realistic data
 
-        # hot pixels (set the low value to something well below expected pixels)
-        mask_hot = cpl.core.Mask.threshold_image(image, -1e6, image_median + kappa_high * image_rms, 0)
-        # cold pixels (set the high value to something outside the range of expected values)
-        mask_cold = cpl.core.Mask.threshold_image(image, image_median - kappa_low * image_rms, 1e10, 0)
+        #set one kappa to a very large value to separate hot/cold maxing
+        
+        maxIter = 6
+        filter_x = 5
+        filter_y = 5
+        bpFind = hdrl.func.BPM2D.Filter(1000, kappa_high, maxIter, cpl.core.Filter.MEDIAN, cpl.core.Border.NOP, filter_x, filter_y)
+        mask_hot = bpFind.compute(image)
+        bpFind = hdrl.func.BPM2D.Filter(kappa_low, 1000, maxIter, cpl.core.Filter.MEDIAN, cpl.core.Border.NOP, filter_x, filter_y)
+        mask_cold = bpFind.compute(image)
 
         return mask_hot, mask_cold
 
-    def metis_bpm_3d_compute(self,
-                             imagelist: ImageList,
+    def calculate_outliers_sequence(self,
+                             imagelist: cpl.core.ImageList | hdrl.core.ImageList,
                              *,
                              kappa_low: float,
                              kappa_high: float) -> cpl.core.Mask:
         """
         Calculate mask for outlier pixels based on high/low thresholds based on the frame to frame variation of a pixel.
 
-        ToDo detailed description
+        Need to think about exactly how we do this, as we can be dealing with relatively small numbers of input frames. 
+        An RMS that works for hot/cold pixels may be too conservative for this. 
 
         Parameters
         ----------
@@ -329,7 +357,7 @@ class RawImageProcessor(RecipeImpl, ABC):
             List of raw images to combine
 
         kappa_low : float
-            Lower bound of kappa for outlier pixels
+istory            Lower bound of kappa for outlier pixels
 
         kappa_high : float
             Upper bound of kappa for outlier pixels
@@ -342,32 +370,27 @@ class RawImageProcessor(RecipeImpl, ABC):
         Msg.info(self.__class__.__qualname__,
                  f"Calculating bad pixel mask ({kappa_low=}, {kappa_high=})")
 
-        image_sum = Image.zeros_like(imagelist[0])
-        image_sum_squared = Image.zeros_like(imagelist[0])
-
-        # image_sum = self.combine_images(imagelist, method="add")
+        image_sum = hdrl.core.Image.zeros(imagelist[0].width,imagelist[0].height)
+        image_sum_squared = hdrl.core.Image.zeros(imagelist[0].width,imagelist[0].height)
 
         for im in imagelist:
-            imTem = cpl.core.Image.zeros_like(im)
-            # copy_into means "copy other into this image", not the other way around!
-            imTem.copy_into(im, 0, 0)
-            image_sum.add(im)
-            im.power(2)
-            image_sum_squared.add(im)
+            image_sum.add_image(im)
+            im.pow_scalar((2,0))
+            image_sum_squared.add_image(im)
 
-        image_sum.divide_scalar(len(imagelist))
-        image_sum.power(2)
-        image_sum_squared.divide_scalar(len(imagelist))
+        image_sum.div_scalar((len(imagelist),0))
+        image_sum.pow_scalar((2,0))
+        image_sum_squared.div_scalar((len(imagelist),0))
 
-        image_sum.add(image_sum_squared)
-        image_sum.power(0.5)
+        image_sum.add_image(image_sum_squared)
+        image_sum.pow_scalar((0.5,0))
 
         image_median = image_sum.get_median()
         image_rms = image_sum.get_stdev()
-
-        mask = cpl.core.Mask.threshold_image(image_sum,
-                                             image_median - kappa_low * image_rms,
-                                             image_median + kappa_high * image_rms,
-                                             1)
+        
+        mask = cpl.core.Mask.threshold_image(image_sum.image,
+                                             image_median[0] - kappa_low * 1 * image_rms,
+                                             image_median[0] + kappa_high * 1 * image_rms,
+                                             0)
         return mask
 
