@@ -1,5 +1,5 @@
 [project]
-name = "eso-pymetis"
+name = "pymetis"
 version = "0.1.0"
 description = "METIS pipeline"
 authors = [
@@ -30,18 +30,18 @@ packages = [
     { include = "pymetis", from = "src" },
 ]
 
-[tool.poetry.dependencies]
-pycpl = { version = "1.0.3.post4", source = "ivh" }
-pyesorex = { source = "eso" }
-edps = { source = "eso" }
-adari_core = { source = "eso" }
+[tool.uv.sources]
+pycpl = { index = "ivh" }
+pyesorex = { index = "eso" }
+edps = { index = "eso" }
+adari_core = { index = "eso" }
 
-[[tool.poetry.source]]
+[[tool.uv.index]]
 name = "eso"
 url = "https://ftp.eso.org/pub/dfs/pipelines/repositories/stable/src"
 priority = "explicit"
 
-[[tool.poetry.source]]
+[[tool.uv.index]]
 name = "ivh"
 url = "https://ivh.github.io/pycpl/simple/"
 priority = "explicit"

@@ -21,11 +21,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Optional, ClassVar, Self
 
 import cpl
+import hdrl
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Type as CplType,
                       PropertyList as CplPropertyList,
                       Msg)
+from cpl.hdrl.core import Image as HdrlImage
 
 from pymetis.engine.dataitems import Hdu
 
@@ -139,6 +141,7 @@ class EnhancedImage:
         # Map every extension name to its index and header.
         extensions: dict[str, tuple[int, CplPropertyList]] = {}
         index = 0
+
         while True:
             try:
                 header = CplPropertyList.load(filename, index)
