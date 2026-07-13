@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pathlib import Path
 from typing import Optional
 
 import cpl
@@ -82,23 +81,3 @@ class Hdu:
             self.data.save(self.header, self.header, filename, cpl.core.io.EXTEND)
         elif self.klass == CplImageList:
             self.data.save(filename, self.header, cpl.core.io.EXTEND)
-
-
-class MetisImage:
-    """
-    A 2D data array, complete with uncertainty and data quality map.
-    Contains methods for saving loading and what not.
-
-    ToDo incomplete, but deferred until much later
-    """
-    def __init__(self,
-                 data: CplImage,
-                 uncertainty: CplImage,
-                 quality: CplImage):
-        self.data = data
-        self.uncertainty = uncertainty
-        self.quality = quality
-
-    def save(self,
-             filename: Path):
-        self.data.save(filename)

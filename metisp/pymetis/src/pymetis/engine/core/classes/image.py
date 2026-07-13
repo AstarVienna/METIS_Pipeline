@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from typing import Optional, ClassVar, Self
 
+import numpy as np
 import cpl
 import hdrl
 from cpl.core import (Image as CplImage,
@@ -189,10 +190,11 @@ class EnhancedImage:
         """
         Flatten a 32-bit mask into a 1-bit mask for use with HDRL functions (see DRLD section 3.5.3).
 
-        A pixel is bad iff any of the bits in the detailed mask is nonzero,
+        A pixel is bad <=> any of the bits in the detailed mask is nonzero,
         hence only `0x00000000` represents a valid pixel.
         """
-        return self.dq.data[self.dq.data != 0]
+        binary = (self.dq.data.as_array() != 0).astype(np.int32)
+        return CplImage(binary, dtype=CplType.INT)
 
     def to_hdrl_image(self) -> HdrlImage:
         return HdrlImage(self.image, self.error, self.flatten_mask())

@@ -82,10 +82,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
         # ToDo Static description. Move this out to instrument/metis, to a static calibration file or even IRDB.
         self.detector_size = 2048
-        self.border_2rg = 64
-        self.border_geo = 28
-        self.border_ifu_x = 64
-        self.border_ifu_y = 32
+
 
         self.median_cutoff = 2000
         self.ipc_alpha0 = 0.02  # alpha_edge EXTERNAL CALIBRATION
@@ -122,33 +119,6 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         """ Split DITs into on and off, depending on the filter wheel setting. """
         return (dits == un_on) & (fws != 'closed'), (dits == un_on) & (fws == 'closed')
 
-    def _get_detector_mask(self, tech, detector) -> NDArray[bool]:
-        """
-        A mask to ignore the masked pixels at the edge of the detector.
-        EXTERNAL CALIBRATION, in case of the IFU the mask needs to only cover the visible traces.
-        This needs to depend on detector because the LMS mask varies.
-        """
-        xx, yy = np.meshgrid(np.arange(self.detector_size), np.arange(self.detector_size))
-
-        if 'LM' in tech:
-            return (((xx >= self.border_2rg) & (xx < (self.detector_size - self.border_2rg))) &
-                    ((yy >= self.border_2rg) & (yy < (self.detector_size - self.border_2rg))))
-        elif 'N' in tech:
-            return (((xx >= self.border_geo) & (xx < (self.detector_size - self.border_geo))) &
-                    ((yy >= self.border_geo) & (yy < (self.detector_size - self.border_geo))))
-        elif 'IFU' in tech:
-            # Detector 1 and 2 are butted against each other in 1 dimension. Same for detectors 3 and 4.
-            if detector in [1, 3]:
-                return (((xx >= self.border_ifu_x) & (xx < self.detector_size)) &
-                        ((yy >= self.border_ifu_y) & (yy < (self.detector_size - self.border_ifu_y))))
-            elif detector in [2, 4]:
-                return (((xx >= 0) & (xx < (self.detector_size - self.border_ifu_x))) &
-                        ((yy >= self.border_ifu_y) & (yy < (self.detector_size - self.border_ifu_y))))
-            else:
-                raise cpl.core.IllegalInputError(f"Detector ID {detector} not recognised")
-        else:
-            raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
-
     def set_detector_characteristics(self, tech) -> Self:
         """
         Get detector characteristics:
@@ -175,13 +145,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         return self
 
     def bootstrap_gain_error(
-            self,
-            images,
-            fws,
-            dits,
-            sel_mask,
-            *,
-            draws: int = 100,
+        self,
+        images,
+        fws,
+        dits,
+        sel_mask,
+        *,
+        draws: int = 100,
     ) -> np.floating[Any]:
         """
         Bootstrap gain error from actual data.

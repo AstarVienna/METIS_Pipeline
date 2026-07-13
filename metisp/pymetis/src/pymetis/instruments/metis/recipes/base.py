@@ -21,4 +21,9 @@ from pymetis.engine.recipes import RecipeImpl
 
 
 class MetisRecipeImpl(RecipeImpl):
+    """
+    Subclass for METIS recipes.
+
+    Currently only sets the instrument.
+    """
     instrument: str = "METIS/1"

@@ -23,7 +23,6 @@ import operator
 import re
 import numpy as np
 
-from abc import ABC
 from typing import Literal, Dict, Any
 
 import cpl
@@ -36,6 +35,7 @@ from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.image import zeros_like
 from pymetis.engine.core.functions.dummy import create_dummy_header
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
@@ -160,10 +160,6 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # load raw data
 
-        bad_bit = 1
-        cold_bit = 2
-        hot_bit = 4
-
         Msg.info(self.__class__.__qualname__, f"Pretending to load DETLIN")
 
         Msg.info(self.__class__.__qualname__, f"Faking a gain map and badpix map")
@@ -211,9 +207,9 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # multiple masks to the correct bitmask
         # ToDo [Martin] What does this do? Multiply by one?
-        mask_bad.multiply_scalar(bad_bit)
-        mask_cold.multiply_scalar(cold_bit)
-        mask_hot.multiply_scalar(hot_bit)
+        mask_bad.multiply_scalar(Metis.MaskFlags.BAD)
+        mask_cold.multiply_scalar(Metis.MaskFlags.COLD)
+        mask_hot.multiply_scalar(Metis.MaskFlags.HOT)
 
         # and update main mask
         badpix_mask.add(mask_bad)
