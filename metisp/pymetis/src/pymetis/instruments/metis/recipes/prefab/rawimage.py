@@ -254,7 +254,7 @@ class RawImageProcessor(RecipeImpl, ABC):
         if(isinstance(images,hdrl.core.ImageList)):
            combined_image = cls._combine_images_hdrl(images,method)
         elif(isinstance(images,cpl.core.ImageList)):
-           combined_image = cls._combine_images_hdrl(images,method)
+           combined_image = cls._combine_images_cpl(images,method)
         else:
              Msg.error(cls.__qualname__,
                        f"Unknown input type {type(images)}. Stopping right here!")
