@@ -22,7 +22,6 @@ from typing import Optional, ClassVar, Self
 
 import numpy as np
 import cpl
-import hdrl
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Type as CplType,
@@ -53,7 +52,7 @@ class EnhancedImage:
     def __init__(self,
                  image: CplImage | CplImageList,
                  error: Optional[CplImage | CplImageList] = None,
-                 dq: Optional[CplImage | CplImageList] = None,
+                 dq: Optional[CplImage] = None,
                  *,
                  prefix: str,
                  header_image: Optional[CplPropertyList] = None,
@@ -88,6 +87,23 @@ class EnhancedImage:
             dq,
             name=rf'{self.prefix}.{self.dq_suffix}'
         ) if dq is not None else None
+
+    @classmethod
+    def from_hdrl(
+            cls,
+            image: HdrlImage,
+            dq: Optional[HdrlImage] = None,
+            *,
+            prefix: str,
+            header_image: Optional[CplPropertyList] = None,
+            header_error: Optional[CplPropertyList] = None,
+            header_dq: Optional[CplPropertyList] = None
+    ) -> Self:
+        self.image: Hdu = Hdu(
+
+        )
+
+
 
     @staticmethod
     def _dimensions(layer: CplImage | CplImageList) -> tuple[int, int]:

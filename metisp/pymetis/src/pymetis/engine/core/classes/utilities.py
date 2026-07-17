@@ -22,7 +22,9 @@ from typing import Self
 
 
 class Stopwatch:
-    """Time a block and expose the result as ``.elapsed`` (seconds)."""
+    """
+    A context manager that times a block of code and expose the result as ``.elapsed`` (in seconds).
+    """
     def __enter__(self) -> Self:
         self._start = time.perf_counter()
         return self
