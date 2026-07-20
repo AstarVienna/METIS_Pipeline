@@ -264,3 +264,53 @@ class TestSaveLoadRoundTrip:
         seed_primary(filename)
         with pytest.raises(cpl.core.DataNotFoundError):
             EnhancedImage.load(filename, PREFIX)
+
+
+# ---------- flatten_mask ----------
+
+
+class TestFlattenMask:
+    def test_returns_cpl_image(self):
+        ei = EnhancedImage(make_image(), dq=build_dq_mask(), prefix=PREFIX)
+        assert isinstance(ei.flatten_mask(), CplImage)
+
+    def test_dimensions_match_dq(self):
+        ei = EnhancedImage(make_image(4, 6), dq=build_dq_mask(4, 6), prefix=PREFIX)
+        result = ei.flatten_mask()
+        assert (result.width, result.height) == (6, 4)
+
+    def test_good_pixels_are_zero(self):
+        """Pixels with dq == 0 must appear as 0 in the flattened mask."""
+        dq = build_dq_mask()
+        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
+        result_arr = ei.flatten_mask().as_array()
+        dq_arr = dq.as_array()
+        assert np.all(result_arr[dq_arr == 0] == 0)
+
+    def test_bad_pixels_are_nonzero(self):
+        """Pixels with dq != 0 must appear as nonzero in the flattened mask."""
+        dq = build_dq_mask()
+        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
+        result_arr = ei.flatten_mask().as_array()
+        dq_arr = dq.as_array()
+        assert np.all(result_arr[dq_arr != 0] != 0)
+
+    def test_all_good_dq_gives_all_zero_mask(self):
+        """An all-zero DQ layer must produce an all-zero flattened mask."""
+        dq = CplImage(np.zeros((4, 4), dtype=np.int32), dtype=cpl.core.Type.INT)
+        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
+        assert np.all(ei.flatten_mask().as_array() == 0)
+
+    def test_all_bad_dq_gives_all_nonzero_mask(self):
+        """An all-nonzero DQ layer must produce an all-nonzero flattened mask."""
+        dq = CplImage(np.ones((4, 4), dtype=np.int32), dtype=cpl.core.Type.INT)
+        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
+        assert np.all(ei.flatten_mask().as_array() != 0)
+
+    def test_multibyte_flag_treated_as_bad(self):
+        """Any nonzero bit pattern — not just 0x1 — must mark the pixel as bad."""
+        arr = np.zeros((4, 4), dtype=np.int32)
+        arr[2, 3] = 0x00FF
+        dq = CplImage(arr, dtype=cpl.core.Type.INT)
+        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
+        assert ei.flatten_mask().as_array()[2, 3] != 0

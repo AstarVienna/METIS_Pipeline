@@ -36,6 +36,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum, Paramete
 
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
 from pymetis.instruments.metis.dataitems.gainmap import GainMap
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.dataitems.linearity.linearity import LinearityMap
 from pymetis.instruments.metis.dataitems.linearity.raw import LinearityRaw
 from pymetis.instruments.metis.inputs import RawInput, BadPixMapInput, OptionalInputMixin
@@ -180,7 +181,8 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                         data_off1 = images[sel_dits_off][0][sel_mask][window]
                         data_off2 = images[sel_dits_off][1][sel_mask][window]
 
-                        # TODO there should likely also be some logic to compensate the gain for the linearity (see the paper on Euclid detector characterization)
+                        # TODO there should likely also be some logic to compensate the gain for the linearity
+                        # TODO (see the paper on Euclid detector characterization)
 
                         # Mortara and Fowler mean-variance method. https://ui.adsabs.harvard.edu/abs/1981SPIE..290...28M/abstract
 
@@ -205,13 +207,12 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
         return np.std(storegain)
 
-    def _reject_outliers(self, linearity, sel_mask, bpm: NDArray) -> NDArray[np.bool_]:
+    def _reject_outliers(self, linearity, sel_mask, bpm: NDArray[np.int32]) -> NDArray[np.int32]:
         # Reject pixels whose fitted coefficients are statistical outliers, adding them to the BPM.
         for i in range(self.fitdegree + 1): # check every polynomial coefficient
             linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
-            bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
-
-        bpm[bpm > 1] = 1 # truncate so it can act as a boolean, maybe this can be done with an OR in the previous line
+            bpm[astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask] |= Metis.MaskFlags.LINEARITY_OUTLIER
+            # TODO: need to investigate the HDRL equivalent
 
         return bpm
 
@@ -220,7 +221,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         fluxes_on: NDArray[np.float64],
         dits_fluxrates: NDArray[np.float64],
         sel_mask: NDArray[np.bool_],
-    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.bool_]]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.uint32]]:
         """
         Per-pixel linearity fit via an explicit Python loop over the detector.
 
@@ -243,7 +244,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         n, height, width = fluxes_on.shape
         linearity = np.zeros((self.fitdegree + 1, height, width))
         err_linearity = np.zeros((self.fitdegree + 1, height, width))
-        bpm = ~sel_mask
+        bpm = (~sel_mask).astype(np.int32)
 
         for i_x in range(0, height):
 
@@ -265,7 +266,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                         # If there are not enough below-linlimit samples to fit this pixel mark it bad and skip
                         Msg.debug(self.__class__.__qualname__,
                                   f"Pixel ({i_x}, {i_y}): too few below-linlimit samples; marking bad")
-                        bpm[i_x, i_y] = 1
+                        bpm[i_x, i_y] |= Metis.MaskFlags.TOO_FEW_SAMPLES
                         continue
 
                     # Define a weighted average of the pixels below a certain 'true flux' cutoff.
@@ -306,7 +307,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     except Exception as e:
                         Msg.debug(self.__class__.__qualname__,
                                   f"Fitting pixel {i_x}, {i_y} failed: {e}")
-                        bpm[i_x, i_y] = 1 # this pixel failed for some reason, so let's add it to the BPM
+                        bpm[i_x, i_y] |= Metis.MaskFlags.CONVERGENCE_FAILURE
 
         bpm = self._reject_outliers(linearity, sel_mask, bpm)
 
@@ -317,7 +318,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         fluxes_on: NDArray[np.float64],
         dits_fluxrates: NDArray[np.float64],
         sel_mask: NDArray[np.bool_],
-    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.bool_]]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.uint32]]:
         """
         Vectorized equivalent of :meth:`_fit_linearity_loop`: fits every pixel in a single
         :func:`weighted_polyfit` call. Same inputs and outputs.
@@ -329,7 +330,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         n, height, width = fluxes_on.shape
         linearity: NDArray[np.float64] = np.zeros((self.fitdegree + 1, height, width))
         err_linearity: NDArray[np.float64] = np.zeros((self.fitdegree + 1, height, width))
-        bpm: NDArray[np.bool_] = ~sel_mask
+        bpm: NDArray[np.int32] = (~sel_mask).astype(np.int32)
 
         dits = dits_fluxrates[:, None, None]                     # (N, 1, 1)
         flux_rate = fluxes_on / dits                             # (N, H, W)
@@ -373,18 +374,21 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         # - they are in the selection
         # - are under-determined (there are fewer usable samples than fitdegree + 1)
         # - or are marked as unfittable by weighted_polyfit
-        bpm[sel_mask & ((good.sum(axis=0) < self.fitdegree + 1) | ~ok)] = 1
+        bpm[sel_mask & ((good.sum(axis=0) < self.fitdegree + 1) | ~ok)] |= Metis.MaskFlags.UNDERDETERMINED
 
         # Reject pixels whose fitted coefficients are statistical outliers, adding them to the BPM.
         for i in range(self.fitdegree + 1): # check every polynomial coefficient
             linearity_ma = np.ma.masked_array(linearity[i, :, :], mask=~sel_mask) # only consider pixels with good values
-            bpm += astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask # reject outliers, TODO: need to investigate the HDRL equivalent
+            bpm[astropy.stats.sigma_clip(linearity_ma, sigma=self.kappa).mask] |= Metis.MaskFlags.LINEARITY_OUTLIER # TODO: need to investigate the HDRL equivalent
 
         bpm = self._reject_outliers(linearity, sel_mask, bpm)
 
         return linearity, err_linearity, bpm
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+    def _process_single_detector(
+        self,
+        detector: Literal[1, 2, 3, 4]
+    ) -> dict[str, Hdu]:
         det_prefix = rf'DET{detector:1d}'
 
         raw_images = self.inputset.raw.load_data(rf'{det_prefix}.DATA') # this is an ImageList
@@ -424,7 +428,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         varflux = np.zeros_like(self.unique_on)
         dits_fluxrates = []
 
-        sel_mask = self._get_detector_mask(self.tech, detector)
+        sel_mask = Metis.get_detector_mask(self.tech, detector)
 
         if 'IFU' in self.tech:
             slit_mask = np.percentile(images, 70, axis=0) > 2000

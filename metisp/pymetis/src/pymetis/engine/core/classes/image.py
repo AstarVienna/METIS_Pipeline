@@ -57,7 +57,8 @@ class EnhancedImage:
                  prefix: str,
                  header_image: Optional[CplPropertyList] = None,
                  header_error: Optional[CplPropertyList] = None,
-                 header_dq: Optional[CplPropertyList] = None):
+                 header_dq: Optional[CplPropertyList] = None,
+        ):
         self.prefix = prefix
 
         # The error and data quality layers must describe the same pixels as

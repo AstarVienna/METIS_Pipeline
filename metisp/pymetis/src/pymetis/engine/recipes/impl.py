@@ -180,6 +180,9 @@ class RecipeImpl(Parametrizable, ABC):
         return set()
 
     def collect_qc_parameters(self, *qc_parameters: QcParameter) -> cpl.core.PropertyList:
+        """
+        Collect an *args list of QC parameters and convert them to a PropertyList
+        """
         out = cpl.core.PropertyList()
         for qcparam in qc_parameters:
             out.append(qcparam.as_property())
