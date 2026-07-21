@@ -18,13 +18,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum
+from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.prefab import MetisBaseImgFlatImpl
+from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
 
 
-class MetisLmImgFlatImpl(BandLmMixin, Detector2rgMixin, MetisBaseImgFlatImpl):
+class MetisLmImgFlatImpl(PersistenceCorrectionMixin, BandLmMixin, Detector2rgMixin, MetisBaseImgFlatImpl):
     class InputSet(MetisBaseImgFlatImpl.InputSet):
         pass
 
@@ -52,6 +54,18 @@ class MetisLmImgFlat(Recipe):
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("average", "median"),
+        ),
+        ParameterValue(
+            name=f"{_name}.outliers.kappa_low",
+            context=_name,
+            description="Lower threshold for bad pixels",
+            default=10,
+        ),
+        ParameterValue(
+            name=f"{_name}.outliers.kappa_high",
+            context=_name,
+            description="Upper threshold for bad pixels",
+            default=10,
         ),
     ])
 
