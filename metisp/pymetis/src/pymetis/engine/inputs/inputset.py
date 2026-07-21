@@ -124,7 +124,7 @@ class PipelineInputSet(ParametrizableContainer):
                 Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
                 self.tag_matches |= inp.Item.tag_parameters()
         except cpl.core.DataNotFoundError as e:
-            Msg.error(self.__class__.__qualname__, e)
+            Msg.error(self.__class__.__qualname__, str(e))
 
 
     def print_debug(self, *, offset: int = 0) -> None:
