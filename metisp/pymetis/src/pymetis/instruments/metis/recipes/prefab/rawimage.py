@@ -23,7 +23,7 @@ from typing import Literal, Optional
 import cpl, hdrl
 from cpl.core import Msg, Image, ImageList
 
-from pymetis.engine.core.functions.image import zeros_like
+from pymetis.drl.image import zeros_like
 from pymetis.engine.recipes import RecipeImpl
 from pymetis.engine.inputs import PipelineInputSet
 
@@ -43,48 +43,6 @@ class RawImageProcessor(RecipeImpl, ABC):
 
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             pass
-
-    @classmethod
-    def estimate_noise_list(cls,
-                       images: cpl.core.ImageList,
-                       read_noise: float)-> hdrl.core.ImageList:
-        """
-        Routine to turn a cpl Imagelist of raw images into a hdrl ImageList with 
-        basic noise estimates.
-        """
-        images_hdrl = hdrl.core.ImageList()
-
-        for im in images:
-            image_hdrl = cls.estimate_noise(im, read_noise)
-
-            images_hdrl.append(image_hdrl)
-
-        return images_hdrl
-
-        
-    @classmethod
-    def estimate_noise(cls,
-                       image: cpl.core.Image,
-                       read_noise: float) -> hdrl.core.Image:
-
-        """
-        Routine to turn a raw cpl image into an hdrl image with 
-        basic noise estimates.
-        """
-
-        Msg.info(cls.__qualname__,
-                 f"Estimating noise for raw image, readnoise = {read_noise}")
-
-        noise = cpl.core.Image.zeros_like(image)
-        noise.copy_into(image, 0, 0)
-
-        # add read noise plus shot noise
-        noise.add_scalar(read_noise ** 2)
-        noise.power(0.5)
-
-        image_hdrl = hdrl.core.Image(image,noise)
-        
-        return image_hdrl
 
     @classmethod
     def apply_mask(cls,
@@ -155,112 +113,6 @@ class RawImageProcessor(RecipeImpl, ABC):
         cplMask.add(update)
         
         return cplMask
-    
-    @classmethod
-    def _combine_images_hdrl(cls,
-                       images: hdrl.core.ImageList,
-                       method: CombineMethodType) -> cpl.core.Image:
-
-        combined_image: Optional[cpl.core.Image] = None
-
-        match method:
-            case "add":
-                for idx, image in enumerate(images):
-                    if idx == 0:
-                        combined_image = image
-                    else:
-                        combined_image.add(image)
-            case "average":
-                combined_image, coverage_map = images.collapse_mean()
-            case "median":
-                combined_image, coverage_map = images.collapse_median()
-            case "sigclip":
-                combined_image, coverage_map = images.collapse_sigclip()
-            case _:
-                Msg.error(cls.__qualname__,
-                          f"Got unknown stacking method {method!r}. Stopping right here!")
-                raise ValueError(f"Unknown stacking method {method!r}")
-            
-        return combined_image
-
-             
-    @classmethod
-    def _combine_images_cpl(cls,
-                       images: cpl.core.ImageList,
-                       method: CombineMethodType) -> cpl.core.Image:
-        """
-        Basic helper method to combine images using one of `add`, `average`, `median` or `sigclip`.
-        Probably not a panacea, but it recurs often enough to warrant being here.
-
-        Raises
-        ------
-        ValueError
-            If an unknown combine method is used.
-
-        """
-        Msg.info(cls.__qualname__,
-                 f"Combining {len(images)} images using method {method!r}")
-        combined_image: Optional[cpl.core.Image] = None
-
-        match method:
-            case "add":
-                for idx, image in enumerate(images):
-                    if idx == 0:
-                        combined_image = image
-                    else:
-                        combined_image.add(image)
-            case "average":
-                combined_image = images.collapse_create()
-            case "median":
-                combined_image = images.collapse_median_create()
-            case "sigclip":
-                combined_image = images.collapse_sigclip_create()
-            case _:
-                Msg.error(cls.__qualname__,
-                          f"Got unknown stacking method {method!r}. Stopping right here!")
-                raise ValueError(f"Unknown stacking method {method!r}")
-
-        return combined_image
-
-    @classmethod
-    def combine_images(cls,
-                            images: hdrl.core.ImageList | cpl.core.ImageList,
-                            method: CombineMethodType) -> hdrl.core.Image | cpl.core.Image:
-
-        """
-        Basic helper method to combine images using one of `add`, `average`, `median` or `sigclip`.
-        Probably not a panacea, but it recurs often enough to warrant being here.
-
-        Calls one of two sub-methods based on whether it's an HDRL or CPL image, as the 
-        processes are teh same, but the names of the associated methods as different. 
-
-        Raises
-        ------
-        ValueError
-            If an unknown combine method is used.
-            If the wrong input type is passed
-
-        """
-        
-        Msg.info(cls.__qualname__,
-                 f"Combining {len(images)} images using method {method!r}")
-
-        combined_image: Optional[cpl.core.Image] = None
-
-        # separate submethods, because the syntax/method is different for
-        # hdrl and cpl images
-        
-        if(isinstance(images,hdrl.core.ImageList)):
-           combined_image = cls._combine_images_hdrl(images,method)
-        elif(isinstance(images,cpl.core.ImageList)):
-           combined_image = cls._combine_images_cpl(images,method)
-        else:
-             Msg.error(cls.__qualname__,
-                       f"Unknown input type {type(images)}. Stopping right here!")
-             raise ValueError(f"Unknown input type {type(images)}")
-
-        return combined_image
-
 
 
     def correct_gain(self, raw_images: ImageList, gain: Image) -> ImageList:
@@ -309,39 +161,6 @@ class RawImageProcessor(RecipeImpl, ABC):
         """
         Msg.info(self.__class__.__qualname__, f"Pretending to correct for non-linearity")
         return raw_images
-
-    def calculate_outliers(self,
-                           image: hdrl.core.Image,
-                           *,
-                           kappa_low: int,
-                           kappa_high: int) -> tuple[cpl.core.Mask, cpl.core.Mask]:
-        """
-        Calculate masks for outlier pixels, with kappa-sigma clipping, using HDRL BPM functions.
-        """
-        Msg.info(self.__class__.__qualname__,
-                 f"Identifying outlier pixels ({kappa_low=}, {kappa_high=})")
-
-        # get masks from thresholds for bad, hot and cold pixels
-        # count the number of bad pixels in each, for later, then
-        # change to Image type from mask for later calculations
-
-        image_median = image.get_median()
-        image_rms = image.get_stdev()
-
-        # user HDRL function to flag outlier pixels. First create the object
-        # TODO: confirm/explore best input paramters based on realistic data
-
-        #set one kappa to a very large value to separate hot/cold maxing
-        
-        maxIter = 6
-        filter_x = 5
-        filter_y = 5
-        bpFind = hdrl.func.BPM2D.Filter(1000, kappa_high, maxIter, cpl.core.Filter.MEDIAN, cpl.core.Border.NOP, filter_x, filter_y)
-        mask_hot = bpFind.compute(image)
-        bpFind = hdrl.func.BPM2D.Filter(kappa_low, 1000, maxIter, cpl.core.Filter.MEDIAN, cpl.core.Border.NOP, filter_x, filter_y)
-        mask_cold = bpFind.compute(image)
-
-        return mask_hot, mask_cold
 
     def calculate_outliers_sequence(self,
                              imagelist: cpl.core.ImageList | hdrl.core.ImageList,

@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import enum
 from typing import Self
 
 import numpy as np
@@ -116,6 +117,10 @@ class Mask:
             combined[selected] |= bit
         return cls(CplImage(combined, dtype=CplType.INT))
 
+    @classmethod
+    def zeros_like(cls, source) -> Self:
+        return cls(CplImage.zeros_like(source))
+
     def flatten(self) -> CplMask:
         """
         Flatten a 32-bit mask into a 1-bit mask for use with CPL / HDRL functions (see DRLD section 3.5.3).
@@ -140,12 +145,9 @@ class Mask:
         self.data = CplImage(combined, dtype=CplType.INT)
         return self
 
-    def __getitem__(self, bit: int) -> CplMask:
+    def __getitem__(self, bits: 'InstrumentDescription.MaskFlags') -> CplMask:
         """
         Extract only a single bit for each pixel from the mask and return a corresponding CplMask.
         """
-        if bit.bit_count() != 1:
-            raise ValueError("Only one bit must be set")
-
         # `& bit` isolates the bit; `!= 0` collapses it to the boolean CplMask needs.
-        return CplMask((self._array() & bit) != 0)
+        return CplMask((self._array() & bits) != 0)

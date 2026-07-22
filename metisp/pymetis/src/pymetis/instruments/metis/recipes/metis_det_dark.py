@@ -27,23 +27,24 @@ from typing import Literal, Dict, Any
 
 import cpl
 from cpl.core import Msg, ImageList, Image, Mask
-from pymetis.engine.core.classes.image import EnhancedImage
 
+from pymetis.drl.combine import combine_images
+from pymetis.drl.noise import estimate_noise_list, calculate_outliers
+from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.functions.image import zeros_like
+from pymetis.drl.image import zeros_like
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.description import Metis
-from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
 from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.instruments.metis.dataitems.masterdark.raw import DarkRaw
 from pymetis.instruments.metis.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
-                                              LinearityInput, GainMapInput, OptionalInputMixin)
+                                              GainMapInput, OptionalInputMixin)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
@@ -169,9 +170,11 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         Msg.info(self.__class__.__qualname__, f"Faking a gain map and badpix map")
 
         #TODO optional badpix map
-        
+
         # fake the bp mask by initializing to zero
         badpix_mask = zeros_like(raw_images[0], cpl.core.Type.INT)
+
+        mask = Mask.zeros_like(raw_images[0])
 
         # fake the gain at the moment by setting to 1 TODO real version
         gain = cpl.core.Image.zeros_like(raw_images[0])
@@ -195,15 +198,15 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
             read_noise = (0, 0)
 
         # turn the raw images into HDRL images with an initial noise estimate
-        raw_images_hdrl = self.estimate_noise_list(raw_images, read_noise[0])
+        raw_images_hdrl = estimate_noise_list(raw_images, read_noise[0])
 
         # and combine
-        combined_image = self.combine_images(raw_images_hdrl, self.stacking_method)
+        combined_image = combine_images(raw_images_hdrl, self.stacking_method)
 
         Msg.info(self.__class__.__qualname__, f"Combining images using method {self.stacking_method!r}")
 
         # get hot/cold pixels
-        mask_hot, mask_cold = self.calculate_outliers(combined_image, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
+        mask_hot, mask_cold = calculate_outliers(combined_image, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
         qcnhot, qcncold = mask_hot.count(), mask_cold.count()
 
         # get noisy pixels: we may need to revisit whether this is a good thing to do later TODO
@@ -214,6 +217,10 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         Msg.info(self.__class__.__qualname__,
                  f"Updating mask: {(mask_cold | mask_hot | mask_bad).count()} pixels masked: "
                  f"{qcnbad} bad + {qcnhot} hot + {qcncold} cold")
+
+        mask.add(Metis.MaskFlags.BAD, mask_bad)
+        mask.add(Metis.MaskFlags.HOT, mask_hot)
+        mask.add(Metis.MaskFlags.COLD, mask_cold)
 
         # add the individual masks to the cpl mask
         self.update_mask(badpix_mask, Metis.MaskFlags.BAD, badpix_mask)
@@ -290,7 +297,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # for the time being append READNOISE to the header
 
-        header_image.append(cpl.core.Property("READNOISE",cpl.core.Type.DOUBLE,read_noise[0]))
+        header_image.append(cpl.core.Property("READNOISE", cpl.core.Type.DOUBLE, read_noise[0]))
         for elem in header_image:
             Msg.info(self.__class__.__qualname__, f"HEADER IMAGE{elem}")
 

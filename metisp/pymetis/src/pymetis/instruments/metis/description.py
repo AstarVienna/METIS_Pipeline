@@ -23,29 +23,8 @@ import cpl
 import numpy as np
 from numpy._typing import NDArray
 
-from pymetis.engine.core.classes.mask import Mask
+from pymetis.engine.core.classes.instrument import InstrumentDescription
 
-
-class InstrumentDescription:
-    class MaskFlags(enum.IntFlag):
-        """
-        This class provides meanings for the mask bits.
-
-        Flags are stored in a `Mask`, whose backing store is a signed 32-bit
-        integer, so bit 31 is the sign bit and must stay unused. Every flag
-        must therefore fit within bits 0-`Mask.MAX_FLAG_BIT`; this is enforced
-        for all subclasses at definition time.
-        """
-
-        def __init_subclass__(cls, **kwargs):
-            super().__init_subclass__(**kwargs)
-            for member in cls:
-                if member.value.bit_length() > Mask.MAX_FLAG_BIT + 1:
-                    raise ValueError(
-                        f"{cls.__qualname__}.{member.name} = 0x{member.value:08x} "
-                        f"uses a bit above {Mask.MAX_FLAG_BIT}; bit 31 is reserved "
-                        f"as the sign bit of the signed int32 mask storage."
-                    )
 
 
 class Metis(InstrumentDescription):

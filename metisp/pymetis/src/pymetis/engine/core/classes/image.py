@@ -281,3 +281,13 @@ class EnhancedImage:
                    header_image=header_image,
                    header_error=header_error,
                    header_dq=header_dq)
+
+    def hdus(self) -> list[Hdu]:
+        """
+        Return a list of HDUs for saving.
+        """
+        return [
+            Hdu(self.header_image, self.image.image, name=f'{self.prefix}.{self.sci_suffix}'),
+            Hdu(self.header_error, self.image.error, name=f'{self.prefix}.{self.err_suffix}'),
+            Hdu(self.header_dq, self.dq.data, name=f'{self.prefix}.{self.dq_suffix}'),
+        ]
