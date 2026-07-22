@@ -35,6 +35,10 @@ class MasterFlat(ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
+        'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
+
     }
 
 
@@ -64,6 +68,8 @@ class MasterImgFlat(ImageDataItem, abstract=True):
     _schema = {
         'PRIMARY': None,
         'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
     }
 
 

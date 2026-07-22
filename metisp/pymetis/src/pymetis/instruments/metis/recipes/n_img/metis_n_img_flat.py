@@ -18,13 +18,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum
+from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.instruments.metis.recipes.prefab import MetisBaseImgFlatImpl
+from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
 
 
-class MetisNImgFlatImpl(BandNMixin, DetectorGeoMixin, MetisBaseImgFlatImpl):
+class MetisNImgFlatImpl(PersistenceCorrectionMixin, BandNMixin, DetectorGeoMixin, MetisBaseImgFlatImpl):
     class InputSet(MetisBaseImgFlatImpl.InputSet):
         pass
 
@@ -53,6 +54,19 @@ class MetisNImgFlat(Recipe):
             default="average",
             alternatives=("add", "average", "median"),
         ),
+        ParameterValue(
+            name=f"{_name}.outliers.kappa_low",
+            context=_name,
+            description="Lower threshold for bad pixels",
+            default=10,
+        ),
+        ParameterValue(
+            name=f"{_name}.outliers.kappa_high",
+            context=_name,
+            description="Upper threshold for bad pixels",
+            default=10,
+        ),
+
     ])
 
     Impl = MetisNImgFlatImpl
