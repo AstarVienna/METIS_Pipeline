@@ -101,7 +101,7 @@ class BaseRecipeTest(ABC):
     def test_does_author_name_conform_to_standard(self) -> None:
         """Test whether the recipe author's name is in the standard format. TBD what that actually means."""
         recipe = self.Recipe()
-        assert re.match(r"^([\w\- ]+, )?A\*$", recipe._author), \
+        assert re.match(r"^([\w\- ]+, )?A\*(, ASIAA)?$", recipe._author), \
             "Author name is not in the standard format"
 
     @pytest.mark.external

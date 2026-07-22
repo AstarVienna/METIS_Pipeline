@@ -582,13 +582,14 @@ class MetisDetLinGain(Recipe):
     # Fill in recipe information
     _name = "metis_det_lingain"
     _version = "0.2"
-    _author = "A*, ASIAA, Gilles Otten"
+    _author = "Gilles Otten, A*, ASIAA"
     _email = "hugo@buddelmeijer.nl"
     _synopsis = "Measure detector non-linearity and gain"
     _description = (
         "Function-level code to determine Gain and Linearity for the three subinstruments of METIS."
     )
 
+    _matched_keywords = frozenset()
     _algorithm = """We expect two on and two dark (here named off) images per DIT
     for the Gain and Linearity calculation, similar to ESO's DETMON.
     The gain is determined from the slope of the average flux

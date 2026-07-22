@@ -46,9 +46,13 @@ class EnhancedImage:
     the data quality layer is a 31-bit bad-pixel mask and is
     expected to hold an integer type, where a non-zero value flags a bad pixel.
     Each bit represents a different reason (as defined inside the instrument description).
+
+    Note that this is not to replace an ImageList! The ImageList is supported only to accommodate
+    things like per-pixel coefficient tables and such. For true lists of images,
+    use `list[EnhancedImage]` (or ask for adding support).
     """
 
-    # Defaults for suffixes. Might be overridden in a derived class.
+    # Defaults for suffixes. Might be overridden in a derived class if such need arises.
     sci_suffix: ClassVar[str] = 'SCI'
     err_suffix: ClassVar[str] = 'ERR'
     dq_suffix: ClassVar[str] = 'DQ'
@@ -91,20 +95,50 @@ class EnhancedImage:
         self.header_dq = CplPropertyList() if header_dq is None else header_dq
 
     @classmethod
-    def from_hdrl(cls,
-                  image: HdrlImage,
-                  dq: Optional[CplImage | CplMask | Mask] = None,
-                  *,
-                  prefix: str,
-                  header_image: Optional[CplPropertyList] = None,
-                  header_error: Optional[CplPropertyList] = None,
-                  header_dq: Optional[CplPropertyList] = None,
+    def from_hdrl(
+            cls,
+            image: HdrlImage,
+            dq: Optional[CplImage | CplMask | Mask] = None,
+            *,
+            prefix: str,
+            header_image: Optional[CplPropertyList] = None,
+            header_error: Optional[CplPropertyList] = None,
+            header_dq: Optional[CplPropertyList] = None,
     ) -> Self:
         """
         Pseudo-constructor: create directly from a HDRL image + mask.
         """
         return cls(image.image, image.error, dq, prefix=prefix,
                    header_image=header_image, header_error=header_error, header_dq=header_dq)
+
+    def __repr__(self) -> str:
+        # SCI/ERR live inside the HDRL image; DQ is the mask's backing image.
+        layers = (
+            (self.sci_suffix, self.image.image),
+            (self.err_suffix, self.image.error),
+            (self.dq_suffix, self.dq.data),
+        )
+        width, height = self._dimensions(self.image.image)
+        described = ', '.join(
+            self._describe_layer(f'{self.prefix}.{suffix}', data)
+            for suffix, data in layers
+        )
+        return f"<EnhancedImage {self.prefix!r} {width}×{height}: {described}>"
+
+    @classmethod
+    def schema(cls, prefix) -> dict[str, type]:
+        """
+        Build a generic schema for EnhancedImage, depending on the prefix.
+        """
+        return {
+            f'{prefix}.{cls.sci_suffix}': CplImage,
+            f'{prefix}.{cls.err_suffix}': CplImage,
+            f'{prefix}.{cls.dq_suffix}': CplImage,
+        }
+
+    def get_schema(self) -> dict[str, type]:
+        """ Schema for instances """
+        return self.schema(self.prefix)
 
     def save(self,
              filename: str) -> None:
@@ -134,8 +168,6 @@ class EnhancedImage:
             name=rf'{self.prefix}.{self.dq_suffix}'
         )
         dq.save(filename)
-
-
 
     @staticmethod
     def _dimensions(layer: CplImage):
@@ -176,20 +208,6 @@ class EnhancedImage:
         shared across layers and reported once by `__repr__`."""
         kind = (f'ImageList[{len(data)}]' if isinstance(data, CplImageList) else 'Image')
         return f'{name}: {kind}'
-
-    def __repr__(self) -> str:
-        # SCI/ERR live inside the HDRL image; DQ is the mask's backing image.
-        layers = (
-            (self.sci_suffix, self.image.image),
-            (self.err_suffix, self.image.error),
-            (self.dq_suffix, self.dq.data),
-        )
-        width, height = self._dimensions(self.image.image)
-        described = ', '.join(
-            self._describe_layer(f'{self.prefix}.{suffix}', data)
-            for suffix, data in layers
-        )
-        return f"<EnhancedImage {self.prefix!r} {width}×{height}: {described}>"
 
     @classmethod
     def load(cls, filename: str, prefix: str) -> Self:

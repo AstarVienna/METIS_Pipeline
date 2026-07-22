@@ -216,12 +216,12 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
                  f"{qcnbad} bad + {qcnhot} hot + {qcncold} cold")
 
         # add the individual masks to the cpl mask
-        self.update_mask(badpix_mask, bad_bit, badpix_mask)
-        self.update_mask(badpix_mask, cold_bit, badpix_mask)
-        self.update_mask(badpix_mask, hot_bit, badpix_mask)
+        self.update_mask(badpix_mask, Metis.MaskFlags.BAD, badpix_mask)
+        self.update_mask(badpix_mask, Metis.MaskFlags.COLD, badpix_mask)
+        self.update_mask(badpix_mask, Metis.MaskFlags.HOT, badpix_mask)
         
         ## copy bad pixel mask to combined_image before calculating QC parameters
-        self.apply_mask(combined_image, badpix_mask, [1,2,4])
+        self.apply_mask(combined_image, badpix_mask, [1, 2, 4])
 
         Msg.info(self.__class__.__qualname__, "Actually Calculating QC parameters")
 
@@ -272,19 +272,18 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
         gg = self.collect_qc_parameters(
-                DarkMean(qcmean),
-                DarkMedian(qcmed),
-                DarkRms(qcrms),
-                DarkNBadpix(qcnbad),
-                DarkNColdpix(qcncold),
-                DarkNHotpix(qcnhot),
-                DarkMedianMean(qcmedmean),
-                DarkMedianMedian(qcmedmed),
-                DarkMedianRms(qcmedrms),
-                DarkMedianMin(qcmedmin),
-                DarkMedianMax(qcmedmax),
-            )
-
+            DarkMean(qcmean),
+            DarkMedian(qcmed),
+            DarkRms(qcrms),
+            DarkNBadpix(qcnbad),
+            DarkNColdpix(qcncold),
+            DarkNHotpix(qcnhot),
+            DarkMedianMean(qcmedmean),
+            DarkMedianMedian(qcmedmed),
+            DarkMedianRms(qcmedrms),
+            DarkMedianMin(qcmedmin),
+            DarkMedianMax(qcmedmax),
+        )
 
         header_image.append(gg)
         header_image.append(hh)

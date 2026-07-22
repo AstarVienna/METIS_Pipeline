@@ -17,14 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import numpy as np
-
 from abc import ABC
 from typing import Literal, Optional
 
 import cpl, hdrl
 from cpl.core import Msg, Image, ImageList
 
+from pymetis.engine.core.functions.image import zeros_like
 from pymetis.engine.recipes import RecipeImpl
 from pymetis.engine.inputs import PipelineInputSet
 
@@ -100,17 +99,17 @@ class RawImageProcessor(RecipeImpl, ABC):
             and apply to the image. 
         """
 
-        maskFrame = cpl.core.Image.zeros_like(cplMask)
+        maskFrame = zeros_like(cplMask, cpl.core.Type.INT)
 
         # go through, get the required bits and add to the mask frame
         for bit in bits:
             temp = cpl.core.Image.zeros_like(cplMask)
-            temp.copy_into(cplMask,0,0)
+            temp.copy_into(cplMask, 0, 0)
             temp.and_scalar(bit)
             maskFrame.add(temp)
 
         # create a mask object
-        mask = cpl.core.Mask(cplImage.width,cplImage.height)
+        mask = cpl.core.Mask(cplImage.width, cplImage.height)
         
         # a bit kludgy, but creating a numpy boolean array with the 
         # required mask values, then directly assigning it in the way

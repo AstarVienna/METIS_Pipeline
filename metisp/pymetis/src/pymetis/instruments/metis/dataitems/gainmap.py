@@ -24,7 +24,7 @@ from pymetis.engine.dataitems import ImageDataItem, TableDataItem
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class GainMap(TableDataItem, abstract=True):
+class GainMap(ImageDataItem, abstract=True):
     _name_template = r'GAIN_MAP_{detector}'
     _title_template = "gain map for {detector} detector"
     _description_template = "Gain map for the {detector} detector"
