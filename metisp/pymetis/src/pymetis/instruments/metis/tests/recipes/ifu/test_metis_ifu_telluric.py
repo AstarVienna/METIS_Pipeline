@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluric as Recipe,
                                                     MetisIfuTelluricImpl as Impl)
-from pymetis.tests.classes import TargetParamRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import TargetParamRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_ifu_telluric'

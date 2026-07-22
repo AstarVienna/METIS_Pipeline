@@ -28,7 +28,7 @@ from cpl.core import Msg, Image, ImageList
 from pymetis.engine.recipes import RecipeImpl
 from pymetis.engine.inputs import PipelineInputSet
 
-from pymetis.instruments.metis.inputs import RawInput, BadPixMapInput, OptionalInputMixin
+from ...inputs import RawInput, BadPixMapInput, OptionalInputMixin
 
 CombineMethodType = Literal['add', 'average', 'median', 'sigclip']
 
@@ -288,7 +288,11 @@ class RawImageProcessor(RecipeImpl, ABC):
         return raw_images
 
 
-    def correct_nonlinearity(self, raw_images: ImageList, linearity_map: Image) -> ImageList:
+    def correct_nonlinearity(
+            self,
+            raw_images: ImageList,
+            linearity_map: ImageList,
+        ) -> ImageList:
         """
         Correct the raw image list for non-linearity.
 

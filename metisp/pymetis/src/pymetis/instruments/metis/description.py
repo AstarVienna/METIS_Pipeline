@@ -56,18 +56,22 @@ class Metis(InstrumentDescription):
 
     class MaskFlags(InstrumentDescription.MaskFlags):
         # det_dark
-        BAD = 0x0001
-        COLD = 0x0002
-        HOT = 0x0004
+        BAD = 0x0001                        # bad pixel
+        COLD = 0x0002                       # cold pixel
+        HOT = 0x0004                        # hot pixel
 
         # det_lingain
         TOO_FEW_SAMPLES = 0x0010
-        UNDERDETERMINED = 0x0020
-        CONVERGENCE_FAILURE = 0x0040
-        LINEARITY_OUTLIER = 0x0080
+        UNDERDETERMINED = 0x0020            # underdetermined for fit
+        CONVERGENCE_FAILURE = 0x0040        # failed to converge in linearity determination
+        LINEARITY_OUTLIER = 0x0080          # outlier
 
         # persistence
         PERSISTENCE_AFFECTED = 0x0100
+
+        # custom masks
+        EDGE = 0x00010000                   # too close to the detector edge
+        NOT_AN_ORDER = 0x00010010           # pixel masked because it does not belong to a spectral order
 
     def get_detector_size(self, tech: str) -> tuple[int, int]:
         if 'LM' in tech:

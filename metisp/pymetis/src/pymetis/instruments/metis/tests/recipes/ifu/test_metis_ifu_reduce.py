@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe,
                                                   MetisIfuReduceImpl as Impl, MetisIfuReduceImpl)
-from pymetis.tests.classes import BaseInputSetTest, TargetParamRecipeTest, BaseProductSetTest
+from tests.classes import BaseInputSetTest, TargetParamRecipeTest, BaseProductSetTest
 
 
 recipe_name = r'metis_ifu_reduce'

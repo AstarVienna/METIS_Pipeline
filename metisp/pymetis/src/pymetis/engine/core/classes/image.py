@@ -54,8 +54,8 @@ class EnhancedImage:
     dq_suffix: ClassVar[str] = 'DQ'
 
     def __init__(self,
-                 image: CplImage | CplImageList,
-                 error: Optional[CplImage | CplImageList] = None,
+                 image: CplImage,
+                 error: Optional[CplImage] = None,
                  dq: Optional[CplImage | CplMask | Mask] = None,
                  *,
                  prefix: str,
@@ -67,25 +67,16 @@ class EnhancedImage:
 
         # The error and data quality layers must describe the same pixels as
         # the science image, so their spatial dimensions have to match.
-        # The number of planes (for an ImageList) may legitimately differ, e.g. a
-        # stack of polynomial coefficients paired with a single 2D bad-pixel map.
         dim = self._dimensions(image)
         for name, layer in (('error', error), ('dq', dq)):
             if layer is not None and (dims := self._dimensions(layer)) != dim:
-                raise ValueError(
+                raise cpl.hdrl.core.IncompatibleInputError(
                     f"{self.__class__} '{prefix}': {name} layer dimensions {dims} "
                     f"do not match the image dimensions {dim}"
                 )
 
-        if not ((isinstance(image, CplImage) and isinstance(error, CplImage)) or
-                (isinstance(image, CplImageList) and isinstance(error, CplImageList))):
-            raise ValueError(f"Both image and error must be of the same type (CPL Image or CPL ImageList), "
-                             f"got {type(image)} and {type(error)}")
-
         if isinstance(image, CplImage):
             self.image = HdrlImage(image, error)
-        elif isinstance(image, CplImageList):
-            self.image = HdrlImageList(image, error)
         else:
             raise ValueError(f"Unsupported image type {type(image)}")
 
@@ -121,7 +112,7 @@ class EnhancedImage:
         Save this image to a FITS file.
         """
         Msg.info(self.__class__.__qualname__,
-                 f"Saving an EnhancedImage {self.prefix} to '{filename}'")
+                 f"Saving an EnhancedImage {self.prefix} to file '{filename}'")
 
         image: Hdu = Hdu(
             self.header_image,
@@ -147,7 +138,7 @@ class EnhancedImage:
 
 
     @staticmethod
-    def _dimensions(layer: CplImage | CplImageList) -> tuple[int, int]:
+    def _dimensions(layer: CplImage):
         """
         Return the (width, height) of a layer, which may be a single `Image`
         or an `ImageList` of equally-sized planes.

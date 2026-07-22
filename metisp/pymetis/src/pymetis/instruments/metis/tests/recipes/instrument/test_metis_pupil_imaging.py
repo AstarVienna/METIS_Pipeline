@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as Recipe,
                                                             MetisPupilImagingImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_pupil_imaging'

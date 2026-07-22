@@ -25,8 +25,7 @@ from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Mask as CplMask,
                       PropertyList as CplPropertyList)
-from cpl.hdrl.core import (Image as HdrlImage,
-                           ImageList as HdrlImageList)
+from cpl.hdrl.core import Image as HdrlImage
 
 from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.core.classes.mask import Mask
@@ -66,12 +65,6 @@ class TestConstruction:
     def test_science_and_error_wrapped_as_hdrl_image(self):
         ei = EnhancedImage(make_image(), make_image(), build_dq_mask(), prefix=PREFIX)
         assert isinstance(ei.image, HdrlImage)
-
-    def test_imagelist_wrapped_as_hdrl_imagelist(self):
-        """A coefficient stack (ImageList) plus a matching error stack must be
-        wrapped as an HDRL image list."""
-        ei = EnhancedImage(make_imagelist(3), make_imagelist(3), build_dq_mask(), prefix=PREFIX)
-        assert isinstance(ei.image, HdrlImageList)
 
     def test_dq_wrapped_as_mask(self):
         ei = EnhancedImage(make_image(), make_image(), build_dq_mask(), prefix=PREFIX)
@@ -156,40 +149,19 @@ class TestFromHdrl:
 
 
 class TestValidation:
-    def test_error_is_required(self):
-        """`__init__` cannot build an HDRL image without an error layer."""
-        with pytest.raises(ValueError, match='same type'):
-            EnhancedImage(make_image(), prefix=PREFIX)
-
-    def test_mismatched_error_type_raises(self):
-        """A single image paired with an error *list* (or vice versa) is rejected."""
-        with pytest.raises(ValueError, match='same type'):
-            EnhancedImage(make_image(4, 4), make_imagelist(3, 4, 4), build_dq_mask(4, 4),
-                          prefix=PREFIX)
-
     def test_mismatched_error_dimensions_raise(self):
-        with pytest.raises(ValueError, match='error'):
+        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='error'):
             EnhancedImage(make_image(4, 4), make_image(5, 6), build_dq_mask(4, 4),
                           prefix=PREFIX)
 
     def test_mismatched_dq_dimensions_raise(self):
-        with pytest.raises(ValueError, match='dq'):
+        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='dq'):
             EnhancedImage(make_image(4, 4), make_image(4, 4), build_dq_mask(5, 6),
                           prefix=PREFIX)
 
     def test_matching_dimensions_pass(self):
         # Should not raise.
         EnhancedImage(make_image(4, 6), make_image(4, 6), build_dq_mask(4, 6), prefix=PREFIX)
-
-    def test_imagelist_with_matching_plane_dims_ok(self):
-        """A coefficient stack paired with a single 2D bad-pixel map: the plane
-        count differs but the spatial dims match, so construction succeeds."""
-        ei = EnhancedImage(make_imagelist(3, 4, 4),
-                           make_imagelist(3, 4, 4),
-                           build_dq_mask(4, 4),
-                           prefix=PREFIX)
-        assert isinstance(ei.image, HdrlImageList)
-        assert isinstance(ei.dq, Mask)
 
 
 # ---------- _dimensions helper ----------
@@ -312,52 +284,3 @@ class TestSaveLoadRoundTrip:
         with pytest.raises(cpl.core.DataNotFoundError):
             EnhancedImage.load(filename, PREFIX)
 
-
-# ---------- flatten_mask ----------
-
-
-class TestFlattenMask:
-    def test_returns_cpl_image(self):
-        ei = EnhancedImage(make_image(), dq=build_dq_mask(), prefix=PREFIX)
-        assert isinstance(ei.flatten_mask(), CplImage)
-
-    def test_dimensions_match_dq(self):
-        ei = EnhancedImage(make_image(4, 6), dq=build_dq_mask(4, 6), prefix=PREFIX)
-        result = ei.flatten_mask()
-        assert (result.width, result.height) == (6, 4)
-
-    def test_good_pixels_are_zero(self):
-        """Pixels with dq == 0 must appear as 0 in the flattened mask."""
-        dq = build_dq_mask()
-        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
-        result_arr = ei.flatten_mask().as_array()
-        dq_arr = dq.as_array()
-        assert np.all(result_arr[dq_arr == 0] == 0)
-
-    def test_bad_pixels_are_nonzero(self):
-        """Pixels with dq != 0 must appear as nonzero in the flattened mask."""
-        dq = build_dq_mask()
-        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
-        result_arr = ei.flatten_mask().as_array()
-        dq_arr = dq.as_array()
-        assert np.all(result_arr[dq_arr != 0] != 0)
-
-    def test_all_good_dq_gives_all_zero_mask(self):
-        """An all-zero DQ layer must produce an all-zero flattened mask."""
-        dq = CplImage(np.zeros((4, 4), dtype=np.int32), dtype=cpl.core.Type.INT)
-        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
-        assert np.all(ei.flatten_mask().as_array() == 0)
-
-    def test_all_bad_dq_gives_all_nonzero_mask(self):
-        """An all-nonzero DQ layer must produce an all-nonzero flattened mask."""
-        dq = CplImage(np.ones((4, 4), dtype=np.int32), dtype=cpl.core.Type.INT)
-        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
-        assert np.all(ei.flatten_mask().as_array() != 0)
-
-    def test_multibyte_flag_treated_as_bad(self):
-        """Any nonzero bit pattern — not just 0x1 — must mark the pixel as bad."""
-        arr = np.zeros((4, 4), dtype=np.int32)
-        arr[2, 3] = 0x00FF
-        dq = CplImage(arr, dtype=cpl.core.Type.INT)
-        ei = EnhancedImage(make_image(), dq=dq, prefix=PREFIX)
-        assert ei.flatten_mask().as_array()[2, 3] != 0

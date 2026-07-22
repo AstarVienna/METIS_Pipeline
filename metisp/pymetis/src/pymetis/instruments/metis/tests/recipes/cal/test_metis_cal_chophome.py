@@ -25,8 +25,8 @@ import cpl
 
 from pymetis.instruments.metis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
                                                     MetisCalChophomeImpl as Impl)
-from pymetis.tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductSetTest
-from pymetis.tests.classes.product import ImageProductSetTest
+from tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductSetTest
+from tests.classes.product import ImageProductSetTest
 
 recipe_name = r'metis_cal_chophome'
 

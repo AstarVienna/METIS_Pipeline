@@ -20,6 +20,7 @@ from typing import Self
 
 import numpy as np
 
+import cpl
 from cpl.core import (Image as CplImage,
                       Mask as CplMask,
                       Type as CplType,)
@@ -108,7 +109,7 @@ class Mask:
         # First ensure that all masks are the same size.
         shapes = {array.shape for array in arrays.values()}
         if len(shapes) != 1:
-            raise ValueError(f"All masks must have the same width and height, got {shapes}")
+            raise cpl.hdrl.core.IncompatibleInputError(f"All masks must have the same width and height, got {shapes}")
 
         combined = np.zeros(shapes.pop(), dtype=np.int32)
         for bit, selected in arrays.items():
@@ -139,7 +140,7 @@ class Mask:
         self.data = CplImage(combined, dtype=CplType.INT)
         return self
 
-    def __getitem__(self, bit: int):
+    def __getitem__(self, bit: int) -> CplMask:
         """
         Extract only a single bit for each pixel from the mask and return a corresponding CplMask.
         """

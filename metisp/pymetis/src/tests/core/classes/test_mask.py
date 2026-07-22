@@ -120,11 +120,11 @@ class TestFromCplMasks:
     def test_mismatched_shapes_raise(self):
         small = cpl_mask([[True, False], [False, False]])
         big = cpl_mask([[True, False, False], [False, False, False]])
-        with pytest.raises(ValueError, match='same width and height'):
+        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='same width and height'):
             Mask.from_cpl_masks({0x01: small, 0x02: big})
 
     def test_empty_dict_raises(self):
-        with pytest.raises(ValueError, match='same width and height'):
+        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='same width and height'):
             Mask.from_cpl_masks({})
 
 

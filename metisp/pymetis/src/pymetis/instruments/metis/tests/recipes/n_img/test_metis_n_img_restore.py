@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_restore import (MetisNImgRestore as Recipe,
                                                        MetisNImgRestoreImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_n_img_restore'

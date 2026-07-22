@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_mf_correct import (MetisLmLssMfCorrect as Recipe,
                                                             MetisLmLssMfCorrectImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_lss_mf_correct'
