@@ -19,8 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-import cpl
+import cpl, hdrl
 from cpl.core import Msg, Image
+from typing import Literal, Dict, Any
 
 from pymetis.instruments.metis.inputs.common import MasterDarkInput
 from pymetis.instruments.metis.recipes.prefab.rawimage import RawImageProcessor
@@ -45,7 +46,7 @@ class DarkImageProcessor(RawImageProcessor, ABC):
             pass
 
     def subtract_dark(self,
-                      images: cpl.core.ImageList) -> cpl.core.ImageList:
+                      images: hdrl.core.ImageList) -> hdrl.core.ImageList:
         """
         Load the associated master dark frame and subtract it from every image in `images`.
         Also automatically marks the master dark as used.
@@ -63,7 +64,11 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         # - _subtract_darks for all detectors that calls the single one for each of them
         master_dark: Image = self.inputset.master_dark.load_data('DET1.SCI')
 
+        # a hack until I get the reading of 3 extension images handled TODO
+        
+        master_dark_hdrl = self.estimate_noise(master_dark, 0)
+
         Msg.info(self.__class__.__qualname__,
                  f"Subtracting the master dark from raw images")
-        images.subtract_image(master_dark)
+        images.sub_image(master_dark_hdrl)
         return images
