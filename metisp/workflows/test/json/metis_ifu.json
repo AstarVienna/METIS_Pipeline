@@ -1,0 +1,557 @@
+{
+  "keywords": {
+    "ifu_calib": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IFU"
+    },
+    "ifu_science": {
+      "instrume": "METIS",
+      "dpr.catg": "SCIENCE",
+      "dpr.tech": "IFU"
+    }
+  },
+  "inputs": [
+    {
+      "name_prefix": "detlin_ifu",
+      "count": 10,
+      "common_keywords": ["ifu_calib"],
+      "keywords": {
+        "dpr.type": "DETLIN",
+        "tpl.start": "2024-01-01T00:00:00"
+      }
+    },
+    {
+      "name_prefix": "dark_ifu",
+      "count": 10,
+      "common_keywords": ["ifu_calib"],
+      "keywords": {
+        "dpr.type": "DARK",
+        "tpl.start": "2024-01-01T01:00:00"
+      }
+    },
+    {
+      "name_prefix": "distortion_ifu",
+      "count": 10,
+      "common_keywords": ["ifu_calib"],
+      "keywords": {
+        "dpr.type": "DISTORTION",
+        "tpl.start": "2024-01-01T02:00:00"
+      }
+    },
+    {
+      "name_prefix": "wave_ifu",
+      "count": 10,
+      "common_keywords": ["ifu_calib"],
+      "keywords": {
+        "dpr.type": "WAVE",
+        "tpl.start": "2024-01-01T03:00:00"
+      }
+    },
+    {
+      "name_prefix": "rsrf_ifu",
+      "count": 10,
+      "common_keywords": ["ifu_calib"],
+      "keywords": {
+        "dpr.type": "RSRF",
+        "tpl.start": "2024-01-01T04:00:00"
+      }
+    },
+    {
+      "name_prefix": "wcu_off_ifu",
+      "count": 10,
+      "common_keywords": ["ifu_calib"],
+      "keywords": {
+        "dpr.type": "DARK,WCUOFF",
+        "tpl.start": "2024-01-01T04:30:00"
+      }
+    },
+    {
+      "name_prefix": "std_ifu",
+      "count": 10,
+      "common_keywords": ["ifu_calib"],
+      "keywords": {
+        "dpr.type": "STD",
+        "tpl.start": "2024-01-01T05:00:00"
+      }
+    },
+    {
+      "name_prefix": "sky_ifu",
+      "count": 10,
+      "common_keywords": ["ifu_calib"],
+      "keywords": {
+        "dpr.type": "SKY",
+        "tpl.start": "2024-01-01T05:30:00"
+      }
+    },
+    {
+      "name_prefix": "sci_ifu",
+      "count": 10,
+      "common_keywords": ["ifu_science"],
+      "keywords": {
+        "dpr.type": "OBJECT",
+        "tpl.start": "2024-01-01T06:00:00"
+      }
+    },
+    {
+      "name_prefix": "pinhole_tab",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "PINHOLE_TABLE"
+      }
+    },
+    {
+      "name_prefix": "fluxstd_cat",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "FLUXSTD_CATALOG"
+      }
+    },
+    {
+      "name_prefix": "lsf_kern",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "LSF_KERNEL"
+      }
+    },
+    {
+      "name_prefix": "atm_prof",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "ATM_PROFILE"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "skip": false,
+      "description": "IFU Lingain",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_lingain"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU Dark",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_dark"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU Distortion",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_distortion"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu", "distortion_ifu", "pinhole_tab"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_distortion",
+          "inputs_prefixes": ["distortion_ifu"],
+          "assoc_prefixes": ["pinhole_tab"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU Wavecal",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_wavecal"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu", "distortion_ifu", "pinhole_tab", "wave_ifu"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_distortion",
+          "inputs_prefixes": ["distortion_ifu"],
+          "assoc_prefixes": ["pinhole_tab"]
+        },
+        {
+          "recipe": "metis_ifu_wavecal",
+          "inputs_prefixes": ["wave_ifu"],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU RSRF",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_rsrf"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu", "distortion_ifu", "pinhole_tab", "wave_ifu", "rsrf_ifu", "wcu_off_ifu"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_distortion",
+          "inputs_prefixes": ["distortion_ifu"],
+          "assoc_prefixes": ["pinhole_tab"]
+        },
+        {
+          "recipe": "metis_ifu_wavecal",
+          "inputs_prefixes": ["wave_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_rsrf",
+          "inputs_prefixes": ["rsrf_ifu"],
+          "assoc_prefixes": ["wcu_off_ifu"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU Std Reduce",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_std_reduce"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu", "distortion_ifu", "pinhole_tab", "wave_ifu", "rsrf_ifu", "wcu_off_ifu", "std_ifu", "sky_ifu"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_distortion",
+          "inputs_prefixes": ["distortion_ifu"],
+          "assoc_prefixes": ["pinhole_tab"]
+        },
+        {
+          "recipe": "metis_ifu_wavecal",
+          "inputs_prefixes": ["wave_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_rsrf",
+          "inputs_prefixes": ["rsrf_ifu"],
+          "assoc_prefixes": ["wcu_off_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_reduce",
+          "inputs_prefixes": ["std_ifu"],
+          "assoc_prefixes": ["sky_ifu"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU Sci Reduce",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_sci_reduce"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu", "distortion_ifu", "pinhole_tab", "wave_ifu", "rsrf_ifu", "wcu_off_ifu", "sci_ifu", "sky_ifu"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_distortion",
+          "inputs_prefixes": ["distortion_ifu"],
+          "assoc_prefixes": ["pinhole_tab"]
+        },
+        {
+          "recipe": "metis_ifu_wavecal",
+          "inputs_prefixes": ["wave_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_rsrf",
+          "inputs_prefixes": ["rsrf_ifu"],
+          "assoc_prefixes": ["wcu_off_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_reduce",
+          "inputs_prefixes": ["sci_ifu"],
+          "assoc_prefixes": ["sky_ifu"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU Sci Telluric",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_sci_telluric"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu", "distortion_ifu", "pinhole_tab", "wave_ifu", "rsrf_ifu", "wcu_off_ifu", "sci_ifu", "sky_ifu", "fluxstd_cat", "lsf_kern", "atm_prof"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_distortion",
+          "inputs_prefixes": ["distortion_ifu"],
+          "assoc_prefixes": ["pinhole_tab"]
+        },
+        {
+          "recipe": "metis_ifu_wavecal",
+          "inputs_prefixes": ["wave_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_rsrf",
+          "inputs_prefixes": ["rsrf_ifu"],
+          "assoc_prefixes": ["wcu_off_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_reduce",
+          "inputs_prefixes": ["sci_ifu"],
+          "assoc_prefixes": ["sky_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_telluric",
+          "inputs_prefixes": ["sci_ifu"],
+          "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU Std Telluric",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_std_telluric"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu", "distortion_ifu", "pinhole_tab", "wave_ifu", "rsrf_ifu", "wcu_off_ifu", "std_ifu", "sky_ifu", "fluxstd_cat", "lsf_kern", "atm_prof"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_distortion",
+          "inputs_prefixes": ["distortion_ifu"],
+          "assoc_prefixes": ["pinhole_tab"]
+        },
+        {
+          "recipe": "metis_ifu_wavecal",
+          "inputs_prefixes": ["wave_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_rsrf",
+          "inputs_prefixes": ["rsrf_ifu"],
+          "assoc_prefixes": ["wcu_off_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_reduce",
+          "inputs_prefixes": ["std_ifu"],
+          "assoc_prefixes": ["sky_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_telluric",
+          "inputs_prefixes": ["std_ifu"],
+          "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU Calibrate",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_calibrate"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu", "distortion_ifu", "pinhole_tab", "wave_ifu", "rsrf_ifu", "wcu_off_ifu", "std_ifu", "sci_ifu", "sky_ifu", "fluxstd_cat", "lsf_kern", "atm_prof"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_distortion",
+          "inputs_prefixes": ["distortion_ifu"],
+          "assoc_prefixes": ["pinhole_tab"]
+        },
+        {
+          "recipe": "metis_ifu_wavecal",
+          "inputs_prefixes": ["wave_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_rsrf",
+          "inputs_prefixes": ["rsrf_ifu"],
+          "assoc_prefixes": ["wcu_off_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_reduce",
+          "inputs_prefixes": ["sci_ifu"],
+          "assoc_prefixes": ["sky_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_reduce",
+          "inputs_prefixes": ["std_ifu"],
+          "assoc_prefixes": ["sky_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_telluric",
+          "inputs_prefixes": ["sci_ifu"],
+          "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_ifu_telluric",
+          "inputs_prefixes": ["std_ifu"],
+          "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_ifu_calibrate",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "IFU Full Cascade",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_ifu_postprocess"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_ifu", "dark_ifu", "distortion_ifu", "pinhole_tab", "wave_ifu", "rsrf_ifu", "wcu_off_ifu", "std_ifu", "sci_ifu", "sky_ifu", "fluxstd_cat", "lsf_kern", "atm_prof"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_distortion",
+          "inputs_prefixes": ["distortion_ifu"],
+          "assoc_prefixes": ["pinhole_tab"]
+        },
+        {
+          "recipe": "metis_ifu_wavecal",
+          "inputs_prefixes": ["wave_ifu"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_rsrf",
+          "inputs_prefixes": ["rsrf_ifu"],
+          "assoc_prefixes": ["wcu_off_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_reduce",
+          "inputs_prefixes": ["sci_ifu"],
+          "assoc_prefixes": ["sky_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_reduce",
+          "inputs_prefixes": ["std_ifu"],
+          "assoc_prefixes": ["sky_ifu"]
+        },
+        {
+          "recipe": "metis_ifu_telluric",
+          "inputs_prefixes": ["sci_ifu"],
+          "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_ifu_telluric",
+          "inputs_prefixes": ["std_ifu"],
+          "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_ifu_calibrate",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_ifu_postprocess",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    }
+  ]
+}

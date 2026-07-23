@@ -1,0 +1,48 @@
+{
+  "keywords": {
+    "img_lm_calib": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IMAGE,LM"
+    }
+  },
+  "inputs": [
+    {
+      "name_prefix": "lm_chophome",
+      "count": 10,
+      "keywords": {
+        "instrume": "METIS",
+        "dpr.catg": "CALIB",
+        "dpr.type": "CHOPHOME",
+        "dpr.tech": "IMAGE,LM",
+        "tpl.start": "2024-01-01T00:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_wcu_off",
+      "count": 10,
+      "common_keywords": ["img_lm_calib"],
+      "keywords": {
+        "dpr.type": "DARK,WCUOFF",
+        "tpl.start": "2024-01-01T01:00:00"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "skip": true,
+      "description": "Chophome Imaging",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_chophome_imaging"],
+      "meta_targets": [],
+      "common_inputs": ["lm_chophome", "lm_wcu_off"],
+      "results": [
+        {
+          "recipe": "metis_cal_chophome",
+          "inputs_prefixes": ["lm_chophome"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        }
+      ]
+    }
+  ]
+}
