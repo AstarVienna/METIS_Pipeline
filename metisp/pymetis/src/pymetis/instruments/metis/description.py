@@ -52,7 +52,8 @@ class Metis(InstrumentDescription):
         EDGE = 0x00010000                   # too close to the detector edge
         NOT_AN_ORDER = 0x00010010           # pixel masked because it does not belong to a spectral order
 
-    def get_detector_size(self, tech: str) -> tuple[int, int]:
+    @classmethod
+    def get_detector_size(cls, tech: str) -> tuple[int, int]:
         if 'LM' in tech:
             return (2048, 2048)
         elif 'N' in tech:
@@ -62,29 +63,30 @@ class Metis(InstrumentDescription):
         else:
             raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
-    def get_detector_mask(self, tech: str, detector: Literal[1, 2, 3, 4]) -> NDArray[bool]:
+    @classmethod
+    def get_detector_mask(cls, tech: str, detector: Literal[1, 2, 3, 4]) -> NDArray[bool]:
         """
         A mask to ignore the masked pixels at the edge of the detector.
         EXTERNAL CALIBRATION, in case of the IFU the mask needs to only cover the visible traces.
         This needs to depend on detector because the LMS mask varies.
         """
-        det_width, det_height = self.get_detector_size(tech)
+        det_width, det_height = cls.get_detector_size(tech)
         xx, yy = np.meshgrid(np.arange(det_width), np.arange(det_height))
 
         if 'LM' in tech:
-            return (((xx >= self.border_2rg) & (xx < (det_width - self.border_2rg))) &
-                    ((yy >= self.border_2rg) & (yy < (det_height - self.border_2rg))))
+            return (((xx >= cls.border_2rg) & (xx < (det_width - cls.border_2rg))) &
+                    ((yy >= cls.border_2rg) & (yy < (det_height - cls.border_2rg))))
         elif 'N' in tech:
-            return (((xx >= self.border_geo) & (xx < (det_width - self.border_geo))) &
-                    ((yy >= self.border_geo) & (yy < (det_height - self.border_geo))))
+            return (((xx >= cls.border_geo) & (xx < (det_width - cls.border_geo))) &
+                    ((yy >= cls.border_geo) & (yy < (det_height - cls.border_geo))))
         elif 'IFU' in tech:
             # Detector 1 and 2 are butted against each other in 1 dimension. Same for detectors 3 and 4.
             if detector in [1, 3]:
-                return (((xx >= self.border_ifu_x) & (xx < det_width)) &
-                        ((yy >= self.border_ifu_y) & (yy < (det_height - self.border_ifu_y))))
+                return (((xx >= cls.border_ifu_x) & (xx < det_width)) &
+                        ((yy >= cls.border_ifu_y) & (yy < (det_height - cls.border_ifu_y))))
             elif detector in [2, 4]:
-                return (((xx >= 0) & (xx < (det_width - self.border_ifu_x))) &
-                        ((yy >= self.border_ifu_y) & (yy < (det_width - self.border_ifu_y))))
+                return (((xx >= 0) & (xx < (det_width - cls.border_ifu_x))) &
+                        ((yy >= cls.border_ifu_y) & (yy < (det_width - cls.border_ifu_y))))
             else:
                 raise cpl.core.IllegalInputError(f"Detector ID {detector} not recognised")
         else:

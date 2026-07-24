@@ -246,11 +246,13 @@ class TestGetItem:
 # ---------- sign-bit constraint ----------
 
 
-class TestFlagBitBound:
-    def test_max_flag_bit_leaves_sign_bit_free(self):
-        """Only bits 0-30 are usable; bit 31 is the sign bit of the int32 store."""
-        assert Mask.MAX_FLAG_BIT == 30
+class TestSignedInt32Storage:
+    """int32 storage detail: bit 30 is the highest flag bit that stays
+    non-negative; bit 31 is the sign bit. The usable-bit bound itself now
+    lives on ``InstrumentDescription.MaskFlags.MAX_FLAG_BIT``."""
 
-    def test_highest_allowed_bit_stays_non_negative(self):
-        mask = Mask.from_cpl_mask(cpl_mask(selection(A)), 1 << Mask.MAX_FLAG_BIT)
-        assert mask._array()[A] > 0
+    def test_bit_30_stays_non_negative(self):
+        mask = Mask.from_cpl_mask(cpl_mask(selection(A)), 1 << 30)
+        value = mask._array()[A]
+        assert value == (1 << 30)
+        assert value > 0

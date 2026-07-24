@@ -174,8 +174,6 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         # fake the bp mask by initializing to zero
         badpix_mask = zeros_like(raw_images[0], cpl.core.Type.INT)
 
-        mask = Mask.zeros_like(raw_images[0])
-
         # fake the gain at the moment by setting to 1 TODO real version
         gain = cpl.core.Image.zeros_like(raw_images[0])
         gain.add_scalar(1)
@@ -203,11 +201,21 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         # and combine
         combined_image = combine_images(raw_images_hdrl, self.stacking_method)
 
+        # EI version: create in place, along with an empty mask
+        output = EnhancedImage.from_hdrl(
+            combine_images(raw_images_hdrl, self.stacking_method),
+            zeros_like(raw_images[0], cpl.core.Type.INT),
+            prefix=f'DET{detector:1d}',
+        )
+
         Msg.info(self.__class__.__qualname__, f"Combining images using method {self.stacking_method!r}")
 
         # get hot/cold pixels
         mask_hot, mask_cold = calculate_outliers(combined_image, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
         qcnhot, qcncold = mask_hot.count(), mask_cold.count()
+
+        output.dq.add(mask_hot, Metis.MaskFlags.HOT)
+        output.dq.add(mask_cold, Metis.MaskFlags.COLD)
 
         # get noisy pixels: we may need to revisit whether this is a good thing to do later TODO
         
@@ -218,9 +226,8 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
                  f"Updating mask: {(mask_cold | mask_hot | mask_bad).count()} pixels masked: "
                  f"{qcnbad} bad + {qcnhot} hot + {qcncold} cold")
 
-        mask.add(Metis.MaskFlags.BAD, mask_bad)
-        mask.add(Metis.MaskFlags.HOT, mask_hot)
-        mask.add(Metis.MaskFlags.COLD, mask_cold)
+        output.dq.add(mask_bad, Metis.MaskFlags.BAD)
+        output.reject()
 
         # add the individual masks to the cpl mask
         self.update_mask(badpix_mask, Metis.MaskFlags.BAD, badpix_mask)
@@ -304,11 +311,14 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         header_noise = copy.deepcopy(header_image)
         header_mask = copy.deepcopy(header_image)
 
+        return output.hdus()
+
         return [
             Hdu(header_image, combined_image.image, name=rf'DET{detector:1d}.SCI'),
             Hdu(header_noise, combined_image.error, name=rf'DET{detector:1d}.ERR'),
             Hdu(header_mask, badpix_mask, name=rf'DET{detector:1d}.DQ'),
         ]
+
 
     def process(self) -> set[DataItem]:
         # load calibration files

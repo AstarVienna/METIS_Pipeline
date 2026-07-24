@@ -46,10 +46,6 @@ class Mask:
     bits 0-30 should be used for flags.
     """
 
-    # The bitfield is stored as a signed int32 (``CplType.INT``), so bit 31 is
-    # the sign bit and must be left unused. Flags may therefore occupy bits
-    # 0-30 only; instrument ``MaskFlags`` enums are validated against this.
-    MAX_FLAG_BIT: int = 30
 
     def __init__(self, data: "CplImage | CplMask | Mask"):
         """
@@ -147,7 +143,14 @@ class Mask:
 
     def __getitem__(self, bits: 'InstrumentDescription.MaskFlags') -> CplMask:
         """
-        Extract only a single bit for each pixel from the mask and return a corresponding CplMask.
+        Flatten the mask to 1-bit, using only selected bits, and return a corresponding CplMask.
+
+        Usage
+        -----
+        cpl_mask: CplMask = mask[Instrument.MaskFlags.COLD | Instrument.MaskFlags.HOT | Instrument.MaskFlags.BAD]
+
+        Extracts all pixels that are (hot, cold or bad) and flattens that to a 1-bit CPL mask.
         """
-        # `& bit` isolates the bit; `!= 0` collapses it to the boolean CplMask needs.
+        # `& bits` isolates the selected bits
+        # `!= 0` collapses it to a boolean CplMask
         return CplMask((self._array() & bits) != 0)

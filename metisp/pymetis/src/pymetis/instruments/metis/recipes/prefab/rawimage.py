@@ -49,8 +49,7 @@ class RawImageProcessor(RecipeImpl, ABC):
                    cplImage: cpl.core.Image | hdrl.core.Image,
                    cplMask: cpl.core.Image,
                    bits: list) -> cpl.core.Image | hdrl.core.Image:
-
-        """ 
+        """
             Given a mask in 32 bit cplImage form, a list of bit values,
             and an hdrl or cpl image, 
             extract the bits from the mask, create a cpl mask based on it,
@@ -179,7 +178,7 @@ class RawImageProcessor(RecipeImpl, ABC):
             List of raw images to combine
 
         kappa_low : float
-istory            Lower bound of kappa for outlier pixels
+            Lower bound of kappa for outlier pixels
 
         kappa_high : float
             Upper bound of kappa for outlier pixels

@@ -25,7 +25,7 @@ import cpl
 from cpl.core import Msg
 from numpy._typing import NDArray
 
-from pymetis.engine.core.classes.image import EnhancedImage
+from pymetis.engine.core.classes.image import EnhancedImage, EnhancedImage3D
 from pymetis.engine.core.classes.utilities import Stopwatch
 from pymetis.engine.core.functions.polyfit import weighted_polyfit
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
@@ -221,7 +221,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         fluxes_on: NDArray[np.float64],
         dits_fluxrates: NDArray[np.float64],
         sel_mask: NDArray[np.bool_],
-    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.uint32]]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.int32]]:
         """
         Per-pixel linearity fit via an explicit Python loop over the detector.
 
@@ -318,7 +318,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         fluxes_on: NDArray[np.float64],
         dits_fluxrates: NDArray[np.float64],
         sel_mask: NDArray[np.bool_],
-    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.uint32]]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.int32]]:
         """
         Vectorized equivalent of :meth:`_fit_linearity_loop`: fits every pixel in a single
         :func:`weighted_polyfit` call. Same inputs and outputs.
@@ -497,8 +497,8 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                   f"Now actually determining linearity...")
 
         # Both compute the same fit; the loop is the production path for now.
-        with Stopwatch() as loop_sw:
-            linearity, err_linearity, bpm = self._fit_linearity_loop(fluxes_on, dits_fluxrates, sel_mask)
+        # with Stopwatch() as loop_sw:
+        #    linearity, err_linearity, bpm = self._fit_linearity_loop(fluxes_on, dits_fluxrates, sel_mask)
 
         with Stopwatch() as vec_sw:
             linearity_vec, err_linearity_vec, bpm_vec = self._fit_linearity_vec(fluxes_on, dits_fluxrates, sel_mask)
@@ -507,15 +507,15 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         # A small nonzero bpm mismatch count does not necessarily mean the fits diverge: the
         # sigma-clip inside each method is a threshold operation, so a pixel sitting right at the
         # kappa boundary can flip between the two paths purely from the minuscule coefficient difference.
-        Msg.info(self.__class__.__qualname__,
-                 f"Linearity vec-vs-loop: coeff max|d| = {np.max(np.abs(linearity[:, m] - linearity_vec[:, m])):.3e}, "
-                 f"err max|d| = {np.max(np.abs(err_linearity[:, m] - err_linearity_vec[:, m])):.3e}, "
-                 f"bpm mismatches = {int(np.sum(bpm != bpm_vec))}")
-        Msg.info(self.__class__.__qualname__,
-                 f"Linearity timing: "
-                 f"loop = {loop_sw.elapsed:.3f} s, "
-                 f"vectorized = {vec_sw.elapsed:.3f} s, "
-                 f"speedup = {loop_sw.elapsed / vec_sw.elapsed:.2f}×")
+        #Msg.info(self.__class__.__qualname__,
+        #         f"Linearity vec-vs-loop: coeff max|d| = {np.max(np.abs(linearity[:, m] - linearity_vec[:, m])):.3e}, "
+        #         f"err max|d| = {np.max(np.abs(err_linearity[:, m] - err_linearity_vec[:, m])):.3e}, "
+        #         f"bpm mismatches = {int(np.sum(bpm != bpm_vec))}")
+        #Msg.info(self.__class__.__qualname__,
+        #         f"Linearity timing: "
+        #         f"loop = {loop_sw.elapsed:.3f} s, "
+        #         f"vectorized = {vec_sw.elapsed:.3f} s, "
+        #         f"speedup = {loop_sw.elapsed / vec_sw.elapsed:.2f}×")
 
         # TODO: QC parameters should be populated here
        
@@ -528,13 +528,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         gain_table = cpl.core.Table(input=np.rec.fromarrays(np.array([[gainval], [gain_err]]),
                                                             names=["gain", "gain_err"]))
 
-        linearity_image = cpl.core.ImageList([cpl.core.Image(data=linearity[i, :, :]) for i in range(self.fitdegree + 1)])
-        err_linearity_image = cpl.core.ImageList([cpl.core.Image(data=err_linearity[i, :, :]) for i in range(self.fitdegree + 1)])
-        dq_linearity_image = cpl.core.Image(data=np.int32(bpm)) # had to cast to integer, boolean gave CPL error
+        linearity_image = cpl.core.ImageList([cpl.core.Image(data=linearity_vec[i, :, :]) for i in range(self.fitdegree + 1)])
+        err_linearity_image = cpl.core.ImageList([cpl.core.Image(data=err_linearity_vec[i, :, :]) for i in range(self.fitdegree + 1)])
+        dq_linearity_image = cpl.core.Image(data=np.int32(bpm_vec)) # had to cast to integer, boolean gave CPL error
        
         return {
             'gain_map': Hdu(header_gain, gain_table, name=rf'{det_prefix}.SCI'),
-            'linearity_map': EnhancedImage(
+            'linearity_map': EnhancedImage3D(
                 linearity_image, err_linearity_image, dq_linearity_image,
                 prefix=det_prefix,
                 header_image=header_linearity,
@@ -564,7 +564,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             *[output['gain_map'] for output in all_hdus]
         )
 
-        items = list(itertools.chain.from_iterable([output['linearity_map'].as_list() for output in all_hdus]))
+        items = list(itertools.chain.from_iterable([output['linearity_map'].hdus() for output in all_hdus]))
 
         product_linearity = self.ProductSet.Linearity(
             primary_header_linearity,

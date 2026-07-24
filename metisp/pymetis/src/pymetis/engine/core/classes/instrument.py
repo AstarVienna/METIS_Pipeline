@@ -21,13 +21,17 @@ class InstrumentDescription:
         # Consider writing the flag definitions into the DQ HDU header
         # (e.g. HIERARCH ESO QC DQ BIT0 = 'BAD' cards, or a convention comment) so the file is self-describing.
 
+        MAX_FLAG_BIT = 30
+
+        ALL = 0x7FFFFFFF
+
         def __init_subclass__(cls, **kwargs):
             super().__init_subclass__(**kwargs)
             for member in cls:
-                if member.value.bit_length() > Mask.MAX_FLAG_BIT + 1:
+                if member.value.bit_length() > cls.MAX_FLAG_BIT + 1:
                     raise ValueError(
                         f"{cls.__qualname__}.{member.name} = 0x{member.value:08x} "
-                        f"uses a bit above {Mask.MAX_FLAG_BIT}; bit 31 is reserved "
+                        f"uses a bit above {cls.MAX_FLAG_BIT}; bit 31 is reserved "
                         f"as the sign bit of the signed int32 mask storage."
                     )
 
