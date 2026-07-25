@@ -1,0 +1,81 @@
+{
+  "keywords": {
+    "img_lm_calib": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IMAGE,LM"
+    }
+  },
+  "inputs": [
+    {
+      "name_prefix": "detlin_2rg",
+      "count": 10,
+      "common_keywords": ["img_lm_calib"],
+      "keywords": {
+        "dpr.type": "DETLIN",
+        "tpl.start": "2024-01-01T00:00:00"
+      }
+    },
+    {
+      "name_prefix": "dark_2rg",
+      "count": 10,
+      "common_keywords": ["img_lm_calib"],
+      "keywords": {
+        "dpr.type": "DARK",
+        "tpl.start": "2024-01-01T01:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_flat_lamp",
+      "count": 10,
+      "common_keywords": ["img_lm_calib"],
+      "keywords": {
+        "dpr.type": "FLAT,LAMP",
+        "tpl.start": "2024-01-01T02:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_pupil",
+      "count": 10,
+      "keywords": {
+        "instrume": "METIS",
+        "dpr.catg": "TECHNICAL",
+        "dpr.type": "PUPIL",
+        "dpr.tech": "PUP,LM",
+        "tpl.start": "2024-01-01T03:00:00"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "skip": true,
+      "description": "Pupil Imaging",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_pupil_imaging"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "lm_pupil"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_pupil_imaging",
+          "inputs_prefixes": ["lm_pupil"],
+          "assoc_prefixes": []
+        }
+      ]
+    }
+  ]
+}

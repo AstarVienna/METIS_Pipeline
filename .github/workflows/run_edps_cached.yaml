@@ -77,6 +77,10 @@ jobs:
           
           python -m pytest -m "not external and not inputset and not pyesorex and not recipe"
 
+      - name: Run EDPS workflow organization tests
+        working-directory: metisp/workflows/test
+        run: python -m pytest -v json_tests.py
+
       - name: Run pyESOREX test
         run: |
           set +x

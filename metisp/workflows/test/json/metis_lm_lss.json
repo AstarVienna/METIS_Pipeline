@@ -1,0 +1,591 @@
+{
+  "keywords": {
+    "img_lm_calib": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IMAGE,LM"
+    },
+    "lss_lm_calib": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "LSS,LM"
+    },
+    "lss_lm_science": {
+      "instrume": "METIS",
+      "dpr.catg": "SCIENCE",
+      "dpr.tech": "LSS,LM"
+    }
+  },
+  "inputs": [
+    {
+      "name_prefix": "detlin_2rg",
+      "count": 10,
+      "common_keywords": ["img_lm_calib"],
+      "keywords": {
+        "dpr.type": "DETLIN",
+        "tpl.start": "2024-01-01T00:00:00"
+      }
+    },
+    {
+      "name_prefix": "dark_2rg",
+      "count": 10,
+      "common_keywords": ["img_lm_calib"],
+      "keywords": {
+        "dpr.type": "DARK",
+        "tpl.start": "2024-01-01T01:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_wcu_off",
+      "count": 10,
+      "common_keywords": ["img_lm_calib"],
+      "keywords": {
+        "dpr.type": "DARK,WCUOFF",
+        "tpl.start": "2024-01-01T01:30:00"
+      }
+    },
+    {
+      "name_prefix": "lm_adc_slitloss",
+      "count": 10,
+      "common_keywords": ["lss_lm_calib"],
+      "keywords": {
+        "dpr.type": "SLITLOSS",
+        "tpl.start": "2024-01-01T02:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_lss_rsrf",
+      "count": 10,
+      "common_keywords": ["lss_lm_calib"],
+      "keywords": {
+        "dpr.type": "FLAT,LAMP",
+        "tpl.start": "2024-01-01T03:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_lss_rsrf_pinh",
+      "count": 10,
+      "common_keywords": ["lss_lm_calib"],
+      "keywords": {
+        "dpr.type": "FLAT,LAMP,PINH",
+        "tpl.start": "2024-01-01T03:30:00"
+      }
+    },
+    {
+      "name_prefix": "lm_lss_wave",
+      "count": 10,
+      "common_keywords": ["lss_lm_calib"],
+      "keywords": {
+        "dpr.type": "WAVE",
+        "tpl.start": "2024-01-01T04:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_lss_std",
+      "count": 10,
+      "common_keywords": ["lss_lm_calib"],
+      "keywords": {
+        "dpr.type": "STD",
+        "tpl.start": "2024-01-01T05:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_lss_sci",
+      "count": 10,
+      "common_keywords": ["lss_lm_science"],
+      "keywords": {
+        "dpr.type": "OBJECT",
+        "tpl.start": "2024-01-01T06:00:00"
+      }
+    },
+    {
+      "name_prefix": "laser_tab",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "LASER_TAB",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "atm_line_cat",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "ATM_LINE_CAT",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "ref_std_cat",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "REF_STD_CAT",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "lm_synth_trans",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "LM_SYNTH_TRANS",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "lm_lss_dist_sol",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "LM_LSS_DIST_SOL",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "lm_lss_wave_guess",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "LM_LSS_WAVE_GUESS",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "ao_psf_model",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "AO_PSF_MODEL",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "lsf_kern",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "LSF_KERNEL"
+      }
+    },
+    {
+      "name_prefix": "atm_prof",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "ATM_PROFILE"
+      }
+    },
+    {
+      "name_prefix": "persistence_map",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "PERSISTENCE_MAP"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "skip": false,
+      "description": "LM LSS Lingain",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_lingain"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS Dark",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_dark"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS ADC Slitloss",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_adc_slitloss"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "lm_adc_slitloss", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_adc_slitloss",
+          "inputs_prefixes": ["lm_adc_slitloss"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS RSRF",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_rsrf"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "lm_lss_rsrf", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_rsrf",
+          "inputs_prefixes": ["lm_lss_rsrf"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS Trace",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_trace"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "lm_lss_rsrf", "lm_lss_rsrf_pinh", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_rsrf",
+          "inputs_prefixes": ["lm_lss_rsrf"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_trace",
+          "inputs_prefixes": ["lm_lss_rsrf_pinh"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS Wave",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_wave"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "lm_lss_rsrf", "lm_lss_rsrf_pinh", "lm_lss_wave", "laser_tab", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_rsrf",
+          "inputs_prefixes": ["lm_lss_rsrf"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_trace",
+          "inputs_prefixes": ["lm_lss_rsrf_pinh"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_wave",
+          "inputs_prefixes": ["lm_lss_wave"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map", "laser_tab"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS Std",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_std"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "lm_adc_slitloss", "lm_lss_rsrf", "lm_lss_rsrf_pinh", "lm_lss_wave", "laser_tab", "lm_lss_std", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_adc_slitloss",
+          "inputs_prefixes": ["lm_adc_slitloss"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_rsrf",
+          "inputs_prefixes": ["lm_lss_rsrf"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_trace",
+          "inputs_prefixes": ["lm_lss_rsrf_pinh"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_std",
+          "inputs_prefixes": ["lm_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS Sci",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_sci"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "lm_adc_slitloss", "lm_lss_rsrf", "lm_lss_rsrf_pinh", "lm_lss_wave", "laser_tab", "lm_lss_std", "lm_lss_sci", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_adc_slitloss",
+          "inputs_prefixes": ["lm_adc_slitloss"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_rsrf",
+          "inputs_prefixes": ["lm_lss_rsrf"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_trace",
+          "inputs_prefixes": ["lm_lss_rsrf_pinh"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_std",
+          "inputs_prefixes": ["lm_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_lm_lss_sci",
+          "inputs_prefixes": ["lm_lss_sci"],
+          "assoc_prefixes": ["persistence_map", "lm_lss_dist_sol", "lm_lss_wave_guess", "atm_line_cat", "ao_psf_model"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS MF Model",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_mf_model"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "lm_adc_slitloss", "lm_lss_rsrf", "lm_lss_rsrf_pinh", "lm_lss_wave", "laser_tab", "lm_lss_std", "lm_lss_sci", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model", "lsf_kern", "atm_prof", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_adc_slitloss",
+          "inputs_prefixes": ["lm_adc_slitloss"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_rsrf",
+          "inputs_prefixes": ["lm_lss_rsrf"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_trace",
+          "inputs_prefixes": ["lm_lss_rsrf_pinh"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_std",
+          "inputs_prefixes": ["lm_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_lm_lss_sci",
+          "inputs_prefixes": ["lm_lss_sci"],
+          "assoc_prefixes": ["persistence_map", "lm_lss_dist_sol", "lm_lss_wave_guess", "atm_line_cat", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_lm_lss_mf_model",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS MF Calctrans",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_mf_calctrans"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "lm_adc_slitloss", "lm_lss_rsrf", "lm_lss_rsrf_pinh", "lm_lss_wave", "laser_tab", "lm_lss_std", "lm_lss_sci", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model", "lsf_kern", "atm_prof", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_adc_slitloss",
+          "inputs_prefixes": ["lm_adc_slitloss"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_rsrf",
+          "inputs_prefixes": ["lm_lss_rsrf"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_trace",
+          "inputs_prefixes": ["lm_lss_rsrf_pinh"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_std",
+          "inputs_prefixes": ["lm_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_lm_lss_sci",
+          "inputs_prefixes": ["lm_lss_sci"],
+          "assoc_prefixes": ["persistence_map", "lm_lss_dist_sol", "lm_lss_wave_guess", "atm_line_cat", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_lm_lss_mf_model",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_lm_lss_mf_calctrans",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM LSS Full Cascade",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_lss_mf_correct"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_wcu_off", "dark_2rg", "lm_adc_slitloss", "lm_lss_rsrf", "lm_lss_rsrf_pinh", "lm_lss_wave", "laser_tab", "lm_lss_std", "lm_lss_sci", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model", "lsf_kern", "atm_prof", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": ["lm_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_adc_slitloss",
+          "inputs_prefixes": ["lm_adc_slitloss"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_rsrf",
+          "inputs_prefixes": ["lm_lss_rsrf"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_trace",
+          "inputs_prefixes": ["lm_lss_rsrf_pinh"],
+          "assoc_prefixes": ["lm_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_lss_std",
+          "inputs_prefixes": ["lm_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "lm_synth_trans", "lm_lss_dist_sol", "lm_lss_wave_guess", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_lm_lss_sci",
+          "inputs_prefixes": ["lm_lss_sci"],
+          "assoc_prefixes": ["persistence_map", "lm_lss_dist_sol", "lm_lss_wave_guess", "atm_line_cat", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_lm_lss_mf_model",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_lm_lss_mf_calctrans",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_lm_lss_mf_correct",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,552 @@
+{
+  "keywords": {
+    "lm_img_calib": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IMAGE,LM"
+    },
+    "lm_img_science": {
+      "instrume": "METIS",
+      "dpr.catg": "SCIENCE",
+      "dpr.tech": "IMAGE,LM"
+    }
+  },
+  "inputs": [
+    {
+      "name_prefix": "detlin_2rg",
+      "count": 10,
+      "common_keywords": ["lm_img_calib"],
+      "keywords": {
+        "dpr.type": "DETLIN",
+        "tpl.start": "2024-01-01T00:00:00"
+      }
+    },
+    {
+      "name_prefix": "dark_2rg",
+      "count": 10,
+      "common_keywords": ["lm_img_calib"],
+      "keywords": {
+        "dpr.type": "DARK",
+        "tpl.start": "2024-01-01T01:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_flat_lamp",
+      "count": 10,
+      "common_keywords": ["lm_img_calib"],
+      "keywords": {
+        "dpr.type": "FLAT,LAMP",
+        "tpl.start": "2024-01-01T02:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_distortion",
+      "count": 10,
+      "common_keywords": ["lm_img_calib"],
+      "keywords": {
+        "dpr.type": "DISTORTION",
+        "tpl.start": "2024-01-01T03:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_wcu_off",
+      "count": 10,
+      "common_keywords": ["lm_img_calib"],
+      "keywords": {
+        "dpr.type": "DARK,WCUOFF",
+        "tpl.start": "2024-01-01T03:30:00"
+      }
+    },
+    {
+      "name_prefix": "lm_image_sci",
+      "count": 10,
+      "common_keywords": ["lm_img_science"],
+      "keywords": {
+        "dpr.type": "OBJECT",
+        "tpl.start": "2024-01-01T04:00:00"
+      }
+    },
+    {
+      "name_prefix": "lm_image_sky",
+      "count": 10,
+      "common_keywords": ["lm_img_calib"],
+      "keywords": {
+        "dpr.type": "SKY",
+        "tpl.start": "2024-01-01T04:30:00"
+      }
+    },
+    {
+      "name_prefix": "lm_image_std",
+      "count": 10,
+      "common_keywords": ["lm_img_calib"],
+      "keywords": {
+        "dpr.type": "STD",
+        "tpl.start": "2024-01-01T05:00:00"
+      }
+    },
+    {
+      "name_prefix": "pinhole_tab",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "PINHOLE_TABLE"
+      }
+    },
+    {
+      "name_prefix": "fluxstd_cat",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "FLUXSTD_CATALOG"
+      }
+    },
+    {
+      "name_prefix": "persistence_map",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "PERSISTENCE_MAP"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "skip": false,
+      "description": "LM IMG Lingain",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_lingain"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Dark",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_dark"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Flat",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_flat"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Distortion",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_distortion"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "lm_distortion", "lm_wcu_off", "pinhole_tab", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_lm_img_distortion",
+          "inputs_prefixes": ["lm_distortion"],
+          "assoc_prefixes": ["lm_wcu_off", "pinhole_tab", "persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Basic Reduce Sci",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_basic_reduce_sci"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "lm_image_sci", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sci"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Basic Reduce Sky",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_basic_reduce_sky"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "lm_image_sky", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sky"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Basic Reduce Std",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_basic_reduce_std"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "lm_image_std", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_std"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Background Sci",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_background_sci"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "lm_image_sci", "lm_image_sky", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sci"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sky"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_background",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Background Std",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_background_std"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "lm_image_std", "lm_image_sky", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_std"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sky"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_background",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Standard Flux",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_standard_flux"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "lm_image_std", "lm_image_sky", "fluxstd_cat", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_std"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sky"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_background",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_lm_img_std_process",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["fluxstd_cat"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Calibrate",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_calib"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "lm_distortion", "lm_wcu_off", "pinhole_tab", "lm_image_sci", "lm_image_sky", "lm_image_std", "fluxstd_cat", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_distortion",
+          "inputs_prefixes": ["lm_distortion"],
+          "assoc_prefixes": ["lm_wcu_off", "pinhole_tab", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sci"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sky"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_std"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_background",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_lm_img_background",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_lm_img_std_process",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["fluxstd_cat"]
+        },
+        {
+          "recipe": "metis_lm_img_calibrate",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "LM IMG Full Cascade",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_lm_img_coadd"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_2rg", "dark_2rg", "lm_flat_lamp", "lm_distortion", "lm_wcu_off", "pinhole_tab", "lm_image_sci", "lm_image_sky", "lm_image_std", "fluxstd_cat", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_2rg"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_2rg"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_flat",
+          "inputs_prefixes": ["lm_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_distortion",
+          "inputs_prefixes": ["lm_distortion"],
+          "assoc_prefixes": ["lm_wcu_off", "pinhole_tab", "persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sci"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_sky"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_basic_reduce",
+          "inputs_prefixes": ["lm_image_std"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_lm_img_background",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_lm_img_background",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_lm_img_std_process",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["fluxstd_cat"]
+        },
+        {
+          "recipe": "metis_lm_img_calibrate",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_lm_img_sci_postprocess",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    }
+  ]
+}

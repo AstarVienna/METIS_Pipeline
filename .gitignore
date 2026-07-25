@@ -6,6 +6,10 @@ __pycache__
 
 # Get rid off log
 *.log
+*.log.*
+
+# EDPS test repository db (regenerated on every test run)
+edps.db
 
 # Prerequisites
 *.d

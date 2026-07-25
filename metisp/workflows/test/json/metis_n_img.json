@@ -1,0 +1,390 @@
+{
+  "keywords": {
+    "n_img_calib": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IMAGE,N"
+    },
+    "n_img_science": {
+      "instrume": "METIS",
+      "dpr.catg": "SCIENCE",
+      "dpr.tech": "IMAGE,N"
+    }
+  },
+  "inputs": [
+    {
+      "name_prefix": "detlin_geo",
+      "count": 10,
+      "common_keywords": ["n_img_calib"],
+      "keywords": {
+        "dpr.type": "DETLIN",
+        "tpl.start": "2024-01-01T00:00:00"
+      }
+    },
+    {
+      "name_prefix": "dark_geo",
+      "count": 10,
+      "common_keywords": ["n_img_calib"],
+      "keywords": {
+        "dpr.type": "DARK",
+        "tpl.start": "2024-01-01T01:00:00"
+      }
+    },
+    {
+      "name_prefix": "n_flat_lamp",
+      "count": 10,
+      "common_keywords": ["n_img_calib"],
+      "keywords": {
+        "dpr.type": "FLAT,LAMP",
+        "tpl.start": "2024-01-01T02:00:00"
+      }
+    },
+    {
+      "name_prefix": "n_distortion",
+      "count": 10,
+      "common_keywords": ["n_img_calib"],
+      "keywords": {
+        "dpr.type": "DISTORTION",
+        "tpl.start": "2024-01-01T03:00:00"
+      }
+    },
+    {
+      "name_prefix": "n_wcu_off",
+      "count": 10,
+      "common_keywords": ["n_img_calib"],
+      "keywords": {
+        "dpr.type": "DARK,WCUOFF",
+        "tpl.start": "2024-01-01T03:30:00"
+      }
+    },
+    {
+      "name_prefix": "n_image_sci",
+      "count": 10,
+      "common_keywords": ["n_img_science"],
+      "keywords": {
+        "dpr.type": "OBJECT",
+        "tpl.start": "2024-01-01T04:00:00"
+      }
+    },
+    {
+      "name_prefix": "n_image_std",
+      "count": 10,
+      "common_keywords": ["n_img_calib"],
+      "keywords": {
+        "dpr.type": "STD",
+        "tpl.start": "2024-01-01T05:00:00"
+      }
+    },
+    {
+      "name_prefix": "pinhole_tab",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "PINHOLE_TABLE"
+      }
+    },
+    {
+      "name_prefix": "fluxstd_cat",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "FLUXSTD_CATALOG"
+      }
+    },
+    {
+      "name_prefix": "persistence_map",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "PERSISTENCE_MAP"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "skip": false,
+      "description": "N IMG Lingain",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_img_lingain"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N IMG Dark",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_img_dark"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "dark_geo", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N IMG Flat",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_img_flat"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "dark_geo", "n_flat_lamp", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_flat",
+          "inputs_prefixes": ["n_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N IMG Distortion",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_img_distortion"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_distortion", "n_wcu_off", "pinhole_tab", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_n_img_distortion",
+          "inputs_prefixes": ["n_distortion"],
+          "assoc_prefixes": ["n_wcu_off", "pinhole_tab", "persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N IMG Chopnod Sci",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_img_chopnod_sci"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "dark_geo", "n_flat_lamp", "n_image_sci", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_flat",
+          "inputs_prefixes": ["n_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_chopnod",
+          "inputs_prefixes": ["n_image_sci"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N IMG Chopnod Std",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_img_chopnod_std"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "dark_geo", "n_flat_lamp", "n_image_std", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_flat",
+          "inputs_prefixes": ["n_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_chopnod",
+          "inputs_prefixes": ["n_image_std"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N IMG Standard Flux",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_img_standard_flux"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "dark_geo", "n_flat_lamp", "n_image_std", "fluxstd_cat", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_flat",
+          "inputs_prefixes": ["n_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_chopnod",
+          "inputs_prefixes": ["n_image_std"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_std_process",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["fluxstd_cat"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N IMG Calibrate",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_img_calib"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "dark_geo", "n_flat_lamp", "n_distortion", "n_wcu_off", "pinhole_tab", "n_image_sci", "n_image_std", "fluxstd_cat", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_flat",
+          "inputs_prefixes": ["n_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_distortion",
+          "inputs_prefixes": ["n_distortion"],
+          "assoc_prefixes": ["n_wcu_off", "pinhole_tab", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_chopnod",
+          "inputs_prefixes": ["n_image_sci"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_chopnod",
+          "inputs_prefixes": ["n_image_std"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_std_process",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["fluxstd_cat"]
+        },
+        {
+          "recipe": "metis_n_img_calibrate",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N IMG Full Cascade",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_img_restore"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "dark_geo", "n_flat_lamp", "n_distortion", "n_wcu_off", "pinhole_tab", "n_image_sci", "n_image_std", "fluxstd_cat", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_flat",
+          "inputs_prefixes": ["n_flat_lamp"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_distortion",
+          "inputs_prefixes": ["n_distortion"],
+          "assoc_prefixes": ["n_wcu_off", "pinhole_tab", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_chopnod",
+          "inputs_prefixes": ["n_image_sci"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_chopnod",
+          "inputs_prefixes": ["n_image_std"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_img_std_process",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["fluxstd_cat"]
+        },
+        {
+          "recipe": "metis_n_img_calibrate",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        },
+        {
+          "recipe": "metis_n_img_restore",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    }
+  ]
+}

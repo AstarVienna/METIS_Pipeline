@@ -1,0 +1,538 @@
+{
+  "keywords": {
+    "img_n_calib": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "IMAGE,N"
+    },
+    "lss_n_calib": {
+      "instrume": "METIS",
+      "dpr.catg": "CALIB",
+      "dpr.tech": "LSS,N"
+    },
+    "lss_n_science": {
+      "instrume": "METIS",
+      "dpr.catg": "SCIENCE",
+      "dpr.tech": "LSS,N"
+    }
+  },
+  "inputs": [
+    {
+      "name_prefix": "detlin_geo",
+      "count": 10,
+      "common_keywords": ["img_n_calib"],
+      "keywords": {
+        "dpr.type": "DETLIN",
+        "tpl.start": "2024-01-01T00:00:00"
+      }
+    },
+    {
+      "name_prefix": "dark_geo",
+      "count": 10,
+      "common_keywords": ["img_n_calib"],
+      "keywords": {
+        "dpr.type": "DARK",
+        "tpl.start": "2024-01-01T01:00:00"
+      }
+    },
+    {
+      "name_prefix": "n_wcu_off",
+      "count": 10,
+      "common_keywords": ["img_n_calib"],
+      "keywords": {
+        "dpr.type": "DARK,WCUOFF",
+        "tpl.start": "2024-01-01T01:30:00"
+      }
+    },
+    {
+      "name_prefix": "n_adc_slitloss",
+      "count": 10,
+      "common_keywords": ["lss_n_calib"],
+      "keywords": {
+        "dpr.type": "SLITLOSS",
+        "tpl.start": "2024-01-01T02:00:00"
+      }
+    },
+    {
+      "name_prefix": "n_lss_rsrf",
+      "count": 10,
+      "common_keywords": ["lss_n_calib"],
+      "keywords": {
+        "dpr.type": "FLAT,LAMP",
+        "tpl.start": "2024-01-01T03:00:00"
+      }
+    },
+    {
+      "name_prefix": "n_lss_rsrf_pinh",
+      "count": 10,
+      "common_keywords": ["lss_n_calib"],
+      "keywords": {
+        "dpr.type": "FLAT,LAMP,PINH",
+        "tpl.start": "2024-01-01T03:30:00"
+      }
+    },
+    {
+      "name_prefix": "n_lss_std",
+      "count": 10,
+      "common_keywords": ["lss_n_calib"],
+      "keywords": {
+        "dpr.type": "STD",
+        "tpl.start": "2024-01-01T05:00:00"
+      }
+    },
+    {
+      "name_prefix": "n_lss_sci",
+      "count": 10,
+      "common_keywords": ["lss_n_science"],
+      "keywords": {
+        "dpr.type": "OBJECT",
+        "tpl.start": "2024-01-01T06:00:00"
+      }
+    },
+    {
+      "name_prefix": "atm_line_cat",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "ATM_LINE_CAT",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "ref_std_cat",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "REF_STD_CAT",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "n_synth_trans",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "N_SYNTH_TRANS",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "n_lss_dist_sol",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "N_LSS_DIST_SOL",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "n_lss_wave_guess",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "N_LSS_WAVE_GUESS",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "ao_psf_model",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "AO_PSF_MODEL",
+        "instrume": "METIS"
+      }
+    },
+    {
+      "name_prefix": "lsf_kern",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "LSF_KERNEL"
+      }
+    },
+    {
+      "name_prefix": "atm_prof",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "ATM_PROFILE"
+      }
+    },
+    {
+      "name_prefix": "persistence_map",
+      "count": 1,
+      "keywords": {
+        "pro.catg": "PERSISTENCE_MAP"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "skip": false,
+      "description": "N LSS Lingain",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_lss_lingain"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N LSS Dark",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_lss_dark"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off", "dark_geo", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N ADC Slitloss",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_adc_slitloss"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off", "dark_geo", "n_adc_slitloss", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_adc_slitloss",
+          "inputs_prefixes": ["n_adc_slitloss"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N LSS RSRF",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_lss_rsrf"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off", "dark_geo", "n_lss_rsrf", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_rsrf",
+          "inputs_prefixes": ["n_lss_rsrf"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N LSS Trace",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_lss_trace"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off", "dark_geo", "n_lss_rsrf", "n_lss_rsrf_pinh", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_rsrf",
+          "inputs_prefixes": ["n_lss_rsrf"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_trace",
+          "inputs_prefixes": ["n_lss_rsrf_pinh"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N LSS Std",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_lss_std"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off", "dark_geo", "n_adc_slitloss", "n_lss_rsrf", "n_lss_rsrf_pinh", "n_lss_std", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_adc_slitloss",
+          "inputs_prefixes": ["n_adc_slitloss"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_rsrf",
+          "inputs_prefixes": ["n_lss_rsrf"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_trace",
+          "inputs_prefixes": ["n_lss_rsrf_pinh"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_std",
+          "inputs_prefixes": ["n_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N LSS Sci",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_lss_sci"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off", "dark_geo", "n_adc_slitloss", "n_lss_rsrf", "n_lss_rsrf_pinh", "n_lss_std", "n_lss_sci", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_adc_slitloss",
+          "inputs_prefixes": ["n_adc_slitloss"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_rsrf",
+          "inputs_prefixes": ["n_lss_rsrf"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_trace",
+          "inputs_prefixes": ["n_lss_rsrf_pinh"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_std",
+          "inputs_prefixes": ["n_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_n_lss_sci",
+          "inputs_prefixes": ["n_lss_sci"],
+          "assoc_prefixes": ["persistence_map", "n_lss_dist_sol", "n_lss_wave_guess", "atm_line_cat", "ao_psf_model"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N LSS MF Model",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_lss_mf_model"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off", "dark_geo", "n_adc_slitloss", "n_lss_rsrf", "n_lss_rsrf_pinh", "n_lss_std", "n_lss_sci", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model", "lsf_kern", "atm_prof", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_adc_slitloss",
+          "inputs_prefixes": ["n_adc_slitloss"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_rsrf",
+          "inputs_prefixes": ["n_lss_rsrf"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_trace",
+          "inputs_prefixes": ["n_lss_rsrf_pinh"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_std",
+          "inputs_prefixes": ["n_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_n_lss_sci",
+          "inputs_prefixes": ["n_lss_sci"],
+          "assoc_prefixes": ["persistence_map", "n_lss_dist_sol", "n_lss_wave_guess", "atm_line_cat", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_n_lss_mf_model",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N LSS MF Calctrans",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_lss_mf_calctrans"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off", "dark_geo", "n_adc_slitloss", "n_lss_rsrf", "n_lss_rsrf_pinh", "n_lss_std", "n_lss_sci", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model", "lsf_kern", "atm_prof", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_adc_slitloss",
+          "inputs_prefixes": ["n_adc_slitloss"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_rsrf",
+          "inputs_prefixes": ["n_lss_rsrf"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_trace",
+          "inputs_prefixes": ["n_lss_rsrf_pinh"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_std",
+          "inputs_prefixes": ["n_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_n_lss_sci",
+          "inputs_prefixes": ["n_lss_sci"],
+          "assoc_prefixes": ["persistence_map", "n_lss_dist_sol", "n_lss_wave_guess", "atm_line_cat", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_n_lss_mf_model",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_n_lss_mf_calctrans",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        }
+      ]
+    },
+
+    {
+      "skip": false,
+      "description": "N LSS Full Cascade",
+      "workflow": "metis.metis_wkf",
+      "targets": ["metis_n_lss_mf_correct"],
+      "meta_targets": [],
+      "common_inputs": ["detlin_geo", "n_wcu_off", "dark_geo", "n_adc_slitloss", "n_lss_rsrf", "n_lss_rsrf_pinh", "n_lss_std", "n_lss_sci", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model", "lsf_kern", "atm_prof", "persistence_map"],
+      "results": [
+        {
+          "recipe": "metis_det_lingain",
+          "inputs_prefixes": ["detlin_geo"],
+          "assoc_prefixes": ["n_wcu_off"]
+        },
+        {
+          "recipe": "metis_det_dark",
+          "inputs_prefixes": ["dark_geo"],
+          "assoc_prefixes": ["persistence_map"]
+        },
+        {
+          "recipe": "metis_n_adc_slitloss",
+          "inputs_prefixes": ["n_adc_slitloss"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_rsrf",
+          "inputs_prefixes": ["n_lss_rsrf"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_trace",
+          "inputs_prefixes": ["n_lss_rsrf_pinh"],
+          "assoc_prefixes": ["n_wcu_off", "persistence_map"]
+        },
+        {
+          "recipe": "metis_n_lss_std",
+          "inputs_prefixes": ["n_lss_std"],
+          "assoc_prefixes": ["persistence_map", "atm_line_cat", "ref_std_cat", "n_synth_trans", "n_lss_dist_sol", "n_lss_wave_guess", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_n_lss_sci",
+          "inputs_prefixes": ["n_lss_sci"],
+          "assoc_prefixes": ["persistence_map", "n_lss_dist_sol", "n_lss_wave_guess", "atm_line_cat", "ao_psf_model"]
+        },
+        {
+          "recipe": "metis_n_lss_mf_model",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_n_lss_mf_calctrans",
+          "inputs_prefixes": [],
+          "assoc_prefixes": ["atm_line_cat", "lsf_kern", "atm_prof"]
+        },
+        {
+          "recipe": "metis_n_lss_mf_correct",
+          "inputs_prefixes": [],
+          "assoc_prefixes": []
+        }
+      ]
+    }
+  ]
+}
