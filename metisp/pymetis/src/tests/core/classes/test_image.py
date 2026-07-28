@@ -28,7 +28,7 @@ from cpl.core import (Image as CplImage,
 from cpl.hdrl.core import Image as HdrlImage
 
 from pymetis.engine.core.classes.image import EnhancedImage
-from pymetis.engine.core.classes.mask import Mask
+from pymetis.engine.core.classes.mask import DataQuality
 from pymetis.engine.dataitems import Hdu
 
 
@@ -40,12 +40,12 @@ def make_image(rows: int = 4, cols: int = 4, value: float = 1.0) -> CplImage:
     return CplImage(data=np.full((rows, cols), value, dtype=np.float64))
 
 
-def build_dq_mask(rows: int = 4, cols: int = 4) -> Mask:
+def build_dq_mask(rows: int = 4, cols: int = 4) -> DataQuality:
     """A 32-bit `Mask` with a couple of flagged pixels."""
     bits = np.zeros((rows, cols), dtype=np.int32)
     bits[0, 0] = 1
     bits[1, 2] = 1
-    return Mask(CplImage(bits, dtype=cpl.core.Type.INT))
+    return DataQuality(CplImage(bits, dtype=cpl.core.Type.INT))
 
 
 def make_imagelist(planes: int = 3, rows: int = 4, cols: int = 4) -> CplImageList:
@@ -68,7 +68,7 @@ class TestConstruction:
 
     def test_dq_wrapped_as_mask(self):
         ei = EnhancedImage(make_image(), make_image(), build_dq_mask(), prefix=PREFIX)
-        assert isinstance(ei.dq, Mask)
+        assert isinstance(ei.dq, DataQuality)
         np.testing.assert_array_equal(ei.dq._array(), build_dq_mask()._array())
 
     def test_dq_mask_is_copied_not_shared(self):
@@ -87,14 +87,14 @@ class TestConstruction:
         bad = np.zeros((4, 6), dtype=bool)
         bad[0, 0] = True
         ei = EnhancedImage(make_image(4, 6), make_image(4, 6), CplMask(bad), prefix=PREFIX)
-        assert isinstance(ei.dq, Mask)
+        assert isinstance(ei.dq, DataQuality)
         np.testing.assert_array_equal(ei.dq._array(), bad.astype(np.int32))
 
     def test_cpl_image_dq_accepted(self):
         """A raw integer CplImage is implicitly converted into a Mask."""
         dq_image = build_dq_mask(4, 6).data  # the underlying CplImage
         ei = EnhancedImage(make_image(4, 6), make_image(4, 6), dq_image, prefix=PREFIX)
-        assert isinstance(ei.dq, Mask)
+        assert isinstance(ei.dq, DataQuality)
         np.testing.assert_array_equal(ei.dq._array(), build_dq_mask(4, 6)._array())
 
     def test_prefix_stored(self):
@@ -119,7 +119,7 @@ class TestConstruction:
         """Omitting the data quality layer yields an all-good integer mask of
         the image's shape, not a broken `Mask`."""
         ei = EnhancedImage(make_image(4, 6), make_image(4, 6), prefix=PREFIX)
-        assert isinstance(ei.dq, Mask)
+        assert isinstance(ei.dq, DataQuality)
         dq = ei.dq.data.as_array()
         assert not dq.any()
         assert dq.shape == (4, 6)
@@ -141,7 +141,7 @@ class TestFromHdrl:
     def test_absent_dq_defaults_to_zero_mask(self):
         hdrl = HdrlImage(make_image(4, 6), make_image(4, 6))
         ei = EnhancedImage.from_hdrl(hdrl, prefix=PREFIX)
-        assert isinstance(ei.dq, Mask)
+        assert isinstance(ei.dq, DataQuality)
         assert not ei.dq.data.as_array().any()
 
 

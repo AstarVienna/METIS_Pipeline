@@ -25,6 +25,7 @@ import numpy as np
 from astropy.table import QTable
 from cpl.core import Msg
 
+from pymetis.drl.combine import combine_images
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
@@ -152,7 +153,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         # self.inputset.background.frameset.dump() # debug
         bg_images = self.inputset.rsrf_wcu_off.use().load_data(extension=rf'DET{det}.DATA')
-        background_img = self.combine_images(bg_images, self.stackmethod)
+        background_img = combine_images(bg_images, self.stackmethod)
 
         # TODO: define usedframes?
         # TODO: Add product keywords - currently none defined in DRLD

@@ -1,7 +1,5 @@
 import enum
 
-from pymetis.engine.core.classes.mask import Mask
-
 
 class InstrumentDescription:
     class MaskFlags(enum.IntFlag):

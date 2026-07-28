@@ -24,7 +24,7 @@ import cpl
 import cpl.hdrl.core
 from cpl.core import Mask as CplMask
 
-from pymetis.engine.core.classes.mask import Mask
+from pymetis.engine.core.classes.mask import DataQuality
 
 
 # Masks are exercised at a realistic-ish detector scale rather than a toy 2×2,
@@ -56,9 +56,9 @@ def cpl_mask(selected: np.ndarray) -> CplMask:
     return CplMask(selected)
 
 
-def make_mask(field: np.ndarray) -> Mask:
+def make_mask(field: np.ndarray) -> DataQuality:
     """A `Mask` wrapping the given int32 numpy bitfield."""
-    return Mask(cpl.core.Image(field.astype(np.int32), dtype=cpl.core.Type.INT))
+    return DataQuality(cpl.core.Image(field.astype(np.int32), dtype=cpl.core.Type.INT))
 
 
 # ---------- converting constructor ----------
@@ -68,19 +68,19 @@ class TestConstructor:
     def test_from_cpl_image_copies(self):
         field = bitfield({A: 1, B: 2})
         image = cpl.core.Image(field, dtype=cpl.core.Type.INT)
-        mask = Mask(image)
+        mask = DataQuality(image)
         np.testing.assert_array_equal(mask._array(), field)
         # The mask owns its own buffer, not the image passed in.
         assert mask.data is not image
 
     def test_from_cpl_mask_sets_bit_zero(self):
         selected = selection(A, C)
-        mask = Mask(cpl_mask(selected))
+        mask = DataQuality(cpl_mask(selected))
         np.testing.assert_array_equal(mask._array(), selected.astype(np.int32))
 
     def test_from_mask_is_an_independent_copy(self):
         original = make_mask(bitfield({A: 1, B: 2, C: 4}))
-        clone = Mask(original)
+        clone = DataQuality(original)
         np.testing.assert_array_equal(clone._array(), original._array())
 
         original.add(cpl_mask(selection(A)), 0x10)
@@ -88,7 +88,7 @@ class TestConstructor:
 
     def test_rejects_unsupported_type(self):
         with pytest.raises(TypeError):
-            Mask(42)
+            DataQuality(42)
 
 
 # ---------- construction from CPL masks ----------
@@ -96,56 +96,56 @@ class TestConstructor:
 
 class TestFromCplMask:
     def test_single_bit_sets_that_bit(self):
-        mask = Mask.from_cpl_mask(cpl_mask(selection(A)), 0x04)
+        mask = DataQuality.from_cpl_mask(cpl_mask(selection(A)), 0x04)
         np.testing.assert_array_equal(mask._array(), bitfield({A: 0x04}))
 
     def test_high_single_bit_accepted(self):
         """A legitimate single bit far from bit 0 (previously rejected by a
         faulty bit_length guard) must be accepted."""
-        mask = Mask.from_cpl_mask(cpl_mask(selection(A)), 1 << 20)
+        mask = DataQuality.from_cpl_mask(cpl_mask(selection(A)), 1 << 20)
         assert mask._array()[A] == (1 << 20)
 
     def test_multi_bit_value_rejected(self):
         with pytest.raises(ValueError, match='Only one bit'):
-            Mask.from_cpl_mask(cpl_mask(selection(A)), 0x03)
+            DataQuality.from_cpl_mask(cpl_mask(selection(A)), 0x03)
 
     def test_zero_rejected(self):
         with pytest.raises(ValueError, match='Only one bit'):
-            Mask.from_cpl_mask(cpl_mask(selection(A)), 0)
+            DataQuality.from_cpl_mask(cpl_mask(selection(A)), 0)
 
 
 class TestFromCplMasks:
     def test_combines_disjoint_bits(self):
-        mask = Mask.from_cpl_masks({0x01: cpl_mask(selection(A)),
-                                    0x04: cpl_mask(selection(B, C))})
+        mask = DataQuality.from_cpl_masks({0x01: cpl_mask(selection(A)),
+                                           0x04: cpl_mask(selection(B, C))})
         np.testing.assert_array_equal(mask._array(), bitfield({A: 0x01, B: 0x04, C: 0x04}))
 
     def test_overlapping_pixels_or_their_bits(self):
         """A pixel flagged by two masks carries both bits."""
-        mask = Mask.from_cpl_masks({0x01: cpl_mask(selection(A)),
-                                    0x02: cpl_mask(selection(A))})
+        mask = DataQuality.from_cpl_masks({0x01: cpl_mask(selection(A)),
+                                           0x02: cpl_mask(selection(A))})
         assert mask._array()[A] == 0x03
 
     def test_unset_pixels_are_zero(self):
         """Unflagged pixels must be a clean zero, not uninitialised memory."""
-        mask = Mask.from_cpl_masks({0x01: cpl_mask(selection(A))})
+        mask = DataQuality.from_cpl_masks({0x01: cpl_mask(selection(A))})
         cleared = mask._array()
         cleared[A] = 0
         assert not cleared.any()
 
     def test_stored_as_signed_int32(self):
-        mask = Mask.from_cpl_masks({0x01: cpl_mask(selection(A))})
+        mask = DataQuality.from_cpl_masks({0x01: cpl_mask(selection(A))})
         assert mask._array().dtype == np.int32
 
     def test_mismatched_shapes_raise(self):
         small = CplMask(np.zeros((SIZE, SIZE), dtype=bool))
         big = CplMask(np.zeros((SIZE, SIZE + 2), dtype=bool))
         with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='same width and height'):
-            Mask.from_cpl_masks({0x01: small, 0x02: big})
+            DataQuality.from_cpl_masks({0x01: small, 0x02: big})
 
     def test_empty_dict_raises(self):
         with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='same width and height'):
-            Mask.from_cpl_masks({})
+            DataQuality.from_cpl_masks({})
 
 
 # ---------- flatten ----------
@@ -189,7 +189,7 @@ class TestOperators:
         a = make_mask(bitfield({A: 0x01}))
         b = make_mask(bitfield({A: 0x02}))
         combined = a | b
-        assert isinstance(combined, Mask)
+        assert isinstance(combined, DataQuality)
         # Operands are left untouched.
         assert a._array()[A] == 0x01
         assert b._array()[A] == 0x02
@@ -252,7 +252,7 @@ class TestSignedInt32Storage:
     lives on ``InstrumentDescription.MaskFlags.MAX_FLAG_BIT``."""
 
     def test_bit_30_stays_non_negative(self):
-        mask = Mask.from_cpl_mask(cpl_mask(selection(A)), 1 << 30)
+        mask = DataQuality.from_cpl_mask(cpl_mask(selection(A)), 1 << 30)
         value = mask._array()[A]
         assert value == (1 << 30)
         assert value > 0

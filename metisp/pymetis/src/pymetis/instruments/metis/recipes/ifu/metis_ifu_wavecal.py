@@ -19,14 +19,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Literal
 
 import cpl
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from cpl.core import Msg
 
 import numpy as np
 
+from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, ParameterRange,
+                                           ParameterValue)
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.recipes import Recipe
+
+from pymetis.drl.combine import combine_images
+from pymetis.drl.trace import traces_from_table
+from pymetis.drl.wavecal import (SliceSolution, build_wavelength_map, linear_solution,
+                                 solve_slice)
 
 from pymetis.instruments.metis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
@@ -34,6 +41,14 @@ from pymetis.instruments.metis.inputs import (MasterDarkInput, RawInput, Distort
                                               PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+
+# Microns per Angstrom, for reporting the fit residual in the unit the DRLD declares
+MICRON_IN_ANGSTROM = 1.0e4
+
+# Fallback wavelength coverage per detector, in microns, retained from the original
+# skeleton implementation. Used only when the frame header carries no grating setting.
+FALLBACK_WAVELENGTH_START = (3.5565, 3.5284, 3.5275, 3.5557)
+FALLBACK_WAVELENGTH_END = (3.5823, 3.5547, 3.5541, 3.5820)
 
 
 class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -89,61 +104,249 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
             _description_template = "FWHM of the laser line as measured by fitting a Gaussian profile to it"
             _comment = "This fulfils METIS-6073"
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> Hdu:
+    def _raw_header(self) -> cpl.core.PropertyList:
+        """Primary header of the first raw frame, cached for keyword lookups."""
+        if getattr(self, '_header_cache', None) is None:
+            self._header_cache = cpl.core.PropertyList.load(
+                self.inputset.raw.frameset[0].file, 0,
+            )
+        return self._header_cache
+
+    def _laser_wavelengths(self) -> list[float]:
+        """
+        Wavelengths of the WCU laser lines expected in the frame, in microns.
+
+        The DRLD states that "the wavelength of each line is known from the settings of
+        the QCL", but specifies no input carrying them, so the header is consulted first
+        and the recipe parameter serves as the fallback. Simulated data currently
+        provides only `ESO SEQ WCU LASER<n> NAME` with no wavelength, so in practice the
+        parameter is what is used.
+        """
+        header = self._raw_header()
+
+        from_header = []
+        for laser in range(1, 5):
+            for keyword in (f"ESO SEQ WCU LASER{laser} WLEN",
+                            f"ESO INS WCU LASER{laser} WLEN"):
+                if keyword in header:
+                    value = float(header[keyword].value)
+                    if value > 0:
+                        from_header.append(value)
+                    break
+
+        if from_header:
+            Msg.info(self.__class__.__qualname__,
+                     f"Laser wavelengths from header: {sorted(from_header)} um")
+            return sorted(from_header)
+
+        parameter = self.parameters[f"{self.name}.lines.wavelengths"].value
+        wavelengths = sorted(float(part) for part in str(parameter).split(',')
+                             if part.strip())
+
+        Msg.info(self.__class__.__qualname__,
+                 "No laser wavelength keywords in the header; using the "
+                 f"{self.name}.lines.wavelengths parameter: {wavelengths} um")
+        return wavelengths
+
+    def _approximate_solution(self,
+                             detector: Literal[1, 2, 3, 4],
+                             ncol: int) -> np.ndarray:
+        """
+        Approximate linear dispersion, used to identify lines and as the fallback.
+
+        Derived from the grating setting when the header provides it, otherwise from the
+        per-detector coverage the skeleton implementation hardcoded.
+        """
+        header = self._raw_header()
+        width = float(self.parameters[f"{self.name}.dispersion.width"].value)
+
+        if 'ESO INS WLEN CEN' in header:
+            centre = float(header['ESO INS WLEN CEN'].value)
+            return linear_solution(centre - width / 2, centre + width / 2, ncol)
+
+        return linear_solution(FALLBACK_WAVELENGTH_START[detector - 1],
+                               FALLBACK_WAVELENGTH_END[detector - 1],
+                               ncol)
+
+    def _solve_parameters(self) -> dict:
+        """Collect the line-fitting parameters from the recipe parameter list."""
+        name = self.name
+        return {
+            'degree': (int(self.parameters[f"{name}.solution.degree_dispersion"].value),
+                       int(self.parameters[f"{name}.solution.degree_spatial"].value)),
+            'n_offsets': int(self.parameters[f"{name}.solution.offsets"].value),
+            'match_tolerance':
+                float(self.parameters[f"{name}.lines.match_tolerance"].value),
+            'smoothing': float(self.parameters[f"{name}.lines.smoothing"].value),
+            'min_snr': float(self.parameters[f"{name}.lines.min_snr"].value),
+        }
+
+    def _process_single_detector(self,
+                                 detector: Literal[1, 2, 3, 4],
+                                 method: str,
+                                 wavelengths: list[float],
+                                 solve_parameters: dict) -> dict:
+        """
+        Determine the wavelength solution for a single detector of the IFU.
+
+        Follows the DRLD prescription: measure the line locations by Gaussian fit,
+        compute the deviation from the approximate optical model, fit the per-slice
+        solution lambda(x, y), and compute the wavelength map. Lines are measured at
+        several cross-dispersion offsets within each slice, so the fit also captures
+        their tilt with respect to the detector columns.
+
+        Parameters
+        ----------
+        detector : Literal[1, 2, 3, 4]
+        method : str
+            Method used to stack the raw exposures.
+        wavelengths : list[float]
+            Expected laser line wavelengths, in microns.
+        solve_parameters : dict
+            Keyword arguments for `pymetis.drl.wavecal.solve_slice`.
+
+        Returns
+        -------
+        dict
+            The wavelength map HDU and the measurements needed for quality control.
+        """
         det = rf'DET{detector:1d}'
 
-        # load the raw wavecal images and combine
         raw_images = self.inputset.raw.use().load_data(extension=rf'{det}.DATA')
-        combined_image = self.combine_images(raw_images, "average")
-        imsize_x = combined_image.shape[1]
-        imsize_y = combined_image.shape[0]
+        combined_image = combine_images(raw_images, method)
+        image = combined_image.as_array()
+        nrow, ncol = image.shape
 
-        # load the IFU distortion table
+        # The distortion table gives the slice mid-lines; heights are not persisted in
+        # it, so `traces_from_table` recomputes them from the slice spacing
         distortion_table = self.inputset.distortion_table.load_data(extension=det)
-        trace_list = self.inputset.distortion_table.item.read(distortion_table=distortion_table)
+        traces = traces_from_table(distortion_table, ncol=ncol)
 
-        # create static dummy wavecal image
-        
-        # static wavecal parameters for each detector
-        wstart = np.array([3.5565, 3.5284, 3.5275, 3.5557]) # in microns
-        wend =   np.array([3.5823, 3.5547, 3.5541, 3.5820]) # in microns
-        wdelta = (wend - wstart) / (imsize_x - 1)
-        # linear dispersion model
-        wavelen = np.zeros(imsize_x, dtype=float)
-        for i in range(imsize_x):
-            wavelen[i] = wstart[detector - 1] + i * wdelta[detector - 1]
+        approximate = self._approximate_solution(detector, ncol)
 
-        # create wavecal image based on distortion table
-        trc_h = 57 # total trace height is twice this [pix]
-        wc_image = np.zeros(combined_image.shape, dtype=float)
-        for i, trace in enumerate(trace_list):
-            x_coords, y_coords = trace
-            for x, y in zip(x_coords.astype(int), y_coords.astype(int)):
-                if 0 <= x < imsize_x:
-                    y_min = y - trc_h
-                    y_max = y + trc_h
-                    if 0 <= y_min < imsize_y and 0 <= y_max < imsize_y:
-                        for yy in range(y_min, y_max + 1):
-                            wc_image[yy, x] = wavelen[x]
+        if not traces:
+            Msg.warning(self.__class__.__qualname__,
+                        f"{det}: the distortion table holds no slices, so no "
+                        f"wavelength solution can be determined; its wavelength map "
+                        f"will be empty")
+            return {'HDU': self._wavelength_hdu(np.zeros((nrow, ncol)), det),
+                    'solutions': [], 'lines': []}
 
-        # self.correct_telluric()
-        # self.apply_fluxcal()
+        # The distortion table stores only the mid-lines, so the slice height is
+        # recovered from the spacing of neighbouring slices. That spacing includes the
+        # unilluminated gap between slices, hence the fill factor: painting a wavelength
+        # into the gaps would make `metis_ifu_rsrf` treat those pixels as valid data.
+        fill_factor = float(self.parameters[f"{self.name}.slices.fill_factor"].value)
+        spacings = [t.height if t.height else nrow / len(traces) for t in traces]
+        heights = [fill_factor * spacing for spacing in spacings]
 
-        wc_image = cpl.core.Image(wc_image)
+        solutions = [
+            solve_slice(image, trace,
+                        wavelengths=wavelengths,
+                        height=height,
+                        approximate=approximate,
+                        **solve_parameters)
+            for trace, height in zip(traces, heights)
+        ]
 
-        header_wcal = create_dummy_header(EXTNAME=det)
+        fitted = sum(1 for s in solutions if not s.fallback)
+        if fitted == 0:
+            Msg.warning(self.__class__.__qualname__,
+                        f"{det}: no slice yielded a wavelength solution from measured "
+                        f"lines; falling back to the approximate linear dispersion for "
+                        f"all {len(solutions)} slices")
+        else:
+            Msg.info(self.__class__.__qualname__,
+                     f"{det}: fitted {fitted} of {len(solutions)} slices from "
+                     f"measured lines")
 
-        return Hdu(header_wcal, wc_image, name=det)
+        wavelength_map = build_wavelength_map((nrow, ncol), traces, solutions, heights)
+
+        return {
+            'HDU': self._wavelength_hdu(wavelength_map, det),
+            'solutions': solutions,
+            'lines': [line for s in solutions for line in s.lines],
+        }
+
+    @staticmethod
+    def _wavelength_hdu(wavelength_map: np.ndarray, det: str) -> Hdu:
+        """
+        Wrap a wavelength map as a product extension.
+
+        The map is in microns and is exactly zero outside the slices. Both are part of
+        the product contract: `metis_ifu_rsrf` reads these values as microns and treats
+        zero as "no wavelength here".
+        """
+        return Hdu(create_dummy_header(EXTNAME=det),
+                   cpl.core.Image(wavelength_map),
+                   name=det)
 
     def process(self) -> set[DataItem]:
+        method = self.parameters[f"{self.name}.stacking.method"].value
+        wavelengths = self._laser_wavelengths()
+        solve_parameters = self._solve_parameters()
+
+        output = [self._process_single_detector(det, method, wavelengths, solve_parameters)
+                  for det in [1, 2, 3, 4]]
+
         primary_header = cpl.core.PropertyList()
+        primary_header.append(self._collect_qc(output))
 
         product_wavecal = self.ProductSet.IfuWavecal(
             primary_header,
-            *map(self._process_single_detector, [1, 2, 3, 4])
+            *[out['HDU'] for out in output],
         )
 
         return {product_wavecal}
+
+    def _collect_qc(self, output: list[dict]) -> cpl.core.PropertyList:
+        """
+        Summarise the line measurements into quality control parameters.
+
+        `NLINES` counts identified lines across every slice and detector. `RMS` pools the
+        per-slice fit residuals, converted to Angstrom as the DRLD declares. `PEAK CNTS`
+        and `LINE WIDTH` are the median amplitude and median fitted width of the
+        measured lines.
+
+        A parameter with nothing behind it is omitted from the header rather than filled
+        with a placeholder, so `RMS` is absent whenever every slice fell back to the
+        approximate model.
+        """
+        solutions: list[SliceSolution] = [s for out in output for s in out['solutions']]
+        identified = [line for out in output for line in out['lines']
+                      if line.wavelength is not None]
+
+        n_lines = sum(s.n_identified for s in solutions)
+
+        residuals = [s.rms for s in solutions if s.rms is not None]
+        rms = (float(np.sqrt(np.mean(np.square(residuals)))) * MICRON_IN_ANGSTROM
+               if residuals else None)
+
+        peak_counts = float(np.median([line.height for line in identified])) \
+            if identified else None
+        line_width = float(np.median([line.fwhm for line in identified])) \
+            if identified else None
+
+        Msg.info(self.__class__.__qualname__, f"QC IFU WAVECAL NLINES = {n_lines}")
+        Msg.info(self.__class__.__qualname__, f"QC IFU WAVECAL RMS = {rms}")
+        Msg.info(self.__class__.__qualname__, f"QC IFU WAVECAL PEAK CNTS = {peak_counts}")
+        Msg.info(self.__class__.__qualname__, f"QC IFU WAVECAL LINE WIDTH = {line_width}")
+
+        if rms is None:
+            Msg.warning(self.__class__.__qualname__,
+                        "No wavelength solution was fitted from measured lines, so the "
+                        "wavelength maps rest on the approximate dispersion model and "
+                        "QC RMS is not reported")
+
+        qc = [self.Qc.NLines(n_lines)]
+        if rms is not None:
+            qc.append(self.Qc.Rms(rms))
+        if peak_counts is not None:
+            qc.append(self.Qc.PeakCounts(peak_counts))
+        if line_width is not None:
+            qc.append(self.Qc.LineWidth(line_width))
+
+        return self.collect_qc_parameters(*qc)
 
 
 class MetisIfuWavecal(Recipe):
@@ -151,15 +354,28 @@ class MetisIfuWavecal(Recipe):
     _version: str = "0.1"
     _author: str = "Martin Baláž, A*"
     _email: str = "martin.balaz@univie.ac.at"
-    _synopsis: str = "Determine the relative spectral response function"
+    _synopsis: str = "Determine the wavelength calibration of the IFU"
     _description: str = (
-        "Currently just a skeleton prototype."
+        "Measures the WCU laser lines in each spatial slice of the IFU and fits a "
+        "two-dimensional wavelength solution per slice, producing an image holding the "
+        "wavelength of every pixel.\n"
+        "Lines are measured at several cross-dispersion offsets within each slice, so "
+        "the solution also accounts for their tilt with respect to the detector "
+        "columns. Where too few lines can be identified to constrain a fit, the "
+        "approximate dispersion model is used instead and this is reported."
     )
 
-    _algorithm = """Measure line locations (left and right edges, centroid by Gaussian fit).
-        Compute deviation from optical models.
-        Compute wavelength solution ξ(x, y, i), λ(x, y, i).
-        Compute wavelength map."""
+    _algorithm = """Stack the raw exposures and take the slice geometry from the distortion table.
+        Extract spectra at several cross-dispersion offsets along each slice.
+        Measure line locations by Gaussian fit, giving sub-pixel centroid, width and height.
+        Group detections of the same line across offsets and identify them against the
+        expected laser wavelengths, using the optical model to resolve the assignment.
+        Fit the wavelength solution lambda(x, y) per slice as a low-order polynomial,
+        reducing its degree where the available lines cannot constrain it.
+        Evaluate the solution over each slice to build the wavelength map.
+
+        Line detection and Gaussian centroiding are adapted from PyReduce (Piskunov &
+        Valenti 2002, Piskunov, Wehrhahn & Marquart 2021), as prescribed by the DRLD."""
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
@@ -170,6 +386,85 @@ class MetisIfuWavecal(Recipe):
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
+        ),
+        ParameterValue(
+            name=f"{_name}.lines.wavelengths",
+            context=_name,
+            description="Comma-separated wavelengths of the expected WCU laser lines, "
+                        "in microns. Used only when the frame header carries no laser "
+                        "wavelength keywords. Defaults to the three METIS WCU lasers, "
+                        "the middle one being the tuneable QCL",
+            default="3.39,4.73,5.26",
+        ),
+        ParameterValue(
+            name=f"{_name}.lines.match_tolerance",
+            context=_name,
+            description="Largest wavelength difference, in microns, allowed when "
+                        "matching a measured line to an expected laser wavelength",
+            default=0.01,
+        ),
+        ParameterValue(
+            name=f"{_name}.lines.smoothing",
+            context=_name,
+            description="Standard deviation, in pixels, of the Gaussian smoothing "
+                        "applied before line detection. Larger values reach fainter "
+                        "lines at the cost of blending close ones",
+            default=1.0,
+        ),
+        ParameterValue(
+            name=f"{_name}.lines.min_snr",
+            context=_name,
+            description="Minimum line peak height in units of the noise standard "
+                        "deviation. Zero disables the test",
+            default=5.0,
+        ),
+        ParameterRange(
+            name=f"{_name}.solution.degree_dispersion",
+            context=_name,
+            description="Polynomial degree of the wavelength solution along the "
+                        "dispersion direction. Reduced automatically when too few "
+                        "distinct wavelengths are identified to constrain it",
+            default=2,
+            min=1,
+            max=5,
+        ),
+        ParameterRange(
+            name=f"{_name}.solution.degree_spatial",
+            context=_name,
+            description="Polynomial degree of the wavelength solution across the slice. "
+                        "A degree of 1 captures a linear line tilt",
+            default=1,
+            min=0,
+            max=3,
+        ),
+        ParameterRange(
+            name=f"{_name}.solution.offsets",
+            context=_name,
+            description="Number of cross-dispersion positions at which each slice is "
+                        "sampled. Limits the achievable spatial degree to one less",
+            default=5,
+            min=1,
+            max=25,
+        ),
+        ParameterRange(
+            name=f"{_name}.slices.fill_factor",
+            context=_name,
+            description="Illuminated fraction of the spacing between neighbouring "
+                        "slices. The distortion table records only the slice mid-lines, "
+                        "so this sets how much of the gap between them is taken to carry "
+                        "signal. The default reproduces the 114 pixel slice height of "
+                        "the METIS IFU simulated data",
+            default=0.9,
+            min=0.1,
+            max=1.0,
+        ),
+        ParameterValue(
+            name=f"{_name}.dispersion.width",
+            context=_name,
+            description="Instantaneous wavelength coverage of one detector, in microns, "
+                        "used with the grating central wavelength to build the "
+                        "approximate dispersion model",
+            default=0.026,
         ),
     ])
 

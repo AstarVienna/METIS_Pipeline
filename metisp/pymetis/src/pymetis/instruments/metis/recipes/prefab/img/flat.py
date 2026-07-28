@@ -138,7 +138,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         # create a static mask that only considers the illuminated portion of the frame
         # set this based on data
 
-        stat_mask = cpl.core.Mask(raw_images_hdrl[0].width,raw_images_hdrl[0].height)
+        stat_mask = cpl.core.Mask(raw_images_hdrl[0].width, raw_images_hdrl[0].height)
         stat_mask[0:raw_images_hdrl[0].width][0:raw_images_hdrl[0].height] = True
         stat_mask = None
 

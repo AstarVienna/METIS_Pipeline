@@ -18,11 +18,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from abc import ABC
-from typing import Literal, Optional
+from typing import Literal
 
 import cpl, hdrl
-from cpl.core import Msg, Image, ImageList
+from cpl.core import Msg, Image as CplImage, ImageList as CplImageList
+from cpl.hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 
+from pymetis.drl.combine import combine_images
 from pymetis.drl.image import zeros_like
 from pymetis.engine.recipes import RecipeImpl
 from pymetis.engine.inputs import PipelineInputSet
@@ -93,7 +95,6 @@ class RawImageProcessor(RecipeImpl, ABC):
             image.data.bpm for hdrl image
 
         """
-        
 
         mask = mask.as_array()
         
@@ -113,8 +114,11 @@ class RawImageProcessor(RecipeImpl, ABC):
         
         return cplMask
 
+    def combine_images(self, images: CplImageList, method: CombineMethodType) -> CplImageList:
+        """ Temporary wrapper, use the function directly in the future. """
+        return combine_images(images, method)
 
-    def correct_gain(self, raw_images: ImageList, gain: Image) -> ImageList:
+    def correct_gain(self, raw_images: CplImageList, gain: CplImage) -> CplImageList:
         """
         Correct the raw image list for gain.
 
@@ -140,9 +144,9 @@ class RawImageProcessor(RecipeImpl, ABC):
 
     def correct_nonlinearity(
             self,
-            raw_images: ImageList,
-            linearity_map: ImageList,
-        ) -> ImageList:
+            raw_images: CplImageList,
+            linearity_map: CplImageList,
+        ) -> CplImageList:
         """
         Correct the raw image list for non-linearity.
 
@@ -162,7 +166,7 @@ class RawImageProcessor(RecipeImpl, ABC):
         return raw_images
 
     def calculate_outliers_sequence(self,
-                             imagelist: cpl.core.ImageList | hdrl.core.ImageList,
+                             imagelist: CplImageList | HdrlImageList,
                              *,
                              kappa_low: float,
                              kappa_high: float) -> cpl.core.Mask:
@@ -210,8 +214,8 @@ class RawImageProcessor(RecipeImpl, ABC):
         image_rms = image_sum.get_stdev()
         
         mask = cpl.core.Mask.threshold_image(image_sum.image,
-                                             image_median[0] - kappa_low * 1 * image_rms,
-                                             image_median[0] + kappa_high * 1 * image_rms,
-                                             0)
+                                                    image_median[0] - kappa_low * 1 * image_rms,
+                                                    image_median[0] + kappa_high * 1 * image_rms,
+                                                    0)
         return mask
 

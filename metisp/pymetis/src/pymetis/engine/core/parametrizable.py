@@ -79,7 +79,7 @@ class ParametrizableMeta(ABCMeta):
             return
         elif key in registry:
             if registry[key] is not cls:
-                Msg.warning(cls.__qualname__, f"{key} is already registered to {registry[key].__qualname__}, skipping")
+                Msg.debug(cls.__qualname__, f"{key} is already registered to {registry[key].__qualname__}, skipping")
         else:
             registry[key] = cls
 

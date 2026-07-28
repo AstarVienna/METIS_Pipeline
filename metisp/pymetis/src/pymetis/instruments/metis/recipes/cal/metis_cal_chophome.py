@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 from cpl.core import Msg
 
+from pymetis.drl.combine import combine_images
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
@@ -102,7 +103,7 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         # self.inputset.persistence_map.use()
         raw_images.subtract_image(background_img)
 
-        combined_img = self.combine_images(raw_images, stackmethod)
+        combined_img = combine_images(raw_images, stackmethod)
 
         # Locate the pinhole image
         pinhole_loc = self.locate_pinhole(combined_img, hwidth)
@@ -130,7 +131,7 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         background_hdr = cpl.core.PropertyList()
 
         bg_images = self.inputset.wcu_off.load_data(extension='DET1.DATA')
-        background_img = self.combine_images(bg_images, method)
+        background_img = combine_images(bg_images, method)
         # TODO: define usedframes
         return background_hdr, background_img
 

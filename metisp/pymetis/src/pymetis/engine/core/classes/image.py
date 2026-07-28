@@ -32,7 +32,7 @@ from cpl.hdrl.core import (Image as HdrlImage,
                            ImageList as HdrlImageList,)
 
 from pymetis.engine.core.classes.instrument import InstrumentDescription
-from pymetis.engine.core.classes.mask import Mask
+from pymetis.engine.core.classes.dataquality import DataQuality
 from pymetis.engine.dataitems import Hdu
 
 
@@ -91,7 +91,7 @@ class EnhancedImageBase:
             *,
             prefix: str,
             dim: tuple[int, int],
-            dq: Optional[CplImage | CplMask | Mask],
+            dq: Optional[CplImage | CplMask | DataQuality],
             header_image: Optional[CplPropertyList],
             header_error: Optional[CplPropertyList],
             header_dq: Optional[CplPropertyList],
@@ -110,7 +110,7 @@ class EnhancedImageBase:
         # `Mask` acts as a converting constructor (CplImage/CplMask/Mask) and
         # always copies, so the caller never shares a mutable mask with us; a
         # missing dq just supplies a zero bitfield to wrap.
-        self.dq = Mask(dq if dq is not None else self._zero_dq(*dim))
+        self.dq = DataQuality(dq if dq is not None else self._zero_dq(*dim))
 
         self.header_image = CplPropertyList() if header_image is None else header_image
         self.header_error = CplPropertyList() if header_error is None else header_error
@@ -242,7 +242,7 @@ class EnhancedImageBase:
     # ---- static helpers ----
 
     @staticmethod
-    def _dimensions(layer: CplImage | CplImageList | CplMask | Mask) -> tuple[int, int]:
+    def _dimensions(layer: CplImage | CplImageList | CplMask | DataQuality) -> tuple[int, int]:
         """
         Return the (width, height) of a layer, which may be a single `Image`
         (or `Mask`) or an `ImageList` of equally-sized planes.
@@ -295,7 +295,7 @@ class EnhancedImage(EnhancedImageBase):
             self,
             image: CplImage,
             error: Optional[CplImage] = None,
-            dq: Optional[CplImage | CplMask | Mask] = None,
+            dq: Optional[CplImage | CplMask | DataQuality] = None,
             *,
             prefix: str,
             header_image: Optional[CplPropertyList] = None,
@@ -322,7 +322,7 @@ class EnhancedImage(EnhancedImageBase):
     def from_hdrl(
             cls,
             image: HdrlImage,
-            dq: Optional[CplImage | CplMask | Mask] = None,
+            dq: Optional[CplImage | CplMask | DataQuality] = None,
             *,
             prefix: str,
             header_image: Optional[CplPropertyList] = None,
@@ -360,7 +360,7 @@ class EnhancedImage3D(EnhancedImageBase):
             self,
             images: CplImageList,
             errors: Optional[CplImageList] = None,
-            dq: Optional[CplImage | CplMask | Mask] = None,
+            dq: Optional[CplImage | CplMask | DataQuality] = None,
             *,
             prefix: str,
             header_image: Optional[CplPropertyList] = None,
@@ -397,7 +397,7 @@ class EnhancedImage3D(EnhancedImageBase):
     def from_hdrl(
             cls,
             images: HdrlImageList,
-            dq: Optional[CplImage | CplMask | Mask] = None,
+            dq: Optional[CplImage | CplMask | DataQuality] = None,
             *,
             prefix: str,
             header_image: Optional[CplPropertyList] = None,

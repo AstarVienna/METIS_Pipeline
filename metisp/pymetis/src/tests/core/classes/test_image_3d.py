@@ -32,7 +32,7 @@ from cpl.hdrl.core import (Image as HdrlImage,
 from pymetis.engine.core.classes.image import (EnhancedImage,
                                                EnhancedImage3D,
                                                EnhancedImageBase)
-from pymetis.engine.core.classes.mask import Mask
+from pymetis.engine.core.classes.mask import DataQuality
 from pymetis.engine.dataitems import Hdu
 
 
@@ -46,12 +46,12 @@ def stack(planes: int = 3, rows: int = ROWS, cols: int = COLS, base: float = 0.0
                          for i in range(planes)])
 
 
-def build_dq_mask(rows: int = ROWS, cols: int = COLS) -> Mask:
+def build_dq_mask(rows: int = ROWS, cols: int = COLS) -> DataQuality:
     """A 32-bit `Mask` with a couple of flagged pixels."""
     bits = np.zeros((rows, cols), dtype=np.int32)
     bits[0, 0] = 1
     bits[1, 2] = 1
-    return Mask(CplImage(bits, dtype=CplType.INT))
+    return DataQuality(CplImage(bits, dtype=CplType.INT))
 
 
 def seed_primary(filename: str) -> None:
@@ -69,7 +69,7 @@ class TestConstruction:
 
     def test_dq_is_a_single_2d_mask(self):
         eil = EnhancedImage3D(stack(3), stack(3), build_dq_mask(), prefix=PREFIX)
-        assert isinstance(eil.dq, Mask)
+        assert isinstance(eil.dq, DataQuality)
         assert eil.dq.data.as_array().shape == (ROWS, COLS)
         np.testing.assert_array_equal(eil.dq._array(), build_dq_mask()._array())
 
@@ -87,7 +87,7 @@ class TestConstruction:
 
     def test_absent_dq_defaults_to_zero_mask(self):
         eil = EnhancedImage3D(stack(3), stack(3), prefix=PREFIX)
-        assert isinstance(eil.dq, Mask)
+        assert isinstance(eil.dq, DataQuality)
         dq = eil.dq.data.as_array()
         assert not dq.any()
         assert dq.shape == (ROWS, COLS)
