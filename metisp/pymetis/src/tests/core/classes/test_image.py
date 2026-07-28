@@ -28,7 +28,7 @@ from cpl.core import (Image as CplImage,
 from cpl.hdrl.core import Image as HdrlImage
 
 from pymetis.engine.core.classes.image import EnhancedImage
-from pymetis.engine.core.classes.mask import DataQuality
+from pymetis.engine.core.classes.dataquality import DataQuality
 from pymetis.engine.dataitems import Hdu
 
 

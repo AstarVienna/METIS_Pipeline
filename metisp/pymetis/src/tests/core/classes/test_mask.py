@@ -24,7 +24,7 @@ import cpl
 import cpl.hdrl.core
 from cpl.core import Mask as CplMask
 
-from pymetis.engine.core.classes.mask import DataQuality
+from pymetis.engine.core.classes.dataquality import DataQuality
 
 
 # Masks are exercised at a realistic-ish detector scale rather than a toy 2×2,

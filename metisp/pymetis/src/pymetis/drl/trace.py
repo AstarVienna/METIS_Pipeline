@@ -659,6 +659,14 @@ def measure_trace_fwhm(im: np.ndarray,
     clusters, whose extent depends on the detection threshold rather than on the
     optics.
 
+    The width of each trace is taken where its profile falls to half way between its
+    peak and the surrounding inter-trace background. That definition holds for a narrow
+    pinhole spot and for a broad flat-topped band alike, which matters because the same
+    code sees both: a pinhole exposure gives compact spots, while a continuum-illuminated
+    frame gives slices tens of pixels tall with a noisy plateau. `scipy.signal.peak_widths`
+    is deliberately not used here, since it measures down from the peak by a fraction of
+    the *prominence* and so latches onto any small bump on such a plateau.
+
     Parameters
     ----------
     im : np.ndarray
@@ -685,36 +693,98 @@ def measure_trace_fwhm(im: np.ndarray,
     # profile, since the traces are near-horizontal over such a narrow band.
     profile = np.median(np.asarray(im, dtype=float)[:, columns], axis=1)
 
-    # `peak_widths` requires genuine local maxima, so snap each predicted centre onto
-    # the brightest nearby row. Without this it warns about zero-prominence peaks
-    # whenever the fitted mid-line lands a pixel off the true ridge.
-    centres = []
-    for t in traces:
-        if not t.column_range[0] <= mid < t.column_range[1]:
-            continue
-
-        predicted = int(round(t.y_at_x(mid)))
-        search = max(int(round(t.height / 4)) if t.height else 3, 3)
-        low, high = max(predicted - search, 0), min(predicted + search + 1, nrow)
-        if low >= high:
-            continue
-
-        centre = low + int(np.argmax(profile[low:high]))
-        # A maximum on the window edge means the real peak lies outside it
-        if 0 < centre < nrow - 1 and profile[centre] > min(profile[centre - 1],
-                                                          profile[centre + 1]):
-            centres.append(centre)
+    centres = [t.y_at_x(mid) for t in traces
+               if t.column_range[0] <= mid < t.column_range[1]]
+    centres = [c for c in centres if 0 <= c < nrow]
 
     if not centres:
         return None
 
-    widths = peak_widths(profile, centres, rel_height=0.5)[0]
-    widths = widths[np.isfinite(widths) & (widths > 0)]
+    widths = []
+    for i, centre in enumerate(centres):
+        reach = _measurement_reach(centres, i, traces[0].height if traces else None)
+        width = _half_maximum_width(profile, centre, reach)
+        if width is not None:
+            widths.append(width)
 
-    if widths.size == 0:
+    if not widths:
         return None
 
     return float(np.median(widths))
+
+
+def _measurement_reach(centres: list[float], index: int, height: float | None) -> int:
+    """
+    How far either side of a trace to look when measuring its width, in pixels.
+
+    Half the distance to the closest neighbour, so that the window reaches the
+    inter-trace minimum but never crosses into the next trace.
+    """
+    distances = [abs(centres[j] - centres[index])
+                 for j in (index - 1, index + 1)
+                 if 0 <= j < len(centres)]
+
+    if distances:
+        return max(int(round(0.5 * min(distances))), 2)
+
+    # A lone trace has no neighbour to bound it, so fall back on its own aperture
+    return max(int(round(height)) if height else 20, 2)
+
+
+def _half_maximum_width(profile: np.ndarray,
+                        centre: float,
+                        reach: int) -> float | None:
+    """
+    Width of a feature at half its height above the local background, in pixels.
+
+    Parameters
+    ----------
+    profile : np.ndarray
+        Cross-dispersion profile.
+    centre : float
+        Approximate centre of the feature.
+    reach : int
+        How far either side of `centre` to search.
+
+    Returns
+    -------
+    float | None
+        The width, or `None` if the profile does not fall to the half level on both
+        sides within `reach`, which means the feature is not bounded by the window and
+        no width can be attributed to it.
+    """
+    low = max(int(np.floor(centre)) - reach, 0)
+    high = min(int(np.ceil(centre)) + reach + 1, profile.size)
+    window = profile[low:high]
+
+    if window.size < 3:
+        return None
+
+    peak = low + int(np.argmax(window))
+    background = float(window.min())
+    half = background + 0.5 * (profile[peak] - background)
+
+    if not profile[peak] > background:
+        return None
+
+    def crossing(step: int) -> float | None:
+        """Interpolated position where the profile drops below `half` going outwards."""
+        position = peak
+        while low <= position + step < high:
+            nxt = position + step
+            if profile[nxt] < half:
+                # Linear interpolation between the bracketing samples
+                span = profile[position] - profile[nxt]
+                fraction = (profile[position] - half) / span if span else 0.0
+                return position + step * fraction
+            position = nxt
+        return None
+
+    left, right = crossing(-1), crossing(+1)
+    if left is None or right is None:
+        return None
+
+    return float(right - left)
 
 
 def trace(im: np.ndarray,
