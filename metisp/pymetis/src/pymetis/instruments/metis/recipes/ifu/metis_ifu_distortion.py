@@ -36,6 +36,7 @@ from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, Optiona
                                               PinholeTableInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
 from pymetis.instruments.metis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
+from pymetis.instruments.metis.dataitems.rsrf.raw import IfuRsrfRaw
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
@@ -59,6 +60,27 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
         class RawInput(RawInput):
             Item = IfuDistortionRaw
+
+        class TraceReferenceInput(OptionalInputMixin, RawInput):
+            """
+            EXPERIMENTAL, and a deviation from the DRLD input list for this recipe.
+
+            The DRLD gives this recipe only the multi-pinhole exposure, but the algorithm
+            it prescribes (critical algorithm 5b, "use the same algorithms as for LSS
+            (PyReduce)") locates slices by thresholding a *continuum-illuminated* frame
+            and fitting a polynomial to each connected cluster of illuminated pixels. A
+            pinhole exposure contains isolated spots, not the continuous traces that
+            algorithm needs: on simulated data its largest connected feature is a few
+            pixels, against slice-long bands of tens of thousands of pixels in an
+            `IFU_RSRF_RAW` frame.
+
+            Supplying an `IFU_RSRF_RAW` frame here is therefore optional and purely
+            additive. When present it is traced instead of the pinhole exposure; when
+            absent the recipe behaves exactly as before, so a DRLD-conformant set of
+            frames still runs. Resolving this properly needs a decision on the recipe's
+            input list, and a matching EDPS workflow association.
+            """
+            Item = IfuRsrfRaw
 
     class ProductSet(PipelineProductSet):
         DistortionTable = IfuDistortionTable
@@ -131,9 +153,20 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         raw_images = self.inputset.raw.use().load_data(extension=rf'DET{det}.DATA')
         combined_image = combine_images(raw_images, method)
 
+        # Trace the continuum frame when one was supplied, since a pinhole exposure holds
+        # no continuous slices to trace. See TraceReferenceInput for why this is optional.
+        reference = self.inputset.trace_reference
+        if reference.frameset:
+            reference_images = reference.use().load_data(extension=rf'DET{det}.DATA')
+            trace_image = combine_images(reference_images, method).as_array()
+            Msg.info(self.__class__.__qualname__,
+                     f"DET{det}: tracing the {reference.Item.name()} frames rather than "
+                     f"the pinhole exposure")
+        else:
+            trace_image = combined_image.as_array()
+
         # CPL and HDRL have no order tracing, so the fitting is done in numpy
-        image = combined_image.as_array()
-        traces = trace(image, **trace_parameters)
+        traces = trace(trace_image, **trace_parameters)
 
         if not traces:
             Msg.warning(self.__class__.__qualname__,
@@ -153,7 +186,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
             'IMAGE': Hdu(header_image, combined_image, name=rf'DET{det}.DATA'),
             'residuals': [t.residual for t in traces if t.residual is not None],
             'n_traces': len(traces),
-            'fwhm': measure_trace_fwhm(image, traces),
+            'fwhm': measure_trace_fwhm(trace_image, traces),
         }
 
     def process(self) -> set[DataItem]:
