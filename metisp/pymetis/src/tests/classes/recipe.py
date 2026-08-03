@@ -43,7 +43,10 @@ class BaseRecipeTest(ABC):
     """
     Recipe: type[Recipe] = None
 
-    @pytest.fixture(autouse=True)
+    # Deliberately not autouse: it reads a SOF from `$SOF_DIR`, and as autouse it made
+    # every test in the class need external data, including those that only inspect the
+    # recipe class. Tests that need frames request the fixture explicitly.
+    @pytest.fixture
     def frameset(self, load_frameset, sof) -> cpl.ui.FrameSet:
         return cpl.ui.FrameSet(load_frameset(sof))
 

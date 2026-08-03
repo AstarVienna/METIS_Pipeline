@@ -198,6 +198,8 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
         header_table = create_dummy_header()
         header_table.append(self._collect_qc(output))
+        self._verify_any_trace_found(output)
+
         header_reduced = create_dummy_header()
 
         product_distortion = self.ProductSet.DistortionTable(
@@ -210,6 +212,32 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         )
 
         return {product_distortion, product_distortion_reduced}
+
+    def _verify_any_trace_found(self, output: list[dict]) -> None:
+        """
+        Refuse to emit a distortion table that describes no slice at all.
+
+        Such a table is not a degraded calibration but an unusable one:
+        `metis_ifu_wavecal` turns it into an all-zero wavelength map and
+        `metis_ifu_rsrf` only fails on that two recipes later, far from the frames that
+        actually caused it. Stopping here names the culprit instead.
+
+        Raises
+        ------
+        cpl.core.DataNotFoundError
+            If no trace was found on any of the four detectors.
+        """
+        if any(out['n_traces'] > 0 for out in output):
+            return
+
+        raise cpl.core.DataNotFoundError(
+            f"No slice was traced on any of the four detectors, so the distortion table "
+            f"would be empty and no downstream recipe could use it. Either the raw "
+            f"frames carry no usable illumination, or the tracing parameters do not fit "
+            f"them: check {self.name}.trace.noise (the absolute threshold above the "
+            f"local background) and {self.name}.trace.min_cluster against the actual "
+            f"signal level and the detector size."
+        )
 
     def _collect_qc(self, output: list[dict]) -> cpl.core.PropertyList:
         """

@@ -17,6 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import types
+
+import cpl
 import pytest
 
 from pymetis.engine.recipes import Recipe, RecipeImpl
@@ -52,3 +55,23 @@ class TestProductSetDistortionTable(BaseProductSetTest):
 
 class TestProductSetDistortionReduced(BaseProductSetTest):
     Product = Impl.ProductSet.DistortionReduced
+
+
+class TestEmptyTraceGuard:
+    """The recipe must not emit a distortion table that describes no slice at all."""
+
+    #: All `_verify_any_trace_found` touches. Instantiating the real implementation
+    #: would need a complete input set with raw frames on disk, which says nothing
+    #: about the guard itself.
+    stub = types.SimpleNamespace(name=recipe_name)
+
+    @staticmethod
+    def output(*counts: int) -> list[dict]:
+        return [{'n_traces': count} for count in counts]
+
+    def test_raises_when_no_detector_yields_a_trace(self) -> None:
+        with pytest.raises(cpl.core.DataNotFoundError, match="No slice was traced"):
+            Impl._verify_any_trace_found(self.stub, self.output(0, 0, 0, 0))
+
+    def test_passes_when_a_single_detector_yields_a_trace(self) -> None:
+        Impl._verify_any_trace_found(self.stub, self.output(0, 1, 0, 0))
