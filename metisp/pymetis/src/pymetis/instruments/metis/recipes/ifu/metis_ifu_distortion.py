@@ -108,19 +108,47 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
             _default = None
             _description_template = "Number of identified spots"
 
+    @staticmethod
+    def _degree_or_best(value: str) -> int | Literal['best']:
+        """
+        Interpret a polynomial degree that may also be the string `best`.
+
+        `trace` lets a degree be chosen per cluster rather than fixed, which
+        `pyreduce`'s METIS IFU configuration asks for. CPL parameters are singly
+        typed, so the choice travels as a string.
+        """
+        text = str(value).strip()
+        if text == 'best':
+            return 'best'
+
+        try:
+            return int(text)
+        except ValueError:
+            raise cpl.core.IllegalInputError(
+                f"Expected an integer or 'best', but got {value!r}"
+            ) from None
+
     def _trace_parameters(self) -> dict:
         """Collect the tracing parameters from the recipe parameter list."""
         name = self.name
         return {
             'degree': int(self.parameters[f"{name}.trace.degree"].value),
+            'degree_before_merge': self._degree_or_best(
+                self.parameters[f"{name}.trace.degree_before_merge"].value),
             'min_cluster': int(self.parameters[f"{name}.trace.min_cluster"].value),
+            'min_width': float(self.parameters[f"{name}.trace.min_width"].value),
+            'filter_x': int(self.parameters[f"{name}.trace.filter_x"].value),
             'filter_y': int(self.parameters[f"{name}.trace.filter_y"].value),
+            'filter_type': str(self.parameters[f"{name}.trace.filter_type"].value),
             'noise': float(self.parameters[f"{name}.trace.noise"].value),
+            'noise_relative':
+                float(self.parameters[f"{name}.trace.noise_relative"].value),
             'border_width': int(self.parameters[f"{name}.trace.border_width"].value),
             'auto_merge_threshold':
                 float(self.parameters[f"{name}.trace.auto_merge_threshold"].value),
             'merge_min_threshold':
                 float(self.parameters[f"{name}.trace.merge_min_threshold"].value),
+            'sigma': float(self.parameters[f"{name}.trace.sigma"].value),
         }
 
     def _process_single_detector(self,
@@ -324,10 +352,35 @@ class MetisIfuDistortion(Recipe):
             max=5,
         ),
         ParameterValue(
+            name=f"{_name}.trace.degree_before_merge",
+            context=_name,
+            description="Polynomial degree used while rating candidate merges, where "
+                        "the fits are still poorly constrained. An integer, or 'best' "
+                        "to choose one per cluster",
+            default="best",
+        ),
+        ParameterValue(
             name=f"{_name}.trace.min_cluster",
             context=_name,
             description="Smallest acceptable cluster of illuminated pixels, in pixels",
             default=1000,
+        ),
+        ParameterRange(
+            name=f"{_name}.trace.min_width",
+            context=_name,
+            description="Smallest acceptable cluster extent along the dispersion "
+                        "direction, as a fraction of the detector width. "
+                        "0 disables the check",
+            default=0.25,
+            min=0.0,
+            max=1.0,
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.filter_x",
+            context=_name,
+            description="Smoothing width along the dispersion direction, applied "
+                        "before thresholding. 0 disables it",
+            default=0,
         ),
         ParameterValue(
             name=f"{_name}.trace.filter_y",
@@ -336,11 +389,26 @@ class MetisIfuDistortion(Recipe):
                         "used to estimate the local background",
             default=200,
         ),
+        ParameterEnum(
+            name=f"{_name}.trace.filter_type",
+            context=_name,
+            description="Smoothing kernel used to estimate the local background. "
+                        "'whittaker' preserves edges best, 'boxcar' is cheapest",
+            default="boxcar",
+            alternatives=("boxcar", "gaussian", "whittaker"),
+        ),
         ParameterValue(
             name=f"{_name}.trace.noise",
             context=_name,
             description="Absolute detection threshold above the local background",
             default=120.0,
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.noise_relative",
+            context=_name,
+            description="Detection threshold as a fraction of the local background. "
+                        "If this and the absolute threshold are both 0, 0.1% is used",
+            default=0.0,
         ),
         ParameterValue(
             name=f"{_name}.trace.border_width",
@@ -365,6 +433,13 @@ class MetisIfuDistortion(Recipe):
             default=0.01,
             min=0.0,
             max=1.0,
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.sigma",
+            context=_name,
+            description="If positive, split clusters that deviate from the common "
+                        "trace shape by more than this many standard deviations",
+            default=0.0,
         ),
     ])
 

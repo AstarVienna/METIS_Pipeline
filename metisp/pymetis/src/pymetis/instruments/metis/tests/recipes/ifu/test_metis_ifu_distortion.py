@@ -75,3 +75,20 @@ class TestEmptyTraceGuard:
 
     def test_passes_when_a_single_detector_yields_a_trace(self) -> None:
         Impl._verify_any_trace_found(self.stub, self.output(0, 1, 0, 0))
+
+
+class TestDegreeOrBest:
+    """`trace` accepts a fixed degree or `best`; CPL parameters are singly typed."""
+
+    @pytest.mark.parametrize("value, expected", [("2", 2), (2, 2), (" 3 ", 3), ("0", 0)])
+    def test_integers_come_back_as_integers(self, value, expected) -> None:
+        assert Impl._degree_or_best(value) == expected
+
+    @pytest.mark.parametrize("value", ["best", " best "])
+    def test_best_is_passed_through(self, value) -> None:
+        assert Impl._degree_or_best(value) == 'best'
+
+    @pytest.mark.parametrize("value", ["", "2.5", "worst", "best2"])
+    def test_anything_else_is_rejected(self, value) -> None:
+        with pytest.raises(cpl.core.IllegalInputError, match="integer or 'best'"):
+            Impl._degree_or_best(value)
