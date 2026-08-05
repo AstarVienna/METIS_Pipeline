@@ -43,13 +43,15 @@ Differences from upstream PyReduce
 
 Coordinate convention
 ---------------------
-Inherited from PyReduce and preserved here so this code can still be diffed against
-upstream: within this module `x` denotes the **row** index (the cross-dispersion
-coordinate, axis 0) and `y` denotes the **column** index (the dispersion coordinate,
-axis 1). Polynomials are therefore fitted as `x = P(y)`, that is, cross-dispersion
-position as a function of dispersion position. The resulting coefficients are stored
-in `Trace.pos` and evaluated by `Trace.y_at_x`, which uses the conventional
-(detector-independent) naming.
+`x` denotes the **column** index (the dispersion coordinate, axis 1) and `y` the
+**row** index (the cross-dispersion coordinate, axis 0). Polynomials are fitted as
+`y = P(x)`, that is, cross-dispersion position as a function of dispersion position.
+The resulting coefficients are stored in `Trace.pos` and evaluated by `Trace.y_at_x`,
+which uses the same naming.
+
+Note that upstream PyReduce has `x` and `y` the other way round, fitting `x = P(y)`.
+The numerical result is identical -- only the naming differs -- but it does mean this
+module can no longer be diffed against upstream line by line.
 """
 
 from functools import cmp_to_key
@@ -113,21 +115,22 @@ def whittaker_smooth(y: np.ndarray, lam: float, axis: int = 0) -> np.ndarray:
 
 def fit(x: np.ndarray, y: np.ndarray, deg: int | Literal['best']) -> np.ndarray:
     """
-    Fit `x = P(y)` and return the coefficients in `np.polyval` order.
+    Fit `y = P(x)` and return the coefficients in `np.polyval` order.
 
     Parameters
     ----------
     x : np.ndarray
-        Cross-dispersion (row) coordinates of the points to fit.
-    y : np.ndarray
         Dispersion (column) coordinates of the points to fit.
+    y : np.ndarray
+        Cross-dispersion (row) coordinates of the points to fit.
     deg : int | 'best'
         Polynomial degree, or `'best'` to select it by an Akaike-like criterion.
 
     Returns
     -------
     np.ndarray
-        Coefficients, highest power first, of shape `(deg + 1,)`.
+        Coefficients, highest power first, of shape `(deg + 1,)`. Evaluating them
+        with `np.polyval` at a column gives the trace's row, matching `Trace.y_at_x`.
     """
     if deg == 'best':
         return best_fit(x, y)
@@ -135,12 +138,12 @@ def fit(x: np.ndarray, y: np.ndarray, deg: int | Literal['best']) -> np.ndarray:
     # `coef` is ascending, so reverse it for np.polyval order. The copy matters:
     # reversing yields a negative-stride view, and pycpl reads the raw buffer when
     # storing an array into a cpl.core.Table, which would silently write garbage.
-    return np.ascontiguousarray(Polynomial.fit(y, x, deg=deg, domain=[]).coef[::-1])
+    return np.ascontiguousarray(Polynomial.fit(x, y, deg=deg, domain=[]).coef[::-1])
 
 
 def best_fit(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     """
-    Fit `x = P(y)`, choosing the degree that minimises `2 * k + chi squared`.
+    Fit `y = P(x)`, choosing the degree that minimises `2 * k + chi squared`.
 
     Tries degrees 0 to 4 and stops as soon as the criterion worsens.
     """
@@ -149,7 +152,7 @@ def best_fit(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 
     for k in range(5):
         coeff_new = fit(x, y, k)
-        chisq = np.sum((np.polyval(coeff_new, y) - x) ** 2)
+        chisq = np.sum((np.polyval(coeff_new, x) - y) ** 2)
         aic_new = 2 * k + chisq
         if aic_new > aic:
             break
@@ -176,14 +179,21 @@ def determine_overlap_rating(xi: np.ndarray,
     the size of the smaller cluster, which is what limits the accuracy of the fit,
     and penalised by the size of any gap between the two clusters.
 
+    Parameters
+    ----------
+    xi, yi : np.ndarray
+        Dispersion (column) and cross-dispersion (row) coordinates of cluster `i`.
+    xj, yj : np.ndarray
+        The same for cluster `j`.
+
     Returns
     -------
     tuple[float, list[int]]
         The overlap rating, and the `[start, end]` column range over which the two
         clusters were found to agree (`-1` where undetermined).
     """
-    i_left, i_right = yi.min(), yi.max()
-    j_left, j_right = yj.min(), yj.max()
+    i_left, i_right = xi.min(), xi.max()
+    j_left, j_right = xj.min(), xj.max()
 
     # The smaller cluster limits how well the fit is constrained
     n_min = min(i_right - i_left, j_right - j_left)
@@ -192,16 +202,16 @@ def determine_overlap_rating(xi: np.ndarray,
     order_j = fit(xj, yj, deg)
 
     # Evaluate both polynomials over both clusters' column spans
-    x_ii = np.polyval(order_i, np.arange(i_left, i_right))
-    x_ij = np.polyval(order_i, np.arange(j_left, j_right))
-    x_jj = np.polyval(order_j, np.arange(j_left, j_right))
-    x_ji = np.polyval(order_j, np.arange(i_left, i_right))
+    y_ii = np.polyval(order_i, np.arange(i_left, i_right))
+    y_ij = np.polyval(order_i, np.arange(j_left, j_right))
+    y_jj = np.polyval(order_j, np.arange(j_left, j_right))
+    y_ji = np.polyval(order_j, np.arange(i_left, i_right))
 
-    diff_i = np.abs(x_ii - x_ji)
-    diff_j = np.abs(x_ij - x_jj)
+    diff_i = np.abs(y_ii - y_ji)
+    diff_j = np.abs(y_ij - y_jj)
 
-    ind_i = np.where((diff_i < mean_cluster_thickness) & (x_ji >= 0) & (x_ji < nrow))
-    ind_j = np.where((diff_j < mean_cluster_thickness) & (x_ij >= 0) & (x_ij < nrow))
+    ind_i = np.where((diff_i < mean_cluster_thickness) & (y_ji >= 0) & (y_ji < nrow))
+    ind_j = np.where((diff_j < mean_cluster_thickness) & (y_ij >= 0) & (y_ij < nrow))
 
     overlap = min(n_min, len(ind_i[0])) + min(n_min, len(ind_j[0]))
     overlap /= 2 * n_min
@@ -226,20 +236,22 @@ def calculate_mean_cluster_thickness(x: dict[int, np.ndarray],
     """
     Estimate the typical cross-dispersion thickness of a cluster, in pixels.
 
-    Used as the tolerance when deciding whether two clusters lie on the same trace.
+    `x` and `y` hold the dispersion (column) and cross-dispersion (row) coordinates
+    of each cluster's pixels. Used as the tolerance when deciding whether two
+    clusters lie on the same trace.
     """
     cluster_thicknesses = []
 
     for cluster in x.keys():
-        y_coords = y[cluster]
-        x_coords = x[cluster]
+        columns = x[cluster]
+        rows = y[cluster]
 
         column_thicknesses = []
-        for col in np.unique(y_coords):
-            in_col = y_coords == col
+        for col in np.unique(columns):
+            in_col = columns == col
             if np.any(in_col):
-                x_in_col = x_coords[in_col]
-                column_thicknesses.append(x_in_col.max() - x_in_col.min())
+                rows_in_col = rows[in_col]
+                column_thicknesses.append(rows_in_col.max() - rows_in_col.min())
 
         if column_thicknesses:
             cluster_thicknesses.append(np.mean(column_thicknesses))
@@ -359,7 +371,8 @@ def merge_clusters(img: np.ndarray,
     img : np.ndarray
         The image the traces are based on. Only its shape is used.
     x, y : dict[int, np.ndarray]
-        Row and column coordinates of the pixels of each cluster, keyed by cluster id.
+        Dispersion (column) and cross-dispersion (row) coordinates of the pixels of
+        each cluster, keyed by cluster id.
     deg : int | 'best'
         Polynomial degree used when rating candidate merges. Kept lower than the
         final fit degree, since a partial cluster constrains a fit poorly.
@@ -408,7 +421,8 @@ def fit_polynomials_to_clusters(x: dict[int, np.ndarray],
     Parameters
     ----------
     x, y : dict[int, np.ndarray]
-        Row and column coordinates of the pixels of each cluster.
+        Dispersion (column) and cross-dispersion (row) coordinates of the pixels of
+        each cluster.
     clusters : list[int]
         Cluster ids to fit.
     degree : int | 'best'
@@ -438,10 +452,11 @@ def _centroid_residual(x: np.ndarray, y: np.ndarray, coefficients: np.ndarray) -
     RMS deviation, in pixels, of the measured mid-line from the fitted polynomial.
 
     The measured mid-line is the mean cross-dispersion position of the cluster's
-    pixels in each column that the cluster occupies.
+    pixels in each column that the cluster occupies. `x` holds the dispersion
+    (column) coordinates and `y` the cross-dispersion (row) ones.
     """
-    counts = np.bincount(y)
-    sums = np.bincount(y, weights=x)
+    counts = np.bincount(x)
+    sums = np.bincount(x, weights=y)
 
     occupied = counts > 0
     centroids = sums[occupied] / counts[occupied]
@@ -468,22 +483,22 @@ def _split_clusters_by_sigma(im: np.ndarray,
     """
     n_before = len(x)
 
-    degrees = {i: 1 if np.sum((np.polyval(np.polyfit(y[i], x[i], 1), y[i]) - x[i]) ** 2)
-               < np.sum((np.polyval(np.polyfit(y[i], x[i], 2), y[i]) - x[i]) ** 2)
+    degrees = {i: 1 if np.sum((np.polyval(np.polyfit(x[i], y[i], 1), x[i]) - y[i]) ** 2)
+               < np.sum((np.polyval(np.polyfit(x[i], y[i], 2), x[i]) - y[i]) ** 2)
                else 2
                for i in x.keys()}
     # Constant term per cluster, i.e. its offset from the common shape
-    bias = {i: np.polyfit(y[i], x[i], deg=degrees[i])[-1] for i in x.keys()}
+    bias = {i: np.polyfit(x[i], y[i], deg=degrees[i])[-1] for i in x.keys()}
 
     ids = list(x.keys())
-    yt = np.concatenate([y[i] for i in ids])
-    xt = np.concatenate([x[i] - bias[i] for i in ids])
+    xt = np.concatenate([x[i] for i in ids])
+    yt = np.concatenate([y[i] - bias[i] for i in ids])
     deg = 2 if degree_before_merge == 'best' else degree_before_merge
-    coef = np.polyfit(yt, xt, deg=deg)
+    coef = np.polyfit(xt, yt, deg=deg)
 
-    cutoff = sigma * (np.polyval(coef, yt) - xt).std()
+    cutoff = sigma * (np.polyval(coef, xt) - yt).std()
     keep = {
-        i: np.abs(np.polyval(coef, y[i]) - (x[i] - bias[i])) < cutoff
+        i: np.abs(np.polyval(coef, x[i]) - (y[i] - bias[i])) < cutoff
         for i in x.keys()
     }
 
@@ -496,14 +511,14 @@ def _split_clusters_by_sigma(im: np.ndarray,
         # Rejected pixels may themselves form a viable trace
         if np.any(rejected):
             new_img = np.zeros(im.shape, dtype=int)
-            new_img[x[i][rejected], y[i][rejected]] = 1
+            new_img[y[i][rejected], x[i][rejected]] = 1
             components, n_new = label(new_img)
 
             for j in range(1, n_new + 1):
-                xn = row_idx[components == j]
-                if xn.size >= min_cluster:
-                    x[next_id] = xn
-                    y[next_id] = col_idx[components == j]
+                yn = row_idx[components == j]
+                if yn.size >= min_cluster:
+                    x[next_id] = col_idx[components == j]
+                    y[next_id] = yn
                     next_id += 1
 
         x[i] = x[i][keep[i]]
@@ -553,16 +568,54 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
     of the intended values.
     """
     table = cpl.core.Table.empty(len(traces))
+    # TODO: the column name `orders` collides with two other meanings of the word and
+    #       should eventually be renamed. It is inherited from PyReduce, where a traced
+    #       feature *is* an echelle order, but here it means three different things at
+    #       once:
+    #         - the spectral (echelle) order, which is a real and unrelated quantity:
+    #           the frames carry `ESO INS OPTI8 ORDER` (31 for the 3.4 um setting);
+    #         - the traced feature itself, which for the METIS IFU is an image-slicer
+    #           slice, not an order at all;
+    #         - the polynomial order, which is what the column actually holds -- its
+    #           width is `degree + 1`, so raising the degree adds coefficients.
+    #       Upstream PyReduce has already dropped the name: its loader keeps only a
+    #       compatibility branch for the "old 'orders' key", and `save_traces` now
+    #       writes `POS` and `COL_RANGE`. Our own `Trace` dataclass likewise uses
+    #       `pos`, so the mismatch is only in this serialisation. Renaming to `pos`
+    #       needs a matching change in `traces_from_table` plus a fallback there, or
+    #       existing IFU_DISTORTION_TABLE files stop being readable.
     table.new_column_array('orders', cpl.core.Type.DOUBLE, degree + 1)
     table.new_column_array('column_range', cpl.core.Type.DOUBLE, 2)
+    # Measured illuminated extent, so consumers need not guess it back from the trace
+    # spacing. `has_edges` says whether a row's edges are real: NaN cannot be used as
+    # the marker, because although it survives to disk intact, CPL's table reader
+    # materialises an invalid array element as 0.0, which would look like a perfectly
+    # ordinary edge sitting at row zero.
+    table.new_column_array('bottom', cpl.core.Type.DOUBLE, degree + 1)
+    table.new_column_array('top', cpl.core.Type.DOUBLE, degree + 1)
+    table.new_column('has_edges', cpl.core.Type.INT)
+
+    unmeasured = np.full(degree + 1, np.nan)
 
     for row, t in enumerate(traces):
         if len(t.pos) != degree + 1:
             raise ValueError(f"Trace {t.m} has {len(t.pos)} coefficients, "
                              f"expected {degree + 1} for degree {degree}")
 
+        for name, coefficients in (('bottom', t.bottom), ('top', t.top)):
+            if coefficients is not None and len(coefficients) != degree + 1:
+                raise ValueError(
+                    f"Trace {t.m} has a {name} edge of {len(coefficients)} coefficients, "
+                    f"expected {degree + 1} for degree {degree}"
+                )
+
         table['orders', row] = np.ascontiguousarray(t.pos, dtype=float)
         table['column_range', row] = np.ascontiguousarray(t.column_range, dtype=float)
+        table['bottom', row] = np.ascontiguousarray(
+            unmeasured if t.bottom is None else t.bottom, dtype=float)
+        table['top', row] = np.ascontiguousarray(
+            unmeasured if t.top is None else t.top, dtype=float)
+        table['has_edges', row] = int(t.has_edges)
 
     return table
 
@@ -571,22 +624,27 @@ def traces_from_table(table: cpl.core.Table, ncol: int | None = None) -> list[Tr
     """
     Reconstruct traces from an `IFU_DISTORTION_TABLE` extension.
 
-    The inverse of `traces_to_table`. Note that the table stores only the mid-line and
-    the valid column range: the extraction height is not persisted, so it is recomputed
-    here from the spacing of neighbouring traces when `ncol` is supplied.
+    The inverse of `traces_to_table`.
 
     Parameters
     ----------
     table : cpl.core.Table
         A single detector's extension of the distortion table.
     ncol : int, optional
-        Detector width, needed to recompute the heights. Heights are left as `None`
-        if omitted.
+        Detector width, needed to recompute heights for traces without measured edges.
+        Those heights are left as `None` if omitted.
 
     Returns
     -------
     list[Trace]
         Traces ordered as stored, with `m` assigned by row index.
+
+    Notes
+    -----
+    The `bottom` and `top` edge columns were added after the first tables were written,
+    so a table without them still reads: the edges are left unset and the heights fall
+    back to the neighbour spacing, exactly as before. NaN coefficients mark a trace
+    whose edges could not be measured even in a table that has the columns.
     """
     if len(table) == 0:
         return []
@@ -594,15 +652,46 @@ def traces_from_table(table: cpl.core.Table, ncol: int | None = None) -> list[Tr
     coefficients = np.asarray(table.column_array('orders')[0], dtype=float)
     column_ranges = np.asarray(table.column_array('column_range')[0], dtype=float)
 
+    names = set(table.column_names)
+    has_edges = {'bottom', 'top'} <= names
+    edges = {
+        name: np.asarray(table.column_array(name)[0], dtype=float)
+        for name in ('bottom', 'top')
+    } if has_edges else {}
+    flags = (np.asarray(table.column_array('has_edges')[0]).ravel()
+             if 'has_edges' in names else None)
+
+    def edge(name: str, row: int) -> np.ndarray | None:
+        """The stored edge, or None where it was never measured."""
+        if flags is not None and not int(flags[row]):
+            return None
+
+        values = edges[name][row]
+        # Defence in depth for a table written without the flag: NaN is what was stored,
+        # zeros are what CPL hands back for it, and an edge lying on row 0 across the
+        # whole detector is not a physical trace either way.
+        if np.isnan(values).any() or not np.any(values):
+            return None
+
+        return np.ascontiguousarray(values)
+
     traces = [
         Trace(m=row,
               pos=np.ascontiguousarray(coefficients[row]),
-              column_range=(int(column_ranges[row][0]), int(column_ranges[row][1])))
+              column_range=(int(column_ranges[row][0]), int(column_ranges[row][1])),
+              bottom=edge('bottom', row) if has_edges else None,
+              top=edge('top', row) if has_edges else None)
         for row in range(len(table))
     ]
 
-    if ncol is not None:
-        compute_heights(traces, ncol)
+    for t in traces:
+        if t.has_edges:
+            mid = 0.5 * (t.column_range[0] + t.column_range[1])
+            t.height = float(t.height_at_x(mid))
+
+    # Only traces without measured edges need the neighbour-spacing estimate
+    if ncol is not None and any(not t.has_edges for t in traces):
+        compute_heights([t for t in traces if not t.has_edges], ncol)
 
     return traces
 
@@ -713,6 +802,105 @@ def measure_trace_fwhm(im: np.ndarray,
     return float(np.median(widths))
 
 
+def measure_trace_edges(im: np.ndarray,
+                        traces: list[Trace],
+                        degree: int | Literal['best'] | None = None,
+                        n_bands: int = 9,
+                        half_window: int = 25,
+                        min_bands: int = 3) -> None:
+    """
+    Measure the illuminated extent of each trace from the image and fit its edges.
+
+    Sets `Trace.bottom`, `Trace.top` and `Trace.height` in place. This is the
+    measurement the DRLD implies for the extraction aperture: the edges come from where
+    the cross-dispersion profile falls to half its height above the local background,
+    rather than from the spacing to the neighbouring traces, which is all
+    `compute_heights` can offer once the image is gone.
+
+    Parameters
+    ----------
+    im : np.ndarray
+        The image the traces were detected in, `[nrow, ncol]`.
+    traces : list[Trace]
+        Traces to measure. Modified in place; those whose edges cannot be measured keep
+        `bottom`/`top` of `None`.
+    degree : int | 'best', optional
+        Polynomial degree of the edge fits. Defaults to the degree of each trace's own
+        mid-line, since an edge curves much as the centre does.
+    n_bands : int
+        Number of column bands spread across each trace's valid column range.
+    half_window : int
+        Half-width, in columns, of each band. As in `measure_trace_fwhm`, a median over
+        neighbouring columns suppresses noise without smearing a near-horizontal trace.
+    min_bands : int
+        Fewest successful bands that will still be fitted. A polynomial of degree `d`
+        needs `d + 1` points, and this is checked against that too.
+
+    Notes
+    -----
+    The reach of each measurement is bounded by `_measurement_reach`, i.e. half the
+    distance to the nearest neighbour, so an edge fit cannot wander into the adjacent
+    slice even where two slices nearly touch.
+    """
+    if not traces:
+        return
+
+    nrow, ncol = im.shape
+    image = np.asarray(im, dtype=float)
+
+    # Profiles are cached per band, since every trace is measured in the same bands
+    band_centres = np.unique(np.clip((np.linspace(0.1, 0.9, n_bands) * ncol).astype(int),
+                                     0, ncol - 1))
+    profiles = {}
+    for x in band_centres:
+        columns = slice(max(int(x) - half_window, 0), min(int(x) + half_window, ncol))
+        profiles[int(x)] = np.median(image[:, columns], axis=1)
+
+    for i, t in enumerate(traces):
+        xs, bottoms, tops = [], [], []
+
+        for x in band_centres:
+            if not (t.column_range[0] <= x < t.column_range[1]):
+                continue
+
+            # Neighbour spacing is evaluated at this column, not at the detector centre
+            centres = [other.y_at_x(x) for other in traces]
+            centre = centres[i]
+            if not 0 <= centre < nrow:
+                continue
+
+            edges = _half_maximum_edges(profiles[int(x)], centre,
+                                        _measurement_reach(centres, i, t.height))
+            if edges is None:
+                continue
+
+            xs.append(float(x))
+            bottoms.append(edges[0])
+            tops.append(edges[1])
+
+        deg = t.degree if degree is None else degree
+        needed = max(min_bands, (deg + 1) if isinstance(deg, int) else 1)
+
+        if len(xs) < needed:
+            Msg.debug('measure_trace_edges',
+                      f"Trace {t.m}: only {len(xs)} of {len(band_centres)} bands gave a "
+                      f"bounded profile, need {needed}; edges left unmeasured")
+            continue
+
+        x_arr = np.asarray(xs)
+        t.bottom = fit(x_arr, np.asarray(bottoms), deg)
+        t.top = fit(x_arr, np.asarray(tops), deg)
+        # Evaluated at the midpoint of the column range rather than averaged over the
+        # bands, so that a trace read back from the table reports the same height as the
+        # one that was written -- `traces_from_table` has only the polynomials to work
+        # from and derives the height the same way.
+        t.height = float(t.height_at_x(0.5 * (t.column_range[0] + t.column_range[1])))
+
+    measured = sum(1 for t in traces if t.has_edges)
+    Msg.info('measure_trace_edges',
+             f"Measured edges for {measured} of {len(traces)} traces")
+
+
 def _measurement_reach(centres: list[float], index: int, height: float | None) -> int:
     """
     How far either side of a trace to look when measuring its width, in pixels.
@@ -731,11 +919,11 @@ def _measurement_reach(centres: list[float], index: int, height: float | None) -
     return max(int(round(height)) if height else 20, 2)
 
 
-def _half_maximum_width(profile: np.ndarray,
+def _half_maximum_edges(profile: np.ndarray,
                         centre: float,
-                        reach: int) -> float | None:
+                        reach: int) -> tuple[float, float] | None:
     """
-    Width of a feature at half its height above the local background, in pixels.
+    Positions where a feature falls to half its height above the local background.
 
     Parameters
     ----------
@@ -748,10 +936,11 @@ def _half_maximum_width(profile: np.ndarray,
 
     Returns
     -------
-    float | None
-        The width, or `None` if the profile does not fall to the half level on both
-        sides within `reach`, which means the feature is not bounded by the window and
-        no width can be attributed to it.
+    tuple[float, float] | None
+        The lower and upper crossing, in cross-dispersion pixels, or `None` if the
+        profile does not fall to the half level on both sides within `reach`, which
+        means the feature is not bounded by the window and no extent can be attributed
+        to it.
     """
     low = max(int(np.floor(centre)) - reach, 0)
     high = min(int(np.ceil(centre)) + reach + 1, profile.size)
@@ -780,11 +969,24 @@ def _half_maximum_width(profile: np.ndarray,
             position = nxt
         return None
 
-    left, right = crossing(-1), crossing(+1)
-    if left is None or right is None:
+    bottom, top = crossing(-1), crossing(+1)
+    if bottom is None or top is None:
         return None
 
-    return float(right - left)
+    return float(bottom), float(top)
+
+
+def _half_maximum_width(profile: np.ndarray,
+                        centre: float,
+                        reach: int) -> float | None:
+    """
+    Width of a feature at half its height above the local background, in pixels.
+
+    A thin wrapper over `_half_maximum_edges`, which locates the two crossings this
+    width is the distance between.
+    """
+    edges = _half_maximum_edges(profile, centre, reach)
+    return None if edges is None else float(edges[1] - edges[0])
 
 
 def trace(im: np.ndarray,
@@ -991,8 +1193,10 @@ def trace(im: np.ndarray,
 
     ids = np.unique(clusters)
     ids = ids[ids != 0]
-    x = {i: np.where(clusters == c)[0] for i, c in enumerate(ids)}
-    y = {i: np.where(clusters == c)[1] for i, c in enumerate(ids)}
+    # x is the dispersion (column, axis 1) coordinate throughout, y the
+    # cross-dispersion (row, axis 0) one, so that every fit reads as y = P(x)
+    x = {i: np.where(clusters == c)[1] for i, c in enumerate(ids)}
+    y = {i: np.where(clusters == c)[0] for i, c in enumerate(ids)}
 
     if n_too_small > 0:
         Msg.info('trace',
@@ -1025,7 +1229,7 @@ def trace(im: np.ndarray,
     # Discard clusters spanning too little of the dispersion direction
     if min_width > 0:
         n_before = len(x)
-        for k in [k for k, v in y.items() if v.max() - v.min() <= min_width]:
+        for k in [k for k, v in x.items() if v.max() - v.min() <= min_width]:
             del x[k], y[k]
         ids = list(x.keys())
 
@@ -1045,18 +1249,18 @@ def trace(im: np.ndarray,
     # Sort from the bottom of the detector upwards. Traces are compared over the
     # columns they share, since a mean over disjoint spans is not meaningful.
     def compare(i, j):
-        _, xi, i_left, i_right = i
-        _, xj, j_left, j_right = j
+        _, yi, i_left, i_right = i
+        _, yj, j_left, j_right = j
 
         if i_right < j_left or j_right < i_left:
-            return xi.mean() - xj.mean()
+            return yi.mean() - yj.mean()
 
         left, right = max(i_left, j_left), min(i_right, j_right)
-        return xi[left:right].mean() - xj[left:right].mean()
+        return yi[left:right].mean() - yj[left:right].mean()
 
     columns = np.arange(ncol)
     keys = sorted(
-        [(c, np.polyval(coefficients[c], columns), y[c].min(), y[c].max())
+        [(c, np.polyval(coefficients[c], columns), x[c].min(), x[c].max())
          for c in x.keys()],
         key=cmp_to_key(compare),
     )
@@ -1064,7 +1268,7 @@ def trace(im: np.ndarray,
     traces = [
         Trace(m=m,
               pos=coefficients[cluster_id],
-              column_range=(int(y[cluster_id].min()), int(y[cluster_id].max()) + 1),
+              column_range=(int(x[cluster_id].min()), int(x[cluster_id].max()) + 1),
               residual=residuals[cluster_id])
         for m, (cluster_id, _, _, _) in enumerate(keys)
     ]

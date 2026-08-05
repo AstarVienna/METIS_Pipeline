@@ -28,6 +28,11 @@ ifu_distortion_task = (task("metis_ifu_distortion")
                    .with_associated_input(ifu_lingain_task, [linearity_ifu_class, gain_map_ifu_class])
                    .with_associated_input(persistence_map, min_ret=0)
                    .with_associated_input(pinhole_table)
+                   # Optional continuum reference: the slice extent cannot be measured
+                   # from a pinhole exposure, so without this the distortion table's
+                   # edge columns stay empty and metis_ifu_wavecal falls back on the
+                   # slice spacing. min_ret=0 keeps a DRLD-conformant set working.
+                   .with_associated_input(ifu_rsrf_raw, min_ret=0)
                    .with_associated_input(ifu_dark_task, [master_dark_ifu_class])
                    .with_input_filter(linearity_ifu_class, gain_map_ifu_class, master_dark_ifu_class, persistence_map_class, pinhole_table_class)
                    .build())

@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import cpl
 
-from pymetis.engine.dataitems import ImageDataItem
+from pymetis.engine.dataitems import ImageDataItem, TableDataItem
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
 from cpl.core import Table, Image
 
@@ -47,4 +47,29 @@ class IfuWavecal(DetectorIfuMixin, ImageDataItem):
         'PRIMARY': None,
     } | {
         fr'DET{det:1d}': Image for det in range(1, 5)
+    }
+
+
+class IfuWavecalTab(DetectorIfuMixin, TableDataItem):
+    """
+    The wavelength solution as fitted, one row per slice, beside the pixel map.
+
+    `IfuWavecal` records only the outcome -- a wavelength per pixel -- which cannot say
+    which slices were actually solved from measured lines and which fell back on the
+    approximate dispersion model. That distinction currently survives only as a log
+    warning, so it is carried here in the `fallback` column along with the coefficients
+    and the fit residual.
+    """
+    _name_template = r'IFU_WAVECAL_TAB'
+    _title_template = "IFU wave calibration table"
+    _description_template = ("Table of per-slice wavelength solutions: polynomial "
+                             "coefficients, fit residual and provenance.")
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
+
+    _schema = {
+        'PRIMARY': None,
+    } | {
+        fr'DET{det:1d}': Table for det in range(1, 5)
     }

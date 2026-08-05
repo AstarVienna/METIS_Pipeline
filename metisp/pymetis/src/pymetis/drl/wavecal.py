@@ -31,6 +31,7 @@ uses for slit curvature (`pyreduce.slit_curve.Curvature._extract_offset_spectra`
 
 from dataclasses import dataclass, field
 
+import cpl
 import numpy as np
 from cpl.core import Msg
 
@@ -476,3 +477,65 @@ def build_wavelength_map(shape: tuple[int, int],
         )
 
     return wavelength_map
+
+
+def solutions_to_table(solutions: list[SliceSolution]) -> cpl.core.Table:
+    """
+    Serialise per-slice wavelength solutions into the `IFU_WAVECAL_TAB` layout.
+
+    One row per slice, holding the flattened `lambda(x, dy)` coefficients together with
+    the information the wavelength map cannot carry: how well the fit did, how many
+    lines it rested on, and whether it is a real fit at all.
+
+    Parameters
+    ----------
+    solutions : list[SliceSolution]
+        Solutions to serialise, in slice order. May be empty, in which case an empty
+        table with the correct columns is returned.
+
+    Returns
+    -------
+    cpl.core.Table
+        The wavelength solution table for a single detector.
+
+    Notes
+    -----
+    `coefficients` is stored flattened in C order with its shape recorded in
+    `degree_dispersion` and `degree_spatial`, since a CPL array column is
+    one-dimensional. The width is fixed by the largest solution present, so that slices
+    which fell back to a lower degree still fit; unused entries are NaN.
+
+    The `fallback` column is the point of the product. A slice that fell back on the
+    approximate dispersion model produces a perfectly ordinary-looking wavelength map,
+    and until now that fact survived only as a log warning.
+    """
+    shapes = [s.coefficients.shape for s in solutions if s.coefficients is not None]
+    width = max((int(np.prod(shape)) for shape in shapes), default=1)
+
+    table = cpl.core.Table.empty(len(solutions))
+    table.new_column('slice', cpl.core.Type.INT)
+    table.new_column('degree_dispersion', cpl.core.Type.INT)
+    table.new_column('degree_spatial', cpl.core.Type.INT)
+    table.new_column('n_lines', cpl.core.Type.INT)
+    table.new_column('n_identified', cpl.core.Type.INT)
+    table.new_column('rms', cpl.core.Type.DOUBLE)
+    table.new_column('fallback', cpl.core.Type.INT)
+    table.new_column_array('coefficients', cpl.core.Type.DOUBLE, width)
+
+    for row, solution in enumerate(solutions):
+        padded = np.full(width, np.nan)
+        if solution.coefficients is not None:
+            flat = np.asarray(solution.coefficients, dtype=float).ravel()
+            padded[:flat.size] = flat
+
+        table['slice', row] = int(solution.index)
+        table['degree_dispersion', row] = int(solution.degree[0])
+        table['degree_spatial', row] = int(solution.degree[1])
+        table['n_lines', row] = int(len(solution.lines))
+        table['n_identified', row] = int(solution.n_identified)
+        table['rms', row] = float('nan') if solution.rms is None else float(solution.rms)
+        # CPL tables have no boolean column type
+        table['fallback', row] = int(solution.fallback)
+        table['coefficients', row] = np.ascontiguousarray(padded, dtype=float)
+
+    return table

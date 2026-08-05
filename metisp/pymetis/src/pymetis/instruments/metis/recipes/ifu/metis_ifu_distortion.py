@@ -30,7 +30,8 @@ from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.drl.combine import combine_images
-from pymetis.drl.trace import measure_trace_fwhm, trace, traces_to_table
+from pymetis.drl.trace import (measure_trace_edges, measure_trace_fwhm, trace,
+                               traces_to_table)
 
 from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput,
                                               PinholeTableInput, GainMapInput, LinearityInput)
@@ -151,6 +152,50 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
             'sigma': float(self.parameters[f"{name}.trace.sigma"].value),
         }
 
+    #: WCU focal-plane mask position recorded for a frame taken with no mask in the beam
+    OPEN_MASK = 'open'
+
+    def _continuum_frames(self, reference) -> list[int]:
+        """
+        Indices of the trace-reference frames that are continuum-illuminated.
+
+        `IFU_RSRF_RAW` classifies both the continuum flat and the pinhole-grid exposure:
+        they share `DPR TYPE=RSRF`, `TECH=IFU` and `CATG=CALIB`, and the only keyword
+        separating them is the WCU mask position, `ESO INS OPTI20 POSNAME` (`open` versus
+        `grid_lm`). Tracing a grid frame here would defeat the purpose, since its
+        cross-dispersion profile has the width of a spot rather than of a slice, so the
+        grid frames are dropped rather than averaged in.
+
+        Returns
+        -------
+        list[int]
+            Positions within `reference.frameset`, empty if none qualify.
+        """
+        if not reference.frameset:
+            return []
+
+        continuum = []
+        for index, frame in enumerate(reference.frameset):
+            header = cpl.core.PropertyList.load(frame.file, 0)
+            keyword = 'ESO INS OPTI20 POSNAME'
+
+            if keyword not in header:
+                Msg.warning(self.__class__.__qualname__,
+                            f"{frame.file}: no {keyword}, so it cannot be told apart "
+                            f"from a pinhole-grid exposure; not used for tracing")
+                continue
+
+            if str(header[keyword].value).strip() == self.OPEN_MASK:
+                continuum.append(index)
+
+        dropped = len(reference.frameset) - len(continuum)
+        if dropped:
+            Msg.info(self.__class__.__qualname__,
+                     f"Ignoring {dropped} trace-reference frame(s) taken through a "
+                     f"focal-plane mask; only unmasked frames show whole slices")
+
+        return continuum
+
     def _process_single_detector(self,
                                  detector: Literal[1, 2, 3, 4],
                                  method: str,
@@ -184,12 +229,19 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         # Trace the continuum frame when one was supplied, since a pinhole exposure holds
         # no continuous slices to trace. See TraceReferenceInput for why this is optional.
         reference = self.inputset.trace_reference
-        if reference.frameset:
+        continuum = self._continuum_frames(reference)
+
+        if continuum:
             reference_images = reference.use().load_data(extension=rf'DET{det}.DATA')
-            trace_image = combine_images(reference_images, method).as_array()
+            selected = cpl.core.ImageList()
+            for index in continuum:
+                selected.append(reference_images[index])
+
+            trace_image = combine_images(selected, method).as_array()
             Msg.info(self.__class__.__qualname__,
-                     f"DET{det}: tracing the {reference.Item.name()} frames rather than "
-                     f"the pinhole exposure")
+                     f"DET{det}: tracing {len(continuum)} of "
+                     f"{len(reference.frameset)} {reference.Item.name()} frames rather "
+                     f"than the pinhole exposure")
         else:
             trace_image = combined_image.as_array()
 
@@ -200,6 +252,37 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
             Msg.warning(self.__class__.__qualname__,
                         f"No traces detected on DET{det}; "
                         f"its distortion table will be empty")
+
+        # Measure the illuminated extent on the same frame the traces came from, so that
+        # consumers read the aperture off the table instead of guessing it back from the
+        # spacing between mid-lines.
+        #
+        # Only a continuum-illuminated frame can give this. A pinhole exposure lights a
+        # row of spots rather than the whole slice, so its cross-dispersion profile has
+        # the width of a spot -- about 3 px on the simulated data, against a slice height
+        # of order 114 px. Measuring it there would hand `metis_ifu_wavecal` an aperture
+        # 40x too small, which is worse than the spacing estimate it falls back on. The
+        # edges are therefore left unset unless a continuum reference frame was supplied.
+        if reference.frameset:
+            measure_trace_edges(trace_image, traces, degree=trace_parameters['degree'])
+        else:
+            Msg.info(self.__class__.__qualname__,
+                     f"DET{det}: tracing a pinhole exposure, so the slice extent cannot "
+                     f"be measured from it; the distortion table will carry no edges and "
+                     f"consumers will fall back on the slice spacing")
+
+        # `QC IFU DISTORT NSPOTS` and `FWHM` are defined by the DRLD on the *pinhole*
+        # exposure: the number of identified spots, and a spot width that "gives an
+        # indication of the variation of spectral resolution across the field of view".
+        # Neither is a property of the continuum frame, whose features are slices tens of
+        # pixels tall, so when the solution came from a continuum reference the pinhole
+        # exposure is traced separately for these two numbers. With no reference frame
+        # both come from the one trace already done.
+        if continuum:
+            pinhole_image = combined_image.as_array()
+            spots = trace(pinhole_image, **trace_parameters)
+        else:
+            pinhole_image, spots = trace_image, traces
 
         table = traces_to_table(traces, trace_parameters['degree'])
 
@@ -213,8 +296,11 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
             'TABLE': Hdu(header_table, table, name=rf'DET{det}'),
             'IMAGE': Hdu(header_image, combined_image, name=rf'DET{det}.DATA'),
             'residuals': [t.residual for t in traces if t.residual is not None],
+            # The guard and the RMS follow the solution; the spot count and width follow
+            # the pinhole exposure, which is what the DRLD defines them on
             'n_traces': len(traces),
-            'fwhm': measure_trace_fwhm(trace_image, traces),
+            'n_spots': len(spots),
+            'fwhm': measure_trace_fwhm(pinhole_image, spots),
         }
 
     def process(self) -> set[DataItem]:
@@ -271,16 +357,22 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         """
         Summarise the per-detector tracing results into quality control parameters.
 
-        `NSPOTS` counts the traces found across the whole detector array. `RMS` pools
-        the per-trace deviations of the measured mid-line from the fitted one. `FWHM`
-        is the median cross-dispersion width of the traces, which indicates how the
-        spectral resolution varies across the field of view.
+        `NSPOTS` counts the spots identified in the pinhole exposure across the whole
+        detector array, and `FWHM` is their median width, which indicates how the
+        spectral resolution varies across the field of view. Both are measured on the
+        pinhole frame even when the distortion solution itself came from a continuum
+        reference, since neither quantity exists on a continuum frame: its features are
+        slices, and counting those would report the slice count under a keyword that the
+        DRLD defines as a number of spots.
+
+        `RMS` pools the per-trace deviations of the measured mid-line from the fitted
+        one, and so follows the solution rather than the pinhole exposure.
 
         `RMS` and `FWHM` are undefined when no trace was detected. Their keywords are
         then left out of the header altogether, rather than filled with a placeholder
         that a consumer could mistake for a measurement.
         """
-        n_traces = sum(out['n_traces'] for out in output)
+        n_spots = sum(out['n_spots'] for out in output)
 
         residuals = [r for out in output for r in out['residuals']]
         rms = float(np.sqrt(np.mean(np.square(residuals)))) if residuals else None
@@ -288,13 +380,13 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         fwhms = [out['fwhm'] for out in output if out['fwhm'] is not None]
         fwhm = float(np.median(fwhms)) if fwhms else None
 
-        qc = [self.Qc.NSpots(n_traces)]
+        qc = [self.Qc.NSpots(n_spots)]
         if rms is not None:
             qc.append(self.Qc.Rms(rms))
         if fwhm is not None:
             qc.append(self.Qc.Fwhm(fwhm))
 
-        Msg.info(self.__class__.__qualname__, f"QC IFU DISTORT NSPOTS = {n_traces}")
+        Msg.info(self.__class__.__qualname__, f"QC IFU DISTORT NSPOTS = {n_spots}")
         Msg.info(self.__class__.__qualname__, f"QC IFU DISTORT RMS = {rms}")
         Msg.info(self.__class__.__qualname__, f"QC IFU DISTORT FWHM = {fwhm}")
 
@@ -317,7 +409,29 @@ class MetisIfuDistortion(Recipe):
         "detectors and describes each one by a polynomial, producing a table of "
         "distortion coefficients that maps detector position to position on sky.\n"
         "Slit tilt is not determined yet; that requires a line-rich calibration "
-        "frame, which this recipe does not receive."
+        "frame, which this recipe does not receive.\n"
+        "\n"
+        "KNOWN DEVIATIONS FROM THE DRLD\n"
+        "1. Input list. The DRLD gives this recipe only the multi-pinhole exposure, "
+        "but the algorithm it prescribes locates slices by thresholding a "
+        "continuum-illuminated frame, which a pinhole exposure is not: its features "
+        "are isolated spots a few pixels across, not slice-long bands. An "
+        "IFU_RSRF_RAW frame is therefore accepted as an optional additional input and "
+        "traced in preference to the pinhole exposure. This is a deliberate deviation, "
+        "agreed in review (PR #220) as the DRLD input list being at fault, and it is "
+        "what makes the measured slice edges below possible at all. Without such a "
+        "frame the recipe behaves exactly as the DRLD describes.\n"
+        "2. Additional table columns. The distortion table carries `bottom` and `top` "
+        "edge polynomials, and a `has_edges` flag, beyond the mid-line and column "
+        "range the DRLD specifies. They record the measured illuminated extent of each "
+        "slice so that metis_ifu_wavecal need not guess it back from the slice "
+        "spacing. Readers that do not know the columns are unaffected, and tables "
+        "written without them are still read.\n"
+        "\n"
+        "QC IFU DISTORT NSPOTS and FWHM are always measured on the pinhole exposure, "
+        "as the DRLD defines them, even when the solution came from a continuum frame: "
+        "a continuum frame shows slices rather than spots, so counting its features "
+        "would report a slice count under a keyword defined as a number of spots."
     )
 
     _matched_keywords = {'DRS.IFU'}

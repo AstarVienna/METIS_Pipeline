@@ -53,9 +53,17 @@ class Trace:
         (highest power first). Shape `(degree + 1,)`.
     column_range : tuple[int, int]
         Valid dispersion-coordinate range `[start, end)` for this trace.
+    bottom, top : np.ndarray | None
+        Coefficients of the lower and upper edge of the trace, `y(x)`, in the same
+        `np.polyval` order and shape as `pos`. Measured from the image where the
+        cross-dispersion profile falls to half its height above the local background,
+        so they describe the illuminated extent rather than the spacing to the
+        neighbours. `None` when the edges could not be measured.
     height : float | None
-        Extraction aperture height in pixels, derived from the distance to the
-        neighbouring traces. `None` if it could not be determined.
+        Extraction aperture height in pixels. Derived from `bottom`/`top` when those
+        are present, otherwise from the distance to the neighbouring traces. `None` if
+        it could not be determined. A single number cannot express an extent that
+        varies along the dispersion direction, so prefer the edges where available.
     residual : float | None
         RMS deviation, in pixels, between the fitted mid-line and the pixels it was
         fitted to. Feeds the `QC IFU DISTORT RMS` quality control parameter.
@@ -72,6 +80,8 @@ class Trace:
     m: int | None
     pos: np.ndarray
     column_range: tuple[int, int]
+    bottom: np.ndarray | None = None
+    top: np.ndarray | None = None
     height: float | None = None
     residual: float | None = None
     slit: np.ndarray | None = None
@@ -81,6 +91,39 @@ class Trace:
     def degree(self) -> int:
         """Polynomial degree of the trace mid-line."""
         return len(self.pos) - 1
+
+    @property
+    def has_edges(self) -> bool:
+        """Whether measured edge polynomials are available for this trace."""
+        return self.bottom is not None and self.top is not None
+
+    def bottom_at_x(self, x: np.ndarray | float) -> np.ndarray | None:
+        """
+        Evaluate the lower edge of the trace at the given dispersion coordinates.
+
+        Returns `None` if the edges were never measured, in which case the caller must
+        fall back on `height` about `y_at_x`.
+        """
+        return None if self.bottom is None else np.polyval(self.bottom, x)
+
+    def top_at_x(self, x: np.ndarray | float) -> np.ndarray | None:
+        """
+        Evaluate the upper edge of the trace at the given dispersion coordinates.
+
+        Returns `None` if the edges were never measured.
+        """
+        return None if self.top is None else np.polyval(self.top, x)
+
+    def height_at_x(self, x: np.ndarray | float) -> np.ndarray | float | None:
+        """
+        Cross-dispersion extent of the trace at the given dispersion coordinates.
+
+        Uses the measured edges where available, so the extent may vary along the
+        detector; falls back on the constant `height` otherwise.
+        """
+        if self.has_edges:
+            return np.polyval(self.top, x) - np.polyval(self.bottom, x)
+        return self.height
 
     def y_at_x(self, x: np.ndarray | float) -> np.ndarray:
         """

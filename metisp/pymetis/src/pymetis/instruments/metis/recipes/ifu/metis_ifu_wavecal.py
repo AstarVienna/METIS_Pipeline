@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import copy
 from typing import Literal
 
 import cpl
@@ -33,9 +34,10 @@ from pymetis.engine.recipes import Recipe
 from pymetis.drl.combine import combine_images
 from pymetis.drl.trace import traces_from_table
 from pymetis.drl.wavecal import (SliceSolution, build_wavelength_map, linear_solution,
-                                 solve_slice)
+                                 solutions_to_table, solve_slice)
 
-from pymetis.instruments.metis.dataitems.wavecal import IfuWavecalRaw, IfuWavecal
+from pymetis.instruments.metis.dataitems.wavecal import (IfuWavecalRaw, IfuWavecal,
+                                                         IfuWavecalTab)
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.inputs import (MasterDarkInput, RawInput, DistortionTableInput, OptionalInputMixin,
                                               PersistenceMapInput, GainMapInput, LinearityInput)
@@ -73,6 +75,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
 
     class ProductSet(PipelineProductSet):
         IfuWavecal = IfuWavecal
+        IfuWavecalTab = IfuWavecalTab
 
     class Qc(QcParameterSet):
         class NLines(QcParameter):
@@ -148,6 +151,89 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
                  f"{self.name}.lines.wavelengths parameter: {wavelengths} um")
         return wavelengths
 
+    @staticmethod
+    def _slice_spacings(traces: list, nrow: int) -> list[float]:
+        """
+        Distance to the nearest neighbouring slice, per trace, in pixels.
+
+        Used only as the ceiling on how far a slice may be broadened: reaching past the
+        neighbour would paint one slice's wavelengths onto another's pixels.
+        """
+        if len(traces) < 2:
+            return [float(nrow)] * len(traces)
+
+        mids = [0.5 * (t.column_range[0] + t.column_range[1]) for t in traces]
+        centres = [float(t.y_at_x(mid)) for t, mid in zip(traces, mids)]
+
+        spacings = []
+        for i, centre in enumerate(centres):
+            neighbours = [abs(centres[j] - centre)
+                          for j in (i - 1, i + 1) if 0 <= j < len(centres)]
+            spacings.append(min(neighbours))
+
+        return spacings
+
+    def _slice_heights(self, traces: list, nrow: int) -> list[float]:
+        """
+        Cross-dispersion extent to extract for each slice, in pixels.
+
+        Prefers the extent measured on the distortion frame and stored in the table.
+        Only when a table predates those columns does this fall back on the spacing of
+        neighbouring slices scaled by `slices.fill_factor` -- that spacing includes the
+        unilluminated gap between slices, and painting a wavelength into the gaps would
+        make `metis_ifu_rsrf` treat those pixels as valid data.
+
+        The measured extent is the width at half maximum, so the slice carries signal a
+        little beyond it. `slices.broadening` widens the extracted band to cover those
+        wings, because a pixel left without a wavelength is a pixel `metis_ifu_rsrf`
+        cannot use. The broadened band is capped at the distance to the nearest
+        neighbour, which is the point at which it would start describing the wrong slice.
+
+        Returns
+        -------
+        list[float]
+            One height per trace, in the order given.
+        """
+        measured = [t for t in traces if t.has_edges]
+        broadening = float(self.parameters[f"{self.name}.slices.broadening"].value)
+        spacings = self._slice_spacings(traces, nrow)
+
+        def broadened(trace, spacing: float) -> float:
+            """Measured extent, widened to catch the wings but not the neighbour."""
+            mid = 0.5 * (trace.column_range[0] + trace.column_range[1])
+            extent = float(trace.height_at_x(mid)) * (1.0 + broadening)
+            return min(extent, spacing)
+
+        if len(measured) == len(traces):
+            heights = [broadened(t, s) for t, s in zip(traces, spacings)]
+            Msg.info(self.__class__.__qualname__,
+                     f"Using the measured slice extent from the distortion table for all "
+                     f"{len(traces)} slices, broadened by {broadening:.0%} to "
+                     f"a median of {float(np.median(heights)):.1f} px")
+            return heights
+
+        fill_factor = float(self.parameters[f"{self.name}.slices.fill_factor"].value)
+        if measured:
+            Msg.warning(self.__class__.__qualname__,
+                        f"Only {len(measured)} of {len(traces)} slices carry a measured "
+                        f"extent; falling back to the slice spacing scaled by "
+                        f"fill_factor={fill_factor} for the rest")
+        else:
+            Msg.info(self.__class__.__qualname__,
+                     f"The distortion table carries no measured slice extent, so the "
+                     f"spacing scaled by fill_factor={fill_factor} is used instead")
+
+        heights = []
+        for t, spacing in zip(traces, spacings):
+            if t.has_edges:
+                heights.append(broadened(t, spacing))
+            else:
+                # fill_factor already shrinks the spacing deliberately, so broadening it
+                # again would just undo that
+                heights.append(fill_factor * (t.height if t.height else nrow / len(traces)))
+
+        return heights
+
     def _approximate_solution(self,
                              detector: Literal[1, 2, 3, 4],
                              ncol: int) -> np.ndarray:
@@ -217,8 +303,9 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         image = combined_image.as_array()
         nrow, ncol = image.shape
 
-        # The distortion table gives the slice mid-lines; heights are not persisted in
-        # it, so `traces_from_table` recomputes them from the slice spacing
+        # The distortion table gives the slice mid-lines and, since the edges were added
+        # to it, their measured illuminated extent. `traces_from_table` falls back on the
+        # slice spacing for older tables that lack the edge columns.
         distortion_table = self.inputset.distortion_table.load_data(extension=det)
         traces = traces_from_table(distortion_table, ncol=ncol)
 
@@ -232,13 +319,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
             return {'HDU': self._wavelength_hdu(np.zeros((nrow, ncol)), det),
                     'solutions': [], 'lines': []}
 
-        # The distortion table stores only the mid-lines, so the slice height is
-        # recovered from the spacing of neighbouring slices. That spacing includes the
-        # unilluminated gap between slices, hence the fill factor: painting a wavelength
-        # into the gaps would make `metis_ifu_rsrf` treat those pixels as valid data.
-        fill_factor = float(self.parameters[f"{self.name}.slices.fill_factor"].value)
-        spacings = [t.height if t.height else nrow / len(traces) for t in traces]
-        heights = [fill_factor * spacing for spacing in spacings]
+        heights = self._slice_heights(traces, nrow)
 
         solutions = [
             solve_slice(image, trace,
@@ -264,6 +345,9 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
 
         return {
             'HDU': self._wavelength_hdu(wavelength_map, det),
+            'TABLE': Hdu(create_dummy_header(EXTNAME=det),
+                         solutions_to_table(solutions),
+                         name=det),
             'solutions': solutions,
             'lines': [line for s in solutions for line in s.lines],
         }
@@ -296,8 +380,12 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
             primary_header,
             *[out['HDU'] for out in output],
         )
+        product_wavecal_tab = self.ProductSet.IfuWavecalTab(
+            copy.deepcopy(primary_header),
+            *[out['TABLE'] for out in output],
+        )
 
-        return {product_wavecal}
+        return {product_wavecal, product_wavecal_tab}
 
     def _collect_qc(self, output: list[dict]) -> cpl.core.PropertyList:
         """
@@ -362,7 +450,24 @@ class MetisIfuWavecal(Recipe):
         "Lines are measured at several cross-dispersion offsets within each slice, so "
         "the solution also accounts for their tilt with respect to the detector "
         "columns. Where too few lines can be identified to constrain a fit, the "
-        "approximate dispersion model is used instead and this is reported."
+        "approximate dispersion model is used instead and this is reported.\n"
+        "\n"
+        "KNOWN DEVIATIONS FROM THE DRLD\n"
+        "1. Second product. IFU_WAVECAL_TAB accompanies the wavelength map, holding the "
+        "per-slice fit: coefficients, degrees, line counts, residual, and whether the "
+        "slice was fitted from measured lines or fell back on the approximate model. "
+        "Agreed in review (PR #220); the map alone cannot express that last "
+        "distinction, which otherwise survives only as a log warning.\n"
+        "2. Solution form. The solution is stored as lambda = f(x, dy) per slice. "
+        "Storing lambda = f(x) together with a separate slit tilt f(dy) may suit "
+        "rectification better, and is an open question from the same review; it waits "
+        "on slit tilt being determined at all, which needs a line-rich frame.\n"
+        "\n"
+        "The extracted slice extent comes from the edges measured by "
+        "metis_ifu_distortion where the table carries them, widened by "
+        "slices.broadening so that pixels in the wings still receive a wavelength; "
+        "metis_ifu_rsrf treats a pixel without one as invalid. Older tables without "
+        "those columns fall back on slices.fill_factor."
     )
 
     _algorithm = """Stack the raw exposures and take the slice geometry from the distortion table.
@@ -450,12 +555,26 @@ class MetisIfuWavecal(Recipe):
             name=f"{_name}.slices.fill_factor",
             context=_name,
             description="Illuminated fraction of the spacing between neighbouring "
-                        "slices. The distortion table records only the slice mid-lines, "
-                        "so this sets how much of the gap between them is taken to carry "
-                        "signal. The default reproduces the 114 pixel slice height of "
-                        "the METIS IFU simulated data",
+                        "slices. Only used as a fallback, for distortion tables written "
+                        "before the measured slice edges were added to them; where those "
+                        "edges are present the extent is read from the table instead. "
+                        "The default reproduces the 114 pixel slice height of the METIS "
+                        "IFU simulated data",
             default=0.9,
             min=0.1,
+            max=1.0,
+        ),
+        ParameterRange(
+            name=f"{_name}.slices.broadening",
+            context=_name,
+            description="Fraction by which to widen the measured slice extent when "
+                        "painting the wavelength map. The measurement is a width at half "
+                        "maximum, so the slice still carries signal beyond it, and a "
+                        "pixel with no wavelength is one metis_ifu_rsrf cannot use. "
+                        "Capped at the distance to the neighbouring slice. Ignored where "
+                        "the extent came from slices.fill_factor instead",
+            default=0.1,
+            min=0.0,
             max=1.0,
         ),
         ParameterValue(
