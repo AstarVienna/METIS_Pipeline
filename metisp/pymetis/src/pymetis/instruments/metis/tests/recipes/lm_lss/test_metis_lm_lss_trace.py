@@ -22,7 +22,7 @@ import pytest
 from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_trace import (MetisLmLssTrace as Recipe,
                                                       MetisLmLssTraceImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_lss_trace'

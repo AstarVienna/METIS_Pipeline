@@ -25,6 +25,7 @@ import numpy as np
 from astropy.table import QTable
 from cpl.core import Msg
 
+from pymetis.drl.combine import combine_images
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
@@ -152,7 +153,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         # self.inputset.background.frameset.dump() # debug
         bg_images = self.inputset.rsrf_wcu_off.use().load_data(extension=rf'DET{det}.DATA')
-        background_img = self.combine_images(bg_images, self.stackmethod)
+        background_img = combine_images(bg_images, self.stackmethod)
 
         # TODO: define usedframes?
         # TODO: Add product keywords - currently none defined in DRLD
@@ -307,37 +308,75 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         return {product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu}
 
 
+# Number of points at which the Planck function is tabulated before being interpolated
+# onto the pixels. The function is smooth over the tens of nanometres one detector
+# covers, so this is far more than accuracy requires.
+BLACKBODY_SAMPLES = 4096
+
+
 def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
     """
-    Create a blackbody image from the RSRF image and the wavelength calibration image.
+    Create a blackbody image from the wavelength calibration image.
+
+    Each valid pixel is filled with the Planck flux at that pixel's wavelength. Pixels
+    with no wavelength, which the wavelength map marks with a zero, are left at zero and
+    then rejected, so that dividing by this image cannot introduce garbage.
+
+    Parameters
+    ----------
+    wavecal_img : cpl.core.Image
+        Wavelength at each pixel, in microns, and zero where there is none.
+    bb_temp : float
+        Blackbody temperature in Kelvin.
+
+    Returns
+    -------
+    cpl.core.Image
+        The blackbody image, with the invalid pixels rejected.
+
+    Raises
+    ------
+    ValueError
+        If the wavelength map holds no valid pixel at all. There is nothing sensible to
+        return in that case, and continuing would divide the flat by an entirely
+        rejected image.
+
+    Notes
+    -----
+    The Planck function is evaluated on a fixed grid spanning the wavelengths present and
+    then interpolated, rather than at every distinct value found in the map. A genuine
+    two-dimensional wavelength solution gives a different wavelength in almost every
+    pixel, so tabulating each one would mean millions of `fill_blackbody` entries and a
+    per-pixel search; interpolating a smooth function over a few thousand samples is
+    equivalent to well below the numerical precision of the result.
     """
-
     wdata = wavecal_img.as_array()
+    valid = wdata > 0
 
-    # create a new image to hold the black-body spectrum
-    # each pixel will hold the BB flux at the wavelength of that pixel
+    if not np.any(valid):
+        raise ValueError(
+            "The wavelength calibration image contains no valid pixel: every value is "
+            "zero, so no blackbody spectrum can be evaluated. This usually means "
+            "`metis_ifu_wavecal` produced an empty map because the IFU distortion table "
+            "held no slices; check that recipe's QC IFU DISTORT NSPOTS."
+        )
+
+    low, high = float(wdata[valid].min()), float(wdata[valid].max())
+    if high == low:
+        # A single wavelength needs no interpolation, but np.interp requires two points
+        grid = np.array([low, low + 1.0e-9])
+    else:
+        grid = np.linspace(low, high, BLACKBODY_SAMPLES)
+
+    # Calculate the black-body flux across the grid [wavelengths in metres]
+    flux = cpl.drs.photom.fill_blackbody(cpl.drs.photom.Unit.LESS,     # output unit
+                                         cpl.core.Vector(grid / 1e6),  # input, in metres
+                                         cpl.drs.photom.Unit.LENGTH,   # input unit
+                                         bb_temp)                      # temperature [K]
+
+    # Interpolate onto every valid pixel at once; invalid pixels stay at zero
     bb_data = np.zeros_like(wdata)
-
-    # create wavelength lookup table [im um]
-    wlookup = np.unique(wdata)[1:]  # remove the first element (0)
-    wavelengths = cpl.core.Vector(wlookup / 1e6)  # Wavelengths in meters
-
-    # Calculate the black-body flux at each wavelength
-    flux = cpl.drs.photom.fill_blackbody(cpl.drs.photom.Unit.LESS,  # output unit
-                                         wavelengths,  # Wavelengths in meters
-                                         cpl.drs.photom.Unit.LENGTH,  # input unit
-                                         bb_temp)  # Temperature in Kelvin
-
-    # convert lookup table to vector for binary search functionality
-    wlookup = cpl.core.Vector(wlookup)
-
-    # fill the BB data array with the flux values
-    for i in range(bb_data.shape[0]):
-        for j in range(bb_data.shape[1]):
-            if wdata[i, j] > 0:  # only fill valid pixels
-                # find the index of the closest wavelength in the lookup table
-                # and assign the corresponding flux value
-                bb_data[i, j] = flux[wlookup.binary_search(wdata[i, j])]
+    bb_data[valid] = np.interp(wdata[valid], grid, np.asarray(list(flux), dtype=float))
 
     # mask the zero values with the bad-pixel mask to avoid division by zero
     bb_img = cpl.core.Image(bb_data)

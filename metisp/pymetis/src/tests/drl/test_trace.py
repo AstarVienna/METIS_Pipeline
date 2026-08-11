@@ -1,0 +1,397 @@
+"""
+Unit tests for the ported PyReduce order tracing.
+
+The METIS IFU simulated data available for testing is a set of 32x32 pixel stubs, far
+too small to contain a trace, so these tests build synthetic full-size detector frames
+instead. Each test exercises one property: recovery of known trace polynomials,
+recovery of the valid column range, cluster merging across a gap, graceful degradation
+on frames with nothing to find, FWHM measurement, and the round trip through the
+`IFU_DISTORTION_TABLE` layout that `metis_ifu_rsrf` and `metis_ifu_wavecal` consume.
+"""
+import cpl
+import numpy as np
+import pytest
+
+from pymetis.drl.trace import (measure_trace_edges, measure_trace_fwhm, trace,
+                               traces_from_table, traces_to_table)
+from pymetis.drl.trace_model import Trace
+from pymetis.instruments.metis.dataitems.distortion import IfuDistortionTable
+
+# Detector size and slice layout of the METIS IFU: a 2048x2048 HAWAII2RG carrying
+# 14 of the 28 spatial slices, spaced as in the simulated data.
+NROW = NCOL = 2048
+N_SLICES = 14
+FIRST_SLICE_Y = 193.0
+SLICE_SPACING = 127.0
+SLICE_SIGMA = 18.0
+
+# Tracing parameters tuned for the METIS IFU in PyReduce, and used as the recipe defaults
+TRACE_PARAMETERS = dict(
+    degree=2,
+    min_cluster=1000,
+    filter_y=200,
+    noise=120,
+    border_width=6,
+    auto_merge_threshold=0.9,
+    merge_min_threshold=0.01,
+)
+
+
+def slice_coefficients(k: int) -> np.ndarray:
+    """Quadratic mid-line of slice `k`, in `np.polyval` order."""
+    return np.array([-2.0e-6, 3.0e-3, FIRST_SLICE_Y + k * SLICE_SPACING])
+
+
+def synthetic_frame(n_slices: int = N_SLICES,
+                    noise_sigma: float = 8.0,
+                    background: float = 80.0,
+                    seed: int = 42,
+                    gap: tuple[int, int] | None = None) -> tuple[np.ndarray, list]:
+    """
+    Build a synthetic IFU detector frame with Gaussian-profile slices.
+
+    Parameters
+    ----------
+    n_slices : int
+        Number of slices to draw.
+    noise_sigma, background : float
+        Read noise and background level added to the frame.
+    seed : int
+        Seed for the noise, so tests are deterministic.
+    gap : tuple[int, int], optional
+        Column range to blank out across every slice, simulating a dead column block
+        that splits each slice into two clusters.
+
+    Returns
+    -------
+    tuple[np.ndarray, list]
+        The frame, and the true mid-line coefficients of each slice.
+    """
+    rng = np.random.default_rng(seed)
+    columns = np.arange(NCOL)
+    rows = np.arange(NROW)[:, None]
+
+    frame = np.zeros((NROW, NCOL))
+    truth = []
+    for k in range(n_slices):
+        coefficients = slice_coefficients(k)
+        truth.append(coefficients)
+        centre = np.polyval(coefficients, columns)
+        frame += 3000.0 * np.exp(-0.5 * ((rows - centre[None, :]) / SLICE_SIGMA) ** 2)
+
+    if gap is not None:
+        frame[:, gap[0]:gap[1]] = 0.0
+
+    frame += rng.normal(background, noise_sigma, frame.shape)
+    return frame, truth
+
+
+class TestTrace:
+    def test_finds_every_slice(self):
+        """All slices are detected, numbered from the bottom of the detector up."""
+        frame, truth = synthetic_frame()
+
+        traces = trace(frame, **TRACE_PARAMETERS)
+
+        assert len(traces) == len(truth)
+        assert [t.m for t in traces] == list(range(len(truth)))
+        # m must increase with position on the detector
+        centres = [t.y_at_x(NCOL // 2) for t in traces]
+        assert centres == sorted(centres)
+
+    def test_recovers_trace_polynomials(self):
+        """
+        The fitted mid-lines match the true ones to well under a pixel.
+
+        The outermost slices are excluded: the background estimate is one-sided at the
+        detector edges, which biases the threshold and hence the cluster centroid
+        there by a pixel or two. That is a property of the algorithm, not of the port.
+        """
+        frame, truth = synthetic_frame()
+
+        traces = trace(frame, **TRACE_PARAMETERS)
+
+        assert len(traces) == len(truth)
+        columns = np.arange(300, 1800)
+        for t, coefficients in list(zip(traces, truth))[1:-1]:
+            np.testing.assert_allclose(
+                t.y_at_x(columns), np.polyval(coefficients, columns), atol=0.5,
+            )
+
+    def test_reports_subpixel_residuals(self):
+        """The fit residual measures mid-line accuracy, not slice thickness."""
+        frame, _ = synthetic_frame()
+
+        traces = trace(frame, **TRACE_PARAMETERS)
+
+        assert traces
+        for t in traces:
+            assert t.residual is not None
+            # Slice thickness is ~2.35 * 18 px; a residual near that would mean the
+            # scatter of individual pixels was being reported instead of the mid-line.
+            assert 0.0 < t.residual < 1.0
+
+    def test_recovers_column_range_and_height(self):
+        """The valid column range respects the border, and heights match the spacing."""
+        frame, _ = synthetic_frame()
+
+        traces = trace(frame, **TRACE_PARAMETERS)
+
+        assert traces
+        for t in traces:
+            start, end = t.column_range
+            assert start >= TRACE_PARAMETERS['border_width']
+            assert end <= NCOL - TRACE_PARAMETERS['border_width']
+            assert end - start > 0.9 * NCOL
+
+        # Interior traces have a neighbour on both sides, so height is the spacing
+        for t in traces[1:-1]:
+            assert t.height == pytest.approx(SLICE_SPACING, abs=3.0)
+
+    def test_degree_sets_number_of_coefficients(self):
+        """The requested polynomial degree determines the coefficient count."""
+        frame, _ = synthetic_frame()
+
+        for degree in (2, 3, 4):
+            traces = trace(frame, **{**TRACE_PARAMETERS, 'degree': degree})
+            assert traces
+            assert all(len(t.pos) == degree + 1 for t in traces)
+
+    def test_merges_clusters_split_by_dead_columns(self):
+        """A block of dead columns must not double the number of detected traces."""
+        frame, truth = synthetic_frame(gap=(1000, 1060))
+
+        traces = trace(frame, **TRACE_PARAMETERS)
+
+        assert len(traces) == len(truth)
+
+    def test_merging_can_be_disabled(self):
+        """An auto_merge_threshold of 1 skips merging, leaving the split clusters."""
+        frame, truth = synthetic_frame(gap=(1000, 1060))
+
+        traces = trace(frame, **{**TRACE_PARAMETERS, 'auto_merge_threshold': 1.0})
+
+        assert len(traces) > len(truth)
+
+
+class TestTraceDegradation:
+    """
+    Frames with nothing to find must return no traces rather than raising.
+
+    The recipe test data consists of 32x32 stubs, so this path runs on every
+    invocation of `metis_ifu_distortion` against the current simulated data.
+    """
+
+    def test_blank_frame_yields_no_traces(self):
+        assert trace(np.zeros((NROW, NCOL)), **TRACE_PARAMETERS) == []
+
+    def test_pure_noise_yields_no_traces(self):
+        rng = np.random.default_rng(0)
+        frame = rng.normal(100, 10, (NROW, NCOL))
+
+        assert trace(frame, **TRACE_PARAMETERS) == []
+
+    def test_undersized_frame_yields_no_traces(self):
+        """A 32x32 stub has fewer pixels in total than min_cluster."""
+        rng = np.random.default_rng(0)
+
+        assert trace(rng.normal(100, 10, (32, 32)), **TRACE_PARAMETERS) == []
+
+    def test_estimation_on_blank_frame_yields_no_traces(self):
+        """With filter_y unset it must be estimated, which a blank frame cannot do."""
+        parameters = {k: v for k, v in TRACE_PARAMETERS.items() if k != 'filter_y'}
+
+        assert trace(np.zeros((NROW, NCOL)), **parameters) == []
+
+    def test_rejects_invalid_parameters(self):
+        frame, _ = synthetic_frame(n_slices=2)
+
+        with pytest.raises(ValueError):
+            trace(frame, **{**TRACE_PARAMETERS, 'filter_y': 0})
+        with pytest.raises(ValueError):
+            trace(frame, **{**TRACE_PARAMETERS, 'border_width': -1})
+        with pytest.raises(ValueError):
+            trace(frame, **{**TRACE_PARAMETERS, 'filter_type': 'nonsense'})
+
+
+class TestMeasureTraceFwhm:
+    def test_measures_gaussian_fwhm(self):
+        """The measured FWHM matches the Gaussian profile the slices were drawn with."""
+        frame, _ = synthetic_frame()
+
+        traces = trace(frame, **TRACE_PARAMETERS)
+        fwhm = measure_trace_fwhm(frame, traces)
+
+        assert fwhm == pytest.approx(2.3548 * SLICE_SIGMA, rel=0.05)
+
+    def test_returns_none_without_traces(self):
+        frame, _ = synthetic_frame()
+
+        assert measure_trace_fwhm(frame, []) is None
+
+
+class TestDistortionTableRoundTrip:
+    """
+    The serialised table must be readable by `IfuDistortionTable.read()`.
+
+    This is the contract `metis_ifu_rsrf` and `metis_ifu_wavecal` depend on, so it is
+    what stops a change to the tracing code from silently breaking the IFU cascade.
+    """
+
+    @staticmethod
+    def read_back(table) -> list:
+        # `read` never touches instance state, so calling it on the class is enough
+        # and avoids having to construct a DataItem with a real frame behind it.
+        return IfuDistortionTable.read(IfuDistortionTable, distortion_table=table)
+
+    def test_round_trip_reproduces_trace_positions(self):
+        traces = [
+            Trace(m=k, pos=slice_coefficients(k), column_range=(6, 2042))
+            for k in range(N_SLICES)
+        ]
+
+        read = self.read_back(traces_to_table(traces, degree=2))
+
+        assert len(read) == len(traces)
+        for t, (x, y) in zip(traces, read):
+            assert x[0] == t.column_range[0]
+            assert x[-1] == t.column_range[1] - 1
+            np.testing.assert_allclose(y, np.polyval(t.pos, x), rtol=1e-12, atol=1e-9)
+
+    def test_round_trip_from_a_traced_frame(self):
+        """End to end: trace a frame, serialise, read back, compare."""
+        frame, _ = synthetic_frame()
+        traces = trace(frame, **TRACE_PARAMETERS)
+
+        read = self.read_back(traces_to_table(traces, degree=2))
+
+        assert len(read) == len(traces)
+        for t, (x, y) in zip(traces, read):
+            np.testing.assert_allclose(y, t.y_at_x(x), rtol=1e-12, atol=1e-9)
+
+    def test_empty_table_reads_back_empty(self):
+        """No traces detected must produce a valid, empty table."""
+        table = traces_to_table([], degree=2)
+
+        assert len(table) == 0
+        assert self.read_back(table) == []
+
+    def test_table_has_expected_columns(self):
+        table = traces_to_table([Trace(m=0, pos=slice_coefficients(0),
+                                      column_range=(6, 2042))], degree=2)
+
+        assert set(table.column_names) == {'orders', 'column_range',
+                                          'bottom', 'top', 'has_edges'}
+        assert len(table) == 1
+
+    def test_degree_mismatch_is_rejected(self):
+        """Serialising with the wrong degree must fail loudly, not truncate."""
+        traces = [Trace(m=0, pos=slice_coefficients(0), column_range=(6, 2042))]
+
+        with pytest.raises(ValueError, match='coefficients'):
+            traces_to_table(traces, degree=4)
+
+    def test_edges_survive_the_round_trip(self):
+        traces = [Trace(m=k, pos=slice_coefficients(k), column_range=(6, 2042),
+                        bottom=slice_coefficients(k) - np.array([0.0, 0.0, 50.0]),
+                        top=slice_coefficients(k) + np.array([0.0, 0.0, 50.0]))
+                  for k in range(3)]
+
+        read = traces_from_table(traces_to_table(traces, degree=2), ncol=NCOL)
+
+        for original, restored in zip(traces, read):
+            assert restored.has_edges
+            np.testing.assert_allclose(restored.bottom, original.bottom, rtol=1e-12)
+            np.testing.assert_allclose(restored.top, original.top, rtol=1e-12)
+            # height must now come from the edges, not the neighbour spacing
+            assert restored.height == pytest.approx(100.0, abs=1e-6)
+
+    def test_unmeasured_edges_read_back_as_none(self):
+        """A trace whose edges could not be measured must not look measured."""
+        traces = [Trace(m=0, pos=slice_coefficients(0), column_range=(6, 2042))]
+
+        read = traces_from_table(traces_to_table(traces, degree=2), ncol=NCOL)
+
+        assert read[0].bottom is None and read[0].top is None
+        assert not read[0].has_edges
+
+    def test_unmeasured_edges_survive_a_fits_round_trip(self, tmp_path):
+        """
+        The in-memory round trip is not enough to prove this.
+
+        CPL writes NaN to disk faithfully, but its *reader* materialises an invalid
+        array element as 0.0. A trace with no measured edges therefore came back looking
+        like one whose edges sit on row zero, which propagated as a zero extraction
+        height and an empty wavelength map. The `has_edges` flag column exists to make
+        the distinction survive, and only a real file exercises it.
+        """
+        traces = [Trace(m=0, pos=slice_coefficients(0), column_range=(6, 2042)),
+                  Trace(m=1, pos=slice_coefficients(1), column_range=(6, 2042),
+                        bottom=slice_coefficients(1) - np.array([0.0, 0.0, 50.0]),
+                        top=slice_coefficients(1) + np.array([0.0, 0.0, 50.0]))]
+
+        path = str(tmp_path / 'distortion.fits')
+        traces_to_table(traces, degree=2).save(
+            cpl.core.PropertyList(), cpl.core.PropertyList(), path, cpl.core.io.CREATE)
+
+        read = traces_from_table(cpl.core.Table.load(path, 1), ncol=NCOL)
+
+        assert not read[0].has_edges, "unmeasured edges must not survive as zeros"
+        assert read[1].has_edges
+        np.testing.assert_allclose(read[1].top, traces[1].top, rtol=1e-12)
+        assert read[1].height == pytest.approx(100.0, abs=1e-6)
+
+    def test_table_without_edge_columns_still_reads(self):
+        """
+        Backward compatibility: tables written before the edges existed must still load,
+        falling back on the neighbour spacing for the heights.
+        """
+        traces = [Trace(m=k, pos=slice_coefficients(k), column_range=(6, 2042))
+                  for k in range(3)]
+        table = traces_to_table(traces, degree=2)
+        for name in ('bottom', 'top', 'has_edges'):
+            table.erase_column(name)
+
+        assert set(table.column_names) == {'orders', 'column_range'}
+
+        read = traces_from_table(table, ncol=NCOL)
+        assert len(read) == 3
+        assert all(not t.has_edges for t in read)
+        # compute_heights still supplies a spacing-derived height
+        assert read[0].height == pytest.approx(SLICE_SPACING, abs=1.0)
+
+
+class TestMeasureTraceEdges:
+    """Edges must be measured from the image, not inferred from trace spacing."""
+
+    def test_recovers_the_known_slice_width(self):
+        frame, _ = synthetic_frame()
+        traces = trace(frame, **TRACE_PARAMETERS)
+        measure_trace_edges(frame, traces, degree=2)
+
+        measured = [t for t in traces if t.has_edges]
+        assert len(measured) == len(traces), "every slice should be bounded"
+
+        # The synthetic slices are Gaussian with SLICE_SIGMA, so the full width at half
+        # maximum is 2*sqrt(2*ln2)*sigma
+        expected = 2.0 * np.sqrt(2.0 * np.log(2.0)) * SLICE_SIGMA
+        widths = [t.height_at_x(NCOL // 2) for t in measured]
+        assert np.median(widths) == pytest.approx(expected, rel=0.1)
+
+    def test_edges_straddle_the_midline(self):
+        frame, _ = synthetic_frame()
+        traces = trace(frame, **TRACE_PARAMETERS)
+        measure_trace_edges(frame, traces, degree=2)
+
+        for t in traces:
+            x = NCOL // 2
+            assert t.bottom_at_x(x) < t.y_at_x(x) < t.top_at_x(x)
+
+    def test_blank_frame_leaves_edges_unset(self):
+        traces = [Trace(m=0, pos=slice_coefficients(0), column_range=(6, NCOL - 6))]
+        measure_trace_edges(np.zeros((NROW, NCOL)), traces, degree=2)
+
+        assert not traces[0].has_edges
+
+    def test_no_traces_is_a_no_op(self):
+        measure_trace_edges(np.zeros((NROW, NCOL)), [], degree=2)

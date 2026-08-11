@@ -20,126 +20,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Literal
 
 import cpl
-from astropy.table import QTable
+from cpl.core import Msg
 import numpy as np
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, ParameterRange,
+                                           ParameterValue)
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
+from pymetis.drl.combine import combine_images
+from pymetis.drl.trace import (measure_trace_edges, measure_trace_fwhm, trace,
+                               traces_to_table)
 
 from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput,
                                               PinholeTableInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
 from pymetis.instruments.metis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
+from pymetis.instruments.metis.dataitems.rsrf.raw import IfuRsrfRaw
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
-
-# dummy distortion table
-def create_distortion_table(ext: Literal[1, 2, 3, 4]) -> cpl.core.Table:
-    qt = QTable()
-
-    if ext == 1:
-        qt['orders'] = \
-            np.array([
-                [-6.31962038e-14,  1.77283929e-10, -7.99042445e-08, -6.88339533e-05,  1.93598211e+02],
-                [ 3.85651542e-14, -3.67396524e-10,  5.20257484e-07, -2.06244130e-04,  3.18096869e+02],
-                [-2.62280453e-13,  1.08972295e-09, -1.43777564e-06, 5.95144411e-05,  4.43088401e+02],
-                [-1.28091830e-12,  6.05080398e-09, -9.08344378e-06, 3.86883193e-03,  5.67650495e+02],
-                [ 9.88312754e-13, -4.41408195e-09,  6.26848822e-06, -3.65939037e-03,  6.93792085e+02],
-                [ 5.03333358e-13, -2.57467777e-09,  4.61742883e-06, -3.96844515e-03,  8.19879764e+02],
-                [-2.00578723e-12,  7.72242452e-09, -9.08124820e-06, 2.37076938e-03,  9.45423923e+02],
-                [ 9.17918222e-13, -3.44863039e-09,  4.39961194e-06, -3.37807678e-03,  1.07271918e+03],
-                [ 3.18875925e-13, -1.29949166e-09,  2.23372191e-06, -2.99028566e-03,  1.19992632e+03],
-                [ 5.09700887e-14,  3.20549624e-10, -7.62327076e-07, -1.27796249e-03,  1.32728863e+03],
-                [ 4.26605665e-14, -1.49399478e-10,  8.89203394e-07, -3.02205941e-03,  1.45582094e+03],
-                [ 1.58920585e-13, -7.42285904e-10,  1.75231865e-06, -3.64600570e-03,  1.58462661e+03],
-                [-1.66148629e-12,  6.33467307e-09, -6.96614291e-06, -1.44428019e-04,  1.71349369e+03],
-                [ 3.87213381e-13, -1.57810882e-09,  2.95807679e-06, -4.89957944e-03,  1.84388054e+03]],
-                dtype='>f8')
-    elif ext == 2:
-        qt['orders'] = \
-            np.array([
-                [ 1.25000709e-12, -5.08414515e-09,  6.80979457e-06, -3.83156891e-03,  1.94804200e+02],
-                [ 6.00529461e-13, -2.27302861e-09,  3.14208356e-06, -2.97959257e-03,  3.20129145e+02],
-                [ 1.99654799e-13, -5.70807595e-10,  8.63374660e-07, -2.31570386e-03,  4.45558488e+02],
-                [ 5.15023482e-13, -2.40498472e-09,  4.10120710e-06, -4.71963780e-03,  5.71900959e+02],
-                [-6.34014143e-13,  2.45923480e-09, -2.41296111e-06, -2.31079616e-03,  6.98195644e+02],
-                [-5.46212051e-13,  2.04081559e-09, -1.67433428e-06, -3.28148294e-03,  8.25091119e+02],
-                [ 1.44490310e-15,  1.70292039e-10,  4.61800804e-07, -4.86056579e-03,  9.52747729e+02],
-                [ 2.65192438e-13, -1.30194799e-09,  3.13730425e-06, -7.12925204e-03,  1.08086241e+03],
-                [-3.53026062e-13,  1.08486189e-09,  3.36429235e-07, -6.75069238e-03,  1.20919199e+03],
-                [-2.10186852e-13,  6.92202787e-10,  5.57479318e-07, -7.23726179e-03,  1.33797844e+03],
-                [-2.36964867e-13,  1.02419512e-09, -9.81919165e-08, -7.51959779e-03,  1.46741783e+03],
-                [ 1.50541067e-13, -6.96139589e-10,  2.52271499e-06, -9.65550558e-03,  1.59762957e+03],
-                [ 1.98557338e-13, -1.27892154e-09,  4.04421928e-06, -1.15296422e-02,  1.72844202e+03],
-                [ 3.36692124e-13, -1.38558083e-09,  3.44859828e-06, -1.15989696e-02,  1.85964632e+03]],
-                dtype='>f8')
-    elif ext == 3:
-        qt['orders'] = \
-            np.array([
-                [ 1.49275253e-13, -5.62389687e-10,  3.48024097e-08, 6.20494617e-03,  2.61860065e+02],
-                [ 1.57354526e-13, -6.60008071e-10,  3.92592794e-07, 5.50287863e-03,  3.82431600e+02],
-                [-2.15713852e-13,  8.96107391e-10, -1.79622208e-06, 6.40084201e-03,  5.02959771e+02],
-                [-9.87464555e-14,  5.85936482e-10, -1.60267029e-06, 6.15096058e-03,  6.23799031e+02],
-                [-8.86624227e-14,  1.79244298e-10, -3.76074863e-07, 4.69152717e-03,  7.45254561e+02],
-                [-3.10042007e-13,  1.27442295e-09, -2.11346452e-06, 5.43578953e-03,  8.66411883e+02],
-                [-3.53867106e-13,  1.46509291e-09, -2.34494197e-06, 5.19593810e-03,  9.88059772e+02],
-                [ 3.97643910e-13, -1.65245295e-09,  1.97023128e-06, 2.67387775e-03,  1.11019995e+03],
-                [-4.53520675e-15, -3.06337429e-10,  6.44260698e-07, 2.68692114e-03,  1.23233654e+03],
-                [-1.30651747e-13,  3.81403624e-10, -3.75200308e-07, 2.77370326e-03,  1.35470583e+03],
-                [ 4.13042752e-13, -1.85959274e-09,  2.72372347e-06, 7.83108941e-04,  1.47763459e+03],
-                [ 2.25228972e-13, -9.43907650e-10,  1.39147007e-06, 1.05863793e-03,  1.60047396e+03],
-                [ 2.55078650e-13, -8.63780808e-10,  7.62797469e-07, 1.49236485e-03,  1.72347089e+03],
-                [ 3.52858493e-13, -1.85952864e-09,  3.32466934e-06, -1.13545912e-03,  1.84760419e+03]],
-                dtype='>f8')
-    elif ext == 4:
-        qt['orders'] = \
-            np.array([
-                [-2.93329742e-13,  9.92591063e-10, -1.77002805e-06, 3.69354686e-03,  2.72891222e+02],
-                [ 3.13253287e-13, -8.15697343e-10, -3.72825222e-07, 3.43077092e-03,  3.92729007e+02],
-                [-3.37889895e-13,  1.27976610e-09, -2.40074294e-06, 3.95009482e-03,  5.12797636e+02],
-                [ 1.84906026e-13, -1.04028292e-09,  8.22534795e-07, 2.36788061e-03,  6.33250090e+02],
-                [-7.27990066e-13,  3.40220721e-09, -5.60337615e-06, 5.20118115e-03,  7.53556123e+02],
-                [ 5.68661764e-13, -2.39213570e-09,  2.39050531e-06, 1.40540581e-03,  8.74733668e+02],
-                [-2.91980311e-13,  1.01801116e-09, -1.78853566e-06, 3.04060669e-03,  9.95533674e+02],
-                [-1.10125531e-14,  2.53802424e-11, -6.90643911e-07, 2.44405012e-03,  1.11682388e+03],
-                [-1.91021732e-13,  5.43527988e-10, -8.91674004e-07, 2.23022335e-03,  1.23829065e+03],
-                [ 8.80632281e-13, -3.42620065e-09,  3.51615611e-06, 2.74519788e-04,  1.36029392e+03],
-                [ 5.49928334e-13, -2.12217447e-09,  1.87753266e-06, 1.03579493e-03,  1.48209800e+03],
-                [-1.37565025e-12,  5.41373478e-09, -7.11413286e-06, 4.41999927e-03,  1.60400909e+03],
-                [ 1.45487617e-12, -5.97247724e-09,  7.31683048e-06, -1.80998199e-03,  1.72705691e+03],
-                [-8.06210801e-13,  2.23697555e-09, -1.19012993e-06, 2.03550949e-04,  1.84998465e+03]],
-                dtype='>f8')
-
-    qt['column_range'] = \
-        np.array([
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042],
-            [   6, 2042]], dtype='>i8')  
-      
-    table = cpl.core.Table.empty(len(qt))
-    table.new_column_array('orders', cpl.core.Type.DOUBLE, 5)
-    table.new_column_array('column_range', cpl.core.Type.DOUBLE, 2)
-
-    for i, row in enumerate(qt['orders']):
-        table['orders', i] = np.array(row, dtype=float)
-        table['column_range', i] = np.array(qt['column_range'][i], dtype=float)
-    
-    return table
-
 
 class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
@@ -161,6 +61,27 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
         class RawInput(RawInput):
             Item = IfuDistortionRaw
+
+        class TraceReferenceInput(OptionalInputMixin, RawInput):
+            """
+            EXPERIMENTAL, and a deviation from the DRLD input list for this recipe.
+
+            The DRLD gives this recipe only the multi-pinhole exposure, but the algorithm
+            it prescribes (critical algorithm 5b, "use the same algorithms as for LSS
+            (PyReduce)") locates slices by thresholding a *continuum-illuminated* frame
+            and fitting a polynomial to each connected cluster of illuminated pixels. A
+            pinhole exposure contains isolated spots, not the continuous traces that
+            algorithm needs: on simulated data its largest connected feature is a few
+            pixels, against slice-long bands of tens of thousands of pixels in an
+            `IFU_RSRF_RAW` frame.
+
+            Supplying an `IFU_RSRF_RAW` frame here is therefore optional and purely
+            additive. When present it is traced instead of the pinhole exposure; when
+            absent the recipe behaves exactly as before, so a DRLD-conformant set of
+            frames still runs. Resolving this properly needs a decision on the recipe's
+            input list, and a matching EDPS workflow association.
+            """
+            Item = IfuRsrfRaw
 
     class ProductSet(PipelineProductSet):
         DistortionTable = IfuDistortionTable
@@ -188,28 +109,185 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
             _default = None
             _description_template = "Number of identified spots"
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+    @staticmethod
+    def _degree_or_best(value: str) -> int | Literal['best']:
         """
-        Find the distortion coefficients for a single detector of the IFU.
+        Interpret a polynomial degree that may also be the string `best`.
+
+        `trace` lets a degree be chosen per cluster rather than fixed, which
+        `pyreduce`'s METIS IFU configuration asks for. CPL parameters are singly
+        typed, so the choice travels as a string.
+        """
+        text = str(value).strip()
+        if text == 'best':
+            return 'best'
+
+        try:
+            return int(text)
+        except ValueError:
+            raise cpl.core.IllegalInputError(
+                f"Expected an integer or 'best', but got {value!r}"
+            ) from None
+
+    def _trace_parameters(self) -> dict:
+        """Collect the tracing parameters from the recipe parameter list."""
+        name = self.name
+        return {
+            'degree': int(self.parameters[f"{name}.trace.degree"].value),
+            'degree_before_merge': self._degree_or_best(
+                self.parameters[f"{name}.trace.degree_before_merge"].value),
+            'min_cluster': int(self.parameters[f"{name}.trace.min_cluster"].value),
+            'min_width': float(self.parameters[f"{name}.trace.min_width"].value),
+            'filter_x': int(self.parameters[f"{name}.trace.filter_x"].value),
+            'filter_y': int(self.parameters[f"{name}.trace.filter_y"].value),
+            'filter_type': str(self.parameters[f"{name}.trace.filter_type"].value),
+            'noise': float(self.parameters[f"{name}.trace.noise"].value),
+            'noise_relative':
+                float(self.parameters[f"{name}.trace.noise_relative"].value),
+            'border_width': int(self.parameters[f"{name}.trace.border_width"].value),
+            'auto_merge_threshold':
+                float(self.parameters[f"{name}.trace.auto_merge_threshold"].value),
+            'merge_min_threshold':
+                float(self.parameters[f"{name}.trace.merge_min_threshold"].value),
+            'sigma': float(self.parameters[f"{name}.trace.sigma"].value),
+        }
+
+    #: WCU focal-plane mask position recorded for a frame taken with no mask in the beam
+    OPEN_MASK = 'open'
+
+    def _continuum_frames(self, reference) -> list[int]:
+        """
+        Indices of the trace-reference frames that are continuum-illuminated.
+
+        `IFU_RSRF_RAW` classifies both the continuum flat and the pinhole-grid exposure:
+        they share `DPR TYPE=RSRF`, `TECH=IFU` and `CATG=CALIB`, and the only keyword
+        separating them is the WCU mask position, `ESO INS OPTI20 POSNAME` (`open` versus
+        `grid_lm`). Tracing a grid frame here would defeat the purpose, since its
+        cross-dispersion profile has the width of a spot rather than of a slice, so the
+        grid frames are dropped rather than averaged in.
+
+        Returns
+        -------
+        list[int]
+            Positions within `reference.frameset`, empty if none qualify.
+        """
+        if not reference.frameset:
+            return []
+
+        continuum = []
+        for index, frame in enumerate(reference.frameset):
+            header = cpl.core.PropertyList.load(frame.file, 0)
+            keyword = 'ESO INS OPTI20 POSNAME'
+
+            if keyword not in header:
+                Msg.warning(self.__class__.__qualname__,
+                            f"{frame.file}: no {keyword}, so it cannot be told apart "
+                            f"from a pinhole-grid exposure; not used for tracing")
+                continue
+
+            if str(header[keyword].value).strip() == self.OPEN_MASK:
+                continuum.append(index)
+
+        dropped = len(reference.frameset) - len(continuum)
+        if dropped:
+            Msg.info(self.__class__.__qualname__,
+                     f"Ignoring {dropped} trace-reference frame(s) taken through a "
+                     f"focal-plane mask; only unmasked frames show whole slices")
+
+        return continuum
+
+    def _process_single_detector(self,
+                                 detector: Literal[1, 2, 3, 4],
+                                 method: str,
+                                 trace_parameters: dict) -> dict:
+        """
+        Determine the geometric distortion for a single detector of the IFU.
+
+        The raw exposures are stacked, then the spatial slices of the image slicer are
+        located by thresholding against a smoothed local background and fitting a
+        polynomial mid-line to each resulting cluster of illuminated pixels. This is
+        the algorithm the DRLD prescribes for IFU distortion (critical algorithm 5b).
 
         Parameters
         ----------
         detector : Literal[1, 2, 3, 4] # FixMe: Maybe make this fully customizable for any detector count?
+        method : str
+            Method used to stack the raw exposures.
+        trace_parameters : dict
+            Keyword arguments for `pymetis.drl.trace.trace`.
 
         Returns
         -------
-        dict[str, Hdu]
-            Distortion coefficients for a single detector of the IFU, in a form of table and image
-            # FixMe this does not make much sense but works for now [MB]
+        dict
+            The distortion table and stacked image HDUs, plus the quantities needed
+            for the recipe's quality control parameters.
         """
-
         det = rf'{detector:1d}'
         raw_images = self.inputset.raw.use().load_data(extension=rf'DET{det}.DATA')
-        combined_image = self.combine_images(raw_images, "average")
+        combined_image = combine_images(raw_images, method)
+
+        # Trace the continuum frame when one was supplied, since a pinhole exposure holds
+        # no continuous slices to trace. See TraceReferenceInput for why this is optional.
+        reference = self.inputset.trace_reference
+        continuum = self._continuum_frames(reference)
+
+        if continuum:
+            reference_images = reference.use().load_data(extension=rf'DET{det}.DATA')
+            selected = cpl.core.ImageList()
+            for index in continuum:
+                selected.append(reference_images[index])
+
+            trace_image = combine_images(selected, method).as_array()
+            Msg.info(self.__class__.__qualname__,
+                     f"DET{det}: tracing {len(continuum)} of "
+                     f"{len(reference.frameset)} {reference.Item.name()} frames rather "
+                     f"than the pinhole exposure")
+        else:
+            trace_image = combined_image.as_array()
+
+        # CPL and HDRL have no order tracing, so the fitting is done in numpy
+        traces = trace(trace_image, **trace_parameters)
+
+        if not traces:
+            Msg.warning(self.__class__.__qualname__,
+                        f"No traces detected on DET{det}; "
+                        f"its distortion table will be empty")
+
+        # Measure the illuminated extent on the same frame the traces came from, so that
+        # consumers read the aperture off the table instead of guessing it back from the
+        # spacing between mid-lines.
+        #
+        # Only a continuum-illuminated frame can give this. A pinhole exposure lights a
+        # row of spots rather than the whole slice, so its cross-dispersion profile has
+        # the width of a spot -- about 3 px on the simulated data, against a slice height
+        # of order 114 px. Measuring it there would hand `metis_ifu_wavecal` an aperture
+        # 40x too small, which is worse than the spacing estimate it falls back on. The
+        # edges are therefore left unset unless a continuum reference frame was supplied.
+        if reference.frameset:
+            measure_trace_edges(trace_image, traces, degree=trace_parameters['degree'])
+        else:
+            Msg.info(self.__class__.__qualname__,
+                     f"DET{det}: tracing a pinhole exposure, so the slice extent cannot "
+                     f"be measured from it; the distortion table will carry no edges and "
+                     f"consumers will fall back on the slice spacing")
+
+        # `QC IFU DISTORT NSPOTS` and `FWHM` are defined by the DRLD on the *pinhole*
+        # exposure: the number of identified spots, and a spot width that "gives an
+        # indication of the variation of spectral resolution across the field of view".
+        # Neither is a property of the continuum frame, whose features are slices tens of
+        # pixels tall, so when the solution came from a continuum reference the pinhole
+        # exposure is traced separately for these two numbers. With no reference frame
+        # both come from the one trace already done.
+        if continuum:
+            pinhole_image = combined_image.as_array()
+            spots = trace(pinhole_image, **trace_parameters)
+        else:
+            pinhole_image, spots = trace_image, traces
+
+        table = traces_to_table(traces, trace_parameters['degree'])
 
         header_table = create_dummy_header()
         header_table.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
-        table = create_distortion_table(detector)
 
         header_image = create_dummy_header()
         header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}.DATA'))
@@ -217,13 +295,26 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         return {
             'TABLE': Hdu(header_table, table, name=rf'DET{det}'),
             'IMAGE': Hdu(header_image, combined_image, name=rf'DET{det}.DATA'),
+            'residuals': [t.residual for t in traces if t.residual is not None],
+            # The guard and the RMS follow the solution; the spot count and width follow
+            # the pinhole exposure, which is what the DRLD defines them on
+            'n_traces': len(traces),
+            'n_spots': len(spots),
+            'fwhm': measure_trace_fwhm(pinhole_image, spots),
         }
 
     def process(self) -> set[DataItem]:
-        header_table = create_dummy_header()
-        header_reduced = create_dummy_header()
+        method = self.parameters[f"{self.name}.stacking.method"].value
+        trace_parameters = self._trace_parameters()
 
-        output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
+        output = [self._process_single_detector(det, method, trace_parameters)
+                  for det in [1, 2, 3, 4]]
+
+        header_table = create_dummy_header()
+        header_table.append(self._collect_qc(output))
+        self._verify_any_trace_found(output)
+
+        header_reduced = create_dummy_header()
 
         product_distortion = self.ProductSet.DistortionTable(
             header_table,
@@ -236,21 +327,128 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
         return {product_distortion, product_distortion_reduced}
 
+    def _verify_any_trace_found(self, output: list[dict]) -> None:
+        """
+        Refuse to emit a distortion table that describes no slice at all.
+
+        Such a table is not a degraded calibration but an unusable one:
+        `metis_ifu_wavecal` turns it into an all-zero wavelength map and
+        `metis_ifu_rsrf` only fails on that two recipes later, far from the frames that
+        actually caused it. Stopping here names the culprit instead.
+
+        Raises
+        ------
+        cpl.core.DataNotFoundError
+            If no trace was found on any of the four detectors.
+        """
+        if any(out['n_traces'] > 0 for out in output):
+            return
+
+        raise cpl.core.DataNotFoundError(
+            f"No slice was traced on any of the four detectors, so the distortion table "
+            f"would be empty and no downstream recipe could use it. Either the raw "
+            f"frames carry no usable illumination, or the tracing parameters do not fit "
+            f"them: check {self.name}.trace.noise (the absolute threshold above the "
+            f"local background) and {self.name}.trace.min_cluster against the actual "
+            f"signal level and the detector size."
+        )
+
+    def _collect_qc(self, output: list[dict]) -> cpl.core.PropertyList:
+        """
+        Summarise the per-detector tracing results into quality control parameters.
+
+        `NSPOTS` counts the spots identified in the pinhole exposure across the whole
+        detector array, and `FWHM` is their median width, which indicates how the
+        spectral resolution varies across the field of view. Both are measured on the
+        pinhole frame even when the distortion solution itself came from a continuum
+        reference, since neither quantity exists on a continuum frame: its features are
+        slices, and counting those would report the slice count under a keyword that the
+        DRLD defines as a number of spots.
+
+        `RMS` pools the per-trace deviations of the measured mid-line from the fitted
+        one, and so follows the solution rather than the pinhole exposure.
+
+        `RMS` and `FWHM` are undefined when no trace was detected. Their keywords are
+        then left out of the header altogether, rather than filled with a placeholder
+        that a consumer could mistake for a measurement.
+        """
+        n_spots = sum(out['n_spots'] for out in output)
+
+        residuals = [r for out in output for r in out['residuals']]
+        rms = float(np.sqrt(np.mean(np.square(residuals)))) if residuals else None
+
+        fwhms = [out['fwhm'] for out in output if out['fwhm'] is not None]
+        fwhm = float(np.median(fwhms)) if fwhms else None
+
+        qc = [self.Qc.NSpots(n_spots)]
+        if rms is not None:
+            qc.append(self.Qc.Rms(rms))
+        if fwhm is not None:
+            qc.append(self.Qc.Fwhm(fwhm))
+
+        Msg.info(self.__class__.__qualname__, f"QC IFU DISTORT NSPOTS = {n_spots}")
+        Msg.info(self.__class__.__qualname__, f"QC IFU DISTORT RMS = {rms}")
+        Msg.info(self.__class__.__qualname__, f"QC IFU DISTORT FWHM = {fwhm}")
+
+        if rms is None or fwhm is None:
+            Msg.warning(self.__class__.__qualname__,
+                        "No traces were detected on any detector, so the distortion "
+                        "tables are empty and QC RMS/FWHM are not reported")
+
+        return self.collect_qc_parameters(*qc)
+
 
 class MetisIfuDistortion(Recipe):
     _name = "metis_ifu_distortion"
     _version = "0.1"
     _author = "Martin Baláž, A*"
     _email = "martin.balaz@univie.ac.at"
-    _synopsis = "Reduce raw science exposures of the IFU."
+    _synopsis = "Determine the geometric distortion of the IFU."
     _description = (
-        "Currently just a skeleton prototype."
+        "Locates the spatial slices of the IFU image slicer on each of the four "
+        "detectors and describes each one by a polynomial, producing a table of "
+        "distortion coefficients that maps detector position to position on sky.\n"
+        "Slit tilt is not determined yet; that requires a line-rich calibration "
+        "frame, which this recipe does not receive.\n"
+        "\n"
+        "KNOWN DEVIATIONS FROM THE DRLD\n"
+        "1. Input list. The DRLD gives this recipe only the multi-pinhole exposure, "
+        "but the algorithm it prescribes locates slices by thresholding a "
+        "continuum-illuminated frame, which a pinhole exposure is not: its features "
+        "are isolated spots a few pixels across, not slice-long bands. An "
+        "IFU_RSRF_RAW frame is therefore accepted as an optional additional input and "
+        "traced in preference to the pinhole exposure. This is a deliberate deviation, "
+        "agreed in review (PR #220) as the DRLD input list being at fault, and it is "
+        "what makes the measured slice edges below possible at all. Without such a "
+        "frame the recipe behaves exactly as the DRLD describes.\n"
+        "2. Additional table columns. The distortion table carries `bottom` and `top` "
+        "edge polynomials, and a `has_edges` flag, beyond the mid-line and column "
+        "range the DRLD specifies. They record the measured illuminated extent of each "
+        "slice so that metis_ifu_wavecal need not guess it back from the slice "
+        "spacing. Readers that do not know the columns are unaffected, and tables "
+        "written without them are still read.\n"
+        "\n"
+        "QC IFU DISTORT NSPOTS and FWHM are always measured on the pinhole exposure, "
+        "as the DRLD defines them, even when the solution came from a continuum frame: "
+        "a continuum frame shows slices rather than spots, so counting its features "
+        "would report a slice count under a keyword defined as a number of spots."
     )
 
     _matched_keywords = {'DRS.IFU'}
-    _algorithm = """Calculate table mapping pixel position to position on sky."""
+    _algorithm = """Stack the raw pinhole exposures.
+    Estimate the local background by smoothing along the cross-dispersion direction
+    and threshold against it, to separate illuminated from inter-slice pixels.
+    Discard the detector borders, then close gaps and remove specks morphologically.
+    Label connected components and discard those too small or too narrow to constrain
+    a fit, then merge the clusters that belong to the same slice.
+    Fit a polynomial mid-line to each surviving cluster and tabulate its coefficients
+    together with the valid column range.
+
+    Adapted from PyReduce (Piskunov & Valenti 2002, Piskunov, Wehrhahn & Marquart
+    2021), as prescribed by the DRLD for IFU distortion correction."""
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
+    # Tracing defaults are the METIS IFU values tuned in PyReduce.
     parameters = ParameterList([
         ParameterEnum(
             name=f"{_name}.stacking.method",
@@ -258,6 +456,104 @@ class MetisIfuDistortion(Recipe):
             description="Name of the method used to combine the input images",
             default="average",
             alternatives=("add", "average", "median", "sigclip"),
+        ),
+        ParameterRange(
+            name=f"{_name}.trace.degree",
+            context=_name,
+            description="Polynomial degree of the fit to each slice",
+            default=2,
+            min=1,
+            max=5,
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.degree_before_merge",
+            context=_name,
+            description="Polynomial degree used while rating candidate merges, where "
+                        "the fits are still poorly constrained. An integer, or 'best' "
+                        "to choose one per cluster",
+            default="best",
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.min_cluster",
+            context=_name,
+            description="Smallest acceptable cluster of illuminated pixels, in pixels",
+            default=1000,
+        ),
+        ParameterRange(
+            name=f"{_name}.trace.min_width",
+            context=_name,
+            description="Smallest acceptable cluster extent along the dispersion "
+                        "direction, as a fraction of the detector width. "
+                        "0 disables the check",
+            default=0.25,
+            min=0.0,
+            max=1.0,
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.filter_x",
+            context=_name,
+            description="Smoothing width along the dispersion direction, applied "
+                        "before thresholding. 0 disables it",
+            default=0,
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.filter_y",
+            context=_name,
+            description="Smoothing width along the cross-dispersion direction, "
+                        "used to estimate the local background",
+            default=200,
+        ),
+        ParameterEnum(
+            name=f"{_name}.trace.filter_type",
+            context=_name,
+            description="Smoothing kernel used to estimate the local background. "
+                        "'whittaker' preserves edges best, 'boxcar' is cheapest",
+            default="boxcar",
+            alternatives=("boxcar", "gaussian", "whittaker"),
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.noise",
+            context=_name,
+            description="Absolute detection threshold above the local background",
+            default=120.0,
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.noise_relative",
+            context=_name,
+            description="Detection threshold as a fraction of the local background. "
+                        "If this and the absolute threshold are both 0, 0.1% is used",
+            default=0.0,
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.border_width",
+            context=_name,
+            description="Number of pixels to ignore at each detector edge",
+            default=6,
+        ),
+        ParameterRange(
+            name=f"{_name}.trace.auto_merge_threshold",
+            context=_name,
+            description="Overlap rating at or above which two clusters are merged "
+                        "into one slice. 1 disables merging",
+            default=0.9,
+            min=0.0,
+            max=1.0,
+        ),
+        ParameterRange(
+            name=f"{_name}.trace.merge_min_threshold",
+            context=_name,
+            description="Overlap rating below which a pair of clusters is not "
+                        "considered for merging",
+            default=0.01,
+            min=0.0,
+            max=1.0,
+        ),
+        ParameterValue(
+            name=f"{_name}.trace.sigma",
+            context=_name,
+            description="If positive, split clusters that deviate from the common "
+                        "trace shape by more than this many standard deviations",
+            default=0.0,
         ),
     ])
 

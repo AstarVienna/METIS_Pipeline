@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe,
                                                 MetisIfuRsrfImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseProductSetTest, RawInputSetTest
+from tests.classes import BaseRecipeTest, BaseProductSetTest, RawInputSetTest
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import create_ifu_blackbody_image, extract_ifu_1d_spectra
 
 from pytest import approx

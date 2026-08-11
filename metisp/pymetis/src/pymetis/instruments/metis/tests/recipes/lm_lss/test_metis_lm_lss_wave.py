@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_wave import (MetisLmLssWave as Recipe,
                                                       MetisLmLssWaveImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_lss_wave'

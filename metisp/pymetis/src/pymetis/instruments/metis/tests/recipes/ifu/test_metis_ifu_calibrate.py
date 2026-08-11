@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_calibrate import (MetisIfuCalibrate as Recipe,
                                                      MetisIfuCalibrateImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_ifu_calibrate'

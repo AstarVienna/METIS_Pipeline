@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_std import (MetisLmLssStd as Recipe,
                                                      MetisLmLssStdImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_lss_std'

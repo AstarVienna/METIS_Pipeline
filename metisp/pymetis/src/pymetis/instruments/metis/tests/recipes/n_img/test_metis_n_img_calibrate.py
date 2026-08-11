@@ -22,7 +22,7 @@ import pytest
 from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_calibrate import (MetisNImgCalibrate as Recipe,
                                                          MetisNImgCalibrateImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_n_img_calibrate'

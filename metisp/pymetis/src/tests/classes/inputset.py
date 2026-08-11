@@ -34,7 +34,8 @@ class BaseInputSetTest(ABC):
     """
     Impl: Optional[type[RecipeImpl]] = None
 
-    @pytest.fixture(autouse=True)
+    # Deliberately not autouse, see the `frameset` fixture in `BaseRecipeTest`.
+    @pytest.fixture
     def instance(self, load_frameset, sof):
         return self.Impl.InputSet(load_frameset(sof))
 
@@ -46,17 +47,20 @@ class BaseInputSetTest(ABC):
         assert not inspect.isabstract(self.Impl.InputSet), \
             f"InputSet is abstract: {self.Impl.InputSet}"
 
+    @pytest.mark.external
     def test_all_inputs_have_items(self, instance):
         for inp in instance.inputs:
             assert inp.Item is not None, \
                 f"Input {inp.__class__.__qualname__} has not item defined"
 
     @staticmethod
+    @pytest.mark.external
     def test_has_inputs_and_it_is_a_frozenset(instance):
         assert isinstance(instance.inputs, frozenset), \
             f"Inputs are not a frozenset: {instance.inputs}"
 
     @staticmethod
+    @pytest.mark.external
     def test_all_inputs_are_registered(instance):
         for name, attr in instance.__dict__.items():
             if isinstance(attr, PipelineInput):
@@ -64,6 +68,7 @@ class BaseInputSetTest(ABC):
                     f"Input {name} is not registered in inputs"
 
     @staticmethod
+    @pytest.mark.external
     def test_all_registered_inputs_are_actually_inputs(instance):
         for inp in instance.inputs:
             assert isinstance(inp, PipelineInput), \
@@ -81,5 +86,6 @@ class RawInputSetTest(BaseInputSetTest):
     Impl: type[RecipeImpl]
 
     @staticmethod
+    @pytest.mark.external
     def test_inputset_has_raw_and_it_is_multiple_input(instance):
         assert isinstance(instance.raw, MultiplePipelineInput)

@@ -25,6 +25,8 @@ import copy
 import numpy as np
 
 import hdrl, cpl
+
+from pymetis.drl.noise import estimate_noise_list, calculate_outliers
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
@@ -124,7 +126,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
         # convert the raw images to HDRL image list TODO propogate readnoise somehow
 
-        raw_images_hdrl = self.estimate_noise_list(raw_images, 0)
+        raw_images_hdrl = estimate_noise_list(raw_images, 0)
 
         # subtract the darks, now in HDRL format
         dark_corrected = self.subtract_dark(raw_images_hdrl)
@@ -138,7 +140,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         # create a static mask that only considers the illuminated portion of the frame
         # set this based on data
 
-        stat_mask = cpl.core.Mask(raw_images_hdrl[0].width,raw_images_hdrl[0].height)
+        stat_mask = cpl.core.Mask(raw_images_hdrl[0].width, raw_images_hdrl[0].height)
         stat_mask[0:raw_images_hdrl[0].width][0:raw_images_hdrl[0].height] = True
         stat_mask = None
 
@@ -169,7 +171,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         # also, maybe a coverage value? 
 
         # get hot/cold pixels
-        mask_hot, mask_cold = self.calculate_outliers(mflat, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
+        mask_hot, mask_cold = calculate_outliers(mflat, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
         qcnbad  = mask_hot.count() + mask_cold.count()
 
         Msg.info(self.__class__.__qualname__,

@@ -209,6 +209,10 @@ ifu_wavecal_class = classification_rule("IFU_WAVECAL",
                                      {"pro.catg": "IFU_WAVECAL",
                                      })
 
+ifu_wavecal_tab_class = classification_rule("IFU_WAVECAL_TAB",
+                                     {"pro.catg": "IFU_WAVECAL_TAB",
+                                     })
+
 ifu_rsrf_raw_class = classification_rule("IFU_RSRF_RAW",
                                  {"instrume": "METIS",
                                   "dpr.catg": "CALIB",

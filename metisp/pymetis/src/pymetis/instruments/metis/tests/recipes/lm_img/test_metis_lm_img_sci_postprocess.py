@@ -21,7 +21,7 @@ import pytest
 
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_sci_postprocess import (MetisLmImgSciPostProcess as Recipe,
                                                                  MetisLmImgSciPostProcessImpl as Impl)
-from pymetis.tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
 recipe_name = r'metis_lm_img_sci_postprocess'

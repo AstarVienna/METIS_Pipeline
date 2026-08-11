@@ -23,8 +23,8 @@ import cpl
 
 from pymetis.instruments.metis.recipes.metis_det_dark import (MetisDetDark as Recipe,
                                                               MetisDetDarkImpl as Impl)
-from pymetis.tests.classes import BandParamRecipeTest, RawInputSetTest
-from pymetis.tests.classes.product import ImageProductSetTest
+from tests.classes import BandParamRecipeTest, RawInputSetTest
+from tests.classes.product import ImageProductSetTest
 
 recipe_name = r'metis_det_dark'
 

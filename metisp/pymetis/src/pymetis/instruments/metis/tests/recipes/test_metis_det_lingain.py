@@ -21,8 +21,8 @@ import pytest
 
 from pymetis.instruments.metis.recipes.metis_det_lingain import (MetisDetLinGain as Recipe,
                                                                  MetisDetLinGainImpl as Impl)
-from pymetis.tests.classes import RawInputSetTest, BandParamRecipeTest
-from pymetis.tests.classes.product import ImageProductSetTest
+from tests.classes import RawInputSetTest, BandParamRecipeTest
+from tests.classes.product import ImageProductSetTest
 
 recipe_name = r'metis_det_lingain'
 

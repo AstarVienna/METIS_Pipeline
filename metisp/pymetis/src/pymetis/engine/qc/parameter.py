@@ -40,10 +40,15 @@ class QcParameter(ParametrizableItem):
     _registry: ClassVar[dict[str, type[Self]]] = {}
 
     def __init__(self, value: Any):
-        assert isinstance(value, self._type), \
-            (f"{self.__class__.__qualname__} expected a {self._type} value, "
-             f"but got {value} ({type(value)}) instead")
+        if not isinstance(value, self._type):
+            raise ValueError(
+                f"{self.__class__.__qualname__} expected a {self._type} value, "
+                f"but got {value} ({type(value)}) instead"
+            )
         self._value = value
+
+    def __str__(self):
+        return f"{self.name()} = {self.value!s}"
 
     @property
     def value(self) -> Any:
