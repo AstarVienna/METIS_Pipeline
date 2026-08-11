@@ -58,16 +58,16 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         class RawInput(RawInput):
             Item = IfuWavecalRaw
 
-        class MasterDarkInput(MasterDarkInput):
+        class MasterDarkInput(OptionalInputMixin, MasterDarkInput):
             pass
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(GainMapInput):
+        class GainMapInput(OptionalInputMixin,GainMapInput):
             pass
 
-        class LinearityInput(LinearityInput):
+        class LinearityInput(OptionalInputMixin, LinearityInput):
             pass
 
         class DistortionTableInput(DistortionTableInput):
@@ -303,11 +303,10 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         image = combined_image.as_array()
         nrow, ncol = image.shape
 
-        # The distortion table gives the slice mid-lines and, since the edges were added
-        # to it, their measured illuminated extent. `traces_from_table` falls back on the
-        # slice spacing for older tables that lack the edge columns.
+        # The distortion table gives the slice mid-lines and, where measured, their
+        # illuminated extent.
         distortion_table = self.inputset.distortion_table.load_data(extension=det)
-        traces = traces_from_table(distortion_table, ncol=ncol)
+        traces = traces_from_table(distortion_table)
 
         approximate = self._approximate_solution(detector, ncol)
 

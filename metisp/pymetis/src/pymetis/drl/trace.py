@@ -536,9 +536,10 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
     """
     Serialise traces into the METIS `IFU_DISTORTION_TABLE` layout.
 
-    One row per trace, an array column `orders` holding the `degree + 1` coefficients of
-    the trace mid-line in `np.polyval` order, and an array column `column_range` holding
-    the first and last valid dispersion coordinate. This is the layout
+    One row per trace: `slice_nb` and `trace_nb` identify the trace (`Trace.slice` and
+    `Trace.m` respectively), an array column `pos` holds the `degree + 1` coefficients
+    of the trace mid-line in `np.polyval` order, and an array column `column_range`
+    holds the first and last valid dispersion coordinate. This is the layout
     `IfuDistortionTable.read()` expects and that `metis_ifu_rsrf` and
     `metis_ifu_wavecal` consume.
 
@@ -548,7 +549,7 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
         Traces to serialise. May be empty, in which case an empty table with the
         correct columns is returned.
     degree : int
-        Polynomial degree of the mid-line fits, which fixes the width of `orders`.
+        Polynomial degree of the mid-line fits, which fixes the width of `pos`.
 
     Returns
     -------
@@ -568,32 +569,16 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
     of the intended values.
     """
     table = cpl.core.Table.empty(len(traces))
-    # TODO: the column name `orders` collides with two other meanings of the word and
-    #       should eventually be renamed. It is inherited from PyReduce, where a traced
-    #       feature *is* an echelle order, but here it means three different things at
-    #       once:
-    #         - the spectral (echelle) order, which is a real and unrelated quantity:
-    #           the frames carry `ESO INS OPTI8 ORDER` (31 for the 3.4 um setting);
-    #         - the traced feature itself, which for the METIS IFU is an image-slicer
-    #           slice, not an order at all;
-    #         - the polynomial order, which is what the column actually holds -- its
-    #           width is `degree + 1`, so raising the degree adds coefficients.
-    #       Upstream PyReduce has already dropped the name: its loader keeps only a
-    #       compatibility branch for the "old 'orders' key", and `save_traces` now
-    #       writes `POS` and `COL_RANGE`. Our own `Trace` dataclass likewise uses
-    #       `pos`, so the mismatch is only in this serialisation. Renaming to `pos`
-    #       needs a matching change in `traces_from_table` plus a fallback there, or
-    #       existing IFU_DISTORTION_TABLE files stop being readable.
-    table.new_column_array('orders', cpl.core.Type.DOUBLE, degree + 1)
+    table.new_column('slice_nb', cpl.core.Type.INT)
+    table.new_column('trace_nb', cpl.core.Type.INT)
     table.new_column_array('column_range', cpl.core.Type.DOUBLE, 2)
+    table.new_column_array('pos', cpl.core.Type.DOUBLE, degree + 1)
     # Measured illuminated extent, so consumers need not guess it back from the trace
-    # spacing. `has_edges` says whether a row's edges are real: NaN cannot be used as
-    # the marker, because although it survives to disk intact, CPL's table reader
-    # materialises an invalid array element as 0.0, which would look like a perfectly
-    # ordinary edge sitting at row zero.
+    # spacing. NaN marks a row whose edges were never measured -- the best available
+    # placeholder, even though it does not survive a real FITS round trip: CPL's table
+    # reader materialises an invalid array element as 0.0 on load.
     table.new_column_array('bottom', cpl.core.Type.DOUBLE, degree + 1)
     table.new_column_array('top', cpl.core.Type.DOUBLE, degree + 1)
-    table.new_column('has_edges', cpl.core.Type.INT)
 
     unmeasured = np.full(degree + 1, np.nan)
 
@@ -609,18 +594,19 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
                     f"expected {degree + 1} for degree {degree}"
                 )
 
-        table['orders', row] = np.ascontiguousarray(t.pos, dtype=float)
+        table['slice_nb', row] = int(t.slice) if t.slice is not None else int(t.m)
+        table['trace_nb', row] = int(t.m)
+        table['pos', row] = np.ascontiguousarray(t.pos, dtype=float)
         table['column_range', row] = np.ascontiguousarray(t.column_range, dtype=float)
         table['bottom', row] = np.ascontiguousarray(
             unmeasured if t.bottom is None else t.bottom, dtype=float)
         table['top', row] = np.ascontiguousarray(
             unmeasured if t.top is None else t.top, dtype=float)
-        table['has_edges', row] = int(t.has_edges)
 
     return table
 
 
-def traces_from_table(table: cpl.core.Table, ncol: int | None = None) -> list[Trace]:
+def traces_from_table(table: cpl.core.Table) -> list[Trace]:
     """
     Reconstruct traces from an `IFU_DISTORTION_TABLE` extension.
 
@@ -630,57 +616,37 @@ def traces_from_table(table: cpl.core.Table, ncol: int | None = None) -> list[Tr
     ----------
     table : cpl.core.Table
         A single detector's extension of the distortion table.
-    ncol : int, optional
-        Detector width, needed to recompute heights for traces without measured edges.
-        Those heights are left as `None` if omitted.
 
     Returns
     -------
     list[Trace]
-        Traces ordered as stored, with `m` assigned by row index.
+        Traces ordered as stored, with `m`/`slice` read from the `trace_nb`/`slice_nb`
+        columns.
 
     Notes
     -----
     The `bottom` and `top` edge columns were added after the first tables were written,
-    so a table without them still reads: the edges are left unset and the heights fall
-    back to the neighbour spacing, exactly as before. NaN coefficients mark a trace
-    whose edges could not be measured even in a table that has the columns.
+    so a table without them still reads: the edges, and the height derived from them,
+    are simply left unset. NaN coefficients mark a trace whose edges could not be
+    measured even in a table that has the columns.
     """
     if len(table) == 0:
         return []
 
-    coefficients = np.asarray(table.column_array('orders')[0], dtype=float)
+    trace_nbs = np.asarray(table.column_array('trace_nb')[0]).ravel()
+    slice_nbs = np.asarray(table.column_array('slice_nb')[0]).ravel()
     column_ranges = np.asarray(table.column_array('column_range')[0], dtype=float)
-
-    names = set(table.column_names)
-    has_edges = {'bottom', 'top'} <= names
-    edges = {
-        name: np.asarray(table.column_array(name)[0], dtype=float)
-        for name in ('bottom', 'top')
-    } if has_edges else {}
-    flags = (np.asarray(table.column_array('has_edges')[0]).ravel()
-             if 'has_edges' in names else None)
-
-    def edge(name: str, row: int) -> np.ndarray | None:
-        """The stored edge, or None where it was never measured."""
-        if flags is not None and not int(flags[row]):
-            return None
-
-        values = edges[name][row]
-        # Defence in depth for a table written without the flag: NaN is what was stored,
-        # zeros are what CPL hands back for it, and an edge lying on row 0 across the
-        # whole detector is not a physical trace either way.
-        if np.isnan(values).any() or not np.any(values):
-            return None
-
-        return np.ascontiguousarray(values)
+    coefficients = np.asarray(table.column_array('pos')[0], dtype=float)
+    bottom = np.asarray(table.column_array('bottom')[0], dtype=float)
+    top = np.asarray(table.column_array('top')[0], dtype=float)
 
     traces = [
-        Trace(m=row,
+        Trace(m=int(trace_nbs[row]),
+              slice=int(slice_nbs[row]),
               pos=np.ascontiguousarray(coefficients[row]),
               column_range=(int(column_ranges[row][0]), int(column_ranges[row][1])),
-              bottom=edge('bottom', row) if has_edges else None,
-              top=edge('top', row) if has_edges else None)
+              bottom=np.ascontiguousarray(bottom[row]),
+              top=np.ascontiguousarray(top[row]))
         for row in range(len(table))
     ]
 
@@ -688,10 +654,6 @@ def traces_from_table(table: cpl.core.Table, ncol: int | None = None) -> list[Tr
         if t.has_edges:
             mid = 0.5 * (t.column_range[0] + t.column_range[1])
             t.height = float(t.height_at_x(mid))
-
-    # Only traces without measured edges need the neighbour-spacing estimate
-    if ncol is not None and any(not t.has_edges for t in traces):
-        compute_heights([t for t in traces if not t.has_edges], ncol)
 
     return traces
 
@@ -1267,10 +1229,11 @@ def trace(im: np.ndarray,
 
     traces = [
         Trace(m=m,
+              slice=m,
               pos=coefficients[cluster_id],
               column_range=(int(x[cluster_id].min()), int(x[cluster_id].max()) + 1),
               residual=residuals[cluster_id])
-        for m, (cluster_id, _, _, _) in enumerate(keys)
+        for m, (cluster_id, _, _, _) in enumerate(keys, start=1)
     ]
 
     compute_heights(traces, ncol)

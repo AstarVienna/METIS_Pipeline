@@ -48,6 +48,13 @@ class Trace:
         spectrograph this would be the physical diffraction order; for the IFU it is
         simply the slice number, since slices are numbered according to the optical
         design of the spectrograph.
+    slice : int | None
+        Physical image-slicer slice number. In principle distinct from `m`: `m` is only
+        a bottom-to-top rank and shifts if a slice below it goes untraced or clusters
+        merge, whereas a real slice number should stay stable across such changes.
+        There is currently no source for such a stable number, though, so it is simply
+        set equal to `m` wherever a `Trace` is built; kept as a separate field so a real
+        slice-numbering scheme can be wired in later without another format change.
     pos : np.ndarray
         Coefficients of the trace mid-line `y(x)`, in `np.polyval` order
         (highest power first). Shape `(degree + 1,)`.
@@ -61,9 +68,7 @@ class Trace:
         neighbours. `None` when the edges could not be measured.
     height : float | None
         Extraction aperture height in pixels. Derived from `bottom`/`top` when those
-        are present, otherwise from the distance to the neighbouring traces. `None` if
-        it could not be determined. A single number cannot express an extent that
-        varies along the dispersion direction, so prefer the edges where available.
+        are present, `None` if it could not be determined.
     residual : float | None
         RMS deviation, in pixels, between the fitted mid-line and the pixels it was
         fitted to. Feeds the `QC IFU DISTORT RMS` quality control parameter.
@@ -80,6 +85,7 @@ class Trace:
     m: int | None
     pos: np.ndarray
     column_range: tuple[int, int]
+    slice: int | None = None
     bottom: np.ndarray | None = None
     top: np.ndarray | None = None
     height: float | None = None
