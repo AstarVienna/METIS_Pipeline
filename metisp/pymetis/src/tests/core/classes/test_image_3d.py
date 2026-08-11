@@ -21,14 +21,22 @@ import numpy as np
 import pytest
 
 import cpl
+<<<<<<< HEAD
 import hdrl.core
+=======
+import hdrl 
+>>>>>>> 24aedb85 (Revise hdrl import)
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Mask as CplMask,
                       PropertyList as CplPropertyList,
                       Type as CplType)
 from hdrl.core import (Image as HdrlImage,
+<<<<<<< HEAD
                        ImageList as HdrlImageList)
+=======
+                           ImageList as HdrlImageList)
+>>>>>>> 24aedb85 (Revise hdrl import)
 
 from pymetis.engine.core.classes.image import (EnhancedImage,
                                                EnhancedImage3D,

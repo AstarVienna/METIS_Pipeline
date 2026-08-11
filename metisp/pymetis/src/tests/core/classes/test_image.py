@@ -21,7 +21,7 @@ import numpy as np
 import pytest
 
 import cpl
-import hdrl.core
+import hdrl
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Mask as CplMask,
