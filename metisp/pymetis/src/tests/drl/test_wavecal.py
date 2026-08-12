@@ -12,9 +12,11 @@ import pytest
 
 from pymetis.drl.lines import Line
 from pymetis.drl.trace_model import Trace
-from pymetis.drl.wavecal import (assign_wavelengths, build_wavelength_map,
-                                 extract_offset_spectra, fit_wavelength_solution,
-                                 group_lines, linear_solution, solve_slice)
+from pymetis.drl.wavecal import (MAX_TILT_DEGREE, SliceSolution, assign_wavelengths,
+                                 build_wavelength_map, extract_collapsed_spectrum,
+                                 extract_offset_spectra, fit_tilt_solution,
+                                 fit_wavelength_solution, group_lines, linear_solution,
+                                 solutions_from_table, solutions_to_table, solve_slice)
 from pymetis.engine.core.functions.polyfit2d import polyval2d_safe
 
 NROW = NCOL = 2048
@@ -103,6 +105,49 @@ class TestExtractOffsetSpectra:
                                             height=SLICE_HEIGHT, n_offsets=5)
 
         assert spectra[0].count() == 0
+
+
+class TestExtractCollapsedSpectrum:
+    def test_masks_columns_outside_the_trace_range(self):
+        trace = slice_trace()
+
+        spectrum = extract_collapsed_spectrum(synthetic_frame(trace), trace,
+                                              height=SLICE_HEIGHT)
+
+        assert spectrum.shape == (NCOL,)
+        assert np.all(spectrum.mask[:trace.column_range[0]])
+        assert np.all(spectrum.mask[trace.column_range[1]:])
+        assert spectrum[trace.column_range[0]:trace.column_range[1]].count() > 0
+
+    def test_tilt_correction_recovers_a_smeared_line(self):
+        """
+        Without correction, a strongly tilted line's signal lands on a different
+        column in every row, so collapsing the height smears it away to nothing.
+        Correcting for the tilt puts every row's contribution back on the same
+        column before collapsing, recovering the line's full amplitude.
+        """
+        trace = Trace(m=0, pos=np.array([0.0, 0.0, 193.0]), column_range=(6, 2042),
+                      height=SLICE_HEIGHT)
+        big_tilt = -0.5  # far larger than the module's TILT, to make the effect obvious
+        x0 = 900.0
+
+        columns = np.arange(NCOL)
+        rows = np.arange(NROW)[:, None]
+        offset = rows - 193.0
+        inside = np.abs(offset) <= SLICE_HEIGHT / 2
+        position = x0 - big_tilt * offset
+        frame = np.full((NROW, NCOL), 200.0)
+        frame += np.where(inside,
+                          6000.0 * np.exp(-0.5 * ((columns[None, :] - position) / 3.0) ** 2),
+                          0.0)
+
+        uncorrected = extract_collapsed_spectrum(frame, trace, height=SLICE_HEIGHT)
+        corrected = extract_collapsed_spectrum(
+            frame, trace, height=SLICE_HEIGHT,
+            tilt_coefficients=np.array([[0.0, -big_tilt]]))
+
+        assert corrected.max() > 10 * uncorrected.max()
+        assert np.argmax(corrected) == pytest.approx(x0, abs=1)
 
 
 class TestGroupLines:
@@ -241,53 +286,35 @@ class TestAssignWavelengths:
 
 
 class TestFitWavelengthSolution:
-    def lines_from_truth(self, wavelengths=LASERS, offsets=(-40, -20, 0, 20, 40)):
-        coefficients = true_solution()
+    def lines_from_truth(self, wavelengths=LASERS):
+        """Lines from a single, already tilt-corrected spectrum: all at offset zero."""
         lines = []
         for wavelength in wavelengths:
-            for offset in offsets:
-                position = (wavelength - WAVELENGTH_START) / DISPERSION - TILT * offset
-                lines.append(Line(position=position, fwhm=7.0, height=100.0,
-                                  offset=float(offset), wavelength=wavelength))
-        # Sanity check that the constructed lines lie on the intended surface
-        for line in lines:
-            assert polyval2d_safe(line.position, line.offset, coefficients) == \
-                pytest.approx(line.wavelength, abs=1e-12)
+            position = (wavelength - WAVELENGTH_START) / DISPERSION
+            lines.append(Line(position=position, fwhm=7.0, height=100.0,
+                              offset=0.0, wavelength=wavelength))
         return lines
 
     def test_recovers_the_known_solution(self):
-        coefficients, rms, degree = fit_wavelength_solution(self.lines_from_truth(),
-                                                            (1, 1))
+        coefficients, rms, degree = fit_wavelength_solution(self.lines_from_truth(), 1)
 
-        assert degree == (1, 1)
+        assert degree == 1
         assert rms == pytest.approx(0.0, abs=1e-12)
-        np.testing.assert_allclose(coefficients, true_solution(), rtol=1e-6, atol=1e-15)
-
-    def test_recovers_the_tilt_term(self):
-        """The cross-dispersion term is the tilt, and must not come out zero."""
-        coefficients, _, _ = fit_wavelength_solution(self.lines_from_truth(), (1, 1))
-
-        assert coefficients[0, 1] == pytest.approx(DISPERSION * TILT, rel=1e-4)
+        np.testing.assert_allclose(coefficients, [WAVELENGTH_START, DISPERSION],
+                                   rtol=1e-6, atol=1e-15)
 
     def test_reduces_degree_when_wavelengths_are_too_few(self):
         """Two wavelengths can only support a linear dispersion."""
         lines = self.lines_from_truth(wavelengths=LASERS[:2])
 
-        _, _, degree = fit_wavelength_solution(lines, (4, 1))
+        _, _, degree = fit_wavelength_solution(lines, 4)
 
-        assert degree == (1, 1)
-
-    def test_reduces_degree_when_offsets_are_too_few(self):
-        lines = self.lines_from_truth(offsets=(0,))
-
-        _, _, degree = fit_wavelength_solution(lines, (2, 3))
-
-        assert degree[1] == 0
+        assert degree == 1
 
     def test_single_wavelength_cannot_constrain_dispersion(self):
         lines = self.lines_from_truth(wavelengths=LASERS[:1])
 
-        coefficients, rms, _ = fit_wavelength_solution(lines, (2, 1))
+        coefficients, rms, _ = fit_wavelength_solution(lines, 2)
 
         assert coefficients is None
         assert rms is None
@@ -295,10 +322,74 @@ class TestFitWavelengthSolution:
     def test_no_identified_lines_yields_nothing(self):
         lines = [Line(position=100.0, fwhm=7.0, height=1.0, offset=0.0)]
 
-        coefficients, rms, _ = fit_wavelength_solution(lines, (2, 1))
+        coefficients, rms, _ = fit_wavelength_solution(lines, 2)
 
         assert coefficients is None
         assert rms is None
+
+
+class TestFitTiltSolution:
+    def groups_from_truth(self, references=(300.0, 900.0, 1500.0),
+                          offsets=(-40, -20, 0, 20, 40), identify=False):
+        """
+        Groups of detections of the tilt model `position = x0 - TILT * offset`.
+
+        No wavelength is assigned by default -- the tilt fit must not need one.
+        """
+        groups = []
+        for index, x0 in enumerate(references):
+            group = []
+            for offset in offsets:
+                position = x0 - TILT * offset
+                wavelength = LASERS[index % len(LASERS)] if identify else None
+                group.append(Line(position=position, fwhm=7.0, height=100.0,
+                                  offset=float(offset), wavelength=wavelength))
+            groups.append(group)
+        return groups
+
+    def test_recovers_the_tilt_from_unidentified_lines(self):
+        groups = self.groups_from_truth()
+        assert all(line.wavelength is None for group in groups for line in group)
+
+        tilt_coefficients, degree = fit_tilt_solution(groups, 1)
+
+        # The tilt-vs-offset degree follows the request (1); the tilt-vs-x degree is
+        # independent of it and reaches MAX_TILT_DEGREE on its own, given enough groups
+        assert degree == (MAX_TILT_DEGREE, 1)
+        # h_1(x0) is the constant `-TILT`, independent of x0 in this synthetic model
+        assert tilt_coefficients[0, 1] == pytest.approx(-TILT, rel=1e-6)
+        assert tilt_coefficients[1, 1] == pytest.approx(0.0, abs=1e-9)
+        # column 0 (the dy**0 term) is identically zero by construction
+        np.testing.assert_array_equal(tilt_coefficients[:, 0], 0.0)
+
+    def test_identification_makes_no_difference(self):
+        unidentified = fit_tilt_solution(self.groups_from_truth(identify=False), 1)
+        identified = fit_tilt_solution(self.groups_from_truth(identify=True), 1)
+
+        np.testing.assert_array_equal(unidentified[0], identified[0])
+
+    def test_reduces_degree_when_offsets_are_too_few(self):
+        groups = self.groups_from_truth(offsets=(0,))
+
+        _, degree = fit_tilt_solution(groups, 2)
+
+        assert degree[1] == 0
+
+    def test_caps_the_degree_regardless_of_request(self):
+        """Neither degree may exceed `MAX_TILT_DEGREE`, however much is requested."""
+        groups = self.groups_from_truth(references=(200.0, 600.0, 1000.0, 1400.0),
+                                        offsets=(-40, -20, -10, 0, 10, 20, 40))
+
+        _, degree = fit_tilt_solution(groups, 5)
+
+        assert degree[0] <= MAX_TILT_DEGREE
+        assert degree[1] <= MAX_TILT_DEGREE
+
+    def test_no_groups_yields_nothing(self):
+        tilt_coefficients, degree = fit_tilt_solution([], 1)
+
+        assert tilt_coefficients is None
+        assert degree == (0, 0)
 
 
 class TestSolveSlice:
@@ -317,8 +408,10 @@ class TestSolveSlice:
         _, _, solution = self.solve()
 
         assert not solution.fallback
-        assert solution.coefficients is not None
-        assert solution.n_identified == len(LASERS) * 7
+        assert solution.wavelength_coefficients is not None
+        # One identification per laser line, from the single collapsed spectrum --
+        # unlike the tilt fit, this no longer multiplies by the number of offsets
+        assert solution.n_identified == len(LASERS)
 
     def test_solution_matches_the_truth_across_the_slice(self):
         _, _, solution = self.solve()
@@ -347,7 +440,11 @@ class TestSolveSlice:
                                height=SLICE_HEIGHT, approximate=approximate)
 
         assert solution.fallback
-        np.testing.assert_array_equal(solution.coefficients, approximate)
+        np.testing.assert_array_equal(solution.wavelength_coefficients,
+                                      np.asarray(approximate).reshape(-1))
+        # A blank frame has no detections at any offset either, so the tilt fit has
+        # nothing to work with
+        assert solution.tilt_coefficients is None
         assert solution.rms is None
         assert solution.n_identified == 0
 
@@ -357,7 +454,7 @@ class TestSolveSlice:
         solution = solve_slice(np.full((NROW, NCOL), 200.0), trace,
                                wavelengths=list(LASERS), height=SLICE_HEIGHT)
 
-        assert solution.coefficients is None
+        assert solution.wavelength_coefficients is None
         assert solution.evaluate(np.zeros(3), np.zeros(3)) is None
 
 
@@ -435,3 +532,130 @@ class TestLinearSolution:
 
         assert polyval2d_safe(100.0, -50.0, coefficients) == \
             pytest.approx(polyval2d_safe(100.0, 50.0, coefficients))
+
+
+class TestSolutionsToTable:
+    def test_tilt_columns_are_fixed_width_three(self):
+        tilt_coefficients = np.array([[0.0, -0.02, 0.0], [0.0, 3e-5, 0.0]])
+        fitted = SliceSolution(index=1, wavelength_coefficients=np.array([3.5, 1e-5]),
+                              tilt_coefficients=tilt_coefficients, degree=(1, 1))
+        fallback = SliceSolution(index=2, wavelength_coefficients=None,
+                                 tilt_coefficients=None, degree=(0, 0))
+
+        table = solutions_to_table([fitted, fallback])
+
+        assert {'slit_poly_a', 'slit_poly_b', 'slit_poly_c'} <= set(table.column_names)
+        for name in ('slit_poly_a', 'slit_poly_b', 'slit_poly_c'):
+            assert len(table[name, 0][0]) == MAX_TILT_DEGREE + 1
+
+    def test_populated_columns_match_the_tilt_coefficients(self):
+        # Full (MAX_TILT_DEGREE+1, MAX_TILT_DEGREE+1) array, so every slot is a real
+        # fitted value and none are the "not fit" NaN padding.
+        tilt_coefficients = np.array([[0.0, -0.02, 0.001],
+                                      [0.0, 3e-5, 0.0002],
+                                      [0.0, 1e-8, 3e-6]])
+        solution = SliceSolution(index=1, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=tilt_coefficients, degree=(2, 2))
+
+        table = solutions_to_table([solution])
+
+        np.testing.assert_array_equal(table['slit_poly_a', 0][0], tilt_coefficients[:, 0])
+        np.testing.assert_array_equal(table['slit_poly_b', 0][0], tilt_coefficients[:, 1])
+        np.testing.assert_array_equal(table['slit_poly_c', 0][0], tilt_coefficients[:, 2])
+
+    def test_unfit_slots_are_nan_not_zero(self):
+        """A degree lower than `MAX_TILT_DEGREE` leaves the higher slots NaN, not 0."""
+        tilt_coefficients = np.array([[0.0, -0.02, 0.0], [0.0, 3e-5, 0.0]])  # degree (1, 1)
+        solution = SliceSolution(index=1, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=tilt_coefficients, degree=(1, 1))
+
+        table = solutions_to_table([solution])
+
+        np.testing.assert_allclose(table['slit_poly_a', 0][0], [0.0, 0.0, np.nan],
+                                   equal_nan=True)
+        np.testing.assert_allclose(table['slit_poly_b', 0][0], [-0.02, 3e-5, np.nan],
+                                   equal_nan=True)
+
+    def test_no_tilt_is_all_nan(self):
+        solution = SliceSolution(index=1, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=None, degree=(1, 0))
+
+        table = solutions_to_table([solution])
+
+        for name in ('slit_poly_a', 'slit_poly_b', 'slit_poly_c'):
+            assert all(np.isnan(v) for v in table[name, 0][0])
+
+
+class TestSolutionsFromTable:
+    """The inverse of `solutions_to_table`, for everything but `lines`."""
+
+    def test_empty_table_reads_back_empty(self):
+        assert solutions_from_table(solutions_to_table([])) == []
+
+    def test_round_trip_preserves_a_fitted_solution(self):
+        tilt_coefficients = np.array([[0.0, -0.02, 0.001],
+                                      [0.0, 3e-5, 0.0002],
+                                      [0.0, 1e-8, 3e-6]])
+        solution = SliceSolution(index=5, wavelength_coefficients=np.array([3.5, 1.2e-5, 3e-9]),
+                                 tilt_coefficients=tilt_coefficients, degree=(2, 2),
+                                 rms=1.23e-6, fallback=False)
+
+        restored = solutions_from_table(solutions_to_table([solution]))[0]
+
+        assert restored.index == solution.index
+        np.testing.assert_allclose(restored.wavelength_coefficients,
+                                   solution.wavelength_coefficients)
+        np.testing.assert_allclose(restored.tilt_coefficients, tilt_coefficients)
+        assert restored.degree == solution.degree
+        assert restored.rms == pytest.approx(solution.rms)
+        assert restored.fallback is False
+
+    def test_round_trip_preserves_a_lower_degree_tilt(self):
+        """A tilt that never reached `MAX_TILT_DEGREE` must not gain spurious terms."""
+        tilt_coefficients = np.array([[0.0, -0.02], [0.0, 3e-5]])  # degree (1, 1)
+        solution = SliceSolution(index=1, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=tilt_coefficients, degree=(1, 1))
+
+        restored = solutions_from_table(solutions_to_table([solution]))[0]
+
+        np.testing.assert_allclose(restored.tilt_coefficients, tilt_coefficients)
+
+    def test_round_trip_preserves_a_fallback_solution(self):
+        solution = SliceSolution(index=2, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=None, degree=(1, 0), rms=None,
+                                 fallback=True)
+
+        restored = solutions_from_table(solutions_to_table([solution]))[0]
+
+        np.testing.assert_allclose(restored.wavelength_coefficients,
+                                   solution.wavelength_coefficients)
+        assert restored.tilt_coefficients is None
+        assert restored.rms is None
+        assert restored.fallback is True
+
+    def test_round_trip_preserves_an_empty_solution(self):
+        solution = SliceSolution(index=3, wavelength_coefficients=None,
+                                 tilt_coefficients=None, degree=(0, 0))
+
+        restored = solutions_from_table(solutions_to_table([solution]))[0]
+
+        assert restored.wavelength_coefficients is None
+        assert restored.tilt_coefficients is None
+
+    def test_lines_do_not_survive_the_round_trip(self):
+        """
+        Only `n_lines`/`n_identified` counts are stored, not the `Line` measurements
+        themselves, so there is nothing to reconstruct `lines` from.
+        """
+        lines = [Line(position=100.0 + i, fwhm=3.0, height=500.0, wavelength=4.7)
+                for i in range(3)]
+        solution = SliceSolution(index=1, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=None, degree=(1, 0), lines=lines)
+        table = solutions_to_table([solution])
+        assert table['n_lines', 0][0] == 3
+        assert table['n_identified', 0][0] == 3
+
+        restored = solutions_from_table(table)[0]
+
+        assert restored.lines == []
+        assert restored.n_identified == 0
