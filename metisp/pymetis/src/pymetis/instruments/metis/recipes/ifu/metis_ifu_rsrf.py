@@ -358,7 +358,7 @@ def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
             "The wavelength calibration image contains no valid pixel: every value is "
             "zero, so no blackbody spectrum can be evaluated. This usually means "
             "`metis_ifu_wavecal` produced an empty map because the IFU distortion table "
-            "held no slices; check that recipe's QC IFU DISTORT NSPOTS."
+            "held no slices; check that recipe's QC IFU DISTORT NTRACES."
         )
 
     low, high = float(wdata[valid].min()), float(wdata[valid].max())

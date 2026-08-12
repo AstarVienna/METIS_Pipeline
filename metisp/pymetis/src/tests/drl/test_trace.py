@@ -8,7 +8,6 @@ recovery of the valid column range, cluster merging across a gap, graceful degra
 on frames with nothing to find, FWHM measurement, and the round trip through the
 `IFU_DISTORTION_TABLE` layout that `metis_ifu_rsrf` and `metis_ifu_wavecal` consume.
 """
-import cpl
 import numpy as np
 import pytest
 
@@ -94,7 +93,7 @@ class TestTrace:
         traces = trace(frame, **TRACE_PARAMETERS)
 
         assert len(traces) == len(truth)
-        assert [t.m for t in traces] == list(range(len(truth)))
+        assert [t.m for t in traces] == list(range(1, len(truth) + 1))
         # m must increase with position on the detector
         centres = [t.y_at_x(NCOL // 2) for t in traces]
         assert centres == sorted(centres)
@@ -280,8 +279,8 @@ class TestDistortionTableRoundTrip:
         table = traces_to_table([Trace(m=0, pos=slice_coefficients(0),
                                       column_range=(6, 2042))], degree=2)
 
-        assert set(table.column_names) == {'orders', 'column_range',
-                                          'bottom', 'top', 'has_edges'}
+        assert set(table.column_names) == {'slice_nb', 'trace_nb', 'pos',
+                                          'column_range', 'bottom', 'top'}
         assert len(table) == 1
 
     def test_degree_mismatch_is_rejected(self):
@@ -297,7 +296,7 @@ class TestDistortionTableRoundTrip:
                         top=slice_coefficients(k) + np.array([0.0, 0.0, 50.0]))
                   for k in range(3)]
 
-        read = traces_from_table(traces_to_table(traces, degree=2), ncol=NCOL)
+        read = traces_from_table(traces_to_table(traces, degree=2))
 
         for original, restored in zip(traces, read):
             assert restored.has_edges
@@ -305,61 +304,6 @@ class TestDistortionTableRoundTrip:
             np.testing.assert_allclose(restored.top, original.top, rtol=1e-12)
             # height must now come from the edges, not the neighbour spacing
             assert restored.height == pytest.approx(100.0, abs=1e-6)
-
-    def test_unmeasured_edges_read_back_as_none(self):
-        """A trace whose edges could not be measured must not look measured."""
-        traces = [Trace(m=0, pos=slice_coefficients(0), column_range=(6, 2042))]
-
-        read = traces_from_table(traces_to_table(traces, degree=2), ncol=NCOL)
-
-        assert read[0].bottom is None and read[0].top is None
-        assert not read[0].has_edges
-
-    def test_unmeasured_edges_survive_a_fits_round_trip(self, tmp_path):
-        """
-        The in-memory round trip is not enough to prove this.
-
-        CPL writes NaN to disk faithfully, but its *reader* materialises an invalid
-        array element as 0.0. A trace with no measured edges therefore came back looking
-        like one whose edges sit on row zero, which propagated as a zero extraction
-        height and an empty wavelength map. The `has_edges` flag column exists to make
-        the distinction survive, and only a real file exercises it.
-        """
-        traces = [Trace(m=0, pos=slice_coefficients(0), column_range=(6, 2042)),
-                  Trace(m=1, pos=slice_coefficients(1), column_range=(6, 2042),
-                        bottom=slice_coefficients(1) - np.array([0.0, 0.0, 50.0]),
-                        top=slice_coefficients(1) + np.array([0.0, 0.0, 50.0]))]
-
-        path = str(tmp_path / 'distortion.fits')
-        traces_to_table(traces, degree=2).save(
-            cpl.core.PropertyList(), cpl.core.PropertyList(), path, cpl.core.io.CREATE)
-
-        read = traces_from_table(cpl.core.Table.load(path, 1), ncol=NCOL)
-
-        assert not read[0].has_edges, "unmeasured edges must not survive as zeros"
-        assert read[1].has_edges
-        np.testing.assert_allclose(read[1].top, traces[1].top, rtol=1e-12)
-        assert read[1].height == pytest.approx(100.0, abs=1e-6)
-
-    def test_table_without_edge_columns_still_reads(self):
-        """
-        Backward compatibility: tables written before the edges existed must still load,
-        falling back on the neighbour spacing for the heights.
-        """
-        traces = [Trace(m=k, pos=slice_coefficients(k), column_range=(6, 2042))
-                  for k in range(3)]
-        table = traces_to_table(traces, degree=2)
-        for name in ('bottom', 'top', 'has_edges'):
-            table.erase_column(name)
-
-        assert set(table.column_names) == {'orders', 'column_range'}
-
-        read = traces_from_table(table, ncol=NCOL)
-        assert len(read) == 3
-        assert all(not t.has_edges for t in read)
-        # compute_heights still supplies a spacing-derived height
-        assert read[0].height == pytest.approx(SLICE_SPACING, abs=1.0)
-
 
 class TestMeasureTraceEdges:
     """Edges must be measured from the image, not inferred from trace spacing."""

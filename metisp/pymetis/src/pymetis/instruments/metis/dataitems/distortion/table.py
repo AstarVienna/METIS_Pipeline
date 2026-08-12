@@ -78,7 +78,7 @@ class IfuDistortionTable(BandIfuMixin, DistortionTable):
         # distortion_table = self[extension].data
 
         # obtain the trace polynomials from the distortion table
-        trace_polys = distortion_table.column_array('orders')[0]
+        trace_polys = distortion_table.column_array('pos')[0]
         x_ranges = distortion_table.column_array('column_range')[0]
 
         # print(trace_polys)
