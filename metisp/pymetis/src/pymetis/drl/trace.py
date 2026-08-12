@@ -537,10 +537,10 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
     Serialise traces into the METIS `IFU_DISTORTION_TABLE` layout.
 
     One row per trace: `slice_nb` and `trace_nb` identify the trace (`Trace.slice` and
-    `Trace.m` respectively), an array column `pos` holds the `degree + 1` coefficients
-    of the trace mid-line in `np.polyval` order, and an array column `column_range`
-    holds the first and last valid dispersion coordinate. This is the layout
-    `IfuDistortionTable.read()` expects and that `metis_ifu_rsrf` and
+    `Trace.m` respectively), array columns `pos`, `bottom`, and `top` hold the
+    `degree + 1` coefficients of the trace mid-line and edges in `np.polyval` order.
+    An array column `column_range` holds the first and last valid dispersion coordinate.
+    This is the layout `IfuDistortionTable.read()` expects and that `metis_ifu_rsrf` and
     `metis_ifu_wavecal` consume.
 
     Parameters
@@ -622,13 +622,6 @@ def traces_from_table(table: cpl.core.Table) -> list[Trace]:
     list[Trace]
         Traces ordered as stored, with `m`/`slice` read from the `trace_nb`/`slice_nb`
         columns.
-
-    Notes
-    -----
-    The `bottom` and `top` edge columns were added after the first tables were written,
-    so a table without them still reads: the edges, and the height derived from them,
-    are simply left unset. NaN coefficients mark a trace whose edges could not be
-    measured even in a table that has the columns.
     """
     if len(table) == 0:
         return []

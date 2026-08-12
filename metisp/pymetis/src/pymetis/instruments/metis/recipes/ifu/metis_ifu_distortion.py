@@ -195,6 +195,9 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         # cannot happen.
         continuum = self._continuum_frames(self.inputset.raw)
 
+        # TODO: Add option to trace pinhole traces to build a separate distortion table
+        # that can be used to map spatial location in the focal plane [mm] to
+        # dy pixel offsets from the trace mid-line.
         if not continuum:
             Msg.warning(self.__class__.__qualname__,
                         f"DET{det}: no continuum-illuminated raw frames found; "
@@ -221,9 +224,8 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
                         f"No traces detected on DET{det}; "
                         f"its distortion table will be empty")
 
-        # Measure the illuminated extent on the same frame the traces came from, so that
-        # consumers read the aperture off the table instead of guessing it back from the
-        # spacing between mid-lines.
+        # Measure the illuminated extent of the traces and augment the trace objects
+        # with the edge polynomials.
         measure_trace_edges(trace_image, traces, degree=trace_parameters['degree'])
 
         table = traces_to_table(traces, trace_parameters['degree'])
@@ -314,8 +316,8 @@ class MetisIfuDistortion(Recipe):
     _synopsis = "Determine the geometric distortion of the IFU."
     _description = (
         "Locates the spatial slices of the IFU image slicer on each of the four "
-        "detectors and describes each one by a polynomial, producing a table of "
-        "distortion coefficients that maps detector position to position on sky.\n"
+        "detectors and describes each one by a set of polynomials, producing a table of "
+        "distortion coefficients that maps trace y as a function of detector x.\n"
         "Slit tilt is not determined yet; that requires a line-rich calibration "
         "frame, which this recipe does not receive.\n"
         "\n"
@@ -334,11 +336,10 @@ class MetisIfuDistortion(Recipe):
         "output and fails, rather than falling back to tracing the pinhole exposure "
         "the DRLD prescribes.\n"
         "2. Additional table columns. The distortion table carries `bottom` and `top` "
-        "edge polynomials, and a `has_edges` flag, beyond the mid-line and column "
+        "edge polynomials, beyond the mid-line and column "
         "range the DRLD specifies. They record the measured illuminated extent of each "
         "slice so that metis_ifu_wavecal need not guess it back from the slice "
-        "spacing. Readers that do not know the columns are unaffected, and tables "
-        "written without them are still read.\n"
+        "spacing.\n"
         "\n"
         "QC IFU DISTORT NTRACES reports the total number of slices traced across all "
         "four detectors."
@@ -351,8 +352,8 @@ class MetisIfuDistortion(Recipe):
     Discard the detector borders, then close gaps and remove specks morphologically.
     Label connected components and discard those too small or too narrow to constrain
     a fit, then merge the clusters that belong to the same slice.
-    Fit a polynomial mid-line to each surviving cluster and tabulate its coefficients
-    together with the valid column range.
+    Fit a polynomial mid-line and top/bottom edge polynomials to each surviving cluster
+    and tabulate their coefficients together with the valid column range.
 
     Adapted from PyReduce (Piskunov & Valenti 2002, Piskunov, Wehrhahn & Marquart
     2021), as prescribed by the DRLD for IFU distortion correction."""
