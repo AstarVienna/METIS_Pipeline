@@ -26,6 +26,9 @@ from astropy.table import QTable
 from cpl.core import Msg
 
 from pymetis.drl.combine import combine_images
+from pymetis.drl.image import zeros_like
+from pymetis.drl.trace import traces_from_table
+from pymetis.drl.trace_model import Trace
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
@@ -140,7 +143,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         # load IFU trace definition file
         distortion_table = self.inputset.distortion_table.load_data(extension=rf'DET{det}')
-        trace_list = self.inputset.distortion_table.item.read(distortion_table=distortion_table)
+        trace_list = traces_from_table(distortion_table)
 
         # load wavelength calibration image
         wavecal_img = self.inputset.wavecal.load_data(extension=rf'DET{det}')
@@ -183,7 +186,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         # create black-body image
         Msg.info(self.__class__.__qualname__,
                     f"Creating black-body image...")
-        bb_img = create_ifu_blackbody_image(wavecal_img, bb_temp)
+        bb_img = _create_ifu_blackbody_image(wavecal_img, bb_temp)
 
         # scale the BB image to the RSRF image before dividing
         raw_level = spec_flat_img.get_max()
@@ -197,6 +200,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         # divide the RSRF image by the black-body spectrum
         # (inherits the bb bad-pixel mask)
         spec_flat_img.divide(bb_img)
+        spec_flat_img.fill_rejected(1)  # set rejected pixels to 1
         # TODO: propagate errors
 
         # SKEL: Add QC keywords
@@ -217,8 +221,10 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         badpix_hdr = cpl.core.PropertyList()
         badpix_hdr.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
         # placeholder data for now -- bad-pixel map based spec_flat_img
-        badpix_img = master_dark_img
+        badpix_img = zeros_like(spec_flat_img, cpl.core.Type.INT)
+        badpix_img.reject_from_mask(master_dark_img.bpm)  # update with master_dark bpm
         badpix_img.reject_from_mask(spec_flat_img.bpm)  # update with master_dark bpm
+        badpix_img.fill_rejected(1) # set rejected pixels to 1
         # TODO: create QC1 parameters:
         # Add QC keywords
         badpix_hdr.append(
@@ -233,16 +239,15 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         # extract 1D RSRF curves
         Msg.info(self.__class__.__qualname__,
                     f"Extracting 1D RSRF curves...")
-        rsrf_1d_list = extract_ifu_1d_spectra(spec_flat_img, trace_list,
-                                              trace_width=self.extract_hwidth)
+        rsrf_1d_list = _extract_ifu_1d_spectra(spec_flat_img, trace_list)
 
         # global normalisation of the 1D RSRF curves
         rsrf_med = np.zeros(len(rsrf_1d_list))
         for i in range(len(rsrf_1d_list)):
             # avoid calling cpl.core.Vector.median() as this sorts the vector!
-            rsrf_med[i] = np.median(rsrf_1d_list[i])
+            rsrf_med[i] = np.nanmedian(rsrf_1d_list[i])
 
-        scale = np.mean(rsrf_med)
+        scale = np.nanmean(rsrf_med)
 
         if scale == 0:
             Msg.warning(self.__class__.__qualname__,
@@ -314,7 +319,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 BLACKBODY_SAMPLES = 4096
 
 
-def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
+def _create_ifu_blackbody_image(wavecal_img: cpl.core.Image, bb_temp: float) -> cpl.core.Image:
     """
     Create a blackbody image from the wavelength calibration image.
 
@@ -385,7 +390,7 @@ def create_ifu_blackbody_image(wavecal_img, bb_temp) -> cpl.core.Image:
     return bb_img
 
 
-def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
+def _extract_ifu_1d_spectra(img: cpl.core.Image, trace_list: list[Trace], trace_width: int | None = None) -> list:
     """
     Extract 1D spectra from the given image using the provided list of
     spectral trace coordinates.
@@ -393,11 +398,11 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
     Parameters:
     img : cpl.core.Image
         The image from which to extract the spectra.
-    trace_list : list of tuples
-        Each tuple contains two arrays: x-coordinates and y-coordinates
-        of the spectral trace.
-    trace_width : int
+    trace_list : list[Trace]
+        A list of Trace objects representing the spectral traces.
+    trace_width : int | None
         The width of the trace to be used for extraction.
+        TODO: replace with width factor to be multiplied by the trace height.
 
     Returns:
     list of 1d array
@@ -414,12 +419,16 @@ def extract_ifu_1d_spectra(img, trace_list, trace_width: int = 10) -> list:
     # create a list of 1D RSRF curves (width is the image width)
     rsrf_1d_list = []
     for trace in trace_list:
-        x_arr, y_arr = trace[0], trace[1]
+        x_arr = np.arange(trace.column_range[0], trace.column_range[1])
+        y_arr = np.array(trace.y_at_x(x_arr))
+        if trace_width is None:
+            trace_width = trace.height / 2
         rsrf_1d = np.zeros(imwidth, dtype=float)
         for i, x in enumerate(x_arr):
             yc = y_arr[i]
             rsrf_1d[int(x)] = mdata[int(yc - trace_width):int(yc + trace_width), int(x)].mean()
         rsrf_1d_list.append(rsrf_1d)
+        good = np.count_nonzero(~np.isnan(rsrf_1d))
 
     return rsrf_1d_list
 
