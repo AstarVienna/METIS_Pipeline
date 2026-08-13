@@ -636,8 +636,8 @@ def traces_from_table(table: cpl.core.Table) -> list[Trace]:
     traces = [
         Trace(m=int(trace_nbs[row]),
               slice=int(slice_nbs[row]),
-              pos=np.ascontiguousarray(coefficients[row]),
               column_range=(int(column_ranges[row][0]), int(column_ranges[row][1])),
+              pos=np.ascontiguousarray(coefficients[row]),
               bottom=np.ascontiguousarray(bottom[row]),
               top=np.ascontiguousarray(top[row]))
         for row in range(len(table))

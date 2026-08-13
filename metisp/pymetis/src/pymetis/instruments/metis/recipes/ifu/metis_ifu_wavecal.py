@@ -507,7 +507,7 @@ class MetisIfuWavecal(Recipe):
                         "in microns. Used only when the frame header carries no laser "
                         "wavelength keywords. Defaults to the three METIS WCU lasers, "
                         "the middle one being the tuneable QCL",
-            default="3.39,4.73,5.26",
+            default="4.7, 4.71, 4.72, 4.73, 4.74, 4.75, 4.76",
         ),
         ParameterValue(
             name=f"{_name}.lines.match_tolerance",
@@ -548,7 +548,7 @@ class MetisIfuWavecal(Recipe):
                         "A degree of 1 captures a linear line tilt",
             default=1,
             min=0,
-            max=3,
+            max=2,
         ),
         ParameterRange(
             name=f"{_name}.solution.offsets",
@@ -581,7 +581,7 @@ class MetisIfuWavecal(Recipe):
                         "pixel with no wavelength is one metis_ifu_rsrf cannot use. "
                         "Capped at the distance to the neighbouring slice. Ignored where "
                         "the extent came from slices.fill_factor instead",
-            default=0.1,
+            default=0.05,
             min=0.0,
             max=1.0,
         ),
