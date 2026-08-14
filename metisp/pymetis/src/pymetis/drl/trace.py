@@ -626,6 +626,7 @@ def traces_from_table(table: cpl.core.Table) -> list[Trace]:
     if len(table) == 0:
         return []
 
+    # TODO - is this a robust way to access the column arrays?
     trace_nbs = np.asarray(table.column_array('trace_nb')[0]).ravel()
     slice_nbs = np.asarray(table.column_array('slice_nb')[0]).ravel()
     column_ranges = np.asarray(table.column_array('column_range')[0], dtype=float)

@@ -198,6 +198,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         # TODO: Add option to trace pinhole traces to build a separate distortion table
         # that can be used to map spatial location in the focal plane [mm] to
         # dy pixel offsets from the trace mid-line.
+        # TODO: Consider subtracting a WCU_OFF frame for pinholes
         if not continuum:
             Msg.warning(self.__class__.__qualname__,
                         f"DET{det}: no continuum-illuminated raw frames found; "

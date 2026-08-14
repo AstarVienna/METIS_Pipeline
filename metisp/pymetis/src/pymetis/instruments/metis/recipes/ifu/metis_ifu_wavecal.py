@@ -349,7 +349,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
                      f"{det}: fitted {fitted} of {len(solutions)} slices from "
                      f"measured lines")
 
-        wavelength_map = build_wavelength_map((nrow, ncol), traces, solutions, heights)
+        wavelength_map = build_wavelength_map((nrow, ncol), solutions, heights)
 
         return {
             'HDU': self._wavelength_hdu(wavelength_map, det),

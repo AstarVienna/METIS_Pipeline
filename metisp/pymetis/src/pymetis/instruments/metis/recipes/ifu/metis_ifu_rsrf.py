@@ -269,6 +269,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         rsrf_table = cpl.core.Table(table)
 
+        # TODO - need to save the BP map as a DQ-extention only product?
         return {
             'BACKGROUND': Hdu(background_hdr, background_img, name=rf'DET{det}.DATA'),
             'MASTERFLAT': Hdu(spec_flat_hdr, spec_flat_img, name=rf'DET{det}.SCI'),

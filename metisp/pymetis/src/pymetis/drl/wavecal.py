@@ -44,6 +44,7 @@ from cpl.core import Msg
 
 from pymetis.drl.lines import Line, detect_lines
 from pymetis.drl.rectify import rectify_trace
+from pymetis.drl.trace import traces_to_table
 from pymetis.drl.trace_model import Trace
 from pymetis.engine.core.functions.polyfit2d import polyfit2d, polyval2d_safe
 
@@ -79,6 +80,9 @@ class SliceSolution:
     fallback : bool
         True if the wavelength solution came from the supplied approximate model rather
         than from measured lines.
+    trace : Trace | None
+        The trace this solution was based on - useful for combining trace and wavelength
+        information when serialising to file.
     """
 
     index: int
@@ -88,6 +92,7 @@ class SliceSolution:
     lines: list[Line] = field(default_factory=list)
     rms: float | None = None
     fallback: bool = False
+    trace: Trace | None = None
 
     @property
     def n_identified(self) -> int:
@@ -239,6 +244,8 @@ def extract_collapsed_spectrum(image: np.ndarray,
 
     Falls back to a plain median collapse, uncorrected, when no tilt model is
     available (still better signal-to-noise than a thin band, just not tilt-corrected).
+
+    TODO: replace with proper science extraction later
 
     Parameters
     ----------
@@ -642,7 +649,8 @@ def solve_slice(image: np.ndarray,
                                     tilt_degree[1]),
                              lines=lines,
                              rms=None,
-                             fallback=approximate is not None)
+                             fallback=approximate is not None,
+                             trace=trace)
 
     return SliceSolution(index=trace.m if trace.m is not None else 0,
                          wavelength_coefficients=wavelength_coefficients,
@@ -650,11 +658,11 @@ def solve_slice(image: np.ndarray,
                          degree=(dispersion_degree, tilt_degree[1]),
                          lines=lines,
                          rms=rms,
-                         fallback=False)
+                         fallback=False,
+                         trace=trace)
 
 
 def build_wavelength_map(shape: tuple[int, int],
-                         traces: list[Trace],
                          solutions: list[SliceSolution],
                          heights: list[float]) -> np.ndarray:
     """
@@ -668,8 +676,6 @@ def build_wavelength_map(shape: tuple[int, int],
     ----------
     shape : tuple[int, int]
         Shape of the detector image.
-    traces : list[Trace]
-        Slices, in the same order as `solutions` and `heights`.
     solutions : list[SliceSolution]
         Wavelength solution per slice. Slices whose solution has no coefficients are
         skipped, leaving their pixels at zero.
@@ -685,8 +691,11 @@ def build_wavelength_map(shape: tuple[int, int],
     wavelength_map = np.zeros(shape, dtype=float)
     rows = np.arange(nrow)
 
-    for trace, solution, height in zip(traces, solutions, heights):
+    for solution, height in zip(solutions, heights):
         if solution.wavelength_coefficients is None:
+            continue
+        trace = solution.trace
+        if trace is None:
             continue
 
         start, end = trace.column_range
@@ -754,8 +763,16 @@ def solutions_to_table(solutions: list[SliceSolution]) -> cpl.core.Table:
     wavelength_width = max((s.wavelength_coefficients.size for s in solutions
                            if s.wavelength_coefficients is not None), default=1)
 
+
+    # include trace in the table
+    tmp_trace = solutions[0].trace if solutions else None
+    degree = tmp_trace.degree if tmp_trace is not None else 0
+    trace_table = traces_to_table([tmp_trace], degree) if tmp_trace is not None else cpl.core.Table.empty(0)
+
+    # create the trace-wave table
     table = cpl.core.Table.empty(len(solutions))
-    table.new_column('slice', cpl.core.Type.INT)
+    table.copy_structure(trace_table)
+    # table.new_column('slice', cpl.core.Type.INT)
     table.new_column('degree_dispersion', cpl.core.Type.INT)
     table.new_column('degree_spatial', cpl.core.Type.INT)
     table.new_column('n_lines', cpl.core.Type.INT)
@@ -769,6 +786,16 @@ def solutions_to_table(solutions: list[SliceSolution]) -> cpl.core.Table:
     table.new_column_array('slit_poly_c', cpl.core.Type.DOUBLE, MAX_TILT_DEGREE + 1)
 
     for row, solution in enumerate(solutions):
+        if solution.trace is None:
+            Msg.warning('solutions_to_table',
+                        f"Slice {solution.index} has no trace; skipping its row in the table")
+            continue
+
+        trace_table = traces_to_table([solution.trace], solution.trace.degree)
+        # copy the trace information into the table
+        for name in trace_table.column_names:
+            table[name, row] = trace_table[name, 0][0]
+
         wavelength_padded = np.full(wavelength_width, np.nan)
         if solution.wavelength_coefficients is not None:
             flat = np.asarray(solution.wavelength_coefficients, dtype=float).ravel()
@@ -781,7 +808,7 @@ def solutions_to_table(solutions: list[SliceSolution]) -> cpl.core.Table:
                 column[:tilt.shape[0]] = tilt[:, j]
             table[name, row] = np.ascontiguousarray(column, dtype=float)
 
-        table['slice', row] = int(solution.index)
+        # table['slice', row] = int(solution.index)
         table['degree_dispersion', row] = int(solution.degree[0])
         table['degree_spatial', row] = int(solution.degree[1])
         table['n_lines', row] = int(len(solution.lines))
@@ -832,6 +859,8 @@ def solutions_from_table(table: cpl.core.Table) -> list[SliceSolution]:
     degree_spatial = np.asarray(table.column_array('degree_spatial')[0]).ravel()
     rms = np.asarray(table.column_array('rms')[0]).ravel()
     fallback = np.asarray(table.column_array('fallback')[0]).ravel()
+
+    # TODO: read trace information from the table and populate `SliceSolution.trace` too.
 
     solutions = []
     for row in range(len(table)):

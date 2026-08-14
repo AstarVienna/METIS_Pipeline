@@ -181,8 +181,9 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         raw_images = self.correct_gain(raw_images, gain)
         # raw_images = self.correct_persistence(raw_images) # currently fails
 
-        #linearity_map = self.inputset.linearity.load_data(extension=rf'DET{detector:1d}.SCI')
-        #raw_images = self.correct_nonlinearity(raw_images, linearity_map)
+        if self.inputset.linearity.item is not None:
+            linearity_map = self.inputset.linearity.load_data(extension=rf'DET{detector:1d}.SCI')
+            raw_images = self.correct_nonlinearity(raw_images, linearity_map)
 
         if len(raw_images) > 1:
             Msg.info(self.__class__.__qualname__,
