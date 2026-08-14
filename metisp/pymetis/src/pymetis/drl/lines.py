@@ -247,18 +247,19 @@ def detect_lines(spectrum: np.ndarray,
     if maxima.size == 0:
         return []
 
-    # Require a resolved profile: a genuine line has minima on both sides, far enough
-    # away that there are pixels to fit
+    # Require a resolved profile: a genuine line has a minimum on each side, far enough
+    # away that there are pixels to fit. A side with no minimum at all -- typically
+    # because everything between the peak and that edge is flat background, which has
+    # no strict extremum of its own -- is still a resolved edge, not an unresolved one;
+    # bracket it with a fixed-width window there instead of discarding the peak.
     if minima.size:
         left_of = np.searchsorted(minima, maxima)
-        has_both = (left_of > 0) & (left_of < minima.size)
-        maxima, left_of = maxima[has_both], left_of[has_both]
-
-        if maxima.size == 0:
-            return []
-
-        left = minima[left_of - 1]
-        right = minima[left_of]
+        has_left = left_of > 0
+        has_right = left_of < minima.size
+        left = np.where(has_left, minima[np.clip(left_of - 1, 0, minima.size - 1)],
+                        np.maximum(maxima - 5, 0))
+        right = np.where(has_right, minima[np.clip(left_of, 0, minima.size - 1)],
+                         np.minimum(maxima + 5, npix - 1))
         far_enough = ((maxima - left) >= min_separation) & ((right - maxima) >= min_separation)
         maxima, left, right = maxima[far_enough], left[far_enough], right[far_enough]
     else:

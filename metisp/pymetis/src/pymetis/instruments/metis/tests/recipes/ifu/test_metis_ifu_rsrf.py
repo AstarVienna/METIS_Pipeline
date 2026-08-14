@@ -22,7 +22,7 @@ import pytest
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe,
                                                 MetisIfuRsrfImpl as Impl)
 from tests.classes import BaseRecipeTest, BaseProductSetTest, RawInputSetTest
-from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import create_ifu_blackbody_image, extract_ifu_1d_spectra
+from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import _create_ifu_blackbody_image, _extract_ifu_1d_spectra
 
 from pytest import approx
 import numpy as np
@@ -76,7 +76,7 @@ class TestBlackBodyImg:
         wavecal_img = cpl.core.Image(wavecal_data)
 
         bb_temp = 800   # K
-        bb_img = create_ifu_blackbody_image(wavecal_img, bb_temp)
+        bb_img = _create_ifu_blackbody_image(wavecal_img, bb_temp)
 
         assert bb_img.get_median() == approx(3.2575, rel=1e-3)
         assert bb_img.get_min() == approx(3.21761, rel=1e-3)
@@ -103,7 +103,7 @@ class TestExtractTraces:
         img = cpl.core.Image(data)
 
         # extract 1d traces from the image
-        traces_1d = extract_ifu_1d_spectra(img, trace_list)
+        traces_1d = _extract_ifu_1d_spectra(img, trace_list)
 
         # something to compare against
         med = [np.median(traces_1d[i]) for i in np.arange(5)]

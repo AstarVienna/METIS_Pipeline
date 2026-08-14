@@ -20,22 +20,30 @@ Two-dimensional wavelength solution for an integral field spectrograph.
 
 Implements the DRLD prescription for the METIS IFU: for each spatial slice `i`, a
 wavelength solution `lambda = g_i(x, y)`, "sufficiently accurately described by
-low-order polynomials". Emission lines are measured at several cross-dispersion offsets
-within each slice, so that the fit captures the tilt of the lines with respect to the
-detector columns without needing a separate slit tilt determination.
+low-order polynomials", split into two independent fits. The tilt of a line's position
+with cross-dispersion offset is fit first, from every line detected in several offset
+spectra regardless of whether it was identified -- the tilt needs no wavelength at all.
+The wavelength solution is fit second, from lines identified in a single, high-
+signal-to-noise spectrum obtained by collapsing the whole slice height, correcting for
+the tilt just fit so a tilted line is summed along its own ridge rather than smeared.
 
 The line detection and Gaussian centroiding it builds on are adapted from PyReduce; see
-`pymetis.drl.lines`. The offset-spectrum extraction follows the same approach PyReduce
-uses for slit curvature (`pyreduce.slit_curve.Curvature._extract_offset_spectra`).
+`pymetis.drl.lines`. The offset-spectrum extraction used for the tilt fit follows the
+same approach PyReduce uses for slit curvature
+(`pyreduce.slit_curve.Curvature._extract_offset_spectra`); the tilt-corrected collapse
+used for the wavelength fit follows PyReduce's curvature-corrected extraction instead
+(`pyreduce.extract.simple_extraction`/`correct_for_curvature`).
 """
 
 from dataclasses import dataclass, field
 
 import cpl
 import numpy as np
+from astropy.io import fits
 from cpl.core import Msg
 
 from pymetis.drl.lines import Line, detect_lines
+from pymetis.drl.rectify import rectify_trace
 from pymetis.drl.trace_model import Trace
 from pymetis.engine.core.functions.polyfit2d import polyfit2d, polyval2d_safe
 
@@ -49,25 +57,33 @@ class SliceSolution:
     ----------
     index : int
         Slice number, matching `Trace.m`.
-    coefficients : np.ndarray | None
-        Coefficients of `lambda(x, dy)`, where `x` is the dispersion coordinate in
-        pixels and `dy` the signed cross-dispersion distance from the slice mid-line,
-        also in pixels. `coeff[i, j]` multiplies `x**i * dy**j`. `None` if no solution
-        could be established at all.
+    wavelength_coefficients : np.ndarray | None
+        Coefficients of `lambda(x)`, the wavelength as a polynomial in dispersion
+        position `x` at offset zero (1D, low-order-first). `None` if no solution could
+        be established at all.
+    tilt_coefficients : np.ndarray | None
+        Coefficients describing how a line's position shifts away from its offset-zero
+        position as a function of both. `coeff[i, j]` multiplies `x**i * dy**j`; column
+        0 (the `dy**0` term) is identically zero, since a line has no shift at its own
+        reference offset. `None` if the offsets could not constrain any tilt.
     degree : tuple[int, int]
-        Degrees actually used, which may be lower than requested if the number of
-        identified lines or offsets could not constrain the full polynomial.
+        (dispersion, tilt) degrees actually used, which may be lower than requested if
+        the number of identified lines or offsets could not constrain the full
+        polynomial.
     lines : list[Line]
-        Every line measured in this slice, with `wavelength` set on those identified.
+        Every line measured in the collapsed, tilt-corrected spectrum, with
+        `wavelength` set on those identified.
     rms : float | None
-        Root mean square residual of the fit, in the same unit as the wavelengths.
+        Root mean square residual of the wavelength fit, in the same unit as the
+        wavelengths.
     fallback : bool
-        True if the solution came from the supplied approximate model rather than from
-        measured lines.
+        True if the wavelength solution came from the supplied approximate model rather
+        than from measured lines.
     """
 
     index: int
-    coefficients: np.ndarray | None
+    wavelength_coefficients: np.ndarray | None
+    tilt_coefficients: np.ndarray | None
     degree: tuple[int, int]
     lines: list[Line] = field(default_factory=list)
     rms: float | None = None
@@ -80,10 +96,33 @@ class SliceSolution:
 
     def evaluate(self, x: np.ndarray, dy: np.ndarray) -> np.ndarray | None:
         """Evaluate the solution at dispersion coordinate `x` and offset `dy`."""
-        if self.coefficients is None:
-            return None
+        return _evaluate_solution(x, dy, self.wavelength_coefficients,
+                                  self.tilt_coefficients)
 
-        return polyval2d_safe(x, dy, self.coefficients)
+
+def _evaluate_solution(x: np.ndarray,
+                       dy: np.ndarray,
+                       wavelength_coefficients: np.ndarray | None,
+                       tilt_coefficients: np.ndarray | None) -> np.ndarray | None:
+    """
+    Wavelength at dispersion position `x`, offset `dy` from the slice mid-line.
+
+    `wavelength_coefficients` is fitted as a function of a line's position at offset
+    zero, which `x` alone is not -- a line's position drifts from it by the tilt as
+    `dy` moves away from zero. The offset-zero position is recovered by evaluating the
+    fitted tilt at the pixel's own `x` rather than solving for it self-consistently: the
+    tilt is a small correction, so the error this introduces is second order.
+    """
+    if wavelength_coefficients is None:
+        return None
+
+    x = np.asarray(x, dtype=float)
+    dy = np.asarray(dy, dtype=float)
+
+    if tilt_coefficients is not None:
+        x = x - polyval2d_safe(x, dy, tilt_coefficients)
+
+    return np.polynomial.polynomial.polyval(x, wavelength_coefficients)
 
 
 def linear_solution(wavelength_start: float,
@@ -168,7 +207,84 @@ def extract_offset_spectra(image: np.ndarray,
         spectra[i, columns_here] = np.median(image[rows_here, columns_here[None, :]],
                                             axis=0)
 
+    # # DEBUG: dump the extracted offset spectra for inspection. Remove once done.
+    # debug_hdus = [fits.PrimaryHDU()]
+    # for i, offset in enumerate(offsets):
+    #     debug_hdu = fits.ImageHDU(
+    #         data=np.ma.filled(spectra[i], np.nan).astype(np.float32), name=f"OFFSET_{i}")
+    #     debug_hdu.header['OFFSET'] = (float(offset), 'cross-dispersion offset, pixels')
+    #     debug_hdus.append(debug_hdu)
+    # fits.HDUList(debug_hdus).writeto(
+    #     f"./debug_{trace.m}.fits", overwrite=True)
+
     return spectra, offsets
+
+
+def extract_collapsed_spectrum(image: np.ndarray,
+                               trace: Trace,
+                               *,
+                               height: float,
+                               tilt_coefficients: np.ndarray | None = None,
+                               ) -> np.ma.MaskedArray:
+    """
+    Collapse the whole slice height into one high-signal-to-noise 1D spectrum.
+
+    Adapted from PyReduce's curvature-corrected extraction (`pyreduce.extract.
+    simple_extraction`/`correct_for_curvature`): each row of the rectified strip is
+    resampled onto the offset-zero dispersion grid using the fitted tilt before the
+    rows are collapsed, so a tilted line is summed along its own ridge rather than
+    smeared across columns. This is the extraction the wavelength fit uses -- unlike
+    `extract_offset_spectra`, which only samples thin bands at fixed offsets to
+    *measure* the tilt in the first place.
+
+    Falls back to a plain median collapse, uncorrected, when no tilt model is
+    available (still better signal-to-noise than a thin band, just not tilt-corrected).
+
+    Parameters
+    ----------
+    image : np.ndarray
+        Detector image.
+    trace : Trace
+        The slice to extract.
+    height : float
+        Full height of the slice in pixels.
+    tilt_coefficients : np.ndarray, optional
+        As fitted by `fit_tilt_solution`. `None` skips the curvature correction.
+
+    Returns
+    -------
+    np.ma.MaskedArray
+        1D spectrum, shape `(ncol,)`, masked outside `trace.column_range` and wherever
+        the correction had nothing valid to interpolate from.
+    """
+    ncol = image.shape[1]
+    int_height = max(int(round(height)), 1)
+    # `rectify_trace`'s strip is only as wide as `trace.column_range` and is indexed
+    # from its start, not from the detector's column 0 -- the tilt model and the
+    # returned spectrum are both in absolute detector columns, so that offset has to be
+    # carried explicitly throughout.
+    strip = rectify_trace(image, trace, int_height)          # (int_height, width)
+    start = max(0, int(trace.column_range[0]))
+    end = min(ncol, int(trace.column_range[1]))
+    columns = np.arange(start, end, dtype=float)
+
+    if tilt_coefficients is not None:
+        rows = np.arange(int_height) - int_height // 2       # offsets from the mid-line
+        corrected = np.full_like(strip, np.nan)
+        for i, dy in enumerate(rows):
+            shift = polyval2d_safe(columns, np.full_like(columns, float(dy)),
+                                   tilt_coefficients)
+            valid = ~np.isnan(strip[i])
+            if valid.sum() < 2:
+                continue
+            corrected[i] = np.interp(columns + shift, columns[valid], strip[i][valid],
+                                     left=np.nan, right=np.nan)
+        strip = corrected
+
+    collapsed = np.ma.median(np.ma.masked_invalid(strip), axis=0)
+    spectrum = np.ma.masked_all(ncol)
+    spectrum[start:end] = collapsed
+    return spectrum
 
 
 def group_lines(lines: list[Line], tolerance: float = 3.0) -> list[list[Line]]:
@@ -238,6 +354,15 @@ def assign_wavelengths(groups: list[list[Line]],
     positions = np.array([np.mean([m.position for m in g]) for g in groups])
     expected = np.sort(np.asarray(wavelengths, dtype=float))
 
+    Msg.info('assign_wavelengths',
+             f"Attempting to assign {len(expected)} expected wavelengths to "
+                f"{len(groups)} detected lines")
+
+    Msg.info('assign_wavelengths',
+             f"Detected line positions: {positions}")
+    Msg.info('assign_wavelengths',
+                f"Expected wavelengths: {expected}")
+
     if approximate is not None:
         predicted = polyval2d_safe(positions, np.zeros_like(positions), approximate)
 
@@ -292,56 +417,138 @@ def assign_wavelengths(groups: list[list[Line]],
     return 0
 
 
-def fit_wavelength_solution(lines: list[Line],
-                            degree: tuple[int, int],
-                            ) -> tuple[np.ndarray | None, float | None, tuple[int, int]]:
-    """
-    Fit `lambda(x, dy)` to identified lines, reducing the degree where unconstrained.
+#: Hard cap on both the per-group dx=f(dy) degree and each tilt coefficient's own
+#: degree in x, independent of the recipe's dispersion-degree parameter. Matches the
+#: fixed 3-coefficient `slit_poly_a/b/c` layout `solutions_to_table` serialises this
+#: into (the CRIRES+ `trace_wave` convention for the same PyReduce slit-curvature
+#: algorithm).
+MAX_TILT_DEGREE = 2
 
-    The dispersion degree cannot exceed one less than the number of distinct
-    wavelengths, and the cross-dispersion degree one less than the number of distinct
-    offsets. Requesting more would fit noise, or fail outright, so both are clamped.
+
+def fit_tilt_solution(groups: list[list[Line]],
+                      degree_spatial: int,
+                      ) -> tuple[np.ndarray | None, tuple[int, int]]:
+    """
+    Fit the tilt of a line's position with cross-dispersion offset.
+
+    Uses every detected line in every group, whether or not it was identified with a
+    wavelength -- the tilt depends only on how a line's position shifts with offset,
+    which needs no wavelength at all, and using every detection rather than only the
+    (usually much smaller) identified subset gives the fit far more to work with.
+
+    For each group, fits `position = Q(offset)`; `Q`'s constant term is the group's
+    reference position at offset zero, and `Q` minus that constant is exactly the
+    `dx = f(dy)` shift of the line away from it. Fitting each of those coefficients as
+    a function of the groups' reference positions then gives the tilt as a function of
+    dispersion position too. Both degrees -- `Q`'s own, and each coefficient's fit
+    across the slice -- are capped at `MAX_TILT_DEGREE`, independent of `degree_spatial`
+    and of the recipe's dispersion-degree parameter respectively.
+
+    Parameters
+    ----------
+    groups : list[list[Line]]
+        Detections of the same physical line across offsets, as returned by
+        `group_lines`. Lines need not be identified with a wavelength.
+    degree_spatial : int
+        Requested degree of `Q` (position as a function of offset). Reduced where the
+        data cannot constrain it, and in any case capped at `MAX_TILT_DEGREE`.
 
     Returns
     -------
-    tuple[np.ndarray | None, float | None, tuple[int, int]]
-        Coefficients, RMS residual, and the degrees actually used. Coefficients are
-        `None` if there was nothing to fit.
+    tuple[np.ndarray | None, tuple[int, int]]
+        Tilt coefficients (2D, `coeff[i, j]` multiplies `x**i * dy**j`; column 0 is
+        identically zero since a line has no shift at its own reference offset), and
+        the (dispersion, cross-dispersion) degrees actually used. `None` if no group
+        had enough distinct offsets to fit any tilt at all.
+    """
+    references, tilts, group_degrees_y = [], [], []
+    for group in groups:
+        if not group:
+            continue
+
+        offsets = np.array([line.offset for line in group], dtype=float)
+        positions = np.array([line.position for line in group], dtype=float)
+        group_degree_y = min(int(degree_spatial), MAX_TILT_DEGREE,
+                             np.unique(offsets).size - 1)
+
+        fit = polyfit2d(offsets, np.zeros_like(offsets), positions,
+                        degree=(group_degree_y, 0))[:, 0]
+        references.append(fit[0])
+        tilt = fit.copy()
+        tilt[0] = 0.0
+        tilts.append(tilt)
+        group_degrees_y.append(group_degree_y)
+
+    if not references:
+        return None, (0, 0)
+
+    degree_y = min(group_degrees_y)
+    if degree_y != int(degree_spatial):
+        Msg.info('fit_tilt_solution',
+                 f"Reduced the tilt degree from {degree_spatial} to {degree_y}: some "
+                 f"group has too few distinct offsets, or {MAX_TILT_DEGREE} is the "
+                 f"most this model supports")
+
+    if degree_y < 1:
+        return None, (0, degree_y)
+
+    references = np.array(references)
+    degree_x = min(MAX_TILT_DEGREE, len(references) - 1)
+
+    columns = [np.zeros(degree_x + 1)]
+    for j in range(1, degree_y + 1):
+        values = np.array([tilt[j] for tilt in tilts])
+        columns.append(polyfit2d(references, np.zeros_like(references), values,
+                                 degree=(degree_x, 0))[:, 0])
+
+    return np.column_stack(columns), (degree_x, degree_y)
+
+
+def fit_wavelength_solution(lines: list[Line],
+                            degree: int,
+                            ) -> tuple[np.ndarray | None, float | None, int]:
+    """
+    Fit wavelength = P(x) to identified lines from the collapsed, tilt-corrected spectrum.
+
+    A plain 1D fit: the collapsed spectrum's lines already sit at their offset-zero
+    position by construction of the extraction, so no cross-dispersion term belongs
+    here -- that's `fit_tilt_solution`'s job, on a different, larger set of detections.
+
+    Returns
+    -------
+    tuple[np.ndarray | None, float | None, int]
+        Coefficients (1D, low-order-first), RMS residual, and the degree actually used.
+        `None` coefficients if there was nothing to fit.
     """
     identified = [line for line in lines if line.wavelength is not None]
     if not identified:
-        return None, None, (0, 0)
+        return None, None, 0
 
     x = np.array([line.position for line in identified], dtype=float)
-    dy = np.array([line.offset for line in identified], dtype=float)
     z = np.array([line.wavelength for line in identified], dtype=float)
 
     n_wavelengths = np.unique(z).size
-    n_offsets = np.unique(dy).size
+    degree_used = min(int(degree), max(n_wavelengths - 1, 0))
 
-    degree_x = min(int(degree[0]), max(n_wavelengths - 1, 0))
-    degree_y = min(int(degree[1]), max(n_offsets - 1, 0))
+    if degree_used < 1:
+        # A single wavelength fixes a position but says nothing about dispersion
+        return None, None, degree_used
 
-    if degree_x < 1:
-        # A single wavelength fixes an offset but says nothing about dispersion
-        return None, None, (degree_x, degree_y)
-
-    if (degree_x, degree_y) != (int(degree[0]), int(degree[1])):
+    if degree_used != int(degree):
         Msg.info('fit_wavelength_solution',
-                 f"Reduced solution degree from {tuple(degree)} to "
-                 f"({degree_x}, {degree_y}): {n_wavelengths} distinct wavelengths at "
-                 f"{n_offsets} offsets")
+                 f"Reduced the dispersion degree from {degree} to {degree_used}: "
+                 f"only {n_wavelengths} distinct wavelengths identified")
 
     try:
-        coefficients = polyfit2d(x, dy, z, degree=(degree_x, degree_y))
+        coefficients = polyfit2d(x, np.zeros_like(x), z, degree=(degree_used, 0))[:, 0]
     except (ValueError, np.linalg.LinAlgError) as exc:
         Msg.warning('fit_wavelength_solution', f"Wavelength solution failed: {exc}")
-        return None, None, (degree_x, degree_y)
+        return None, None, degree_used
 
-    residuals = polyval2d_safe(x, dy, coefficients) - z
+    residuals = np.polynomial.polynomial.polyval(x, coefficients) - z
     rms = float(np.sqrt(np.mean(np.square(residuals))))
 
-    return coefficients, rms, (degree_x, degree_y)
+    return coefficients, rms, degree_used
 
 
 def solve_slice(image: np.ndarray,
@@ -358,9 +565,14 @@ def solve_slice(image: np.ndarray,
     """
     Determine the wavelength solution for one spatial slice.
 
-    Extracts spectra at several cross-dispersion offsets, measures the emission lines in
-    each, groups them, identifies them against the expected wavelengths, and fits
-    `lambda(x, dy)`. Falls back to `approximate` if identification or fitting fails.
+    Two independent passes. First, the tilt: spectra are extracted at several
+    cross-dispersion offsets, every line detected in them (identified or not) is
+    grouped across offsets, and the tilt of position with offset is fit from that.
+    Second, the wavelength solution: the whole slice height is collapsed into one
+    high-signal-to-noise spectrum, correcting for the tilt just fit, lines in it are
+    identified against the expected wavelengths, and `lambda(x)` is fit to those. Falls
+    back to `approximate` if identification or fitting fails; the tilt, being
+    independent, is kept regardless.
 
     Parameters
     ----------
@@ -373,9 +585,9 @@ def solve_slice(image: np.ndarray,
     height : float
         Slice height in pixels.
     degree : tuple[int, int]
-        Requested degrees in the dispersion and cross-dispersion directions.
+        Requested degrees in the dispersion and cross-dispersion (tilt) directions.
     n_offsets : int
-        Number of offset spectra to extract.
+        Number of offset spectra to extract for the tilt fit.
     approximate : np.ndarray, optional
         Approximate solution, used both to identify lines and as the fallback.
     match_tolerance : float, optional
@@ -389,33 +601,53 @@ def solve_slice(image: np.ndarray,
     -------
     SliceSolution
     """
+    # Pass 1: tilt, from every detection at every offset (identified or not)
     spectra, offsets = extract_offset_spectra(image, trace, height=height,
                                               n_offsets=n_offsets)
 
+    Msg.info('solve_slice',
+             f"Extracted {spectra.shape[0]} offset spectra for slice {trace.m if trace.m is not None else 0}")
     detections: list[Line] = []
     for spectrum, offset in zip(spectra, offsets):
         if spectrum.count() == 0:
             continue
         detections.extend(detect_lines(spectrum, offset=float(offset), **detect_options))
 
-    groups = group_lines(detections, tolerance=group_tolerance)
+    Msg.info('solve_slice',
+             f"Detected {len(detections)} lines in offset spectra for slice {trace.m if trace.m is not None else 0}")
+
+    tilt_groups = group_lines(detections, tolerance=group_tolerance)
+    tilt_coefficients, tilt_degree = fit_tilt_solution(tilt_groups, degree[1])
+
+    # Pass 2: wavelength, from one tilt-corrected, full-height collapsed spectrum
+    collapsed = extract_collapsed_spectrum(image, trace, height=height,
+                                           tilt_coefficients=tilt_coefficients)
+    lines = ([] if collapsed.count() == 0
+            else detect_lines(collapsed, offset=0.0, **detect_options))
+
+    groups = [[line] for line in lines]
     assign_wavelengths(groups, wavelengths,
                        approximate=approximate, tolerance=match_tolerance)
 
-    lines = [line for group in groups for line in group]
-    coefficients, rms, degree_used = fit_wavelength_solution(lines, degree)
+    wavelength_coefficients, rms, dispersion_degree = fit_wavelength_solution(
+        lines, degree[0])
 
-    if coefficients is None:
+    if wavelength_coefficients is None:
+        fallback = (None if approximate is None
+                   else np.asarray(approximate, dtype=float).reshape(-1))
         return SliceSolution(index=trace.m if trace.m is not None else 0,
-                             coefficients=approximate,
-                             degree=(1, 0) if approximate is not None else (0, 0),
+                             wavelength_coefficients=fallback,
+                             tilt_coefficients=tilt_coefficients,
+                             degree=(1 if approximate is not None else 0,
+                                    tilt_degree[1]),
                              lines=lines,
                              rms=None,
                              fallback=approximate is not None)
 
     return SliceSolution(index=trace.m if trace.m is not None else 0,
-                         coefficients=coefficients,
-                         degree=degree_used,
+                         wavelength_coefficients=wavelength_coefficients,
+                         tilt_coefficients=tilt_coefficients,
+                         degree=(dispersion_degree, tilt_degree[1]),
                          lines=lines,
                          rms=rms,
                          fallback=False)
@@ -454,7 +686,7 @@ def build_wavelength_map(shape: tuple[int, int],
     rows = np.arange(nrow)
 
     for trace, solution, height in zip(traces, solutions, heights):
-        if solution.coefficients is None:
+        if solution.wavelength_coefficients is None:
             continue
 
         start, end = trace.column_range
@@ -483,9 +715,9 @@ def solutions_to_table(solutions: list[SliceSolution]) -> cpl.core.Table:
     """
     Serialise per-slice wavelength solutions into the `IFU_WAVECAL_TAB` layout.
 
-    One row per slice, holding the flattened `lambda(x, dy)` coefficients together with
-    the information the wavelength map cannot carry: how well the fit did, how many
-    lines it rested on, and whether it is a real fit at all.
+    One row per slice, holding the flattened wavelength and tilt coefficients together
+    with the information the wavelength map cannot carry: how well the fit did, how
+    many lines it rested on, and whether it is a real fit at all.
 
     Parameters
     ----------
@@ -500,17 +732,27 @@ def solutions_to_table(solutions: list[SliceSolution]) -> cpl.core.Table:
 
     Notes
     -----
-    `coefficients` is stored flattened in C order with its shape recorded in
-    `degree_dispersion` and `degree_spatial`, since a CPL array column is
-    one-dimensional. The width is fixed by the largest solution present, so that slices
-    which fell back to a lower degree still fit; unused entries are NaN.
+    `wavelength_coefficients` is stored flattened in C order, with its shape recorded
+    in `degree_dispersion`, since a CPL array column is one-dimensional. Its width is
+    fixed by the largest solution present, so that slices which fell back to a lower
+    degree still fit; unused entries are NaN.
+
+    The tilt is instead stored as three fixed-width-3 columns, `slit_poly_a`/`b`/`c` --
+    the `coeff[i, j]` multiplying `x**i * dy**j` for `j = 0, 1, 2` respectively -- since
+    `fit_tilt_solution` caps both the tilt-vs-offset degree and each coefficient's own
+    degree in `x` at `MAX_TILT_DEGREE` (2), matching the CRIRES+ `trace_wave` file
+    convention for the same PyReduce slit-curvature algorithm. `slit_poly_a` is always
+    identically zero whenever a tilt was fit at all (see `fit_tilt_solution`); slots
+    beyond the degree actually achieved -- or all of them, if no tilt was fit -- are
+    NaN, not zero, so a genuine zero coefficient stays distinguishable from one that was
+    simply never fit.
 
     The `fallback` column is the point of the product. A slice that fell back on the
     approximate dispersion model produces a perfectly ordinary-looking wavelength map,
     and until now that fact survived only as a log warning.
     """
-    shapes = [s.coefficients.shape for s in solutions if s.coefficients is not None]
-    width = max((int(np.prod(shape)) for shape in shapes), default=1)
+    wavelength_width = max((s.wavelength_coefficients.size for s in solutions
+                           if s.wavelength_coefficients is not None), default=1)
 
     table = cpl.core.Table.empty(len(solutions))
     table.new_column('slice', cpl.core.Type.INT)
@@ -520,13 +762,24 @@ def solutions_to_table(solutions: list[SliceSolution]) -> cpl.core.Table:
     table.new_column('n_identified', cpl.core.Type.INT)
     table.new_column('rms', cpl.core.Type.DOUBLE)
     table.new_column('fallback', cpl.core.Type.INT)
-    table.new_column_array('coefficients', cpl.core.Type.DOUBLE, width)
+    table.new_column_array('wavelength_coefficients', cpl.core.Type.DOUBLE,
+                           wavelength_width)
+    table.new_column_array('slit_poly_a', cpl.core.Type.DOUBLE, MAX_TILT_DEGREE + 1)
+    table.new_column_array('slit_poly_b', cpl.core.Type.DOUBLE, MAX_TILT_DEGREE + 1)
+    table.new_column_array('slit_poly_c', cpl.core.Type.DOUBLE, MAX_TILT_DEGREE + 1)
 
     for row, solution in enumerate(solutions):
-        padded = np.full(width, np.nan)
-        if solution.coefficients is not None:
-            flat = np.asarray(solution.coefficients, dtype=float).ravel()
-            padded[:flat.size] = flat
+        wavelength_padded = np.full(wavelength_width, np.nan)
+        if solution.wavelength_coefficients is not None:
+            flat = np.asarray(solution.wavelength_coefficients, dtype=float).ravel()
+            wavelength_padded[:flat.size] = flat
+
+        tilt = solution.tilt_coefficients
+        for name, j in (('slit_poly_a', 0), ('slit_poly_b', 1), ('slit_poly_c', 2)):
+            column = np.full(MAX_TILT_DEGREE + 1, np.nan)
+            if tilt is not None and j < tilt.shape[1]:
+                column[:tilt.shape[0]] = tilt[:, j]
+            table[name, row] = np.ascontiguousarray(column, dtype=float)
 
         table['slice', row] = int(solution.index)
         table['degree_dispersion', row] = int(solution.degree[0])
@@ -536,6 +789,78 @@ def solutions_to_table(solutions: list[SliceSolution]) -> cpl.core.Table:
         table['rms', row] = float('nan') if solution.rms is None else float(solution.rms)
         # CPL tables have no boolean column type
         table['fallback', row] = int(solution.fallback)
-        table['coefficients', row] = np.ascontiguousarray(padded, dtype=float)
+        table['wavelength_coefficients', row] = np.ascontiguousarray(
+            wavelength_padded, dtype=float)
 
     return table
+
+
+def solutions_from_table(table: cpl.core.Table) -> list[SliceSolution]:
+    """
+    Reconstruct wavelength solutions from an `IFU_WAVECAL_TAB` extension.
+
+    The inverse of `solutions_to_table`, with one exception: `lines`. The table stores
+    only the `n_lines`/`n_identified` *counts*, not the individual `Line` measurements
+    (`position`, `wavelength`, `height`, `fwhm`) they were computed from, so there is
+    nothing to reconstruct them from. Every returned `SliceSolution.lines` is therefore
+    empty, and `.n_identified` -- a property computed from `lines` -- reads `0`
+    regardless of what the table's own `n_identified` column says. A caller that needs
+    those counts should read `table['n_lines', ...]`/`table['n_identified', ...]`
+    directly instead of going through this function.
+
+    Parameters
+    ----------
+    table : cpl.core.Table
+        A single detector's extension of the wavelength solution table.
+
+    Returns
+    -------
+    list[SliceSolution]
+        Solutions ordered as stored.
+    """
+    if len(table) == 0:
+        return []
+
+    wavelength_columns = np.asarray(table.column_array('wavelength_coefficients')[0],
+                                    dtype=float)
+    slit_poly = {
+        name: np.asarray(table.column_array(name)[0], dtype=float)
+        for name in ('slit_poly_a', 'slit_poly_b', 'slit_poly_c')
+    }
+    slices = np.asarray(table.column_array('slice')[0]).ravel()
+    degree_dispersion = np.asarray(table.column_array('degree_dispersion')[0]).ravel()
+    degree_spatial = np.asarray(table.column_array('degree_spatial')[0]).ravel()
+    rms = np.asarray(table.column_array('rms')[0]).ravel()
+    fallback = np.asarray(table.column_array('fallback')[0]).ravel()
+
+    solutions = []
+    for row in range(len(table)):
+        wavelength_row = wavelength_columns[row]
+        valid = ~np.isnan(wavelength_row)
+        wavelength_coefficients = (np.ascontiguousarray(wavelength_row[valid])
+                                  if valid.any() else None)
+
+        # `slit_poly_a` is always fully populated (with zeros, not NaN) up to
+        # `degree_x + 1` rows whenever any tilt was fit at all -- it is what fixes the
+        # shared width for whichever of `slit_poly_b`/`slit_poly_c` were also fit.
+        a = slit_poly['slit_poly_a'][row]
+        if np.isnan(a).all():
+            tilt_coefficients = None
+        else:
+            width = int(np.sum(~np.isnan(a)))
+            columns = [a[:width], slit_poly['slit_poly_b'][row][:width]]
+            c = slit_poly['slit_poly_c'][row]
+            if not np.isnan(c).all():
+                columns.append(c[:width])
+            tilt_coefficients = np.column_stack(columns)
+
+        solutions.append(SliceSolution(
+            index=int(slices[row]),
+            wavelength_coefficients=wavelength_coefficients,
+            tilt_coefficients=tilt_coefficients,
+            degree=(int(degree_dispersion[row]), int(degree_spatial[row])),
+            rms=None if np.isnan(rms[row]) else float(rms[row]),
+            fallback=bool(fallback[row]),
+        ))
+
+    return solutions

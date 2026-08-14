@@ -99,6 +99,23 @@ class TestDetectLines:
         assert detected
         assert all(line.wavelength is None for line in detected)
 
+    def test_line_after_a_flat_run_is_still_detected(self):
+        """
+        A flat run -- e.g. a masked-then-zero-filled region before the trace's valid
+        columns start -- has no local minimum of its own, since a strict extremum needs
+        a neighbour that differs. A line sitting right after one must not be discarded
+        just because it therefore has no minimum bracketing it on that side.
+        """
+        rng = np.random.default_rng(3)
+        values = np.full(NPIX, BACKGROUND)
+        values[600:] += rng.normal(0, NOISE, NPIX - 600)
+        values += 5000.0 * np.exp(-0.5 * ((np.arange(NPIX) - 620.0) / 3.0) ** 2)
+
+        detected = detect_lines(values)
+
+        assert len(detected) == 1
+        assert detected[0].position == pytest.approx(620.0, abs=0.1)
+
 
 class TestDetectLinesRejection:
     """Spectra with no line must yield nothing, so that NLINES stays trustworthy."""
