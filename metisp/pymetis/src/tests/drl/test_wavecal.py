@@ -594,7 +594,9 @@ class TestSolutionsToTable:
 
         assert table['trace_nb', 0][0] == 3
         assert table['slice_nb', 0][0] == 3
-        np.testing.assert_allclose(table['pos', 0][0], trace.pos)
+        # The table stores coefficients low-order first, the reverse of `Trace.pos`'s
+        # own `np.polyval` order.
+        np.testing.assert_allclose(table['pos', 0][0], trace.pos[::-1])
         np.testing.assert_allclose(table['column_range', 0][0], list(trace.column_range))
 
     def test_a_solution_without_a_trace_still_fills_the_other_columns(self):

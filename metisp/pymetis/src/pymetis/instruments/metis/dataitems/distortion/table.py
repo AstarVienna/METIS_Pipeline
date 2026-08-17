@@ -89,8 +89,8 @@ class IfuDistortionTable(BandIfuMixin, DistortionTable):
         trace_list = []
         for x_range, trace in zip(x_ranges, trace_polys):
             x_arr = np.arange(x_range[0], x_range[1])
-            poly_n = len(trace) - 1
-            y_arr = np.array([sum([k * x ** (poly_n - i) for i, k in enumerate(trace)]) for x in x_arr])
+            # `pos` is stored low-order first (see `trace.traces_to_table`)
+            y_arr = np.array([sum([k * x ** i for i, k in enumerate(trace)]) for x in x_arr])
             trace_list.append((x_arr, y_arr))
 
         # return the list of x,y coordinates for each trace

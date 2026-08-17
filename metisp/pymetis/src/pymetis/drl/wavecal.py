@@ -657,7 +657,6 @@ def solve_slice(image: np.ndarray,
                          trace=trace)
 
 def build_wavelength_map(shape: tuple[int, int],
-                         traces: list[Trace],
                          solutions: list[SliceSolution],
                          heights: list[float]) -> np.ndarray:
     """
@@ -671,11 +670,10 @@ def build_wavelength_map(shape: tuple[int, int],
     ----------
     shape : tuple[int, int]
         Shape of the detector image.
-    traces : list[Trace]
-        Slices, in the same order as `solutions` and `heights`.
     solutions : list[SliceSolution]
-        Wavelength solution per slice. Slices whose solution has no coefficients are
-        skipped, leaving their pixels at zero.
+        Wavelength solution per slice, in the same order as `heights`. Slices whose
+        solution has no coefficients or no trace are skipped, leaving their pixels at
+        zero.
     heights : list[float]
         Height in pixels of each slice.
 
@@ -688,8 +686,12 @@ def build_wavelength_map(shape: tuple[int, int],
     wavelength_map = np.zeros(shape, dtype=float)
     rows = np.arange(nrow)
 
-    for trace, solution, height in zip(traces, solutions, heights):
+    for solution, height in zip(solutions, heights):
         if solution.wavelength_coefficients is None:
+            continue
+
+        trace = solution.trace
+        if trace is None:
             continue
 
         start, end = trace.column_range

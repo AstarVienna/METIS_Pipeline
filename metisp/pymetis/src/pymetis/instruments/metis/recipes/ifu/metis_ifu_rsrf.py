@@ -217,7 +217,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         # create bad pixel map product
         Msg.info(self.__class__.__qualname__,
                     f"Creating bad pixel map...")
-        # TODO: FUNC: create updated bad pixel map
+        # TODO: Need to save the BP map as a product that includes the DQ extension
         badpix_hdr = cpl.core.PropertyList()
         badpix_hdr.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
         # placeholder data for now -- bad-pixel map based spec_flat_img
