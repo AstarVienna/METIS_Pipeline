@@ -606,7 +606,7 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
     return table
 
 
-def traces_from_table(table: cpl.core.Table) -> list[Trace]:
+def traces_from_table(table: cpl.core.Table) -> list[Trace | None]:
     """
     Reconstruct traces from an `IFU_DISTORTION_TABLE` extension.
 
@@ -619,9 +619,13 @@ def traces_from_table(table: cpl.core.Table) -> list[Trace]:
 
     Returns
     -------
-    list[Trace]
+    list[Trace | None]
         Traces ordered as stored, with `m`/`slice` read from the `trace_nb`/`slice_nb`
-        columns.
+        columns. A row whose `pos` column is entirely NaN -- as a table built by
+        `wavecal.solutions_to_table` writes for a solution with no trace at all -- has
+        nothing to reconstruct and reads back as `None` rather than a placeholder
+        `Trace`. `bottom`/`top` are similarly `None`, not a NaN-filled array, wherever
+        they were never measured, matching what `traces_to_table` wrote.
     """
     if len(table) == 0:
         return []
@@ -633,20 +637,26 @@ def traces_from_table(table: cpl.core.Table) -> list[Trace]:
     bottom = np.asarray(table.column_array('bottom')[0], dtype=float)
     top = np.asarray(table.column_array('top')[0], dtype=float)
 
-    traces = [
-        Trace(m=int(trace_nbs[row]),
-              slice=int(slice_nbs[row]),
-              column_range=(int(column_ranges[row][0]), int(column_ranges[row][1])),
-              pos=np.ascontiguousarray(coefficients[row]),
-              bottom=np.ascontiguousarray(bottom[row]),
-              top=np.ascontiguousarray(top[row]))
-        for row in range(len(table))
-    ]
+    traces = []
+    for row in range(len(table)):
+        if np.isnan(coefficients[row]).all():
+            traces.append(None)
+            continue
 
-    for t in traces:
+        t = Trace(m=int(trace_nbs[row]),
+                 slice=int(slice_nbs[row]),
+                 column_range=(int(column_ranges[row][0]), int(column_ranges[row][1])),
+                 pos=np.ascontiguousarray(coefficients[row]),
+                 bottom=(None if np.isnan(bottom[row]).all()
+                        else np.ascontiguousarray(bottom[row])),
+                 top=(None if np.isnan(top[row]).all()
+                     else np.ascontiguousarray(top[row])))
+
         if t.has_edges:
             mid = 0.5 * (t.column_range[0] + t.column_range[1])
             t.height = float(t.height_at_x(mid))
+
+        traces.append(t)
 
     return traces
 

@@ -471,7 +471,7 @@ class TestBuildWavelengthMap:
                 match_tolerance=0.01,
             ))
         heights = [SLICE_HEIGHT * fill] * len(traces)
-        return traces, build_wavelength_map((NROW, NCOL), traces, solutions, heights)
+        return traces, build_wavelength_map((NROW, NCOL), solutions, heights)
 
     def test_pixels_outside_the_slices_are_exactly_zero(self):
         """
@@ -514,8 +514,7 @@ class TestBuildWavelengthMap:
         solution = solve_slice(np.full((NROW, NCOL), 200.0), trace,
                                wavelengths=list(LASERS), height=SLICE_HEIGHT)
 
-        wavelength_map = build_wavelength_map((NROW, NCOL), [trace], [solution],
-                                             [SLICE_HEIGHT])
+        wavelength_map = build_wavelength_map((NROW, NCOL), [solution], [SLICE_HEIGHT])
 
         np.testing.assert_array_equal(wavelength_map, np.zeros((NROW, NCOL)))
 
@@ -584,6 +583,36 @@ class TestSolutionsToTable:
 
         for name in ('slit_poly_a', 'slit_poly_b', 'slit_poly_c'):
             assert all(np.isnan(v) for v in table[name, 0][0])
+
+    def test_trace_columns_carry_the_solutions_trace(self):
+        trace = Trace(m=3, slice=3, pos=np.array([0.001, 5.0, 200.0]),
+                      column_range=(10, 2038))
+        solution = SliceSolution(index=3, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=None, degree=(1, 0), trace=trace)
+
+        table = solutions_to_table([solution])
+
+        assert table['trace_nb', 0][0] == 3
+        assert table['slice_nb', 0][0] == 3
+        np.testing.assert_allclose(table['pos', 0][0], trace.pos)
+        np.testing.assert_allclose(table['column_range', 0][0], list(trace.column_range))
+
+    def test_a_solution_without_a_trace_still_fills_the_other_columns(self):
+        """
+        Losing the trace columns must not silently drop the whole row, as it once did
+        when the row was skipped outright for lack of a trace.
+        """
+        solution = SliceSolution(index=7, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=None, degree=(1, 0), rms=2e-6)
+
+        table = solutions_to_table([solution])
+
+        assert table['trace_nb', 0][0] == 7
+        assert table['slice_nb', 0][0] == 7
+        assert all(np.isnan(v) for v in table['pos', 0][0])
+        assert all(np.isnan(v) for v in table['column_range', 0][0])
+        assert table['degree_dispersion', 0][0] == 1
+        assert table['rms', 0][0] == pytest.approx(2e-6)
 
 
 class TestSolutionsFromTable:
@@ -659,3 +688,46 @@ class TestSolutionsFromTable:
 
         assert restored.lines == []
         assert restored.n_identified == 0
+
+    def test_round_trip_preserves_the_trace(self):
+        trace = Trace(m=4, slice=4, pos=np.array([1e-6, -0.002, 300.0]),
+                      column_range=(8, 2040), bottom=np.array([0.0, 0.0, 250.0]),
+                      top=np.array([0.0, 0.0, 350.0]))
+        solution = SliceSolution(index=4, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=None, degree=(1, 0), trace=trace)
+
+        restored = solutions_from_table(solutions_to_table([solution]))[0]
+
+        assert restored.trace is not None
+        assert restored.trace.m == trace.m
+        assert restored.trace.slice == trace.slice
+        assert restored.trace.column_range == trace.column_range
+        np.testing.assert_allclose(restored.trace.pos, trace.pos)
+        np.testing.assert_allclose(restored.trace.bottom, trace.bottom)
+        np.testing.assert_allclose(restored.trace.top, trace.top)
+
+    def test_round_trip_of_a_solution_without_a_trace_leaves_it_none(self):
+        solution = SliceSolution(index=9, wavelength_coefficients=np.array([3.5, 1e-5]),
+                                 tilt_coefficients=None, degree=(1, 0))
+
+        restored = solutions_from_table(solutions_to_table([solution]))[0]
+
+        assert restored.trace is None
+        assert restored.index == solution.index
+
+    def test_round_trip_preserves_traces_independently_across_rows(self):
+        """A table holding both traced and untraced solutions must not cross-contaminate."""
+        traced = SliceSolution(
+            index=1, wavelength_coefficients=np.array([3.5, 1e-5]),
+            tilt_coefficients=None, degree=(1, 0),
+            trace=Trace(m=1, slice=1, pos=np.array([2.0, 100.0]), column_range=(6, 2042)))
+        untraced = SliceSolution(index=2, wavelength_coefficients=np.array([3.6, 1e-5]),
+                                 tilt_coefficients=None, degree=(1, 0))
+
+        restored = solutions_from_table(solutions_to_table([traced, untraced]))
+
+        assert restored[0].trace is not None
+        assert restored[0].trace.m == 1
+        np.testing.assert_allclose(restored[0].trace.pos, [2.0, 100.0])
+        assert restored[1].trace is None
+        assert restored[1].index == 2
