@@ -21,13 +21,14 @@ import numpy as np
 import pytest
 
 import cpl
+import hdrl.core
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Mask as CplMask,
                       PropertyList as CplPropertyList,
                       Type as CplType)
-from cpl.hdrl.core import (Image as HdrlImage,
-                           ImageList as HdrlImageList)
+from hdrl.core import (Image as HdrlImage,
+                       ImageList as HdrlImageList)
 
 from pymetis.engine.core.classes.image import (EnhancedImage,
                                                EnhancedImage3D,
@@ -106,15 +107,15 @@ class TestValidation:
             EnhancedImage3D(CplImageList(), prefix=PREFIX)
 
     def test_mismatched_error_dimensions_raise(self):
-        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='error'):
+        with pytest.raises(hdrl.core.IncompatibleInputError, match='error'):
             EnhancedImage3D(stack(3, ROWS, COLS), stack(3, ROWS + 1, COLS), prefix=PREFIX)
 
     def test_mismatched_error_depth_raises(self):
-        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='depth'):
+        with pytest.raises(hdrl.core.IncompatibleInputError, match='depth'):
             EnhancedImage3D(stack(3), stack(2), prefix=PREFIX)
 
     def test_mismatched_dq_dimensions_raise(self):
-        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='dq'):
+        with pytest.raises(hdrl.core.IncompatibleInputError, match='dq'):
             EnhancedImage3D(stack(3, ROWS, COLS), stack(3, ROWS, COLS),
                               build_dq_mask(ROWS + 1, COLS), prefix=PREFIX)
 
