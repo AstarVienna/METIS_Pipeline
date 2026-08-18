@@ -212,6 +212,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
                      f"a median of {float(np.median(heights)):.1f} px")
             return heights
 
+        # TODO: This fallback can likely be dropped in future - slit extent is always measured
         fill_factor = float(self.parameters[f"{self.name}.slices.fill_factor"].value)
         if measured:
             Msg.warning(self.__class__.__qualname__,
@@ -243,9 +244,10 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         Derived from the grating setting when the header provides it, otherwise from the
         per-detector coverage the skeleton implementation hardcoded.
         """
-        header = self._raw_header()
+        # TODO: Consider a wavelengh guess table input / model by default instead of relying on a parameter?
         width = float(self.parameters[f"{self.name}.dispersion.width"].value)
 
+        header = self._raw_header()
         if 'ESO INS WLEN CEN' in header:
             centre = float(header['ESO INS WLEN CEN'].value)
             # fixme: determine det location from the header, not the hardcoded order
@@ -481,10 +483,11 @@ class MetisIfuWavecal(Recipe):
     _algorithm = """Stack the raw exposures and take the slice geometry from the distortion table.
         Extract spectra at several cross-dispersion offsets along each slice.
         Measure line locations by Gaussian fit, giving sub-pixel centroid, width and height.
-        Group detections of the same line across offsets and identify them against the
-        expected laser wavelengths, using the optical model to resolve the assignment.
-        Fit the wavelength solution lambda(x, y) per slice as a low-order polynomial,
+        Group detections of the same line across offsets and fit the wavelength
+        solution lambda(x, y) per slice as a low-order polynomial,
         reducing its degree where the available lines cannot constrain it.
+        Identify lines against the expected laser wavelengths, using the a simple
+        linear model per detector to resolve the assignment.
         Evaluate the solution over each slice to build the wavelength map.
 
         Line detection and Gaussian centroiding are adapted from PyReduce (Piskunov &
