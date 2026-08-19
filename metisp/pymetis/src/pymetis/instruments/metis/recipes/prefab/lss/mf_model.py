@@ -61,7 +61,7 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         # TODO: Invoke molecfit here
         # TODO: Check whether the new mf writes out the best-fit param file
 
-        lss_sci_flux = self.inputset.lss_sci_flux_1d.load_data('TABLE')
+        _lss_sci_flux = self.inputset.lss_sci_flux_1d.load_data('TABLE')
 
         primary_header = self.inputset.lss_sci_flux_1d.item.primary_header
 

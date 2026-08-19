@@ -22,7 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.recipes import Recipe, RecipeImpl
+from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.dataitems.coadd import IfuSciCoadd
 from pymetis.instruments.metis.dataitems.ifu.ifu import IfuScienceCubeCalibrated

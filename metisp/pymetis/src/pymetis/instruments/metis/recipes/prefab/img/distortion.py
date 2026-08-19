@@ -21,7 +21,7 @@ from abc import ABC
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import MultiplePipelineInput
-from pymetis.engine.qc import QcParameter, QcParameterSet
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_image, create_dummy_header
 
 from pymetis.instruments.metis.dataitems.distortion import (DistortionMap, DistortionRaw,
@@ -67,7 +67,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
         raw_images = self.inputset.raw.load_data('DET1.DATA')
 
         combined_image = self.combine_images(raw_images, "average")
-        distortion = self.inputset.distortion.load_data('DET1.DATA')
+        _distortion = self.inputset.distortion.load_data('DET1.DATA')
         primary_header = self.inputset.distortion.items[0].primary_header
 
         header_distortion_table = create_dummy_header()

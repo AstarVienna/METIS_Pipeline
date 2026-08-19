@@ -22,7 +22,7 @@ from typing import Literal
 
 import cpl
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import SinglePipelineInput
 from pymetis.engine.recipes import Recipe
@@ -130,7 +130,7 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         )
 
         # cready dummy image for cube outputs
-        raw_images = self.inputset.raw.use().load_data(extension=rf'DET1.DATA')
+        raw_images = self.inputset.raw.use().load_data(extension=r'DET1.DATA')
         combined_image = self.combine_images(raw_images, "average")
 
         return {

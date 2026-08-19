@@ -119,8 +119,8 @@ class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor, MetisRecipeImpl):
 #   Method for processing
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        raws = self.inputset.raw.load_data('DET1.DATA')
-        master_lss_rsrf = self.inputset.master_rsrf.load_data('DET1.DATA')
+        _raws = self.inputset.raw.load_data('DET1.DATA')
+        _master_lss_rsrf = self.inputset.master_rsrf.load_data('DET1.DATA')
 
         primary_header = self.inputset.master_rsrf.item.primary_header
         table = create_dummy_table()

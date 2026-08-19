@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Optional
 
 import cpl
-from cpl.core import Msg, Image, Table
+from cpl.core import Msg, Image
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
@@ -78,7 +78,7 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
         else:
             if bias is not None:
                 flat.subtract(bias)
-            median = flat.get_median()
+            _median = flat.get_median()
             return flat
 
             # return flat.divide_scalar(median)
@@ -119,7 +119,7 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
 
         master_flat = self.inputset.master_flat.load_data('DET1.SCI')
         master_dark = self.inputset.master_dark.load_data('DET1.SCI')
-        gain = self.inputset.gain_map.load_data('DET1.SCI')
+        _gain = self.inputset.gain_map.load_data('DET1.SCI')
 
         master_flat = self.prepare_flat(master_flat, master_dark)
         images = self.prepare_images(self.inputset.raw.frameset, master_flat, master_dark)

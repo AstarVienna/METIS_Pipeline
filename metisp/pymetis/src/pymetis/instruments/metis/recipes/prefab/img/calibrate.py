@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameter, QcParameterSet
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 

@@ -32,7 +32,7 @@ from pymetis.drl.trace_model import Trace
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe, RecipeImpl
 
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMapIfu
@@ -98,12 +98,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         BadPixMap = BadPixMapIfu
 
     class Qc(QcParameterSet):
-        class NBadPix(QcParameter):
-            _name_template = "QC IFU RSRF NBADPIX"
-            _type = int
-            _default = None
-            _description_template = "Number of bad pixels in the image mask"
-
+        # ToDo: DRLD lists "QC IFU RSRF NBADPIX"; the REDUCE parameter is reused here for now.
         NBadPix = IfuReduceNbadpix
         MeanBkg = IfuReduceMeanBkg
         MeanStray = IfuReduceMeanStray
@@ -150,7 +145,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         # create master WCU_OFF background image
         Msg.info(self.__class__.__qualname__,
-                    f"Creating WCU_OFF background image...")
+                    "Creating WCU_OFF background image...")
         background_hdr = cpl.core.PropertyList()
         background_hdr.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
 
@@ -163,7 +158,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         # create 2D flat image (raw images are added together)
         Msg.info(self.__class__.__qualname__,
-                    f"Creating 2D spectral flat image...")
+                    "Creating 2D spectral flat image...")
         spec_flat_hdr = cpl.core.PropertyList()
         spec_flat_hdr.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
 
@@ -178,14 +173,14 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         # obtain black-body temperature from first frame's header
         # NOTE: this assumes raw frames were grouped by BB temperature
 
-        rsrf_raw_hdr = self.inputset.raw.items[0]['PRIMARY'].header
+        _rsrf_raw_hdr = self.inputset.raw.items[0]['PRIMARY'].header
         # bb_temp = rsrf_raw_hdr['HIERARCH ESO INS WCU_BB SOURCETEMP'].value
         # TBD: read from header
         bb_temp = 800
 
         # create black-body image
         Msg.info(self.__class__.__qualname__,
-                    f"Creating black-body image...")
+                    "Creating black-body image...")
         bb_img = _create_ifu_blackbody_image(wavecal_img, bb_temp)
 
         # scale the BB image to the RSRF image before dividing
@@ -216,7 +211,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         # create bad pixel map product
         Msg.info(self.__class__.__qualname__,
-                    f"Creating bad pixel map...")
+                    "Creating bad pixel map...")
         # TODO: FUNC: create updated bad pixel map
         badpix_hdr = cpl.core.PropertyList()
         badpix_hdr.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
@@ -238,7 +233,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         # extract 1D RSRF curves
         Msg.info(self.__class__.__qualname__,
-                    f"Extracting 1D RSRF curves...")
+                    "Extracting 1D RSRF curves...")
         rsrf_1d_list = _extract_ifu_1d_spectra(spec_flat_img, trace_list)
 
         # global normalisation of the 1D RSRF curves
@@ -285,7 +280,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
 
         Msg.info(self.__class__.__qualname__,
-                    f"Finalising recipe products...")
+                    "Finalising recipe products...")
 
         # TBD: define final product primary headers, for now just dummy headers
         header_background = create_dummy_header()
@@ -428,7 +423,6 @@ def _extract_ifu_1d_spectra(img: cpl.core.Image, trace_list: list[Trace], trace_
             yc = y_arr[i]
             rsrf_1d[int(x)] = mdata[int(yc - trace_width):int(yc + trace_width), int(x)].mean()
         rsrf_1d_list.append(rsrf_1d)
-        good = np.count_nonzero(~np.isnan(rsrf_1d))
 
     return rsrf_1d_list
 

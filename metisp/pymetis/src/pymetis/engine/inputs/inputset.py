@@ -21,12 +21,12 @@ import inspect
 import pprint
 import re
 
-from typing import Any, Callable, Optional
+from typing import Any
 
 import cpl
 from cpl.core import Msg
 
-from pymetis.engine.core.parametrizable import ParametrizableMeta, ParametrizableContainer
+from pymetis.engine.core.parametrizable import ParametrizableContainer
 from pymetis.engine.inputs.input import PipelineInput
 
 

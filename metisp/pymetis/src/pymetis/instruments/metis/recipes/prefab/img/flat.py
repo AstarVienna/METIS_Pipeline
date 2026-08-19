@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from cpl.core import Msg
-from typing import Literal, Dict, Any
+from typing import Dict, Any, TYPE_CHECKING
 import copy
 import numpy as np
 
@@ -29,8 +29,6 @@ import hdrl, cpl
 from pymetis.drl.noise import estimate_noise_list, calculate_outliers
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat, FlatRaw
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
@@ -38,9 +36,11 @@ from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, Optiona
                                               PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+
+if TYPE_CHECKING:
+    from pymetis.engine.recipes.recipe import Recipe
 from pymetis.instruments.metis.qc.flat import (MFlatRms, MFlatNbadpix, FlatMean, FlatRms,
                                                FlatMedianMin, FlatMedianMax, FlatMedianRms)
-from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
@@ -99,16 +99,16 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
         bad_bit = 8
 
-        Msg.info(self.__class__.__qualname__, f"Loading flat images")
+        Msg.info(self.__class__.__qualname__, "Loading flat images")
 
         self.inputset.raw.load_structure()
         raw_images = self.inputset.raw.load_data('DET1.DATA')
 
-        Msg.info(self.__class__.__qualname__, f"Pretending to load DETLIN")
+        Msg.info(self.__class__.__qualname__, "Pretending to load DETLIN")
 
         # TODO add detlin stuff
         
-        Msg.info(self.__class__.__qualname__, f"Faking a gain map and badpix map")
+        Msg.info(self.__class__.__qualname__, "Faking a gain map and badpix map")
         Msg.info(self.__class__.__qualname__, f"TTT {type(raw_images[0])}")
 
         # fake the bp mask by initializing to zero
@@ -129,7 +129,9 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         raw_images_hdrl = estimate_noise_list(raw_images, 0)
 
         # subtract the darks, now in HDRL format
-        dark_corrected = self.subtract_dark(raw_images_hdrl)
+        # FixMe: the result is never used -- the master flat below is computed from the
+        #        *non*-dark-subtracted images (`raw_images_hdrl`). To be resolved with the team.
+        _dark_corrected = self.subtract_dark(raw_images_hdrl)
 
         # FixMe: At skeleton level we just copy the header from the first raw
         primary_header = self.inputset.raw.items[0].primary_header
@@ -151,7 +153,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         elif(method == "average"):
             collapse = hdrl.func.Collapse.Mean()
         else:
-            Msg.error(cls.__qualname__,
+            Msg.error(self.__class__.__qualname__,
                       f"Got unknown combination method {method!r}. Stopping right here!")
             raise ValueError(f"Unknown combination method {method!r}")
 
@@ -210,7 +212,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         # now the QC paramters
 
 
-        gg = self.collect_qc_parameters(
+        self.collect_qc_parameters(
                 MFlatRms(qcrms),
                 MFlatNbadpix(qcnbad),
                 #FltMean(qcmean),  #I'm not sure what these are actually supposed to be; DRLD implies per frame, which would mean N of each
@@ -231,9 +233,9 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         
         product = self.ProductSet.MasterFlat(
             primary_header,
-            Hdu(header_image, mflat.image, name=rf'DET1.SCI'),
-            Hdu(header_noise, mflat.error, name=rf'DET1.ERR'),
-            Hdu(header_mask, badpix_mask, name=rf'DET1.DQ')
+            Hdu(header_image, mflat.image, name=r'DET1.SCI'),
+            Hdu(header_noise, mflat.error, name=r'DET1.ERR'),
+            Hdu(header_mask, badpix_mask, name=r'DET1.DQ')
         )
 
         return {product}

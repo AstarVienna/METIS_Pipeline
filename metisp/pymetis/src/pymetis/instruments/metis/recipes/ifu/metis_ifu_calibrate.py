@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
@@ -62,7 +62,7 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
 
 
     def process(self) -> set[DataItem]:
-        reduced = self.inputset.reduced.load_data(extension='DET1.DATA')
+        _reduced = self.inputset.reduced.load_data(extension='DET1.DATA')
         self.inputset.reduced.use()
 
         primary_header = create_dummy_header()

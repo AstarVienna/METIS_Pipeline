@@ -39,7 +39,6 @@ from dataclasses import dataclass, field
 
 import cpl
 import numpy as np
-from astropy.io import fits
 from cpl.core import Msg
 
 from pymetis.drl.lines import Line, detect_lines

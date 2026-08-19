@@ -22,7 +22,7 @@ from typing import Literal
 
 import cpl, hdrl
 from cpl.core import Msg, Image as CplImage, ImageList as CplImageList
-from cpl.hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
+from cpl.hdrl.core import ImageList as HdrlImageList
 
 from pymetis.drl.combine import combine_images
 from pymetis.drl.image import zeros_like
@@ -135,7 +135,7 @@ class RawImageProcessor(RecipeImpl, ABC):
             List of gain-corrected images
         """
         Msg.info(self.__class__.__qualname__,
-                 f"Pretending to correct raw images for gain")
+                 "Pretending to correct raw images for gain")
 
         raw_images.divide_image(gain)
 
@@ -162,7 +162,7 @@ class RawImageProcessor(RecipeImpl, ABC):
         ImageList
             List of raws, now corrected for non-linearity.
         """
-        Msg.info(self.__class__.__qualname__, f"Pretending to correct for non-linearity")
+        Msg.info(self.__class__.__qualname__, "Pretending to correct for non-linearity")
         return raw_images
 
     def calculate_outliers_sequence(self,

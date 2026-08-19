@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
@@ -136,7 +136,7 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         image = create_dummy_image()
         table = create_dummy_table()
 
-        combined = self.inputset.combined.load_data('DET1.DATA')
+        _combined = self.inputset.combined.load_data('DET1.DATA')
 
         product_telluric_transmission = self.ProductSet.TelluricTransmission(
             create_dummy_header(),

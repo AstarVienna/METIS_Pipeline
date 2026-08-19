@@ -17,20 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum
+from pymetis.engine.core.parameter import ParameterList
 
 # import the dataitems we use
 from pymetis.engine.dataitems import DataItem, Hdu
-from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.dataitems.distortion import LmDistortionTable
 from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
 #from pymetis.instruments.metis.dataitems.hci import LmOffAxisPsfRaw, LmOnAxisPsfTemplate
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppCalibrated
-from pymetis.instruments.metis.dataitems.hci.hci import AdiCalibrated
 
 
-from pymetis.instruments.metis.dataitems.hci.hci import AdiCalibrated, LmAppSciCentred, LmAppCentroidTab
+from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCentred, LmAppCentroidTab
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciSpeckle, LmAppSciHifilt, LmAppSciDerotatedPsfsub
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciDerotated
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciContrastRadprof, LmAppSciContrastAdi, LmAppSciThroughput
@@ -143,8 +141,8 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
             return {
                 product_lmSciCalibrated,
                 product_lmSciCentred,
-                product_lmSciCentred,
                 product_lmCentroidTable,
+                product_lmSciSpeckle,
                 product_lmSciHifilt,
                 product_lmSciDerotatedPsfsub,
                 product_lmSciDerotated,

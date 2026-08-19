@@ -106,9 +106,9 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
         Msg.info(self.__class__.__qualname__, "Processing Images")
         Msg.info(self.__class__.__qualname__, "Loading calibration files")
 
-        flat = self.inputset.master_flat.load_data('DET1.SCI')
-        dark = self.inputset.master_dark.load_data('DET1.SCI')
-        gain = self.inputset.gain_map.load_data('DET1.SCI')
+        _flat = self.inputset.master_flat.load_data('DET1.SCI')
+        _dark = self.inputset.master_dark.load_data('DET1.SCI')
+        _gain = self.inputset.gain_map.load_data('DET1.SCI')
 
         images = self.inputset.raw.load_data('DET1.DATA')
 
@@ -116,7 +116,7 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
 
         primary_header = self.inputset.raw.items[0].primary_header
         header_reduced = create_dummy_header()
-        header_background = create_dummy_header()
+        _header_background = create_dummy_header()
 
         self.target = self.inputset.tag_matches['target']
 

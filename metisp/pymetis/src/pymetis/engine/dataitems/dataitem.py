@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import datetime
 import re
 from pathlib import Path
-from typing import Optional, Self, final, Union, ClassVar
+from typing import Optional, Self, final, Union, ClassVar, TYPE_CHECKING
 
 import cpl
 from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyList
@@ -29,6 +29,9 @@ from .hdu import Hdu
 from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
+
+if TYPE_CHECKING:
+    from pymetis.engine.recipes.impl import RecipeImpl
 
 
 class DataItem(ParametrizableItem, abstract=True):
@@ -237,11 +240,11 @@ class DataItem(ParametrizableItem, abstract=True):
                     if subschema.get('NAXIS', None) == 2:
                         subtype = Image
                         Msg.warning(cls.__qualname__,
-                                    f"Found that NAXIS = 2, determining that this HDU should be an Image")
+                                    "Found that NAXIS = 2, determining that this HDU should be an Image")
                     elif subschema.get('NAXIS', None) == 3:
                         subtype = ImageList
                         Msg.warning(cls.__qualname__,
-                                    f"Found that NAXIS = 3, determining that this HDU should be an ImageList")
+                                    "Found that NAXIS = 3, determining that this HDU should be an ImageList")
 
                 structure[extname] = subschema
                 structure['klass'] = subtype
@@ -375,7 +378,7 @@ class DataItem(ParametrizableItem, abstract=True):
         )
 
     def save(self,
-             recipe: 'PipelineRecipeImpl',
+             recipe: 'RecipeImpl',
              parameters: ParameterList,
              *,
              output_file_name: Optional[str] = None) -> None:

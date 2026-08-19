@@ -57,7 +57,7 @@ class MetisLssMfCalctransImpl(MetisRecipeImpl):
 
         # TODO: Check whether calctrans creates the Transmission file - if so, no need to
         # write it out here again
-        best_fit_table = self.inputset.mf_best_fit_table.load_data('TABLE')
+        _best_fit_table = self.inputset.mf_best_fit_table.load_data('TABLE')
 
         primary_header = self.inputset.mf_best_fit_table.item.primary_header
         header_transmission = create_dummy_header()

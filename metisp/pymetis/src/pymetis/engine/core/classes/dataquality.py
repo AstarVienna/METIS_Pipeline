@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Self
+from typing import Self, TYPE_CHECKING
 
 import numpy as np
 
@@ -25,6 +25,9 @@ import cpl
 from cpl.core import (Image as CplImage,
                       Mask as CplMask,
                       Type as CplType,)
+
+if TYPE_CHECKING:
+    from .instrument import InstrumentDescription
 
 
 class DataQuality:

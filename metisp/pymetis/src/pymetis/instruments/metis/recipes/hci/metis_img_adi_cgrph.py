@@ -18,19 +18,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import copy
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum
+from pymetis.engine.core.parameter import ParameterList
 
 # import the dataitems we use
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
-from pymetis.instruments.metis.dataitems.distortion import LmDistortionTable
 from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
 #from pymetis.instruments.metis.dataitems.hci import LmOffAxisPsfRaw, LmOnAxisPsfTemplate
-from pymetis.instruments.metis.dataitems.hci.hci import LmRavcCalibrated, LmCvcCalibrated
-from pymetis.instruments.metis.dataitems.hci.hci import AdiCalibrated
+from pymetis.instruments.metis.dataitems.hci.hci import LmRavcCalibrated
 
 
-from pymetis.instruments.metis.dataitems.hci.hci import AdiCalibrated, LmRavcSciCentred, LmRavcCentroidTab
+from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciCentred, LmRavcCentroidTab
 from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciSpeckle, LmRavcSciHifilt, LmRavcSciDerotatedPsfsub
 from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciDerotated
 from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciContrastRadprof, LmRavcSciContrastAdi, LmRavcSciThroughput
@@ -38,7 +36,7 @@ from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciCoverage, LmRav
 from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.engine.inputs import RawInput
-from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLmRavcSciCalibrateImpl(RawImageProcessor):
@@ -186,6 +184,7 @@ class MetisLmRavcSciCalibrateImpl(RawImageProcessor):
             product_lmSciCalibrated,
             product_lmSciCentred,
             product_lmCentroidTable,
+            product_lmSciSpeckle,
             product_lmSciHifilt,
             product_lmSciDerotatedPsfsub,
             product_lmSciDerotated,

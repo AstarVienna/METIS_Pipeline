@@ -26,7 +26,7 @@ import numpy as np
 from typing import Literal, Dict, Any
 
 import cpl
-from cpl.core import Msg, ImageList, Image, Mask
+from cpl.core import Msg
 
 from pymetis.drl.combine import combine_images
 from pymetis.drl.noise import estimate_noise_list, calculate_outliers
@@ -163,11 +163,11 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # load raw data
 
-        Msg.info(self.__class__.__qualname__, f"Pretending to load DETLIN")
+        Msg.info(self.__class__.__qualname__, "Pretending to load DETLIN")
 
         # TODO add detlin stuff
         
-        Msg.info(self.__class__.__qualname__, f"Faking a gain map and badpix map")
+        Msg.info(self.__class__.__qualname__, "Faking a gain map and badpix map")
 
         #TODO optional badpix map
 
@@ -192,7 +192,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
             read_noise = cpl.drs.detector.get_noise_window(diff, None)
         else:
             Msg.warning(self.__class__.__qualname__,
-                        f"Cannot calculate actual read noise as there is only one raw image")
+                        "Cannot calculate actual read noise as there is only one raw image")
             read_noise = (0, 0)
 
         # turn the raw images into HDRL images with an initial noise estimate
@@ -266,8 +266,6 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         Msg.info(self.__class__.__qualname__, f"QC DARK MED = {qcmed}")
         Msg.info(self.__class__.__qualname__, f"QC DARK RMS = {qcrms}")
 
-        qcncoadd = len(raw_images)
-
         qcmedmed = np.median(np.array(medians))
         qcmedrms = np.median(np.array(stdevs))
         qcmedmin = np.median(np.array(mins))
@@ -325,7 +323,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # ToDo: preprocessing steps like persistence correction / nonlinearity
         # ToDo: (or not) -- move to RawImageProcessor anyway
-        Msg.info(self.__class__.__qualname__, f"Loading raw dark data")
+        Msg.info(self.__class__.__qualname__, "Loading raw dark data")
         self.inputset.raw.load_structure()
 
         # ToDo This feels stupid but works with all detector types. Find a more robust way maybe?

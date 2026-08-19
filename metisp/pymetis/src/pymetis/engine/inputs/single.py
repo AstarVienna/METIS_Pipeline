@@ -49,7 +49,7 @@ class SinglePipelineInput(PipelineInput):
         Msg.debug(self.__class__.__qualname__, f"Loading {frameset}")
         if (count := len(frameset)) == 0:
             Msg.error(self.__class__.__qualname__,
-                      f"No frames found!")
+                      "No frames found!")
         elif count > 1:
             Msg.warning(self.__class__.__qualname__,
                         f"Expected a single frame, but found {count} of them! Using the first one.")
@@ -63,7 +63,7 @@ class SinglePipelineInput(PipelineInput):
     def load_structure(self) -> None:
         if self.item is not None:
             Msg.debug(self.__class__.__qualname__,
-                      f"Input already loaded, skipping")
+                      "Input already loaded, skipping")
         else:
             Msg.info(self.__class__.__qualname__,
                      f"Loading single input frame {self.frame.file!r}")

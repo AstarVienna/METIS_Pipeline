@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import pprint
 from abc import abstractmethod, ABC
-from typing import Dict, Any, final, Optional
+from typing import Dict, Any, final, Optional, TYPE_CHECKING
 
 import cpl
 from cpl.core import Msg
@@ -26,9 +26,12 @@ from cpl.core import Msg
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import Parametrizable
 
-from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
+from pymetis.engine.dataitems import DataItem, PipelineProductSet
 from pymetis.engine.inputs.inputset import PipelineInputSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
+
+if TYPE_CHECKING:
+    from pymetis.engine.recipes.recipe import Recipe
 
 
 class RecipeImpl(Parametrizable, ABC):

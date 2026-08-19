@@ -134,8 +134,8 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
     def process(self) -> set[DataItem]:
         """do something more fancy in the future"""
         # Load raw image
-        sci_raw_hdr = cpl.core.PropertyList()
-        sci_raw_images = self.inputset.raw.load_data('DET1.DATA')
+        _sci_raw_hdr = cpl.core.PropertyList()
+        _sci_raw_images = self.inputset.raw.load_data('DET1.DATA')
 
         self.inputset.raw.use()
 
@@ -150,7 +150,7 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         header_lss_sci_obj_map = create_dummy_header()
         header_lss_sci_flux_1d = create_dummy_header()
         header_lss_sci_flux_2d = create_dummy_header()
-        header_lss_sci_flux_tell_corr1d = create_dummy_header()
+        _header_lss_sci_flux_tell_corr1d = create_dummy_header()
 
         # Write files
         return {

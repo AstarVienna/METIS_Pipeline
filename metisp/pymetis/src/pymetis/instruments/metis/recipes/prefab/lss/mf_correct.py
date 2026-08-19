@@ -51,7 +51,7 @@ class MetisLssMfCorrectImpl(MetisRecipeImpl):
     def process(self) -> set[DataItem]:
         """Create dummy file (should do something more fancy in the future)"""
 
-        lss_sci_flux = self.inputset.lss_sci_flux_1d.load_data('TABLE')
+        _lss_sci_flux = self.inputset.lss_sci_flux_1d.load_data('TABLE')
         self.mf_correct()
 
         # TODO: Check whether calctrans creates the Transmission file - if so, no need to

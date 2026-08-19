@@ -22,7 +22,6 @@ import types
 import cpl
 import pytest
 
-from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe,
                                                       MetisIfuDistortionImpl as Impl)
 from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest

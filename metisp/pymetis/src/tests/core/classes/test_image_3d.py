@@ -23,11 +23,9 @@ import pytest
 import cpl
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
-                      Mask as CplMask,
                       PropertyList as CplPropertyList,
                       Type as CplType)
-from cpl.hdrl.core import (Image as HdrlImage,
-                           ImageList as HdrlImageList)
+from cpl.hdrl.core import (ImageList as HdrlImageList)
 
 from pymetis.engine.core.classes.image import (EnhancedImage,
                                                EnhancedImage3D,

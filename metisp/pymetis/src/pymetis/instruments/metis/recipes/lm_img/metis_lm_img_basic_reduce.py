@@ -127,7 +127,7 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
 
         flat = self.inputset.master_flat.load_data('DET1.SCI')
         dark = self.inputset.master_dark.load_data('DET1.SCI')
-        gain = self.inputset.gain_map.load_data('DET1.SCI')
+        _gain = self.inputset.gain_map.load_data('DET1.SCI')
 
         Msg.info(self.__class__.__qualname__, "Loading raw images")
         images = self.inputset.raw.load_data('DET1.DATA')

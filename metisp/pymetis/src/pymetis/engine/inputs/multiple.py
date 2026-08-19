@@ -21,7 +21,7 @@ from typing import Any, Optional, Self
 
 import cpl
 
-from cpl.core import Msg, Image, ImageList
+from cpl.core import Msg, ImageList
 
 from pymetis.engine.dataitems import DataItem
 from pymetis.engine.inputs import PipelineInput
@@ -61,7 +61,7 @@ class MultiplePipelineInput(PipelineInput):
                  f"Loading {self.Item.__qualname__} items")
         if len(self.items) != 0:
             Msg.debug(self.__class__.__qualname__,
-                      f"Input already loaded, skipping")
+                      "Input already loaded, skipping")
         else:
             self.items = []
 

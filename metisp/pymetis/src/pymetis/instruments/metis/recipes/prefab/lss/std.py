@@ -148,8 +148,8 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
 
     def process(self) -> set[DataItem]:
         # Load raw image
-        std_raw_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_data('DET1.DATA')
+        _std_raw_hdr = cpl.core.PropertyList()
+        _raw_images = self.inputset.raw.load_data('DET1.DATA')
         primary_header = self.inputset.raw.items[0].primary_header
 
         """Create dummy file (should do something more fancy in the future)"""

@@ -19,9 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-import cpl, hdrl
+import hdrl
 from cpl.core import Msg, Image
-from typing import Literal, Dict, Any
 
 from pymetis.drl.noise import estimate_noise
 from pymetis.instruments.metis.inputs.common import MasterDarkInput
@@ -70,6 +69,6 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         master_dark_hdrl = estimate_noise(master_dark, 0)
 
         Msg.info(self.__class__.__qualname__,
-                 f"Subtracting the master dark from raw images")
+                 "Subtracting the master dark from raw images")
         images.sub_image(master_dark_hdrl)
         return images

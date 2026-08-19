@@ -23,6 +23,7 @@ from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf a
                                                 MetisIfuRsrfImpl as Impl)
 from tests.classes import BaseRecipeTest, BaseProductSetTest, RawInputSetTest
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import _create_ifu_blackbody_image, _extract_ifu_1d_spectra
+from pymetis.drl.trace_model import Trace
 
 from pytest import approx
 import numpy as np
@@ -85,17 +86,11 @@ class TestBlackBodyImg:
 
 class TestExtractTraces:
     def test_extract_traces(self):
-        # build a dummy trace list
-        trace_list = []
-        x_arr = np.arange(512)
-        trace = [1.0e-2, 0]
-        for i in np.arange(5):
-            trace[-1] = (i + 1) * 80.0
-            poly_n = len(trace) - 1
-            y_arr = \
-                [sum([k*x**(poly_n-i) for i, k in enumerate(trace)])
-                 for x in x_arr]
-            trace_list.append((x_arr, y_arr))
+        # build a dummy trace list: straight lines y = 0.01 x + (i + 1) * 80
+        trace_list = [
+            Trace(m=i + 1, pos=np.array([1.0e-2, (i + 1) * 80.0]), column_range=(0, 512))
+            for i in range(5)
+        ]
 
         # create a gradient image
         x, y = np.meshgrid(np.arange(512), np.arange(512))
@@ -103,7 +98,7 @@ class TestExtractTraces:
         img = cpl.core.Image(data)
 
         # extract 1d traces from the image
-        traces_1d = _extract_ifu_1d_spectra(img, trace_list)
+        traces_1d = _extract_ifu_1d_spectra(img, trace_list, trace_width=10)
 
         # something to compare against
         med = [np.median(traces_1d[i]) for i in np.arange(5)]

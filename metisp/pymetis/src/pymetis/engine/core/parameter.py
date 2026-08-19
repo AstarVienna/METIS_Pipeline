@@ -21,4 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 # Maybe this will be once swapped out... and then we can get rid of pyesorex completely.
 # See Pyesorex ParameterList why it is not a good idea to use CPL class directly.
 
-from pyesorex.parameter import ParameterList, ParameterEnum, ParameterRange, ParameterValue
+# The `X as X` form marks these as intentional re-exports (PEP 484 convention).
+from pyesorex.parameter import (
+    ParameterList as ParameterList,
+    ParameterEnum as ParameterEnum,
+    ParameterRange as ParameterRange,
+    ParameterValue as ParameterValue,
+)
+

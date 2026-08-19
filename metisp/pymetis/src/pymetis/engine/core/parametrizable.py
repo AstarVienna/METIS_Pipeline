@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import inspect
 from abc import ABC, ABCMeta
-from typing import ClassVar, Self, Optional, final, Any
+from typing import ClassVar, Self, Optional, Any
 
 from cpl.core import Msg
 
