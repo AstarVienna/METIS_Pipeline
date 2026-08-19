@@ -32,6 +32,8 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
         class CalibratedInput(SinglePipelineInput):
             Item = NSciCalibrated
 
+        calibrated: CalibratedInput
+
     class ProductSet(PipelineProductSet):
         Restored = NSciRestored
 

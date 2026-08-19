@@ -66,6 +66,12 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
 
+        raw: RawInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        master_dark: MasterDarkInput
+        master_flat: MasterFlatInput
+
     class ProductSet(PipelineProductSet):
         Reduced = PupilImagingReduced
 

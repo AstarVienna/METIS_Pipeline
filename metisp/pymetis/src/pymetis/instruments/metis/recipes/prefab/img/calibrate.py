@@ -44,6 +44,10 @@ class MetisImgCalibrateImpl(TargetSciMixin, MetisRecipeImpl, ABC):
         class DistortionTableInput(SinglePipelineInput):
             Item = DistortionTable
 
+        background: BackgroundInput
+        fluxcal_table: FluxcalTableInput
+        distortion_table: DistortionTableInput
+
     class ProductSet(PipelineProductSet):
         SciCalibrated = Calibrated
 

@@ -45,6 +45,9 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl)
         class FluxstdCatalogInput(FluxstdCatalogInput):
             pass
 
+        raw: RawInput
+        fluxstd_catalog: FluxstdCatalogInput
+
     class ProductSet(PipelineProductSet):
         ImgFluxCalTable = FluxCalTable
         ImgStdCombined = Combined

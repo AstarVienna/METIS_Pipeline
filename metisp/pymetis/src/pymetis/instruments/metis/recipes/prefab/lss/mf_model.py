@@ -48,6 +48,12 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         class LssSci1dInput(SinglePipelineInput):
             Item = LssSci1d
 
+        atm_line_cat: AtmLineCatInput
+        atm_profile: AtmProfileInput
+        lsf_kernel: LsfKernelInput
+        lss_sci_flux_1d: LssSciFlux1dInput
+        lss_sci_1d: LssSci1dInput
+
     class ProductSet(PipelineProductSet):
         MfBestFitTable = MfBestFitTable
 

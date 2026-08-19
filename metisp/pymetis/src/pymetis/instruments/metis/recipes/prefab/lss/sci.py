@@ -79,6 +79,19 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         class MasterAoPsfModel(SinglePipelineInput):
             Item = AoPsfModel
 
+        raw: RawInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        bad_pix_map: BadPixMapInput
+        master_rsrf: MasterRsrfInput
+        master_lss_dist_sol: MasterLssDistSolInput
+        master_lss_wave_guess: MasterLssWaveGuessInput
+        master_lss_response: MasterLssResponseInput
+        master_std_transmission: MasterStdTransmissionInput
+        master_adc_slitloss: MasterAdcSlitlossInput
+        master_ao_psf_model: MasterAoPsfModel
+
 
         # --------------------------------------------------------------------
         # TODO:

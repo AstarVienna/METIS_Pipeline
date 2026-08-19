@@ -31,6 +31,8 @@ class MetisLmImgStdProcessImpl(BandLmMixin, MetisImgStdProcessImpl):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             Item = LmStdBackgroundSubtracted
 
+        raw: RawInput
+
     class ProductSet(MetisImgStdProcessImpl.ProductSet):
         ImgStdCombined = Combined
 

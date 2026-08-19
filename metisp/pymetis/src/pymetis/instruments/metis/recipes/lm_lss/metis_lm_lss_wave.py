@@ -69,6 +69,17 @@ class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor, MetisRecipeImpl):
         class LaserTableInput(LaserTableInput):
             pass
 
+        raw: RawInput
+        master_dark: MasterDarkInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        bad_pix_map: BadPixMapInput
+        master_rsrf: MasterRsrfInput
+        lss_trace: LssTraceInput
+        wcu_off: WcuOffInput
+        laser_table: LaserTableInput
+
     class ProductSet(PipelineProductSet):
         # ++++++++++++ Intermediate / QC products ++++++++++++
         LssCurve = LssCurve

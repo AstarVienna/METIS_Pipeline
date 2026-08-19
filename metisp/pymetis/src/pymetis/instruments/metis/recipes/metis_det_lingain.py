@@ -56,6 +56,9 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             Item = BadPixMap
 
+        raw: RawInput
+        bad_pix_map: BadPixMapInput
+
     class ProductSet(PipelineProductSet):
         GainMap = GainMap
         Linearity = LinearityMap

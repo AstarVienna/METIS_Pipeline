@@ -42,6 +42,8 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LmSciCalibrated
+
+        raw: RawInput
         #class LmOffAxisPsfRaw(RawInput):
         #    Item = OffAxisPsf
         #class LmOnAxisPsfTemplate(RawInput):

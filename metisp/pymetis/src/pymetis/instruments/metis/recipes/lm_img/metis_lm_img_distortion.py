@@ -32,6 +32,9 @@ class MetisLmImgDistortionImpl(BandLmMixin, Detector2rgMixin, MetisBaseImgDistor
         class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
             pass
 
+        raw: RawInput
+        distortion: DistortionInput
+
 
 class MetisLmImgDistortion(Recipe):
     _name: str = "metis_lm_img_distortion"

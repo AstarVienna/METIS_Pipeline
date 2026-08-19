@@ -41,6 +41,10 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
 
         FluxCalTableInput = FluxCalTableInput
 
+        reduced: ReducedInput
+        telluric: TelluricInput
+        flux_cal_table: FluxCalTableInput
+
     class ProductSet(PipelineProductSet):
         SciCubeCalibrated = IfuScienceCubeCalibrated
 

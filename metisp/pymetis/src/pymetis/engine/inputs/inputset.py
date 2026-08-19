@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import inspect
 import pprint
-import re
 
 from typing import Any
 
@@ -45,17 +44,10 @@ class PipelineInputSet(ParametrizableContainer):
     between the classes -- it is just a namespacing convention.
     """
 
-    # Helper regex: remove final "Input" from the name of the class...
-    __cut_input = re.compile(r'Input$')
-    # Helper regex: ...and then turn PascalCase to snake_case (to obtain the instance name from class name)
-    __make_snake = re.compile(r'(?<!^)(?=[A-Z0-9])')
-    # E. g. `MonsterCrunch3dInput` class instance will be named `monster_crunch_3d`.
-
     def __init__(self, frameset: cpl.ui.FrameSet):
         """
-        Filter the input frameset, capture frames that match criteria and assign them to your own attributes.
-        By default, there is nothing: no inputs, no tag_parameters.
-        This feels hacky but makes it much more comfortable as you do not need to define Inputs manually.
+        Filter the input frameset, capture frames that match criteria and assign them
+        to the attributes declared on the class (see `list_input_classes`).
         """
         self.inputs: frozenset[PipelineInput] = frozenset() # All inputs for this InputSet.
         self.frameset: cpl.ui.FrameSet = frameset
@@ -63,12 +55,13 @@ class PipelineInputSet(ParametrizableContainer):
         # Tag parameter matching this instance of InputSet. Might come from DataItem matches or hard-coded from mixins.
         self.tag_matches: dict[str, str] = {}
 
-        # Now iterate over all defined Inputs, instantiate them and feed them the frameset to filter.
+        self._verify_all_inputs_are_declared()
+
+        # Now iterate over all declared Inputs, instantiate them and feed them the frameset to filter.
         Msg.debug(self.__class__.__qualname__, "Instantiating inputs")
         for (name, input_class) in self.list_input_classes():
             inp = input_class(frameset)
-            # FixMe: very hacky for now: determine the name of the instance from the name of the class
-            self.__setattr__(self.__make_snake.sub('_', self.__cut_input.sub('', name)).lower(), inp)
+            setattr(self, name, inp)
             # Add to the set of inputs (for easy iteration over all inputs)
             self.inputs |= {inp}
 
@@ -79,11 +72,53 @@ class PipelineInputSet(ParametrizableContainer):
     @classmethod
     def list_input_classes(cls) -> list[tuple[str, type[PipelineInput]]]:
         """
-        List all input classes within this input set.
+        List the inputs of this input set as (attribute name, input class) pairs.
 
-        Warning: uses introspection, feels hacky. # ToDo Maybe make this more explicit someday?
+        Inputs are declared explicitly, as annotated class attributes next to the
+        input class they bind::
+
+            class InputSet(PipelineInputSet):
+                class RawInput(RawInput):
+                    Item = SomeRaw
+
+                raw: RawInput
+                master_dark: MasterDarkInput
+
+        `__init__` then creates `self.raw` etc. as instances of the annotated class.
+        The names are ordinary attributes: IDEs can complete and type them, and a
+        grep for `master_dark` finds the declaration. A subclass that overrides an
+        input class must re-annotate the attribute so it binds the override
+        (`_verify_all_inputs_are_declared` raises if it does not).
+
+        Annotations merge across the MRO; the most derived declaration wins.
         """
-        return inspect.getmembers(cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
+        declared: dict[str, type[PipelineInput]] = {}
+        for klass in reversed(cls.__mro__):
+            for name, annotation in klass.__dict__.get('__annotations__', {}).items():
+                if isinstance(annotation, type) and issubclass(annotation, PipelineInput):
+                    declared[name] = annotation
+        return list(declared.items())
+
+    @classmethod
+    def _verify_all_inputs_are_declared(cls) -> None:
+        """
+        Verify that every input class attached to this input set is bound to an
+        annotated attribute. Catches a subclass that overrides an input class but
+        forgets to re-annotate it -- otherwise the parent's version would be
+        silently instantiated instead of the override.
+        """
+        bound = {klass for _, klass in cls.list_input_classes()}
+        unbound = [
+            f"{name} ({klass.__qualname__})"
+            for name, klass in inspect.getmembers(
+                cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
+            if klass not in bound
+        ]
+        if unbound:
+            raise TypeError(
+                f"{cls.__qualname__}: input class(es) not bound to an annotated attribute: "
+                f"{', '.join(unbound)}. Declare each input explicitly, "
+                f"e.g. `raw: RawInput`, re-annotating in the class that overrides it.")
 
     @classmethod
     def list_descriptions(cls) -> str:

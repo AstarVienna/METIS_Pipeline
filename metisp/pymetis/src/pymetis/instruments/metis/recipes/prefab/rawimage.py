@@ -46,6 +46,9 @@ class RawImageProcessor(RecipeImpl, ABC):
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             pass
 
+        raw: RawInput
+        bad_pix_map: BadPixMapInput
+
     @classmethod
     def apply_mask(cls,
                    cplImage: cpl.core.Image | hdrl.core.Image,

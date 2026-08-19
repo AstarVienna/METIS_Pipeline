@@ -65,6 +65,12 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         LsfKernelInput = LsfKernelInput
         AtmProfileInput = AtmProfileInput
 
+        raw: RawInput
+        combined: CombinedInput
+        fluxstd_catalog: FluxstdCatalogInput
+        lsf_kernel: LsfKernelInput
+        atm_profile: AtmProfileInput
+
     # ++++++++++++++ Defining ouput +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Recipe is foreseen to do both, create transmission and response functions
     # We therefore need to define transmission spectrum and response curve class

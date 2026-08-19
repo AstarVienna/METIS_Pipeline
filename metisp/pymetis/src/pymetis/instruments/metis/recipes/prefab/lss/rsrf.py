@@ -51,6 +51,13 @@ class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw
 
+        raw: RawInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        bad_pix_map: BadPixMapInput
+        lm_rsrf_wcu_off: LmRsrfWcuOffInput
+
     class ProductSet(PipelineProductSet):
         MedianLssRsrf = MedianLssRsrf
         MeanLssRsrf = MeanLssRsrf

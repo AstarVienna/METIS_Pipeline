@@ -31,6 +31,8 @@ class MetisNLssStdImpl(BandNMixin, DetectorGeoMixin, TargetStdMixin, MetisLssStd
         class MasterLssTrace(SinglePipelineInput):
             Item = LssTrace
 
+        master_lss_trace: MasterLssTrace
+
 
 class MetisNLssStd(Recipe):
     # The information about the recipe needs to be set. The base class

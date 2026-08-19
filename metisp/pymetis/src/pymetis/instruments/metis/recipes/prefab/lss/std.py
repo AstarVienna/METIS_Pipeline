@@ -87,6 +87,20 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
             Catalogue of reference stars
             """
 
+        raw: RawInput
+        master_rsrf: MasterRsrfInput
+        persistence: PersistenceInput
+        bad_pix_map: BadPixMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        atm_line_cat: AtmLineCatInput
+        master_lss_dist_sol: MasterLssDistSol
+        master_lss_wave_guess: MasterLssWaveGuess
+        master_ao_psf_model: MasterAoPsfModel
+        master_adc_slitloss: MasterAdcSlitlossInput
+        lss_synth_trans: LssSynthTransInput
+        ref_std_cat: RefStdCatInput
+
     # ++++++++++++ Intermediate / QC products ++++++++++++
 
     class ProductSet(PipelineProductSet):

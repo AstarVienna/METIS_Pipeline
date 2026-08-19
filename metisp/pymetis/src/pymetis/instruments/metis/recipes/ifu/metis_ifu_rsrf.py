@@ -91,6 +91,16 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         # TBD: schema to be defined
         WavecalInput = WavecalInput
 
+        raw: RawInput
+        master_dark: MasterDarkInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        rsrf_wcu_off: RsrfWcuOffInput
+        bad_pix_map: BadPixMapInput
+        distortion_table: DistortionTableInput
+        wavecal: WavecalInput
+
     class ProductSet(PipelineProductSet):
         RsrfBackground = IfuRsrfBackground
         MasterFlat = MasterFlatIfu

@@ -88,6 +88,13 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
 
+        raw: RawInput
+        master_dark: MasterDarkInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        master_flat: MasterFlatInput
+
     class ProductSet(PipelineProductSet):
         BasicReduced = BasicReduced
 

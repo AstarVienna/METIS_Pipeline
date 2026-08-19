@@ -55,6 +55,12 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         class RawInput(RawInput):
             Item = IfuDistortionRaw
 
+        master_dark: MasterDarkInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        raw: RawInput
+
     class ProductSet(PipelineProductSet):
         DistortionTable = IfuDistortionTable
         DistortionReduced = IfuDistortionReduced

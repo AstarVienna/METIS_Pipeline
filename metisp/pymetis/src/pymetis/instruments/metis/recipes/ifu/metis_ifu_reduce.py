@@ -66,6 +66,15 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         class RsrfInput(SinglePipelineInput):
             Item = RsrfIfu
 
+        raw: RawInput
+        raw_sky: RawSkyInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        wavecal: WavecalInput
+        distortion_table: DistortionTableInput
+        rsrf: RsrfInput
+
     class ProductSet(PipelineProductSet):
         Reduced = IfuReduced
         Background = IfuBackground

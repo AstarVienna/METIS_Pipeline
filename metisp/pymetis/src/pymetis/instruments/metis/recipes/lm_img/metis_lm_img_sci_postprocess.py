@@ -36,6 +36,8 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
         class RawInput(RawInput):
             Item = LmSciCalibrated
 
+        raw: RawInput
+
     class ProductSet(PipelineProductSet):
         LmImgSciCoadd = LmSciCoadd
 

@@ -88,6 +88,15 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
 
+        # Finally, we bind every input class to an instance attribute. `__init__` creates
+        # `self.raw`, `self.persistence_map`, ... as instances of the annotated classes;
+        # this is what `process()` accesses via `self.inputset.raw` etc.
+        # A class that overrides an input class must also re-annotate the attribute.
+        raw: RawInput
+        persistence_map: PersistenceMapInput
+        bad_pix_map: BadPixMapInput
+        gain_map: GainMapInput
+
         #class LinearityInput(OptionalInputMixin, LinearityInput):
         #    pass
 

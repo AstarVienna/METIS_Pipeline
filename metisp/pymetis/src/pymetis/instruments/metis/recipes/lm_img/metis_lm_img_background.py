@@ -40,6 +40,9 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
         class SkyBasicReducedInput(SinglePipelineInput):
             Item = LmSkyBasicReduced
 
+        basic_reduced: BasicReducedInput
+        sky_basic_reduced: SkyBasicReducedInput
+
     class ProductSet(PipelineProductSet):
         Bkg = Background
         BkgSubtracted = BackgroundSubtracted

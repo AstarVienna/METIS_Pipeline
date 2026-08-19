@@ -65,6 +65,14 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         class PinholeTableInput(OptionalInputMixin, PinholeTableInput):
             pass
 
+        raw: RawInput
+        wcu_off: WcuOffInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        persistence_map: PersistenceMapInput
+        bad_pix_map: BadPixMapInput
+        pinhole_table: PinholeTableInput
+
     class ProductSet(PipelineProductSet):
         Combined = LmChophomeCombined
         Background = LmChophomeBackground

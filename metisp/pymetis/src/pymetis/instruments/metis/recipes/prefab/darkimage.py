@@ -45,6 +45,8 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         class MasterDarkInput(MasterDarkInput):
             pass
 
+        master_dark: MasterDarkInput
+
     def subtract_dark(self,
                       images: hdrl.core.ImageList) -> hdrl.core.ImageList:
         """

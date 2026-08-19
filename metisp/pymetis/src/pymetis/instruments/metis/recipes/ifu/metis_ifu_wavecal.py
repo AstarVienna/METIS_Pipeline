@@ -73,6 +73,13 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         class DistortionTableInput(DistortionTableInput):
             pass
 
+        raw: RawInput
+        master_dark: MasterDarkInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        distortion_table: DistortionTableInput
+
     class ProductSet(PipelineProductSet):
         IfuWavecal = IfuWavecal
         IfuWavecalTab = IfuWavecalTab

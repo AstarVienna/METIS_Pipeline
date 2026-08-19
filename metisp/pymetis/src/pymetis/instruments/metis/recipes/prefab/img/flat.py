@@ -63,6 +63,12 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         class RawInput(RawInput):
             Item = FlatRaw
 
+        master_dark: MasterDarkInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        raw: RawInput
+
     class ProductSet(PipelineProductSet):
         MasterFlat = MasterImgFlat
         BadPixMap = BadPixMap

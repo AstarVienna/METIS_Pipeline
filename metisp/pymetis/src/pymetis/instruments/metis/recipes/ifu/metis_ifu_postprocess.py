@@ -35,6 +35,8 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         class SciCubeCalibratedInput(MultiplePipelineInput):
             Item = IfuScienceCubeCalibrated
 
+        sci_cube_calibrated: SciCubeCalibratedInput
+
     class ProductSet(PipelineProductSet):
         SciCoadd = IfuSciCoadd
 

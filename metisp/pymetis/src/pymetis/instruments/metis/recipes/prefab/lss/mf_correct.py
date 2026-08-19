@@ -35,6 +35,9 @@ class MetisLssMfCorrectImpl(MetisRecipeImpl):
         class TransmissionInput(SinglePipelineInput):
             Item = LssSynthTrans
 
+        lss_sci_flux_1d: LssSciFlux1dInput
+        transmission: TransmissionInput
+
     class ProductSet(PipelineProductSet):
         TellCorrFinal = LssSciFluxTellCorr1d
 

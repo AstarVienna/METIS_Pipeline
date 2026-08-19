@@ -29,6 +29,8 @@ class MetisNImgStdProcessImpl(BandNMixin, MetisImgStdProcessImpl):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
             pass
 
+        raw: RawInput
+
 
 class MetisNImgStdProcess(Recipe):
     # FixMe This can be probably also largely deduplicated

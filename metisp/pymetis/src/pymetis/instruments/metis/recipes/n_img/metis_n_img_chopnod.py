@@ -86,6 +86,13 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
         class LinearityInput(LinearityInput):
             pass
 
+        raw: RawInput
+        master_dark: MasterDarkInput
+        master_flat: MasterFlatInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+
     class ProductSet(PipelineProductSet):
         Reduced = NBackgroundSubtracted
         #Background = NStdBackground

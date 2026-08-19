@@ -57,6 +57,14 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
 
+        raw: RawInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        bad_pix_map: BadPixMapInput
+        lm_rsrf_wcu_off: LmRsrfWcuOffInput
+        master_rsrf: MasterRsrfInput
+
     class ProductSet(PipelineProductSet):
         TraceTable = LssTrace
 

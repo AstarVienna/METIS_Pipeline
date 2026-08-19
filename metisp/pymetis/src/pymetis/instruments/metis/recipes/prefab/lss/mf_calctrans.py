@@ -41,6 +41,11 @@ class MetisLssMfCalctransImpl(MetisRecipeImpl):
         class LsfKernelInput(LsfKernelInput):
             pass
 
+        mf_best_fit_table: MfBestFitTableInput
+        atm_line_cat: AtmLineCatInput
+        atm_profile: AtmProfileInput
+        lsf_kernel: LsfKernelInput
+
     # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
     class ProductSet(PipelineProductSet):
         Transmission = LssSynthTrans

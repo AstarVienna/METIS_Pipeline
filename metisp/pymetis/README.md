@@ -104,14 +104,26 @@ Worked example — `pyesorex metis_lm_img_flat` from import to product file:
 6. Check the man page: `pyesorex --man-page metis_<name>` — the Inputs,
    Outputs and QC sections are generated from your declarations.
 
-### Input attribute names (until this is made explicit)
+### Input attribute names
 
-`InputSet` members are exposed on the instance under an automatically
-derived name: the class name minus the trailing `Input`, converted to
-snake_case. `MasterDarkInput` → `self.inputset.master_dark`,
-`RawInput` → `self.inputset.raw`. This is the one place where a grep will
-not connect definition and use — the rule lives in
-`engine/inputs/inputset.py`.
+Every `InputSet` binds its input classes to instance attributes with explicit
+annotations, placed after the input class definitions they reference:
+
+```python
+class InputSet(RawImageProcessor.InputSet):
+    class RawInput(RawInput):
+        Item = DarkRaw
+
+    raw: RawInput
+    master_dark: MasterDarkInput
+```
+
+`__init__` creates `self.raw`, `self.master_dark`, ... as instances of the
+annotated classes — these are what `process()` accesses via
+`self.inputset.raw` etc. The names are ordinary annotated attributes: IDEs
+complete and type them, and grep finds them. A subclass that overrides an
+input class must re-annotate the attribute; forgetting this raises a
+`TypeError` at recipe construction (`engine/inputs/inputset.py`).
 
 ## How to add a data item
 

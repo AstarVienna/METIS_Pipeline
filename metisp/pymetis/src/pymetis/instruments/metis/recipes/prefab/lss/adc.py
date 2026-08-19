@@ -52,6 +52,14 @@ class MetisAdcSlitlossImpl(DarkImageProcessor, MetisRecipeImpl):
         class WcuOffInput(WcuOffInput):
             pass
 
+        raw: RawInput
+        master_dark: MasterDarkInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        bad_pix_map: BadPixMapInput
+        wcu_off: WcuOffInput
+
     class ProductSet(PipelineProductSet):
         AdcSlitloss = AdcSlitloss
 
