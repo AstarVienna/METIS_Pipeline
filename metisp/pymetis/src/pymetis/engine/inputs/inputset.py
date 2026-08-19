@@ -51,18 +51,6 @@ class PipelineInputSet(ParametrizableContainer):
     __make_snake = re.compile(r'(?<!^)(?=[A-Z0-9])')
     # E. g. `MonsterCrunch3dInput` class instance will be named `monster_crunch_3d`.
 
-    def __init_subclass__(cls, abstract=False, **params):
-        cls.__abstract = abstract
-        super().__init_subclass__(**params)
-
-        #if cls.__abstract:
-        #    pass
-        #else:
-        #    for name, input_class in cls.get_inputs():
-        #        print(f"Found input class {cls.__qualname__} {input_class.__name__} "
-        #              f"({input_class.Item._name_template}), "
-        #              f"params are {cls.tag_parameters()}")
-
     def __init__(self, frameset: cpl.ui.FrameSet):
         """
         Filter the input frameset, capture frames that match criteria and assign them to your own attributes.

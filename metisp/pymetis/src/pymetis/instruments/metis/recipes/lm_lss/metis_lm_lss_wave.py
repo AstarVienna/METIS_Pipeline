@@ -199,7 +199,7 @@ class MetisLmLssWave(Recipe):
     # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.parameter1",
             context=_name,
             description="Description of parameter 1",
             default="value1",

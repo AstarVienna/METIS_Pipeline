@@ -51,14 +51,14 @@ class QcStdStrehl(QcParameter):
 
 
 class QcStdAirmass(QcParameter):
-    _name_template = "QC {band} STD FWHM"
+    _name_template = "QC {band} STD AIRMASS"
     _type = float
     _unit = "1"
     _description_template = "Ellipticity of the standard star PSF"
 
 
 class QcStdEllipticity(QcParameter):
-    _name_template = "QC {band} STD FWHM"
+    _name_template = "QC {band} STD ELLIP"
     _type = float
     _unit = "1"
     _description_template = "Ellipticity of the standard star PSF"

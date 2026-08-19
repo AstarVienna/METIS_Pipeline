@@ -58,6 +58,9 @@ from pymetis.instruments.metis.recipes.n_lss.metis_n_lss_mf_model import MetisNL
 from pymetis.instruments.metis.recipes.n_lss.metis_n_lss_mf_calctrans import MetisNLssMfCalctrans
 from pymetis.instruments.metis.recipes.n_lss.metis_n_lss_mf_correct import MetisNLssMfCorrect
 
+from pymetis.instruments.metis.recipes.hci.metis_img_adi_cgrph import MetisLmRavcSciCalibrated
+from pymetis.instruments.metis.recipes.hci.metis_lm_adi_app import MetisLmAppSciCalibrated
+
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_distortion import MetisIfuDistortion
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_calibrate import MetisIfuCalibrate
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_postprocess import MetisIfuPostprocess

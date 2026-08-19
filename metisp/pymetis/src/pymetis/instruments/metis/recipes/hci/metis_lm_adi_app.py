@@ -29,7 +29,7 @@ from pymetis.instruments.metis.dataitems.hci.hci import LmAppCalibrated
 
 
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCentred, LmAppCentroidTab
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciSpeckle, LmAppSciHifilt, LmAppSciDerotatedPsfsub
+from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciSpeckle, LmAppSciDerotatedPsfsub
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciDerotated
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciContrastRadprof, LmAppSciContrastAdi, LmAppSciThroughput
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCoverage, LmAppSciSnr, LmAppPsfMedian
@@ -53,7 +53,6 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
     ProductLmSciCentred = LmAppSciCentred
     ProductLmCentroidTab = LmAppCentroidTab
     ProductLmSciSpeckle = LmAppSciSpeckle
-    ProductLmSciHifilt = LmAppSciHifilt
     ProductLmSciDerotatedPsfsub = LmAppSciDerotatedPsfsub
     ProductLmSciDerotated = LmAppSciDerotated
     ProductLmSciContrastRadprof = LmAppSciContrastRadprof
@@ -74,7 +73,6 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
             header_lmSciCentred = create_dummy_header()
             header_lmCentroidTable = create_dummy_header()
             header_lmSciSpeckle = create_dummy_header()
-            header_lmSciHifilt = create_dummy_header()
             header_lmSciDerotatedPsfsub = create_dummy_header()
             header_lmSciDerotated = create_dummy_header()
             header_lmSciContrastRadprof = create_dummy_header()
@@ -100,10 +98,6 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
             product_lmSciSpeckle = self.ProductLmSciSpeckle(
                     primary_header,
                     Hdu(header_lmSciSpeckle, image, name='DET1.DATA'),
-            )
-            product_lmSciHifilt = self.ProductLmSciHifilt(
-                    primary_header,
-                    Hdu(header_lmSciHifilt, image, name='DET1.DATA'),
             )
             product_lmSciDerotatedPsfsub = self.ProductLmSciDerotatedPsfsub(
                     primary_header,
@@ -143,7 +137,6 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
                 product_lmSciCentred,
                 product_lmCentroidTable,
                 product_lmSciSpeckle,
-                product_lmSciHifilt,
                 product_lmSciDerotatedPsfsub,
                 product_lmSciDerotated,
                 product_lmSciContrastRadprof,
@@ -156,11 +149,11 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
 
 
 class MetisLmAppSciCalibrated(Recipe):
-    _name: str = "metis_img_adi_cgrph"
+    _name: str = "metis_lm_adi_app"
     _version: str = "0.1"
     _author: str = "Jennifer Karr, A*"
     _email: str = "jkarr@asiaa.sinica.edu.tw"
-    _synopsis: str = "ADI postprocssing"
+    _synopsis: str = "ADI post-processing for the LM-band APP coronagraph"
 
     _matched_keywords: set[str] = {'DRS.FILTER'}
     _algorithm = """TODO"""

@@ -52,5 +52,4 @@ jobs:
           # `recipe`, `inputset` and `pyesorex` markers are deliberately NOT
           # deselected here (unlike the historical nightly run): these tests
           # must run on every change.
-          # -p no:randomly until class-state mutation in promote() is fixed.
-          python -m pytest src -q -p no:randomly -m "not external and not edps"
+          python -m pytest src -q -m "not external and not edps"

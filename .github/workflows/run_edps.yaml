@@ -48,7 +48,7 @@ jobs:
           export PYESOREX_OUTPUT_DIR="$SOF_DATA"
 
           # Same marker set as ci.yaml: recipe/inputset/pyesorex tests must run.
-          python -m pytest -q -p no:randomly -m "not external and not edps" metisp/pymetis/src
+          python -m pytest -q -m "not external and not edps" metisp/pymetis/src
 
       - name: Run EDPS workflow organization tests
         working-directory: metisp/workflows/test

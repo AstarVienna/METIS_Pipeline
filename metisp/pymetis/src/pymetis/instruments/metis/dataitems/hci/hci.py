@@ -21,12 +21,12 @@ import cpl
 from cpl.core import Image, Table
 
 from pymetis.engine.dataitems import ImageDataItem
-from pymetis.instruments.metis.mixins import CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin, BandLmMixin
+from pymetis.instruments.metis.mixins import CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin, BandLmMixin, BandNMixin
 
 
 class OffAxisPsfRaw(ImageDataItem, abstract=True):
     _name_template = r'{band}_OFF_AXIS_PSF_RAW'
-    _title_template = r"{band} RAVC sci calibration"
+    _title_template = r"{band} off-axis PSF raw"
     _description_template = "calibration ADI image data" 
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -38,8 +38,8 @@ class OffAxisPsfRaw(ImageDataItem, abstract=True):
     }
 
 class AdiCalibrated(ImageDataItem, abstract=True):
-    _name_template = r'{band}_RAVC_SCI_CALIBRATED'
-    _title_template = r"{band} RAVC sci calibration"
+    _name_template = r'{band}_{cgrph}_SCI_CALIBRATED'
+    _title_template = r"{band} {cgrph} sci calibration"
     _description_template = "calibration ADI image data" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -52,7 +52,7 @@ class AdiCalibrated(ImageDataItem, abstract=True):
 
 class OnAxisPsfTemplate(ImageDataItem, abstract=True):
     _name_template = r'{band}_ON_AXIS_PSF_TEMPLATE'
-    _title_template = r"{band} RAVC sci calibration"
+    _title_template = r"{band} on-axis PSF template"
     _description_template = "calibration ADI image data" 
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -67,8 +67,8 @@ class OnAxisPsfTemplate(ImageDataItem, abstract=True):
 
 class SciCentred(ImageDataItem, abstract=True):
 
-    _name_template = r"{band}_RAVC_SCI_CENTRED"
-    _title_template = r"{band} RAVC sci centred"
+    _name_template = r"{band}_{cgrph}_SCI_CENTRED"
+    _title_template = r"{band} {cgrph} sci centred"
     _description_template = ""
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -81,8 +81,8 @@ class SciCentred(ImageDataItem, abstract=True):
 
 class CentroidTab(ImageDataItem, abstract=True):
 
-    _name_template = r'{band}_RAVC_CENTROID_TAB'
-    _title_template = r"{band} RAVC centroid tab"
+    _name_template = r'{band}_{cgrph}_CENTROID_TAB'
+    _title_template = r"{band} {cgrph} centroid tab"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -95,8 +95,8 @@ class CentroidTab(ImageDataItem, abstract=True):
 
 class SciSpeckle(ImageDataItem, abstract=True):
 
-    _name_template = r'{band}_RAVC_SCI_SPECKLE'
-    _title_template = r"{band} RAVC sci speckle"
+    _name_template = r'{band}_{cgrph}_SCI_SPECKLE'
+    _title_template = r"{band} {cgrph} sci speckle"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -109,8 +109,8 @@ class SciSpeckle(ImageDataItem, abstract=True):
 
 class SciHifilt(ImageDataItem, abstract=True):
 
-    _name_template = r'{band}_RAVC_SCI_HIFILT'
-    _title_template = r"{band} RAVC sci hifilt"
+    _name_template = r'{band}_{cgrph}_SCI_HIFILT'
+    _title_template = r"{band} {cgrph} sci hifilt"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -123,8 +123,8 @@ class SciHifilt(ImageDataItem, abstract=True):
 
 class SciDerotatedPsfsub(ImageDataItem, abstract=True):
 
-    _name_template = r'{band}_RAVC_SCI_DEROTATED_PSFSUB'
-    _title_template = r"{band} RAVC sci derotated psfsub"
+    _name_template = r'{band}_{cgrph}_SCI_DEROTATED_PSFSUB'
+    _title_template = r"{band} {cgrph} sci derotated psfsub"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -137,8 +137,8 @@ class SciDerotatedPsfsub(ImageDataItem, abstract=True):
 
 
 class SciDerotated(ImageDataItem, abstract=True):
-    _name_template = r'{band}_RAVC_SCI_DEROTATED'
-    _title_template = r"{band} RAVC sci derotated"
+    _name_template = r'{band}_{cgrph}_SCI_DEROTATED'
+    _title_template = r"{band} {cgrph} sci derotated"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -151,8 +151,8 @@ class SciDerotated(ImageDataItem, abstract=True):
 
 
 class SciContrastRadprof(ImageDataItem, abstract=True):
-    _name_template = r'{band}_RAVC_SCI_CONTRAST_RADPROF'
-    _title_template = r"{band} RAVC sci contrast radprof"
+    _name_template = r'{band}_{cgrph}_SCI_CONTRAST_RADPROF'
+    _title_template = r"{band} {cgrph} sci contrast radprof"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -165,8 +165,8 @@ class SciContrastRadprof(ImageDataItem, abstract=True):
 
 
 class SciContrastAdi(ImageDataItem, abstract=True):
-    _name_template = r'{band}_RAVC_SCI_CONTRAST_ADI'
-    _title_template = r"{band} RAVC sci contrast adi"
+    _name_template = r'{band}_{cgrph}_SCI_CONTRAST_ADI'
+    _title_template = r"{band} {cgrph} sci contrast adi"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -179,8 +179,8 @@ class SciContrastAdi(ImageDataItem, abstract=True):
 
 
 class SciThroughput(ImageDataItem, abstract=True):
-    _name_template = r'{band}_RAVC_SCI_THROUGHPUT'
-    _title_template = r"{band} RAVC sci throughput"
+    _name_template = r'{band}_{cgrph}_SCI_THROUGHPUT'
+    _title_template = r"{band} {cgrph} sci throughput"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -193,8 +193,8 @@ class SciThroughput(ImageDataItem, abstract=True):
 
 
 class SciCoverage(ImageDataItem, abstract=True):
-    _name_template = r'{band}_RAVC_SCI_COVERAGE'
-    _title_template = r"{band} RAVC sci coverage"
+    _name_template = r'{band}_{cgrph}_SCI_COVERAGE'
+    _title_template = r"{band} {cgrph} sci coverage"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -207,8 +207,8 @@ class SciCoverage(ImageDataItem, abstract=True):
 
 
 class SciSnr(ImageDataItem, abstract=True):
-    _name_template = r'{band}_RAVC_SCI_SNR'
-    _title_template = r"{band} RAVC sci snr"
+    _name_template = r'{band}_{cgrph}_SCI_SNR'
+    _title_template = r"{band} {cgrph} sci snr"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -221,8 +221,8 @@ class SciSnr(ImageDataItem, abstract=True):
 
 
 class PsfMedian(ImageDataItem, abstract=True):
-    _name_template = r'{band}_RAVC_SCI_PSF_MEDIAN'
-    _title_template = r"{band} RAVC sci psf median"
+    _name_template = r'{band}_{cgrph}_PSF_MEDIAN'
+    _title_template = r"{band} {cgrph} sci psf median"
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -234,225 +234,217 @@ class PsfMedian(ImageDataItem, abstract=True):
     }
 
 
+
+# --- Concrete data items ------------------------------------------------------
+# One leaf per DRLD-defined tag. RAVC and CVC exist for both imager bands
+# (recipe `metis_img_adi_cgrph`); APP exists for LM only and has no HIFILT
+# product (recipe `metis_lm_adi_app`). See DRLD, Recipes_ADI.
+
+class LmOffAxisPsfRaw(BandLmMixin, OffAxisPsfRaw):
+    pass
+
+class NOffAxisPsfRaw(BandNMixin, OffAxisPsfRaw):
+    pass
+
+class LmOnAxisPsfTemplate(BandLmMixin, OnAxisPsfTemplate):
+    pass
+
+class NOnAxisPsfTemplate(BandNMixin, OnAxisPsfTemplate):
+    pass
+
+
 class LmRavcCalibrated(BandLmMixin, CgrphRavcMixin, AdiCalibrated):
+    pass
+
+class LmRavcSciCentred(BandLmMixin, CgrphRavcMixin, SciCentred):
+    pass
+
+class LmRavcCentroidTab(BandLmMixin, CgrphRavcMixin, CentroidTab):
+    pass
+
+class LmRavcSciSpeckle(BandLmMixin, CgrphRavcMixin, SciSpeckle):
+    pass
+
+class LmRavcSciHifilt(BandLmMixin, CgrphRavcMixin, SciHifilt):
+    pass
+
+class LmRavcSciDerotatedPsfsub(BandLmMixin, CgrphRavcMixin, SciDerotatedPsfsub):
+    pass
+
+class LmRavcSciDerotated(BandLmMixin, CgrphRavcMixin, SciDerotated):
+    pass
+
+class LmRavcSciContrastRadprof(BandLmMixin, CgrphRavcMixin, SciContrastRadprof):
+    pass
+
+class LmRavcSciContrastAdi(BandLmMixin, CgrphRavcMixin, SciContrastAdi):
+    pass
+
+class LmRavcSciThroughput(BandLmMixin, CgrphRavcMixin, SciThroughput):
+    pass
+
+class LmRavcSciCoverage(BandLmMixin, CgrphRavcMixin, SciCoverage):
+    pass
+
+class LmRavcSciSnr(BandLmMixin, CgrphRavcMixin, SciSnr):
+    pass
+
+class LmRavcPsfMedian(BandLmMixin, CgrphRavcMixin, PsfMedian):
     pass
 
 
 class LmCvcCalibrated(BandLmMixin, CgrphCvcMixin, AdiCalibrated):
     pass
 
+class LmCvcSciCentred(BandLmMixin, CgrphCvcMixin, SciCentred):
+    pass
+
+class LmCvcCentroidTab(BandLmMixin, CgrphCvcMixin, CentroidTab):
+    pass
+
+class LmCvcSciSpeckle(BandLmMixin, CgrphCvcMixin, SciSpeckle):
+    pass
+
+class LmCvcSciHifilt(BandLmMixin, CgrphCvcMixin, SciHifilt):
+    pass
+
+class LmCvcSciDerotatedPsfsub(BandLmMixin, CgrphCvcMixin, SciDerotatedPsfsub):
+    pass
+
+class LmCvcSciDerotated(BandLmMixin, CgrphCvcMixin, SciDerotated):
+    pass
+
+class LmCvcSciContrastRadprof(BandLmMixin, CgrphCvcMixin, SciContrastRadprof):
+    pass
+
+class LmCvcSciContrastAdi(BandLmMixin, CgrphCvcMixin, SciContrastAdi):
+    pass
+
+class LmCvcSciThroughput(BandLmMixin, CgrphCvcMixin, SciThroughput):
+    pass
+
+class LmCvcSciCoverage(BandLmMixin, CgrphCvcMixin, SciCoverage):
+    pass
+
+class LmCvcSciSnr(BandLmMixin, CgrphCvcMixin, SciSnr):
+    pass
+
+class LmCvcPsfMedian(BandLmMixin, CgrphCvcMixin, PsfMedian):
+    pass
+
+
+class NRavcCalibrated(BandNMixin, CgrphRavcMixin, AdiCalibrated):
+    pass
+
+class NRavcSciCentred(BandNMixin, CgrphRavcMixin, SciCentred):
+    pass
+
+class NRavcCentroidTab(BandNMixin, CgrphRavcMixin, CentroidTab):
+    pass
+
+class NRavcSciSpeckle(BandNMixin, CgrphRavcMixin, SciSpeckle):
+    pass
+
+class NRavcSciHifilt(BandNMixin, CgrphRavcMixin, SciHifilt):
+    pass
+
+class NRavcSciDerotatedPsfsub(BandNMixin, CgrphRavcMixin, SciDerotatedPsfsub):
+    pass
+
+class NRavcSciDerotated(BandNMixin, CgrphRavcMixin, SciDerotated):
+    pass
+
+class NRavcSciContrastRadprof(BandNMixin, CgrphRavcMixin, SciContrastRadprof):
+    pass
+
+class NRavcSciContrastAdi(BandNMixin, CgrphRavcMixin, SciContrastAdi):
+    pass
+
+class NRavcSciThroughput(BandNMixin, CgrphRavcMixin, SciThroughput):
+    pass
+
+class NRavcSciCoverage(BandNMixin, CgrphRavcMixin, SciCoverage):
+    pass
+
+class NRavcSciSnr(BandNMixin, CgrphRavcMixin, SciSnr):
+    pass
+
+class NRavcPsfMedian(BandNMixin, CgrphRavcMixin, PsfMedian):
+    pass
+
+
+class NCvcCalibrated(BandNMixin, CgrphCvcMixin, AdiCalibrated):
+    pass
+
+class NCvcSciCentred(BandNMixin, CgrphCvcMixin, SciCentred):
+    pass
+
+class NCvcCentroidTab(BandNMixin, CgrphCvcMixin, CentroidTab):
+    pass
+
+class NCvcSciSpeckle(BandNMixin, CgrphCvcMixin, SciSpeckle):
+    pass
+
+class NCvcSciHifilt(BandNMixin, CgrphCvcMixin, SciHifilt):
+    pass
+
+class NCvcSciDerotatedPsfsub(BandNMixin, CgrphCvcMixin, SciDerotatedPsfsub):
+    pass
+
+class NCvcSciDerotated(BandNMixin, CgrphCvcMixin, SciDerotated):
+    pass
+
+class NCvcSciContrastRadprof(BandNMixin, CgrphCvcMixin, SciContrastRadprof):
+    pass
+
+class NCvcSciContrastAdi(BandNMixin, CgrphCvcMixin, SciContrastAdi):
+    pass
+
+class NCvcSciThroughput(BandNMixin, CgrphCvcMixin, SciThroughput):
+    pass
+
+class NCvcSciCoverage(BandNMixin, CgrphCvcMixin, SciCoverage):
+    pass
+
+class NCvcSciSnr(BandNMixin, CgrphCvcMixin, SciSnr):
+    pass
+
+class NCvcPsfMedian(BandNMixin, CgrphCvcMixin, PsfMedian):
+    pass
+
 
 class LmAppCalibrated(BandLmMixin, CgrphAppMixin, AdiCalibrated):
     pass
 
-
-class LmOffAxisPsfRaw(BandLmMixin, OffAxisPsfRaw):
+class LmAppSciCentred(BandLmMixin, CgrphAppMixin, SciCentred):
     pass
 
-
-class NOffAxisPsfRaw(BandLmMixin, OffAxisPsfRaw):
+class LmAppCentroidTab(BandLmMixin, CgrphAppMixin, CentroidTab):
     pass
 
-
-class LmOnAxisPsfTemplate(BandLmMixin, OnAxisPsfTemplate):
+class LmAppSciSpeckle(BandLmMixin, CgrphAppMixin, SciSpeckle):
     pass
 
-
-class NOnAxisPsfTemplate(BandLmMixin, OnAxisPsfTemplate):
+class LmAppSciDerotatedPsfsub(BandLmMixin, CgrphAppMixin, SciDerotatedPsfsub):
     pass
 
-
-
-class LmRavcSciCentred(BandLmMixin, CgrphAppMixin, SciCentred):
+class LmAppSciDerotated(BandLmMixin, CgrphAppMixin, SciDerotated):
     pass
 
-
-class LmRavcCentroidTab(BandLmMixin, CgrphAppMixin,  CentroidTab):
+class LmAppSciContrastRadprof(BandLmMixin, CgrphAppMixin, SciContrastRadprof):
     pass
 
-
-class LmRavcSciSpeckle(BandLmMixin, CgrphAppMixin, SciSpeckle):
+class LmAppSciContrastAdi(BandLmMixin, CgrphAppMixin, SciContrastAdi):
     pass
 
-
-class LmRavcSciHifilt(BandLmMixin, CgrphAppMixin, SciHifilt):
+class LmAppSciThroughput(BandLmMixin, CgrphAppMixin, SciThroughput):
     pass
 
-
-class LmRavcSciDerotatedPsfsub(BandLmMixin, CgrphAppMixin, SciDerotatedPsfsub):
+class LmAppSciCoverage(BandLmMixin, CgrphAppMixin, SciCoverage):
     pass
 
-
-class LmRavcSciDerotated(BandLmMixin, CgrphAppMixin, SciDerotated):
+class LmAppSciSnr(BandLmMixin, CgrphAppMixin, SciSnr):
     pass
 
-
-class LmRavcSciContrastRadprof(BandLmMixin, CgrphAppMixin, SciContrastRadprof):
-    pass
-
-
-class LmRavcSciContrastAdi(BandLmMixin, CgrphAppMixin, SciContrastAdi):
-    pass
-
-
-class LmRavcSciThroughput(BandLmMixin, CgrphAppMixin, SciThroughput):
-    pass
-
-
-class LmRavcSciCoverage(BandLmMixin, CgrphAppMixin, SciCoverage):
-    pass
-
-
-class LmRavcSciSnr(BandLmMixin, CgrphAppMixin, SciSnr):
-    pass
-
-
-class LmRavcPsfMedian(BandLmMixin, CgrphAppMixin,  PsfMedian):
-    pass
-
-
-
-class NRavcSciCentred(BandLmMixin, CgrphAppMixin,  SciCentred):
-    pass
-
-
-class NRavcCentroidTab(BandLmMixin, CgrphAppMixin,  CentroidTab):
-    pass
-
-
-class NRavcSciSpeckle(BandLmMixin, CgrphAppMixin,  SciSpeckle):
-    pass
-
-
-class NRavcSciHifilt(BandLmMixin, CgrphAppMixin,  SciHifilt):
-    pass
-
-
-class NRavcSciDerotatedPsfsub(BandLmMixin, CgrphAppMixin,  SciDerotatedPsfsub):
-    pass
-
-
-class NRavcSciDerotated(BandLmMixin, CgrphAppMixin,  SciDerotated):
-    pass
-
-
-class NRavcSciContrastRadprof(BandLmMixin, CgrphAppMixin,  SciContrastRadprof):
-    pass
-
-
-class NRavcSciContrastAdi(BandLmMixin, CgrphAppMixin,  SciContrastAdi):
-    pass
-
-
-class NRavcSciThroughput(BandLmMixin, CgrphAppMixin,  SciThroughput):
-    pass
-
-
-class NRavcSciCoverage(BandLmMixin, CgrphAppMixin,  SciCoverage):
-    pass
-
-
-class NRavcSciSnr(BandLmMixin, CgrphAppMixin,  SciSnr):
-    pass
-
-
-class NRavcPsfMedian(BandLmMixin, CgrphAppMixin,  PsfMedian):
-    pass
-
-
-
-class LmCvcSciCentred(BandLmMixin, CgrphAppMixin,  SciCentred):
-    pass
-
-
-class LmCvcCentroidTab(BandLmMixin, CgrphAppMixin,  CentroidTab):
-    pass
-
-
-class LmCvcSciSpeckle(BandLmMixin, CgrphAppMixin,  SciSpeckle):
-    pass
-
-
-class LmCvcSciHifilt(BandLmMixin, CgrphAppMixin,  SciHifilt):
-    pass
-
-
-class LmCvcSciDerotatedPsfsub(BandLmMixin, CgrphAppMixin,  SciDerotatedPsfsub):
-    pass
-
-
-class LmCvcSciDerotated(BandLmMixin, CgrphAppMixin,  SciDerotated):
-    pass
-
-
-class LmCvcSciContrastRadprof(BandLmMixin, CgrphAppMixin,  SciContrastRadprof):
-    pass
-
-
-class LmCvcSciContrastAdi(BandLmMixin, CgrphAppMixin,  SciContrastAdi):
-    pass
-
-
-class LmCvcSciThroughput(BandLmMixin, CgrphAppMixin,  SciThroughput):
-    pass
-
-
-class LmCvcSciCoverage(BandLmMixin, CgrphAppMixin,  SciCoverage):
-    pass
-
-
-class LmCvcSciSnr(BandLmMixin, CgrphAppMixin,  SciSnr):
-    pass
-
-
-class LmCvcPsfMedian(BandLmMixin, CgrphAppMixin,  PsfMedian):
-    pass
-
-
-
-class NCvcSciCentred(BandLmMixin, CgrphAppMixin,  SciCentred):
-    pass
-
-
-class NCvcCentroidTab(BandLmMixin, CgrphAppMixin, CentroidTab):
-    pass
-
-
-class NCvcSciSpeckle(BandLmMixin, CgrphAppMixin,  SciSpeckle):
-    pass
-
-
-class NCvcSciHifilt(BandLmMixin, CgrphAppMixin,  SciHifilt):
-    pass
-
-
-class NCvcSciDerotatedPsfsub(BandLmMixin, CgrphAppMixin,  SciDerotatedPsfsub):
-    pass
-
-
-class NCvcSciDerotated(BandLmMixin, CgrphAppMixin,  SciDerotated):
-    pass
-
-
-class NCvcSciContrastRadprof(BandLmMixin, CgrphAppMixin,  SciContrastRadprof):
-    pass
-
-
-class NCvcSciContrastAdi(BandLmMixin, CgrphAppMixin,  SciContrastAdi):
-    pass
-
-
-class NCvcSciThroughput(BandLmMixin, CgrphAppMixin,  SciThroughput):
-    pass
-
-
-class NCvcSciCoverage(BandLmMixin, CgrphAppMixin,  SciCoverage):
-    pass
-
-
-class NCvcSciSnr(BandLmMixin, CgrphAppMixin,  SciSnr):
-    pass
-
-
-class NCvcPsfMedian(BandLmMixin, CgrphAppMixin, PsfMedian):
+class LmAppPsfMedian(BandLmMixin, CgrphAppMixin, PsfMedian):
     pass

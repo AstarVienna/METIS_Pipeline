@@ -412,7 +412,7 @@ class DataItem(ParametrizableItem, abstract=True):
             f"{self.primary_header} must be a CplPropertyList, got a {type(self.primary_header)}"
 
         assert len(recipe.used_frames) > 0, \
-            f"Recipe {recipe.name()} did not use any frames"
+            f"Recipe {recipe.name} did not use any frames"
 
         assert isinstance(recipe.instrument, str), \
             f"Recipe {recipe} has no instrument set"

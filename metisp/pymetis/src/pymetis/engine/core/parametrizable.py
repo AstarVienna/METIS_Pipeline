@@ -39,6 +39,13 @@ class ParametrizableMeta(ABCMeta):
         cls = super().__new__(mcs, name, bases, namespace)
         cls._abstract = abstract
 
+        # Reject tag keywords that are not declared in `_valid_tags` (if any are declared):
+        # a typo like `bnad='LM'` would otherwise silently create a class that never matches.
+        if kwargs and (valid := getattr(cls, "_valid_tags", frozenset())):
+            if unknown := set(kwargs) - set(valid):
+                raise TypeError(f"{name}: unknown tag parameter(s) {sorted(unknown)}, "
+                                f"valid tags are {sorted(valid)}")
+
         # Merge tag parameters from MRO + class kwargs
         merged = {}
         for base in reversed(cls.__mro__):
@@ -68,8 +75,16 @@ class ParametrizableMeta(ABCMeta):
         super().__init__(name, bases, namespace)
 
     def _register(cls) -> None:
-        """Register cls under its current _name_template in the nearest _registry up the MRO."""
-        if (key := getattr(cls, "_name_template", None)) is None:
+        """
+        Register cls under its current _name_template in the nearest _registry up the MRO.
+
+        Hand-written classes own their tags exclusively: two hand-written classes resolving
+        to the same tag is a definition error and raises immediately (this is the tripwire
+        for copy-pasted mixin lists). Runtime clones (created by `ParametrizableContainer
+        .specialize`, marked `_synthesized`) never displace a registered owner.
+        """
+        key = getattr(cls, "_name_template", None)
+        if key is None or key == "<unknown>":
             return
         registry = next(
             (b.__dict__["_registry"] for b in cls.__mro__ if "_registry" in b.__dict__),
@@ -77,16 +92,32 @@ class ParametrizableMeta(ABCMeta):
         )
         if registry is None:
             return
-        elif key in registry:
-            if registry[key] is not cls:
-                Msg.debug(cls.__qualname__, f"{key} is already registered to {registry[key].__qualname__}, skipping")
-        else:
+        existing = registry.get(key)
+        if existing is None or existing is cls:
             registry[key] = cls
+        elif getattr(cls, "_synthesized", False):
+            # A clone found its tag already owned: cache hit, the owner stays.
+            pass
+        elif getattr(existing, "_synthesized", False):
+            # A hand-written class always takes the tag over from a runtime clone.
+            registry[key] = cls
+        elif issubclass(cls, existing) or issubclass(existing, cls):
+            # A refinement of the registered owner (e.g. a recipe-local subclass that
+            # only overrides the description): the first-registered class keeps the tag.
+            Msg.debug(cls.__qualname__,
+                      f"'{key}' already registered to related class {existing.__qualname__}, keeping it")
+        else:
+            raise TypeError(
+                f"Tag collision: '{key}' is claimed by two unrelated classes: "
+                f"{existing.__module__}.{existing.__qualname__} and {cls.__module__}.{cls.__qualname__}. "
+                f"Fix the tag mixins / name template, or mark the template class `abstract=True`."
+            )
 
     def find(cls, key: str) -> Optional[type]:
         for base in cls.__mro__:
             if (reg := base.__dict__.get("_registry")) is not None:
-                return reg.get(key)
+                if (hit := reg.get(key)) is not None:
+                    return hit
         return None
 
     # This should NOT be a classmethod -- we are in a metaclass!
@@ -128,6 +159,11 @@ class Parametrizable(ABC, metaclass=ParametrizableMeta):
     Any strings or types convertible to strings (!s) may be used.
     """
     _tag_parameters: ClassVar[dict[str, Any]] = {}
+
+    # The set of tag keywords the instrument declares (e.g. {'band', 'detector', ...}).
+    # When non-empty, ParametrizableMeta rejects unknown tag keywords at class creation.
+    # The instrument package sets this once, before defining its mixins.
+    _valid_tags: ClassVar[frozenset[str]] = frozenset()
 
     @classmethod
     def tag_parameters(cls):
@@ -200,17 +236,16 @@ class ParametrizableContainer(Parametrizable, ABC):
 
         for name, item_class in cls.list_classes():
             old_class = item_class
-            # Copy the entire type so that we do not mess up the original one
-            new_class: cls.Meta._T = type(item_class.__name__, item_class.__bases__, dict(item_class.__dict__))
+            # Copy the entire type so that we do not mess up the original one.
+            # The `_synthesized` marker keeps the clone from ever displacing a
+            # hand-written class in the registry (see ParametrizableMeta._register,
+            # which is also re-invoked by new_class.specialize()).
+            new_class: cls.Meta._T = type(item_class.__name__,
+                                          item_class.__bases__,
+                                          dict(item_class.__dict__) | {'_synthesized': True})
+            new_class.__qualname__ = f"{cls.__qualname__}.{name}"
+            new_class.__module__ = cls.__module__
             new_class.specialize(**(item_class.tag_parameters() | parameters))
-
-            # Re-attempt registration now that the template may be fully resolved
-            registry = next(
-                (b.__dict__["_registry"] for b in new_class.__mro__ if "_registry" in b.__dict__),
-                None,
-            )
-            if registry is not None and new_class._name_template not in registry:
-                registry[new_class._name_template] = new_class
 
             if (klass := cls.Meta._T.find(new_class._name_template)) is None:
                 setattr(cls, name, new_class)
@@ -224,18 +259,25 @@ class ParametrizableContainer(Parametrizable, ABC):
 
 
     @classmethod
-    def promote(cls, **parameters) -> None:
+    def promoted(cls, **parameters) -> type[Self]:
         """
-        Promote the inner items of this class to appropriate subclasses, as determined from the input data.
-        This may be only called after the recipe is initialized.
+        Return a new subclass of this container with every inner item resolved to the
+        concrete class matching its fully formatted tag, as determined from the input data.
 
-        May also contain template variables that are not mixed in during class creation.
-        For instance, `recipe_{band}_{target}` can specify band=LM, but no target, resulting in partial specialization.
-        The target has to be supplied from the actual data then.
+        This deliberately does NOT mutate `cls`: promotion happens per recipe run
+        (the tags come from the loaded frames), so the result is assigned to the
+        recipe *instance*, never to the shared class. Two runs of the same recipe
+        in one process therefore cannot see each other's promoted products.
+
+        The parameters may also contain template variables that are not mixed in during
+        class creation. For instance, `recipe_{band}_{target}` can specify band=LM but
+        no target, resulting in partial specialization. The target then has to be
+        supplied from the actual data.
         """
         Msg.info(cls.__qualname__,
                  f"Promoting {cls.__qualname__} with {parameters}")
 
+        resolved = {}
         for name, item in cls.list_classes():
             # Compute the target tag without mutating `item`
             tag = partial_format(item._name_template,
@@ -248,27 +290,9 @@ class ParametrizableContainer(Parametrizable, ABC):
                     f"tag '{tag}' is not registered. "
                     f"Known tags matching: {cls.Meta._T._registry}"
                 )
-            setattr(cls, name, new_class)
+            resolved[name] = new_class
 
-
-class KeywordMixin(Parametrizable, ABC):
-    """
-    Base class for keyword-parametrizable mixins.
-
-    Contains a global registry of such classes, with placeholders as keys
-    """
-
-    # Global registry of parametrizable tags in the form {keyword: class},
-    # e.g. {'detector': DetectorSpecificMixin, ...}
-    # Filled automatically with __init_subclass__.
-    _registry: dict[str, type[Self]] = {}
-
-    def __init_subclass__(cls, *, keyword: str = None, **kwargs):
-        if keyword is not None:
-            cls._registry[keyword] = cls
-        super().__init_subclass__(**kwargs)
-
-    @classmethod
-    def registry(cls) -> dict[str, type[Self]]:
-        """ Class property to access the global registry """
-        return cls._registry
+        promoted_cls = type(cls.__name__, (cls,), resolved)
+        promoted_cls.__qualname__ = cls.__qualname__
+        promoted_cls.__module__ = cls.__module__
+        return promoted_cls
