@@ -158,7 +158,7 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
 
 
 class MetisLmAppSciCalibrated(Recipe):
-    _name: str = "metis_img_adi_cgrph"
+    _name: str = "metis_lm_adi_app"
     _version: str = "0.1"
     _author: str = "Jennifer Karr, A*"
     _email: str = "jkarr@asiaa.sinica.edu.tw"
