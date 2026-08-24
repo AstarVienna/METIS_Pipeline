@@ -26,7 +26,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRsrf, MeanLssRsrf, MasterLssRsrf
 from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
-                                              GainMapInput, LinearityInput, BadPixMapInput)
+                                              GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 
@@ -46,9 +46,6 @@ class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
-        # Deliberately overrides the optional bad pixel map of RawImageProcessor:
-        # here it is required.
-        bad_pix_map: BadPixMapInput
         lm_rsrf_wcu_off: LmRsrfWcuOffInput
 
     class ProductSet(PipelineProductSet):

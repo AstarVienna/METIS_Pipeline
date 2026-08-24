@@ -446,7 +446,7 @@ class DataItem(ParametrizableItem, abstract=True):
 
     @classmethod
     @final
-    def extended_description_line(cls, name: str = None) -> str:
+    def extended_description_line(cls) -> str:
         """
         Generate a description line for ``pyesorex --man-page``.
 

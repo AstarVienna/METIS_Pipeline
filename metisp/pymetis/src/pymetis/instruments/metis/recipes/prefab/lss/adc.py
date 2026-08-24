@@ -21,7 +21,7 @@ from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.inputs.common import WcuOffInput, BadPixMapInput
+from pymetis.instruments.metis.inputs.common import WcuOffInput
 from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss, AdcSlitlossRaw
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
@@ -41,9 +41,6 @@ class MetisAdcSlitlossImpl(DarkImageProcessor, MetisRecipeImpl):
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
-        # Deliberately overrides the optional bad pixel map of RawImageProcessor:
-        # here it is required.
-        bad_pix_map: BadPixMapInput
         wcu_off: WcuOffInput
 
     class ProductSet(PipelineProductSet):

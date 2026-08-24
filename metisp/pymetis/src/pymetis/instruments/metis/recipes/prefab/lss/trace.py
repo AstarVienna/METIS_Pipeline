@@ -27,7 +27,7 @@ from pymetis.instruments.metis.dataitems.lss.rsrf import LssRsrfPinholeRaw, Mast
 from pymetis.instruments.metis.dataitems.lss.trace import LssTrace
 from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, PersistenceMapInput, OptionalInputMixin,
-                                              GainMapInput, LinearityInput, BadPixMapInput)
+                                              GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis.qc.trace import (QcLssTraceLPolyDeg, QcLssTraceRPolyDeg,
@@ -52,9 +52,6 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
-        # Deliberately overrides the optional bad pixel map of RawImageProcessor:
-        # here it is required.
-        bad_pix_map: BadPixMapInput
         lm_rsrf_wcu_off: LmRsrfWcuOffInput
         master_rsrf: MasterRsrfInput
 

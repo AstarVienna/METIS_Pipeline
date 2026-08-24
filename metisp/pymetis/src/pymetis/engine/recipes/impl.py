@@ -96,6 +96,9 @@ class RecipeImpl(Parametrizable, ABC):
         """
         Msg.debug(cls.__qualname__, f"Specializing Implementation {cls.__qualname__} with {cls.tag_parameters()}")
 
+        # InputSet is deliberately not in this loop yet: specializing it changes the
+        # frame-matching semantics of every recipe, which needs validation against
+        # real SOF data first. PipelineInputSet.specialize is ready when that lands.
         for name in ("ProductSet", "Qc"):
             if name not in cls.__dict__:
                 container = type(name, (getattr(cls, name),), {})

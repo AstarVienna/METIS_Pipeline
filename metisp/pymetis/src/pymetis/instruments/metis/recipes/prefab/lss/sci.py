@@ -26,7 +26,7 @@ from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
-                                              GainMapInput, LinearityInput, BadPixMapInput)
+                                              GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss
@@ -74,9 +74,6 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
-        # Deliberately overrides the optional bad pixel map of RawImageProcessor:
-        # here it is required.
-        bad_pix_map: BadPixMapInput
         master_rsrf: MasterRsrfInput
         master_lss_dist_sol: MasterLssDistSolInput
         master_lss_wave_guess: MasterLssWaveGuessInput

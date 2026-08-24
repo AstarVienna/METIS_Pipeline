@@ -222,11 +222,41 @@ class ParametrizableContainer(Parametrizable, ABC):
     @classmethod
     def list_descriptions(cls) -> str:
         """ Print formatted descriptions of all available inner items (for man page and such) """
-        items = [product_type.extended_description_line(name) for (name, product_type) in cls.list_classes()]
+        items = [product_type.extended_description_line() for (name, product_type) in cls.list_classes()]
         if len(items) == 0:
             return "--- none ---"
         else:
             return '\n'.join(sorted(items))
+
+    @classmethod
+    def _specialized_item(cls, name: str, item_class: type['ParametrizableItem'], **parameters) \
+            -> type['ParametrizableItem']:
+        """
+        Resolve the class `item_class` specializes to under `parameters`:
+        the registered owner of the specialized tag where one exists, otherwise a
+        synthesized clone. The clone carries the `_synthesized` marker, which keeps
+        it from ever displacing a hand-written class in the registry (see
+        `ParametrizableMeta._register`, re-invoked by `new_class.specialize()`).
+        Note that the result of a no-op is not necessarily `item_class` itself:
+        an `abstract=True` template class never registers, so its tag may be owned
+        by a previously synthesized clone.
+        """
+        new_class: cls.Meta._T = type(item_class.__name__,
+                                      item_class.__bases__,
+                                      dict(item_class.__dict__) | {'_synthesized': True})
+        new_class.__qualname__ = f"{cls.__qualname__}.{name}"
+        new_class.__module__ = cls.__module__
+        new_class.specialize(**(item_class.tag_parameters() | parameters))
+
+        if (klass := cls.Meta._T.find(new_class._name_template)) is None:
+            Msg.debug(cls.__qualname__,
+                      f"Cannot specialize {item_class.__qualname__} ({item_class.name()}) with {parameters}, "
+                      f"had to create a new class {new_class.__qualname__} ({new_class.name()})")
+            return new_class
+        else:
+            Msg.debug(cls.__qualname__,
+                      f" - {item_class.__qualname__} specialized to {klass.__qualname__} ({klass.name()})")
+            return klass
 
     @classmethod
     def specialize(cls, **parameters) -> None:
@@ -235,27 +265,7 @@ class ParametrizableContainer(Parametrizable, ABC):
                   f"Specializing {cls.__qualname__} with {parameters} | {cls.tag_parameters()}")
 
         for name, item_class in cls.list_classes():
-            old_class = item_class
-            # Copy the entire type so that we do not mess up the original one.
-            # The `_synthesized` marker keeps the clone from ever displacing a
-            # hand-written class in the registry (see ParametrizableMeta._register,
-            # which is also re-invoked by new_class.specialize()).
-            new_class: cls.Meta._T = type(item_class.__name__,
-                                          item_class.__bases__,
-                                          dict(item_class.__dict__) | {'_synthesized': True})
-            new_class.__qualname__ = f"{cls.__qualname__}.{name}"
-            new_class.__module__ = cls.__module__
-            new_class.specialize(**(item_class.tag_parameters() | parameters))
-
-            if (klass := cls.Meta._T.find(new_class._name_template)) is None:
-                setattr(cls, name, new_class)
-                Msg.debug(cls.__qualname__,
-                          f"Cannot specialize {old_class.__qualname__} ({old_class.name()}) with {parameters}, "
-                          f"had to create a new class {new_class.__qualname__} ({new_class.name()})")
-            else:
-                setattr(cls, name, klass)
-                Msg.debug(cls.__qualname__,
-                          f" - {old_class.__qualname__} specialized to {klass.__qualname__} ({klass.name()})")
+            setattr(cls, name, cls._specialized_item(name, item_class, **parameters))
 
 
     @classmethod

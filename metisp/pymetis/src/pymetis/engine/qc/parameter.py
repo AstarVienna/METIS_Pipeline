@@ -55,7 +55,7 @@ class QcParameter(ParametrizableItem):
         return self._value
 
     @classmethod
-    def extended_description_line(cls, name=None) -> str:
+    def extended_description_line(cls) -> str:
         """
         Return a formatted description line for the man page.
         """

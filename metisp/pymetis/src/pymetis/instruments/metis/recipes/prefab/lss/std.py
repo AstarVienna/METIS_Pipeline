@@ -33,7 +33,7 @@ from pymetis.instruments.metis.dataitems.lss.science import LssSkyMap, LssObjMap
 from pymetis.instruments.metis.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
 from pymetis.instruments.metis.dataitems.synth import SynthTrans
 from pymetis.instruments.metis.inputs import (RawInput, FluxstdCatalogInput, MasterRsrfInput,
-                                              PersistenceMapInput, BadPixMapInput, GainMapInput, LinearityInput,
+                                              PersistenceMapInput, GainMapInput, LinearityInput,
                                               AtmLineCatInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
@@ -72,9 +72,6 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
         raw: RawInput
         master_rsrf: MasterRsrfInput
         persistence: PersistenceMapInput
-        # Deliberately overrides the optional bad pixel map of RawImageProcessor:
-        # here it is required.
-        bad_pix_map: BadPixMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
         atm_line_cat: AtmLineCatInput

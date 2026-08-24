@@ -163,15 +163,7 @@ class PipelineInput:
 
     @classmethod
     @final
-    def _description_line(cls, name: str = None) -> str:
-        """ Produce a description line for man page. """
-        return (f"    {cls.Item.name():<68} [{cls._multiplicity}]"
-                f"{' (optional)' if not cls._required else '           '} "
-                f"{cls.Item.description()}\n{' ' * 84}")
-
-    @classmethod
-    @final
-    def extended_description_line(cls, name: str = None, **tags) -> str:
+    def extended_description_line(cls, **tags) -> str:
         """
         Produce an extended description line for the man page.
 
