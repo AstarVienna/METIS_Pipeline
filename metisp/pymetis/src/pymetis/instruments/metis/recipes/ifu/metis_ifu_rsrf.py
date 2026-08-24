@@ -394,6 +394,7 @@ def _extract_ifu_1d_spectra(img: cpl.core.Image, trace_list: list[Trace], trace_
     """
     Extract 1D spectra from the given image using the provided list of
     spectral trace coordinates.
+    TODO: replace with PyReduce extract functionality including trace tilt.
 
     Parameters:
     img : cpl.core.Image
@@ -437,21 +438,22 @@ class MetisIfuRsrf(Recipe):
     _name: str = "metis_ifu_rsrf"
     _version: str = "0.1"
     _author: str = "Janus Brink, A*"
-    _email: str = "janus.brink27@gmail.com"
+    _email: str = "janus.brink@univie.ac.at"
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
 
     _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
     _algorithm = """Average / median stack WCU_OFF images to create background image
+        Obtain bad pixel map from master_dark
         Subtract background image from individual RSRF RAW frames
         Stack the RSRF RAW frames
-        TBC: subtract master_dark from above frames first?
-        TBC: apply gain / linearity corrections to above frames?
-        TBC: obtain bad pixel map from master_dark?
+        (TBC: subtract master_dark from above frames first?)
+        (TBC: apply gain / linearity corrections to above frames?)
         Create continuum image by mapping Planck spectrum at Tlamp to wavelength image
         Scale continuum image to match the RSRF image
         Divide stacked RAW frame by continuum image and save as MASTER_FLAT_IFU (2D RSRF)
         Average in spatial direction for each spectral trace to obtain
             relative response function (1D RSRF) - table with 1D spectra
+        (TBC: use proper PyReduce extract functionality including trace tilt)
         Normalise the set of 1D spectra to a common level before saving as RSRF_IFU
         Create bad pixel map from the master flat and update with locations
             of zero values in the continuum image - save as BADPIX_MAP_IFU"""
