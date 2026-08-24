@@ -22,7 +22,7 @@ from typing import Literal
 
 import cpl, hdrl
 from cpl.core import Msg, Image as CplImage, ImageList as CplImageList
-from cpl.hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
+from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 
 from pymetis.drl.combine import combine_images
 from pymetis.drl.image import zeros_like

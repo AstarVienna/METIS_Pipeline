@@ -22,14 +22,15 @@ from typing import Optional, ClassVar, Self
 
 import numpy as np
 import cpl
+import hdrl.core
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Type as CplType,
                       PropertyList as CplPropertyList,
                       Mask as CplMask,
                       Msg)
-from cpl.hdrl.core import (Image as HdrlImage,
-                           ImageList as HdrlImageList,)
+from hdrl.core import (Image as HdrlImage,
+                       ImageList as HdrlImageList,)
 
 from pymetis.engine.core.classes.instrument import InstrumentDescription
 from pymetis.engine.core.classes.dataquality import DataQuality
@@ -102,7 +103,7 @@ class EnhancedImageBase:
 
         # The data quality layer must describe the same pixels as the science image.
         if dq is not None and (dims := self._dimensions(dq)) != dim:
-            raise cpl.hdrl.core.IncompatibleInputError(
+            raise hdrl.core.IncompatibleInputError(
                 f"{self.__class__.__name__} '{prefix}': dq layer dimensions {dims} "
                 f"do not match the image dimensions {dim}"
             )
@@ -309,7 +310,7 @@ class EnhancedImage(EnhancedImageBase):
         if error is None:
             error = self._zeros_like(image)
         elif (dims := self._dimensions(error)) != dim:
-            raise cpl.hdrl.core.IncompatibleInputError(
+            raise hdrl.core.IncompatibleInputError(
                 f"{self.__class__.__name__} '{prefix}': error layer dimensions {dims} "
                 f"do not match the image dimensions {dim}"
             )
@@ -379,12 +380,12 @@ class EnhancedImage3D(EnhancedImageBase):
             errors = self._zeros_like(images)
         else:
             if (dims := self._dimensions(errors)) != dim:
-                raise cpl.hdrl.core.IncompatibleInputError(
+                raise hdrl.core.IncompatibleInputError(
                     f"{self.__class__.__name__} '{prefix}': error layer dimensions {dims} "
                     f"do not match the image dimensions {dim}"
                 )
             if len(errors) != len(images):
-                raise cpl.hdrl.core.IncompatibleInputError(
+                raise hdrl.core.IncompatibleInputError(
                     f"{self.__class__.__name__} '{prefix}': error stack depth {len(errors)} "
                     f"does not match the image stack depth {len(images)}"
                 )

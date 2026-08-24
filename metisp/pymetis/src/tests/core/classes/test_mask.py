@@ -21,7 +21,7 @@ import numpy as np
 import pytest
 
 import cpl
-import cpl.hdrl.core
+import hdrl.core
 from cpl.core import Mask as CplMask
 
 from pymetis.engine.core.classes.dataquality import DataQuality
@@ -140,11 +140,11 @@ class TestFromCplMasks:
     def test_mismatched_shapes_raise(self):
         small = CplMask(np.zeros((SIZE, SIZE), dtype=bool))
         big = CplMask(np.zeros((SIZE, SIZE + 2), dtype=bool))
-        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='same width and height'):
+        with pytest.raises(hdrl.core.IncompatibleInputError, match='same width and height'):
             DataQuality.from_cpl_masks({0x01: small, 0x02: big})
 
     def test_empty_dict_raises(self):
-        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='same width and height'):
+        with pytest.raises(hdrl.core.IncompatibleInputError, match='same width and height'):
             DataQuality.from_cpl_masks({})
 
 
