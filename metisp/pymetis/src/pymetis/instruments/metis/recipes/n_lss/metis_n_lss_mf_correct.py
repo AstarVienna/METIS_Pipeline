@@ -44,7 +44,7 @@ class MetisNLssMfCorrect(Recipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Application of the telluric correction"
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

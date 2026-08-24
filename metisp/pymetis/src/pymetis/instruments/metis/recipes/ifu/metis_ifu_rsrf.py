@@ -88,9 +88,6 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         class DistortionTableInput(DistortionTableInput):
             Item = IfuDistortionTable
 
-        # TBD: schema to be defined
-        WavecalInput = WavecalInput
-
         raw: RawInput
         master_dark: MasterDarkInput
         persistence_map: PersistenceMapInput
@@ -99,6 +96,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         rsrf_wcu_off: RsrfWcuOffInput
         bad_pix_map: BadPixMapInput
         distortion_table: DistortionTableInput
+        # TBD: schema to be defined
         wavecal: WavecalInput
 
     class ProductSet(PipelineProductSet):
@@ -444,7 +442,7 @@ class MetisIfuRsrf(Recipe):
     _email: str = "janus.brink27@gmail.com"
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
     _algorithm = """Average / median stack WCU_OFF images to create background image
         Subtract background image from individual RSRF RAW frames
         Stack the RSRF RAW frames

@@ -30,15 +30,6 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 class MetisLssMfModelImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class AtmLineCatInput(AtmLineCatInput):
-            pass
-
-        class AtmProfileInput(AtmProfileInput):
-            pass
-
-        class LsfKernelInput(LsfKernelInput):
-            pass
-
         # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
         class LssSciFlux1dInput(SinglePipelineInput):

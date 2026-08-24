@@ -41,8 +41,6 @@ class RawImageProcessor(RecipeImpl, ABC):
     """
 
     class InputSet(PipelineInputSet):
-        RawInput: type[RawInput] = RawInput
-
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             pass
 

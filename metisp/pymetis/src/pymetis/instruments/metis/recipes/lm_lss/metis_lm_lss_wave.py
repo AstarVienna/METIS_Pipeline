@@ -31,30 +31,18 @@ from pymetis.instruments.metis.dataitems.lss.trace import LssTrace
 from pymetis.instruments.metis.dataitems.lss.wave import LssWaveRaw
 from pymetis.instruments.metis.inputs import RawInput, LaserTableInput
 from pymetis.instruments.metis.inputs.common import (WcuOffInput, OptionalInputMixin, PersistenceMapInput,
-                                                     GainMapInput, LinearityInput, BadPixMapInput, MasterDarkInput)
-from pymetis.instruments.metis.mixins import BandLmMixin
+                                                     GainMapInput, LinearityInput, BadPixMapInput)
+from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 
 
-class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor, MetisRecipeImpl):
+class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssWaveRaw
 
-        class MasterDarkInput(MasterDarkInput):
-            pass
-
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
-            pass
-
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class BadPixMapInput(BadPixMapInput):
             pass
 
         class MasterRsrfInput(SinglePipelineInput):
@@ -63,17 +51,12 @@ class MetisLmLssWaveImpl(BandLmMixin, DarkImageProcessor, MetisRecipeImpl):
         class LssTraceInput(SinglePipelineInput):
             Item = LssTrace
 
-        class WcuOffInput(WcuOffInput):
-            pass
-
-        class LaserTableInput(LaserTableInput):
-            pass
-
         raw: RawInput
-        master_dark: MasterDarkInput
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
+        # Deliberately overrides the optional bad pixel map of RawImageProcessor:
+        # here it is required.
         bad_pix_map: BadPixMapInput
         master_rsrf: MasterRsrfInput
         lss_trace: LssTraceInput
@@ -176,33 +159,12 @@ class MetisLmLssWave(Recipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "First guess of the wavelength solution based on WCU laser reference"
-    _description: str = """\
-    First guess of the wavelength solution based on WCU laser reference
+    _description: str = (
+        "Fits a first guess of the wavelength solution to long-slit spectra of the WCU "
+        "laser sources, together with the distortion solution and the line curvature."
+    )
 
-    Inputs
-        LM_LSS_WAVE_RAW:    Raw WCU laser spectra [1-n]
-        LM_WCU_OFF_RAW:     Raw WCU OFF background frames [1-n]
-        PERSISTENCE_MAP:    Persistence map [optional]
-        GAIN_MAP_2RG:       Gain map for 2RG detector
-        LINEARITY_2RG:      Linearity map for 2RG detector
-        MASTER_DARK_2RG:    Master dark frame [optional?]
-        BADPIX_MAP_2RG:     Bad-pixel map for 2RG detector [optional]
-        MASTER_LM_LSS_RSRF: Master flat (RSRF) frame
-        LM_LSS_TRACE:       Location of the orders (TBD)
-        LASER_TAB:          Table with laser lines
-
-    Matched Keywords
-        DET.DIT
-        DET.NDIT
-        DRS.SLIT
-
-    Outputs
-        LM_LSS_CURVE:      Line curvature table (TBD)
-        LM_LSS_DIST_SOL:   Distortion solution
-        LM_LSS_WAVE_GUESS: First guess of the wavelength solution
-    """
-
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

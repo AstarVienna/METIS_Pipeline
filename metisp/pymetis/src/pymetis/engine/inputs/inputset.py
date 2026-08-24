@@ -74,24 +74,31 @@ class PipelineInputSet(ParametrizableContainer):
         """
         List the inputs of this input set as (attribute name, input class) pairs.
 
-        Inputs are declared explicitly, as annotated class attributes next to the
-        input class they bind::
+        Inputs are declared explicitly, as annotated class attributes. The annotation
+        names the input class directly: a shared module-level class where the recipe
+        needs nothing special, or a nested subclass where it carries configuration::
 
             class InputSet(PipelineInputSet):
                 class RawInput(RawInput):
                     Item = SomeRaw
 
                 raw: RawInput
-                master_dark: MasterDarkInput
+                master_dark: MasterDarkInput   # the module-level class, as imported
 
         `__init__` then creates `self.raw` etc. as instances of the annotated class.
         The names are ordinary attributes: IDEs can complete and type them, and a
-        grep for `master_dark` finds the declaration. A subclass that overrides an
-        input class must re-annotate the attribute so it binds the override
-        (`_verify_all_inputs_are_declared` raises if it does not).
+        grep for `master_dark` finds the declaration. A subclass overrides an input
+        simply by re-annotating the attribute with another class; if it defines a
+        nested input class, that class must be annotation-bound in the same body
+        (`_verify_all_inputs_are_declared` raises if it is not).
 
         Annotations merge across the MRO; the most derived declaration wins.
         """
+        return cls._list_annotated_inputs(cls)
+
+    @staticmethod
+    def _list_annotated_inputs(cls: type) -> list[tuple[str, type[PipelineInput]]]:
+        """ The annotation merge behind `list_input_classes`, for an arbitrary class. """
         declared: dict[str, type[PipelineInput]] = {}
         for klass in reversed(cls.__mro__):
             for name, annotation in klass.__dict__.get('__annotations__', {}).items():
@@ -102,23 +109,27 @@ class PipelineInputSet(ParametrizableContainer):
     @classmethod
     def _verify_all_inputs_are_declared(cls) -> None:
         """
-        Verify that every input class attached to this input set is bound to an
-        annotated attribute. Catches a subclass that overrides an input class but
-        forgets to re-annotate it -- otherwise the parent's version would be
-        silently instantiated instead of the override.
+        Verify that every nested input class is bound to an annotated attribute
+        in the class that defines it. Catches a class that defines or overrides
+        a nested input class but forgets to (re-)annotate it -- otherwise an
+        inherited annotation would silently instantiate something else. Checked
+        per defining class, so a subclass may also override an input by
+        re-annotation alone, leaving the parent's nested class behind.
         """
-        bound = {klass for _, klass in cls.list_input_classes()}
-        unbound = [
-            f"{name} ({klass.__qualname__})"
-            for name, klass in inspect.getmembers(
-                cls, lambda x: inspect.isclass(x) and issubclass(x, PipelineInput))
-            if klass not in bound
-        ]
-        if unbound:
-            raise TypeError(
-                f"{cls.__qualname__}: input class(es) not bound to an annotated attribute: "
-                f"{', '.join(unbound)}. Declare each input explicitly, "
-                f"e.g. `raw: RawInput`, re-annotating in the class that overrides it.")
+        for klass in cls.__mro__:
+            members = [
+                (name, member) for name, member in vars(klass).items()
+                if inspect.isclass(member) and issubclass(member, PipelineInput)
+            ]
+            if not members:
+                continue
+            bound = {input_class for _, input_class in cls._list_annotated_inputs(klass)}
+            if unbound := [f"{name} ({member.__qualname__})"
+                           for name, member in members if member not in bound]:
+                raise TypeError(
+                    f"{klass.__qualname__}: input class(es) not bound to an annotated "
+                    f"attribute: {', '.join(unbound)}. Declare each input explicitly, "
+                    f"e.g. `raw: RawInput`, in the body of the class that defines it.")
 
     @classmethod
     def list_descriptions(cls) -> str:

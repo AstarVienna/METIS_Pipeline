@@ -61,10 +61,6 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         class CombinedInput(SinglePipelineInput):
             Item = IfuCombined
 
-        FluxstdCatalogInput = FluxstdCatalogInput
-        LsfKernelInput = LsfKernelInput
-        AtmProfileInput = AtmProfileInput
-
         raw: RawInput
         combined: CombinedInput
         fluxstd_catalog: FluxstdCatalogInput
@@ -170,7 +166,7 @@ class MetisIfuTelluric(Recipe):
     _algorithm = """Extract 1D spectrum of science object or standard star.
     Compute telluric correction.
     Compute conversion to physical units as function of wave-length."""
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
     parameters = ParameterList([

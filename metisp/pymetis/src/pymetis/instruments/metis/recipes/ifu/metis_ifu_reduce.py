@@ -49,17 +49,6 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         class RawSkyInput(RawInput):
             Item = IfuSkyRaw
 
-        PersistenceMapInput = OptionalPersistenceMapInput
-
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class WavecalInput(WavecalInput):
-            pass # We need to create a new class here, not reuse the old one!
-
         class DistortionTableInput(SinglePipelineInput):
             Item = IfuDistortionTable
 
@@ -68,7 +57,7 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
 
         raw: RawInput
         raw_sky: RawSkyInput
-        persistence_map: PersistenceMapInput
+        persistence_map: OptionalPersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
         wavecal: WavecalInput
@@ -166,7 +155,7 @@ class MetisIfuReduce(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
     _algorithm = """Subtract dark, divide by master flat
     Analyse and optionally remove masked regions and correct crosstalk and ghosts
     Estimate stray light and subtract

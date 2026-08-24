@@ -42,9 +42,6 @@ class DarkImageProcessor(RawImageProcessor, ABC):
         A DarkImageProcessor's Input is just a raw image processor input with a master dark frame.
         The exact class is not specified at this point -- it must be set by the subclass.
         """
-        class MasterDarkInput(MasterDarkInput):
-            pass
-
         master_dark: MasterDarkInput
 
     def subtract_dark(self,

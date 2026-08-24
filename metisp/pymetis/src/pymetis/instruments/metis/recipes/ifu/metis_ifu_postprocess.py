@@ -116,7 +116,7 @@ class MetisIfuPostprocess(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords = {'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
     _algorithm = """Call metis_ifu_grid_output to find the output grid encompassing all input cubes
     Call metis_ifu_resampling to resample input cubes to output grid
     Call metis_ifu_coadd to stack the images"""

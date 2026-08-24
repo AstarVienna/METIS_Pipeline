@@ -591,7 +591,7 @@ class MetisDetLinGain(Recipe):
         "Function-level code to determine Gain and Linearity for the three subinstruments of METIS."
     )
 
-    _matched_keywords = frozenset()
+    _matched_keywords: frozenset[str] = frozenset()
     _algorithm = """We expect two on and two dark (here named off) images per DIT
     for the Gain and Linearity calculation, similar to ESO's DETMON.
     The gain is determined from the slope of the average flux

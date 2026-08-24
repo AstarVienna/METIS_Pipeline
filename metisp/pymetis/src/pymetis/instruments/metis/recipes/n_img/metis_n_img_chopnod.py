@@ -30,7 +30,7 @@ from pymetis.instruments.metis.mixins import DetectorGeoMixin, BandNMixin
 from pymetis.instruments.metis.dataitems.background.subtracted import NBackgroundSubtracted
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
 from pymetis.instruments.metis.dataitems.img.raw import ImageRaw
-from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
+from pymetis.instruments.metis.inputs import (RawInput, MasterFlatInput,
                                               OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.qc.std_process import QcStdPeakCounts
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
@@ -67,12 +67,6 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
         class RawInput(RawInput):
             Item = ImageRaw
 
-        # Now we need a master dark frame.
-        # Since nothing is changed and the tag is always the same, # we just point to the provided MasterDarkInput.
-        # Note that we do not have to instantiate it explicitly anywhere, `MasterDarkInput` takes care of that for us.
-        class MasterDarkInput(MasterDarkInput):
-            pass
-
         # Also one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
@@ -80,14 +74,7 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
         raw: RawInput
-        master_dark: MasterDarkInput
         master_flat: MasterFlatInput
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
@@ -161,7 +148,7 @@ class MetisNImgChopnod(Recipe):
             + "and it is divided by the master flat."
     )
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
     _algorithm = """Remove crosstalk, correct non-linearity
         Analyse and optionally remove masked regions
         Subtract dark, divide by flat

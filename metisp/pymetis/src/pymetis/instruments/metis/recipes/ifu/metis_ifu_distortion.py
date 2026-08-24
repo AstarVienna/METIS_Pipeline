@@ -351,7 +351,7 @@ class MetisIfuDistortion(Recipe):
         "four detectors."
     )
 
-    _matched_keywords = {'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
     _algorithm = """Stack the continuum-illuminated raw exposures.
     Estimate the local background by smoothing along the cross-dispersion direction
     and threshold against it, to separate illuminated from inter-slice pixels.

@@ -32,7 +32,7 @@ from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat, FlatRaw
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
-from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, OptionalInputMixin,
+from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin,
                                               PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
@@ -48,22 +48,12 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         """
         Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
         """
-        class MasterDarkInput(MasterDarkInput):
-            pass
-
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
-            pass
-
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
             pass
 
         class RawInput(RawInput):
             Item = FlatRaw
 
-        master_dark: MasterDarkInput
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput

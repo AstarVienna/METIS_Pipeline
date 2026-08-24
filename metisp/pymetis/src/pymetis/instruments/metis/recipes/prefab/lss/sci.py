@@ -49,15 +49,6 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class BadPixMapInput(BadPixMapInput):
-            pass
-
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
 
@@ -83,6 +74,8 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
+        # Deliberately overrides the optional bad pixel map of RawImageProcessor:
+        # here it is required.
         bad_pix_map: BadPixMapInput
         master_rsrf: MasterRsrfInput
         master_lss_dist_sol: MasterLssDistSolInput

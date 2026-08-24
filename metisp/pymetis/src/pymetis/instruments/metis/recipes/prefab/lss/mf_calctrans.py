@@ -32,15 +32,6 @@ class MetisLssMfCalctransImpl(MetisRecipeImpl):
         class MfBestFitTableInput(SinglePipelineInput):
             Item = MfBestFitTable
 
-        class AtmLineCatInput(AtmLineCatInput):
-            pass
-
-        class AtmProfileInput(AtmProfileInput):
-            pass
-
-        class LsfKernelInput(LsfKernelInput):
-            pass
-
         mf_best_fit_table: MfBestFitTableInput
         atm_line_cat: AtmLineCatInput
         atm_profile: AtmProfileInput

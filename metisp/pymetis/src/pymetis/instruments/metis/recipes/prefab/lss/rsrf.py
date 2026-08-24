@@ -39,15 +39,6 @@ class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class BadPixMapInput(BadPixMapInput):
-            pass
-
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw
 
@@ -55,6 +46,8 @@ class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
+        # Deliberately overrides the optional bad pixel map of RawImageProcessor:
+        # here it is required.
         bad_pix_map: BadPixMapInput
         lm_rsrf_wcu_off: LmRsrfWcuOffInput
 

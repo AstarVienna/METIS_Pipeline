@@ -206,7 +206,7 @@ class MetisLmRavcSciCalibrated(Recipe):
     _email: str = "jkarr@asiaa.sinica.edu.tw"
     _synopsis: str = "ADI postprocssing"
 
-    _matched_keywords: set[str] = {'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _algorithm = """TODO"""
 
     parameters = ParameterList([])

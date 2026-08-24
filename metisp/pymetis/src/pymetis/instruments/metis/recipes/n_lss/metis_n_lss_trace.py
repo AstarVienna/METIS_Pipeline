@@ -43,7 +43,7 @@ class MetisNLssTrace(Recipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Detection of N order location on the GEO detector"
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.SLIT'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
     _algorithm = """Fancy algorithm description follows ***TBD*** """
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

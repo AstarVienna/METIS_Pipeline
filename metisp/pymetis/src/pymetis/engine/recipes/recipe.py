@@ -94,9 +94,8 @@ class Recipe(cpl.ui.PyRecipe):
         Useful for reconstruction of DRLD input/product cards.
         """
         for (name, klass) in cls._registry.items():
-            for (n, kls) in inspect.getmembers(klass.Impl.InputSet,
-                                               lambda x: (inspect.isclass(x) and issubclass(x, PipelineInput))):
-                if issubclass(kls.Item, dataitem_class):
+            for (attr, input_class) in klass.Impl.InputSet.list_input_classes():
+                if input_class.Item is not None and issubclass(input_class.Item, dataitem_class):
                     yield klass
 
     @classmethod
@@ -147,11 +146,12 @@ class Recipe(cpl.ui.PyRecipe):
         elif len(cls._matched_keywords) == 0:
             matched_keywords = '--- none ---'
         else:
-            matched_keywords = '\n  '.join(cls._matched_keywords)
+            # `_matched_keywords` is a frozenset: sort it so the man page is deterministic
+            matched_keywords = '\n  '.join(sorted(cls._matched_keywords))
 
         cls.Impl.specialize()
 
-        inputs = '\n'.join(sorted([input_type.extended_description_line(name)
+        inputs = '\n'.join(sorted([input_type.extended_description_line(name, **cls.Impl.tag_parameters())
                                    for (name, input_type) in cls._list_inputs()]))
         products = cls._format_spacing(cls.Impl.ProductSet.list_descriptions(), 'products', 2)
         qc_parameters = cls._format_spacing(cls.Impl.Qc.list_descriptions(), 'QC parameters', 2)

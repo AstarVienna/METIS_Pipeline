@@ -216,7 +216,7 @@ class MetisCalChophome(Recipe):
         (nothing yet)
     """
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT'})
     _algorithm = """
     The position of the pinhole image on the detector is measured from the
     stacked background-subtracted images. The measured position is compared

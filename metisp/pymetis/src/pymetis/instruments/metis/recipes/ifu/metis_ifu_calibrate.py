@@ -39,8 +39,6 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         class TelluricInput(SinglePipelineInput):
             Item = IfuTelluric
 
-        FluxCalTableInput = FluxCalTableInput
-
         reduced: ReducedInput
         telluric: TelluricInput
         flux_cal_table: FluxCalTableInput
@@ -91,7 +89,7 @@ class MetisIfuCalibrate(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords = {'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
     _algorithm = """Correct for telluric absorption.
     Apply flux calibration."""
 

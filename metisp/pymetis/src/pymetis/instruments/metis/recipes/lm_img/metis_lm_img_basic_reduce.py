@@ -32,7 +32,7 @@ from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.dataitems.img.basicreduced import BasicReduced
 from pymetis.instruments.metis.dataitems.img.raw import ImageRaw
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
-from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, MasterFlatInput,
+from pymetis.instruments.metis.inputs import (RawInput, MasterFlatInput,
                                     OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
@@ -69,19 +69,7 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
             # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
             #    See https://github.com/AstarVienna/METIS_DRLD/issues/321
 
-        # Now we need a master dark frame. Since nothing is changed and the tag is always the same,
-        # we just point to the provided MasterDarkInput. Note that we do not have to instantiate
-        # it explicitly anywhere, `MasterDarkInput` takes care of that for us.
-        class MasterDarkInput(MasterDarkInput):
-            pass
-
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
-            pass
-
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
             pass
 
         # Also, one master flat is required. Again, we use a prefabricated class but reset the tags
@@ -89,7 +77,6 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
             Item = MasterImgFlat
 
         raw: RawInput
-        master_dark: MasterDarkInput
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
@@ -216,7 +203,7 @@ class MetisLmImgBasicReduce(Recipe):
         "and it is divided by the master flat."
     )
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
     _algorithm = """Remove crosstalk, correct non-linearity
     Analyse and optionally remove masked regions
     Subtract dark, divide by flat

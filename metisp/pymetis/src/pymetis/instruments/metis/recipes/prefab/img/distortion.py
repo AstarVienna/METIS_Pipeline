@@ -42,17 +42,8 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
         class DistortionInput(MultiplePipelineInput):
             Item = DistortionRaw
-
-        class PinholeTableInput(PinholeTableInput):
-            pass
 
         raw: RawInput
         persistence_map: PersistenceMapInput

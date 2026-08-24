@@ -95,7 +95,7 @@ class MetisLmImgBackground(Recipe):
         )
     ])
 
-    _matched_keywords = {'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 

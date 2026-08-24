@@ -362,7 +362,7 @@ class MetisDetDark(Recipe):
 
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
     # for the man page. Later, we would like to be able to compare them directly to DRLD and test for that.
-    _matched_keywords = set()
+    _matched_keywords: frozenset[str] = frozenset()
     _algorithm = """
         - Group files by detector and `DIT`, based on header keywords
         - Call function `metis_determine_dark` for each set of files
