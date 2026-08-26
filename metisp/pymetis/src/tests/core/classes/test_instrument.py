@@ -55,6 +55,28 @@ class TestMaskFlagBound:
                 GOOD = 1 << 2
                 SIGN = 1 << 31
 
+    def test_composite_flag_rejected(self):
+        """ A member covering several bits silently overlaps its neighbours
+        (the historical NOT_AN_ORDER = 0x00010010 bug); composite selections
+        belong at the call site, never in the declaration. """
+        with pytest.raises(ValueError, match='exactly one bit'):
+            class Flags(MaskFlags):
+                EDGE = 1 << 16
+                NOT_AN_ORDER = (1 << 16) | (1 << 4)
+
+    def test_duplicate_bit_rejected(self):
+        with pytest.raises(ValueError, match='shares bit'):
+            class Flags(MaskFlags):
+                HOT = 1 << 2
+                SCORCHING = 1 << 2
+
+    def test_base_class_stays_member_free(self):
+        """ Python forbids subclassing an enum with members; MAX_FLAG_BIT and
+        ALL must therefore stay `nonmember` plain values, or every instrument's
+        flag definition stops importing. """
+        assert list(MaskFlags) == []
+        assert isinstance(MaskFlags.ALL, int) and not isinstance(MaskFlags.ALL, MaskFlags)
+
     def test_real_metis_flags_are_within_bound(self):
         # The production instrument definition must itself pass enforcement.
         assert all(flag.value.bit_length() <= MaskFlags.MAX_FLAG_BIT + 1

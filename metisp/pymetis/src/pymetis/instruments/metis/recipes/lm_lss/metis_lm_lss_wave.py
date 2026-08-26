@@ -55,8 +55,6 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
-        # Deliberately overrides the optional bad pixel map of RawImageProcessor:
-        # here it is required.
         bad_pix_map: BadPixMapInput
         master_rsrf: MasterRsrfInput
         lss_trace: LssTraceInput
@@ -64,9 +62,7 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         laser_table: LaserTableInput
 
     class ProductSet(PipelineProductSet):
-        # ++++++++++++ Intermediate / QC products ++++++++++++
         LssCurve = LssCurve
-        # ++++++++++++++++++ Final products ++++++++++++++++++
         LssDistSol = LssDistSol
         LssWaveGuess = LssWaveGuess
 
