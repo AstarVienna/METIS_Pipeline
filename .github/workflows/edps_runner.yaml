@@ -304,14 +304,12 @@ jobs:
             exit 1
           fi
 
-      - name: Transfer products to Zeus server
+      - name: Update LatestBuild symlink on Zeus
         if: always()
         run: |
           TODAY=$(date +%Y-%m-%d)
 
-          # Transfer today's directory
-          scp -r /product/$TODAY chyan@zeus:/data/METIS_Pipeline_Product/
-
-          # Update LatestBuild symlink on zeus
-          ssh chyan@zeus "ln -sfn $TODAY /data/METIS_Pipeline_Product/LatestBuild"
-          echo "Updated zeus:/data/METIS_Pipeline_Product/LatestBuild -> $TODAY"
+          # The remote /data/METIS_Pipeline_Product directory is already mounted at /product
+          # so we only need to update the LatestBuild symlink here.
+          ln -sfn "$TODAY" /product/LatestBuild
+          echo "Updated /product/LatestBuild -> $TODAY"

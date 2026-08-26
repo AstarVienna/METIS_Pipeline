@@ -25,7 +25,7 @@ import hdrl.core
 from cpl.core import (Image as CplImage,
                       Mask as CplMask,
                       Type as CplType,)
-
+import hdrl
 
 class DataQuality:
     """
