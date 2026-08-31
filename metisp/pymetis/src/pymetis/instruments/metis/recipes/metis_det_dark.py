@@ -198,7 +198,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
             # TODO probably should require at least 2 dark frames because setting the read noise to 0 gives issues down the line with noise calculations.
 
         dummy_gain=gain # 4.0 # electron/ADU, this could be grabbed from lingain, which makes it detector-specific
-        dummy_readnoise=read_noise[0]*dummy_gain # electrons, calculated from the raw counts + the gain from the lingain
+        dummy_readnoise=read_noise[0]*gain # electrons, calculated from the raw counts + the gain from the lingain
         
         # make error array for each rawimage.        
         # turn the raw images into HDRL images with an initial noise estimate
