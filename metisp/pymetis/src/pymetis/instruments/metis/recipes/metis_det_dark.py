@@ -27,7 +27,9 @@ from typing import Literal, Dict, Any
 
 import cpl
 from cpl.core import Msg, ImageList, Image, Mask
+from hdrl.core import ImageList as HdrlImageList, Image as HdrlImage
 
+from pymetis.drl.lingain import correct_gain, correct_nonlinearity
 from pymetis.drl.combine import combine_images
 from pymetis.drl.noise import estimate_noise_list, calculate_outliers
 from pymetis.engine.core.classes.image import EnhancedImage
@@ -43,8 +45,9 @@ from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
 from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark
 from pymetis.instruments.metis.dataitems.masterdark.raw import DarkRaw
+
 from pymetis.instruments.metis.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
-                                              GainMapInput, OptionalInputMixin)
+                                              GainMapInput, OptionalInputMixin, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
@@ -88,8 +91,8 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
 
-        #class LinearityInput(OptionalInputMixin, LinearityInput):
-        #    pass
+        class LinearityInput(OptionalInputMixin, LinearityInput):
+            pass
 
 
     class ProductSet(PipelineProductSet):
@@ -138,7 +141,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
     #
     # what exactly do we mean by "bad pixel" compared to hot or cold; check interpretation.
     #
-    # Also, persistence and non-linearity to be implemented.
+    # Also, persistence to be implemented.
     #
     # Once 3 extension IO is implemented, rewrite to utilize pyHDRL functionality 
     ###############################################################################
@@ -159,44 +162,74 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         Msg.info(self.__class__.__qualname__,
                  f"Processing detector {detector}")
 
-        raw_images = self.inputset.raw.load_data(extension=f'DET{detector:1d}.DATA')
-
-        # load raw data
-
-        Msg.info(self.__class__.__qualname__, f"Pretending to load DETLIN")
-
-        # TODO add detlin stuff
+        raw_images = self.inputset.raw.load_data(extension=f'DET{detector:1d}.DATA') # this is a CplImageList of raw images
+        #raw_images2 = self.inputset.raw.load_data(extension=f'DET{detector:1d}.DATA') # this is a CplImageList of raw images
+        gain_table = self.inputset.gain_map.load_data(extension=f'DET{detector:1d}.SCI')
+        gain=gain_table['gain'][0][0] # unpack value from table
+        gain_err=gain_table['gain_err'][0][0] # unpack value from table
         
-        Msg.info(self.__class__.__qualname__, f"Faking a gain map and badpix map")
-
-        #TODO optional badpix map
-
-        # fake the bp mask by initializing to zero
-        badpix_mask = zeros_like(raw_images[0], cpl.core.Type.INT)
-
-        # fake the gain at the moment by setting to 1 TODO real version
-        gain = cpl.core.Image.zeros_like(raw_images[0])
-        gain.add_scalar(1)
-    
-        raw_images = self.correct_gain(raw_images, gain)
-        # raw_images = self.correct_persistence(raw_images) # currently fails
-
-        #linearity_map = self.inputset.linearity.load_data(extension=rf'DET{detector:1d}.SCI')
-        #raw_images = self.correct_nonlinearity(raw_images, linearity_map)
-
+        
+        Msg.info(self.__class__.__qualname__, f"Loading Linearity Map")
+        
+        linearity_sci = self.inputset.linearity.load_data(extension=f'DET{detector:1d}.SCI') # this is a CplImageList with polynomial coeffs.
+        linearity_err = self.inputset.linearity.load_data(extension=f'DET{detector:1d}.ERR') # this is a CplImageList with the errors
+        linearity_hdrl = HdrlImageList(linearity_sci,linearity_err) # this is an HdrlImageList
+        
+        # calculate read noise in ADU
         if len(raw_images) > 1:
             Msg.info(self.__class__.__qualname__,
-                     f"Calculating read noise from {len(raw_images)} raw dark frames")
-            diff = cpl.core.Image(raw_images[0])
+                     f"Calculating read noise from {2} out of {len(raw_images)} raw dark frames")
+            diff = raw_images[0]
             diff.subtract(raw_images[1])
-            read_noise = cpl.drs.detector.get_noise_window(diff, None)
+            
+            read_noise = cpl.drs.detector.get_noise_window(diff_image=diff, zone_def=None)/np.sqrt(2) # the full image can be used in this case
+            #Following the API a difference frame will have sqrt(2) the noise of a single frame. The zone_def parameter doesn't work. Can use a workaround with diff.extract
+            Msg.info(self.__class__.__qualname__,
+                     f"Readnoise is {read_noise[0]} ADU")
+            
         else:
             Msg.warning(self.__class__.__qualname__,
                         f"Cannot calculate actual read noise as there is only one raw image")
             read_noise = (0, 0)
+            # TODO probably should demand at least 2 dark frames because setting the read noise to 0 gives issues down the line with noise calculations.
+
+        dummy_gain=gain # 4.0 # electron/ADU, this could be grabbed from lingain, which makes it detector-specific
+        dummy_readnoise=read_noise[0]*dummy_gain # electrons, calculated from the raw counts + the gain from the lingain
+        
+        # make error array for each rawimage.        
+        raw_images_errs=copy.deepcopy(raw_images)
+        
+        for i,raw_images_err in enumerate(raw_images_errs): # replace by the function that generates noise map from imagelist ?
+            raw_images_errs[i].abs() # force positive values, ugly but readnoise will dominate at low flux anyway. crires does the same
+            raw_images_errs[i].multiply_scalar(dummy_gain) # multiply with the gain, this is now equal to the variance of the shot noise
+            raw_images_errs[i].add_scalar(dummy_readnoise**2) # add variance of the read noise in electrons
+            raw_images_errs[i].power(0.5) # sqrt to get the total noise in electrons
+            raw_images_errs[i].divide_scalar(dummy_gain) # back to ADU, will convert to electrons later
+            
+        raw_images_hdrl = HdrlImageList(raw_images,raw_images_errs) # form HDRL image
+        
+        # threshold raw images
+        # TODO copy over from prototype code.
+        
+        # linearity correct
+        raw_images_hdrl = correct_nonlinearity(raw_images_hdrl, linearity_hdrl)
+        
+        # apply gain                
+        raw_images_hdrl = correct_gain(raw_images_hdrl, (gain,gain_err))
+        
+        Msg.info(self.__class__.__qualname__, f"Faking badpix map")
+
+        #TODO optional badpix map
+
+        
+        #TODO correct persistence
+        #raw_images = self.correct_persistence(raw_images) # currently fails
+
+        # fake the bp mask by initializing to zero
+        badpix_mask = zeros_like(raw_images[0], cpl.core.Type.INT)
 
         # turn the raw images into HDRL images with an initial noise estimate
-        raw_images_hdrl = estimate_noise_list(raw_images, read_noise[0])
+        #raw_images_hdrl = estimate_noise_list(raw_images, read_noise[0])
 
         # and combine
         combined_image = combine_images(raw_images_hdrl, self.stacking_method)
@@ -240,84 +273,84 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         Msg.info(self.__class__.__qualname__, "Actually Calculating QC parameters")
 
         # calculate the stats in each individual image
-        medians = []
-        means = []
-        stdevs = []
-        mins = []
-        maxs = []
-        for im in raw_images:
-            # mask bad pixels before calculations
-            self.apply_mask(combined_image,badpix_mask,[1,2,4])
-            medians.append(im.get_median())
-            means.append(im.get_mean())
-            stdevs.append(im.get_stdev())
-            mins.append(im.get_min())
-            maxs.append(im.get_max())
+#         medians = []
+#         means = []
+#         stdevs = []
+#         mins = []
+#         maxs = []
+#         for im in raw_images:
+#             # mask bad pixels before calculations
+#             self.apply_mask(combined_image,badpix_mask,[1,2,4])
+#             medians.append(im.get_median())
+#             means.append(im.get_mean())
+#             stdevs.append(im.get_stdev())
+#             mins.append(im.get_min())
+#             maxs.append(im.get_max())
+# 
+#         qcmed = combined_image.image.get_median()
+#         qcmean  = combined_image.image.get_mean()
+#         qcrms  = combined_image.image.get_stdev()
+#         
+#         Msg.info(self.__class__.__qualname__, f"QC DARK N COLDPIX = {qcncold}")
+#         Msg.info(self.__class__.__qualname__, f"QC DARK N HOTPIX = {qcnhot}")
+#         Msg.info(self.__class__.__qualname__, f"QC DARK N BADPIX = {qcnbad}")
+#         
+#         Msg.info(self.__class__.__qualname__, f"QC DARK MEAN = {qcmean}")
+#         Msg.info(self.__class__.__qualname__, f"QC DARK MED = {qcmed}")
+#         Msg.info(self.__class__.__qualname__, f"QC DARK RMS = {qcrms}")
+# 
+#         qcncoadd = len(raw_images)
+# 
+#         qcmedmed = np.median(np.array(medians))
+#         qcmedrms = np.median(np.array(stdevs))
+#         qcmedmin = np.median(np.array(mins))
+#         qcmedmax = np.median(np.array(maxs))
+#         qcmedmean = np.median(np.array(means))
+# 
+#         Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MIN = {qcmedmin}")
+#         Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MAX = {qcmedmax}")
+#         Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MED = {qcmedmed}")
+#         Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MEAN = {qcmedmean}")
+#         Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN RMS = {qcmedrms}")
+# 
+#         header_image = cpl.core.PropertyList()
+# 
+#         hh = header_image.load(self.inputset.raw.frameset[0].file, 0)
+#         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
-        qcmed = combined_image.image.get_median()
-        qcmean  = combined_image.image.get_mean()
-        qcrms  = combined_image.image.get_stdev()
-        
-        Msg.info(self.__class__.__qualname__, f"QC DARK N COLDPIX = {qcncold}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK N HOTPIX = {qcnhot}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK N BADPIX = {qcnbad}")
-        
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEAN = {qcmean}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MED = {qcmed}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK RMS = {qcrms}")
-
-        qcncoadd = len(raw_images)
-
-        qcmedmed = np.median(np.array(medians))
-        qcmedrms = np.median(np.array(stdevs))
-        qcmedmin = np.median(np.array(mins))
-        qcmedmax = np.median(np.array(maxs))
-        qcmedmean = np.median(np.array(means))
-
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MIN = {qcmedmin}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MAX = {qcmedmax}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MED = {qcmedmed}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MEAN = {qcmedmean}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN RMS = {qcmedrms}")
-
-        header_image = cpl.core.PropertyList()
-
-        hh = header_image.load(self.inputset.raw.frameset[0].file, 0)
-        Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
-
-        gg = self.collect_qc_parameters(
-            DarkMean(qcmean),
-            DarkMedian(qcmed),
-            DarkRms(qcrms),
-            DarkNBadpix(qcnbad),
-            DarkNColdpix(qcncold),
-            DarkNHotpix(qcnhot),
-            DarkMedianMean(qcmedmean),
-            DarkMedianMedian(qcmedmed),
-            DarkMedianRms(qcmedrms),
-            DarkMedianMin(qcmedmin),
-            DarkMedianMax(qcmedmax),
-        )
-
-        header_image.append(gg)
-        header_image.append(hh)
-
-        # for the time being append READNOISE to the header
-
-        header_image.append(cpl.core.Property("READNOISE", cpl.core.Type.DOUBLE, read_noise[0]))
-        for elem in header_image:
-            Msg.info(self.__class__.__qualname__, f"HEADER IMAGE{elem}")
-
-        header_noise = copy.deepcopy(header_image)
-        header_mask = copy.deepcopy(header_image)
+        # gg = self.collect_qc_parameters(
+        #     DarkMean(qcmean),
+        #     DarkMedian(qcmed),
+        #     DarkRms(qcrms),
+        #     DarkNBadpix(qcnbad),
+        #     DarkNColdpix(qcncold),
+        #     DarkNHotpix(qcnhot),
+        #     DarkMedianMean(qcmedmean),
+        #     DarkMedianMedian(qcmedmed),
+        #     DarkMedianRms(qcmedrms),
+        #     DarkMedianMin(qcmedmin),
+        #     DarkMedianMax(qcmedmax),
+        # )
+        # 
+        # header_image.append(gg)
+        # header_image.append(hh)
+        # 
+        # # for the time being append READNOISE to the header
+        # 
+        # header_image.append(cpl.core.Property("READNOISE", cpl.core.Type.DOUBLE, read_noise[0]))
+        # for elem in header_image:
+        #     Msg.info(self.__class__.__qualname__, f"HEADER IMAGE{elem}")
+        # 
+        # header_noise = copy.deepcopy(header_image)
+        # header_mask = copy.deepcopy(header_image)
 
         return output.hdus()
 
-        return [
-            Hdu(header_image, combined_image.image, name=rf'DET{detector:1d}.SCI'),
-            Hdu(header_noise, combined_image.error, name=rf'DET{detector:1d}.ERR'),
-            Hdu(header_mask, badpix_mask, name=rf'DET{detector:1d}.DQ'),
-        ]
+        # return [
+        #     Hdu(header_image, combined_image.image, name=rf'DET{detector:1d}.SCI'),
+        #     Hdu(header_noise, combined_image.error, name=rf'DET{detector:1d}.ERR'),
+        #     Hdu(header_mask, badpix_mask, name=rf'DET{detector:1d}.DQ'),
+        # ]
 
 
     def process(self) -> set[DataItem]:
@@ -346,7 +379,7 @@ class MetisDetDark(Recipe):
     # Fill in recipe information for `pyesorex`. These are required and checked by `pyesorex`.
     _name = "metis_det_dark"
     _version = "0.1"
-    _author = "Hugo Buddelmeijer, A*"
+    _author = "Hugo Buddelmeijer, A*, ASIAA"
     _email = "hugo@buddelmeijer.nl"
     _synopsis = "Create master dark"
     _description = (
