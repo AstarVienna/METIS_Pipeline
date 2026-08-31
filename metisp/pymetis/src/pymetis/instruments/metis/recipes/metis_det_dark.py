@@ -163,27 +163,31 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
                  f"Processing detector {detector}")
 
         raw_images = self.inputset.raw.load_data(extension=f'DET{detector:1d}.DATA') # this is a CplImageList of raw images
-        #raw_images2 = self.inputset.raw.load_data(extension=f'DET{detector:1d}.DATA') # this is a CplImageList of raw images
+        
+        Msg.info(self.__class__.__qualname__, 
+                 f"Loading Gain values")
+        
         gain_table = self.inputset.gain_map.load_data(extension=f'DET{detector:1d}.SCI')
         gain=gain_table['gain'][0][0] # unpack value from table
         gain_err=gain_table['gain_err'][0][0] # unpack value from table
-        
-        
-        Msg.info(self.__class__.__qualname__, f"Loading Linearity Map")
+                
+        Msg.info(self.__class__.__qualname__,
+                 f"Loading Linearity Map")
         
         linearity_sci = self.inputset.linearity.load_data(extension=f'DET{detector:1d}.SCI') # this is a CplImageList with polynomial coeffs.
         linearity_err = self.inputset.linearity.load_data(extension=f'DET{detector:1d}.ERR') # this is a CplImageList with the errors
+        # TODO probably need to copy over the BPM map as well
         linearity_hdrl = HdrlImageList(linearity_sci,linearity_err) # this is an HdrlImageList
         
         # calculate read noise in ADU
         if len(raw_images) > 1:
             Msg.info(self.__class__.__qualname__,
                      f"Calculating read noise from {2} out of {len(raw_images)} raw dark frames")
-            diff = raw_images[0]
+            diff = raw_images[0].duplicate()
             diff.subtract(raw_images[1])
             
             read_noise = cpl.drs.detector.get_noise_window(diff_image=diff, zone_def=None)/np.sqrt(2) # the full image can be used in this case
-            #Following the API a difference frame will have sqrt(2) the noise of a single frame. The zone_def parameter doesn't work. Can use a workaround with diff.extract
+            #Following the API a difference frame will have sqrt(2) the noise of a single frame. The zone_def parameter doesn't work in pycpl 1.0.4. Can use a workaround with diff.extract
             Msg.info(self.__class__.__qualname__,
                      f"Readnoise is {read_noise[0]} ADU")
             
@@ -191,12 +195,14 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
             Msg.warning(self.__class__.__qualname__,
                         f"Cannot calculate actual read noise as there is only one raw image")
             read_noise = (0, 0)
-            # TODO probably should demand at least 2 dark frames because setting the read noise to 0 gives issues down the line with noise calculations.
+            # TODO probably should require at least 2 dark frames because setting the read noise to 0 gives issues down the line with noise calculations.
 
         dummy_gain=gain # 4.0 # electron/ADU, this could be grabbed from lingain, which makes it detector-specific
         dummy_readnoise=read_noise[0]*dummy_gain # electrons, calculated from the raw counts + the gain from the lingain
         
         # make error array for each rawimage.        
+        # turn the raw images into HDRL images with an initial noise estimate
+        # raw_images_hdrl = estimate_noise_list(raw_images, read_noise[0])
         raw_images_errs=copy.deepcopy(raw_images)
         
         for i,raw_images_err in enumerate(raw_images_errs): # replace by the function that generates noise map from imagelist ?
@@ -219,17 +225,15 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         
         Msg.info(self.__class__.__qualname__, f"Faking badpix map")
 
-        #TODO optional badpix map
+        # optional badpix map
+        # TODO
 
         
-        #TODO correct persistence
-        #raw_images = self.correct_persistence(raw_images) # currently fails
+        # correct persistence
+        # TODO raw_images = self.correct_persistence(raw_images) # currently fails
 
         # fake the bp mask by initializing to zero
         badpix_mask = zeros_like(raw_images[0], cpl.core.Type.INT)
-
-        # turn the raw images into HDRL images with an initial noise estimate
-        #raw_images_hdrl = estimate_noise_list(raw_images, read_noise[0])
 
         # and combine
         combined_image = combine_images(raw_images_hdrl, self.stacking_method)
