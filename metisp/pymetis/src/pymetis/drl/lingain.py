@@ -1,6 +1,7 @@
 from cpl.core import Image as CplImage, ImageList as CplImageList, Msg
 from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 import hdrl
+import copy
 
 from typing import Literal, Optional
 
@@ -38,7 +39,7 @@ def correct_nonlinearity_image_hdrl(image: HdrlImage, linearity_map: HdrlImageLi
     for n, i in enumerate(range(len(linearity_map)-1, -1, -1)): # i follows the index from last to first array index, while n follows the power from low to high (python polyfit puts the constant component last)
         print(n,i)
         if n == 0: # only use constant term for power n=0: a[i]*flux**0
-            correction_hdrl = linearity_map[i] # a[i] for n=0
+            correction_hdrl = copy.deepcopy(linearity_map[i]) # a[i] for n=0
         else: # for powers n>0 add: a[i]*flux**n
                     
             image_pow = image.pow_scalar_create(exponent=(n,0)) # flux**n (without error on the exponent)
@@ -58,7 +59,7 @@ def correct_gain(images: HdrlImageList, gain: (float,float)
     Parameters
     ----------
     images : HdrlImageList
-        List of linearized images [ADU] to correct
+        List of linearized images [ADU] to correct for gain
     gain : tuple of floats
         Gain and error [e/ADU]
 
@@ -75,7 +76,7 @@ def correct_gain(images: HdrlImageList, gain: (float,float)
         raise ValueError(f"Unknown input type {type(images)}")
     return images
 
-def correct_nonlinearity(images: HdrlImageList,
+def correct_nonlinearity(images: HdrlImageList | HdrlImage,
         linearity_map: HdrlImageList,
     ) -> HdrlImageList:
     """
@@ -83,21 +84,24 @@ def correct_nonlinearity(images: HdrlImageList,
 
     Parameters
     ----------
-    images : HdrlImageList
-        List of raw images [ADU] to correct for nonlinearity.
+    images : HdrlImageList | HdrlImage
+        List of raw images or single raw image [ADU] to correct for nonlinearity
     linearity_map : HdrlImageList
-        Map of polynomial linearity coefficients and their errors.
+        Map of polynomial linearity coefficients and their errors
     
     Returns
     -------
     corrected_images : HdrlImageList
-        List of raw images [ADU], now corrected for non-linearity.
+        List of raw images [ADU], now corrected for non-linearity
     """
         
     if isinstance(images, HdrlImageList):
         Msg.info("correct_nonlinearity",f"Correcting raw images for non-linearity")
         for i, image in enumerate(images):
             images[i]=correct_nonlinearity_image_hdrl(image,linearity_map)
+    elif isinstance(images, HdrlImage):
+        Msg.info("correct_nonlinearity",f"Correcting raw image for non-linearity")
+        images=correct_nonlinearity_image_hdrl(images,linearity_map)
     else:
         raise ValueError(f"Unknown input type {type(images)}")
     
