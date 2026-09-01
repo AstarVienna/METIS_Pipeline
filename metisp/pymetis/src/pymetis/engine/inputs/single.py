@@ -48,8 +48,14 @@ class SinglePipelineInput(PipelineInput):
         """
         Msg.debug(self.__class__.__qualname__, f"Loading {frameset}")
         if (count := len(frameset)) == 0:
-            Msg.error(self.__class__.__qualname__,
-                      f"No frames found!")
+            # `self.frame` stays None. For a required input that is an error and
+            # `validate()` will raise; for an optional one it is entirely normal.
+            if self.required():
+                Msg.error(self.__class__.__qualname__,
+                          f"No frames found!")
+            else:
+                Msg.debug(self.__class__.__qualname__,
+                          f"No {self.Item.title()} frame found, but not required.")
         elif count > 1:
             Msg.warning(self.__class__.__qualname__,
                         f"Expected a single frame, but found {count} of them! Using the first one.")
@@ -64,15 +70,29 @@ class SinglePipelineInput(PipelineInput):
         if self.item is not None:
             Msg.debug(self.__class__.__qualname__,
                       f"Input already loaded, skipping")
-        else:
-            Msg.info(self.__class__.__qualname__,
-                     f"Loading single input frame {self.frame.file!r}")
+            return
 
-            self.item = self.Item.load(self.frame)
-            self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
+        if self.frame is None:
+            # No frame was matched. `_verify_frame_present` raises for a required
+            # input and only logs for an optional one, in which case there is
+            # simply nothing to load and `self.item` stays None.
+            self._verify_frame_present(self.frame)
+            return
 
-    def load_data(self, extension: str = None) -> Union[Image, Table]:
+        Msg.info(self.__class__.__qualname__,
+                 f"Loading single input frame {self.frame.file!r}")
+
+        self.item = self.Item.load(self.frame)
+        self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
+
+    def load_data(self, extension: str = None) -> Optional[Union[Image, Table]]:
         self.load_structure()
+
+        if self.item is None:
+            # Only reachable for an optional input with no matching frame.
+            Msg.debug(self.__class__.__qualname__,
+                      f"No {self.Item.title()} frame to load data from, but not required.")
+            return None
 
         Msg.info(self.__class__.__qualname__,
                  f"Loading extension '{extension}' from a single frame {self.frame.file}")
@@ -80,6 +100,10 @@ class SinglePipelineInput(PipelineInput):
         return self.item.load_data(extension)
 
     def set_cpl_attributes(self):
+        if self.frame is None:
+            # This may happen for non-required inputs
+            return
+
         self.frame.group = self.Item.frame_group()
         self.frame.level = self.Item.frame_level()
         self.frame.type = self.Item.frame_type()
@@ -123,7 +147,8 @@ class SinglePipelineInput(PipelineInput):
         return self.frame
 
     def use(self) -> Self:
-        self.item.use()
+        if self.item is not None:
+            self.item.use()
         return self
 
     def valid_frames(self) -> cpl.ui.FrameSet:
