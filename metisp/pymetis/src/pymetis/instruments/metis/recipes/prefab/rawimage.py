@@ -98,10 +98,10 @@ class RawImageProcessor(RecipeImpl, ABC):
 
         #mask = mask.as_array()
         
-        #if(isinstance(image,hdrl.core.Image)):
-        #   mask = image.image.bpm.as_array()
-        #else:
-        #   mask = image.bpm.as_array()
+        if(isinstance(mask,cpl.core.Image)):
+            mask = mask.as_array()
+        else: #if ndarray ?
+            pass
 
         
         # turn it into a CPL image
