@@ -82,7 +82,7 @@ class RawImageProcessor(RecipeImpl, ABC):
         return cplImage
 
     @classmethod
-    def update_mask(cls, mask: cpl.core.Mask,
+    def update_mask(cls, mask: cpl.core.Image,
                     bitVal: int,
                     cplMask: cpl.core.Image) -> cpl.core.Image:
 
@@ -96,7 +96,7 @@ class RawImageProcessor(RecipeImpl, ABC):
 
         """
 
-        mask = mask.as_array()
+        #mask = mask.as_array()
         
         #if(isinstance(image,hdrl.core.Image)):
         #   mask = image.image.bpm.as_array()
