@@ -183,7 +183,9 @@ class RecipeImpl(Parametrizable, ABC):
         Collect an *args list of QC parameters and convert them to a PropertyList
         """
         out = cpl.core.PropertyList()
+        Msg.info(self.__class__.__qualname__, "Collecting QC Parameters")
         for qcparam in qc_parameters:
+            Msg.info(self.__class__.__qualname__, f"    {qcparam.name()} = {qcparam.value!s}")
             out.append(qcparam.as_property())
 
         return out

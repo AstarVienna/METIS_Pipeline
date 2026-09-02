@@ -114,7 +114,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
     def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
         """
-        Caclulate the RSRF for a single detector of the IFU.
+        Calculate the RSRF for a single detector of the IFU.
         This function processes the input images, for each detector:
         - stack the wcu_off images into background_img
         - subtract background_img from raw_images and stack

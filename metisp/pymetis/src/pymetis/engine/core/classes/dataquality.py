@@ -47,9 +47,8 @@ class DataQuality:
     bitwise operators; the canonical store is a ``CplType.INT`` image so it
     round-trips through the ``.DQ`` FITS extension unchanged. Note that
     ``CplType.INT`` is a *signed* int32, so bit 31 is the sign bit and may not be used.
-    Only     bits 0-30 should be used for flags.
+    Only bits 0-30 should be used for flags.
     """
-
 
     def __init__(self, data: "CplImage | CplMask | DataQuality"):
         """

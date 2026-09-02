@@ -259,47 +259,23 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
             mins.append(im.get_min())
             maxs.append(im.get_max())
 
-        qcmed = combined_image.image.get_median()
-        qcmean  = combined_image.image.get_mean()
-        qcrms  = combined_image.image.get_stdev()
-        
-        Msg.info(self.__class__.__qualname__, f"QC DARK N COLDPIX = {qcncold}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK N HOTPIX = {qcnhot}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK N BADPIX = {qcnbad}")
-        
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEAN = {qcmean}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MED = {qcmed}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK RMS = {qcrms}")
-
-        qcmedmed = np.median(np.array(medians))
-        qcmedrms = np.median(np.array(stdevs))
-        qcmedmin = np.median(np.array(mins))
-        qcmedmax = np.median(np.array(maxs))
-        qcmedmean = np.median(np.array(means))
-
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MIN = {qcmedmin}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MAX = {qcmedmax}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MED = {qcmedmed}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MEAN = {qcmedmean}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN RMS = {qcmedrms}")
-
         header_image = cpl.core.PropertyList()
 
         hh = header_image.load(self.inputset.raw.frameset[0].file, 0)
         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
         gg = self.collect_qc_parameters(
-            DarkMean(qcmean),
-            DarkMedian(qcmed),
-            DarkRms(qcrms),
+            DarkMean(combined_image.image.get_mean()),
+            DarkMedian(combined_image.image.get_median()),
+            DarkRms(combined_image.image.get_stdev()),
             DarkNBadpix(qcnbad),
             DarkNColdpix(qcncold),
             DarkNHotpix(qcnhot),
-            DarkMedianMean(qcmedmean),
-            DarkMedianMedian(qcmedmed),
-            DarkMedianRms(qcmedrms),
-            DarkMedianMin(qcmedmin),
-            DarkMedianMax(qcmedmax),
+            DarkMedianMean(np.median(np.array(means))),
+            DarkMedianMedian(np.median(np.array(medians))),
+            DarkMedianRms(np.median(np.array(stdevs))),
+            DarkMedianMin(np.median(np.array(mins))),
+            DarkMedianMax(np.median(np.array(maxs))),
         )
 
         header_image.append(gg)
