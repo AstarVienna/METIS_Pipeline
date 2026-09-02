@@ -23,7 +23,7 @@ from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Mask as CplMask,
                       Msg)
-from cpl.hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
+from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 
 
 from pymetis.drl.image import zeros_like

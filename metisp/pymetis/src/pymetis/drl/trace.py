@@ -538,10 +538,12 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
 
     One row per trace: `slice_nb` and `trace_nb` identify the trace (`Trace.slice` and
     `Trace.m` respectively), array columns `pos`, `bottom`, and `top` hold the
-    `degree + 1` coefficients of the trace mid-line and edges in `np.polyval` order.
-    An array column `column_range` holds the first and last valid dispersion coordinate.
-    This is the layout `IfuDistortionTable.read()` expects and that `metis_ifu_rsrf` and
-    `metis_ifu_wavecal` consume.
+    `degree + 1` coefficients of the trace mid-line and edges, low-order first --
+    the opposite order from `Trace.pos`/`bottom`/`top` themselves (`np.polyval` order,
+    highest power first), but matching the convention `wavecal.SliceSolution` stores
+    its own coefficients in. An array column `column_range` holds the first and last
+    valid dispersion coordinate. This is the layout `IfuDistortionTable.read()` expects
+    and that `metis_ifu_rsrf` and `metis_ifu_wavecal` consume.
 
     Parameters
     ----------
@@ -565,8 +567,8 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
     -----
     Arrays are forced contiguous before being stored. pycpl reads the raw buffer of a
     numpy array when assigning it into a `cpl.core.Table` array column, so handing it a
-    strided view (such as a reversed one) silently writes uninitialised memory instead
-    of the intended values.
+    strided view (such as the reversed one this function itself produces) silently
+    writes uninitialised memory instead of the intended values.
     """
     table = cpl.core.Table.empty(len(traces))
     table.new_column('slice_nb', cpl.core.Type.INT)
@@ -596,17 +598,19 @@ def traces_to_table(traces: list[Trace], degree: int) -> cpl.core.Table:
 
         table['slice_nb', row] = int(t.slice) if t.slice is not None else int(t.m)
         table['trace_nb', row] = int(t.m)
-        table['pos', row] = np.ascontiguousarray(t.pos, dtype=float)
+        # `t.pos`/`bottom`/`top` are `np.polyval` order (highest power first); the
+        # table stores them low-order first, so every array written here is reversed.
+        table['pos', row] = np.ascontiguousarray(t.pos[::-1], dtype=float)
         table['column_range', row] = np.ascontiguousarray(t.column_range, dtype=float)
         table['bottom', row] = np.ascontiguousarray(
-            unmeasured if t.bottom is None else t.bottom, dtype=float)
+            unmeasured if t.bottom is None else t.bottom[::-1], dtype=float)
         table['top', row] = np.ascontiguousarray(
-            unmeasured if t.top is None else t.top, dtype=float)
+            unmeasured if t.top is None else t.top[::-1], dtype=float)
 
     return table
 
 
-def traces_from_table(table: cpl.core.Table) -> list[Trace]:
+def traces_from_table(table: cpl.core.Table) -> list[Trace | None]:
     """
     Reconstruct traces from an `IFU_DISTORTION_TABLE` extension.
 
@@ -619,9 +623,14 @@ def traces_from_table(table: cpl.core.Table) -> list[Trace]:
 
     Returns
     -------
-    list[Trace]
+    list[Trace | None]
         Traces ordered as stored, with `m`/`slice` read from the `trace_nb`/`slice_nb`
-        columns.
+        columns and `pos`/`bottom`/`top` reversed back into `np.polyval` order. A row
+        whose `pos` column is entirely NaN -- as a table built by
+        `wavecal.solutions_to_table` writes for a solution with no trace at all -- has
+        nothing to reconstruct and reads back as `None` rather than a placeholder
+        `Trace`. `bottom`/`top` are similarly `None`, not a NaN-filled array, wherever
+        they were never measured, matching what `traces_to_table` wrote.
     """
     if len(table) == 0:
         return []
@@ -629,24 +638,32 @@ def traces_from_table(table: cpl.core.Table) -> list[Trace]:
     trace_nbs = np.asarray(table.column_array('trace_nb')[0]).ravel()
     slice_nbs = np.asarray(table.column_array('slice_nb')[0]).ravel()
     column_ranges = np.asarray(table.column_array('column_range')[0], dtype=float)
+    # Low-order first in the table; reversed below into the `np.polyval` order `Trace`
+    # itself uses.
     coefficients = np.asarray(table.column_array('pos')[0], dtype=float)
     bottom = np.asarray(table.column_array('bottom')[0], dtype=float)
     top = np.asarray(table.column_array('top')[0], dtype=float)
 
-    traces = [
-        Trace(m=int(trace_nbs[row]),
-              slice=int(slice_nbs[row]),
-              column_range=(int(column_ranges[row][0]), int(column_ranges[row][1])),
-              pos=np.ascontiguousarray(coefficients[row]),
-              bottom=np.ascontiguousarray(bottom[row]),
-              top=np.ascontiguousarray(top[row]))
-        for row in range(len(table))
-    ]
+    traces = []
+    for row in range(len(table)):
+        if np.isnan(coefficients[row]).all():
+            traces.append(None)
+            continue
 
-    for t in traces:
+        t = Trace(m=int(trace_nbs[row]),
+                 slice=int(slice_nbs[row]),
+                 column_range=(int(column_ranges[row][0]), int(column_ranges[row][1])),
+                 pos=np.ascontiguousarray(coefficients[row][::-1]),
+                 bottom=(None if np.isnan(bottom[row]).all()
+                        else np.ascontiguousarray(bottom[row][::-1])),
+                 top=(None if np.isnan(top[row]).all()
+                     else np.ascontiguousarray(top[row][::-1])))
+
         if t.has_edges:
             mid = 0.5 * (t.column_range[0] + t.column_range[1])
             t.height = float(t.height_at_x(mid))
+
+        traces.append(t)
 
     return traces
 

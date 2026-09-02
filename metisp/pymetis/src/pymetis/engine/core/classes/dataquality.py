@@ -21,14 +21,15 @@ from typing import Self, TYPE_CHECKING
 
 import numpy as np
 
-import cpl
+import hdrl
+import hdrl.core
 from cpl.core import (Image as CplImage,
                       Mask as CplMask,
                       Type as CplType,)
 
 if TYPE_CHECKING:
     from .instrument import InstrumentDescription
-
+    
 
 class DataQuality:
     """
@@ -109,7 +110,7 @@ class DataQuality:
         # First ensure that all masks are the same size.
         shapes = {array.shape for array in arrays.values()}
         if len(shapes) != 1:
-            raise cpl.hdrl.core.IncompatibleInputError(f"All masks must have the same width and height, got {shapes}")
+            raise hdrl.core.IncompatibleInputError(f"All masks must have the same width and height, got {shapes}")
 
         combined = np.zeros(shapes.pop(), dtype=np.int32)
         for bit, selected in arrays.items():

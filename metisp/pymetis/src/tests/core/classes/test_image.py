@@ -21,11 +21,12 @@ import numpy as np
 import pytest
 
 import cpl
+import hdrl
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Mask as CplMask,
                       PropertyList as CplPropertyList)
-from cpl.hdrl.core import Image as HdrlImage
+from hdrl.core import Image as HdrlImage
 
 from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.core.classes.dataquality import DataQuality
@@ -150,12 +151,12 @@ class TestFromHdrl:
 
 class TestValidation:
     def test_mismatched_error_dimensions_raise(self):
-        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='error'):
+        with pytest.raises(hdrl.core.IncompatibleInputError, match='error'):
             EnhancedImage(make_image(4, 4), make_image(5, 6), build_dq_mask(4, 4),
                           prefix=PREFIX)
 
     def test_mismatched_dq_dimensions_raise(self):
-        with pytest.raises(cpl.hdrl.core.IncompatibleInputError, match='dq'):
+        with pytest.raises(hdrl.core.IncompatibleInputError, match='dq'):
             EnhancedImage(make_image(4, 4), make_image(4, 4), build_dq_mask(5, 6),
                           prefix=PREFIX)
 
