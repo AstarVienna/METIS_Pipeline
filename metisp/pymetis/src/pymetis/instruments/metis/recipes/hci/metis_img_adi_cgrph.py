@@ -37,7 +37,7 @@ from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.inputs import RawInput
-from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
 
 class MetisLmRavcSciCalibrateImpl(RawImageProcessor, MetisRecipeImpl):

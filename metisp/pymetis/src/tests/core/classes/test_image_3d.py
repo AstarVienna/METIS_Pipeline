@@ -27,8 +27,7 @@ from cpl.core import (Image as CplImage,
                       Mask as CplMask,
                       PropertyList as CplPropertyList,
                       Type as CplType)
-from hdrl.core import (Image as HdrlImage,
-                       ImageList as HdrlImageList)
+from hdrl.core import (ImageList as HdrlImageList)
 
 from pymetis.engine.core.classes.image import (EnhancedImage,
                                                EnhancedImage3D,
