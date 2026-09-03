@@ -52,4 +52,4 @@ cd hdrl-1.6.0
 make
 make install
 
-ldconfig
+#sudo ldconfig
