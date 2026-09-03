@@ -10,6 +10,8 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 # Pre-install pybind11 < 3.0 to avoid incompatibility with pycpl 1.0.3,
 # then build pycpl with --no-build-isolation so it uses this version
 # instead of pip's isolated build environment picking up pybind11 3.x.
+pip install setuptools
 pip install "pybind11>=2.8,<3.0"
-pip install --no-build-isolation --extra-index-url https://ftp.eso.org/pub/dfs/pipelines/libraries pycpl
+pip install --no-build-isolation --extra-index-url https://ftp.eso.org/pub/dfs/pipelines/libraries pycpl pyhdrl
 pip install --extra-index-url https://ftp.eso.org/pub/dfs/pipelines/libraries pyesorex edps adari_core
+pip install scipy pytest
