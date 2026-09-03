@@ -47,8 +47,7 @@ jobs:
       - name: Run pytest
         working-directory: metisp/pymetis
         run: |
-          python3 -m venv metispipe
-          . metispipe/bin/activate
+          . ../../metispipe/bin/activate
           export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$(pwd)/cpl/lib:$LD_LIBRARY_PATH
           export PYESOREX_PLUGIN_DIR="${GITHUB_WORKSPACE}/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="${GITHUB_WORKSPACE}/metisp/pyrecipes/"
