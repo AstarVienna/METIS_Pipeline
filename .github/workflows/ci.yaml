@@ -27,7 +27,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo ./toolbox/install_dependencies_ubuntu.sh
+          python3 -m venv metispipe
+          . metispipe/bin/activate
           export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export HDRL_INCLUDE_DIR="$(pwd)/cpl/lib"
+          export HDRLDIR="$(pwd)/cpl"
+          export CPLDIR=$HDRLDIR
+          ./toolbox/install_cpl.sh
           ./toolbox/install_edps.sh
           ./toolbox/create_config.sh
 
@@ -41,7 +47,9 @@ jobs:
       - name: Run pytest
         working-directory: metisp/pymetis
         run: |
-          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
+          python3 -m venv metispipe
+          . metispipe/bin/activate
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$(pwd)/cpl/lib:$LD_LIBRARY_PATH
           export PYESOREX_PLUGIN_DIR="${GITHUB_WORKSPACE}/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="${GITHUB_WORKSPACE}/metisp/pyrecipes/"
           export PYTHONPATH="${GITHUB_WORKSPACE}/metisp/pymetis/src/"
