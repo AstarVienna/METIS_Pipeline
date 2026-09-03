@@ -22,8 +22,16 @@ jobs:
       - name: Install dependencies
         run: |
           sudo ./toolbox/install_dependencies_ubuntu.sh
+          python3 -m venv metispipe
+          . metispipe/bin/activate
+          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export HDRL_INCLUDE_DIR="$(pwd)/cpl/lib"
+          export HDRLDIR="$(pwd)/cpl"
+          export CPLDIR=$HDRLDIR
+          ./toolbox/install_cpl.sh
       - name: Run autotools
         run: |
+          export LD_LIBRARY_PATH=$(pwd)/cpl/lib:$LD_LIBRARY_PATH
           cd metisp
           ./bootstrap
           ./configure

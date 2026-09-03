@@ -9,6 +9,7 @@ apt-get install -y \
     tmux ripgrep file \
     libcfitsio-bin libcfitsio-dev \
     wcslib-dev wcslib-tools \
+    libcpl-dev \
     python3-astropy python3-matplotlib python3-numpy python3-dev \
     perl cmake \
     graphviz meld \
