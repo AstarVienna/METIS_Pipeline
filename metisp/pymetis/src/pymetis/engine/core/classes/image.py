@@ -46,8 +46,18 @@ class EnhancedImageBase:
     data quality layer, stored as named FITS extensions ``<prefix>.SCI``,
     ``<prefix>.ERR`` and ``<prefix>.DQ``. The science and error layers carry
     floating-point pixels; the data quality layer is a single 2D 31-bit
-    bad-pixel mask (a `Mask`), where a non-zero value flags a bad pixel and
-    each bit records a different reason (see the instrument description).
+    bad-pixel mask (a `DataQuality`), where a non-zero value flags a bad pixel
+    and each bit records a different reason (see the instrument description).
+
+    The data quality layer is the *only* source of bad-pixel information: it is
+    what gets saved, and what every operation starts from. The 1-bit bad-pixel
+    masks living inside the HDRL planes are a scratch pad for HDRL, which
+    understands nothing richer: before an operation, :meth:`reject` compresses
+    the selected DQ bits down to 1 bit and *replaces* the planes' masks with the
+    result; the operation then runs on HDRL's terms; afterwards the recipe may
+    read the resulting mask back through :meth:`rejected` and record it under a
+    flag bit of its choice (``ei.dq.add(ei.rejected(), MaskFlags.X)``) -- or
+    deliberately drop it. The scratch masks themselves are never saved.
 
     The *only* thing that differs between the two is the science/error
     container: a `HdrlImage` (2D) versus a `HdrlImageList` (a stack of planes).
@@ -234,11 +244,33 @@ class EnhancedImageBase:
     def reject(self, bits: InstrumentDescription.MaskFlags = InstrumentDescription.MaskFlags.ALL) -> None:
         """
         Extract the selected bits from the DQ layer and push them into the
-        1-bit bad-pixel mask of every science plane. By default all bits are active.
+        1-bit bad-pixel mask of every science plane. By default, all bits are active.
+
+        This *replaces* the planes' masks (``reject_from_mask`` does not
+        accumulate): whatever an earlier operation left in the scratch masks is
+        overwritten, so read it back with :meth:`rejected` first if it matters.
         """
         mask = self.dq[bits]
         for plane in self._hdrl_planes():
             plane.reject_from_mask(mask)
+
+    def rejected(self) -> CplMask:
+        """
+        The union of the 1-bit bad-pixel masks of every science plane, i.e.
+        whatever HDRL has rejected so far.
+
+        This is the read-back half of the scratch-pad contract (see the class
+        docstring): after an HDRL operation, record its rejections under a flag
+        bit of the recipe's choosing with ``ei.dq.add(ei.rejected(), bit)``.
+        The masks are transient and never saved, so anything not recorded this
+        way is gone once :meth:`reject` runs again or the image is written out.
+        """
+        combined: Optional[np.ndarray] = None
+        for plane in self._hdrl_planes():
+            # `.image` returns a fresh copy, but one that carries the plane's bpm.
+            mask = np.asarray(plane.image.bpm).astype(bool)
+            combined = mask if combined is None else (combined | mask)
+        return CplMask(combined)
 
     # ---- static helpers ----
 

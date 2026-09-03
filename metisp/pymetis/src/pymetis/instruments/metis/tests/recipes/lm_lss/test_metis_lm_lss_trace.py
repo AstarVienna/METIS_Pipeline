@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.engine.recipes import Recipe, RecipeImpl
 from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_trace import (MetisLmLssTrace as Recipe,
                                                       MetisLmLssTraceImpl as Impl)
 from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest

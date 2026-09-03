@@ -19,8 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 import numpy as np
-from cpl.core import (Image as CplImage,
-                      Type as CplType)
 
 
 def weighted_polyfit(x: np.ndarray,
@@ -41,7 +39,7 @@ def weighted_polyfit(x: np.ndarray,
     if weights is None:
         weights = np.ones_like(x)
     assert weights.shape == x.shape, \
-        f"Weights must have the same shape as data if defined"
+        "Weights must have the same shape as data if defined"
 
     n, h, w = x.shape
     dtype = np.result_type(x, y, weights, np.float64)

@@ -32,11 +32,13 @@ class MetisNImgRestoreImpl(MetisRecipeImpl):
         class CalibratedInput(SinglePipelineInput):
             Item = NSciCalibrated
 
+        calibrated: CalibratedInput
+
     class ProductSet(PipelineProductSet):
         Restored = NSciRestored
 
     def process(self) -> set[DataItem]:
-        calibrated = self.inputset.calibrated.load_data('DET1.DATA')
+        _calibrated = self.inputset.calibrated.load_data('DET1.DATA')
 
         header = self.inputset.calibrated.item.primary_header
         image = create_dummy_image()
@@ -56,7 +58,7 @@ class MetisNImgRestore(Recipe):
     _email = "martin.balaz@univie.ac.at"
     _synopsis = "Restore a single positive beam from chop-nod difference image."
 
-    _matched_keywords = {'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _algorithm = """Call metis_cutout_region to cut regions around beams
     Add regions with appropriate signs with `hdrl_imagelist_collapse`"""
 

@@ -285,3 +285,43 @@ class TestSaveLoadRoundTrip:
         with pytest.raises(cpl.core.DataNotFoundError):
             EnhancedImage.load(filename, PREFIX)
 
+
+
+# ---------- the scratch-pad contract ----------
+
+
+class TestScratchPadContract:
+    """
+    The DQ layer is the only source of bad-pixel truth; the HDRL planes' 1-bit
+    masks are a scratch pad. `reject` compresses DQ down onto them (replacing
+    whatever they held), and `rejected` reads the union back so a recipe can
+    record an operation's findings under a flag bit of its choosing.
+    """
+
+    def test_reject_replaces_the_previous_scratch_mask(self):
+        ei = EnhancedImage(make_image(), make_image(), prefix=PREFIX)
+        ei.dq.add(CplMask(np.eye(4, dtype=bool)), 0x1)
+        ei.reject(0x1)
+        assert np.asarray(ei.rejected()).sum() == 4
+
+        ei.dq.add(CplMask(np.zeros((4, 4), dtype=bool) | (np.arange(4) == 3)), 0x2)
+        ei.reject(0x2)
+
+        rejected = np.asarray(ei.rejected())
+        assert rejected.sum() == 4, "reject() must replace, not accumulate"
+        assert rejected[:, 3].all()
+
+    def test_rejected_is_all_good_on_a_fresh_image(self):
+        ei = EnhancedImage(make_image(), make_image(), prefix=PREFIX)
+        assert np.asarray(ei.rejected()).sum() == 0
+
+    def test_operation_findings_can_be_recorded_under_a_bit(self):
+        """ Simulate an HDRL operation rejecting a pixel, then record it. """
+        ei = EnhancedImage(make_image(), make_image(), prefix=PREFIX)
+        scratch = np.zeros((4, 4), dtype=bool)
+        scratch[2, 2] = True
+        ei.image.reject_from_mask(CplMask(scratch))
+
+        ei.dq.add(ei.rejected(), 0x8)
+
+        np.testing.assert_array_equal(np.asarray(ei.dq[0x8]), scratch)

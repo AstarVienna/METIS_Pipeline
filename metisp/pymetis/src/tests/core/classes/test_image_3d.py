@@ -21,22 +21,13 @@ import numpy as np
 import pytest
 
 import cpl
-<<<<<<< HEAD
-import hdrl.core
-=======
 import hdrl 
->>>>>>> 24aedb85 (Revise hdrl import)
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Mask as CplMask,
                       PropertyList as CplPropertyList,
                       Type as CplType)
-from hdrl.core import (Image as HdrlImage,
-<<<<<<< HEAD
-                       ImageList as HdrlImageList)
-=======
-                           ImageList as HdrlImageList)
->>>>>>> 24aedb85 (Revise hdrl import)
+from hdrl.core import (ImageList as HdrlImageList)
 
 from pymetis.engine.core.classes.image import (EnhancedImage,
                                                EnhancedImage3D,
@@ -240,3 +231,21 @@ class TestLoadDispatch:
         for entry in (EnhancedImageBase, EnhancedImage, EnhancedImage3D):
             loaded = entry.load(filename, PREFIX)
             assert isinstance(loaded, EnhancedImage), entry.__name__
+
+
+# ---------- the scratch-pad contract ----------
+
+
+class TestScratchPadContract:
+    def test_rejected_unions_the_planes(self):
+        """ Each plane may reject different pixels; `rejected` is their union. """
+        ei = EnhancedImage3D(stack(2), prefix=PREFIX)
+
+        first = np.zeros((ROWS, COLS), dtype=bool)
+        first[0, 0] = True
+        second = np.zeros((ROWS, COLS), dtype=bool)
+        second[3, 5] = True
+        ei._hdrl_planes()[0].reject_from_mask(CplMask(first))
+        ei._hdrl_planes()[1].reject_from_mask(CplMask(second))
+
+        np.testing.assert_array_equal(np.asarray(ei.rejected()), first | second)

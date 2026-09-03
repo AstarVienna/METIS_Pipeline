@@ -40,7 +40,7 @@ class MetisLmImgCalibrate(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords = {'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _algorithm = """Call metis_lm_scale_image_flux to scale image data to photon / s
     Add header information (BUNIT, WCS, etc.)"""
 

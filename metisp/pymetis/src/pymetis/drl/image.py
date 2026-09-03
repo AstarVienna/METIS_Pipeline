@@ -22,8 +22,7 @@ from typing import Optional
 
 import cpl
 from cpl.core import (Image as CplImage,
-                      Type as CplType,
-                      PropertyList as CplPropertyList)
+                      Type as CplType)
 
 
 def zeros_like(image: CplImage, new_type: Optional[CplType] = None):

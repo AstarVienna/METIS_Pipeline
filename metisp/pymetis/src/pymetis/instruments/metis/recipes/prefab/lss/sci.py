@@ -26,7 +26,7 @@ from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
-                                              GainMapInput, LinearityInput, BadPixMapInput)
+                                              GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss
@@ -49,15 +49,6 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class BadPixMapInput(BadPixMapInput):
-            pass
-
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
 
@@ -78,6 +69,18 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
 
         class MasterAoPsfModel(SinglePipelineInput):
             Item = AoPsfModel
+
+        raw: RawInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        master_rsrf: MasterRsrfInput
+        master_lss_dist_sol: MasterLssDistSolInput
+        master_lss_wave_guess: MasterLssWaveGuessInput
+        master_lss_response: MasterLssResponseInput
+        master_std_transmission: MasterStdTransmissionInput
+        master_adc_slitloss: MasterAdcSlitlossInput
+        master_ao_psf_model: MasterAoPsfModel
 
 
         # --------------------------------------------------------------------
@@ -134,8 +137,8 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
     def process(self) -> set[DataItem]:
         """do something more fancy in the future"""
         # Load raw image
-        sci_raw_hdr = cpl.core.PropertyList()
-        sci_raw_images = self.inputset.raw.load_data('DET1.DATA')
+        _sci_raw_hdr = cpl.core.PropertyList()
+        _sci_raw_images = self.inputset.raw.load_data('DET1.DATA')
 
         self.inputset.raw.use()
 
@@ -150,7 +153,7 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         header_lss_sci_obj_map = create_dummy_header()
         header_lss_sci_flux_1d = create_dummy_header()
         header_lss_sci_flux_2d = create_dummy_header()
-        header_lss_sci_flux_tell_corr1d = create_dummy_header()
+        _header_lss_sci_flux_tell_corr1d = create_dummy_header()
 
         # Write files
         return {

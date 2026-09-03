@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import pytest
 
 from pymetis.instruments.metis.recipes.ifu.metis_ifu_reduce import (MetisIfuReduce as Recipe,
-                                                  MetisIfuReduceImpl as Impl, MetisIfuReduceImpl)
+                                                                    MetisIfuReduceImpl as Impl)
 from tests.classes import BaseInputSetTest, TargetParamRecipeTest, BaseProductSetTest
 
 

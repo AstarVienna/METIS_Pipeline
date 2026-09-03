@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
-from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.prefab import MetisBaseImgFlatImpl
@@ -39,7 +38,7 @@ class MetisLmImgFlat(Recipe):
     _synopsis = "Create master flat for L/M band detectors"
     _description = "Prototype to create a METIS Masterflat for L/M band"
 
-    _matched_keywords = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
     _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
     Subtract internal dark or master dark from flat exposures.
     Call `metis_lm_img_flat` to fit slope of pixel values against illumination level.

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
@@ -39,7 +39,9 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         class TelluricInput(SinglePipelineInput):
             Item = IfuTelluric
 
-        FluxCalTableInput = FluxCalTableInput
+        reduced: ReducedInput
+        telluric: TelluricInput
+        flux_cal_table: FluxCalTableInput
 
     class ProductSet(PipelineProductSet):
         SciCubeCalibrated = IfuScienceCubeCalibrated
@@ -62,7 +64,7 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
 
 
     def process(self) -> set[DataItem]:
-        reduced = self.inputset.reduced.load_data(extension='DET1.DATA')
+        _reduced = self.inputset.reduced.load_data(extension='DET1.DATA')
         self.inputset.reduced.use()
 
         primary_header = create_dummy_header()
@@ -87,7 +89,7 @@ class MetisIfuCalibrate(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords = {'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
     _algorithm = """Correct for telluric absorption.
     Apply flux calibration."""
 

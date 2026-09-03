@@ -21,7 +21,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest (>=9.0.1,<10.0.0)"
+    "pytest (>=9.0.1,<10.0.0)",
+    "ruff (>=0.12)",
 ]
 
 [build-system]
@@ -48,6 +49,21 @@ priority = "explicit"
 name = "ivh"
 url = "https://ivh.github.io/pycpl/simple/"
 priority = "explicit"
+
+[tool.ruff]
+line-length = 120
+src = ["src"]
+
+[tool.ruff.lint]
+# Start strict-but-narrow: E9 = syntax/indentation errors, F = pyflakes
+# (unused imports, undefined names, shadowed variables).
+# Widen the selection once the codebase is clean under these.
+select = ["E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# Package __init__ files re-export names and register recipes/data items
+# via import side effects; unused/star imports are intentional there.
+"**/__init__.py" = ["F401", "F403"]
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"

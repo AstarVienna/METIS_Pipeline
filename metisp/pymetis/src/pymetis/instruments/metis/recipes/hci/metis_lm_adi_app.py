@@ -17,21 +17,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum
+from pymetis.engine.core.parameter import ParameterList
 
 # import the dataitems we use
 from pymetis.engine.dataitems import DataItem, Hdu
-from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
+from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.dataitems.distortion import LmDistortionTable
 from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
 #from pymetis.instruments.metis.dataitems.hci import LmOffAxisPsfRaw, LmOnAxisPsfTemplate
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppCalibrated
-from pymetis.instruments.metis.dataitems.hci.hci import AdiCalibrated
 
 
-from pymetis.instruments.metis.dataitems.hci.hci import AdiCalibrated, LmAppSciCentred, LmAppCentroidTab
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciSpeckle, LmAppSciHifilt, LmAppSciDerotatedPsfsub
+from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCentred, LmAppCentroidTab
+from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciSpeckle, LmAppSciDerotatedPsfsub
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciDerotated
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciContrastRadprof, LmAppSciContrastAdi, LmAppSciThroughput
 from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCoverage, LmAppSciSnr, LmAppPsfMedian
@@ -44,6 +42,8 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LmSciCalibrated
+
+        raw: RawInput
         #class LmOffAxisPsfRaw(RawInput):
         #    Item = OffAxisPsf
         #class LmOnAxisPsfTemplate(RawInput):
@@ -55,7 +55,6 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
     ProductLmSciCentred = LmAppSciCentred
     ProductLmCentroidTab = LmAppCentroidTab
     ProductLmSciSpeckle = LmAppSciSpeckle
-    ProductLmSciHifilt = LmAppSciHifilt
     ProductLmSciDerotatedPsfsub = LmAppSciDerotatedPsfsub
     ProductLmSciDerotated = LmAppSciDerotated
     ProductLmSciContrastRadprof = LmAppSciContrastRadprof
@@ -76,7 +75,6 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
             header_lmSciCentred = create_dummy_header()
             header_lmCentroidTable = create_dummy_header()
             header_lmSciSpeckle = create_dummy_header()
-            header_lmSciHifilt = create_dummy_header()
             header_lmSciDerotatedPsfsub = create_dummy_header()
             header_lmSciDerotated = create_dummy_header()
             header_lmSciContrastRadprof = create_dummy_header()
@@ -102,10 +100,6 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
             product_lmSciSpeckle = self.ProductLmSciSpeckle(
                     primary_header,
                     Hdu(header_lmSciSpeckle, image, name='DET1.DATA'),
-            )
-            product_lmSciHifilt = self.ProductLmSciHifilt(
-                    primary_header,
-                    Hdu(header_lmSciHifilt, image, name='DET1.DATA'),
             )
             product_lmSciDerotatedPsfsub = self.ProductLmSciDerotatedPsfsub(
                     primary_header,
@@ -143,9 +137,8 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
             return {
                 product_lmSciCalibrated,
                 product_lmSciCentred,
-                product_lmSciCentred,
                 product_lmCentroidTable,
-                product_lmSciHifilt,
+                product_lmSciSpeckle,
                 product_lmSciDerotatedPsfsub,
                 product_lmSciDerotated,
                 product_lmSciContrastRadprof,
@@ -162,9 +155,9 @@ class MetisLmAppSciCalibrated(Recipe):
     _version: str = "0.1"
     _author: str = "Jennifer Karr, A*"
     _email: str = "jkarr@asiaa.sinica.edu.tw"
-    _synopsis: str = "ADI postprocssing"
+    _synopsis: str = "ADI post-processing for the LM-band APP coronagraph"
 
-    _matched_keywords: set[str] = {'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _algorithm = """TODO"""
 
     parameters = ParameterList([])

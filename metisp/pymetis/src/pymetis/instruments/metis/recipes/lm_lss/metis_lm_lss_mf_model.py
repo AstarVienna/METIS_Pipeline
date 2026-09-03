@@ -36,7 +36,7 @@ class MetisLmLssMfModel(Recipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _synopsis: str = "Calculation of molecfit model"
 
-    _matched_keywords: set[str] = {'DRS.SLIT'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.SLIT'})
     _algorithm = """Fit of telluric features visible in the science input spectrum
     Determination of best-fit parameter set"""
 
@@ -45,7 +45,7 @@ class MetisLmLssMfModel(Recipe):
     # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.parameter1",
             context=_name,
             description="Description of parameter 1",
             default="value1",

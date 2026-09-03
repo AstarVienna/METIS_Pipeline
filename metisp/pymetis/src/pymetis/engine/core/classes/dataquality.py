@@ -17,15 +17,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Self
+from typing import Self, TYPE_CHECKING
 
 import numpy as np
 
+import hdrl
 import hdrl.core
 from cpl.core import (Image as CplImage,
                       Mask as CplMask,
                       Type as CplType,)
-import hdrl
+
+if TYPE_CHECKING:
+    from .instrument import InstrumentDescription
+    
 
 class DataQuality:
     """
@@ -44,9 +48,8 @@ class DataQuality:
     bitwise operators; the canonical store is a ``CplType.INT`` image so it
     round-trips through the ``.DQ`` FITS extension unchanged. Note that
     ``CplType.INT`` is a *signed* int32, so bit 31 is the sign bit and may not be used.
-    Only     bits 0-30 should be used for flags.
+    Only bits 0-30 should be used for flags.
     """
-
 
     def __init__(self, data: "CplImage | CplMask | DataQuality"):
         """

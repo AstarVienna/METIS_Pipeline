@@ -64,14 +64,18 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(OptionalInputMixin,GainMapInput):
+        class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
             pass
 
-        class DistortionTableInput(DistortionTableInput):
-            pass
+        raw: RawInput
+        master_dark: MasterDarkInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        distortion_table: DistortionTableInput
 
     class ProductSet(PipelineProductSet):
         IfuWavecal = IfuWavecal
@@ -492,7 +496,7 @@ class MetisIfuWavecal(Recipe):
 
         Line detection and Gaussian centroiding are adapted from PyReduce (Piskunov &
         Valenti 2002, Piskunov, Wehrhahn & Marquart 2021), as prescribed by the DRLD."""
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
     parameters = ParameterList([

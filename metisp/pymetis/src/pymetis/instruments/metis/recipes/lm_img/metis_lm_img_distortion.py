@@ -26,11 +26,7 @@ from pymetis.instruments.metis.recipes.prefab import MetisBaseImgDistortionImpl
 
 class MetisLmImgDistortionImpl(BandLmMixin, Detector2rgMixin, MetisBaseImgDistortionImpl):
     class InputSet(MetisBaseImgDistortionImpl.InputSet):
-        class RawInput(MetisBaseImgDistortionImpl.InputSet.RawInput):
-            pass
-
-        class DistortionInput(MetisBaseImgDistortionImpl.InputSet.DistortionInput):
-            pass
+        pass
 
 
 class MetisLmImgDistortion(Recipe):
@@ -40,7 +36,7 @@ class MetisLmImgDistortion(Recipe):
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Determine optical distortion coefficients for the LM imager."
 
-    _matched_keywords: set[str] = {'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _algorithm: str = """Subtract background image with `hdrl_imagelist_sub_image`.
     Measure location of point source images in frames with `hdrl_catalogue_create`.
     Call metis_fit_distortion to fit polynomial coefficients to deviations from grid positions."""

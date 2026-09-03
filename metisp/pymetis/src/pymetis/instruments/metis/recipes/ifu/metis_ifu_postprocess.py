@@ -22,7 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.recipes import Recipe, RecipeImpl
+from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.dataitems.coadd import IfuSciCoadd
 from pymetis.instruments.metis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
@@ -34,6 +34,8 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(MultiplePipelineInput):
             Item = IfuScienceCubeCalibrated
+
+        sci_cube_calibrated: SciCubeCalibratedInput
 
     class ProductSet(PipelineProductSet):
         SciCoadd = IfuSciCoadd
@@ -114,7 +116,7 @@ class MetisIfuPostprocess(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords = {'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
     _algorithm = """Call metis_ifu_grid_output to find the output grid encompassing all input cubes
     Call metis_ifu_resampling to resample input cubes to output grid
     Call metis_ifu_coadd to stack the images"""

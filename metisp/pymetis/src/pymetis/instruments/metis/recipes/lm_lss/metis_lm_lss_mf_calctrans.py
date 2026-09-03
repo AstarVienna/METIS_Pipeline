@@ -43,7 +43,7 @@ class MetisLmLssMfCalctrans(Recipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of transmission function"
 
-    _matched_keywords: set[str] = {'DRS.SLIT'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.SLIT'})
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
@@ -51,7 +51,7 @@ class MetisLmLssMfCalctrans(Recipe):
     # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}parameter1",
+            name=f"{_name}.parameter1",
             context=_name,
             description="Description of parameter 1",
             default="value1",

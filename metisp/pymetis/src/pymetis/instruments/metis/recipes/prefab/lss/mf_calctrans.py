@@ -32,14 +32,10 @@ class MetisLssMfCalctransImpl(MetisRecipeImpl):
         class MfBestFitTableInput(SinglePipelineInput):
             Item = MfBestFitTable
 
-        class AtmLineCatInput(AtmLineCatInput):
-            pass
-
-        class AtmProfileInput(AtmProfileInput):
-            pass
-
-        class LsfKernelInput(LsfKernelInput):
-            pass
+        mf_best_fit_table: MfBestFitTableInput
+        atm_line_cat: AtmLineCatInput
+        atm_profile: AtmProfileInput
+        lsf_kernel: LsfKernelInput
 
     # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
     class ProductSet(PipelineProductSet):
@@ -57,7 +53,7 @@ class MetisLssMfCalctransImpl(MetisRecipeImpl):
 
         # TODO: Check whether calctrans creates the Transmission file - if so, no need to
         # write it out here again
-        best_fit_table = self.inputset.mf_best_fit_table.load_data('TABLE')
+        _best_fit_table = self.inputset.mf_best_fit_table.load_data('TABLE')
 
         primary_header = self.inputset.mf_best_fit_table.item.primary_header
         header_transmission = create_dummy_header()

@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from abc import ABC
 
-from pymetis.engine.inputs import PipelineInput, SinglePipelineInput, MultiplePipelineInput
+from pymetis.engine.inputs import SinglePipelineInput, MultiplePipelineInput
 from pymetis.engine.inputs.mixins import OptionalInputMixin
 
 from pymetis.instruments.metis.dataitems.common import (PersistenceMap, FluxCalTable, PinholeTable,

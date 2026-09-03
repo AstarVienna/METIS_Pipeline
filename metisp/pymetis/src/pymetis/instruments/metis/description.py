@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-import enum
 from typing import Literal
 
 import cpl
@@ -50,7 +49,7 @@ class Metis(InstrumentDescription):
 
         # custom masks
         EDGE = 0x00010000                   # too close to the detector edge
-        NOT_AN_ORDER = 0x00010010           # pixel masked because it does not belong to a spectral order
+        NOT_AN_ORDER = 0x00020000           # pixel masked because it does not belong to a spectral order
 
     @classmethod
     def get_detector_size(cls, tech: str) -> tuple[int, int]:

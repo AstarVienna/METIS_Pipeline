@@ -33,7 +33,7 @@ from pymetis.instruments.metis.dataitems.lss.science import LssSkyMap, LssObjMap
 from pymetis.instruments.metis.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
 from pymetis.instruments.metis.dataitems.synth import SynthTrans
 from pymetis.instruments.metis.inputs import (RawInput, FluxstdCatalogInput, MasterRsrfInput,
-                                              PersistenceMapInput, BadPixMapInput, GainMapInput, LinearityInput,
+                                              PersistenceMapInput, GainMapInput, LinearityInput,
                                               AtmLineCatInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
@@ -46,24 +46,6 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = LssRaw
-
-        class MasterRsrfInput(MasterRsrfInput):
-            pass
-
-        class PersistenceInput(PersistenceMapInput):
-            pass
-
-        class BadPixMapInput(BadPixMapInput):
-            pass
-
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class AtmLineCatInput(AtmLineCatInput):
-            pass
 
         class MasterLssDistSol(SinglePipelineInput):
             Item = LssDistSol
@@ -86,6 +68,19 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
             """
             Catalogue of reference stars
             """
+
+        raw: RawInput
+        master_rsrf: MasterRsrfInput
+        persistence: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        atm_line_cat: AtmLineCatInput
+        master_lss_dist_sol: MasterLssDistSol
+        master_lss_wave_guess: MasterLssWaveGuess
+        master_ao_psf_model: MasterAoPsfModel
+        master_adc_slitloss: MasterAdcSlitlossInput
+        lss_synth_trans: LssSynthTransInput
+        ref_std_cat: RefStdCatInput
 
     # ++++++++++++ Intermediate / QC products ++++++++++++
 
@@ -148,8 +143,8 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
 
     def process(self) -> set[DataItem]:
         # Load raw image
-        std_raw_hdr = cpl.core.PropertyList()
-        raw_images = self.inputset.raw.load_data('DET1.DATA')
+        _std_raw_hdr = cpl.core.PropertyList()
+        _raw_images = self.inputset.raw.load_data('DET1.DATA')
         primary_header = self.inputset.raw.items[0].primary_header
 
         """Create dummy file (should do something more fancy in the future)"""

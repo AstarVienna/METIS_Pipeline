@@ -26,7 +26,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRsrf, MeanLssRsrf, MasterLssRsrf
 from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
-                                              GainMapInput, LinearityInput, BadPixMapInput)
+                                              GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 
@@ -39,17 +39,14 @@ class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class BadPixMapInput(BadPixMapInput):
-            pass
-
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw
+
+        raw: RawInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        lm_rsrf_wcu_off: LmRsrfWcuOffInput
 
     class ProductSet(PipelineProductSet):
         MedianLssRsrf = MedianLssRsrf

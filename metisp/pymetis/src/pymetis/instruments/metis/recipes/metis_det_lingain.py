@@ -25,14 +25,14 @@ import cpl
 from cpl.core import Msg
 from numpy._typing import NDArray
 
-from pymetis.engine.core.classes.image import EnhancedImage, EnhancedImage3D
+from pymetis.engine.core.classes.image import EnhancedImage3D
 from pymetis.engine.core.classes.utilities import Stopwatch
 from pymetis.engine.core.functions.polyfit import weighted_polyfit
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.engine.core.parameter import ParameterList, ParameterValue
 
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
 from pymetis.instruments.metis.dataitems.gainmap import GainMap
@@ -55,6 +55,9 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             Item = LinearityRaw
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
             Item = BadPixMap
+
+        raw: RawInput
+        bad_pix_map: BadPixMapInput
 
     class ProductSet(PipelineProductSet):
         GainMap = GainMap
@@ -280,7 +283,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                     )
 
                     # define standard error on the weighted average
-                    e_trueflux = np.sqrt(
+                    _e_trueflux = np.sqrt(
                         1 / np.sum(
                             (1 / np.sqrt(self.gain_correction_factor) *
                              np.sqrt(self.read_noise **2 + fluxes_x_y[truesel] / (2 * self.gain)) /
@@ -349,7 +352,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
             # Standard error on the weighted average (per pixel)
             # FixMe This is not used anywhere!
-            e_trueflux = np.sqrt(1 / np.sum(
+            _e_trueflux = np.sqrt(1 / np.sum(
                 np.where(
                     truesel,
                     (1 / np.sqrt(self.gain_correction_factor) *
@@ -494,16 +497,15 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                  f"Gain error [e/ADU]: {gain_err}")
 
         Msg.debug(self.__class__.__qualname__,
-                  f"Now actually determining linearity...")
+                  "Now actually determining linearity...")
 
         # Both compute the same fit; the loop is the production path for now.
         # with Stopwatch() as loop_sw:
         #    linearity, err_linearity, bpm = self._fit_linearity_loop(fluxes_on, dits_fluxrates, sel_mask)
 
-        with Stopwatch() as vec_sw:
+        with Stopwatch():
             linearity_vec, err_linearity_vec, bpm_vec = self._fit_linearity_vec(fluxes_on, dits_fluxrates, sel_mask)
 
-        m = sel_mask
         # A small nonzero bpm mismatch count does not necessarily mean the fits diverge: the
         # sigma-clip inside each method is a threshold operation, so a pixel sitting right at the
         # kappa boundary can flip between the two paths purely from the minuscule coefficient difference.
@@ -545,7 +547,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         }
 
     def process(self) -> set[DataItem]:
-        Msg.info(self.__class__.__qualname__, f"Loading raw data")
+        Msg.info(self.__class__.__qualname__, "Loading raw data")
         self.inputset.raw.load_structure()
 
         Msg.info(self.__class__.__qualname__, f"HDUs found: {list(self.inputset.raw.items[0].hdus.keys())}")
@@ -589,7 +591,7 @@ class MetisDetLinGain(Recipe):
         "Function-level code to determine Gain and Linearity for the three subinstruments of METIS."
     )
 
-    _matched_keywords = frozenset()
+    _matched_keywords: frozenset[str] = frozenset()
     _algorithm = """We expect two on and two dark (here named off) images per DIT
     for the Gain and Linearity calculation, similar to ESO's DETMON.
     The gain is determined from the slope of the average flux

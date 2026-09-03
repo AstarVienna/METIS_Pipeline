@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from typing import Optional
 
 import cpl
-from cpl.core import Msg, Image, Table
+from cpl.core import Msg, Image
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
@@ -35,7 +35,7 @@ from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
 from pymetis.instruments.metis.dataitems.pupil import PupilRaw, PupilImagingReduced
-from pymetis.instruments.metis.inputs import RawInput, MasterDarkInput, MasterFlatInput, GainMapInput, LinearityInput
+from pymetis.instruments.metis.inputs import RawInput, MasterFlatInput, GainMapInput, LinearityInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
@@ -53,18 +53,14 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
         class RawInput(RawInput):
             Item = PupilRaw
 
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class MasterDarkInput(MasterDarkInput):
-            pass
-
         # Also, one master flat is required. We use a prefabricated class
         class MasterFlatInput(MasterFlatInput):
             Item = MasterImgFlat
+
+        raw: RawInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        master_flat: MasterFlatInput
 
     class ProductSet(PipelineProductSet):
         Reduced = PupilImagingReduced
@@ -78,7 +74,7 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
         else:
             if bias is not None:
                 flat.subtract(bias)
-            median = flat.get_median()
+            _median = flat.get_median()
             return flat
 
             # return flat.divide_scalar(median)
@@ -119,7 +115,7 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
 
         master_flat = self.inputset.master_flat.load_data('DET1.SCI')
         master_dark = self.inputset.master_dark.load_data('DET1.SCI')
-        gain = self.inputset.gain_map.load_data('DET1.SCI')
+        _gain = self.inputset.gain_map.load_data('DET1.SCI')
 
         master_flat = self.prepare_flat(master_flat, master_dark)
         images = self.prepare_images(self.inputset.raw.frameset, master_flat, master_dark)
@@ -161,7 +157,7 @@ class MetisPupilImaging(Recipe):
         images of the pupil masks. This recipe is not expected to be used by observers
         during regular use."""  # FixMe this is not shown anywhere now
 
-    _matched_keywords = {'DRS.PUPIL'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.PUPIL'})
     _algorithm = """Apply dark current and flat field corrections."""
 
     parameters = ParameterList([

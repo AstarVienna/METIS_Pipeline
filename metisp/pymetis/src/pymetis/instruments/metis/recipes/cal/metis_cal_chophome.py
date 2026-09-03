@@ -65,6 +65,14 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         class PinholeTableInput(OptionalInputMixin, PinholeTableInput):
             pass
 
+        raw: RawInput
+        wcu_off: WcuOffInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        persistence_map: PersistenceMapInput
+        bad_pix_map: BadPixMapInput
+        pinhole_table: PinholeTableInput
+
     class ProductSet(PipelineProductSet):
         Combined = LmChophomeCombined
         Background = LmChophomeBackground
@@ -208,7 +216,7 @@ class MetisCalChophome(Recipe):
         (nothing yet)
     """
 
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT'})
     _algorithm = """
     The position of the pinhole image on the detector is measured from the
     stacked background-subtracted images. The measured position is compared

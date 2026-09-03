@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from cpl.core import Image as CplImage, ImageList as CplImageList, Msg
 from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
-import hdrl
+#import hdrl
 
 from typing import Literal, Optional
 

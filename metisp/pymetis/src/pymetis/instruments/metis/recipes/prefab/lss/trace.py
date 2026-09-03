@@ -27,7 +27,7 @@ from pymetis.instruments.metis.dataitems.lss.rsrf import LssRsrfPinholeRaw, Mast
 from pymetis.instruments.metis.dataitems.lss.trace import LssTrace
 from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, PersistenceMapInput, OptionalInputMixin,
-                                              GainMapInput, LinearityInput, BadPixMapInput)
+                                              GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis.qc.trace import (QcLssTraceLPolyDeg, QcLssTraceRPolyDeg,
@@ -42,20 +42,18 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class BadPixMapInput(BadPixMapInput):
-            pass
-
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw
 
         class MasterRsrfInput(SinglePipelineInput):
             Item = MasterLssRsrf
+
+        raw: RawInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        lm_rsrf_wcu_off: LmRsrfWcuOffInput
+        master_rsrf: MasterRsrfInput
 
     class ProductSet(PipelineProductSet):
         TraceTable = LssTrace
@@ -69,8 +67,8 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
-        raws = self.inputset.raw.load_data('DET1.DATA')
-        master_rsrf = self.inputset.master_rsrf.load_data('DET1.DATA')
+        _raws = self.inputset.raw.load_data('DET1.DATA')
+        _master_rsrf = self.inputset.master_rsrf.load_data('DET1.DATA')
 
         primary_header = self.inputset.master_rsrf.item.primary_header
 

@@ -23,6 +23,7 @@ from typing import Any, Optional, final, Union, ClassVar
 import cpl
 from cpl.core import Msg
 
+from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.core.functions.frameset import preprocess_frameset
 from pymetis.engine.dataitems.dataitem import DataItem
 
@@ -162,22 +163,21 @@ class PipelineInput:
 
     @classmethod
     @final
-    def _description_line(cls, name: str = None) -> str:
-        """ Produce a description line for man page. """
-        return (f"    {cls.Item.name():<68} [{cls._multiplicity}]"
-                f"{' (optional)' if not cls._required else '           '} "
-                f"{cls.Item.description()}\n{' ' * 84}")
+    def extended_description_line(cls, **tags) -> str:
+        """
+        Produce an extended description line for the man page.
 
-    @classmethod
-    @final
-    def extended_description_line(cls, name: str = None) -> str:
-        """ Produce ae extended description line for man page. """
+        Tag placeholders the recipe pins statically (passed as `tags`, e.g. a detector
+        set by a mixin) are resolved here; the rest remain as `{placeholders}`,
+        because only the input data can determine them.
+        """
         assert cls.Item is not None, f"{cls.__qualname__} has no item"
         assert cls.Item.name() is not None, f"{cls.Item.__qualname__} has no name"
         assert cls.Item.description() is not None, f"{cls.Item.__qualname__} has no description defined"
 
-        return (f"  {cls.Item.name():<36}[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
-                f" {cls.Item.description()}")
+        return (f"  {partial_format(cls.Item.name(), **tags):<36}"
+                f"[{cls._multiplicity}]{' (optional)' if not cls._required else '           '}"
+                f" {partial_format(cls.Item.description(), **tags)}")
 
     @property
     @abstractmethod

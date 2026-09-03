@@ -59,7 +59,7 @@ class Hdu:
 
         self.name = name if name is not None else 'NONE'
 
-        self.header.del_regexp(r'EXTNAME', True)
+        self.header.del_regexp(r'EXTNAME', False)
         self.header.append(make_cpl_property('EXTNAME', name))
 
         Msg.debug(self.__class__.__qualname__,

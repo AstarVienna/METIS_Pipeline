@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.qc import QcParameter
-from pymetis.instruments.metis.mixins import BandLmMixin
 
 
 class QcImgStdBackgroundRms(QcParameter):
@@ -52,14 +51,14 @@ class QcStdStrehl(QcParameter):
 
 
 class QcStdAirmass(QcParameter):
-    _name_template = "QC {band} STD FWHM"
+    _name_template = "QC {band} STD AIRMASS"
     _type = float
     _unit = "1"
     _description_template = "Ellipticity of the standard star PSF"
 
 
 class QcStdEllipticity(QcParameter):
-    _name_template = "QC {band} STD FWHM"
+    _name_template = "QC {band} STD ELLIP"
     _type = float
     _unit = "1"
     _description_template = "Ellipticity of the standard star PSF"

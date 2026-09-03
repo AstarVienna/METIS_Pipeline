@@ -26,8 +26,7 @@ from pymetis.instruments.metis.recipes.prefab.img.std_process import MetisImgStd
 
 class MetisNImgStdProcessImpl(BandNMixin, MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
-        class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
-            pass
+        pass
 
 
 class MetisNImgStdProcess(Recipe):
@@ -41,7 +40,7 @@ class MetisNImgStdProcess(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: set[str] = {'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _algorithm: str = """Call metis_n_calculate_std_flux to measure flux in input images
         call hdrl_resample_compute to recenter the images
         call hdrl_imagelist_collapse to stack the images

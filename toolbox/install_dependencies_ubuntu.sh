@@ -1,7 +1,8 @@
+export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y \
-    wget gcc  automake autogen libtool gsl-bin libgsl-dev libfftw3-bin libfftw3-dev fftw-dev \
-    curl bzip2 less subversion git cppcheck lcov valgrind \
+    wget gcc g++ automake autogen libtool gsl-bin libgsl-dev libfftw3-bin libfftw3-dev fftw-dev \
+    curl bzip2 less subversion git cppcheck lcov valgrind libcext-dev \
     zlib1g zlib1g-dev \
     liberfa1 liberfa-dev \
     libcurl4-openssl-dev libcurl4 \
@@ -9,7 +10,7 @@ apt-get install -y \
     libcfitsio-bin libcfitsio-dev \
     wcslib-dev wcslib-tools \
     libcpl-dev \
-    python3-astropy python3-matplotlib python3-numpy \
+    python3-astropy python3-matplotlib python3-numpy python3-dev \
     perl cmake \
     graphviz meld \
     python3-pip python3-full \

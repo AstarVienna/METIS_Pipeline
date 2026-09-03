@@ -16,9 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-import pprint
 from abc import abstractmethod, ABC
-from typing import Dict, Any, final, Optional
+from typing import Dict, Any, final, Optional, TYPE_CHECKING
 
 import cpl
 from cpl.core import Msg
@@ -26,9 +25,12 @@ from cpl.core import Msg
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import Parametrizable
 
-from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
+from pymetis.engine.dataitems import DataItem, PipelineProductSet
 from pymetis.engine.inputs.inputset import PipelineInputSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
+
+if TYPE_CHECKING:
+    from pymetis.engine.recipes.recipe import Recipe
 
 
 class RecipeImpl(Parametrizable, ABC):
@@ -65,11 +67,19 @@ class RecipeImpl(Parametrizable, ABC):
         self.inputset: PipelineInputSet = self.InputSet(frameset)         # Create an appropriate InputSet object
         self.inputset.validate()                        # Verify that they are valid (maybe with `schema` too?)
 
-        # Promote the implementation to the correct subclass, based on
+        # Promote the products and QC parameters to the correct subclasses, based on
         # - tag parameters (from defined mixins, class-based)
         # - tag matches (from the loaded frameset, instance-based)
+        # The promoted containers are assigned to the *instance* (shadowing the class
+        # attributes), so runs of the same recipe never affect one another.
         # ToDo: Decide what to do in case of a conflict between those two
-        self.promote(**(self.tag_parameters() | self.inputset.tag_matches))
+        tags = self.tag_parameters() | self.inputset.tag_matches
+        try:
+            self.ProductSet = self.ProductSet.promoted(**tags)
+            self.Qc = self.Qc.promoted(**tags)
+        except TypeError as e:
+            Msg.error(self.__class__.__qualname__, str(e))
+            raise
         self.import_settings(settings)                  # Import and process the provided settings dict
         self.inputset.print_debug()
         Msg.debug(self.__class__.__qualname__,
@@ -79,34 +89,23 @@ class RecipeImpl(Parametrizable, ABC):
     def specialize(cls) -> None:
         """
         Specialize the recipe implementation to the current class parameters.
+
+        Each Impl gets its own private ProductSet / Qc subclass exactly once, so that
+        specializing it cannot leak into a prefab parent shared with sibling recipes,
+        and repeated calls (e.g. repeated man-page rendering) do not grow the MRO.
         """
         Msg.debug(cls.__qualname__, f"Specializing Implementation {cls.__qualname__} with {cls.tag_parameters()}")
-        cls.InputSet.specialize(**cls.tag_parameters())
 
-        # FixMe -- Surely it must be possible to do this in a more elegant way
-        cls.ProductSet = type("ProductSet", (cls.ProductSet,), {})
-        cls.ProductSet.specialize(**cls.tag_parameters())
-        # Create our own Qc type
-        cls.Qc = type("Qc", (cls.Qc,), {})
-        cls.Qc.specialize(**cls.tag_parameters())
-
-    @classmethod
-    def promote(cls, **parameters) -> None:
-        """
-        Promote the products of this class to appropriate subclasses, as determined from the input data.
-        This may be only called after the recipe is initialized.
-
-        May also contain template variables that are notmixed in during class creation.
-        For instance, `recipe_{band}_{target}` can specify band=LM, but no target,
-        resulting in a partial specialiation. The target has to be supplied from the actual data.)
-        """
-        try:
-            cls.ProductSet.promote(**parameters)
-            cls.Qc.promote(**parameters)
-        except TypeError as e:
-            pprint.pprint(e)
-            Msg.error(cls.__qualname__, e)
-            raise e
+        # InputSet is deliberately not in this loop yet: specializing it changes the
+        # frame-matching semantics of every recipe, which needs validation against
+        # real SOF data first. PipelineInputSet.specialize is ready when that lands.
+        for name in ("ProductSet", "Qc"):
+            if name not in cls.__dict__:
+                container = type(name, (getattr(cls, name),), {})
+                container.__qualname__ = f"{cls.__qualname__}.{name}"
+                container.__module__ = cls.__module__
+                setattr(cls, name, container)
+            getattr(cls, name).specialize(**cls.tag_parameters())
 
     def run(self) -> cpl.ui.FrameSet:
         """
@@ -184,7 +183,9 @@ class RecipeImpl(Parametrizable, ABC):
         Collect an *args list of QC parameters and convert them to a PropertyList
         """
         out = cpl.core.PropertyList()
+        Msg.info(self.__class__.__qualname__, "Collecting QC Parameters")
         for qcparam in qc_parameters:
+            Msg.info(self.__class__.__qualname__, f"    {qcparam.name()} = {qcparam.value!s}")
             out.append(qcparam.as_property())
 
         return out

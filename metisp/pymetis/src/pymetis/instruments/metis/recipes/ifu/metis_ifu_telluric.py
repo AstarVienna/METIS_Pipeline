@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
+from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
@@ -61,9 +61,11 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         class CombinedInput(SinglePipelineInput):
             Item = IfuCombined
 
-        FluxstdCatalogInput = FluxstdCatalogInput
-        LsfKernelInput = LsfKernelInput
-        AtmProfileInput = AtmProfileInput
+        raw: RawInput
+        combined: CombinedInput
+        fluxstd_catalog: FluxstdCatalogInput
+        lsf_kernel: LsfKernelInput
+        atm_profile: AtmProfileInput
 
     # ++++++++++++++ Defining ouput +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Recipe is foreseen to do both, create transmission and response functions
@@ -136,7 +138,7 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         image = create_dummy_image()
         table = create_dummy_table()
 
-        combined = self.inputset.combined.load_data('DET1.DATA')
+        _combined = self.inputset.combined.load_data('DET1.DATA')
 
         product_telluric_transmission = self.ProductSet.TelluricTransmission(
             create_dummy_header(),
@@ -164,7 +166,7 @@ class MetisIfuTelluric(Recipe):
     _algorithm = """Extract 1D spectrum of science object or standard star.
     Compute telluric correction.
     Compute conversion to physical units as function of wave-length."""
-    _matched_keywords: set[str] = {'DET.DIT', 'DET.NDIT', 'DRS.IFU'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
     parameters = ParameterList([

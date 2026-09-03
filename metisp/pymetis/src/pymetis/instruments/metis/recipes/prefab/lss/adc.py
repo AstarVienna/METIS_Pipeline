@@ -21,7 +21,7 @@ from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.inputs.common import WcuOffInput, BadPixMapInput, MasterDarkInput
+from pymetis.instruments.metis.inputs.common import WcuOffInput
 from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss, AdcSlitlossRaw
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
@@ -34,23 +34,14 @@ class MetisAdcSlitlossImpl(DarkImageProcessor, MetisRecipeImpl):
         class RawInput(RawInput):
             Item = AdcSlitlossRaw
 
-        class MasterDarkInput(MasterDarkInput):
-            pass
-
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class GainMapInput(GainMapInput):
-            pass
-
-        class LinearityInput(LinearityInput):
-            pass
-
-        class BadPixMapInput(BadPixMapInput):
-            pass
-
-        class WcuOffInput(WcuOffInput):
-            pass
+        raw: RawInput
+        persistence_map: PersistenceMapInput
+        gain_map: GainMapInput
+        linearity: LinearityInput
+        wcu_off: WcuOffInput
 
     class ProductSet(PipelineProductSet):
         AdcSlitloss = AdcSlitloss
@@ -65,7 +56,7 @@ class MetisAdcSlitlossImpl(DarkImageProcessor, MetisRecipeImpl):
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
 
-        raws = self.inputset.raw.load_data('DET1.DATA')
+        _raws = self.inputset.raw.load_data('DET1.DATA')
         primary_header = self.inputset.raw.items[0].primary_header
 
         header = create_dummy_header()

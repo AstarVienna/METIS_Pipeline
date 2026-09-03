@@ -19,6 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 This module contains mixins for setting detectors, bands, targets and similar parametrizable properties.
 """
 
+from pymetis.engine.core.parametrizable import Parametrizable
+
+# Declare the tag axes METIS uses. From here on, ParametrizableMeta rejects any
+# unknown tag keyword at class-creation time (catches typos like `bnad='LM'`).
+# This runs before the mixin submodules below are imported, so it also guards them.
+Parametrizable._valid_tags = frozenset({'band', 'detector', 'target', 'source', 'cgrph'})
+
 from .detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 from .band import BandLmMixin, BandNMixin, BandIfuMixin
 from .target import TargetStdMixin, TargetSciMixin, TargetSkyMixin

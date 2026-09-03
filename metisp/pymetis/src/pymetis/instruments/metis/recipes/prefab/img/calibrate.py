@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameter, QcParameterSet
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
@@ -37,12 +37,13 @@ class MetisImgCalibrateImpl(TargetSciMixin, MetisRecipeImpl, ABC):
         class BackgroundInput(SinglePipelineInput):
             Item = BackgroundSubtracted
 
-        class FluxcalTableInput(FluxCalTableInput):
-            pass
-
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
             Item = DistortionTable
+
+        background: BackgroundInput
+        fluxcal_table: FluxCalTableInput
+        distortion_table: DistortionTableInput
 
     class ProductSet(PipelineProductSet):
         SciCalibrated = Calibrated

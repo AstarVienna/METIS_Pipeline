@@ -38,7 +38,7 @@ class MetisNImgFlat(Recipe):
     _synopsis = "Create master flat for N band detectors"
     _description = "Prototype to create a METIS master flat for N band"
 
-    _matched_keywords = {'DET.DIT', 'DET.NDIT', 'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
     _algorithm = """For internal flats: call metis_det_dark with LAMP OFF im ages to create dark frame.
     Subtract internal dark or master dark from flat exposures.
     Call metis_n_img_flat to fit slope of pixel values against illumination level.

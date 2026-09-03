@@ -25,7 +25,6 @@ from cpl.core import (Image as CplImage,
                       Msg)
 from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 
-from typing import Literal, Optional
 
 from pymetis.drl.image import zeros_like
 
@@ -84,8 +83,6 @@ def calculate_outliers(
     # count the number of bad pixels in each, for later, then
     # change to Image type from mask for later calculations
 
-    image_median = image.get_median()
-    image_rms = image.get_stdev()
 
     # user HDRL function to flag outlier pixels. First create the object
     # TODO: confirm/explore best input paramters based on realistic data

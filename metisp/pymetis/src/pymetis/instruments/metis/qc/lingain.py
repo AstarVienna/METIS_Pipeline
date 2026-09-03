@@ -69,7 +69,7 @@ class GainLin(QcParameter):
 
 
 class GainCoeff(QcParameter):
-    _name_template = "QC CAL CHOPHOME SNR"
+    _name_template = "QC GAIN COEFF"
     _type = float
     _unit = "e / adu"
     _default = None

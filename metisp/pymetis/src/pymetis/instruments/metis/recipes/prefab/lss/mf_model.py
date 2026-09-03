@@ -30,15 +30,6 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 class MetisLssMfModelImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class AtmLineCatInput(AtmLineCatInput):
-            pass
-
-        class AtmProfileInput(AtmProfileInput):
-            pass
-
-        class LsfKernelInput(LsfKernelInput):
-            pass
-
         # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
         class LssSciFlux1dInput(SinglePipelineInput):
@@ -47,6 +38,12 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         # Alternative (Path #3 in DRLD Section CritAlg)
         class LssSci1dInput(SinglePipelineInput):
             Item = LssSci1d
+
+        atm_line_cat: AtmLineCatInput
+        atm_profile: AtmProfileInput
+        lsf_kernel: LsfKernelInput
+        lss_sci_flux_1d: LssSciFlux1dInput
+        lss_sci_1d: LssSci1dInput
 
     class ProductSet(PipelineProductSet):
         MfBestFitTable = MfBestFitTable
@@ -61,7 +58,7 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         # TODO: Invoke molecfit here
         # TODO: Check whether the new mf writes out the best-fit param file
 
-        lss_sci_flux = self.inputset.lss_sci_flux_1d.load_data('TABLE')
+        _lss_sci_flux = self.inputset.lss_sci_flux_1d.load_data('TABLE')
 
         primary_header = self.inputset.lss_sci_flux_1d.item.primary_header
 

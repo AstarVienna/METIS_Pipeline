@@ -40,6 +40,9 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
         class SkyBasicReducedInput(SinglePipelineInput):
             Item = LmSkyBasicReduced
 
+        basic_reduced: BasicReducedInput
+        sky_basic_reduced: SkyBasicReducedInput
+
     class ProductSet(PipelineProductSet):
         Bkg = Background
         BkgSubtracted = BackgroundSubtracted
@@ -92,7 +95,7 @@ class MetisLmImgBackground(Recipe):
         )
     ])
 
-    _matched_keywords = {'DRS.FILTER'}
+    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 
