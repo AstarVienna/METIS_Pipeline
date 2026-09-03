@@ -44,11 +44,12 @@ jobs:
           # the same name as the branch in METIS_Pipeline that we are testing.
           git -C METIS_Pipeline_Test_Data checkout "${GITHUB_HEAD_REF}" || true
 
+
       - name: Run pytest
         working-directory: metisp/pymetis
         run: |
           . ../../metispipe/bin/activate
-          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$(pwd)/cpl/lib:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$(pwd)/../../cpl/lib:$LD_LIBRARY_PATH
           export PYESOREX_PLUGIN_DIR="${GITHUB_WORKSPACE}/metisp/pyrecipes/"
           export PYCPL_RECIPE_DIR="${GITHUB_WORKSPACE}/metisp/pyrecipes/"
           export PYTHONPATH="${GITHUB_WORKSPACE}/metisp/pymetis/src/"
