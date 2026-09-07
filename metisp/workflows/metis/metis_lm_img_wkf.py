@@ -27,7 +27,7 @@ lm_img_flat_task = (task("metis_lm_img_flat")
 
 lm_img_distortion_task = (task('metis_lm_img_distortion')
                    .with_main_input(lm_distortion_raw)
-                   .with_associated_input(lm_wcu_off_raw, [lm_wcu_off_raw_class])
+                   .with_associated_input(lm_wcu_off_raw)
                    .with_associated_input(pinhole_table)
                    .with_associated_input(lm_img_flat_task, [master_img_flat_lamp_lm_class])
                    .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
