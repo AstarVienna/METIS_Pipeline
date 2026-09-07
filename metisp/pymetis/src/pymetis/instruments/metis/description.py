@@ -34,9 +34,9 @@ class Metis(InstrumentDescription):
 
     class MaskFlags(InstrumentDescription.MaskFlags):
         # det_dark
-        BAD = 1 << 1                        # bad pixel
-        COLD = 1 << 2                       # cold pixel
-        HOT = 1 << 3                        # hot pixel
+        BAD = 1 << 0                        # bad pixel
+        COLD = 1 << 1                       # cold pixel
+        HOT = 1 << 2                        # hot pixel
 
         # det_lingain
         TOO_FEW_SAMPLES = 1 << 4
