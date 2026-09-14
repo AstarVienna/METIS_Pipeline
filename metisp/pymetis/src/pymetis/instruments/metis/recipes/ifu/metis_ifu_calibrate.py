@@ -47,7 +47,7 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         SciCubeCalibrated = IfuScienceCubeCalibrated
 
     class Qc(QcParameterSet):
-        # QCs here are apparently not very reusable, so we can define them here
+        # QCs are apprently not very reusable, so we can define them here
         class MinFlux(QcParameter):
             _name_template = "QC IFU CALIB MINFLUX"
             _type = float

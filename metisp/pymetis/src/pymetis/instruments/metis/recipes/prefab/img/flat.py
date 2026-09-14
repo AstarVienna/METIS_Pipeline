@@ -36,10 +36,11 @@ from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin,
                                               PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
-from pymetis.instruments.metis import qc
 
 if TYPE_CHECKING:
     from pymetis.engine.recipes.recipe import Recipe
+from pymetis.instruments.metis.qc.flat import (MFlatRms, MFlatNbadpix, FlatMean, FlatRms,
+                                               FlatMedianMin, FlatMedianMax, FlatMedianRms)
 
 
 class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
@@ -63,13 +64,13 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         BadPixMap = BadPixMap
 
     class Qc(QcParameterSet):
-        MFlatRms = qc.flat.MFlatRms
-        MFlatNBadpix = qc.flat.MFlatNBadpix
-        FlatMean = qc.flat.FlatMean
-        FlatRms = qc.flat.FlatRms
-        FlatMedianMin = qc.flat.FlatMedianMin
-        FlatMedianMax = qc.flat.FlatMedianMax
-        FlatMedianRms = qc.flat.FlatMedianRms
+        MFlatRms = MFlatRms
+        MFlatNBadpix = MFlatNbadpix
+        FlatMean = FlatMean
+        FlatRms = FlatRms
+        FlatMedianMin = FlatMedianMin
+        FlatMedianMax = FlatMedianMax
+        FlatMedianRms = FlatMedianRms
         
     def __init__(self,
                  recipe: 'Recipe',
@@ -208,19 +209,24 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
 
         self.collect_qc_parameters(
-            self.Qc.MFlatRms(qcrms),
-            self.Qc.MFlatNbadpix(qcnbad),
-            #self.Qc.FltMean(qcmean),  #I'm not sure what these are actually supposed to be; DRLD implies per frame, which would mean N of each
-            #self.Qc.FlatRms(qcnbad),  #TODO
-            self.Qc.FlatMedianMin(qcmedmin),
-            self.Qc.FlatMedianMax(qcmedmax),
-            self.Qc.FlatMedianRms(qcmedrms)
-        )
+                MFlatRms(qcrms),
+                MFlatNbadpix(qcnbad),
+                #FltMean(qcmean),  #I'm not sure what these are actually supposed to be; DRLD implies per frame, which would mean N of each
+                #FlatRms(qcnbad),  #TODO
+                FlatMedianMin(qcmedmin),
+                FlatMedianMax(qcmedmax),
+                FlatMedianRms(qcmedrms)
+            )
+
+        
+        header_image = cpl.core.PropertyList()
 
         header_image = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
         header_noise = copy.deepcopy(header_image)
         header_mask = copy.deepcopy(header_image)
 
+
+        
         product = self.ProductSet.MasterFlat(
             primary_header,
             Hdu(header_image, mflat.image, name=r'DET1.SCI'),

@@ -42,8 +42,8 @@ from pymetis.instruments.metis.dataitems.linearity.raw import LinearityRaw
 from pymetis.instruments.metis.inputs import RawInput, BadPixMapInput, OptionalInputMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
-from pymetis.instruments.metis import qc
-
+from pymetis.instruments.metis.qc.lingain import (LinGainMean, LinGainRms, LinNumBadpix, LinMinFlux, LinMaxFlux,
+                                                  GainLin, GainCoeff)
 import numpy as np
 import astropy.stats
 
@@ -65,13 +65,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         BadPixMap = BadPixMap
 
     class Qc(QcParameterSet):
-        LinGainMean = qc.lingain.LinGainMean
-        LinGainRms = qc.lingain.LinGainRms
-        LinNumBadpix = qc.lingain.LinNumBadpix
-        LinMinFlux = qc.lingain.LinMinFlux
-        LinMaxFlux = qc.lingain.LinMaxFlux
-        GainLin = qc.lingain.GainLin
-        GainCoeff = qc.lingain.GainCoeff
+        LinGainMean = LinGainMean
+        LinGainRms = LinGainRms
+        LinNumBadpix = LinNumBadpix
+        LinMinFlux = LinMinFlux
+        LinMaxFlux = LinMaxFlux
+        GainLin = GainLin
+        GainCoeff = GainCoeff
 
     def __init__(self,
                  recipe: 'Recipe',
@@ -117,17 +117,15 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
     @staticmethod
-    def split_dits(
-        fws: NDArray, # Filter wheel setting
-        dits: NDArray[np.float64],
-        un_on: NDArray[int]
-    ) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
+    def split_dits(fws: NDArray, # Filter wheel setting
+                   dits: NDArray[np.float64],
+                   un_on: NDArray[int]) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
         """ Split DITs into on and off, depending on the filter wheel setting. """
         return (dits == un_on) & (fws != 'closed'), (dits == un_on) & (fws == 'closed')
 
-    def set_detector_characteristics(self, tech: str) -> Self:
+    def set_detector_characteristics(self, tech) -> Self:
         """
-        Set detector characteristics:
+        Get detector characteristics:
         - gain correction factor (dimensionless)
         - gain (e- / ADU)
         - read noise (ADU)
@@ -619,7 +617,7 @@ class MetisDetLinGain(Recipe):
         ParameterValue(
             name=rf"{_name}.kappa",
             context=_name,
-            description="Kappa factor for sigma clipping for BPM. "
+            description="kappa factor for sigma clipping for BPM. "
                         "Values that deviate more than kappa*sigma from the median linearity are flagged.",
             default=3,
         ),

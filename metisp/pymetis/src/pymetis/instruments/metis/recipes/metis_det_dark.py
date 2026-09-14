@@ -48,7 +48,9 @@ from pymetis.instruments.metis.inputs import (RawInput, BadPixMapInput, Persiste
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
-from pymetis.instruments.metis import qc
+from pymetis.instruments.metis.qc.dark import (DarkMean, DarkMedian, DarkRms, DarkNColdpix, DarkNHotpix, DarkNBadpix,
+                                               DarkMedianMedian, DarkMedianMean,
+                                               DarkMedianRms, DarkMedianMin, DarkMedianMax)
 
 
 class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecipeImpl):
@@ -106,17 +108,17 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         MasterDark = MasterDark
 
     class Qc(QcParameterSet):
-        DarkMedian = qc.dark.DarkMedian
-        DarkMean = qc.dark.DarkMean
-        DarkRms = qc.dark.DarkRms
-        DarkNBadpix = qc.dark.DarkNBadpix
-        DarkNColdpix = qc.dark.DarkNColdpix
-        DarkNHotpix = qc.dark.DarkNHotpix
-        DarkMedianMean = qc.dark.DarkMedianMean
-        DarkMedianMedian = qc.dark.DarkMedianMedian
-        DarkMedianRms = qc.dark.DarkMedianRms
-        DarkMedianMin = qc.dark.DarkMedianMin
-        DarkMedianMax = qc.dark.DarkMedianMax
+        DarkMedian = DarkMedian
+        DarkMean = DarkMean
+        DarkRms = DarkRms
+        DarkNBadpix = DarkNBadpix
+        DarkNColdpix = DarkNColdpix
+        DarkNHotpix = DarkNHotpix
+        DarkMedianMean = DarkMedianMean
+        DarkMedianMedian = DarkMedianMedian
+        DarkMedianRms = DarkMedianRms
+        DarkMedianMin = DarkMedianMin
+        DarkMedianMax = DarkMedianMax
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -263,17 +265,17 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
         gg = self.collect_qc_parameters(
-            self.Qc.DarkMean(combined_image.image.get_mean()),
-            self.Qc.DarkMedian(combined_image.image.get_median()),
-            self.Qc.DarkRms(combined_image.image.get_stdev()),
-            self.Qc.DarkNBadpix(qcnbad),
-            self.Qc.DarkNColdpix(qcncold),
-            self.Qc.DarkNHotpix(qcnhot),
-            self.Qc.DarkMedianMean(np.median(np.array(means))),
-            self.Qc.DarkMedianMedian(np.median(np.array(medians))),
-            self.Qc.DarkMedianRms(np.median(np.array(stdevs))),
-            self.Qc.DarkMedianMin(np.median(np.array(mins))),
-            self.Qc.DarkMedianMax(np.median(np.array(maxs))),
+            DarkMean(combined_image.image.get_mean()),
+            DarkMedian(combined_image.image.get_median()),
+            DarkRms(combined_image.image.get_stdev()),
+            DarkNBadpix(qcnbad),
+            DarkNColdpix(qcncold),
+            DarkNHotpix(qcnhot),
+            DarkMedianMean(np.median(np.array(means))),
+            DarkMedianMedian(np.median(np.array(medians))),
+            DarkMedianRms(np.median(np.array(stdevs))),
+            DarkMedianMin(np.median(np.array(mins))),
+            DarkMedianMax(np.median(np.array(maxs))),
         )
 
         header_image.append(gg)
