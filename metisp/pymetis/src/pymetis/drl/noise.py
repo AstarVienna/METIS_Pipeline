@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import math
+
 import cpl
 import hdrl
 from cpl.core import (Image as CplImage,
@@ -79,24 +81,22 @@ def calculate_outliers(
     Msg.info("calculate_outliers",
              f"Identifying outlier pixels ({kappa_low=}, {kappa_high=})")
 
-    # get masks from thresholds for bad, hot and cold pixels
-    # count the number of bad pixels in each, for later, then
-    # change to Image type from mask for later calculations
-
-
-    # user HDRL function to flag outlier pixels. First create the object
-    # TODO: confirm/explore best input paramters based on realistic data
-
-    # set one kappa to a very large value to separate hot/cold maxing
-
+    # Flag pixels deviating from their median-filtered neighbourhood by more than kappa
+    # sigma. Hot and cold pixels are separated by running the filter twice with the
+    # other side's kappa infinite -- a finite stand-in (say 1000) would flag any
+    # sufficiently extreme pixel on both sides. The border must be filtered too:
+    # `Border.NOP` leaves the smoothed image zero there, so every border pixel comes
+    # out as a "hot" outlier of its own full value.
+    # TODO: confirm/explore best input parameters based on realistic data
     max_iter = 6
     filter_x = 5
     filter_y = 5
-    bpFind = hdrl.func.BPM2D.Filter(1000, kappa_high, max_iter, cpl.core.Filter.MEDIAN, cpl.core.Border.NOP,
-                                    filter_x, filter_y)
-    mask_hot = bpFind.compute(image)
-    bpFind = hdrl.func.BPM2D.Filter(kappa_low, 1000, max_iter, cpl.core.Filter.MEDIAN, cpl.core.Border.NOP,
-                                    filter_x, filter_y)
-    mask_cold = bpFind.compute(image)
+
+    def flag(low: float, high: float) -> CplMask:
+        return hdrl.func.BPM2D.Filter(low, high, max_iter, cpl.core.Filter.MEDIAN, cpl.core.Border.FILTER,
+                                      filter_x, filter_y).compute(image)
+
+    mask_hot = flag(math.inf, kappa_high)
+    mask_cold = flag(kappa_low, math.inf)
 
     return mask_hot, mask_cold

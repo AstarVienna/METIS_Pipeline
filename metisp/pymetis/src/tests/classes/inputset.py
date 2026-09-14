@@ -18,19 +18,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import pytest
-import inspect
 
 from abc import ABC
 from typing import Optional
 
 from pymetis.engine.recipes import RecipeImpl
-from pymetis.engine.inputs import PipelineInputSet, PipelineInput, MultiplePipelineInput
+from pymetis.engine.inputs import PipelineInput, MultiplePipelineInput
 
 
 @pytest.mark.inputset
 class BaseInputSetTest(ABC):
     """
-    A set of basic tests common for all InputSets
+    Data-dependent tests of one recipe's InputSet on the SOF the test module names.
+    The structural checks of every registered InputSet live in
+    `instruments/metis/tests/test_registered_recipes.py`.
     """
     Impl: Optional[type[RecipeImpl]] = None
 
@@ -38,14 +39,6 @@ class BaseInputSetTest(ABC):
     @pytest.fixture
     def instance(self, load_frameset, sof):
         return self.Impl.InputSet(load_frameset(sof))
-
-    def test_is_an_inputset(self):
-        assert issubclass(self.Impl.InputSet, PipelineInputSet), \
-            f"Class is not derived from InputSet: {self.Impl.InputSet}"
-
-    def test_is_not_abstract(self):
-        assert not inspect.isabstract(self.Impl.InputSet), \
-            f"InputSet is abstract: {self.Impl.InputSet}"
 
     @pytest.mark.external
     def test_all_inputs_have_items(self, instance):

@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import os
 import pprint
-import re
 import subprocess
 import pytest
 
@@ -39,7 +38,11 @@ TARGETS = ['std', 'sci']
 @pytest.mark.recipe
 class BaseRecipeTest(ABC):
     """
-    Integration / regression tests for verifying that the recipe can be run
+    Data-dependent integration tests of one recipe, run on the SOF the test module
+    names. The structural and metadata checks every registered recipe must pass live
+    in `instruments/metis/tests/test_registered_recipes.py` and need no per-recipe
+    module; subclass this only for recipes with per-band/per-target SOFs or with
+    recipe-specific tests.
     """
     Recipe: type[Recipe] = None
 
@@ -94,19 +97,6 @@ class BaseRecipeTest(ABC):
         assert output.stderr == b"", \
             f"Pyesorex exited with non-empty stderr: {output.stderr}"
 
-    @pytest.mark.pyesorex
-    def test_pyesorex_can_display_manpage(self, name) -> None:
-        output = subprocess.run(['pyesorex', '--man-page', name, '--log-level', 'DEBUG'], capture_output=True)
-        assert output.returncode == 0, \
-            f"`pyesorex --man-page {name}` exited with non-zero return code {output.returncode}: {output.stderr!r}"
-
-    @pytest.mark.metadata
-    def test_does_author_name_conform_to_standard(self) -> None:
-        """Test whether the recipe author's name is in the standard format. TBD what that actually means."""
-        recipe = self.Recipe()
-        assert re.match(r"^([\w\- ]+, )?A\*(, ASIAA)?$", recipe._author), \
-            "Author name is not in the standard format"
-
     @pytest.mark.external
     def test_uses_all_input_frames(self, frameset):
         """Test that the recipe uses all input frames."""
@@ -117,48 +107,6 @@ class BaseRecipeTest(ABC):
         loaded_frames = set([frame.file for frame in instance.implementation.inputset.valid_frames])
         assert loaded_frames == all_frames, \
             f"Frames are present in the SOF file but not used: {all_frames - loaded_frames}"
-
-    @pytest.mark.metadata
-    def test_are_matched_keywords_defined(self):
-        assert self.Recipe._matched_keywords is not None, \
-            f"Recipe {self.Recipe._name} does not have matched keywords defined"
-
-    @pytest.mark.metadata
-    def test_is_algorithm_described(self, create_pyesorex):
-        assert self.Recipe._algorithm is not None, \
-            f"Recipe {self.Recipe} does not have an algorithm description"
-
-    @pytest.mark.metadata
-    def test_all_parameters_have_correct_context(self):
-        for param in self.Recipe.parameters:
-            assert param.context == self.Recipe._name, \
-                f"Parameter context of {param.name} differs from recipe name {self.Recipe._name}"
-
-    @pytest.mark.metadata
-    def test_all_parameters_name_starts_with_context(self):
-        for param in self.Recipe.parameters:
-            assert param.name.startswith(self.Recipe._name), \
-                f"Parameter name {param.name} does not start with {self.Recipe._name}"
-
-    @pytest.mark.metadata
-    def test_can_display_manpage_directly(self):
-        recipe = self.Recipe()
-        assert recipe._build_description() is not None
-
-    @pytest.mark.metadata
-    def test_does_is_have_a_product_set(self):
-        assert self.Recipe.Impl.ProductSet is not None, \
-            f"Recipe {self.Recipe._name} does not have a ProductSet defined"
-
-    @pytest.mark.metadata
-    def test_does_is_have_a_qc_parameter_set(self):
-        assert self.Recipe.Impl.Qc is not None, \
-            f"Recipe {self.Recipe._name} does not have a QcParameterSet defined"
-
-    @pytest.mark.metadata
-    def test_can_it_list_qcs(self):
-        assert isinstance(self.Recipe.Impl.Qc.list_classes(), list), \
-            f"Recipe {self.Recipe._name} cannot list QC parameters"
 
     @pytest.mark.external
     def test_all_inputs(self, frameset):

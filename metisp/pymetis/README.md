@@ -157,11 +157,17 @@ together with `ruff check src`. Markers are declared in `pyproject.toml`;
 `external` needs full-size simulated data, `edps` marks the slow EDPS runs
 (exercised by the nightly `run_edps.yaml`).
 
-Per-recipe tests are declarative: subclass `BaseRecipeTest`,
-`BaseInputSetTest`, `BaseProductSetTest` from `tests.classes` and point them
-at your Recipe/Impl — the base classes contribute the actual test methods.
-Project conventions (author format, parameter-name prefixes, mandatory
-`_algorithm`/`_matched_keywords`) are enforced by these tests.
+Every registered recipe is tested automatically:
+`instruments/metis/tests/test_registered_recipes.py` iterates `Recipe._registry`
+and enforces the project conventions (author format, parameter-name prefixes,
+mandatory `_algorithm`/`_matched_keywords`, a renderable man page, product
+frame types) for all recipes, and runs the data-dependent checks on
+`<recipe>.sof` from `$SOF_DIR` where that file exists. A recipe needs its own
+module under `instruments/metis/tests/recipes/` only when its SOFs are named
+per band or target (subclass `BaseRecipeTest`/`BandParamRecipeTest`/
+`TargetParamRecipeTest` and `BaseInputSetTest` from `tests.classes`, pointing
+them at your Recipe/Impl and naming the SOF) or when it has recipe-specific
+tests to add.
 
 ### Caveats
 
