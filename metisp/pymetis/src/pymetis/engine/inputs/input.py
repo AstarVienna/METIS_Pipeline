@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any, Optional, final, Union, ClassVar
 
 import cpl
@@ -28,7 +28,7 @@ from pymetis.engine.core.functions.frameset import preprocess_frameset
 from pymetis.engine.dataitems.dataitem import DataItem
 
 
-class PipelineInput:
+class PipelineInput(ABC):
     """
     This class encapsulates a single logical input to a recipe:
     - either a single file, or a line in the SOF (see SinglePipelineInput)
@@ -104,30 +104,35 @@ class PipelineInput:
         Msg.debug(self.__class__.__qualname__,
                   f"Initializing an input {self.Item.name()}")
 
+        matches: dict[str, tuple[type[DataItem], cpl.ui.FrameSet]] = {}
         for tag, frames in preprocess_frameset(frameset).items():
             cls = DataItem.find(tag)
             if cls is None:
                 Msg.warning(self.__class__.__qualname__,
                             f"Found a frame with tag '{tag}', which is not a registered data item. Ignoring.")
-                continue
+            elif cls == self.Item or issubclass(cls, self.Item):
+                matches[tag] = (cls, frames)
             else:
                 Msg.debug(self.__class__.__qualname__,
                           f"Found {cls.__name__} with tag {tag}, "
-                          f"but we are {self.Item.__qualname__} ({self.Item.name()})")
-                if cls == self.Item:
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Found a fully specialized class {cls.__qualname__} for {tag}, instantiating directly")
-                    self.load_frameset(frames)
-                elif issubclass(cls, self.Item):
-                    # If there is a more specialized class, use it instead
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Found a specialized class {cls.__qualname__} for {tag}, "
-                              f"subclassing this {self.Item.__qualname__} and instantiating")
-                    self.Item = cls
-                    self.load_frameset(frames)
-                else:
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Could not specialize class {self.Item.__qualname__} for {tag}")
+                          f"which is not a {self.Item.__qualname__} ({self.Item.name()})")
+
+        # Frames of several different data items (e.g. two detectors) can never
+        # belong to one input; loading them in turn would silently keep the last.
+        if len(matches) > 1:
+            raise cpl.core.IllegalInputError(
+                f"{self.__class__.__qualname__}: frames of several different data items match "
+                f"the input {self.Item.name()}: {sorted(matches)}. "
+                f"The set of frames must provide exactly one of them.")
+
+        for tag, (cls, frames) in matches.items():
+            if cls is not self.Item:
+                # Promote this instance to the more specialized class found in the frames.
+                Msg.debug(self.__class__.__qualname__,
+                          f"Found a specialized class {cls.__qualname__} for {tag}, "
+                          f"promoting this {self.Item.__qualname__}")
+                self.Item = cls
+            self.load_frameset(frames)
 
     @abstractmethod
     def validate(self) -> None:

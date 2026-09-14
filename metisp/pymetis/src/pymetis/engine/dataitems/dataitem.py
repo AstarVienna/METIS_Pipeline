@@ -208,7 +208,6 @@ class DataItem(ParametrizableItem, abstract=True):
         #Msg.info(cls.__qualname__,
         #         f"As HDU list: {frame.as_hdulist()}")
 
-        structure = {}
         hdus = []
 
         index = 0
@@ -230,11 +229,15 @@ class DataItem(ParametrizableItem, abstract=True):
                             extname = 'PRIMARY'
 
                 subschema = {prop.name: prop.value for prop in header}
+                xtension = subschema.get('XTENSION', None)
                 subtype = {
                     'IMAGE': Image,
                     'BINTABLE': Table,
                     None: None,
-                }[subschema.get('XTENSION', None)]
+                }.get(xtension)
+                if xtension is not None and subtype is None:
+                    Msg.warning(cls.__qualname__,
+                                f"Unknown XTENSION {xtension!r} in HDU {index} of {frame.file}")
 
                 if (subtype is None) | (subtype is Image):
                     if subschema.get('NAXIS', None) == 2:
@@ -246,11 +249,7 @@ class DataItem(ParametrizableItem, abstract=True):
                         Msg.warning(cls.__qualname__,
                                     "Found that NAXIS = 3, determining that this HDU should be an ImageList")
 
-                structure[extname] = subschema
-                structure['klass'] = subtype
-                structure['extno'] = index
-
-                Msg.debug(cls.__qualname__, f"Subtype is {subtype}, structure is {structure}")
+                Msg.debug(cls.__qualname__, f"HDU {index} ('{extname}') holds a {subtype}")
                 hdus.append(Hdu(header, None, name=extname, klass=subtype, extno=index))
 
                 Msg.debug(cls.__qualname__, f"Loaded HDU {index} ('{extname}')")
@@ -265,6 +264,7 @@ class DataItem(ParametrizableItem, abstract=True):
                 break
             index += 1
 
+        # A separate copy: the PRIMARY `Hdu` above stamps EXTNAME onto its own header.
         primary_header = cpl.core.PropertyList.load(frame.file, 0)
 
         return klass(primary_header, *hdus, filename=frame.file)
@@ -339,20 +339,20 @@ class DataItem(ParametrizableItem, abstract=True):
         # Some data products actually have FrameGroup RAW because they are
         # input to other recipes (to prevent the cryptic empty set-of-frames
         # error from CPL.) Labeling products as Raw might or might not be a
-        # good idea, but those products need to be saved correctly nonetheless.
-        # if self.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
-        #     Msg.debug(self.__class__.__qualname__,
-        #               f"Not appending anything to a RAW data item")
-        # else:
+        # good idea, but those products need to be saved correctly nonetheless,
+        # so the category is set for every data item regardless of its group.
         Msg.debug(self.__class__.__qualname__,
-                  f"Appending ESO PRO CATG to a non-RAW data item ({self.frame_group()})")
-        self.primary_header.append(
-            cpl.core.Property(
-                "ESO PRO CATG",
-                cpl.core.Type.STRING,
-                self.name(),
+                  f"Setting ESO PRO CATG to {self.name()} ({self.frame_group()})")
+        if "ESO PRO CATG" in self.primary_header:
+            self.primary_header["ESO PRO CATG"].value = self.name()
+        else:
+            self.primary_header.append(
+                cpl.core.Property(
+                    "ESO PRO CATG",
+                    cpl.core.Type.STRING,
+                    self.name(),
+                )
             )
-        )
 
     def as_frame(self, filename: Optional[str] = None) -> cpl.ui.Frame:
         """ Create a CPL Frame from this DataItem

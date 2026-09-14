@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 
-from typing import Optional, ClassVar, Self
+from typing import Optional, ClassVar
 
 import numpy as np
 import cpl
@@ -30,8 +30,7 @@ from cpl.core import (Image as CplImage,
                       PropertyList as CplPropertyList,
                       Mask as CplMask,
                       Msg)
-from hdrl.core import (Image as HdrlImage,
-                       ImageList as HdrlImageList,)
+from hdrl.core import (Image as HdrlImage,)
 
 from pymetis.engine.core.classes.instrument import InstrumentDescription
 from pymetis.engine.core.classes.dataquality import DataQuality
@@ -224,7 +223,10 @@ class EnhancedImageBase:
                 f"No '{prefix}.{cls.sci_suffix}' extension found in {filename}"
             )
 
-        # Dispatch on the shape of the science layer.
+        # Dispatch on the shape of the science layer. The subclasses import this
+        # module, so they can only be imported here, at call time.
+        from .image import EnhancedImage
+        from .image3d import EnhancedImage3D
         target = EnhancedImage3D if isinstance(image, CplImageList) else EnhancedImage
 
         # Error and DQ are optional; pass them through as None when absent and

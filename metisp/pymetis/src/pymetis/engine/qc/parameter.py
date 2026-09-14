@@ -25,7 +25,7 @@ from ..core.parametrizable import ParametrizableItem
 from pymetis.engine.core.functions.property import python_to_cpl_type
 
 
-class QcParameter(ParametrizableItem):
+class QcParameter(ParametrizableItem, abstract=True):
     """
     An encapsulation of a QC parameter, as specified in the DRLD.
     """

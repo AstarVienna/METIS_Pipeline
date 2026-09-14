@@ -26,12 +26,15 @@ import numpy as np
 
 import hdrl, cpl
 
+from pymetis.drl.image import zeros_like
 from pymetis.drl.noise import estimate_noise_list, calculate_outliers
+from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
+from pymetis.engine.dataitems import DataItem, PipelineProductSet
 
 from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat, FlatRaw
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin,
                                               PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
@@ -92,8 +95,6 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
         # target = self.inputset.tag_parameters['target']
 
-        bad_bit = 8
-
         Msg.info(self.__class__.__qualname__, "Loading flat images")
 
         self.inputset.raw.load_structure()
@@ -102,12 +103,8 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         Msg.info(self.__class__.__qualname__, "Pretending to load DETLIN")
 
         # TODO add detlin stuff
-        
-        Msg.info(self.__class__.__qualname__, "Faking a gain map and badpix map")
-        Msg.info(self.__class__.__qualname__, f"TTT {type(raw_images[0])}")
 
-        # fake the bp mask by initializing to zero
-        badpix_mask = cpl.core.Image.zeros(raw_images[0].width, raw_images[0].height, cpl.core.Type.INT)
+        Msg.info(self.__class__.__qualname__, "Faking a gain map")
 
         # fake the gain at the moment by setting to 1 TODO real version
         gain = cpl.core.Image.zeros_like(raw_images[0])
@@ -123,10 +120,9 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
         raw_images_hdrl = estimate_noise_list(raw_images, 0)
 
-        # subtract the darks, now in HDRL format
-        # FixMe: the result is never used -- the master flat below is computed from the
-        #        *non*-dark-subtracted images (`raw_images_hdrl`). To be resolved with the team.
-        _dark_corrected = self.subtract_dark(raw_images_hdrl)
+        # Subtract the master dark. `subtract_dark` works on the list in place and
+        # returns it, so the master flat below is computed from dark-subtracted frames.
+        raw_images_hdrl = self.subtract_dark(raw_images_hdrl)
 
         # FixMe: At skeleton level we just copy the header from the first raw
         primary_header = self.inputset.raw.items[0].primary_header
@@ -134,11 +130,8 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         # Combine the images in the image list using the image stacking option requested by the user.
         method = self.parameters[f"{self.name}.stacking.method"].value
 
-        # create a static mask that only considers the illuminated portion of the frame
-        # set this based on data
-
-        stat_mask = cpl.core.Mask(raw_images_hdrl[0].width, raw_images_hdrl[0].height)
-        stat_mask[0:raw_images_hdrl[0].width][0:raw_images_hdrl[0].height] = True
+        # A static mask restricting the statistics to the illuminated portion of
+        # the frame is not used yet; it should eventually be derived from the data.
         stat_mask = None
 
         # create a method paramter for HDRL
@@ -161,53 +154,62 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         results = flat.compute(raw_images_hdrl, collapse, stat_mask)
         mflat = results.master
 
+        # `mflat` stays the local working copy for the statistics below; `output`
+        # carries the data quality layer that is saved with the product.
+        output = EnhancedImage.from_hdrl(
+            mflat,
+            zeros_like(raw_images[0], cpl.core.Type.INT),
+            prefix='DET1',
+        )
+
         # flag deviant pixels
         # TODO this needs some more thought; if there's any global gradiants in the flat,
         # a simple RMS could exclude real parts of the flat. For now, simple rms,
         # for later, probably a rejection from the local values
-        # also, maybe a coverage value? 
+        # also, maybe a coverage value?
 
         # get hot/cold pixels
         mask_hot, mask_cold = calculate_outliers(mflat, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
-        qcnbad  = mask_hot.count() + mask_cold.count()
+        qcnbad = mask_hot.count() + mask_cold.count()
 
         Msg.info(self.__class__.__qualname__,
-                 f"Updating mask: {qcnbad} outlier pixels masked: ")
+                 f"Updating mask: {qcnbad} outlier pixels masked")
 
-        # add the individual masks to the cpl mask
-        self.update_mask(badpix_mask, bad_bit, badpix_mask)
+        output.dq.add(mask_hot, Metis.MaskFlags.HOT)
+        output.dq.add(mask_cold, Metis.MaskFlags.COLD)
+        # The flat combination may have rejected pixels of its own; record them
+        # before `reject` overwrites the scratch masks.
+        output.dq.add(output.rejected(), Metis.MaskFlags.BAD)
+        output.reject()
 
-        ## copy bad pixel mask to combined_image before calculating QC parameters
-        self.apply_mask(mflat, badpix_mask, [1,2,4,8])
+        # Reject the same pixels on the local master flat, so that the QC
+        # statistics are computed from the valid pixels only.
+        bad_pixels = output.dq.flatten()
+        mflat.reject_from_mask(bad_pixels)
 
         Msg.info(self.__class__.__qualname__, "Calculating QC parameters")
 
-        
         qcrms = mflat.image.get_stdev()
 
         Msg.info(self.__class__.__qualname__, f"QC FLAT N BADPIX = {qcnbad}")
         Msg.info(self.__class__.__qualname__, f"QC FLAT RMS = {qcrms}")
 
         medians = []
-        # calculate the stats in each individual image
+        # calculate the stats in each individual raw frame (these are not dark-subtracted)
         for im in raw_images:
-            # mask bad pixels before calculations
-            self.apply_mask(im,badpix_mask,[1,2,4,8])
+            im.reject_from_mask(bad_pixels)
             medians.append(im.get_median())
 
-        medians=np.array(medians)
+        medians = np.array(medians)
         qcmedmin = medians.min()
         qcmedmax = medians.max()
         qcmedrms = medians.std()
 
         Msg.info(self.__class__.__qualname__, f"QC FLAT MEDIAN MIN = {qcmedmin}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN MAX = {qcmedmax}")
-        Msg.info(self.__class__.__qualname__, f"QC DARK MEDIAN RMS = {qcmedrms}")
+        Msg.info(self.__class__.__qualname__, f"QC FLAT MEDIAN MAX = {qcmedmax}")
+        Msg.info(self.__class__.__qualname__, f"QC FLAT MEDIAN RMS = {qcmedrms}")
 
-        # now the QC paramters
-
-
-        self.collect_qc_parameters(
+        qc = self.collect_qc_parameters(
             self.Qc.MFlatRms(qcrms),
             self.Qc.MFlatNBadpix(qcnbad),
             #self.Qc.FltMean(qcmean),  #I'm not sure what these are actually supposed to be; DRLD implies per frame, which would mean N of each
@@ -217,15 +219,14 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
             self.Qc.FlatMedianRms(qcmedrms)
         )
 
+        # FixMe: At skeleton level the primary header of the first raw serves as the
+        #        extension header, for all three layers
         header_image = cpl.core.PropertyList.load(self.inputset.raw.frameset[0].file, 0)
-        header_noise = copy.deepcopy(header_image)
-        header_mask = copy.deepcopy(header_image)
+        header_image.append(qc)
+        output.header_image = header_image
+        output.header_error = copy.deepcopy(header_image)   # FixMe this is temporary
+        output.header_dq = copy.deepcopy(header_image)      # FixMe this is temporary
 
-        product = self.ProductSet.MasterFlat(
-            primary_header,
-            Hdu(header_image, mflat.image, name=r'DET1.SCI'),
-            Hdu(header_noise, mflat.error, name=r'DET1.ERR'),
-            Hdu(header_mask, badpix_mask, name=r'DET1.DQ')
-        )
+        product = self.ProductSet.MasterFlat(primary_header, *output.hdus())
 
         return {product}

@@ -49,7 +49,8 @@ from pymetis.instruments.metis.inputs import (BadPixMapInput, MasterDarkInput, R
                                               PersistenceMapInput)
 
 from pymetis.instruments.metis.mixins import DetectorIfuMixin, BandIfuMixin
-from pymetis.instruments.metis.qc.reduce import IfuReduceMeanStray, IfuReduceNbadpix, IfuReduceMeanBkg
+from pymetis.instruments.metis.qc.reduce import IfuReduceMeanStray, IfuReduceMeanBkg
+from pymetis.instruments.metis.qc.rsrf import IfuRsrfNBadPix
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
@@ -106,8 +107,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         BadPixMap = BadPixMapIfu
 
     class Qc(QcParameterSet):
-        # ToDo: DRLD lists "QC IFU RSRF NBADPIX"; the REDUCE parameter is reused here for now.
-        NBadPix = IfuReduceNbadpix
+        NBadPix = IfuRsrfNBadPix
         MeanBkg = IfuReduceMeanBkg
         MeanStray = IfuReduceMeanStray
 

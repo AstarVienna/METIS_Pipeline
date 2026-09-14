@@ -129,7 +129,6 @@ class MultiplePipelineInput(PipelineInput):
 
     def validate(self):
         self._verify_frameset_is_not_empty()
-        self._verify_same_detector()
 
     def _verify_frameset_is_not_empty(self) -> None:
         """
@@ -153,18 +152,6 @@ class MultiplePipelineInput(PipelineInput):
                 Msg.debug(self.__class__.__qualname__, f"No {self.Item.title()} frames found but not required.")
         else:
             Msg.debug(self.__class__.__qualname__, f"Frameset OK: {count} frame{'s' if count > 1 else ''} found")
-
-    def _verify_same_detector(self) -> None:
-        """
-        Verify whether all the raw frames originate from the same detector.
-
-        Raises
-        ------
-        KeyError
-            If the found detector name is not a valid detector name.
-        ValueError
-            If dark frames from more than one detector are found.
-        """
 
     def as_dict(self) -> dict[str, Any]:
         """

@@ -25,7 +25,6 @@ from cpl.core import Msg, Image as CplImage, ImageList as CplImageList
 from hdrl.core import ImageList as HdrlImageList
 
 from pymetis.drl.combine import combine_images
-from pymetis.drl.image import zeros_like
 from pymetis.engine.recipes import RecipeImpl
 from pymetis.engine.inputs import PipelineInputSet
 
@@ -46,74 +45,6 @@ class RawImageProcessor(RecipeImpl, ABC):
 
         raw: RawInput
         bad_pix_map: BadPixMapInput
-
-    @classmethod
-    def apply_mask(cls,
-                   cplImage: cpl.core.Image | hdrl.core.Image,
-                   cplMask: cpl.core.Image,
-                   bits: list) -> cpl.core.Image | hdrl.core.Image:
-        """
-            Given a mask in 32 bit cplImage form, a list of bit values,
-            and an hdrl or cpl image, 
-            extract the bits from the mask, create a cpl mask based on it,
-            and apply to the image. 
-        """
-
-        maskFrame = zeros_like(cplMask, cpl.core.Type.INT)
-
-        # go through, get the required bits and add to the mask frame
-        for bit in bits:
-            temp = cpl.core.Image.zeros_like(cplMask)
-            temp.copy_into(cplMask, 0, 0)
-            temp.and_scalar(bit)
-            maskFrame.add(temp)
-
-        # create a mask object
-        mask = cpl.core.Mask(cplImage.width, cplImage.height)
-        
-        # a bit kludgy, but creating a numpy boolean array with the 
-        # required mask values, then directly assigning it in the way
-        # pycpl accepts indices. TODO get pycpl native way of doing this. 
-        
-        isTrue = maskFrame.as_array().astype(bool)
-        mask[0:temp.width][0:temp.height] = isTrue
-        
-        cplImage.reject_from_mask(mask)
-
-        return cplImage
-
-    @classmethod
-    def update_mask(cls, mask: cpl.core.Mask,
-                    bitVal: int,
-                    cplMask: cpl.core.Image) -> cpl.core.Image:
-
-        """ 
-        given a cpl image mask, and a bit value, add them to a CPL bit mask. 
-
-        If you're starting with an image that has a mask, pass
-
-            image.bpm: for cpl image
-            image.data.bpm for hdrl image
-
-        """
-
-        mask = mask.as_array()
-        
-        #if(isinstance(image,hdrl.core.Image)):
-        #   mask = image.image.bpm.as_array()
-        #else:
-        #   mask = image.bpm.as_array()
-
-        
-        # turn it into a CPL image
-        update = cpl.core.Image(mask,dtype=cpl.core.Type.INT)
-
-        # multiply it by the bit value
-
-        update.multiply_scalar(bitVal)
-        cplMask.add(update)
-        
-        return cplMask
 
     def combine_images(self, images: CplImageList, method: CombineMethodType) -> CplImageList:
         """ Temporary wrapper, use the function directly in the future. """

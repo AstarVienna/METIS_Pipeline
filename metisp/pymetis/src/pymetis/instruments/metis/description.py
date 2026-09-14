@@ -85,7 +85,7 @@ class Metis(InstrumentDescription):
                         ((yy >= cls.border_ifu_y) & (yy < (det_height - cls.border_ifu_y))))
             elif detector in [2, 4]:
                 return (((xx >= 0) & (xx < (det_width - cls.border_ifu_x))) &
-                        ((yy >= cls.border_ifu_y) & (yy < (det_width - cls.border_ifu_y))))
+                        ((yy >= cls.border_ifu_y) & (yy < (det_height - cls.border_ifu_y))))
             else:
                 raise cpl.core.IllegalInputError(f"Detector ID {detector} not recognised")
         else:

@@ -154,6 +154,20 @@ class TestManPageTagResolution:
         assert 'GAIN_MAP_{detector}' in description
 
 
+class TestRegistryHygiene:
+    def test_qc_parameter_base_does_not_register_itself(self):
+        """ The template base is abstract; its placeholder name must not own a key. """
+        from pymetis.engine.qc import QcParameter
+        assert "none" not in QcParameter._registry
+
+    def test_ifu_rsrf_publishes_its_own_nbadpix(self):
+        """ The DRLD lists QC IFU RSRF NBADPIX; the REDUCE parameter was reused before. """
+        from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import MetisIfuRsrf
+        description = MetisIfuRsrf._build_description()
+        assert 'QC IFU RSRF NBADPIX' in description
+        assert 'QC IFU REDUCE NBADPIX' not in description
+
+
 class TestListDataitemsInput:
     def test_finds_inputs_declared_without_a_nested_class(self):
         """ metis_ifu_wavecal binds the module-level DistortionTableInput directly. """

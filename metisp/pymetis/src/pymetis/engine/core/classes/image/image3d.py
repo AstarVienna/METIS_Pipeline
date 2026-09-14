@@ -21,10 +21,8 @@ from typing import Optional, Self
 import hdrl
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
-                      Type as CplType,
                       PropertyList as CplPropertyList,
-                      Mask as CplMask,
-                      Msg)
+                      Mask as CplMask)
 from hdrl.core import (Image as HdrlImage,
                        ImageList as HdrlImageList,)
 

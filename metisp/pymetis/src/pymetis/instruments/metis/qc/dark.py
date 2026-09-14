@@ -65,7 +65,7 @@ class DarkNHotpix(QcParameter):
     _type = int
     _unit = "1"
     _default = None
-    _description_template = "Number of cold pixels in the image mask"
+    _description_template = "Number of hot pixels in the image mask"
 
 
 class DarkMedianMedian(QcParameter):
