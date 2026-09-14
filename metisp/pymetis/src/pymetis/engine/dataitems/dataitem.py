@@ -443,7 +443,6 @@ class DataItem(ParametrizableItem, abstract=True):
             'group': self.frame_group().name,
         }
 
-
     @classmethod
     @final
     def extended_description_line(cls) -> str:
@@ -453,6 +452,13 @@ class DataItem(ParametrizableItem, abstract=True):
         Includes leading space.
         """
         return f"    {cls.name():51s}{cls.description() or '<no description defined>'}"
+
+    @classmethod
+    @final
+    def schema_description(cls) -> str:
+        return '\n'.join(
+            (f"{key:<20}: {('(empty)' if klass is None else f'{klass.__qualname__}'):<20}" for key, klass in cls.schema().items()),
+        )
 
     def __str__(self):
         return f"{self.name()}"

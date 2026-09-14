@@ -58,10 +58,10 @@ class LmMFlatMedian(BandLmMixin, MFlatMedian):
 class NMFlatMedian(BandNMixin, MFlatMedian):
     pass
 
-class LmMFlatNbadpix(BandLmMixin, MFlatNbadpix):
+class LmMFlatNbadpix(BandLmMixin, MFlatNBadpix):
     pass
 
-class NMFlatNbadpix(BandNMixin, MFlatNbadpix):
+class NMFlatNbadpix(BandNMixin, MFlatNBadpix):
     pass
 
 # -------------------------------

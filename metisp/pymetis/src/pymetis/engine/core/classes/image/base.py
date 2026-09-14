@@ -1,5 +1,5 @@
 """
-This file is part of an A* Pipeline.
+This file is part of the METIS Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,8 @@ from typing import Optional, ClassVar, Self
 
 import numpy as np
 import cpl
-import hdrl.core
+import hdrl
+
 from cpl.core import (Image as CplImage,
                       ImageList as CplImageList,
                       Type as CplType,
@@ -206,8 +207,8 @@ class EnhancedImageBase:
             index += 1
 
         def read_layer(
-            suffix: str,
-            pixel_type: CplType = CplType.FLOAT,
+                suffix: str,
+                pixel_type: CplType = CplType.FLOAT,
         ) -> tuple[Optional[CplImage | CplImageList], Optional[CplPropertyList]]:
             extname = f'{prefix}.{suffix}'
             if extname not in extensions:
@@ -313,148 +314,3 @@ class EnhancedImageBase:
         shared across layers and reported once by `__repr__`."""
         kind = (f'ImageList[{len(data)}]' if isinstance(data, CplImageList) else 'Image')
         return f'{name}: {kind}'
-
-
-class EnhancedImage(EnhancedImageBase):
-    """
-    A single 2D enhanced image: a `HdrlImage` (data + error) plus a 2D `Mask`.
-
-    Note that this is not to replace an ImageList! For a genuine stack of frames
-    use :class:`EnhancedImage3D`; for per-pixel coefficient tables and such,
-    that stack is likewise the right home.
-    """
-
-    def __init__(
-            self,
-            image: CplImage,
-            error: Optional[CplImage] = None,
-            dq: Optional[CplImage | CplMask | DataQuality] = None,
-            *,
-            prefix: str,
-            header_image: Optional[CplPropertyList] = None,
-            header_error: Optional[CplPropertyList] = None,
-            header_dq: Optional[CplPropertyList] = None,
-    ):
-        if not isinstance(image, CplImage):
-            raise ValueError(f"Unsupported image type {type(image)}; expected a CplImage")
-
-        dim = self._dimensions(image)
-        if error is None:
-            error = self._zeros_like(image)
-        elif (dims := self._dimensions(error)) != dim:
-            raise hdrl.core.IncompatibleInputError(
-                f"{self.__class__.__name__} '{prefix}': error layer dimensions {dims} "
-                f"do not match the image dimensions {dim}"
-            )
-
-        self.image = HdrlImage(image, error)
-        self._finalize(prefix=prefix, dim=dim, dq=dq,
-                       header_image=header_image, header_error=header_error, header_dq=header_dq)
-
-    @classmethod
-    def from_hdrl(
-            cls,
-            image: HdrlImage,
-            dq: Optional[CplImage | CplMask | DataQuality] = None,
-            *,
-            prefix: str,
-            header_image: Optional[CplPropertyList] = None,
-            header_error: Optional[CplPropertyList] = None,
-            header_dq: Optional[CplPropertyList] = None,
-    ) -> Self:
-        """Pseudo-constructor: create directly from a HDRL image + mask."""
-        return cls(image.image, image.error, dq, prefix=prefix,
-                   header_image=header_image, header_error=header_error, header_dq=header_dq)
-
-    def _sci_data(self) -> CplImage:
-        return self.image.image
-
-    def _err_data(self) -> CplImage:
-        return self.image.error
-
-    def _hdrl_planes(self) -> list[HdrlImage]:
-        return [self.image]
-
-    @classmethod
-    def _layer_type(cls) -> type:
-        return CplImage
-
-
-class EnhancedImage3D(EnhancedImageBase):
-    """
-    A 3D enhanced image: a `HdrlImageList` (a stack of data + error planes)
-    paired with a *single* 2D `Mask` describing the whole stack.
-
-    The stack is the right home for genuine lists of frames as well as things
-    like per-pixel coefficient tables (e.g. a linearity polynomial stack).
-    """
-
-    def __init__(
-            self,
-            images: CplImageList,
-            errors: Optional[CplImageList] = None,
-            dq: Optional[CplImage | CplMask | DataQuality] = None,
-            *,
-            prefix: str,
-            header_image: Optional[CplPropertyList] = None,
-            header_error: Optional[CplPropertyList] = None,
-            header_dq: Optional[CplPropertyList] = None,
-    ):
-        if not isinstance(images, CplImageList):
-            raise ValueError(f"Unsupported image type {type(images)}; expected a CplImageList")
-        if len(images) == 0:
-            raise ValueError("Cannot build an EnhancedImage3D from an empty ImageList")
-
-        dim = self._dimensions(images)
-        if errors is None:
-            # HdrlImageList (unlike HdrlImage) will not accept a None error, so
-            # a matching zero-filled error stack is always synthesised.
-            errors = self._zeros_like(images)
-        else:
-            if (dims := self._dimensions(errors)) != dim:
-                raise hdrl.core.IncompatibleInputError(
-                    f"{self.__class__.__name__} '{prefix}': error layer dimensions {dims} "
-                    f"do not match the image dimensions {dim}"
-                )
-            if len(errors) != len(images):
-                raise hdrl.core.IncompatibleInputError(
-                    f"{self.__class__.__name__} '{prefix}': error stack depth {len(errors)} "
-                    f"does not match the image stack depth {len(images)}"
-                )
-
-        self.image = HdrlImageList(images, errors)
-        self._finalize(prefix=prefix, dim=dim, dq=dq,
-                       header_image=header_image, header_error=header_error, header_dq=header_dq)
-
-    @classmethod
-    def from_hdrl(
-            cls,
-            images: HdrlImageList,
-            dq: Optional[CplImage | CplMask | DataQuality] = None,
-            *,
-            prefix: str,
-            header_image: Optional[CplPropertyList] = None,
-            header_error: Optional[CplPropertyList] = None,
-            header_dq: Optional[CplPropertyList] = None,
-    ) -> Self:
-        """Pseudo-constructor: create directly from a HDRL image list + mask.
-
-        `HdrlImageList` exposes no data/error accessor, so the CPL stacks are
-        rebuilt by iterating its (live) `HdrlImage` planes."""
-        data = CplImageList([plane.image for plane in images])
-        errors = CplImageList([plane.error for plane in images])
-        return cls(data, errors, dq, prefix=prefix,
-                   header_image=header_image, header_error=header_error, header_dq=header_dq)
-
-    def _sci_data(self) -> CplImageList:
-        return CplImageList([plane.image for plane in self.image])
-
-    def _err_data(self) -> CplImageList:
-        return CplImageList([plane.error for plane in self.image])
-
-    def _hdrl_planes(self) -> list[HdrlImage]:
-        return list(self.image)
-
-    @classmethod
-    def _layer_type(cls) -> type:
-        return CplImageList

@@ -209,7 +209,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
         self.collect_qc_parameters(
             self.Qc.MFlatRms(qcrms),
-            self.Qc.MFlatNbadpix(qcnbad),
+            self.Qc.MFlatNBadpix(qcnbad),
             #self.Qc.FltMean(qcmean),  #I'm not sure what these are actually supposed to be; DRLD implies per frame, which would mean N of each
             #self.Qc.FlatRms(qcnbad),  #TODO
             self.Qc.FlatMedianMin(qcmedmin),
