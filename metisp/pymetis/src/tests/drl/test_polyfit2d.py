@@ -8,7 +8,7 @@ the evaluator, and the guards against an underdetermined or malformed request.
 import numpy as np
 import pytest
 
-from pymetis.engine.core.functions.polyfit2d import (polyfit2d, polyscale2d,
+from pymetis.drl.polyfit2d import (polyfit2d, polyscale2d,
                                                      polyshift2d, polyval2d_safe)
 
 

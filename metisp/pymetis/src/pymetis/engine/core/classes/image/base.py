@@ -153,10 +153,6 @@ class EnhancedImageBase:
             f'{prefix}.{cls.dq_suffix}': CplImage,   # the DQ layer is always a single 2D image
         }
 
-    def get_schema(self) -> dict[str, type]:
-        """ Schema for instances """
-        return self.schema(self.prefix)
-
     # ---- IO ----
 
     def hdus(self) -> list[Hdu]:

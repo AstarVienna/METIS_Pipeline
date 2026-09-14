@@ -27,7 +27,7 @@ from numpy._typing import NDArray
 
 from pymetis.engine.core.classes.image import EnhancedImage3D
 from pymetis.engine.core.classes.utilities import Stopwatch
-from pymetis.engine.core.functions.polyfit import weighted_polyfit
+from pymetis.drl.polyfit import weighted_polyfit
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header

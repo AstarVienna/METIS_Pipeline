@@ -25,7 +25,6 @@ from astropy.utils import classproperty
 
 from ..core.parameter import ParameterList
 from ..dataitems import DataItem
-from ..qc import QcParameter
 from ..recipes.impl import RecipeImpl
 from ..inputs import PipelineInput
 
@@ -114,14 +113,6 @@ class Recipe(cpl.ui.PyRecipe):
     @classmethod
     def _list_inputs(cls) -> list[tuple[str, type[PipelineInput]]]:
         return cls.Impl.InputSet.list_input_classes()
-
-    @classmethod
-    def _list_products(cls) -> list[tuple[str, type[DataItem]]]:
-        return cls.Impl.ProductSet.list_classes()
-
-    @classmethod
-    def _list_qc_parameters(cls) -> list[tuple[str, type[QcParameter]]]:
-        return cls.Impl.Qc.list_classes()
 
     @staticmethod
     def _format_spacing(text: str, title: str, offset: int = 4) -> str:

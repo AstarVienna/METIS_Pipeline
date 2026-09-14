@@ -202,7 +202,11 @@ class DataItem(ParametrizableItem, abstract=True):
         Loads all the headers and makes them available via their `EXTNAME`.
         Does not load the actual pixel data / table. For that, see `load_data`.
         """
-        klass = cls.find(frame.tag)
+        # The input usually hands over the class already matched to the tag.
+        klass = cls if cls.name() == frame.tag else cls.find(frame.tag)
+        if klass is None:
+            raise cpl.core.DataNotFoundError(
+                f"No data item class is registered for the tag '{frame.tag}' of {frame.file}")
         Msg.debug(cls.__qualname__, f"Now loading data item {frame.file}")
 
         #Msg.info(cls.__qualname__,
@@ -455,30 +459,15 @@ class DataItem(ParametrizableItem, abstract=True):
 
     @classmethod
     @final
-    def schema_description(cls) -> str:
-        return '\n'.join(
-            (f"{key:<20}: {('(empty)' if klass is None else f'{klass.__qualname__}'):<20}" for key, klass in cls.schema().items()),
-        )
-
     def __str__(self):
         return f"{self.name()}"
 
     def __repr__(self):
         return f"<DataItem {self.name()}>"
 
-    def __getitem__(self, item: int | str) -> Hdu:
+    def __getitem__(self, item: str) -> Hdu:
         """
-        Get an extension from this data item.
-
-        Can be indexed by int or string (in which case 'EXTNAME' will be matched)
-
-        Parameters
-        ----------
-        item: int | str
-
-        Returns
-        -------
-        tuple[str, Optional[Image | Table]]
+        Get an extension from this data item by its 'EXTNAME'.
 
         Raises
         ------
@@ -486,19 +475,7 @@ class DataItem(ParametrizableItem, abstract=True):
             If the item is not a recognized extension.
         """
         try:
-            if isinstance(item, str):
-                return self._hdus[item]
-            elif isinstance(item, int):
-                return self._hdus[self.get_name(item)]
-            else:
-                raise TypeError(f"Invalid HDU {item} ({type(item)} in {self.filename}. "
-                                f"Available HDUs are {self._hdus.keys()})")
+            return self._hdus[item]
         except KeyError as e:
             raise KeyError(f"HDU '{item}' not found in {self.filename}. "
                            f"Available HDUs are {list(self._hdus.keys())}") from e
-
-    def get_name(self, index: int) -> str:
-        for name, hdu in self._hdus.items():
-            if self._hdus[name].extno == index:
-                return name
-        raise KeyError(f"HDU '{index}' not found in {self.filename}")

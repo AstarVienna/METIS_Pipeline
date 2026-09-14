@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, final, Union, ClassVar
+from typing import Any, final, Union, ClassVar
 
 import cpl
 from cpl.core import Msg
@@ -39,7 +39,6 @@ class PipelineInput(ABC):
     Item: ClassVar[type[DataItem]] = None   # No universal data item inside
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
-    _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
 
     _multiplicity: ClassVar[str] = None     # Multiplicity of the input, '1' or 'N'
 
@@ -152,13 +151,6 @@ class PipelineInput(ABC):
         """
         Load the actual data content and return it.
         """
-
-    def print_debug(self, *, offset: int = 0) -> None:
-        """
-        Print a short description of the tags, optionally with a small offset (N spaces).
-        """
-        Msg.debug(self.__class__.__qualname__,
-                  str(self.Item))
 
     def as_dict(self) -> dict[str, Any]:
         return {

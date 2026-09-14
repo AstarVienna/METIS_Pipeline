@@ -90,22 +90,23 @@ class RecipeImpl(Parametrizable, ABC):
         """
         Specialize the recipe implementation to the current class parameters.
 
-        Each Impl gets its own private ProductSet / Qc subclass exactly once, so that
-        specializing it cannot leak into a prefab parent shared with sibling recipes,
-        and repeated calls (e.g. repeated man-page rendering) do not grow the MRO.
+        Each Impl is given its own specialized ProductSet / Qc (a new subclass built
+        by `ParametrizableContainer.specialized`; the declared container is never
+        mutated, so nothing leaks into a prefab parent shared with sibling recipes).
+        Repeated calls, e.g. repeated man-page rendering, find the work done.
         """
         Msg.debug(cls.__qualname__, f"Specializing Implementation {cls.__qualname__} with {cls.tag_parameters()}")
 
         # InputSet is deliberately not in this loop yet: specializing it changes the
         # frame-matching semantics of every recipe, which needs validation against
-        # real SOF data first. PipelineInputSet.specialize is ready when that lands.
+        # real SOF data first. PipelineInputSet.specialized is ready when that lands.
         for name in ("ProductSet", "Qc"):
-            if name not in cls.__dict__:
-                container = type(name, (getattr(cls, name),), {})
-                container.__qualname__ = f"{cls.__qualname__}.{name}"
-                container.__module__ = cls.__module__
-                setattr(cls, name, container)
-            getattr(cls, name).specialize(**cls.tag_parameters())
+            container = getattr(cls, name)
+            if getattr(container, '_specialized_for', None) is cls:
+                continue
+            specialized = container.specialized(**cls.tag_parameters())
+            specialized._specialized_for = cls
+            setattr(cls, name, specialized)
 
     def run(self) -> cpl.ui.FrameSet:
         """

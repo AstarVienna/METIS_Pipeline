@@ -7,7 +7,7 @@ covariance correctness, and handling of singular pixels.
 """
 import numpy as np
 
-from pymetis.engine.core.functions.polyfit import weighted_polyfit
+from pymetis.drl.polyfit import weighted_polyfit
 
 
 def single_pixel(x, y, w, deg):

@@ -97,25 +97,24 @@ class TestSpecializeAndPromote:
     annotations -- the machinery mirrors ProductSet's, adapted to inputs.
     """
 
-    def test_specialize_rebinds_the_item_to_the_registered_class(self):
+    def test_specialized_rebinds_the_item_to_the_registered_class(self):
         class InputSet(PipelineInputSet):
             master_dark: MasterDarkInput
 
-        InputSet.specialize(detector='IFU')
+        Specialized = InputSet.specialized(detector='IFU')
 
-        specialized = dict(InputSet.list_input_classes())['master_dark']
+        specialized = dict(Specialized.list_input_classes())['master_dark']
         assert specialized.Item is MasterDarkIfu
         assert issubclass(specialized, MasterDarkInput)
-        # the shared module-level input class is untouched
+        # neither the declaring input set nor the shared input class is touched
+        assert dict(InputSet.list_input_classes())['master_dark'] is MasterDarkInput
         assert MasterDarkInput.Item is MasterDark
 
-    def test_specialize_without_matching_parameters_changes_nothing(self):
+    def test_specialized_without_matching_parameters_is_the_class_itself(self):
         class InputSet(PipelineInputSet):
             master_dark: MasterDarkInput
 
-        InputSet.specialize(target='SCI')
-
-        assert dict(InputSet.list_input_classes())['master_dark'] is MasterDarkInput
+        assert InputSet.specialized(target='SCI') is InputSet
 
     def test_promoted_returns_a_subclass_and_does_not_mutate(self):
         class InputSet(PipelineInputSet):

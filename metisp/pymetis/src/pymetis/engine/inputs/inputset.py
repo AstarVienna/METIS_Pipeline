@@ -25,7 +25,6 @@ from typing import Any
 import cpl
 from cpl.core import Msg
 
-from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.core.parametrizable import ParametrizableContainer
 from pymetis.engine.dataitems.dataitem import DataItem
 from pymetis.engine.inputs.input import PipelineInput
@@ -163,39 +162,35 @@ class PipelineInputSet(ParametrizableContainer):
         return new_input
 
     @classmethod
-    def specialize(cls, **parameters) -> None:
+    def specialized(cls, **parameters) -> type['PipelineInputSet']:
         """
-        Specialize this input set statically: resolve every input's `Item` under
-        `parameters` and rebind the annotation to an input subclass carrying it.
+        A new subclass of this input set with every input's `Item` specialized
+        statically under `parameters` (see `ParametrizableItem.specialized`), or
+        `cls` itself when the parameters resolve nothing.
 
-        Unlike `ParametrizableContainer.specialize`, the rebinding goes through the
-        class's own `__annotations__` -- inputs are declared by annotation, and a
-        bare class member without one is exactly what
-        `_verify_all_inputs_are_declared` rejects.
+        Unlike `ParametrizableContainer.specialized`, the rebinding goes through the
+        subclass's `__annotations__` -- inputs are declared by annotation, and a bare
+        class member without one is exactly what `_verify_all_inputs_are_declared`
+        rejects. Neither `cls` nor its inputs are mutated.
         """
         Msg.debug(cls.__qualname__,
                   f"Specializing {cls.__qualname__} with {parameters} | {cls.tag_parameters()}")
 
         rebound = {}
         for attr, input_class in cls.list_input_classes():
-            item_class = input_class.Item
-            tag = partial_format(item_class._name_template,
-                                 **(item_class.tag_parameters() | parameters))
-            if tag == item_class._name_template:
-                # The parameters resolve nothing in this item's tag: leave the
-                # declaration alone rather than binding a pointless clone.
-                continue
-            item = cls._specialized_item(attr, item_class, **parameters)
-            rebound[attr] = cls._bind_input(input_class, item)
+            item = input_class.Item.specialized(**parameters)
+            if item is not input_class.Item:
+                rebound[attr] = cls._bind_input(input_class, item)
 
-        if rebound:
-            cls.__annotations__ = inspect.get_annotations(cls) | rebound
+        if not rebound:
+            return cls
+        return cls._derived({'__annotations__': rebound, '_specialized_from': cls})
 
     @classmethod
     def promoted(cls, **parameters) -> type['PipelineInputSet']:
         """
         Return a new subclass of this input set with every input's `Item` resolved
-        to the concrete registered class matching its fully formatted tag. Mirrors
+        to the concrete class matching its fully formatted tag. Mirrors
         `ParametrizableContainer.promoted`, rebinding via annotations; `cls` itself
         is never mutated.
 
@@ -207,21 +202,16 @@ class PipelineInputSet(ParametrizableContainer):
 
         resolved = {}
         for attr, input_class in cls.list_input_classes():
-            item = input_class.Item
-            tag = partial_format(item._name_template,
-                                 **(item.tag_parameters() | parameters))
-            new_item = cls.Meta._T.find(tag)
-            if new_item is None:
+            candidate = input_class.Item.specialized(**parameters)
+            tag = candidate.name()
+            new_item = cls.Meta._T.find(tag) or candidate
+            if '{' in tag or new_item._abstract:
                 raise TypeError(
-                    f"Could not promote {input_class.__qualname__}: "
-                    f"tag '{tag}' is not registered. "
-                    f"Known tags: {cls.Meta._T._registry}")
+                    f"Could not promote {input_class.__qualname__} with {parameters}: "
+                    f"no concrete data item owns the tag '{tag}'.")
             resolved[attr] = cls._bind_input(input_class, new_item)
 
-        promoted_cls = type(cls.__name__, (cls,), {'__annotations__': resolved})
-        promoted_cls.__qualname__ = cls.__qualname__
-        promoted_cls.__module__ = cls.__module__
-        return promoted_cls
+        return cls._derived({'__annotations__': resolved})
 
     @classmethod
     def list_descriptions(cls) -> str:

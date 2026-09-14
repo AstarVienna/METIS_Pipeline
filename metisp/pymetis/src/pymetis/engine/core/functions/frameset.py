@@ -40,33 +40,6 @@ def preprocess_frameset(frameset: cpl.ui.FrameSet) -> dict[str, cpl.ui.FrameSet]
     }
 
 
-def represent_frameset(frameset: cpl.ui.FrameSet) -> dict[str, str]:
-    """
-    Convert a SOF (which is a `list[tuple[filename, tag]]`) to a mapping `filename: tag`
-    """
-    return {
-        frame.filename: frame.tag
-        for frame in frameset
-    }
-
-
-def from_filenames(frames: dict[str, str]) -> cpl.ui.FrameSet:
-    """
-    Create a CPL FrameSet from a mapping `{filename: tag}`
-
-    Warning: This is not all-powerful! Python will not allow you to reuse
-    the same file with multiple tags unlike with `from_tags`!
-    Consider using `from_tags` if possible.
-    """
-    return cpl.ui.FrameSet([
-        cpl.ui.Frame(os.path.expandvars(frame),
-                     group=cpl.ui.Frame.FrameGroup.RAW,
-                     level=cpl.ui.Frame.FrameLevel.NONE,
-                     tag=tag)
-        for frame, tag in frames.items()
-    ])
-
-
 def from_tags(**tagged: dict[str, list[str]]) -> cpl.ui.FrameSet:
     """
     Create a CPL FrameSet from kwargs in format `{tag: list[filename]}`.
