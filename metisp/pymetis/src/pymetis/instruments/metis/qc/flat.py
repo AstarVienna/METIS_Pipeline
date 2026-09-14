@@ -36,7 +36,7 @@ class MFlatMedian(QcParameter):
     _unit = "Counts"
     _description_template = "Median of the {band} master flat"
 
-class MFlatNbadpix(QcParameter):
+class MFlatNBadpix(QcParameter):
     _name_template = "QC {band} MFLAT NBADPIX"
     _type = int
     _unit = None
