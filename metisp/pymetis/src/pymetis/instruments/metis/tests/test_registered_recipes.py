@@ -79,10 +79,13 @@ class TestRecipeMetadata:
     def test_description_can_be_built(self, recipe):
         assert recipe._build_description() is not None
 
-    def test_has_a_product_set_and_qc_parameters(self, recipe):
+    def test_has_a_product_set(self, recipe):
         assert recipe.Impl.ProductSet is not None, f"{recipe._name} has no ProductSet"
+        assert isinstance(recipe._list_products(), list)
+
+    def test_has_a_qc_parameter_set(self, recipe):
         assert recipe.Impl.Qc is not None, f"{recipe._name} has no QcParameterSet"
-        assert isinstance(recipe.Impl.Qc.list_classes(), list)
+        assert isinstance(recipe._list_qc_parameters(), list)
 
     @pytest.mark.inputset
     def test_input_set_is_a_concrete_pipeline_input_set(self, recipe):
