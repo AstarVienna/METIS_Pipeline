@@ -58,7 +58,7 @@ class DataItem(ParametrizableItem, abstract=True):
     _frame_level: cpl.ui.Frame.FrameLevel = None    # No sensible default; must be provided explicitly
     _frame_type: cpl.ui.Frame.FrameType = None      # Specialised for image / table / multi-extension data
 
-    _oca_keywords: set[str] = set()                 # Set of OCA keywords
+    _oca_keywords: frozenset[str] = frozenset()     # Set of OCA keywords
 
     # HDU schema: a dict of types or None
     # By default, only the primary header is present

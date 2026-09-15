@@ -58,6 +58,7 @@ class IfuRsrfBackground(DetectorIfuMixin, ImageDataItem):
     _description_template = "2D relative spectral response function background"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    # FixMe no OCA keywords: the DRLD has no card for this item
 
     _schema = {
         'PRIMARY': None,

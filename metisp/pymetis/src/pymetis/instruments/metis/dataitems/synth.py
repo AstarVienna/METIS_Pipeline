@@ -29,6 +29,7 @@ class SynthTrans(TableDataItem, abstract=True):
     _description_template = "Synthetic {band} transmission used for default telluric correction of STD stars"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = frozenset({'PRO.CATG'})
 
 
 class LmSynthTrans(BandLmMixin, SynthTrans):
@@ -49,6 +50,7 @@ class LssSynthTrans(TableDataItem, abstract=True):
                              "for telluric correction of flux standard stars.")
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = frozenset({'PRO.CATG'})
 
 
 class LmLssSynthTrans(BandLmMixin, LssSynthTrans):
@@ -56,6 +58,6 @@ class LmLssSynthTrans(BandLmMixin, LssSynthTrans):
 
 
 class NLssSynthTrans(BandNMixin, LssSynthTrans):
-    pass
+    _oca_keywords = LssSynthTrans._oca_keywords | frozenset({'DRS.SLIT'})
 
 

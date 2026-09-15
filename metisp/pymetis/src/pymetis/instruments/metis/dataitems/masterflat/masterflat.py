@@ -64,6 +64,7 @@ class MasterImgFlat(ImageDataItem, abstract=True):
     _description_template = "Master flat frame for {band} data"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
     _schema = {
         'PRIMARY': None,

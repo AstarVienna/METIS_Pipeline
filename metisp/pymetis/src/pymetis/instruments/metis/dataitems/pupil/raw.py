@@ -29,6 +29,8 @@ class PupilRaw(ImageDataItem, abstract=True):
     _description_template = "Raw exposure of the pupil in {band} image mode."
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
+                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.PUPIL'})
 
 
 class LmPupilRaw(BandLmMixin, PupilRaw):
