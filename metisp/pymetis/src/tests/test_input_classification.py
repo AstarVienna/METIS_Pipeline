@@ -37,3 +37,23 @@ class TestInputClassification:
         loaded both in turn and silently kept whichever came last. """
         with pytest.raises(cpl.core.IllegalInputError, match='MASTER_DARK_2RG.*MASTER_DARK_GEO'):
             MasterDarkInput(frameset(tmp_path, 'MASTER_DARK_2RG', 'MASTER_DARK_GEO'))
+
+
+class TestFrameRole:
+    """ The CPL frame group stamped on loaded frames is the input's role in the recipe,
+    not the item's origin: a pipeline product is RAW to the recipe that reduces it. """
+
+    def test_a_raw_input_stamps_raw(self, tmp_path):
+        from pymetis.instruments.metis.recipes.metis_det_dark import MetisDetDarkImpl
+        inp = MetisDetDarkImpl.InputSet.RawInput(frameset(tmp_path, 'DARK_2RG_RAW', 'DARK_2RG_RAW'))
+        assert {frame.group for frame in inp.frameset} == {cpl.ui.Frame.FrameGroup.RAW}
+
+    def test_a_calibration_input_stamps_calib(self, tmp_path):
+        inp = MasterDarkInput(frameset(tmp_path, 'MASTER_DARK_2RG'))
+        assert inp.frame.group == cpl.ui.Frame.FrameGroup.CALIB
+
+    def test_a_product_reduced_by_the_next_recipe_is_its_raw_frame(self, tmp_path):
+        from pymetis.instruments.metis.recipes.n_img.metis_n_img_restore import MetisNImgRestoreImpl
+        inp = MetisNImgRestoreImpl.InputSet.CalibratedInput(frameset(tmp_path, 'N_SCI_CALIBRATED'))
+        assert inp.Item.frame_group() == cpl.ui.Frame.FrameGroup.PRODUCT
+        assert inp.frame.group == cpl.ui.Frame.FrameGroup.RAW

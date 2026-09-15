@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
@@ -32,7 +32,7 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
-        class LssSciFlux1dInput(SinglePipelineInput):
+        class LssSciFlux1dInput(PrimaryInputMixin, SinglePipelineInput):
             Item = LssSciFlux1d
 
         # Alternative (Path #3 in DRLD Section CritAlg)

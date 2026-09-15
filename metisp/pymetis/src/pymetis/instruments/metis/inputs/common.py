@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from pymetis.engine.inputs import SinglePipelineInput, MultiplePipelineInput
-from pymetis.engine.inputs.mixins import OptionalInputMixin
+from pymetis.engine.inputs.mixins import OptionalInputMixin, PrimaryInputMixin
 
 from pymetis.instruments.metis.dataitems.common import (PersistenceMap, FluxCalTable, PinholeTable,
                                                         AtmProfile, LsfKernel, FluxStdCatalog,
@@ -58,7 +58,7 @@ You can override class attributes:
 """
 
 
-class RawInput(MultiplePipelineInput, ABC):
+class RawInput(PrimaryInputMixin, MultiplePipelineInput, ABC):
     Item = Raw
 
 

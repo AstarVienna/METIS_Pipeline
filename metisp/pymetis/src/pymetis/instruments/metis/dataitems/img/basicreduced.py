@@ -70,7 +70,7 @@ class Calibrated(ImageDataItem, abstract=True):
     _description_template = 'Calibrated {band} {target}'
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _frame_group = cpl.ui.Frame.FrameGroup.RAW  # This actually has to be raw as it is "primary input" (rite-of-passage)
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
     _schema = {

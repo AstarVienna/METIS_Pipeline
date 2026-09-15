@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+import cpl
+
 from abc import ABC
 
 from pymetis.engine.inputs import PipelineInput
@@ -27,3 +29,13 @@ class OptionalInputMixin(PipelineInput, ABC):
     Prefer using this to setting `_required = False` directly in the class.
     """
     _required = False
+
+
+class PrimaryInputMixin(PipelineInput, ABC):
+    """
+    Mixin for the input a recipe actually reduces, as opposed to the calibrations it
+    applies: its frames are stamped `FrameGroup.RAW`, so CPL DFS inherits the product
+    header from them and lists them as the raw frames of the product. Instrument raws
+    and pipeline products alike may play this role.
+    """
+    _group = cpl.ui.Frame.FrameGroup.RAW

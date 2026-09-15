@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
@@ -58,7 +58,7 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         class RawInput(RawInput):
             Item = IfuRaw
 
-        class CombinedInput(SinglePipelineInput):
+        class CombinedInput(PrimaryInputMixin, SinglePipelineInput):
             Item = IfuCombined
 
         raw: RawInput

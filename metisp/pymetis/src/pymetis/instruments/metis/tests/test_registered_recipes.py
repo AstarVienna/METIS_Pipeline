@@ -111,6 +111,12 @@ class TestDeclaredProducts:
         assert product.frame_level() is not None, f"{product.__qualname__} has no frame level"
         assert product.frame_type() is not None, f"{product.__qualname__} has no frame type"
 
+    def test_a_product_is_never_raw_data(self, product):
+        """ An item's frame group is its origin; the role its frames play in a consuming
+        recipe (RAW or CALIB) belongs to that recipe's input declaration instead. """
+        assert product.frame_group() != cpl.ui.Frame.FrameGroup.RAW, \
+            f"{product.__qualname__} is produced by a recipe but declares itself RAW"
+
     def test_frame_type_matches_the_item_kind(self, product):
         if issubclass(product, ImageDataItem):
             assert product.frame_type() == cpl.ui.Frame.FrameType.IMAGE, \

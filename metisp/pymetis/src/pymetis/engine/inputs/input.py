@@ -42,6 +42,14 @@ class PipelineInput(ABC):
 
     _multiplicity: ClassVar[str] = None     # Multiplicity of the input, '1' or 'N'
 
+    # The role of the frames in *this* recipe, stamped on them when loaded: RAW for the
+    # frames being reduced (CPL DFS inherits the product header from the first of them),
+    # CALIB for everything applied to them. This is a property of the input, not of the
+    # item: a science product is a calibration to one recipe and the raw material of the
+    # next. The item's own frame group describes its origin (instrument data, calibration,
+    # pipeline product) and is used when it is saved.
+    _group: ClassVar[cpl.ui.Frame.FrameGroup] = cpl.ui.Frame.FrameGroup.CALIB
+
     def load_frameset(self, frameset: cpl.ui.FrameSet) -> None:
         """
         Load the associated frames.

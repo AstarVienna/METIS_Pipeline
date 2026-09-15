@@ -336,11 +336,9 @@ class DataItem(ParametrizableItem, abstract=True):
         but derived classes are more than welcome to add their own stuff.
         Do not forget to call super().add_properties() then.
         """
-        # Some data products actually have FrameGroup RAW because they are
-        # input to other recipes (to prevent the cryptic empty set-of-frames
-        # error from CPL.) Labeling products as Raw might or might not be a
-        # good idea, but those products need to be saved correctly nonetheless,
-        # so the category is set for every data item regardless of its group.
+        # The category is set for every data item regardless of its frame group:
+        # the group describes the item's origin, and a raw item may still be saved
+        # (e.g. a re-tagged copy).
         Msg.debug(self.__class__.__qualname__,
                   f"Setting ESO PRO CATG to {self.name()} ({self.frame_group()})")
         if "ESO PRO CATG" in self.primary_header:

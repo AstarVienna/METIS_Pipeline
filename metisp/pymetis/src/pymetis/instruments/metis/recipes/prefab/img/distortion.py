@@ -20,7 +20,7 @@ import copy
 from abc import ABC
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.inputs import MultiplePipelineInput
+from pymetis.engine.inputs import MultiplePipelineInput, PrimaryInputMixin
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_image, create_dummy_header
 
@@ -42,7 +42,7 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class DistortionInput(MultiplePipelineInput):
+        class DistortionInput(PrimaryInputMixin, MultiplePipelineInput):
             Item = DistortionRaw
 
         raw: RawInput

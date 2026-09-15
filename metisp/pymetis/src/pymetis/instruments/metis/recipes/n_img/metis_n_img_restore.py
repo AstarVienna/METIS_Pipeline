@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterValue
 from pymetis.engine.core.functions.dummy import create_dummy_image
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 
 from pymetis.instruments.metis.dataitems.img.basicreduced import NSciCalibrated, NSciRestored
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
@@ -29,7 +29,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 class MetisNImgRestoreImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class CalibratedInput(SinglePipelineInput):
+        class CalibratedInput(PrimaryInputMixin, SinglePipelineInput):
             Item = NSciCalibrated
 
         calibrated: CalibratedInput

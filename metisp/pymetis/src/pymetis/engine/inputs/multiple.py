@@ -114,13 +114,13 @@ class MultiplePipelineInput(PipelineInput):
         frameset = cpl.ui.FrameSet()
 
         for frame in self.frameset:
-            frame.group = self.Item.frame_group()
+            frame.group = self._group
             frame.level = self.Item.frame_level()
             frame.type = self.Item.frame_type()
 
             Msg.debug(self.__class__.__qualname__,
                       f"Setting CPL attributes: "
-                      f"{self.Item.frame_group()} "
+                      f"{self._group} "
                       f"{self.Item.frame_level()} "
                       f"{self.Item.frame_type()}")
             frameset.append(frame)

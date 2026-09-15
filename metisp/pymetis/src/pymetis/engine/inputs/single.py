@@ -80,11 +80,11 @@ class SinglePipelineInput(PipelineInput):
         return self.item.load_data(extension)
 
     def set_cpl_attributes(self):
-        self.frame.group = self.Item.frame_group()
+        self.frame.group = self._group
         self.frame.level = self.Item.frame_level()
         self.frame.type = self.Item.frame_type()
         Msg.debug(self.__class__.__qualname__,
-                  f"Set CPL attributes: {self.Item.frame_group()} {self.Item.frame_level()} {self.Item.frame_type()}")
+                  f"Set CPL attributes: {self._group} {self.Item.frame_level()} {self.Item.frame_type()}")
 
     def validate(self):
         """
