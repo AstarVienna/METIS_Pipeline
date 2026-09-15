@@ -45,12 +45,24 @@ class ParametrizableMeta(ABCMeta):
         cls = super().__new__(mcs, name, bases, namespace)
         cls._abstract = abstract
 
-        # Reject tag keywords that are not declared in `_valid_tags` (if any are declared):
-        # a typo like `bnad='LM'` would otherwise silently create a class that never matches.
+        template = namespace.get("_name_template")
+        if template is None:
+            template = next(
+                (b.__dict__["_name_template"] for b in cls.__mro__[1:]
+                 if b.__dict__.get("_name_template") is not None),
+                None,
+            )
+
+        # Reject keywords that are neither declared tags (`_valid_tags`, if any are declared)
+        # nor placeholders of this very name template: a typo like `bnad='LM'` would
+        # otherwise silently create a class that never matches. The second kind are
+        # indices such as `LCOEFF{order}`, filled per value rather than from the data.
         if kwargs and (valid := getattr(cls, "_valid_tags", frozenset())):
-            if unknown := set(kwargs) - set(valid):
+            placeholders = set(re.findall(r'\{(\w+)\}', template or ''))
+            if unknown := set(kwargs) - set(valid) - placeholders:
                 raise TypeError(f"{name}: unknown tag parameter(s) {sorted(unknown)}, "
-                                f"valid tags are {sorted(valid)}")
+                                f"valid tags are {sorted(valid)}"
+                                f"{f' and the placeholders of {template!r}' if placeholders else ''}")
 
         # Merge tag parameters from MRO + class kwargs
         merged = {}
@@ -62,13 +74,6 @@ class ParametrizableMeta(ABCMeta):
         cls._tag_parameters = merged
 
         # Resolve template against known parameters
-        template = namespace.get("_name_template")
-        if template is None:
-            template = next(
-                (b.__dict__["_name_template"] for b in cls.__mro__[1:]
-                 if b.__dict__.get("_name_template") is not None),
-                None,
-            )
         if template is not None and merged:
             cls._name_template = partial_format(template, **merged)
 

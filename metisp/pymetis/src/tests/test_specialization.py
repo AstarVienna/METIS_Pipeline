@@ -127,12 +127,23 @@ class TestIndexedQcParameters:
     EDPS when promotion treated it as an unresolved tag). """
 
     def test_promotion_keeps_index_placeholders(self):
-        """ How the index is eventually filled (`order` is not a tag keyword, so class
-        specialization refuses it) is still open; no recipe emits such a value yet. """
         from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_trace import MetisLmLssTraceImpl
         promoted = MetisLmLssTraceImpl.Qc.promoted()
         assert promoted.LCoeff.name() == 'QC LM LSS TRACE LCOEFF{order}'
         assert not promoted.LCoeff._abstract
+
+    def test_an_index_is_filled_per_value(self):
+        """ `order` is not a tag keyword, but it is a placeholder of this very name, so
+        specialization accepts it; how many orders there will be is only known at run time. """
+        from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_trace import MetisLmLssTraceImpl
+        coefficient = MetisLmLssTraceImpl.Qc.LCoeff.specialized(order=2)
+        assert coefficient.name() == 'QC LM LSS TRACE LCOEFF2'
+        assert coefficient(1.0).value == 1.0
+
+    def test_a_typo_is_still_refused(self):
+        with pytest.raises(TypeError, match="unknown tag parameter"):
+            class Typo(MasterDark, bnad='LM'):   # noqa: F841
+                pass
 
     def test_promotion_still_requires_every_tag(self):
         from pymetis.instruments.metis.recipes.prefab.lss.trace import MetisLssTraceImpl
