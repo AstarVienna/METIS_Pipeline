@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 """
-Render DRLD data-item cards from the pymetis data item catalogue.
+Render DRLD cards from the pymetis catalogue: one data-item card per registered, fully
+resolved `DataItem` class and one recipe card per registered `Recipe`.
 
-Every registered, fully resolved `DataItem` class becomes one LaTeX card, filled
-from the class itself (name, description, OCA keywords, HDU structure) and from the
-recipes that produce or consume it (derived from their `ProductSet`s and
-`InputSet`s). The Jinja2 template `dataitem.tex` uses LaTeX-friendly delimiters:
-`(* expression *)`, `(% block %)` and `(# comment #)`.
+Everything on a card comes from the code -- the item classes themselves (name,
+description, OCA keywords, HDU structure, kind) and the recipes' `InputSet`s,
+`ProductSet`s, `Qc` sets and parameters. The Jinja2 templates `dataitem.tex` and
+`recipe.tex` use LaTeX-friendly delimiters: `(* expression *)`, `(% block %)` and
+`(# comment #)`.
 
 Run from an environment where pymetis is importable, e.g.
 
     python drld/generate_drld.py --list
-    python drld/generate_drld.py MASTER_IMG_FLAT_LAMP_LM
-    python drld/generate_drld.py --all --output build/dataitems
+    python drld/generate_drld.py MASTER_IMG_FLAT_LAMP_LM metis_lm_img_flat
+    python drld/generate_drld.py --all --output build/drld
 """
 
 import argparse
@@ -48,9 +49,9 @@ LATEX_SPECIALS = {
 
 @dataclass
 class Card:
-    """ Everything the template needs for one data item. """
+    """ Everything the data-item template needs for one item. """
     name: str
-    macro: str                      # RAW, PROD or EXTCALIB, as used in the DRLD paragraphs
+    macro: str                      # RAW, PROD, EXTCALIB or STATCALIB, as used in the DRLD paragraphs
     description: str
     oca_keywords: list[str]
     created_by: list[str] = field(default_factory=list)
@@ -62,12 +63,27 @@ class Card:
         return self.macro == 'RAW'
 
 
+@dataclass
+class RecipeCard:
+    """ Everything the recipe template needs for one recipe; rows are ready-made LaTeX. """
+    name: str
+    synopsis: str
+    inputs: list[str]
+    matched_keywords: list[str]
+    parameters: list[str]
+    algorithm: list[str]
+    outputs: list[str]
+    qc_parameters: list[str]
+
+
 def latex(text: str) -> str:
     """ Escape free text for LaTeX. Tags inside \\PROD{} and friends are left alone. """
     return ''.join(LATEX_SPECIALS.get(char, char) for char in str(text))
 
 
-def fits_keywords(keywords: list[str]) -> str:
+def fits_keywords(keywords) -> str:
+    if isinstance(keywords, str):
+        keywords = [keywords]
     return ', '.join(rf'\FITS{{{keyword}}}' for keyword in keywords)
 
 
@@ -77,92 +93,128 @@ def template_pattern(template: str) -> re.Pattern:
     return re.compile('^' + re.sub(r'\\\{\w+\\\}', '[A-Z0-9]+', escaped) + '$')
 
 
-def resolved_items() -> dict[str, type[DataItem]]:
-    """ The catalogue: registered data items whose tag carries no placeholder. """
-    return {tag: item for tag, item in sorted(DataItem._registry.items()) if '{' not in tag}
+class Catalogue:
+    """ The registered, fully resolved data items and the recipes that create and consume them. """
 
+    def __init__(self):
+        self.items: dict[str, type[DataItem]] = {
+            tag: item for tag, item in sorted(DataItem._registry.items()) if '{' not in tag
+        }
+        self.recipes: dict[str, type[Recipe]] = dict(sorted(Recipe._registry.items()))
+        self.created_by: dict[str, set[str]] = {tag: set() for tag in self.items}
+        self.input_for: dict[str, set[str]] = {tag: set() for tag in self.items}
 
-def expand(template: str, tags: list[str]) -> list[str]:
-    """ The catalogue tags a (possibly partial) template denotes. """
-    if '{' not in template:
-        return [template] if template in tags else []
-    pattern = template_pattern(template)
-    return [tag for tag in tags if pattern.match(tag)]
+        # A recipe's products are already specialized to its own tags; an input's item is
+        # specialized here the same way the man page does it, and whatever placeholders the
+        # data would fill at run time (e.g. `{target}`) stand for every matching tag.
+        for name, recipe in self.recipes.items():
+            for _, product in recipe._list_products():
+                for tag in self.expand(product.name()):
+                    self.created_by[tag].add(name)
+            for _, input_class in recipe._list_inputs():
+                for tag in self.expand(self.input_tag(recipe, input_class)):
+                    self.input_for[tag].add(name)
 
+    @staticmethod
+    def input_tag(recipe: type[Recipe], input_class) -> str:
+        return partial_format(input_class.Item.name(), **recipe.Impl.tag_parameters())
 
-def producers_and_consumers(tags: list[str]) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
-    """
-    Which recipes create and which consume each tag, from the recipes' declarations.
+    def expand(self, template: str) -> list[str]:
+        """ The catalogue tags a (possibly partial) template denotes. """
+        if '{' not in template:
+            return [template] if template in self.items else []
+        pattern = template_pattern(template)
+        return [tag for tag in self.items if pattern.match(tag)]
 
-    A recipe's products are already specialized to its own tags; an input's item is
-    specialized here the same way the man page does it, and whatever placeholders the
-    data would fill at run time (e.g. `{target}`) stand for every matching tag.
-    """
-    created_by: dict[str, set[str]] = {tag: set() for tag in tags}
-    input_for: dict[str, set[str]] = {tag: set() for tag in tags}
+    def macro_of(self, item: type[DataItem], tag: str | None = None) -> str:
+        """
+        The DRLD macro of an item: static calibrations are `\\STATCALIB` whether or not a
+        recipe can regenerate them; otherwise the frame group decides, a calibration being
+        a product if some recipe creates it (any resolution of `tag`) and external otherwise.
+        """
+        if item.is_static():
+            return 'STATCALIB'
+        match item.frame_group():
+            case cpl.ui.Frame.FrameGroup.RAW:
+                return 'RAW'
+            case cpl.ui.Frame.FrameGroup.PRODUCT:
+                return 'PROD'
+            case _:
+                created = any(self.created_by[t] for t in self.expand(tag or item.name()))
+                return 'PROD' if created else 'EXTCALIB'
 
-    for recipe in Recipe._registry.values():
-        impl = recipe.Impl
-        for _, product in impl.ProductSet.list_classes():
-            for tag in expand(product.name(), tags):
-                created_by[tag].add(recipe._name)
-        for _, input_class in impl.InputSet.list_input_classes():
-            template = partial_format(input_class.Item.name(), **impl.tag_parameters())
-            for tag in expand(template, tags):
-                input_for[tag].add(recipe._name)
+    def reference(self, item: type[DataItem], tag: str) -> str:
+        """ `\\PROD{TAG}` and friends, with placeholders shown as `<name>`. """
+        shown = re.sub(r'\{(\w+)\}', r'<\1>', tag)
+        return rf'\{self.macro_of(item, tag)}{{{shown}}}'
 
-    return created_by, input_for
+    # --- data items ---
 
-
-def structure_of(item: type[DataItem]) -> list[tuple[str, str]]:
-    """ The CPL-level structure of the item's FITS file, from its schema. """
-    rows = []
-    for extension, klass in item.schema().items():
-        if klass is None:
-            rows.append(('cpl_propertylist * keywords', f'Primary keywords ({extension})'))
-        else:
-            rows.append((f'{CPL_TYPES.get(klass, klass.__name__.lower())} * {extension.lower().replace(".", "_")}',
-                         f'Extension {extension}'))
-    rows.append(('cpl_propertylist * plistarray[]', 'Extension keywords'))
-    return rows
-
-
-def macro_of(item: type[DataItem], created_by: set[str]) -> str:
-    if item.is_static():
-        # Delivered with the pipeline, whether or not a recipe can regenerate it.
-        return 'STATCALIB'
-    match item.frame_group():
-        case cpl.ui.Frame.FrameGroup.RAW:
-            return 'RAW'
-        case cpl.ui.Frame.FrameGroup.PRODUCT:
-            return 'PROD'
-        case _:
-            # A calibration is a product if some recipe creates it, external otherwise.
-            return 'PROD' if created_by else 'EXTCALIB'
-
-
-def build_cards(only: list[str] | None = None) -> list[Card]:
-    items = resolved_items()
-    tags = list(items)
-    created_by, input_for = producers_and_consumers(tags)
-
-    selected = tags if only is None else only
-    unknown = [tag for tag in selected if tag not in items]
-    if unknown:
-        raise SystemExit(f"Not a registered, fully resolved data item: {', '.join(unknown)}")
-
-    return [
-        Card(
+    def item_card(self, tag: str) -> Card:
+        item = self.items[tag]
+        return Card(
             name=tag,
-            macro=macro_of(items[tag], created_by[tag]),
-            description=items[tag].description(),
-            oca_keywords=sorted(items[tag].oca_keywords()),
-            created_by=sorted(created_by[tag]),
-            input_for=sorted(input_for[tag]),
-            structure=structure_of(items[tag]),
+            macro=self.macro_of(item),
+            description=item.description(),
+            oca_keywords=sorted(item.oca_keywords()),
+            created_by=sorted(self.created_by[tag]),
+            input_for=sorted(self.input_for[tag]),
+            structure=self.structure_of(item),
         )
-        for tag in selected
-    ]
+
+    @staticmethod
+    def structure_of(item: type[DataItem]) -> list[tuple[str, str]]:
+        """ The CPL-level structure of the item's FITS file, from its schema. """
+        rows = []
+        for extension, klass in item.schema().items():
+            if klass is None:
+                rows.append(('cpl_propertylist * keywords', f'Primary keywords ({extension})'))
+            else:
+                rows.append((f'{CPL_TYPES.get(klass, klass.__name__.lower())} * {extension.lower().replace(".", "_")}',
+                             f'Extension {extension}'))
+        rows.append(('cpl_propertylist * plistarray[]', 'Extension keywords'))
+        return rows
+
+    # --- recipes ---
+
+    def recipe_card(self, name: str) -> RecipeCard:
+        recipe = self.recipes[name]
+
+        # Raw data first, as in the DRLD, then the calibrations alphabetically.
+        inputs = []
+        for _, input_class in sorted(recipe._list_inputs(),
+                                     key=lambda entry: (entry[1]._group != cpl.ui.Frame.FrameGroup.RAW,
+                                                        self.input_tag(recipe, entry[1]))):
+            tag = self.input_tag(recipe, input_class)
+            row = self.reference(input_class.Item, tag)
+            if input_class.multiplicity() == 'N':
+                row += ' (one or more)'
+            if not input_class.required():
+                row += ' (optional)'
+            inputs.append(row)
+
+        parameters = []
+        for parameter in recipe.parameters:
+            row = rf'\CODE{{{latex(parameter.name)}}}: {latex(parameter.description)}'
+            if (alternatives := getattr(parameter, 'alternatives', None)) is not None:
+                row += ' (' + ', '.join(rf'\texttt{{{latex(a)}}}' for a in alternatives) + ')'
+            row += rf', default \texttt{{{latex(parameter.default)}}}'
+            parameters.append(row)
+
+        # The algorithm is free text with `code` spans; LaTeX-escape it and typeset the spans.
+        algorithm = [re.sub(r'`([^`]+)`', r'\\texttt{\1}', latex(line.strip()))
+                     for line in recipe._algorithm.splitlines() if line.strip()]
+
+        return RecipeCard(
+            name=name,
+            synopsis=recipe._synopsis,
+            inputs=inputs,
+            matched_keywords=sorted(recipe._matched_keywords or ()),
+            parameters=parameters,
+            algorithm=algorithm,
+            outputs=[self.reference(product, product.name()) for _, product in recipe._list_products()],
+            qc_parameters=[rf'\QC{{{qc.name()}}}' for _, qc in recipe._list_qc_parameters()],
+        )
 
 
 def environment() -> jinja2.Environment:
@@ -181,17 +233,17 @@ def environment() -> jinja2.Environment:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description='Render DRLD data-item cards from the pymetis catalogue.',
+        description='Render DRLD data-item and recipe cards from the pymetis catalogue.',
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument('dataitems', nargs='*', metavar='TAG',
-                        help='data item tags to render (default: none; see --all)')
+    parser.add_argument('names', nargs='*', metavar='NAME',
+                        help='data item tags and/or recipe names to render (default: none; see --all)')
     parser.add_argument('--all', '-a', action='store_true',
-                        help='render every registered, fully resolved data item')
+                        help='render every registered data item and recipe')
     parser.add_argument('--list', '-l', action='store_true',
-                        help='list the catalogue tags and exit')
+                        help='list the catalogue tags and recipe names and exit')
     parser.add_argument('--output', '-o', type=Path,
-                        help='directory to write one <TAG>.tex per item into (default: stdout)')
+                        help='directory to write into: items/<TAG>.tex and recipes/<name>.tex (default: stdout)')
     parser.add_argument('--debug', action='store_true',
                         help='enable debug mode (sets CPL Msg level to DEBUG)')
     args = parser.parse_args()
@@ -199,25 +251,40 @@ def main() -> None:
     if args.debug:
         Msg.set_level(Msg.Level.DEBUG)
 
+    catalogue = Catalogue()
+
     if args.list:
-        for tag, item in resolved_items().items():
+        for tag, item in catalogue.items.items():
             print(f"{tag:<40} {item.__module__}.{item.__qualname__}")
+        for name, recipe in catalogue.recipes.items():
+            print(f"{name:<40} {recipe.__module__}.{recipe.__qualname__}")
         return
 
-    if not args.all and not args.dataitems:
-        parser.error("give data item tags, or --all, or --list")
+    if not args.all and not args.names:
+        parser.error("give data item tags or recipe names, or --all, or --list")
 
-    cards = build_cards(None if args.all else args.dataitems)
-    template = environment().get_template('dataitem.tex')
+    if args.all:
+        tags, names = list(catalogue.items), list(catalogue.recipes)
+    else:
+        tags = [n for n in args.names if n in catalogue.items]
+        names = [n for n in args.names if n in catalogue.recipes]
+        if unknown := [n for n in args.names if n not in catalogue.items and n not in catalogue.recipes]:
+            raise SystemExit(f"Neither a registered, fully resolved data item nor a recipe: {', '.join(unknown)}")
+
+    env = environment()
+    rendered = [('items', tag, env.get_template('dataitem.tex').render(item=catalogue.item_card(tag)))
+                for tag in tags]
+    rendered += [('recipes', name, env.get_template('recipe.tex').render(recipe=catalogue.recipe_card(name)))
+                 for name in names]
 
     if args.output is None:
-        for card in cards:
-            sys.stdout.write(template.render(item=card))
+        for _, _, text in rendered:
+            sys.stdout.write(text)
     else:
-        args.output.mkdir(parents=True, exist_ok=True)
-        for card in cards:
-            (args.output / f"{card.name}.tex").write_text(template.render(item=card))
-        print(f"{len(cards)} cards written to {args.output}")
+        for kind, name, text in rendered:
+            (args.output / kind).mkdir(parents=True, exist_ok=True)
+            (args.output / kind / f"{name}.tex").write_text(text)
+        print(f"{len(tags)} item cards and {len(names)} recipe cards written to {args.output}")
 
 
 if __name__ == '__main__':
