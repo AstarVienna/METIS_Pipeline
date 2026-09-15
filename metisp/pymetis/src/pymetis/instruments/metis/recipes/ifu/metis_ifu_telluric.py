@@ -28,8 +28,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_header, create_dumm
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.dataitems.common import FluxCalTable
 from pymetis.instruments.metis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined, IfuTelluric
-from pymetis.instruments.metis.dataitems.ifu.raw import IfuRaw
-from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput, RawInput
+from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 
@@ -54,14 +53,9 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         #     _title: str = "uncorrected mf input spectrum"
         #     _description: str = "Uncorrected MF input spectrum."
 
-        # FixMe: using raw input to avoid empty frameset on product save issue
-        class RawInput(RawInput):
-            Item = IfuRaw
-
         class CombinedInput(PrimaryInputMixin, SinglePipelineInput):
             Item = IfuCombined
 
-        raw: RawInput
         combined: CombinedInput
         fluxstd_catalog: FluxstdCatalogInput
         lsf_kernel: LsfKernelInput
