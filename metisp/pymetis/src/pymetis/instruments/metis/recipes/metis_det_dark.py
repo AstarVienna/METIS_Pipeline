@@ -23,7 +23,7 @@ import operator
 import re
 import numpy as np
 
-from typing import Literal, Dict, Any
+from typing import Dict, Any
 
 import cpl
 from cpl.core import Msg
@@ -159,7 +159,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         self.kappa_low = self.parameters["metis_det_dark.outliers.kappa_low"].value
         self.kappa_high = self.parameters["metis_det_dark.outliers.kappa_high"].value
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> list[Hdu]:
+    def _process_single_detector(self, detector: Metis.DetectorNumber) -> list[Hdu]:
         assert detector in [1, 2, 3, 4], \
             f"Unknown detector {detector}"
 

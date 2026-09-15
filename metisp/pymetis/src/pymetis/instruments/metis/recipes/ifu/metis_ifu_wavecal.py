@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import copy
-from typing import Literal
 
 import cpl
 from cpl.core import Msg
@@ -36,6 +35,7 @@ from pymetis.drl.trace import traces_from_table
 from pymetis.drl.wavecal import (SliceSolution, build_wavelength_map, linear_solution,
                                  solutions_to_table, solve_slice)
 
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.dataitems.wavecal import (IfuWavecalRaw, IfuWavecal,
                                                          IfuWavecalTab)
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
@@ -240,7 +240,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         return heights
 
     def _approximate_solution(self,
-                             detector: Literal[1, 2, 3, 4],
+                             detector: Metis.DetectorNumber,
                              ncol: int) -> np.ndarray:
         """
         Approximate linear dispersion, used to identify lines and as the fallback.
@@ -283,7 +283,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         }
 
     def _process_single_detector(self,
-                                 detector: Literal[1, 2, 3, 4],
+                                 detector: Metis.DetectorNumber,
                                  method: str,
                                  wavelengths: list[float],
                                  solve_parameters: dict) -> dict:
@@ -298,7 +298,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
 
         Parameters
         ----------
-        detector : Literal[1, 2, 3, 4]
+        detector : Metis.DetectorNumber
         method : str
             Method used to stack the raw exposures.
         wavelengths : list[float]

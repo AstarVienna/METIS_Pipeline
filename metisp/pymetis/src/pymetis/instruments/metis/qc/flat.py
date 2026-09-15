@@ -58,10 +58,10 @@ class LmMFlatMedian(BandLmMixin, MFlatMedian):
 class NMFlatMedian(BandNMixin, MFlatMedian):
     pass
 
-class LmMFlatNbadpix(BandLmMixin, MFlatNBadpix):
+class LmMFlatNBadPix(BandLmMixin, MFlatNBadpix):
     pass
 
-class NMFlatNbadpix(BandNMixin, MFlatNBadpix):
+class NMFlatNBadPix(BandNMixin, MFlatNBadpix):
     pass
 
 # -------------------------------
@@ -80,7 +80,7 @@ class MlFlatMedian(QcParameter):
     _unit = "Counts"
     _description_template = "Median of the {band} lamp master flat"
 
-class MlFlatNbadpix(QcParameter):
+class MlFlatNBadPix(QcParameter):
     _name_template = "QC {band} MLFLAT NBADPIX"
     _type = int
     _unit = None
@@ -106,11 +106,11 @@ class NMlFlatMedian(BandNMixin, MlFlatMedian):
     pass
 
 
-class LmMlFlatNbadpix(BandLmMixin, MlFlatNbadpix):
+class LmMlFlatNBadPix(BandLmMixin, MlFlatNBadPix):
     pass
 
 
-class NMlFlatNbadpix(BandNMixin, MlFlatNbadpix):
+class NMlFlatNBadPix(BandNMixin, MlFlatNBadPix):
     pass
 
 # -------------------------------
@@ -131,7 +131,7 @@ class MtFlatMedian(QcParameter):
     _description_template = "Median of the {band} twilight master flat"
 
 
-class MtFlatNbadpix(QcParameter):
+class MtFlatNBadPix(QcParameter):
     _name_template = "QC {band} MTFLAT NBADPIX"
     _type = int
     _unit = None
@@ -157,11 +157,11 @@ class NMtFlatMedian(BandNMixin, MtFlatMedian):
     pass
 
 
-class LmMtFlatNbadpix(BandLmMixin, MtFlatNbadpix):
+class LmMtFlatNBadPix(BandLmMixin, MtFlatNBadPix):
     pass
 
 
-class NMtFlatNbadpix(BandNMixin, MtFlatNbadpix):
+class NMtFlatNBadPix(BandNMixin, MtFlatNBadPix):
     pass
 
 # -------------------------------

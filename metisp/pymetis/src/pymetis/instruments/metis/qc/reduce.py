@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.qc import QcParameter
 
 
-class IfuReduceNbadpix(QcParameter):
+class IfuReduceNBadPix(QcParameter):
     _name_template = "QC IFU REDUCE NBADPIX"
     _type = int
     _unit = "1"

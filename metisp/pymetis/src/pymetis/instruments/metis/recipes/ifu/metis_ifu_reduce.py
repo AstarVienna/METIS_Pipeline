@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import copy
-from typing import Literal
 
 import cpl
 
@@ -29,6 +28,7 @@ from pymetis.engine.recipes import Recipe
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.dataitems.distortion.table import IfuDistortionTable
 from pymetis.instruments.metis.dataitems.ifu import (IfuSkyRaw, IfuRaw, IfuCombined,
@@ -38,7 +38,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis.inputs import RawInput, WavecalInput, GainMapInput, LinearityInput
 from pymetis.instruments.metis.inputs.common import OptionalPersistenceMapInput
-from pymetis.instruments.metis.qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNbadpix
+from pymetis.instruments.metis.qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNBadPix
 
 
 class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -71,17 +71,17 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         Combined = IfuCombined
 
     class Qc(QcParameterSet):
-        Nbadpix = IfuReduceNbadpix
+        NBadPix = IfuReduceNBadPix
         MeanBkg = IfuReduceMeanBkg
         MeanStray = IfuReduceMeanStray
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+    def _process_single_detector(self, detector: Metis.DetectorNumber) -> dict[str, Hdu]:
         """
         Process exposures for a single detector of the IFU.
 
         Parameters
         ----------
-        detector : Literal[1, 2, 3, 4]
+        detector : Metis.DetectorNumber
 
         Returns
         -------

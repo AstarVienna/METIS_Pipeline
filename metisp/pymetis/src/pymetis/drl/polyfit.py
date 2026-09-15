@@ -28,7 +28,7 @@ def weighted_polyfit(x: np.ndarray,
                      weights: np.ndarray = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Per-pixel weighted polynomial fit, fully vectorized.
-    Returns coeffs (highest degree first, like np.polyfit), unscaled cov, ok mask.
+    Returns coeffs (highest degree first, like np.polyfit), unscaled covariance, and an OK mask.
 
     Internally rescales x per pixel to keep the normal-equations matrix
     well-conditioned (matching np.polyfit's behaviour).

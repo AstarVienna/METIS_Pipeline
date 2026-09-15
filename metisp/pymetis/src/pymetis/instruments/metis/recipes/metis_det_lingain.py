@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import itertools
 import re
 
-from typing import Literal, Dict, Any, Self
+from typing import Dict, Any, Self
 
 import cpl
 from cpl.core import Msg
@@ -392,7 +392,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
     def _process_single_detector(
         self,
-        detector: Literal[1, 2, 3, 4]
+        detector: Metis.DetectorNumber
     ) -> dict[str, Hdu]:
         det_prefix = rf'DET{detector:1d}'
 

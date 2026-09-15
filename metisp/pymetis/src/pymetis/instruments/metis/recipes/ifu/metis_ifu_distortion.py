@@ -31,6 +31,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.drl.combine import combine_images
 from pymetis.drl.trace import measure_trace_edges, trace, traces_to_table
 
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput,
                                               GainMapInput, LinearityInput)
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
@@ -165,7 +166,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         return continuum
 
     def _process_single_detector(self,
-                                 detector: Literal[1, 2, 3, 4],
+                                 detector: Metis.DetectorNumber,
                                  method: str,
                                  trace_parameters: dict) -> dict:
         """
@@ -180,7 +181,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
         Parameters
         ----------
-        detector : Literal[1, 2, 3, 4] # FixMe: Maybe make this fully customizable for any detector count?
+        detector : Metis.DetectorNumber # FixMe: Maybe make this fully customizable for any detector count?
         method : str
             Method used to stack the continuum-illuminated exposures.
         trace_parameters : dict

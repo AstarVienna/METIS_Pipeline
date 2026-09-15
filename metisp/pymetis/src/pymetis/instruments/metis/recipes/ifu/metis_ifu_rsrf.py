@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Literal
 
 import cpl
 import numpy as np
@@ -35,6 +34,7 @@ from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe, RecipeImpl
 
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.dataitems.badpixmap import BadPixMapIfu
 from pymetis.instruments.metis.dataitems.distortion import IfuDistortionTable
 from pymetis.instruments.metis.dataitems.gainmap import GainMapIfu
@@ -112,7 +112,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         MeanStray = IfuReduceMeanStray
 
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+    def _process_single_detector(self, detector: Metis.DetectorNumber) -> dict[str, Hdu]:
         """
         Calculate the RSRF for a single detector of the IFU.
         This function processes the input images, for each detector:
@@ -125,7 +125,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         Parameters
         ----------
-        detector : Literal[1, 2, 3, 4] # FixMe: Maybe make this fully customizable for any detector count?
+        detector : Metis.DetectorNumber # FixMe: Maybe make this fully customizable for any detector count?
 
         Returns
         -------
