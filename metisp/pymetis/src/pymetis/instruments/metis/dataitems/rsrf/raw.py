@@ -24,13 +24,12 @@ from pymetis.instruments.metis.mixins import DetectorIfuMixin, BandIfuMixin
 
 
 class RsrfRaw(Raw, abstract=True):
-    _name_template = r'{band}_LSS_RSRF_RAW'
+    _name_template = r'{band}_RSRF_RAW'
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
 
 
 class IfuRsrfRaw(DetectorIfuMixin, BandIfuMixin, RsrfRaw):
-    _name_template = r'IFU_RSRF_RAW'
     _title_template = "IFU RSRF raw image"
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                                'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'})

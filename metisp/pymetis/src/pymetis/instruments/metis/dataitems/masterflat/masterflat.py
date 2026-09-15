@@ -74,7 +74,7 @@ class MasterImgFlat(ImageDataItem, abstract=True):
     }
 
 
-class MasterImgFlatLm(BandLmMixin, MasterImgFlat):
+class MasterImgFlatLm(BandLmMixin, MasterImgFlat, abstract=True):
     pass
 
 
@@ -86,7 +86,7 @@ class MasterImgFlatTwilightLm(SourceTwilightMixin, MasterImgFlatLm):
     pass
 
 
-class MasterImgFlatN(BandNMixin, MasterImgFlat):
+class MasterImgFlatN(BandNMixin, MasterImgFlat, abstract=True):
     pass
 
 

@@ -40,11 +40,11 @@ class LssRsrfRaw(Raw, abstract=True):
     }
 
 
-class LmLssStdRaw(BandLmMixin, LssRsrfRaw):
+class LmLssRsrfRaw(BandLmMixin, LssRsrfRaw):
     pass
 
 
-class NLssStdRaw(BandNMixin, LssRsrfRaw):
+class NLssRsrfRaw(BandNMixin, LssRsrfRaw):
     pass
 
 

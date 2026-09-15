@@ -38,7 +38,7 @@ class BasicReduced(ImageDataItem, abstract=True):
     }
 
 
-class LmBasicReduced(BandLmMixin, BasicReduced):
+class LmBasicReduced(BandLmMixin, BasicReduced, abstract=True):
     pass
 
 

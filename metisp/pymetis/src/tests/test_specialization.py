@@ -7,6 +7,7 @@ import pytest
 import pymetis.instruments.metis.recipes  # noqa: F401  (registers all recipes)
 from pymetis.engine.dataitems.dataitem import DataItem
 from pymetis.engine.qc.parameter import QcParameter
+from pymetis.instruments.metis.dataitems.img.raw import ImageRaw, LmImageRaw, LmImageSciRaw
 from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark, MasterDark2rg
 from pymetis.instruments.metis.recipes.metis_det_dark import MetisDetDarkImpl
 from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_rsrf import MetisLmLssRsrfImpl
@@ -44,16 +45,40 @@ class TestItemSpecialization:
         assert clone is MasterDark
 
 
+    def test_a_handwritten_partial_specialization_is_found_by_template(self):
+        """ LmImageRaw is abstract (LM_IMAGE_{target}_RAW still has a placeholder), yet
+        it must be preferred over a synthesized LM clone of ImageRaw. """
+        assert ImageRaw.specialized(band='LM') is LmImageRaw
+        assert LmImageRaw._abstract
+        assert DataItem.find_template('LM_IMAGE_{target}_RAW') is LmImageRaw
+
+    def test_a_partial_specialization_resolves_further_to_the_leaf(self):
+        assert LmImageRaw.specialized(target='SCI') is LmImageSciRaw
+        assert ImageRaw.specialized(band='LM', target='SCI') is LmImageSciRaw
+
+
 class TestRegistryHygiene:
     """ Importing every recipe specializes every container; only resolved tags may land. """
 
-    def test_no_registered_clone_carries_placeholders(self):
+    def test_no_registry_key_carries_placeholders(self):
         for registry in (DataItem._registry, QcParameter._registry):
-            assert not [k for k, v in registry.items()
-                        if hasattr(v, '_specialized_from') and '{' in k]
+            assert not [k for k in registry if '{' in k]
+
+    def test_every_registered_class_is_concrete(self):
+        for registry in (DataItem._registry, QcParameter._registry):
+            assert not [k for k, v in registry.items() if v._abstract]
+
+    def test_templates_hold_only_placeholder_names(self):
+        for root in (DataItem, QcParameter):
+            assert all('{' in k for k in root._templates)
 
     def test_partial_product_templates_are_not_registered_by_specialization(self):
         assert 'MASTER_DARK_{detector}' not in DataItem._registry
+        assert DataItem.find_template('MASTER_DARK_{detector}') is MasterDark
+
+    def test_a_partially_specialized_data_item_cannot_be_instantiated(self):
+        with pytest.raises(TypeError, match='LM_IMAGE_{target}_RAW'):
+            LmImageRaw(None)
 
 
 class TestContainerSpecialization:

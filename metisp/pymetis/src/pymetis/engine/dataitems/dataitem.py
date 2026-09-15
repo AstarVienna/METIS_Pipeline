@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import datetime
-import re
 from pathlib import Path
 from typing import Optional, Self, final, Union, ClassVar, TYPE_CHECKING
 
@@ -73,9 +72,6 @@ class DataItem(ParametrizableItem, abstract=True):
     # >>> }
 
     _registry: ClassVar[dict[str, type[Self]]] = {}
-
-    # [Hacky] A regex to match the name (mostly to make sure we are not instantiating a partially specialized class)
-    __regex_pattern: re.Pattern = re.compile(r"^[A-Z]+[A-Z0-9_]+[A-Z0-9]+$")
 
     @classmethod
     @final
@@ -138,8 +134,8 @@ class DataItem(ParametrizableItem, abstract=True):
                  primary_header: Optional[CplPropertyList],
                  *hdus: Hdu,
                  filename: Optional[Path] = None):
-        if self._abstract or not self.__regex_pattern.match(self.name()):
-            raise TypeError(f"Tried to instantiate an abstract data item "
+        if self._abstract or '{' in self.name():
+            raise TypeError(f"Tried to instantiate an abstract or partially specialized data item "
                             f"{self.__class__.__qualname__} for {self.name()}")
 
         # Check if the title is defined

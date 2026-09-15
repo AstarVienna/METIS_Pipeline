@@ -71,7 +71,7 @@ class ParametrizableMeta(ABCMeta):
         if template is not None and merged:
             cls._name_template = partial_format(template, **merged)
 
-        if not abstract and register:
+        if register:
             cls._register()
 
         return cls
@@ -81,22 +81,35 @@ class ParametrizableMeta(ABCMeta):
 
     def _register(cls) -> None:
         """
-        Register cls under its current _name_template in the nearest _registry up the MRO.
+        Register cls under its current _name_template with the nearest root up the MRO
+        (the class declaring `_registry`).
 
-        Hand-written classes own their tags exclusively: two hand-written classes resolving
-        to the same tag is a definition error and raises immediately (this is the tripwire
+        A fully resolved name of a concrete class goes to `_registry`, the catalogue of
+        tags that data can carry. A name with placeholders left goes to `_templates`
+        instead, whether the class is abstract or not: such a class can never own a tag,
+        but `ParametrizableItem.specialized` must still find it, so that a hand-written
+        partial specialization (e.g. the LM flavour of a `{band}_{target}` item) is used
+        in preference to a synthesized clone.
+
+        Hand-written classes own their names exclusively: two hand-written classes resolving
+        to the same name is a definition error and raises immediately (this is the tripwire
         for copy-pasted mixin lists). Specialized clones (see `ParametrizableItem
         .specialized`, marked `_specialized_from`) never displace a hand-written owner.
         """
         key = getattr(cls, "_name_template", None)
         if key is None or key == "<unknown>":
             return
-        registry = next(
-            (b.__dict__["_registry"] for b in cls.__mro__ if "_registry" in b.__dict__),
-            None,
-        )
-        if registry is None:
+        root = next((b for b in cls.__mro__ if "_registry" in b.__dict__), None)
+        if root is None:
             return
+        if '{' in key:
+            if "_templates" not in root.__dict__:
+                root._templates = {}
+            registry = root.__dict__["_templates"]
+        elif cls._abstract:
+            return
+        else:
+            registry = root.__dict__["_registry"]
         existing = registry.get(key)
         if existing is None or existing is cls:
             registry[key] = cls
@@ -119,8 +132,16 @@ class ParametrizableMeta(ABCMeta):
             )
 
     def find(cls, key: str) -> Optional[type]:
+        """ The concrete class owning the fully resolved tag `key`, if any. """
+        return cls._lookup("_registry", key)
+
+    def find_template(cls, key: str) -> Optional[type]:
+        """ The hand-written class whose name template (placeholders included) is `key`, if any. """
+        return cls._lookup("_templates", key)
+
+    def _lookup(cls, attribute: str, key: str) -> Optional[type]:
         for base in cls.__mro__:
-            if (reg := base.__dict__.get("_registry")) is not None:
+            if (reg := base.__dict__.get(attribute)) is not None:
                 if (hit := reg.get(key)) is not None:
                     return hit
         return None
@@ -189,17 +210,18 @@ class ParametrizableItem(Parametrizable, abstract=True):
         The class this item specializes to under `parameters`.
 
         Returns `cls` itself when the parameters resolve nothing in its tag, the
-        registered owner of the resolved tag where a hand-written class exists, and
-        otherwise a clone of `cls` with the parameters applied. The clone keeps the
-        abstractness of `cls` and, for concrete items such as QC parameters, stands in
-        for a leaf class nobody wrote. It is registered only when its tag is fully
-        resolved: a tag with placeholders left can never match anything and would
-        merely clutter the registry. `cls` is never mutated.
+        hand-written class owning the resolved tag (or, for a partial resolution, the
+        resulting template) where one exists, and otherwise a clone of `cls` with the
+        parameters applied. The clone keeps the abstractness of `cls` and, for concrete
+        items such as QC parameters, stands in for a leaf class nobody wrote. It is
+        registered only when its tag is fully resolved: a tag with placeholders left
+        can never match anything. `cls` is never mutated.
         """
         template = partial_format(cls._name_template, **(cls.tag_parameters() | parameters))
         if template == cls._name_template:
             return cls
-        if (owner := cls.find(template)) is not None:
+        lookup = cls.find_template if '{' in template else cls.find
+        if (owner := lookup(template)) is not None:
             return owner
         clone = type(cls.__name__, cls.__bases__,
                      dict(cls.__dict__) | {'_specialized_from': cls},

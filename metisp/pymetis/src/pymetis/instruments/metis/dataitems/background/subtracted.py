@@ -38,7 +38,7 @@ class BackgroundSubtracted(ImageDataItem, abstract=True):
     }
 
 
-class LmBackgroundSubtracted(BandLmMixin, BackgroundSubtracted):
+class LmBackgroundSubtracted(BandLmMixin, BackgroundSubtracted, abstract=True):
     pass
 
 
@@ -50,7 +50,7 @@ class LmSciBackgroundSubtracted(TargetSciMixin, LmBackgroundSubtracted):
     pass
 
 
-class NBackgroundSubtracted(BandNMixin, BackgroundSubtracted):
+class NBackgroundSubtracted(BandNMixin, BackgroundSubtracted, abstract=True):
     pass
 
 
