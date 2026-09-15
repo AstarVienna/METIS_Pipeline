@@ -134,3 +134,13 @@ class TestRegisteredOcaKeywords:
             f"Data item {item.name()} OCA keywords are not a frozenset"
         assert item.oca_keywords() <= OCA_KEYWORDS, \
             f"Data item {item.name()} defines unknown OCA keywords {item.oca_keywords() - OCA_KEYWORDS}"
+
+
+@pytest.mark.dataitem
+@pytest.mark.metadata
+class TestRegisteredFrameGroups:
+    @pytest.mark.parametrize('item', _registered_items(), ids=lambda item: item.name())
+    def test_a_static_calibration_is_a_calibration(self, item):
+        if item.is_static():
+            assert item.frame_group() == cpl.ui.Frame.FrameGroup.CALIB, \
+                f"Static calibration {item.name()} is in frame group {item.frame_group()}"

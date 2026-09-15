@@ -29,6 +29,7 @@ class GainMap(ImageDataItem, abstract=True):
     _title_template = "gain map for {detector} detector"
     _description_template = "Gain map for the {detector} detector"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG'})
 

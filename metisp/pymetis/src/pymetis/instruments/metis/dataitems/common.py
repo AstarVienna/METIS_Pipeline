@@ -87,6 +87,7 @@ class LsfKernel(TableDataItem):
     _title_template = "line spread function kernel"
     _description_template = "Wavelength dependent model of the LSF"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG'})
 

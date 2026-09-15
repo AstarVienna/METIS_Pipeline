@@ -128,6 +128,9 @@ def structure_of(item: type[DataItem]) -> list[tuple[str, str]]:
 
 
 def macro_of(item: type[DataItem], created_by: set[str]) -> str:
+    if item.is_static():
+        # Delivered with the pipeline, whether or not a recipe can regenerate it.
+        return 'STATCALIB'
     match item.frame_group():
         case cpl.ui.Frame.FrameGroup.RAW:
             return 'RAW'
@@ -135,8 +138,6 @@ def macro_of(item: type[DataItem], created_by: set[str]) -> str:
             return 'PROD'
         case _:
             # A calibration is a product if some recipe creates it, external otherwise.
-            # The DRLD also distinguishes static calibrations (\STATCALIB), which the
-            # classes do not record yet.
             return 'PROD' if created_by else 'EXTCALIB'
 
 

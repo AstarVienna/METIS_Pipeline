@@ -60,7 +60,7 @@ class LmLssDistSol(BandLmMixin, LssDistSol):
 
 
 class NLssDistSol(BandNMixin, LssDistSol):
-    pass
+    _static = True     # the DRLD lists only the N-band solution as a static calibration
 
 
 class LssWaveGuess(TableDataItem, abstract=True):
@@ -80,4 +80,4 @@ class LmLssWaveGuess(BandLmMixin, LssWaveGuess):
 
 
 class NLssWaveGuess(BandNMixin, LssWaveGuess):
-    pass
+    _static = True     # the DRLD lists only the N-band guess as a static calibration

@@ -57,6 +57,11 @@ class DataItem(ParametrizableItem, abstract=True):
     _frame_level: cpl.ui.Frame.FrameLevel = None    # No sensible default; must be provided explicitly
     _frame_type: cpl.ui.Frame.FrameType = None      # Specialised for image / table / multi-extension data
 
+    # A static calibration is delivered with the pipeline (the calibration database)
+    # rather than derived from observations in operations, even if some recipe is able
+    # to (re)generate it. Only meaningful for items in the CALIB frame group.
+    _static: ClassVar[bool] = False
+
     _oca_keywords: frozenset[str] = frozenset()     # Set of OCA keywords
 
     # HDU schema: a dict of types or None
@@ -116,6 +121,13 @@ class DataItem(ParametrizableItem, abstract=True):
         This function should not be overridden.
         """
         return cls._frame_type
+
+    @classmethod
+    def is_static(cls) -> bool:
+        """
+        Whether this item is a static calibration (see `_static`).
+        """
+        return cls._static
 
     @classmethod
     def oca_keywords(cls):

@@ -28,6 +28,7 @@ class SynthTrans(TableDataItem, abstract=True):
     _title_template = "{band} synthetic transmission"
     _description_template = "Synthetic {band} transmission used for default telluric correction of STD stars"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = frozenset({'PRO.CATG'})
 
