@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import inspect
+import re
 from abc import ABC, ABCMeta
 from typing import ClassVar, Self, Optional, Any
 
@@ -315,8 +316,12 @@ class ParametrizableContainer(Parametrizable, ABC):
         supplied from the actual data.
 
         A hand-written class owning the resolved tag always wins; where none exists the
-        specialized item itself serves, provided it is fully resolved and concrete. An
-        abstract template with no leaf for the tag is a gap in the catalogue and raises.
+        specialized item itself serves, provided it is concrete and no *tag* placeholder
+        is left: every keyword in `_valid_tags` must have been determined by now, from the
+        class or from the data. Other placeholders are indices (`LCOEFF{order}`,
+        `FWHM {nn}`) that the recipe fills per value when it emits the item, and they
+        survive promotion. An abstract template with no leaf for the tag is a gap in the
+        catalogue and raises.
         """
         Msg.info(cls.__qualname__,
                  f"Promoting {cls.__qualname__} with {parameters}")
@@ -326,11 +331,13 @@ class ParametrizableContainer(Parametrizable, ABC):
             candidate = item.specialized(**parameters)
             tag = candidate.name()
             new_class = cls.Meta._T.find(tag) or candidate
-            if '{' in tag or new_class._abstract:
+            unresolved = set(re.findall(r'\{(\w+)\}', tag))
+            missing_tags = unresolved & (cls.Meta._T._valid_tags or unresolved)
+            if missing_tags or new_class._abstract:
                 raise TypeError(
                     f"Could not promote {item.__qualname__} with {parameters}: "
                     f"no concrete class owns the tag '{tag}'"
-                    f"{' (unresolved placeholders remain)' if '{' in tag else ''}."
+                    f"{f' (tags {sorted(missing_tags)} remain unresolved)' if missing_tags else ''}."
                 )
             resolved[name] = new_class
 

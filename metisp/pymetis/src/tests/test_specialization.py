@@ -7,6 +7,7 @@ import pytest
 import pymetis.instruments.metis.recipes  # noqa: F401  (registers all recipes)
 from pymetis.engine.dataitems.dataitem import DataItem
 from pymetis.engine.qc.parameter import QcParameter
+from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.dataitems.img.raw import ImageRaw, LmImageRaw, LmImageSciRaw
 from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark, MasterDark2rg
 from pymetis.instruments.metis.recipes.metis_det_dark import MetisDetDarkImpl
@@ -118,3 +119,33 @@ class TestPromotion:
     def test_an_abstract_template_without_a_leaf_raises(self):
         with pytest.raises(TypeError, match='MASTER_DARK_NOPE'):
             MetisDetDarkImpl.ProductSet.promoted(detector='NOPE')
+
+
+class TestIndexedQcParameters:
+    """ `LCOEFF{order}`-style QC names carry an index the recipe fills per value; the
+    index is not a data tag and must survive promotion (metis_lm_lss_trace failed in
+    EDPS when promotion treated it as an unresolved tag). """
+
+    def test_promotion_keeps_index_placeholders(self):
+        """ How the index is eventually filled (`order` is not a tag keyword, so class
+        specialization refuses it) is still open; no recipe emits such a value yet. """
+        from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_trace import MetisLmLssTraceImpl
+        promoted = MetisLmLssTraceImpl.Qc.promoted()
+        assert promoted.LCoeff.name() == 'QC LM LSS TRACE LCOEFF{order}'
+        assert not promoted.LCoeff._abstract
+
+    def test_promotion_still_requires_every_tag(self):
+        from pymetis.instruments.metis.recipes.prefab.lss.trace import MetisLssTraceImpl
+        with pytest.raises(TypeError, match=r"tags \['band'\] remain unresolved"):
+            MetisLssTraceImpl.Qc.promoted()
+
+
+DATA_TAG_DEFAULTS = dict(band='LM', detector='2RG', target='SCI', source='LAMP', cgrph='RAVC')
+
+
+@pytest.mark.parametrize('recipe', sorted(Recipe._registry.values(), key=lambda r: r._name),
+                         ids=lambda r: r._name)
+def test_every_recipe_promotes_its_qc_set_once_the_data_tags_are_known(recipe):
+    """ What RecipeImpl.__init__ does at run time, with a stand-in for the tags the
+    frames would supply; the recipe's own tags take precedence. """
+    recipe.Impl.Qc.promoted(**(DATA_TAG_DEFAULTS | recipe.Impl.tag_parameters()))
