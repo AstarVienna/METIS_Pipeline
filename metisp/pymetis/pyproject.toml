@@ -21,6 +21,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pybind11-stubgen>=2.5.5",
     "pytest (>=9.0.1,<10.0.0)",
     "ruff (>=0.12)",
 ]
@@ -49,6 +50,18 @@ priority = "explicit"
 name = "ivh"
 url = "https://ivh.github.io/pycpl/simple/"
 priority = "explicit"
+
+[tool.pyright]
+# Stubs for the compiled pycpl/pyhdrl modules (see typings/regenerate.py); without them
+# no type checker or IDE can see a single member of `cpl` or `hdrl`.
+stubPath = "typings"
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.13"
+typeCheckingMode = "basic"
+# `hdrl.core` etc. exist only at run time (hdrl/__init__.py registers them in sys.modules);
+# the stubs describe them, so the missing-source warning is noise here.
+reportMissingModuleSource = false
 
 [tool.ruff]
 line-length = 120

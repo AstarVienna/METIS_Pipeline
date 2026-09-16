@@ -191,6 +191,18 @@ per band or target (subclass `BaseRecipeTest`/`BandParamRecipeTest`/
 them at your Recipe/Impl and naming the SOF) or when it has recipe-specific
 tests to add.
 
+### Type stubs for pycpl
+
+`cpl` and `hdrl` are compiled pybind11 modules without `.pyi` files, so without
+help no IDE or type checker sees a single member of them — completion then
+guesses (`get_standard_deviation()` looks plausible; the real name is
+`get_stdev()`). `typings/` holds generated stubs for both; pyright picks them up
+through `[tool.pyright]` in `pyproject.toml` (`uvx pyright src/pymetis`), VS
+Code/Pylance automatically, PyCharm after marking `typings` as a Sources Root.
+Regenerate after a pycpl bump with `.venv/bin/python typings/regenerate.py`,
+which patches the few signatures pybind11-stubgen cannot express and refuses to
+produce stubs that do not parse.
+
 ### Caveats
 
 - CPL DFS builds the product header from the input frames it is given and
