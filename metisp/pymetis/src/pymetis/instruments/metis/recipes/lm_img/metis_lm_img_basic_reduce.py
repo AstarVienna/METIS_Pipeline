@@ -165,12 +165,11 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
             Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
             header_reduced = create_dummy_header()
-            header_reduced.append(cpl.core.Property("QC LM IMG MEDIAN", cpl.core.Type.DOUBLE,
-                                            image.get_median(), "[ADU] median value of image"))
-            header_reduced.append(cpl.core.Property("QC LM IMG STDEV", cpl.core.Type.DOUBLE,
-                                            image.get_median(), "[ADU] stddev value of image"))
-            header_reduced.append(cpl.core.Property("QC LM IMG MAX", cpl.core.Type.DOUBLE,
-                                            image.get_median(), "[ADU] max value of image"))
+            header_reduced.append(self.collect_qc_parameters(
+                self.Qc.Median(image.get_median()),
+                self.Qc.StandardDeviation(image.get_stdev()),
+                self.Qc.Peak(image.get_max()),
+            ))
 
             product = self.ProductSet.BasicReduced(
                 copy.deepcopy(primary_header),
