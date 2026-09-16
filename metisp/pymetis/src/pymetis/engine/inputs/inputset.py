@@ -180,6 +180,14 @@ class PipelineInputSet(ParametrizableContainer):
         rebound = {}
         for attr, input_class in origin.list_input_classes():
             item = input_class.Item.specialized(**parameters)
+            if hasattr(item, '_specialized_from'):
+                # A clone is a sibling of the hand-written leaves, so no frame's class could
+                # ever be a subclass of it: the input would silently match nothing. This
+                # happens when the leaf's module is not imported yet; fail at import instead.
+                raise TypeError(
+                    f"{origin.__qualname__}.{attr}: no hand-written class for {item.name()!r} "
+                    f"(specializing {input_class.Item.__qualname__} with {parameters}); "
+                    f"import the module defining it before the recipe, or add the class.")
             if item is not input_class.Item:
                 rebound[attr] = origin._bind_input(input_class, item)
 
@@ -235,13 +243,24 @@ class PipelineInputSet(ParametrizableContainer):
         if len(self.inputs) == 0:
             raise NotImplementedError("PipelineInputSet must define at least one input.")
 
-        try:
-            for inp in self.inputs:
+        # Declaration order, so that the report is stable; every input is checked, so that
+        # the report names everything that is missing rather than the first thing found.
+        missing = []
+        for name, _ in self.list_input_classes():
+            inp = getattr(self, name)
+            try:
                 inp.validate()
-                Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
-                self.tag_matches |= inp.Item.tag_parameters()
-        except cpl.core.DataNotFoundError as e:
-            Msg.error(self.__class__.__qualname__, str(e))
+            except cpl.core.DataNotFoundError as e:
+                Msg.error(self.__class__.__qualname__, str(e))
+                missing.append(str(e))
+                continue
+            Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
+            self.tag_matches |= inp.Item.tag_parameters()
+
+        if missing:
+            raise cpl.core.DataNotFoundError(
+                f"{self.__class__.__qualname__}: {len(missing)} required input(s) not satisfied by the set of frames:\n  "
+                + "\n  ".join(missing))
 
 
     def print_debug(self, *, offset: int = 0) -> None:

@@ -7,6 +7,7 @@ import pytest
 import pymetis.instruments.metis.recipes  # noqa: F401  (registers all recipes)
 from pymetis.engine.dataitems.dataitem import DataItem
 from pymetis.engine.qc.parameter import QcParameter
+from pymetis.engine.inputs import PipelineInputSet
 from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.dataitems.img.raw import ImageRaw, LmImageRaw, LmImageSciRaw
 from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark, MasterDark2rg
@@ -232,3 +233,31 @@ def test_every_recipe_promotes_its_qc_set_once_the_data_tags_are_known(recipe):
     """ What RecipeImpl.__init__ does at run time, with a stand-in for the tags the
     frames would supply; the recipe's own tags take precedence. """
     recipe.Impl.Qc.promoted(**(DATA_TAG_DEFAULTS | recipe.Impl.tag_parameters()))
+
+
+@pytest.mark.parametrize('recipe', sorted(Recipe._registry.values(), key=lambda r: r._name),
+                         ids=lambda r: r._name)
+def test_every_recipe_has_a_raw_role_input(recipe):
+    """ CPL DFS inherits the product header from the first RAW frame; without one it falls
+    back to whichever calibration comes first in the SOF. """
+    import cpl
+    assert any(input_class._group == cpl.ui.Frame.FrameGroup.RAW
+               for _, input_class in recipe.Impl.InputSet.list_input_classes()), \
+        f"{recipe._name}: no input is marked with PrimaryInputMixin or derived from RawInput"
+
+
+class TestInputSetSpecializationGuards:
+    def test_templates_are_abstract(self):
+        """ The README promises it; a concrete class with a placeholder in its name would
+        be instantiable with an unresolved tag. """
+        assert all(template._abstract for template in DataItem._templates.values())
+
+    def test_an_input_never_binds_a_clone(self):
+        """ A clone is a sibling of the leaves: no frame could ever match it. """
+        from pymetis.instruments.metis.inputs.common import MasterDarkInput
+
+        class Probe(PipelineInputSet):
+            master_dark: MasterDarkInput
+
+        with pytest.raises(TypeError, match='no hand-written class'):
+            Probe.specialized(detector='NOPE')

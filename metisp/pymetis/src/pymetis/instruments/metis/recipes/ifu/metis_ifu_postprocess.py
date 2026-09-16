@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput
+from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput, PrimaryInputMixin
 from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.recipes import Recipe
 
@@ -32,7 +32,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class SciCubeCalibratedInput(MultiplePipelineInput):
+        class SciCubeCalibratedInput(PrimaryInputMixin, MultiplePipelineInput):
             Item = IfuScienceCubeCalibrated
 
         sci_cube_calibrated: SciCubeCalibratedInput

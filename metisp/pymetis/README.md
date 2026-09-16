@@ -156,7 +156,9 @@ input class must re-annotate the attribute; forgetting this raises a
    whose name still has a placeholder — including per-band intermediates like
    `LmImageRaw` — is `abstract=True`: only fully resolved names of concrete
    classes enter `DataItem._registry`; templates are kept in
-   `DataItem._templates` for specialization.
+   `DataItem._templates` for specialization. (QC parameters differ here on
+   purpose: a `QC {band} ...` template is concrete and its resolved clones
+   serve as the per-band parameters, because nobody writes those leaves.)
 4. Make sure the module is reachable from an import: top-level modules load
    via `dataitems/__init__.py`; subpackage modules (e.g. `hci/`) load when a
    registered recipe imports them.

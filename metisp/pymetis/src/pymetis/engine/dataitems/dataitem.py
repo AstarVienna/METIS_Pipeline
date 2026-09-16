@@ -464,8 +464,6 @@ class DataItem(ParametrizableItem, abstract=True):
         """
         return f"    {cls.name():51s}{cls.description() or '<no description defined>'}"
 
-    @classmethod
-    @final
     def __str__(self):
         return f"{self.name()}"
 

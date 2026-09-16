@@ -22,7 +22,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 
 from pymetis.instruments.metis.dataitems.background import Background, BackgroundSubtracted
 from pymetis.instruments.metis.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced
@@ -34,7 +34,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 
 class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class BasicReducedInput(SinglePipelineInput):
+        class BasicReducedInput(PrimaryInputMixin, SinglePipelineInput):
             Item = BasicReduced
 
         class SkyBasicReducedInput(SinglePipelineInput):

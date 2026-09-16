@@ -119,7 +119,7 @@ class PipelineInput(ABC):
             if cls is None:
                 Msg.warning(self.__class__.__qualname__,
                             f"Found a frame with tag '{tag}', which is not a registered data item. Ignoring.")
-            elif cls == self.Item or issubclass(cls, self.Item):
+            elif issubclass(cls, self.Item):
                 matches[tag] = (cls, frames)
             else:
                 Msg.debug(self.__class__.__qualname__,

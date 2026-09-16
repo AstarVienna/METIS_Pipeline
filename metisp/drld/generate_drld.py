@@ -87,10 +87,17 @@ def fits_keywords(keywords) -> str:
     return ', '.join(rf'\FITS{{{keyword}}}' for keyword in keywords)
 
 
-def template_pattern(template: str) -> re.Pattern:
-    """ A regex matching every resolved tag a (partial) template can stand for. """
-    escaped = re.escape(template)
-    return re.compile('^' + re.sub(r'\\\{\w+\\\}', '[A-Z0-9]+', escaped) + '$')
+def template_pattern(template: str, tag_values: dict[str, set[str]]) -> re.Pattern:
+    """
+    A regex matching every resolved tag a (partial) template can stand for. Each
+    placeholder admits only the values its tag keyword takes in the catalogue, so
+    `IFU_{target}_RAW` matches `IFU_SCI_RAW` but not `IFU_RSRF_RAW`.
+    """
+    def alternatives(match: re.Match) -> str:
+        values = sorted(tag_values.get(match.group(1), ()), key=len, reverse=True)
+        return '(?:' + '|'.join(map(re.escape, values)) + ')' if values else '[A-Z0-9]+'
+
+    return re.compile('^' + re.sub(r'\\\{(\w+)\\\}', alternatives, re.escape(template)) + '$')
 
 
 class Catalogue:
@@ -104,16 +111,23 @@ class Catalogue:
         self.created_by: dict[str, set[str]] = {tag: set() for tag in self.items}
         self.input_for: dict[str, set[str]] = {tag: set() for tag in self.items}
 
-        # A recipe's products are already specialized to its own tags; an input's item is
-        # specialized here the same way the man page does it, and whatever placeholders the
-        # data would fill at run time (e.g. `{target}`) stand for every matching tag.
+        # The values each tag keyword takes anywhere in the catalogue, e.g. target -> SCI, STD, SKY.
+        self.tag_values: dict[str, set[str]] = {}
+        for item in self.items.values():
+            for key, value in item.tag_parameters().items():
+                self.tag_values.setdefault(key, set()).add(str(value))
+
+        # A recipe consumes exactly the items whose class the input's Item covers (what
+        # `PipelineInput` matches at run time); a product template with placeholders left
+        # for the data (e.g. `{target}`) stands for each catalogue value of that tag.
         for name, recipe in self.recipes.items():
             for _, product in recipe._list_products():
                 for tag in self.expand(product.name()):
                     self.created_by[tag].add(name)
             for _, input_class in recipe._list_inputs():
-                for tag in self.expand(self.input_tag(recipe, input_class)):
-                    self.input_for[tag].add(name)
+                for tag, item in self.items.items():
+                    if issubclass(item, input_class.Item):
+                        self.input_for[tag].add(name)
 
     @staticmethod
     def input_tag(recipe: type[Recipe], input_class) -> str:
@@ -123,7 +137,7 @@ class Catalogue:
         """ The catalogue tags a (possibly partial) template denotes. """
         if '{' not in template:
             return [template] if template in self.items else []
-        pattern = template_pattern(template)
+        pattern = template_pattern(template, self.tag_values)
         return [tag for tag in self.items if pattern.match(tag)]
 
     def macro_of(self, item: type[DataItem], tag: str | None = None) -> str:
