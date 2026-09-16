@@ -12,6 +12,7 @@ from pymetis.instruments.metis.dataitems.img.raw import ImageRaw, LmImageRaw, Lm
 from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark, MasterDark2rg
 from pymetis.instruments.metis.recipes.metis_det_dark import MetisDetDarkImpl
 from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_rsrf import MetisLmLssRsrfImpl
+from pymetis.instruments.metis.recipes.prefab.lss.rsrf import MetisLssRsrfImpl
 
 
 class TestItemSpecialization:
@@ -38,13 +39,27 @@ class TestItemSpecialization:
         """ QC {band} ... templates have no per-band leaves; the resolved clones are
         legitimate catalogue entries and must be findable by tag. """
         clone = MetisLmLssRsrfImpl.Qc.MeanLevel
-        assert clone._specialized_from is not None
+        assert clone._specialized_from is MetisLssRsrfImpl.Qc.MeanLevel
         assert QcParameter.find('QC LM LSS RSRF MEAN LEVEL') is clone
 
-    def test_a_partially_resolved_clone_is_not_registered(self):
-        clone = MasterDark.specialized(band='LM')   # resolves nothing in MASTER_DARK_{detector}
-        assert clone is MasterDark
+    def test_parameters_resolving_nothing_return_the_template_itself(self):
+        assert MasterDark.specialized(band='LM') is MasterDark   # MASTER_DARK_{detector} has no {band}
 
+    def test_a_partially_resolved_clone_is_not_registered(self):
+        """ XX_IMAGE_{target}_RAW is neither a tag nor a hand-written template. """
+        clone = ImageRaw.specialized(band='XX')
+        assert clone._specialized_from is ImageRaw
+        assert clone.name() == 'XX_IMAGE_{target}_RAW'
+        assert 'XX_IMAGE_{target}_RAW' not in DataItem._templates
+        assert DataItem.find_template('XX_IMAGE_{target}_RAW') is None
+
+    def test_only_relevant_keywords_reach_a_clone(self):
+        """ An index meant for a sibling (`order` of LCOEFF{order}) must not make the
+        specialization of the whole QC set fail on the items that lack it. """
+        from pymetis.instruments.metis.recipes.prefab.lss.trace import MetisLssTraceImpl
+        specialized = MetisLssTraceImpl.Qc.specialized(band='XX', order=2)
+        assert specialized.InterorderLevel.name() == 'QC XX LSS TRACE INTORDR LEVEL'
+        assert specialized.LCoeff.name() == 'QC XX LSS TRACE LCOEFF2'
 
     def test_a_handwritten_partial_specialization_is_found_by_template(self):
         """ LmImageRaw is abstract (LM_IMAGE_{target}_RAW still has a placeholder), yet
@@ -71,7 +86,19 @@ class TestRegistryHygiene:
 
     def test_templates_hold_only_placeholder_names(self):
         for root in (DataItem, QcParameter):
+            assert root._templates
             assert all('{' in k for k in root._templates)
+
+    def test_qc_parameter_base_does_not_register_itself(self):
+        """ The template base is abstract; its placeholder name must not own a key. """
+        assert "none" not in QcParameter._registry
+
+    def test_ifu_rsrf_publishes_its_own_nbadpix(self):
+        """ The DRLD lists QC IFU RSRF NBADPIX; the REDUCE parameter was reused before. """
+        from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import MetisIfuRsrf
+        description = MetisIfuRsrf._build_description()
+        assert 'QC IFU RSRF NBADPIX' in description
+        assert 'QC IFU REDUCE NBADPIX' not in description
 
     def test_partial_product_templates_are_not_registered_by_specialization(self):
         assert 'MASTER_DARK_{detector}' not in DataItem._registry
@@ -103,6 +130,25 @@ class TestContainerSpecialization:
         assert twice._specialized_from is MetisDetDarkImpl.ProductSet._specialized_from
         assert twice.MasterDark is MasterDark2rg
 
+    def test_a_subclass_of_a_specialized_container_keeps_its_own_members(self):
+        """ `class ProductSet(OtherImpl.ProductSet): Extra = ...` is a hand-written
+        container in its own right, not a specialization to start over from. """
+        from pymetis.instruments.metis.dataitems.common import PersistenceMap
+
+        class Extended(MetisDetDarkImpl.ProductSet):
+            Extra = PersistenceMap
+
+        members = dict(Extended.specialized(detector='2RG').list_classes())
+        assert members['Extra'] is PersistenceMap
+        assert members['MasterDark'] is MasterDark2rg
+
+    def test_an_input_set_specialized_twice_starts_from_the_original(self):
+        from pymetis.instruments.metis.recipes.metis_det_dark import MetisDetDarkImpl as Impl
+        once = Impl.InputSet.specialized(detector='2RG')
+        twice = once.specialized(detector='GEO')
+        assert once is not Impl.InputSet
+        assert twice._specialized_from is Impl.InputSet
+
 
 class TestPromotion:
     def test_qc_parameters_without_a_handwritten_leaf_promote_to_the_specialized_clone(self):
@@ -131,6 +177,12 @@ class TestIndexedQcParameters:
         promoted = MetisLmLssTraceImpl.Qc.promoted()
         assert promoted.LCoeff.name() == 'QC LM LSS TRACE LCOEFF{order}'
         assert not promoted.LCoeff._abstract
+
+    def test_an_unfilled_index_cannot_be_emitted(self):
+        """ A QC value with `{order}` in its name would become an invalid FITS card. """
+        from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_trace import MetisLmLssTraceImpl
+        with pytest.raises(TypeError, match='still has placeholders'):
+            MetisLmLssTraceImpl.Qc.promoted().LCoeff(1.0)
 
     def test_an_index_is_filled_per_value(self):
         """ `order` is not a tag keyword, but it is a placeholder of this very name, so

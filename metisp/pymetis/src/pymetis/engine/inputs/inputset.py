@@ -173,18 +173,19 @@ class PipelineInputSet(ParametrizableContainer):
         class member without one is exactly what `_verify_all_inputs_are_declared`
         rejects. Neither `cls` nor its inputs are mutated.
         """
-        Msg.debug(cls.__qualname__,
-                  f"Specializing {cls.__qualname__} with {parameters} | {cls.tag_parameters()}")
+        origin = cls.__dict__.get('_specialized_from', cls)
+        Msg.debug(origin.__qualname__,
+                  f"Specializing {origin.__qualname__} with {parameters} | {origin.tag_parameters()}")
 
         rebound = {}
-        for attr, input_class in cls.list_input_classes():
+        for attr, input_class in origin.list_input_classes():
             item = input_class.Item.specialized(**parameters)
             if item is not input_class.Item:
-                rebound[attr] = cls._bind_input(input_class, item)
+                rebound[attr] = origin._bind_input(input_class, item)
 
         if not rebound:
-            return cls
-        return cls._derived({'__annotations__': rebound, '_specialized_from': cls})
+            return origin
+        return origin._derived({'__annotations__': rebound, '_specialized_from': origin})
 
     @classmethod
     def promoted(cls, **parameters) -> type['PipelineInputSet']:

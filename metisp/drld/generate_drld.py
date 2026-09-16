@@ -77,7 +77,7 @@ class RecipeCard:
 
 
 def latex(text: str) -> str:
-    """ Escape free text for LaTeX. Tags inside \\PROD{} and friends are left alone. """
+    """ Escape free text for LaTeX; never apply it to tags, which go verbatim into \\PROD{} and friends. """
     return ''.join(LATEX_SPECIALS.get(char, char) for char in str(text))
 
 

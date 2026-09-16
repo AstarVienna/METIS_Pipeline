@@ -105,6 +105,10 @@ class RecipeImpl(Parametrizable, ABC):
             if getattr(container, '_specialized_for', None) is cls:
                 continue
             specialized = container.specialized(**cls.tag_parameters())
+            if specialized is container:
+                # Nothing to resolve (PipelineInputSet returns the declared class then);
+                # a shared declaration must not be stamped as anyone's specialization.
+                continue
             specialized._specialized_for = cls
             setattr(cls, name, specialized)
 

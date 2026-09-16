@@ -82,21 +82,6 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         master_adc_slitloss: MasterAdcSlitlossInput
         master_ao_psf_model: MasterAoPsfModel
 
-
-        # --------------------------------------------------------------------
-        # TODO:
-        # CHECK THE AO PSF MODEL - why not included? forgotten????
-        # """
-        # AO PSF MODEL
-        # """
-        # class MasterAoPsfModel(SinglePipelineInput):
-        #     _tags: re.Pattern = re.compile(r"AO_PSF_MODEL")
-        #     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-        #     _title: str = "AO induced PSF model"
-        #     _description: str = "Model of the PSF induced by the AO"
-        # CHECK THE AO PSF MODEL - why not included? forgotten????
-        # --------------------------------------------------------------------
-
     class ProductSet(PipelineProductSet):
         LssSciObjMap = LssObjMap
         LssSciSkyMap = LssSkyMap

@@ -79,6 +79,9 @@ class TestRecipeMetadata:
     def test_description_can_be_built(self, recipe):
         assert recipe._build_description() is not None
 
+    def test_recipe_can_be_instantiated(self, recipe):
+        assert isinstance(recipe(), cpl.ui.PyRecipe)
+
     def test_has_a_product_set(self, recipe):
         assert recipe.Impl.ProductSet is not None, f"{recipe._name} has no ProductSet"
         assert isinstance(recipe._list_products(), list)
@@ -133,9 +136,6 @@ class TestDeclaredProducts:
 @pytest.mark.external
 class TestRecipeOnDefaultData:
     """ Integration checks on `<recipe>.sof`; see the `sof` fixture for the skip rule. """
-
-    def test_recipe_can_be_instantiated(self, recipe):
-        assert isinstance(recipe(), cpl.ui.PyRecipe)
 
     def test_recipe_can_be_run_directly(self, recipe, frameset):
         assert isinstance(recipe().run(frameset, {}), cpl.ui.FrameSet), \

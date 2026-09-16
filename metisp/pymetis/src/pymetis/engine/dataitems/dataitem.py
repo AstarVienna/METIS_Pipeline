@@ -76,7 +76,8 @@ class DataItem(ParametrizableItem, abstract=True):
     # >>>     'DET4.DATA': Image,
     # >>> }
 
-    _registry: ClassVar[dict[str, type[Self]]] = {}
+    _registry: ClassVar[dict[str, type[Self]]] = {}       # fully resolved tag -> concrete class
+    _templates: ClassVar[dict[str, type[Self]]] = {}      # name with placeholders -> hand-written template
 
     @classmethod
     @final

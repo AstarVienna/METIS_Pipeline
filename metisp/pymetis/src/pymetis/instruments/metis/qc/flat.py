@@ -36,7 +36,7 @@ class MFlatMedian(QcParameter):
     _unit = "Counts"
     _description_template = "Median of the {band} master flat"
 
-class MFlatNBadpix(QcParameter):
+class MFlatNBadPix(QcParameter):
     _name_template = "QC {band} MFLAT NBADPIX"
     _type = int
     _unit = None
@@ -58,10 +58,10 @@ class LmMFlatMedian(BandLmMixin, MFlatMedian):
 class NMFlatMedian(BandNMixin, MFlatMedian):
     pass
 
-class LmMFlatNBadPix(BandLmMixin, MFlatNBadpix):
+class LmMFlatNBadPix(BandLmMixin, MFlatNBadPix):
     pass
 
-class NMFlatNBadPix(BandNMixin, MFlatNBadpix):
+class NMFlatNBadPix(BandNMixin, MFlatNBadPix):
     pass
 
 # -------------------------------

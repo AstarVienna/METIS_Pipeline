@@ -69,7 +69,9 @@ class PipelineInput(ABC):
     @abstractmethod
     def set_cpl_attributes(self):
         """
-        Set CPL attributes of loaded frames. ToDO: is this really necessary?
+        Stamp the CPL attributes on the loaded frames: the group is this input's role
+        (`_group`), level and type come from the item. CPL DFS reads them when the
+        product header is built, so this must run before any product is saved.
         """
 
     @classmethod

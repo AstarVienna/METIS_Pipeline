@@ -37,9 +37,13 @@ class QcParameter(ParametrizableItem, abstract=True):
     _description_template: ClassVar[str] = "<no description provided>"
     _comment: ClassVar[str] = ""
 
-    _registry: ClassVar[dict[str, type[Self]]] = {}
+    _registry: ClassVar[dict[str, type[Self]]] = {}       # fully resolved name -> concrete class
+    _templates: ClassVar[dict[str, type[Self]]] = {}      # name with placeholders -> hand-written template
 
     def __init__(self, value: Any):
+        if '{' in self.name():
+            raise TypeError(f"{self.__class__.__qualname__}: QC name {self.name()!r} still has placeholders; "
+                            f"specialize it first (e.g. `.specialized(order=1)`)")
         if not isinstance(value, self._type):
             raise ValueError(
                 f"{self.__class__.__qualname__} expected a {self._type} value, "

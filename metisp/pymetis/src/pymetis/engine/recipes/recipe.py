@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-import inspect
 import re
 from typing import Any, Generator, Self, ClassVar
 
@@ -106,8 +105,7 @@ class Recipe(cpl.ui.PyRecipe):
         Useful for reconstruction of DRLD input/product cards.
         """
         for (name, klass) in cls._registry.items():
-            for (n, kls) in inspect.getmembers(klass.Impl.ProductSet,
-                                               lambda x: inspect.isclass(x)):
+            for (n, kls) in klass._list_products():
                 if issubclass(kls, dataitem_class):
                     yield klass
 

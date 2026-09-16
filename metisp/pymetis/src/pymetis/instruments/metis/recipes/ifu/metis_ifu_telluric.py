@@ -43,15 +43,10 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
     """Implementation class for metis_ifu_telluric"""
 
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Define molecfit main input class as one 1d spectrum, either Science or Standard spectrum
     class InputSet(PipelineInputSet):
         """Inputs for metis_ifu_telluric"""
-        # TODO: still needs to be added to the input set
-        # class Reduced1DInput(SinglePipelineInput):
-        #     _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
-        #     _group = cpl.ui.Frame.FrameGroup.CALIB
-        #     _title: str = "uncorrected mf input spectrum"
-        #     _description: str = "Uncorrected MF input spectrum."
+        # TODO the molecfit input proper is the uncorrected 1D spectrum (IFU_{target}_REDUCED_1D);
+        #  until the recipe consumes it, the combined 2D product stands in as the primary input.
 
         class CombinedInput(PrimaryInputMixin, SinglePipelineInput):
             Item = IfuCombined

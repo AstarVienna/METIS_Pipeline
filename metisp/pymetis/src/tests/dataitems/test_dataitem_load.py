@@ -33,7 +33,7 @@ class TestDataItemLoad:
         """ Loading a file that already carries ESO PRO CATG must replace the
         card, not append a second one that would be saved along. """
         filename = str(tmp_path / 'persistence_catg.fits')
-        write_persistence_map(filename, pro_catg='PERSISTENCE_MAP')
+        write_persistence_map(filename, pro_catg='STALE_CATG')
 
         item = PersistenceMap.load(cpl.ui.Frame(filename, tag='PERSISTENCE_MAP'))
 

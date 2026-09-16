@@ -17,13 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import inspect
-import re
 from abc import ABC, ABCMeta
 from typing import ClassVar, Self, Optional, Any
 
 from cpl.core import Msg
 
-from .functions.format import partial_format
+from .functions.format import partial_format, placeholders
 
 
 class ParametrizableMeta(ABCMeta):
@@ -39,8 +38,8 @@ class ParametrizableMeta(ABCMeta):
     def __new__(mcs, name, bases, namespace, *, abstract=False, register=True, **kwargs):
         """
         `abstract=True` marks a template that must not be instantiated; `register=False`
-        keeps a concrete class out of the registry (used for the specialized clones,
-        which exist only to carry a resolved name).
+        keeps a class out of both registries (used for specialized clones whose name
+        still has placeholders: they are neither a tag nor a hand-written template).
         """
         cls = super().__new__(mcs, name, bases, namespace)
         cls._abstract = abstract
@@ -58,11 +57,11 @@ class ParametrizableMeta(ABCMeta):
         # otherwise silently create a class that never matches. The second kind are
         # indices such as `LCOEFF{order}`, filled per value rather than from the data.
         if kwargs and (valid := getattr(cls, "_valid_tags", frozenset())):
-            placeholders = set(re.findall(r'\{(\w+)\}', template or ''))
-            if unknown := set(kwargs) - set(valid) - placeholders:
+            own = placeholders(template)
+            if unknown := set(kwargs) - set(valid) - own:
                 raise TypeError(f"{name}: unknown tag parameter(s) {sorted(unknown)}, "
                                 f"valid tags are {sorted(valid)}"
-                                f"{f' and the placeholders of {template!r}' if placeholders else ''}")
+                                f"{f' and the placeholders of {template!r}' if own else ''}")
 
         # Merge tag parameters from MRO + class kwargs
         merged = {}
@@ -109,8 +108,6 @@ class ParametrizableMeta(ABCMeta):
         if root is None:
             return
         if '{' in key:
-            if "_templates" not in root.__dict__:
-                root._templates = {}
             registry = root.__dict__["_templates"]
         elif cls._abstract:
             return
@@ -219,9 +216,14 @@ class ParametrizableItem(Parametrizable, abstract=True):
         hand-written class owning the resolved tag (or, for a partial resolution, the
         resulting template) where one exists, and otherwise a clone of `cls` with the
         parameters applied. The clone keeps the abstractness of `cls` and, for concrete
-        items such as QC parameters, stands in for a leaf class nobody wrote. It is
-        registered only when its tag is fully resolved: a tag with placeholders left
-        can never match anything. `cls` is never mutated.
+        items such as QC parameters, stands in for a leaf class nobody wrote. A concrete
+        clone is registered only when its tag is fully resolved (a tag with placeholders
+        left can never match anything); an abstract clone is never registered, so
+        `promoted()` can tell a missing leaf from a legitimate item. `cls` is never mutated.
+
+        Only the keywords that mean something to `cls` -- declared tags and the
+        placeholders of its own name -- are handed to the clone; an index such as `order`
+        meant for a sibling item would otherwise be rejected as an unknown tag.
         """
         template = partial_format(cls._name_template, **(cls.tag_parameters() | parameters))
         if template == cls._name_template:
@@ -229,9 +231,11 @@ class ParametrizableItem(Parametrizable, abstract=True):
         lookup = cls.find_template if '{' in template else cls.find
         if (owner := lookup(template)) is not None:
             return owner
+        relevant = set(cls._valid_tags) | placeholders(cls._name_template)
         clone = type(cls.__name__, cls.__bases__,
                      dict(cls.__dict__) | {'_specialized_from': cls},
-                     abstract=cls._abstract, register='{' not in template, **parameters)
+                     abstract=cls._abstract, register='{' not in template,
+                     **{key: value for key, value in parameters.items() if key in relevant})
         clone.__qualname__ = cls.__qualname__
         return clone
 
@@ -297,7 +301,9 @@ class ParametrizableContainer(Parametrizable, ABC):
         an already specialized container starts over from the original, so repeated
         calls cannot stack clones of clones.
         """
-        origin = getattr(cls, '_specialized_from', cls)
+        # Only the container's own marker means "I am a specialization"; a hand-written
+        # subclass of a specialized container must keep the members it adds.
+        origin = cls.__dict__.get('_specialized_from', cls)
         Msg.debug(origin.__qualname__,
                   f"Specializing {origin.__qualname__} with {parameters} | {origin.tag_parameters()}")
 
@@ -335,8 +341,11 @@ class ParametrizableContainer(Parametrizable, ABC):
         for name, item in cls.list_classes():
             candidate = item.specialized(**parameters)
             tag = candidate.name()
+            # `specialized` already returns the owner where it resolved something; the
+            # lookup here covers an item whose name was resolved to begin with while a
+            # refinement registered first owns the tag.
             new_class = cls.Meta._T.find(tag) or candidate
-            unresolved = set(re.findall(r'\{(\w+)\}', tag))
+            unresolved = placeholders(tag)
             missing_tags = unresolved & (cls.Meta._T._valid_tags or unresolved)
             if missing_tags or new_class._abstract:
                 raise TypeError(
