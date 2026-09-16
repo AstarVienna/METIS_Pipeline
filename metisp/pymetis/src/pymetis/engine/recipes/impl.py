@@ -90,17 +90,17 @@ class RecipeImpl(Parametrizable, ABC):
         """
         Specialize the recipe implementation to the current class parameters.
 
-        Each Impl is given its own specialized ProductSet / Qc (a new subclass built
-        by `ParametrizableContainer.specialized`; the declared container is never
-        mutated, so nothing leaks into a prefab parent shared with sibling recipes).
-        Repeated calls, e.g. repeated man-page rendering, find the work done.
+        Each Impl is given its own specialized InputSet / ProductSet / Qc (a new subclass
+        built by `specialized()`; the declared container is never mutated, so nothing
+        leaks into a prefab parent shared with sibling recipes). For the inputs this
+        narrows what a frame may match to the class the recipe's own tags imply: a 2RG
+        recipe accepts MASTER_DARK_2RG only, and a SOF offering another detector's dark
+        fails validation instead of running with it. Repeated calls, e.g. repeated
+        man-page rendering, find the work done.
         """
         Msg.debug(cls.__qualname__, f"Specializing Implementation {cls.__qualname__} with {cls.tag_parameters()}")
 
-        # InputSet is deliberately not in this loop yet: specializing it changes the
-        # frame-matching semantics of every recipe, which needs validation against
-        # real SOF data first. PipelineInputSet.specialized is ready when that lands.
-        for name in ("ProductSet", "Qc"):
+        for name in ("InputSet", "ProductSet", "Qc"):
             container = getattr(cls, name)
             if getattr(container, '_specialized_for', None) is cls:
                 continue

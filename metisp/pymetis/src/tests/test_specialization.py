@@ -142,6 +142,16 @@ class TestContainerSpecialization:
         assert members['Extra'] is PersistenceMap
         assert members['MasterDark'] is MasterDark2rg
 
+    def test_the_recipe_input_set_is_narrowed_to_its_own_tags(self):
+        """ A 2RG recipe's master dark input accepts MASTER_DARK_2RG only; the prefab it
+        inherits from still declares the generic template for its other children. """
+        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import MetisLmImgFlatImpl
+        from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatImpl
+        inputs = dict(MetisLmImgFlatImpl.InputSet.list_input_classes())
+        assert inputs['master_dark'].Item is MasterDark2rg
+        assert MetisLmImgFlatImpl.InputSet._specialized_for is MetisLmImgFlatImpl
+        assert dict(MetisBaseImgFlatImpl.InputSet.list_input_classes())['master_dark'].Item is MasterDark
+
     def test_an_input_set_specialized_twice_starts_from_the_original(self):
         from pymetis.instruments.metis.recipes.metis_det_dark import MetisDetDarkImpl as Impl
         once = Impl.InputSet.specialized(detector='2RG')
@@ -204,6 +214,16 @@ class TestIndexedQcParameters:
 
 
 DATA_TAG_DEFAULTS = dict(band='LM', detector='2RG', target='SCI', source='LAMP', cgrph='RAVC')
+
+
+@pytest.mark.parametrize('recipe', sorted(Recipe._registry.values(), key=lambda r: r._name),
+                         ids=lambda r: r._name)
+def test_every_recipe_input_resolves_to_a_handwritten_item(recipe):
+    """ Narrowing an input must land on a catalogue class (leaf or hand-written partial
+    template), never on a synthesized clone, which would match no frame at all. """
+    for name, input_class in recipe.Impl.InputSet.list_input_classes():
+        assert not hasattr(input_class.Item, '_specialized_from'), \
+            f"{recipe._name}.{name}: {input_class.Item.name()} has no hand-written class"
 
 
 @pytest.mark.parametrize('recipe', sorted(Recipe._registry.values(), key=lambda r: r._name),
