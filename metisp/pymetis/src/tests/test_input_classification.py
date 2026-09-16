@@ -77,3 +77,29 @@ class TestValidation:
         inputset = MetisLmImgFlatImpl.InputSet(frames)
         inputset.validate()
         assert inputset.tag_matches['source'] == 'LAMP'
+
+
+class TestRecipeTagsAreAuthoritative:
+    def test_a_frame_contradicting_the_recipe_tags_is_refused(self, tmp_path):
+        """ An N-band recipe handed an LM-tagged item (LmSciBasicReduced carries band=LM): the
+        frame matched, as nothing narrowed this input, but the recipe's own band wins. """
+        from types import SimpleNamespace
+        from pymetis.engine.core.parameter import ParameterList
+        from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
+        from pymetis.engine.recipes import RecipeImpl
+        from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciBasicReduced
+        from pymetis.instruments.metis.mixins import BandNMixin
+
+        class Probe(BandNMixin, RecipeImpl):
+            class InputSet(PipelineInputSet):
+                class SkyInput(SinglePipelineInput):
+                    Item = LmSciBasicReduced
+
+                sky: SkyInput
+
+            def process(self):
+                return set()
+
+        recipe = SimpleNamespace(name='probe', version='0', parameters=ParameterList([]))
+        with pytest.raises(cpl.core.IllegalInputError, match="band is 'N' here but 'LM' in the data"):
+            Probe(recipe, frameset(tmp_path, 'LM_SCI_BASIC_REDUCED'), {})

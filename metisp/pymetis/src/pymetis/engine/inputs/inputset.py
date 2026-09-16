@@ -246,6 +246,8 @@ class PipelineInputSet(ParametrizableContainer):
         # Declaration order, so that the report is stable; every input is checked, so that
         # the report names everything that is missing rather than the first thing found.
         missing = []
+        sources: dict[str, tuple[str, str]] = {}      # tag keyword -> (value, name of the input that set it)
+        conflicts = []
         for name, _ in self.list_input_classes():
             inp = getattr(self, name)
             try:
@@ -255,12 +257,22 @@ class PipelineInputSet(ParametrizableContainer):
                 missing.append(str(e))
                 continue
             Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
+            # The frames of one recipe run must agree on every data tag: a GEO gain map next
+            # to 2RG darks is a mis-assembled set of frames, not a choice to be made for the user.
+            for key, value in inp.Item.tag_parameters().items():
+                if key in sources and sources[key][0] != value:
+                    conflicts.append(f"{key}: {sources[key][1]} has {sources[key][0]!r}, {name} has {value!r}")
+                else:
+                    sources.setdefault(key, (value, name))
             self.tag_matches |= inp.Item.tag_parameters()
 
         if missing:
             raise cpl.core.DataNotFoundError(
                 f"{self.__class__.__qualname__}: {len(missing)} required input(s) not satisfied by the set of frames:\n  "
                 + "\n  ".join(missing))
+        if conflicts:
+            raise cpl.core.IllegalInputError(
+                f"{self.__class__.__qualname__}: the frames disagree on the data tags:\n  " + "\n  ".join(conflicts))
 
 
     def print_debug(self, *, offset: int = 0) -> None:

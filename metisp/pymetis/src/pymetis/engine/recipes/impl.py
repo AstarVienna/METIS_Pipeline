@@ -72,7 +72,15 @@ class RecipeImpl(Parametrizable, ABC):
         # - tag matches (from the loaded frameset, instance-based)
         # The promoted containers are assigned to the *instance* (shadowing the class
         # attributes), so runs of the same recipe never affect one another.
-        # ToDo: Decide what to do in case of a conflict between those two
+        # The recipe's own tags are authoritative: a frame that carries a different value
+        # for a tag the recipe pins does not belong to this recipe, whatever else it matched.
+        disputed = {key: (self.tag_parameters()[key], value)
+                    for key, value in self.inputset.tag_matches.items()
+                    if key in self.tag_parameters() and self.tag_parameters()[key] != value}
+        if disputed:
+            raise cpl.core.IllegalInputError(
+                f"{self.__class__.__qualname__}: the frames contradict the recipe's own tags: "
+                + ", ".join(f"{key} is {mine!r} here but {theirs!r} in the data" for key, (mine, theirs) in disputed.items()))
         tags = self.tag_parameters() | self.inputset.tag_matches
         try:
             self.ProductSet = self.ProductSet.promoted(**tags)
