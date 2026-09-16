@@ -29,7 +29,7 @@ import cpl
 from cpl.core import Msg
 
 from pymetis.drl.combine import combine_images
-from pymetis.drl.noise import estimate_noise_list, calculate_outliers
+from pymetis.drl.noise import estimate_noise_list, calculate_outliers, calculate_outliers_sequence
 from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
@@ -222,7 +222,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # get noisy pixels: we may need to revisit whether this is a good thing to do later TODO
         
-        mask_bad = self.calculate_outliers_sequence(raw_images_hdrl, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
+        mask_bad = calculate_outliers_sequence(raw_images_hdrl, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
         qcnbad = mask_bad.count()
 
         Msg.info(self.__class__.__qualname__,

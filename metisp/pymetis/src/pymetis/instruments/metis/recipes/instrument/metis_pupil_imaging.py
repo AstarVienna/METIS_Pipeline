@@ -80,18 +80,15 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
             # return flat.divide_scalar(median)
 
     def prepare_images(self,
-                       raw_frames: cpl.ui.FrameSet,
+                       raw_images: cpl.core.ImageList,
+                       *,
                        bias: Optional[Image] = None,
                        flat: Optional[Image] = None) -> cpl.core.ImageList:
+        """Prepare the images; bias subtracting and flat fielding"""
         prepared_images = cpl.core.ImageList()
 
-        """Prepare the images; bias subtracting and flat fielding"""
-
-        for index, frame in enumerate(raw_frames):
-            Msg.info(self.__class__.__qualname__, f"Processing {frame.file!r}...")
-
-            Msg.debug(self.__class__.__qualname__, f"Loading image {frame.file!r}")
-            raw_image = cpl.core.Image.load(frame.file, extension=1)
+        for index, raw_image in enumerate(raw_images):
+            Msg.info(self.__class__.__qualname__, f"Processing raw image {index}...")
 
             if bias:
                 Msg.debug(self.__class__.__qualname__, "Bias subtracting...")
@@ -118,7 +115,7 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
         _gain = self.inputset.gain_map.load_data('DET1.SCI')
 
         master_flat = self.prepare_flat(master_flat, master_dark)
-        images = self.prepare_images(self.inputset.raw.frameset, master_flat, master_dark)
+        images = self.prepare_images(self.inputset.raw.load_data('DET1.DATA'), bias=master_dark, flat=master_flat)
         combined_image = self.combine_images(images, self.parameters["metis_pupil_imaging.stacking.method"].value)
         # Copying the header from the primary input causes
         #   TypeMismatchError: CPL error stack trace (most recent error last):

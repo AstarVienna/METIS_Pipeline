@@ -19,11 +19,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
-from pymetis.engine.dataitems import ImageDataItem
+from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins.band import BandLmMixin, BandNMixin
 
 
-class PupilRaw(ImageDataItem, abstract=True):
+class PupilRaw(Raw, abstract=True):
     _name_template = r'{band}_PUPIL_RAW'
     _title_template = "{band} pupil raw"
     _description_template = "Raw exposure of the pupil in {band} image mode."

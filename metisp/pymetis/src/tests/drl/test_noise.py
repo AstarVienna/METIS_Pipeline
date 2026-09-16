@@ -2,7 +2,7 @@
 Numerical tests of `pymetis.drl.noise`: the noise model and the outlier detection.
 """
 import numpy as np
-from cpl.core import Image as CplImage
+from cpl.core import Image as CplImage, ImageList as CplImageList
 from hdrl.core import Image as HdrlImage
 
 from pymetis.drl.noise import calculate_outliers, estimate_noise, estimate_noise_list
@@ -49,3 +49,30 @@ class TestCalculateOutliers:
 
         assert np.asarray(mask_hot).sum() == 0
         assert np.asarray(mask_cold).sum() == 0
+
+
+class TestCalculateOutliersSequence:
+    def test_a_noisy_pixel_is_flagged_and_inputs_are_untouched(self):
+        from pymetis.drl.noise import calculate_outliers_sequence
+        rng = np.random.default_rng(2)
+        frames = [rng.normal(1000.0, 1.0, size=(32, 32)) for _ in range(8)]
+        for i, frame in enumerate(frames):
+            frame[5, 7] = 1000.0 + 200.0 * (-1) ** i      # scatter 200 sigma where the rest has 1
+        images = estimate_noise_list(CplImageList([CplImage(f) for f in frames]), read_noise=0.0)
+        before = [np.array(im.image.as_array()) for im in images]
+
+        mask = calculate_outliers_sequence(images, kappa_low=5.0, kappa_high=5.0)
+
+        flagged = np.asarray(mask).astype(bool)
+        assert flagged[5, 7] and flagged.sum() == 1
+        for im, b in zip(images, before):
+            np.testing.assert_array_equal(im.image.as_array(), b)
+
+    def test_constant_scatter_flags_nothing(self):
+        """ Frames of 1 and 3 have a standard deviation of exactly 1 everywhere: no outliers
+        (the previous implementation returned sqrt(mean^2 + mean(x^2)) = 3 and flagged the
+        pixels *inside* the acceptance band). """
+        from pymetis.drl.noise import calculate_outliers_sequence
+        images = estimate_noise_list(CplImageList([CplImage(np.full((8, 8), 1.0)), CplImage(np.full((8, 8), 3.0))]),
+                                     read_noise=0.0)
+        assert np.asarray(calculate_outliers_sequence(images, kappa_low=5.0, kappa_high=5.0)).sum() == 0

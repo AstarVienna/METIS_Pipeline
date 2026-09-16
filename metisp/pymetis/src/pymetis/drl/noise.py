@@ -19,6 +19,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import math
 
+import numpy as np
+
 import cpl
 import hdrl
 from cpl.core import (Image as CplImage,
@@ -100,3 +102,27 @@ def calculate_outliers(
     mask_cold = flag(kappa_low, math.inf)
 
     return mask_hot, mask_cold
+
+
+def calculate_outliers_sequence(
+        images: HdrlImageList,
+        *,
+        kappa_low: float,
+        kappa_high: float,
+) -> CplMask:
+    """
+    Flag pixels whose frame-to-frame scatter is anomalous.
+
+    The standard deviation of every pixel across the sequence is compared with the
+    median and standard deviation of that scatter image: pixels more than `kappa_high`
+    sigma noisier, or `kappa_low` sigma quieter, than the typical pixel are flagged.
+    The input images are not modified.
+    """
+    Msg.info("calculate_outliers_sequence",
+             f"Identifying noisy pixels across {len(images)} frames ({kappa_low=}, {kappa_high=})")
+
+    stack = np.stack([np.asarray(image.image.as_array(), dtype=float) for image in images])
+    scatter = stack.std(axis=0)
+    median, rms = np.median(scatter), scatter.std()
+
+    return CplMask((scatter < median - kappa_low * rms) | (scatter > median + kappa_high * rms))

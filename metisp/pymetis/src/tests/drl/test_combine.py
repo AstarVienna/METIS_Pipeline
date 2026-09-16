@@ -44,3 +44,20 @@ class TestCombineHdrl:
         # errors are sqrt(4)=2 and sqrt(16)=4, propagated through the mean of two frames
         np.testing.assert_allclose(combined.error.as_array(),
                                    np.full((4, 6), np.hypot(2.0, 4.0) / 2), rtol=1e-6)
+
+
+class TestAddDoesNotAliasInputs:
+    def test_cpl_inputs_are_unchanged(self):
+        from cpl.core import Image as CplImage, ImageList as CplImageList
+        frames = CplImageList([CplImage(np.full((3, 3), 1.0)), CplImage(np.full((3, 3), 2.0))])
+        combined = combine_images(frames, 'add')
+        np.testing.assert_array_equal(combined.as_array(), 3.0)
+        np.testing.assert_array_equal(frames[0].as_array(), 1.0)
+
+    def test_hdrl_inputs_are_unchanged(self):
+        from cpl.core import Image as CplImage, ImageList as CplImageList
+        from pymetis.drl.noise import estimate_noise_list
+        frames = estimate_noise_list(CplImageList([CplImage(np.full((3, 3), 1.0)), CplImage(np.full((3, 3), 2.0))]), 0.0)
+        combined = combine_images(frames, 'add')
+        np.testing.assert_array_equal(combined.image.as_array(), 3.0)
+        np.testing.assert_array_equal(frames[0].image.as_array(), 1.0)
