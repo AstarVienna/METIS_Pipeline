@@ -170,7 +170,9 @@ class DataItem(ParametrizableItem, abstract=True):
         self._used: bool = False
 
         self.filename = filename
-        self.primary_header = primary_header if primary_header is not None else CplPropertyList()
+        # Own copy: `add_properties` writes ESO PRO CATG into it, and callers routinely build
+        # several products from one header or pass a loaded input's header straight through.
+        self.primary_header = CplPropertyList(primary_header) if primary_header is not None else CplPropertyList()
         # Currently all items are expected to have an empty primary HDU
         self._hdus: dict[str, Hdu] = {}
 
