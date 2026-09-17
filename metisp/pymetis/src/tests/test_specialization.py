@@ -293,6 +293,29 @@ class TestOneTagOneClass:
             assert qc_set.PeakCnt.name() == 'QC N IMG PEAK CNTS'
             assert qc_set.PeakCnt._specialized_from is ChopnodPeakCounts
 
+    def test_descriptions_read_tag_values_as_words(self):
+        """ The mixins label their tag values for prose: a class shared by the SCI and STD
+        recipes describes "the standard star spectrum", never "the STD spectrum", whether
+        the value came from a mixin, from `specialized()` or from promotion. """
+        from pymetis.instruments.metis.qc.lss import LssNoiseLevel, LssSnr
+        from pymetis.instruments.metis.dataitems.img.basicreduced import LmStdCalibrated, NSciCalibrated
+        from pymetis.instruments.metis.recipes.lm_lss.metis_lm_lss_std import MetisLmLssStdImpl
+        from pymetis.instruments.metis.recipes.n_lss.metis_n_lss_sci import MetisNLssSciImpl
+        assert LssNoiseLevel.specialized(band='LM', target='STD').description() == \
+            'Noise level of the standard star spectrum'
+        assert LssSnr.specialized(band='N', target='SCI').description() == \
+            'Signal-to-noise ratio of the science target spectrum'
+        assert MetisLmLssStdImpl.Qc.promoted().NoiseLevel.description() == 'Noise level of the standard star spectrum'
+        assert MetisNLssSciImpl.Qc.promoted().NoiseLevel.description() == 'Noise level of the science target spectrum'
+        assert LmStdCalibrated.description() == 'Calibrated LM standard star'
+        assert NSciCalibrated.title() == 'N SCI calibrated', "titles and names keep the raw tag values"
+
+    def test_a_label_for_a_tag_the_class_does_not_set_is_refused(self):
+        with pytest.raises(TypeError, match="label for tag 'target'"):
+            class Mislabelled(QcParameter):     # noqa: F841
+                _name_template = "QC {band} MISLABELLED"
+                _tag_labels = {'target': 'nothing'}
+
     def test_registered_classes_own_exactly_their_own_name(self):
         for root in (DataItem, QcParameter):
             assert all(klass.name() == key for key, klass in root._registry.items())

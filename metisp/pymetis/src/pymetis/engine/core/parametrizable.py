@@ -82,6 +82,16 @@ class ParametrizableMeta(ABCMeta):
         merged.update(kwargs)
         cls._tag_parameters = merged
 
+        # A mixin may label the value it sets (`_tag_labels = {'target': 'standard star'}`).
+        # Labels are kept per tag value on the root, so that a class arriving at the value
+        # by specialization or promotion (no mixin in its MRO) reads the same in prose.
+        own_labels = namespace.get("_tag_labels")
+        if isinstance(own_labels, dict):
+            for tag, label in own_labels.items():
+                if tag not in merged:
+                    raise TypeError(f"{name}: label for tag {tag!r} given, but the class sets no value for it")
+                Parametrizable._value_labels.setdefault(tag, {})[merged[tag]] = label
+
         # Resolve template against known parameters
         if template is not None and merged:
             cls._name_template = partial_format(template, **merged)
@@ -207,10 +217,21 @@ class Parametrizable(ABC, metaclass=ParametrizableMeta):
     # When non-empty, ParametrizableMeta rejects unknown tag keywords at class creation.
     # The instrument package sets this once, before defining its mixins.
     _valid_tags: ClassVar[frozenset[str]] = frozenset()
+    _value_labels: ClassVar[dict[str, dict[str, str]]] = {}   # tag -> value -> label, see `tag_labels`
 
     @classmethod
     def tag_parameters(cls):
         return cls._tag_parameters
+
+    @classmethod
+    def tag_labels(cls) -> dict[str, str]:
+        """
+        The tag parameters as words for prose: a mixin may label its value
+        (`TargetStdMixin` labels 'STD' as 'standard star'); values without a label are
+        returned as they are. Names and titles use the raw values, descriptions the labels.
+        """
+        return {key: Parametrizable._value_labels.get(key, {}).get(value, value)
+                for key, value in cls._tag_parameters.items()}
 
 
 class ParametrizableItem(Parametrizable, abstract=True):
@@ -268,12 +289,12 @@ class ParametrizableItem(Parametrizable, abstract=True):
     def description(cls) -> str:
         """
         Return the human-readable description of the item.
-        By default, this just returns the protected internal attribute,
-        but can be overridden to build the description from other data, such as band or target.
+        Tag placeholders are filled with the labels of the tag values where the mixins
+        define them (`{target}` reads "standard star", not "STD"), else with the values.
         """
         assert cls._description_template is not None, \
             f"{cls.__qualname__} description template is None"
-        return partial_format(cls._description_template, **cls.tag_parameters())
+        return partial_format(cls._description_template, **cls.tag_labels())
 
 
 class ParametrizableContainer(Parametrizable, ABC):

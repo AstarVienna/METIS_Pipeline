@@ -27,7 +27,7 @@ from pymetis.instruments.metis.mixins import TargetSciMixin, TargetStdMixin, Ban
 class BackgroundSubtracted(ImageDataItem, abstract=True):
     _name_template = r'{band}_{target}_BKG_SUBTRACTED'
     _title_template = "{band} background-subtracted"
-    _description_template = r"Thermal background subtracted images of science {band} {target} exposures."
+    _description_template = r"Thermal background subtracted {band} {target} exposures."
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}) # maybe

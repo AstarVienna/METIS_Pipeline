@@ -24,7 +24,7 @@ class LssSnr(QcParameter):
     _name_template = "QC {band} LSS {target} SNR"
     _type = float
     _unit = "1"
-    _description_template = "Signal-to-noise ratio of science spectrum"
+    _description_template = "Signal-to-noise ratio of the {target} spectrum"
     _comment = None
 
 
@@ -32,7 +32,7 @@ class LssNoiseLevel(QcParameter):
     _name_template = "QC {band} LSS {target} NOISELEV"
     _type = float
     _unit = "Jansky"
-    _description_template = "Noise level of science spectrum"
+    _description_template = "Noise level of the {target} spectrum"
     _comment = None
 
 
@@ -72,7 +72,7 @@ class LssWaveCalNMatch(QcParameter):
     _name_template = "QC {band} LSS {target} WAVECAL NMATCH"
     _type = int
     _unit = "1"
-    _description_template = "Number of line matched between catalogue and spectrum"
+    _description_template = "Number of lines matched between catalogue and spectrum"
     _comment = None
 
 

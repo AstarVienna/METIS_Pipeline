@@ -66,6 +66,15 @@ and will fail your branch fast:
 - Tag keywords are validated against the axes declared in
   `instruments/metis/mixins/__init__.py`; a typo like `bnad='LM'` raises.
 
+Names and titles always show the raw tag values; **descriptions** show the
+values as words where the mixin labels them
+(`TargetStdMixin` carries `_tag_labels = {'target': 'standard star'}`), so
+one shared class can read "Noise level of the standard star spectrum" for the
+STD recipe and "… of the science target spectrum" for the SCI recipe. Labels
+are kept per tag value on the root, so a class that reaches the value by
+specialization or promotion reads the same. Labelling a tag the class does
+not set raises.
+
 Worked example — `pyesorex metis_lm_img_flat` from import to product file:
 
 1. `recipes/__init__.py` imports the recipe module; creating
