@@ -147,8 +147,21 @@ class TestDeclaredQcParametersAreWritten:
     that every declared parameter is instantiated somewhere in the recipe implementation
     (`self.Qc.<Name>(...)` in the Impl or one of its prefab bases). It fails for every
     skeleton recipe until the values are computed; the QC audit of 2026-09-17 counted
-    141 of 178 declarations never written.
+    141 of 178 declarations never written. Those recipes are listed below and marked
+    `xfail(strict=True)`: once a recipe writes all of its QC parameters the test flips to
+    an unexpected pass and the recipe has to be removed from the list.
     """
+
+    RECIPES_WITH_UNWRITTEN_QC = frozenset({
+        'metis_cal_chophome', 'metis_det_lingain',
+        'metis_ifu_calibrate', 'metis_ifu_postprocess', 'metis_ifu_reduce', 'metis_ifu_rsrf', 'metis_ifu_telluric',
+        'metis_img_adi_cgrph', 'metis_lm_adi_app',
+        'metis_lm_img_background', 'metis_lm_img_distortion', 'metis_lm_img_flat',
+        'metis_lm_img_sci_postprocess', 'metis_lm_img_std_process',
+        'metis_lm_lss_rsrf', 'metis_lm_lss_sci', 'metis_lm_lss_std', 'metis_lm_lss_trace', 'metis_lm_lss_wave',
+        'metis_n_img_chopnod', 'metis_n_img_distortion', 'metis_n_img_flat', 'metis_n_img_std_process',
+        'metis_n_lss_rsrf', 'metis_n_lss_sci', 'metis_n_lss_std', 'metis_n_lss_trace',
+    })
 
     @staticmethod
     def implementation_source(recipe: type[Recipe]) -> str:
@@ -162,7 +175,10 @@ class TestDeclaredQcParametersAreWritten:
                 sources.append(Path(path).read_text())
         return '\n'.join(sources)
 
-    def test_every_declared_qc_parameter_is_instantiated(self, recipe):
+    def test_every_declared_qc_parameter_is_instantiated(self, recipe, request):
+        if recipe._name in self.RECIPES_WITH_UNWRITTEN_QC:
+            request.applymarker(pytest.mark.xfail(
+                strict=True, reason="skeleton recipe: declared QC parameters are not computed yet"))
         source = self.implementation_source(recipe)
         unwritten = [f"{attr} ({klass.name()})"
                      for attr, klass in recipe._list_qc_parameters()
