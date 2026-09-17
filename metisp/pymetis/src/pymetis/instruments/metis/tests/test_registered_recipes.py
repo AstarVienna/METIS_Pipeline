@@ -139,6 +139,40 @@ class TestDeclaredProducts:
 
 
 @pytest.mark.recipe
+@pytest.mark.metadata
+class TestDeclaredQcParametersAreWritten:
+    """
+    A QC parameter declared in a recipe's `Qc` set is advertised by the man page and by the
+    DRLD generator, so the recipe should actually produce it. This test checks statically
+    that every declared parameter is instantiated somewhere in the recipe implementation
+    (`self.Qc.<Name>(...)` in the Impl or one of its prefab bases). It fails for every
+    skeleton recipe until the values are computed; the QC audit of 2026-09-17 counted
+    141 of 178 declarations never written.
+    """
+
+    @staticmethod
+    def implementation_source(recipe: type[Recipe]) -> str:
+        sources = []
+        for base in recipe.Impl.__mro__:
+            try:
+                path = inspect.getsourcefile(base)
+            except TypeError:
+                continue
+            if path and 'pymetis' in path:
+                sources.append(Path(path).read_text())
+        return '\n'.join(sources)
+
+    def test_every_declared_qc_parameter_is_instantiated(self, recipe):
+        source = self.implementation_source(recipe)
+        unwritten = [f"{attr} ({klass.name()})"
+                     for attr, klass in recipe._list_qc_parameters()
+                     if not re.search(r'\bQc\.' + re.escape(attr) + r'\(', source)]
+        assert not unwritten, \
+            (f"{recipe._name} declares {len(unwritten)} QC parameter(s) it never writes: "
+             + ', '.join(unwritten))
+
+
+@pytest.mark.recipe
 @pytest.mark.external
 class TestRecipeOnDefaultData:
     """ Integration checks on `<recipe>.sof`; see the `sof` fixture for the skip rule. """
