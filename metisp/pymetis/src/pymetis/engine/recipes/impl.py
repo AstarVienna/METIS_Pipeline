@@ -204,6 +204,9 @@ class RecipeImpl(Parametrizable, ABC):
         out = cpl.core.PropertyList()
         Msg.info(self.__class__.__qualname__, "Collecting QC Parameters")
         for qcparam in qc_parameters:
+            if not qcparam.available:
+                Msg.warning(self.__class__.__qualname__, f"    {qcparam.name()} not available, not written")
+                continue
             Msg.info(self.__class__.__qualname__, f"    {qcparam.name()} = {qcparam.value!s}")
             out.append(qcparam.as_property())
 

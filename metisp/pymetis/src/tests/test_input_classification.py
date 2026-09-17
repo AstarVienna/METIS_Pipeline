@@ -149,3 +149,27 @@ class TestInputOrderAndPrimaryFrame:
             dark: MasterDarkInput
 
         assert Probe(frameset(tmp_path, 'MASTER_DARK_2RG')).primary_frame is None
+
+
+class TestUseBeforeLoading:
+    def test_use_is_safe_before_the_item_is_loaded(self, tmp_path):
+        inp = MasterDarkInput(frameset(tmp_path, 'MASTER_DARK_2RG'))
+        assert inp.use() is inp and inp._use_requested
+
+    def test_use_is_safe_on_a_multiple_input_before_loading(self, tmp_path):
+        from pymetis.instruments.metis.recipes.metis_det_dark import MetisDetDarkImpl
+        inp = MetisDetDarkImpl.InputSet.RawInput(frameset(tmp_path, 'DARK_2RG_RAW', 'DARK_2RG_RAW'))
+        assert inp.use() is inp and inp._use_requested
+
+
+class TestTagAxesMustBeDeclared:
+    def test_tag_keywords_without_declared_axes_are_refused(self):
+        from pymetis.engine.core.parametrizable import Parametrizable
+        declared = Parametrizable._valid_tags
+        Parametrizable._valid_tags = frozenset()
+        try:
+            with pytest.raises(TypeError, match="no tag axes are declared"):
+                class Probe(Parametrizable, band='LM'):   # noqa: F841
+                    pass
+        finally:
+            Parametrizable._valid_tags = declared

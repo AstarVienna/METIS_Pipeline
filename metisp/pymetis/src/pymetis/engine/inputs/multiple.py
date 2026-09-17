@@ -37,6 +37,7 @@ class MultiplePipelineInput(PipelineInput):
                  frameset: cpl.ui.FrameSet):
         self.items: list[DataItem] = []
         self.frameset: Optional[cpl.ui.FrameSet] = cpl.ui.FrameSet()
+        self._use_requested: bool = False
         super().__init__(frameset)
 
     def _load_frameset_specific(self, frameset: cpl.ui.FrameSet):
@@ -166,6 +167,8 @@ class MultiplePipelineInput(PipelineInput):
         return self.frameset
 
     def use(self) -> Self:
+        """ Mark the items as used; before loading, remember to mark them once they are. """
+        self._use_requested = True
         for item in self.items:
             item.use()
         return self

@@ -440,15 +440,13 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
                         "wavelength maps rest on the approximate dispersion model and "
                         "QC RMS is not reported")
 
-        qc = [self.Qc.NLines(n_lines)]
-        if rms is not None:
-            qc.append(self.Qc.Rms(rms))
-        if peak_counts is not None:
-            qc.append(self.Qc.PeakCounts(peak_counts))
-        if line_width is not None:
-            qc.append(self.Qc.LineWidth(line_width))
-
-        return self.collect_qc_parameters(*qc)
+        # A value of None means "not determined"; such a parameter is reported but not written.
+        return self.collect_qc_parameters(
+            self.Qc.NLines(n_lines),
+            self.Qc.Rms(rms),
+            self.Qc.PeakCounts(peak_counts),
+            self.Qc.LineWidth(line_width),
+        )
 
 
 class MetisIfuWavecal(Recipe):

@@ -37,6 +37,7 @@ class SinglePipelineInput(PipelineInput):
                  frameset: cpl.ui.FrameSet):                       # Any other args
         self.item: Optional[DataItem] = None
         self.frame: Optional[cpl.ui.Frame] = None
+        self._use_requested: bool = False
         super().__init__(frameset)
 
     def _load_frameset_specific(self, frameset: cpl.ui.FrameSet):
@@ -69,6 +70,8 @@ class SinglePipelineInput(PipelineInput):
                      f"Loading single input frame {self.frame.file!r}")
 
             self.item = self.Item.load(self.frame)
+            if self._use_requested:
+                self.item.use()
             self.use() # FixMe: for now anything that is actually loaded is marked as used (proof-of-concept)
 
     def load_data(self, extension: str = None) -> Union[Image, Table]:
@@ -123,7 +126,10 @@ class SinglePipelineInput(PipelineInput):
         return self.frame
 
     def use(self) -> Self:
-        self.item.use()
+        """ Mark the item as used; before loading, remember to mark it once it is. """
+        self._use_requested = True
+        if self.item is not None:
+            self.item.use()
         return self
 
     def valid_frames(self) -> cpl.ui.FrameSet:

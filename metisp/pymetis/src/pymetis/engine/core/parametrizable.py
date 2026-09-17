@@ -61,7 +61,12 @@ class ParametrizableMeta(ABCMeta):
         # nor placeholders of this very name template: a typo like `bnad='LM'` would
         # otherwise silently create a class that never matches. The second kind are
         # indices such as `LCOEFF{order}`, filled per value rather than from the data.
-        if kwargs and (valid := getattr(cls, "_valid_tags", frozenset())):
+        if kwargs:
+            valid = getattr(cls, "_valid_tags", frozenset())
+            if not valid:
+                raise TypeError(f"{name}: tag keywords {sorted(kwargs)} given, but no tag axes are declared; "
+                                f"the instrument package must set `Parametrizable._valid_tags` "
+                                f"(pymetis.instruments.metis.mixins does) before tagged classes are defined.")
             own = placeholders(template)
             if unknown := set(kwargs) - set(valid) - own:
                 raise TypeError(f"{name}: unknown tag parameter(s) {sorted(unknown)}, "
