@@ -22,7 +22,7 @@ from typing import Dict, Any, final, Optional, TYPE_CHECKING
 import cpl
 from cpl.core import Msg
 
-from pymetis.engine.core.parameter import ParameterList
+from pymetis.engine.core.parameter import Parameter, ParameterList
 from pymetis.engine.core.parametrizable import Parametrizable
 
 from pymetis.engine.dataitems import DataItem, PipelineProductSet
@@ -57,7 +57,9 @@ class RecipeImpl(Parametrizable, ABC):
         super().__init__()
         self.name = recipe.name
         self.version = recipe.version
-        self.parameters = recipe.parameters
+        # The declaration on the Recipe class is shared by every run; settings are applied
+        # to this run's own copy (pyesorex copies the same way before it sets values).
+        self.parameters = ParameterList([Parameter.from_cplui(parameter) for parameter in recipe.parameters])
 
         self.header: cpl.core.PropertyList | None = None
         self.products: set[DataItem] = set()
@@ -146,17 +148,21 @@ class RecipeImpl(Parametrizable, ABC):
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """
-        Update the recipe parameters with the values requested by the user.
-        Warn if any of the parameters is not recognized.
+        Update this run's recipe parameters with the values requested by the user.
+
+        pyesorex only ever passes names it took from the recipe's own declaration, so an
+        unknown name can only come from a direct caller (a test, a notebook) and is a bug
+        there: it is refused rather than silently reduced with the default.
         """
         for key, value in settings.items():
             try:
                 self.parameters[key].value = value
             except KeyError:
-                Msg.warning(self.__class__.__qualname__,
-                            f"Settings include '{key}' = {value} "
-                            f"but class {self.__class__.__qualname__} "
-                            f"has no parameter named {key}.")
+                raise cpl.core.IllegalInputError(
+                    f"{self.__class__.__qualname__}: no parameter named '{key}' "
+                    f"(settings gave it the value {value!r}); the recipe declares "
+                    f"{sorted(parameter.name for parameter in self.parameters)}") from None
+            Msg.debug(self.__class__.__qualname__, f"Parameter {key} set to {value!r}")
 
     @abstractmethod
     def process(self) -> set[DataItem]:
