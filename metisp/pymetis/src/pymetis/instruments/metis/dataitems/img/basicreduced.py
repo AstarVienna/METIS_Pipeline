@@ -79,11 +79,15 @@ class Calibrated(ImageDataItem, abstract=True):
     }
 
 
+class SciCalibrated(TargetSciMixin, Calibrated, abstract=True):
+    """ Calibrated science image of either band: the input of the band-generic ADI recipes. """
+
+
 class LmStdCalibrated(BandLmMixin, TargetStdMixin, Calibrated):
     pass
 
 
-class LmSciCalibrated(BandLmMixin, TargetSciMixin, Calibrated):
+class LmSciCalibrated(BandLmMixin, SciCalibrated):
     _description_template = "LM band image with flux calibration, WC coordinate system and distortion information"
 
 
@@ -91,7 +95,7 @@ class NStdCalibrated(BandNMixin, TargetStdMixin, Calibrated):
     pass
 
 
-class NSciCalibrated(BandNMixin, TargetSciMixin, Calibrated):
+class NSciCalibrated(BandNMixin, SciCalibrated):
     _description_template = "N band image with flux calibration and distortion information"
 
 

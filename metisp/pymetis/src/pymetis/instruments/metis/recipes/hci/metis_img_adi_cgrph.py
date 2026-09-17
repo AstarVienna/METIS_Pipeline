@@ -1,5 +1,5 @@
 """
-Thi file is part of the METIS Pipeline.
+This file is part of the METIS Pipeline.
 Copyright (C) 2024 European Southern Observatory
 
 This program is free software; you can redistribute it and/or modify
@@ -16,202 +16,97 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-import copy
 
 from pymetis.engine.core.parameter import ParameterList
-
-# import the dataitems we use
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameter, QcParameterSet
-from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
-#from pymetis.instruments.metis.dataitems.hci import LmOffAxisPsfRaw, LmOnAxisPsfTemplate
-from pymetis.instruments.metis.dataitems.hci.hci import LmRavcCalibrated
-
-
-from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciCentred, LmRavcCentroidTab
-from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciSpeckle, LmRavcSciHifilt, LmRavcSciDerotatedPsfsub
-from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciDerotated
-from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciContrastRadprof, LmRavcSciContrastAdi, LmRavcSciThroughput
-from pymetis.instruments.metis.dataitems.hci.hci import LmRavcSciCoverage, LmRavcSciSnr, LmRavcPsfMedian
+from pymetis.engine.inputs import SinglePipelineInput
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
-from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
-from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
-from pymetis.instruments.metis.inputs import RawInput
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
+from pymetis.instruments.metis.dataitems.img.basicreduced import SciCalibrated
+from pymetis.instruments.metis.dataitems.hci.hci import (AdiCalibrated, SciCentred, CentroidTab, SciSpeckle,
+                                                         SciHifilt, SciDerotatedPsfsub, SciDerotated,
+                                                         SciContrastRadprof, SciContrastAdi, SciThroughput,
+                                                         SciCoverage, SciSnr, PsfMedian)
+from pymetis.instruments.metis.inputs import RawInput
+from pymetis.instruments.metis.qc.hci import (HciSciNExp, HciSciSnrMean, HciSciSnrPeak,
+                                              HciSciContrastRawLamd, HciSciContrastAdiLamd, HciSciFwhm)
+from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
-class MetisLmRavcSciCalibrateImpl(RawImageProcessor, MetisRecipeImpl):
+
+class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
+    """
+    One recipe for both bands and the RAVC / CVC coronagraphs (DRLD `metis_img_adi_cgrph`).
+
+    The recipe carries no band or coronagraph of its own: the band comes from the tag of
+    the calibrated science frames (`LM_SCI_CALIBRATED` / `N_SCI_CALIBRATED`) and the
+    coronagraph from the throughput curve (`{band}_{cgrph}_SCI_THROUGHPUT`), the one input
+    on the DRLD card whose tag names it. Products and QC parameters are declared as
+    templates and resolved per run from those tags; a set of frames that does not
+    determine the coronagraph is refused, never guessed from a header.
+    """
+
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LmSciCalibrated
+            Item = SciCalibrated
+
+        class ThroughputInput(SinglePipelineInput):
+            Item = SciThroughput
 
         raw: RawInput
-        #class LmOffAxisPsfRaw(RawInput):
-        #    Item = OffAxisPsf
-        #class LmOnAxisPsfTemplate(RawInput):
-        #    Item = OnAxisPsfTemplate
+        throughput: ThroughputInput
 
     class ProductSet(PipelineProductSet):
-        LmSciCalibrated = LmRavcCalibrated
-        LmSciCentred = LmRavcSciCentred
-        LmCentroidTab = LmRavcCentroidTab
-        LmSciSpeckle = LmRavcSciSpeckle
-        LmSciHifilt = LmRavcSciHifilt
-        LmSciDerotatedPsfsub = LmRavcSciDerotatedPsfsub
-        LmSciDerotated = LmRavcSciDerotated
-        LmSciContrastRadprof = LmRavcSciContrastRadprof
-        LmSciContrastAdi = LmRavcSciContrastAdi
-        LmSciThroughput = LmRavcSciThroughput
-        LmSciCoverage = LmRavcSciCoverage
-        LmSciSnr = LmRavcSciSnr
-        LmSciPsfMedian = LmRavcPsfMedian
+        SciCalibrated = AdiCalibrated
+        SciCentred = SciCentred
+        CentroidTab = CentroidTab
+        SciSpeckle = SciSpeckle
+        SciHifilt = SciHifilt
+        SciDerotatedPsfsub = SciDerotatedPsfsub
+        SciDerotated = SciDerotated
+        SciContrastRadprof = SciContrastRadprof
+        SciContrastAdi = SciContrastAdi
+        SciThroughput = SciThroughput
+        SciCoverage = SciCoverage
+        SciSnr = SciSnr
+        PsfMedian = PsfMedian
 
     class Qc(QcParameterSet):
-        class SciNExp(QcParameter):
-            _name_template = "QC {detector} {cgrph} SCI NEXP"
-            _type = int
-            _unit = "1"
-            _default = None
-            _description_template = "Effective number of exposures used to create the ADI data products"
-
-        class SciSnrMean(QcParameter):
-            _name_template = "QC {detector} {cgrph} SCI SNR MEAN"
-            _type = float
-            _unit = "1"
-            _default = None
-            _description_template = "Mean value in ADI SNR map"
-
-        class SciSnrPeak(QcParameter):
-            _name_template = "QC {detector} {cgrph} SCI SNR PEAK"
-            _type = float
-            _unit = "1"
-            _default = None
-            _description_template = "Peak value in ADI SNR map"
-
-        class SciContrastRawLamd(QcParameter):
-            _name_template = "QC {detector} {cgrph} SCI CONTRAST RAW LAMD"
-            _type = float
-            _unit = "mag"
-            _default = None
-            _description_template = "Raw contrast curve value at separation LAMD LDD"
-
-        class SciContrastAdiLamd(QcParameter):
-            _name_template = "QC {detector} {cgrph} SCI CONTRAST ADI LAMD"
-            _type = float
-            _unit = "mag"
-            _default = None
-            _description_template = "Post-ADI contrast curve value at separation LAMD LDD"
-
-        class SciFwhm(QcParameter):
-            _name_template = "QC {detector} {cgrph} SCI FWHM {nn}"
-            _type = float
-            _unit = "pixels"
-            _default = None
-            _description_template = "FWHM of the PSF in frame {nn}"
+        SciNExp = HciSciNExp
+        SciSnrMean = HciSciSnrMean
+        SciSnrPeak = HciSciSnrPeak
+        SciContrastRawLamd = HciSciContrastRawLamd
+        SciContrastAdiLamd = HciSciContrastAdiLamd
+        SciFwhm = HciSciFwhm
 
     def process(self) -> set[DataItem]:
         image = self.inputset.raw.load_data('DET1.DATA')[0]
-        #image = create_dummy_image()
         table = create_dummy_table()
-
         primary_header = create_dummy_header()
-        header_lmSciCalibrated = create_dummy_header()
-        header_lmSciCentred = create_dummy_header()
-        header_lmCentroidTable = create_dummy_header()
-        header_lmSciSpeckle = create_dummy_header()
-        header_lmSciHifilt = create_dummy_header()
-        header_lmSciDerotatedPsfsub = create_dummy_header()
-        header_lmSciDerotated = create_dummy_header()
-        header_lmSciContrastRadprof = create_dummy_header()
-        header_lmSciContrastAdi = create_dummy_header()
-        header_lmSciThroughput = create_dummy_header()
-        header_lmSciCoverage = create_dummy_header()
-        header_lmSciSnr = create_dummy_header()
-        header_lmSciPsfMedian = create_dummy_header()
 
-
-        product_lmSciCalibrated = self.ProductSet.LmSciCalibrated(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciCalibrated, image, name='DET1.DATA'),
-        )
-        product_lmSciCentred = self.ProductSet.LmSciCentred(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciCentred, image, name='DET1.DATA'),
-        )
-        product_lmCentroidTable = self.ProductSet.LmCentroidTab(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmCentroidTable, table, name='DET1.DATA'),
-        )
-        product_lmSciSpeckle = self.ProductSet.LmSciSpeckle(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciSpeckle, image, name='DET1.DATA'),
-        )
-        product_lmSciHifilt = self.ProductSet.LmSciHifilt(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciHifilt, image, name='DET1.DATA'),
-        )
-        product_lmSciDerotatedPsfsub = self.ProductSet.LmSciDerotatedPsfsub(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciDerotatedPsfsub, image, name='DET1.DATA'),
-        )
-        product_lmSciDerotated = self.ProductSet.LmSciDerotated(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciDerotated, image, name='DET1.DATA'),
-        )
-        product_lmSciContrastRadprof = self.ProductSet.LmSciContrastRadprof(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciContrastRadprof, table, name='DET1.DATA'),
-        )
-        product_lmSciContrastAdi = self.ProductSet.LmSciContrastAdi(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciContrastAdi, table, name='DET1.DATA'),
-        )
-        product_lmSciThroughput = self.ProductSet.LmSciThroughput(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciThroughput, table, name='DET1.DATA'),
-        )
-        product_lmSciCoverage = self.ProductSet.LmSciCoverage(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciCoverage, image, name='DET1.DATA'),
-        )
-        product_lmSciSnr = self.ProductSet.LmSciSnr(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciSnr, image, name='DET1.DATA'),
-        )
-        product_lmSciPsfMedian = self.ProductSet.LmSciPsfMedian(
-                copy.deepcopy(primary_header),
-                Hdu(header_lmSciPsfMedian, image, name='DET1.DATA'),
-        )
+        images = ('SciCalibrated', 'SciCentred', 'SciSpeckle', 'SciHifilt', 'SciDerotatedPsfsub',
+                  'SciDerotated', 'SciCoverage', 'SciSnr', 'PsfMedian')
+        tables = ('CentroidTab', 'SciContrastRadprof', 'SciContrastAdi', 'SciThroughput')
 
         return {
-            product_lmSciCalibrated,
-            product_lmSciCentred,
-            product_lmCentroidTable,
-            product_lmSciSpeckle,
-            product_lmSciHifilt,
-            product_lmSciDerotatedPsfsub,
-            product_lmSciDerotated,
-            product_lmSciContrastRadprof,
-            product_lmSciContrastAdi,
-            product_lmSciThroughput,
-            product_lmSciCoverage,
-            product_lmSciSnr,
-            product_lmSciPsfMedian
+            getattr(self.ProductSet, name)(primary_header, Hdu(create_dummy_header(), data, name='DET1.DATA'))
+            for names, data in ((images, image), (tables, table))
+            for name in names
         }
 
 
-class MetisLmRavcSciCalibrated(Recipe):
+class MetisImgAdiCgrph(Recipe):
     _name: str = "metis_img_adi_cgrph"
     _version: str = "0.1"
     _author: str = "Jennifer Karr, A*"
     _email: str = "jkarr@asiaa.sinica.edu.tw"
-    _synopsis: str = "ADI postprocssing"
+    _synopsis: str = "ADI post-processing for the RAVC and CVC coronagraphs in the LM and N bands"
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER', 'DRS.MASK'})
     _algorithm = """TODO"""
 
     parameters = ParameterList([])
 
-    Impl = MetisLmRavcSciCalibrateImpl
-
-    
+    Impl = MetisImgAdiCgrphImpl
