@@ -261,3 +261,54 @@ class TestInputSetSpecializationGuards:
 
         with pytest.raises(TypeError, match='no hand-written class'):
             Probe.specialized(detector='NOPE')
+
+
+class TestOneTagOneClass:
+    """ Two classes must never fully resolve to the same tag: if they mean the same thing they
+    derive from one template, and if they do not, their names differ. """
+
+    def test_a_second_class_for_an_owned_tag_is_refused_at_import(self):
+        with pytest.raises(TypeError, match="Tag collision: 'MASTER_DARK_2RG'"):
+            class RefinedDark(MasterDark2rg):   # noqa: F841
+                _description_template = "the same dark, described differently"
+
+    def test_a_second_template_for_an_owned_placeholder_name_is_refused(self):
+        with pytest.raises(TypeError, match=r"Tag collision: 'QC \{band\} STD PEAK CNTS'"):
+            class OtherPeak(QcParameter):       # noqa: F841
+                _name_template = "QC {band} STD PEAK CNTS"
+                _type = float
+
+    def test_std_process_and_chopnod_keep_their_own_parameters(self):
+        """ chopnod used to refine the STD template, and whichever recipe was imported first
+        owned QC N STD PEAK CNTS; the other silently got its class and description. """
+        from pymetis.instruments.metis.recipes.n_img.metis_n_img_std_process import MetisNImgStdProcessImpl
+        from pymetis.instruments.metis.recipes.n_img.metis_n_img_chopnod import MetisNImgChopnodImpl
+        from pymetis.instruments.metis.qc.std_process import QcStdPeakCounts
+        from pymetis.instruments.metis.qc.chopnod import ChopnodPeakCounts
+        for qc_set in (MetisNImgStdProcessImpl.Qc, MetisNImgStdProcessImpl.Qc.promoted()):
+            assert qc_set.PeakCounts.name() == 'QC N STD PEAK CNTS'
+            assert qc_set.PeakCounts.description() == 'Peak counts of the standard star'
+            assert qc_set.PeakCounts._specialized_from is QcStdPeakCounts
+        for qc_set in (MetisNImgChopnodImpl.Qc, MetisNImgChopnodImpl.Qc.promoted()):
+            assert qc_set.PeakCnt.name() == 'QC N IMG PEAK CNTS'
+            assert qc_set.PeakCnt._specialized_from is ChopnodPeakCounts
+
+    def test_registered_classes_own_exactly_their_own_name(self):
+        for root in (DataItem, QcParameter):
+            assert all(klass.name() == key for key, klass in root._registry.items())
+            assert all(klass._name_template == key for key, klass in root._templates.items())
+
+
+@pytest.mark.parametrize('recipe', sorted(Recipe._registry.values(), key=lambda r: r._name),
+                         ids=lambda r: r._name)
+def test_specialization_never_swaps_the_lineage_of_a_declared_member(recipe):
+    """ Every specialized product or QC member of a recipe is the declared class, its own
+    clone, or a hand-written subclass of it -- never another template's class. """
+    for container_name in ('ProductSet', 'Qc'):
+        specialized = getattr(recipe.Impl, container_name)
+        declared = getattr(specialized, '_specialized_from', specialized)
+        for name, member in specialized.list_classes():
+            declared_member = dict(declared.list_classes())[name]
+            origin = getattr(member, '_specialized_from', member)
+            assert issubclass(origin, declared_member), \
+                f"{recipe._name}.{container_name}.{name}: {member.__qualname__} does not descend from {declared_member.__qualname__}"

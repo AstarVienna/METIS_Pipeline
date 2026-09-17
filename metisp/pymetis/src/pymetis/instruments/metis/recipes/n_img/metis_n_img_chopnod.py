@@ -32,7 +32,7 @@ from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
 from pymetis.instruments.metis.dataitems.img.raw import ImageRaw
 from pymetis.instruments.metis.inputs import (RawInput, MasterFlatInput,
                                               OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
-from pymetis.instruments.metis.qc.std_process import QcStdPeakCounts
+from pymetis.instruments.metis.qc.chopnod import ChopnodPeakCounts
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
@@ -85,8 +85,7 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
         #Background = NStdBackground
 
     class Qc(QcParameterSet):
-        class PeakCnt(QcStdPeakCounts):
-            _description_template = "Peak counts of the source"
+        PeakCnt = ChopnodPeakCounts
 
 
     def process(self) -> set[DataItem]:

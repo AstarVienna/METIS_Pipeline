@@ -25,6 +25,11 @@ from cpl.core import Msg
 from .functions.format import partial_format, placeholders
 
 
+def _origin(klass: type) -> type:
+    """ The hand-written class a specialized clone stands for; a hand-written class itself. """
+    return getattr(klass, '_specialized_from', klass)
+
+
 class ParametrizableMeta(ABCMeta):
     """
     Metaclass for the Parametrizable hierarchy.
@@ -116,23 +121,23 @@ class ParametrizableMeta(ABCMeta):
         existing = registry.get(key)
         if existing is None or existing is cls:
             registry[key] = cls
-        elif hasattr(cls, "_specialized_from"):
-            # A clone found its tag already owned: the owner stays.
-            pass
-        elif hasattr(existing, "_specialized_from"):
-            # A hand-written class always takes the tag over from a clone.
-            registry[key] = cls
-        elif issubclass(cls, existing) or issubclass(existing, cls):
-            # A refinement of the registered owner (e.g. a recipe-local subclass that
-            # only overrides the description): the first-registered class keeps the tag.
-            Msg.debug(cls.__qualname__,
-                      f"'{key}' already registered to related class {existing.__qualname__}, keeping it")
-        else:
-            raise TypeError(
-                f"Tag collision: '{key}' is claimed by two unrelated classes: "
-                f"{existing.__module__}.{existing.__qualname__} and {cls.__module__}.{cls.__qualname__}. "
-                f"Fix the tag mixins / name template, or mark the template class `abstract=True`."
-            )
+            return
+
+        # One name, one class. A clone is not a second class but a stand-in for its template,
+        # so a clone may meet the template's other clone or its hand-written leaf, and a leaf
+        # may arrive after the template's clone; every other encounter is a collision.
+        if hasattr(cls, "_specialized_from"):
+            if issubclass(_origin(existing), _origin(cls)):
+                return                                  # the owner already stands for this template
+        elif hasattr(existing, "_specialized_from") and issubclass(cls, _origin(existing)):
+            registry[key] = cls                         # the hand-written leaf displaces the template's clone
+            return
+        raise TypeError(
+            f"Tag collision: '{key}' is claimed by two classes, "
+            f"{existing.__module__}.{existing.__qualname__} and {cls.__module__}.{cls.__qualname__}. "
+            f"Every tag has exactly one class: if these mean the same thing they must derive from "
+            f"the same template, and if they do not, their names must differ."
+        )
 
     def find(cls, key: str) -> Optional[type]:
         """ The concrete class owning the fully resolved tag `key`, if any. """
@@ -230,7 +235,13 @@ class ParametrizableItem(Parametrizable, abstract=True):
             return cls
         lookup = cls.find_template if '{' in template else cls.find
         if (owner := lookup(template)) is not None:
-            return owner
+            # The owner may only be this template's own clone or a hand-written class derived
+            # from it (the catalogue leaf); anything else would give the name two meanings.
+            if _origin(owner) is cls or (not hasattr(owner, '_specialized_from') and issubclass(owner, cls)):
+                return owner
+            raise TypeError(
+                f"{cls.__qualname__} resolves to '{template}', which is owned by the unrelated "
+                f"{owner.__module__}.{owner.__qualname__}; every tag has exactly one class.")
         relevant = set(cls._valid_tags) | placeholders(cls._name_template)
         clone = type(cls.__name__, cls.__bases__,
                      dict(cls.__dict__) | {'_specialized_from': cls},
@@ -341,10 +352,15 @@ class ParametrizableContainer(Parametrizable, ABC):
         for name, item in cls.list_classes():
             candidate = item.specialized(**parameters)
             tag = candidate.name()
-            # `specialized` already returns the owner where it resolved something; the
-            # lookup here covers an item whose name was resolved to begin with while a
-            # refinement registered first owns the tag.
-            new_class = cls.Meta._T.find(tag) or candidate
+            # `specialized` already returns the owner where it resolved something; the lookup
+            # covers an item whose name was resolved to begin with. One tag has one class, so
+            # the owner can only be the candidate itself or its template's leaf.
+            owner = cls.Meta._T.find(tag)
+            if owner is not None and not issubclass(_origin(owner), _origin(candidate)):
+                raise TypeError(
+                    f"Could not promote {item.__qualname__}: the tag '{tag}' is owned by the unrelated "
+                    f"{owner.__module__}.{owner.__qualname__}.")
+            new_class = owner or candidate
             unresolved = placeholders(tag)
             missing_tags = unresolved & (cls.Meta._T._valid_tags or unresolved)
             if missing_tags or new_class._abstract:
