@@ -439,6 +439,7 @@ class DataItem(ParametrizableItem, abstract=True):
             self.primary_header,
             recipe.instrument,
             filename,
+            inherit=recipe.inputset.primary_frame,
         )
 
         self.save_extensions(filename)

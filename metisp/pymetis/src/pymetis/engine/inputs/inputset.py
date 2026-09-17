@@ -60,7 +60,9 @@ class PipelineInputSet(ParametrizableContainer):
         Filter the input frameset, capture frames that match criteria and assign them
         to the attributes declared on the class (see `list_input_classes`).
         """
-        self.inputs: frozenset[PipelineInput] = frozenset() # All inputs for this InputSet.
+        # All inputs of this InputSet, in declaration order. The order matters: it is the
+        # order of `used_frames`, hence of the PRO REC RAW/CAL cards in the product header.
+        self.inputs: tuple[PipelineInput, ...] = ()
         self.frameset: cpl.ui.FrameSet = frameset
 
         # Tag parameter matching this instance of InputSet. Might come from DataItem matches or hard-coded from mixins.
@@ -71,8 +73,7 @@ class PipelineInputSet(ParametrizableContainer):
         for (name, input_class) in self.list_input_classes():
             inp = input_class(frameset)
             setattr(self, name, inp)
-            # Add to the set of inputs (for easy iteration over all inputs)
-            self.inputs |= {inp}
+            self.inputs += (inp,)
 
         for inp in self.inputs:
             Msg.debug(self.__class__.__qualname__,
@@ -312,5 +313,33 @@ class PipelineInputSet(ParametrizableContainer):
                 for instance, discarded outliers (without them a different frame might be an outlier)
         # FixMe: Currently this only ensures that frames are loaded, not actually used!
         # FixMe: This is not a trivial problem though, maybe it will have to be marked manually everytime.
+
+        The order is significant: CPL DFS takes the standard primary keywords (MJD-OBS,
+        DATE-OBS, OBJECT, ...) and the PRO REC1 RAW1 provenance of a product from the first
+        RAW frame in this list. The RAW-role inputs therefore come first, in declaration
+        order, so that a recipe with two of them (the lamp frames and the WCU OFF frames)
+        inherits from the one it declared first, not from whichever the SOF listed first.
         """
-        return cpl.ui.FrameSet([used for inp in self.inputs for used in inp.used_frames()])
+        return cpl.ui.FrameSet([used for inp in self.inputs_by_role() for used in inp.used_frames()])
+
+    def inputs_by_role(self) -> tuple[PipelineInput, ...]:
+        """ The inputs with the RAW role first, each group in declaration order. """
+        return tuple(sorted(self.inputs, key=lambda inp: inp._group != cpl.ui.Frame.FrameGroup.RAW))
+
+    @property
+    def primary_frame(self) -> cpl.ui.Frame | None:
+        """
+        The first frame of the first input declared in the RAW role, or None if the recipe
+        has no such input. Passed as `inherit` to CPL DFS, which uses it for the
+        HIERARCH ESO keywords of the product header (the standard keywords follow the
+        order of `used_frames`, see there).
+        """
+        for inp in self.inputs_by_role():
+            if inp._group != cpl.ui.Frame.FrameGroup.RAW:
+                return None
+            frames = getattr(inp, 'frameset', None)
+            if frames is None:
+                frames = [inp.frame] if getattr(inp, 'frame', None) is not None else []
+            for frame in frames:
+                return frame
+        return None

@@ -103,3 +103,49 @@ class TestRecipeTagsAreAuthoritative:
         recipe = SimpleNamespace(name='probe', version='0', parameters=ParameterList([]))
         with pytest.raises(cpl.core.IllegalInputError, match="band is 'N' here but 'LM' in the data"):
             Probe(recipe, frameset(tmp_path, 'LM_SCI_BASIC_REDUCED'), {})
+
+
+class TestInputOrderAndPrimaryFrame:
+    def test_inputs_keep_their_declaration_order(self, tmp_path):
+        from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import MetisIfuRsrfImpl
+        inputset = MetisIfuRsrfImpl.InputSet(frameset(tmp_path, 'IFU_WCU_OFF_RAW', 'IFU_RSRF_RAW'))
+        declared = [name for name, _ in MetisIfuRsrfImpl.InputSet.list_input_classes()]
+        assert [next(n for n in declared if getattr(inputset, n) is inp) for inp in inputset.inputs] == declared
+
+    def test_the_product_header_comes_from_the_declared_primary_input(self, tmp_path):
+        """ metis_ifu_rsrf has two RAW-role inputs; the SOF lists the WCU OFF frame first,
+        but the header must be inherited from the RSRF exposure. """
+        from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import MetisIfuRsrfImpl
+        inputset = MetisIfuRsrfImpl.InputSet(frameset(tmp_path, 'IFU_WCU_OFF_RAW', 'IFU_RSRF_RAW'))
+        assert inputset.primary_frame.tag == 'IFU_RSRF_RAW'
+
+    def test_raw_role_inputs_lead_the_used_frames_whatever_the_declaration_order(self, tmp_path):
+        """ CPL takes MJD-OBS, DATE-OBS and the RAW1 provenance from the first RAW frame of
+        the used-frames list, so the RAW-role inputs must come first even when a
+        calibration is declared before them. """
+        from pymetis.engine.inputs import PipelineInputSet, PrimaryInputMixin, SinglePipelineInput
+        from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark2rg
+        from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciBasicReduced
+
+        class Probe(PipelineInputSet):
+            class DarkInput(SinglePipelineInput):
+                Item = MasterDark2rg
+
+            class ReducedInput(PrimaryInputMixin, SinglePipelineInput):
+                Item = LmSciBasicReduced
+
+            dark: DarkInput
+            reduced: ReducedInput
+
+        inputset = Probe(frameset(tmp_path, 'MASTER_DARK_2RG', 'LM_SCI_BASIC_REDUCED'))
+        assert [type(inp).__name__ for inp in inputset.inputs] == ['DarkInput', 'ReducedInput']
+        assert [type(inp).__name__ for inp in inputset.inputs_by_role()] == ['ReducedInput', 'DarkInput']
+        assert inputset.primary_frame.tag == 'LM_SCI_BASIC_REDUCED'
+
+    def test_no_raw_role_input_means_no_primary_frame(self, tmp_path):
+        from pymetis.engine.inputs import PipelineInputSet
+
+        class Probe(PipelineInputSet):
+            dark: MasterDarkInput
+
+        assert Probe(frameset(tmp_path, 'MASTER_DARK_2RG')).primary_frame is None
