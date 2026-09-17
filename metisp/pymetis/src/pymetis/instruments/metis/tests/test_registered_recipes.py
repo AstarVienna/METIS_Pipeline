@@ -79,6 +79,12 @@ class TestRecipeMetadata:
     def test_description_can_be_built(self, recipe):
         assert recipe._build_description() is not None
 
+    def test_the_man_page_is_the_recipes_own_and_stable(self, recipe):
+        """ 24 recipes used to show the base class's placeholder text, and building the
+        description twice nested the man page into itself. """
+        assert "If you see this in a recipe" not in recipe._description
+        assert recipe._build_description() == recipe._build_description()
+
     def test_recipe_can_be_instantiated(self, recipe):
         assert isinstance(recipe(), cpl.ui.PyRecipe)
 
