@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import cpl
+
+from pymetis.engine.dataitems import detectors
 from cpl.core import Image
 
 from pymetis.instruments.metis.dataitems.raw import Raw
@@ -32,11 +34,7 @@ class IfuRaw(BandIfuMixin, Raw, abstract=True):
     _oca_keywords = frozenset({"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
                                "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
                                "DRS.IFU"})
-    _schema = {
-        'PRIMARY': None,
-    } | {
-        fr'DET{det:1d}.DATA': Image for det in range(1, 5)
-    }
+    _schema = detectors(Image, 4)
 
 
 class IfuStdRaw(TargetStdMixin, IfuRaw):

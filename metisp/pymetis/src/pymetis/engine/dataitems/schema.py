@@ -16,16 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from cpl.core import Image, ImageList, Table
 
 
-from .dataitem import DataItem
-from .image import ImageDataItem
-from .table import TableDataItem
-from .hdu import Hdu
-from .productset import PipelineProductSet
-from .schema import detectors
-
-
-__all__ = [
-    'DataItem', 'ImageDataItem', 'TableDataItem', 'Hdu', 'PipelineProductSet', 'detectors',
-]
+def detectors(kind: type[Image | Table | ImageList], count: int, extension: str = 'DATA') -> dict:
+    """
+    The schema of an item with one `DET<n>.<extension>` HDU of `kind` per detector,
+    e.g. ``detectors(Image, 4)`` for the four IFU detectors.
+    """
+    return {'PRIMARY': None} | {f'DET{n}.{extension}': kind for n in range(1, count + 1)}

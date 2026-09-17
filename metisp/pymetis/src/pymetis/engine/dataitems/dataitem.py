@@ -143,6 +143,17 @@ class DataItem(ParametrizableItem, abstract=True):
     def hdus(self):
         return self._hdus
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # An item's kind (the CPL frame type) and its schema must agree: an image item may
+        # not hold a table extension and a table item may not hold images.
+        kinds = {klass for klass in cls._schema.values() if klass is not None}
+        if cls._frame_type == cpl.ui.Frame.FrameType.IMAGE and Table in kinds \
+                or cls._frame_type == cpl.ui.Frame.FrameType.TABLE and kinds & {Image, ImageList}:
+            raise TypeError(f"{cls.__qualname__}: the schema holds {sorted(k.__name__ for k in kinds)} "
+                            f"but the item is of kind {cls._frame_type}; make it a "
+                            f"{'TableDataItem' if Table in kinds else 'ImageDataItem'} or fix the schema.")
+
     def __init__(self,
                  primary_header: Optional[CplPropertyList],
                  *hdus: Hdu,
@@ -183,10 +194,11 @@ class DataItem(ParametrizableItem, abstract=True):
                     f"Accepted extension names are {list(self._schema.keys())}."
                 )
 
-            assert hdu.klass == self._schema[hdu.name], \
-                (f"Schema for {self.__class__.__qualname__} specifies that HDU '{hdu.name}' "
-                 f"is of type '{self._schema[hdu.name]}', "
-                 f"but in {self.filename} we got '{hdu.klass}' instead!")
+            if hdu.klass != self._schema[hdu.name]:
+                raise cpl.core.BadFileFormatError(
+                    f"Schema for {self.__class__.__qualname__} specifies that HDU '{hdu.name}' "
+                    f"is of type '{self._schema[hdu.name]}', "
+                    f"but in {self.filename} we got '{hdu.klass}' instead!")
 
             if hdu.name in self._hdus.keys():
                 Msg.warning(self.__class__.__qualname__,
@@ -230,18 +242,21 @@ class DataItem(ParametrizableItem, abstract=True):
             try:
                 header = CplPropertyList.load(frame.file, index)
 
-                # FixMe: This is a mess... XTENSION should probably not be there.
                 if index == 0:
                     extname = 'PRIMARY'
+                elif 'EXTNAME' in header:
+                    extname = header['EXTNAME'].value
                 else:
-                    try:
-                        extname = header['EXTNAME'].value
-                    except KeyError:
-                        try:
-                            # FixMe: this is not reliable but XTENSION is sometimes found in the simulated data
-                            extname = header['XTENSION'].value
-                        except KeyError:
-                            extname = 'PRIMARY'
+                    # No EXTNAME (the simulated calibration tables, for one): the k-th data
+                    # extension of the file stands for the k-th data extension of the schema.
+                    data_keys = [key for key in klass.schema() if key != 'PRIMARY']
+                    if index > len(data_keys):
+                        raise cpl.core.BadFileFormatError(
+                            f"{frame.file}: extension {index} has no EXTNAME and the schema of "
+                            f"{klass.__qualname__} has only {len(data_keys)} data extension(s)")
+                    extname = data_keys[index - 1]
+                    Msg.warning(cls.__qualname__,
+                                f"Extension {index} of {frame.file} has no EXTNAME, taking it as '{extname}'")
 
                 subschema = {prop.name: prop.value for prop in header}
                 xtension = subschema.get('XTENSION', None)
@@ -257,12 +272,10 @@ class DataItem(ParametrizableItem, abstract=True):
                 if (subtype is None) | (subtype is Image):
                     if subschema.get('NAXIS', None) == 2:
                         subtype = Image
-                        Msg.warning(cls.__qualname__,
-                                    "Found that NAXIS = 2, determining that this HDU should be an Image")
+                        Msg.debug(cls.__qualname__, "NAXIS = 2, taking this HDU as an Image")
                     elif subschema.get('NAXIS', None) == 3:
                         subtype = ImageList
-                        Msg.warning(cls.__qualname__,
-                                    "Found that NAXIS = 3, determining that this HDU should be an ImageList")
+                        Msg.debug(cls.__qualname__, "NAXIS = 3, taking this HDU as an ImageList")
 
                 Msg.debug(cls.__qualname__, f"HDU {index} ('{extname}') holds a {subtype}")
                 hdus.append(Hdu(header, None, name=extname, klass=subtype, extno=index))
@@ -338,9 +351,9 @@ class DataItem(ParametrizableItem, abstract=True):
         :param: override
         If provided, override the file name. Otherwise, name with formatted timestamp is used.
         """
-        # ToDo determine how this should be really formed: timestamp, hash, combination?
-        # ToDo Hugo says there is a 56 char limit for file names
-        return f"{self.name()}_{self._created_at.strftime('%Y-%m-%dT%H-%M-%S-%f')}.fits" \
+        # Compact timestamp: product file names must stay within 56 characters (ESO DICD),
+        # which the longest tag (28 characters) plus this 21-character stamp just does.
+        return f"{self.name()}_{self._created_at.strftime('%Y%m%dT%H%M%S%f')}.fits" \
             if override is None else override
 
     def add_properties(self) -> None:

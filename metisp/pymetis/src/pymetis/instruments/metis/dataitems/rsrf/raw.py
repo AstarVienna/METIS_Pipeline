@@ -19,6 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
+from pymetis.engine.dataitems import detectors
+from cpl.core import Image
+
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins import DetectorIfuMixin, BandIfuMixin
 
@@ -30,6 +33,7 @@ class RsrfRaw(Raw, abstract=True):
 
 
 class IfuRsrfRaw(DetectorIfuMixin, BandIfuMixin, RsrfRaw):
+    _schema = detectors(Image, 4)
     _title_template = "IFU RSRF raw image"
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                                'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'})
