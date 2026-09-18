@@ -46,28 +46,28 @@ class QcStdApertureCounts(QcParameter):
 class QcStdStrehl(QcParameter):
     _name_template = "QC {band} STD STREHL"
     _type = float
-    _unit = "1"
+    _unit = None
     _description_template = "Strehl ratio of the standard star"
 
 
 class QcStdAirmass(QcParameter):
     _name_template = "QC {band} STD AIRMASS"
     _type = float
-    _unit = "1"
+    _unit = None
     _description_template = "Ellipticity of the standard star PSF"
 
 
 class QcStdEllipticity(QcParameter):
     _name_template = "QC {band} STD ELLIP"
     _type = float
-    _unit = "1"
+    _unit = None
     _description_template = "Ellipticity of the standard star PSF"
 
 
 class QcStdFluxConversion(QcParameter):
     _name_template = "QC {band} STD FLUXCONV"
     _type = float
-    _unit = "Jansky / count"
+    _unit = "Jansky / counts"
     _description_template = "Flux conversion to physical units, determined from the standard star"
 
 

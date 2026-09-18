@@ -70,7 +70,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         class NTraces(QcParameter):
             _name_template = "QC IFU DISTORT NTRACES"
             _type = int
-            _unit = "1"
+            _unit = "counts"
             _default = None
             _description_template = "Number of slices traced"
 

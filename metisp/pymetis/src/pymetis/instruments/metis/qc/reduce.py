@@ -23,7 +23,7 @@ from pymetis.engine.qc import QcParameter
 class IfuReduceNBadPix(QcParameter):
     _name_template = "QC IFU REDUCE NBADPIX"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _default = None
     _description_template = "Number of bad pixels"
 

@@ -23,7 +23,7 @@ from pymetis.engine.qc import QcParameter
 class QcLssTraceLPolyDeg(QcParameter):
     _name_template = "QC {band} LSS TRACE LPOLYDEG"
     _type = int
-    _unit = "1"
+    _unit = None
     _description_template = "Degree of the polynomial fit of the left order edge"
     _comment = '"Left" edge means the order edge closer to the left detector edge'
 
@@ -39,7 +39,7 @@ class QcLssTraceLCoeff(QcParameter):
 class QcLssTraceRPolyDeg(QcParameter):
     _name_template = "QC {band} LSS TRACE RPOLYDEG"
     _type = int
-    _unit = "1"
+    _unit = None
     _description_template = "Degree of the polynomial fit of the right order edge"
     _comment = '"Right" edge means the order edge closer to the right detector edge'
 
@@ -55,6 +55,6 @@ class QcLssTraceRCoeff(QcParameter):
 class QcLssTraceInterorderLevel(QcParameter):
     _name_template = "QC {band} LSS TRACE INTORDR LEVEL"
     _type = float
-    _unit = 'counts'
+    _unit = "counts"
     _description_template = "Flux level of the interorder background"
     _comment = "Determined outside the order"

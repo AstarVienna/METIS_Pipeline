@@ -33,7 +33,7 @@ class QcParameter(ParametrizableItem, abstract=True):
 
     _name_template: ClassVar[str] = "none"
     _type: ClassVar[type] = NoneType
-    _unit: ClassVar[str] = "undefined"
+    _unit: ClassVar[str | None] = "undefined"   # None means dimensionless; see tests/test_qc_units.py for the vocabulary
     _default: ClassVar[Any] = None
     _description_template: ClassVar[str] = "<no description provided>"
     _comment: ClassVar[str] = ""

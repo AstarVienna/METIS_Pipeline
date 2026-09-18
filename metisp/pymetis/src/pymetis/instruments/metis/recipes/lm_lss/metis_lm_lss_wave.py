@@ -70,7 +70,7 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         class PolyDeg(QcParameter):
             _name_template = "QC LM LSS WAVE POLYDEG"
             _type = int
-            _unit = "1"
+            _unit = None
             _default = None
             _description_template = "Degree of the first guess polynomial"
             _comment = None
@@ -78,7 +78,7 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         class CoeffN(QcParameter):
             _name_template = "QC LM LSS WAVE COEFF{i}"
             _type = float
-            _unit = "pixels ^ (1 - i)"
+            _unit = "pixels^(1 - i)"
             _default = None
             _description_template = "{i}-th coefficient of the first guess polynomial"
             _comment = None
@@ -86,7 +86,7 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         class NLines(QcParameter):
             _name_template = "QC LM LSS WAVE NLINES"
             _type = int
-            _unit = "1"
+            _unit = "counts"
             _default = None
             _description_template = "Number of detected laser lines; should be constant"
 

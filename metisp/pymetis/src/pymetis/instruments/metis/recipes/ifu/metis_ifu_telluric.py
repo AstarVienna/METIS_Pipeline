@@ -71,13 +71,13 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         class Chi2(QcParameter):
             _name_template = "QC IFU TELLURIC CHI2"
             _type = float
-            _unit = "1"
+            _unit = None
             _description_template = "Chi-squared of telluric fit from molecfit"
 
         class NpThreshold(QcParameter):
             _name_template = "QC IFU TELLURIC NPTHRESH"
             _type = float
-            _unit = "1"
+            _unit = "counts"
             _description_template = "Number of pixels above the threshold used to calculate the spectrum"
 
         class Conversion(QcParameter):

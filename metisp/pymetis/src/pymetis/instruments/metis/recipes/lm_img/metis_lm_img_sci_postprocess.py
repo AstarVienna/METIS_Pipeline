@@ -45,7 +45,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
         class SciNExp(QcParameter):
             _name_template = "QC LM SCI NEXP"
             _type = int
-            _unit = "1"
+            _unit = "counts"
             _default = None
             _description_template = "Number of images that went into a LM_SCI_COADD"
 

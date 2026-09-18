@@ -94,7 +94,7 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         class FluxSnr(QcParameter):
             _name_template = "QC {band} LSS SCI FLUX SNR"
             _type = float
-            _unit = "1"
+            _unit = None
             _description_template = "Signal-to-noise ratio of flux calibrated science spectrum"
             _comment = None
 

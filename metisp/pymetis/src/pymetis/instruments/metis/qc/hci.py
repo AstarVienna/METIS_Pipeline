@@ -35,21 +35,21 @@ from ..mixins import BandLmMixin, CgrphAppMixin
 class HciSciNExp(QcParameter):
     _name_template = "QC {band} {cgrph} SCI NEXP"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _description_template = "Effective number of exposures used to create the ADI data products"
 
 
 class HciSciSnrMean(QcParameter):
     _name_template = "QC {band} {cgrph} SCI SNR MEAN"
     _type = float
-    _unit = "1"
+    _unit = None
     _description_template = "Mean value in ADI SNR map"
 
 
 class HciSciSnrPeak(QcParameter):
     _name_template = "QC {band} {cgrph} SCI SNR PEAK"
     _type = float
-    _unit = "1"
+    _unit = None
     _description_template = "Peak value in ADI SNR map"
 
 

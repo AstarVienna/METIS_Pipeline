@@ -51,14 +51,14 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         class MinFlux(QcParameter):
             _name_template = "QC IFU CALIB MINFLUX"
             _type = float
-            _unit = "1"
+            _unit = "Jansky"
             _description_template = "Minimum pixel flux in the calibrated image"
             _comment = None
 
         class MaxFlux(QcParameter):
             _name_template = "QC IFU CALIB MAXFLUX"
             _type = float
-            _unit = "1"
+            _unit = "Jansky"
             _description_template = "Maximum pixel flux in the calibrated image"
             _comment = None
 

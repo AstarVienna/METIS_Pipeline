@@ -85,7 +85,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         class NLines(QcParameter):
             _name_template = "QC IFU WAVECAL NLINES"
             _type = int
-            _unit = "1"
+            _unit = "counts"
             _default = None
             _description_template = "Number of detected laser lines; should be constant"
 

@@ -23,6 +23,6 @@ from pymetis.engine.qc import QcParameter
 class IfuRsrfNBadPix(QcParameter):
     _name_template = "QC IFU RSRF NBADPIX"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _default = None
     _description_template = "Number of bad pixels in the image mask"

@@ -52,21 +52,21 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         class MedMean(QcParameter):
             _name_template = "QC IFU POSTPROC MEDMEAN"
             _type = float
-            _unit = "Jy"
+            _unit = "Jansky"
             _description_template = "Mean of medians of regridded images"
             _comment = None
 
         class MedRms(QcParameter):
             _name_template = "QC IFU POSTPROC MEDRMS"
             _type = float
-            _unit = "Jy"
+            _unit = "Jansky"
             _description_template = "Root-mean-square of the medians of the regridded images"
             _comment = None
 
         class MedMed(QcParameter):
             _name_template = "QC IFU POSTPROC MEDMED"
             _type = float
-            _unit = "Jy"
+            _unit = "Jansky"
             _description_template = "Median of the medians of the regridded images"
             _comment = None
 

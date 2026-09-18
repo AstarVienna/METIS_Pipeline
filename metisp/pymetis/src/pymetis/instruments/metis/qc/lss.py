@@ -23,7 +23,7 @@ from pymetis.engine.qc import QcParameter
 class LssSnr(QcParameter):
     _name_template = "QC {band} LSS {target} SNR"
     _type = float
-    _unit = "1"
+    _unit = None
     _description_template = "Signal-to-noise ratio of the {target} spectrum"
     _comment = None
 
@@ -63,7 +63,7 @@ class LssWaveCalFwhm(QcParameter):
 class LssWaveCalNIdent(QcParameter):
     _name_template = "QC {band} LSS {target} WAVECAL NIDENT"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _description_template = "Number of identified lines"
     _comment = None
 
@@ -71,7 +71,7 @@ class LssWaveCalNIdent(QcParameter):
 class LssWaveCalNMatch(QcParameter):
     _name_template = "QC {band} LSS {target} WAVECAL NMATCH"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _description_template = "Number of lines matched between catalogue and spectrum"
     _comment = None
 
@@ -79,7 +79,7 @@ class LssWaveCalNMatch(QcParameter):
 class LssWaveCalPolyDeg(QcParameter):
     _name_template = "QC {band} LSS {target} WAVECAL POLYDEG"
     _type = int
-    _unit = "1"
+    _unit = None
     _description_template = "Degree of the wavelength polynomial"
     _comment = None
 

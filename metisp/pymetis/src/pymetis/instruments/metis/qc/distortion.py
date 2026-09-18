@@ -31,7 +31,7 @@ class QcDistortRms(QcParameter):
 class QcDistortNSource(QcParameter):
     _name_template = "QC {band} DISTORT NSOURCE"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _description_template = "Number of positions used to fit the distortion polynomial"
 
 

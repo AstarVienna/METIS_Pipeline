@@ -47,7 +47,7 @@ class DarkRms(QcParameter):
 class DarkNBadpix(QcParameter):
     _name_template = "QC DARK NBADPIX"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _default = None
     _description_template = "Number of bad pixels in the image mask"
 
@@ -55,7 +55,7 @@ class DarkNBadpix(QcParameter):
 class DarkNColdpix(QcParameter):
     _name_template = "QC DARK NCOLDPIX"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _default = None
     _description_template = "Number of cold pixels in the image mask"
 
@@ -63,7 +63,7 @@ class DarkNColdpix(QcParameter):
 class DarkNHotpix(QcParameter):
     _name_template = "QC DARK NHOTPIX"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _default = None
     _description_template = "Number of hot pixels in the image mask"
 
