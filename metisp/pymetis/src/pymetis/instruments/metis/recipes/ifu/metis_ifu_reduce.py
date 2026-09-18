@@ -73,6 +73,7 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         NBadPix = qc.reduce.IfuReduceNBadPix
         MeanBkg = qc.reduce.IfuReduceMeanBkg
         MeanStray = qc.reduce.IfuReduceMeanStray
+
     def _process_single_detector(self, detector: Metis.DetectorNumber) -> dict[str, Hdu]:
         """
         Process exposures for a single detector of the IFU.
