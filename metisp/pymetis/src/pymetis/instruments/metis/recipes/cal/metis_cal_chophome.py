@@ -34,9 +34,7 @@ from pymetis.instruments.metis.inputs import (RawInput, GainMapInput, Persistenc
                                               PinholeTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
-from pymetis.instruments.metis.qc.chophome import (CalChophomeXcen, CalChophomeXcenStdev,
-                                                   CalChophomeYcen, CalChophomeYcenStdev,
-                                                   CalChophomeFwhm, CalChophomeSnr, CalChophomeOffx, CalChophomeOffy)
+from pymetis.instruments.metis import qc
 
 
 class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, MetisRecipeImpl):  # TODO replace parent class?
@@ -78,15 +76,14 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         Background = LmChophomeBackground
 
     class Qc(QcParameterSet):
-        Xcen = CalChophomeXcen
-        XcenStdev = CalChophomeXcenStdev
-        Ycen = CalChophomeYcen
-        YcenStdev = CalChophomeYcenStdev
-        Fwhm = CalChophomeFwhm
-        Snr = CalChophomeSnr
-        OffX = CalChophomeOffx
-        OffY = CalChophomeOffy
-
+        Xcen = qc.chophome.CalChophomeXcen
+        XcenStdev = qc.chophome.CalChophomeXcenStdev
+        Ycen = qc.chophome.CalChophomeYcen
+        YcenStdev = qc.chophome.CalChophomeYcenStdev
+        Fwhm = qc.chophome.CalChophomeFwhm
+        Snr = qc.chophome.CalChophomeSnr
+        OffX = qc.chophome.CalChophomeOffx
+        OffY = qc.chophome.CalChophomeOffy
     def process(self) -> set[DataItem]:
         """This function processes the input images
 

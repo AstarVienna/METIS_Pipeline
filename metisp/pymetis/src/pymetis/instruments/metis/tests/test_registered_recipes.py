@@ -140,6 +140,31 @@ class TestDeclaredProducts:
 
 @pytest.mark.recipe
 @pytest.mark.metadata
+class TestQcClassesLiveInTheQcPackage:
+    """
+    Convention (lead, 2026-09-18): a recipe never defines a QC parameter class and never
+    imports one by name. It imports the package, `from pymetis.instruments.metis import qc`,
+    and binds `Name = qc.<module>.<Class>` in its `Qc` set, so the provenance of every
+    parameter is visible where it is used and an unspecialized base class is not reused by
+    accident.
+    """
+
+    def test_every_qc_member_is_a_class_of_the_qc_package(self, recipe):
+        for attr, klass in recipe._list_qc_parameters():
+            origin = getattr(klass, '_specialized_from', klass)
+            assert origin.__module__.startswith('pymetis.instruments.metis.qc.'), \
+                f"{recipe._name}.Qc.{attr} is {origin.__module__}.{origin.__qualname__}, not a qc package class"
+
+    def test_recipe_modules_neither_define_nor_import_qc_classes_by_name(self, recipe):
+        source = TestDeclaredQcParametersAreWritten.implementation_source(recipe)
+        assert not re.search(r'^\s*class \w+\(QcParameter\)', source, re.M), \
+            f"{recipe._name}: a QC parameter class is defined in a recipe module"
+        assert not re.search(r'^from pymetis\.instruments\.metis\.qc\.', source, re.M), \
+            f"{recipe._name}: a QC class is imported by name; use `from pymetis.instruments.metis import qc`"
+
+
+@pytest.mark.recipe
+@pytest.mark.metadata
 class TestDeclaredQcParametersAreWritten:
     """
     A QC parameter declared in a recipe's `Qc` set is advertised by the man page and by the

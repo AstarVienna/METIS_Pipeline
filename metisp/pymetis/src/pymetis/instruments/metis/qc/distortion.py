@@ -75,3 +75,11 @@ class QcIfuDistortFwhm(BandIfuMixin, QcDistortFwhm):
 
 class QcIfuDistortNSpots(BandIfuMixin, QcDistortNSpots):
     pass
+
+
+class QcIfuDistortNTraces(QcParameter):
+    _name_template = "QC IFU DISTORT NTRACES"
+    _type = int
+    _unit = "counts"
+    _default = None
+    _description_template = "Number of slices traced"

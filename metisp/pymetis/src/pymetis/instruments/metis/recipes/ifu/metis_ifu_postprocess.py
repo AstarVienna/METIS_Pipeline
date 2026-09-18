@@ -21,13 +21,14 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput, PrimaryInputMixin
-from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.dataitems.coadd import IfuSciCoadd
 from pymetis.instruments.metis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import qc
 
 
 class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
@@ -42,41 +43,11 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
 
     class Qc(QcParameterSet):
         # QCs are apprently not very reusable, so we can define them here
-        class GridRange(QcParameter):
-            _name_template = "QC IFU POSTPROC GRIDRNG"
-            _type = float
-            _unit = "pixels"
-            _description_template = "Maximum - minimum values of the interpolated grids"
-            _comment = None
-
-        class MedMean(QcParameter):
-            _name_template = "QC IFU POSTPROC MEDMEAN"
-            _type = float
-            _unit = "Jansky"
-            _description_template = "Mean of medians of regridded images"
-            _comment = None
-
-        class MedRms(QcParameter):
-            _name_template = "QC IFU POSTPROC MEDRMS"
-            _type = float
-            _unit = "Jansky"
-            _description_template = "Root-mean-square of the medians of the regridded images"
-            _comment = None
-
-        class MedMed(QcParameter):
-            _name_template = "QC IFU POSTPROC MEDMED"
-            _type = float
-            _unit = "Jansky"
-            _description_template = "Median of the medians of the regridded images"
-            _comment = None
-
-        class DeltaC(QcParameter):
-            _name_template = "QC IFU POSTPROC DELTAC"
-            _type = float
-            _unit = "pixels"
-            _default = None
-            _description_template = "Range of shifts in the center position for regridding"
-
+        GridRange = qc.ifu.IfuPostprocGridRange
+        MedMean = qc.ifu.IfuPostprocMedMean
+        MedRms = qc.ifu.IfuPostprocMedRms
+        MedMed = qc.ifu.IfuPostprocMedMed
+        DeltaC = qc.ifu.IfuPostprocDeltaC
     def determine_output_grid(self):
         pass
 

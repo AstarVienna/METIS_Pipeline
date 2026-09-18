@@ -31,7 +31,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.rawimage import RawImageProcessor
 from pymetis.instruments.metis.inputs import (RawInput, PinholeTableInput, GainMapInput, LinearityInput,
                                               OptionalInputMixin, PersistenceMapInput)
-from pymetis.instruments.metis.qc.distortion import QcDistortRms, QcDistortNSource
+from pymetis.instruments.metis import qc
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
@@ -58,9 +58,8 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
         DistortionReduced = DistortionReduced
 
     class Qc(QcParameterSet):
-        Rms = QcDistortRms
-        NSource = QcDistortNSource
-
+        Rms = qc.distortion.QcDistortRms
+        NSource = qc.distortion.QcDistortNSource
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')
 

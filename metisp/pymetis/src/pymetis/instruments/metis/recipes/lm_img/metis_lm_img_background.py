@@ -28,8 +28,8 @@ from pymetis.instruments.metis.dataitems.background import Background, Backgroun
 from pymetis.instruments.metis.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced
 from pymetis.instruments.metis.dataitems.objectcatalog import ObjectCatalog
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
-from pymetis.instruments.metis.qc.background import QcLmImgBkgMedian, QcLmImgBkgMedianDeviation
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import qc
 
 
 class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
@@ -49,9 +49,8 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
         ObjectCatalog = ObjectCatalog
 
     class Qc(QcParameterSet):
-        Median = QcLmImgBkgMedian
-        MedianDev = QcLmImgBkgMedianDeviation
-
+        Median = qc.background.QcLmImgBkgMedian
+        MedianDev = qc.background.QcLmImgBkgMedianDeviation
     def process(self) -> set[DataItem]:
         image = self.inputset.basic_reduced.load_data('DET1.DATA')
         primary_header = self.inputset.basic_reduced.item.primary_header

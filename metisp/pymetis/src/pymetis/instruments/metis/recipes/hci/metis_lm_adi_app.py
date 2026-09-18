@@ -37,8 +37,7 @@ from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCoverage, LmAppS
 from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.inputs import RawInput
-from pymetis.instruments.metis.qc.hci import (LmAppSciNExp, LmAppSciSnrMean, LmAppSciSnrPeak,
-                                              LmAppSciContrastRawLamd, LmAppSciContrastAdiLamd, LmAppSciFwhm)
+from pymetis.instruments.metis import qc
 
 
 class MetisLmAppSciCalibrateImpl(RawImageProcessor):
@@ -68,13 +67,12 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
     ProductLmSciPsfMedian = LmAppPsfMedian
 
     class Qc(QcParameterSet):
-        SciNExp = LmAppSciNExp
-        SciSnrMean = LmAppSciSnrMean
-        SciSnrPeak = LmAppSciSnrPeak
-        SciContrastRawLamd = LmAppSciContrastRawLamd
-        SciContrastAdiLamd = LmAppSciContrastAdiLamd
-        SciFwhm = LmAppSciFwhm
-
+        SciNExp = qc.hci.LmAppSciNExp
+        SciSnrMean = qc.hci.LmAppSciSnrMean
+        SciSnrPeak = qc.hci.LmAppSciSnrPeak
+        SciContrastRawLamd = qc.hci.LmAppSciContrastRawLamd
+        SciContrastAdiLamd = qc.hci.LmAppSciContrastAdiLamd
+        SciFwhm = qc.hci.LmAppSciFwhm
     def process(self) -> set[DataItem]:
         
             image = self.inputset.raw.load_data('DET1.DATA')[0]

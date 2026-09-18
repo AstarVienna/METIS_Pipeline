@@ -30,8 +30,7 @@ from pymetis.instruments.metis.inputs import (RawInput, PersistenceMapInput, Opt
                                               GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
-from pymetis.instruments.metis.qc.trace import (QcLssTraceLPolyDeg, QcLssTraceRPolyDeg,
-                                                QcLssTraceLCoeff, QcLssTraceRCoeff, QcLssTraceInterorderLevel)
+from pymetis.instruments.metis import qc
 
 
 class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
@@ -59,12 +58,11 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         TraceTable = LssTrace
 
     class Qc(QcParameterSet):
-        LPolyDeg = QcLssTraceLPolyDeg
-        RPolyDeg = QcLssTraceRPolyDeg
-        LCoeff = QcLssTraceLCoeff
-        RCoeff = QcLssTraceRCoeff
-        InterorderLevel = QcLssTraceInterorderLevel
-
+        LPolyDeg = qc.trace.QcLssTraceLPolyDeg
+        RPolyDeg = qc.trace.QcLssTraceRPolyDeg
+        LCoeff = qc.trace.QcLssTraceLCoeff
+        RCoeff = qc.trace.QcLssTraceRCoeff
+        InterorderLevel = qc.trace.QcLssTraceInterorderLevel
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
         _raws = self.inputset.raw.load_data('DET1.DATA')

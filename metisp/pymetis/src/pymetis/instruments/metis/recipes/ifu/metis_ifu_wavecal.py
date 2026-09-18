@@ -26,7 +26,7 @@ import numpy as np
 from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, ParameterRange,
                                            ParameterValue)
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameter, QcParameterSet
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.recipes import Recipe
 
@@ -43,6 +43,7 @@ from pymetis.instruments.metis.inputs import (MasterDarkInput, RawInput, Distort
                                               PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import qc
 
 # Microns per Angstrom, for reporting the fit residual in the unit the DRLD declares
 MICRON_IN_ANGSTROM = 1.0e4
@@ -82,35 +83,10 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         IfuWavecalTab = IfuWavecalTab
 
     class Qc(QcParameterSet):
-        class NLines(QcParameter):
-            _name_template = "QC IFU WAVECAL NLINES"
-            _type = int
-            _unit = "counts"
-            _default = None
-            _description_template = "Number of detected laser lines; should be constant"
-
-        class Rms(QcParameter):
-            _name_template = "QC IFU WAVECAL RMS"
-            _type = float
-            _unit = "Å"
-            _default = None
-            _description_template = "Root mean square of the residuals of the wavelength calibration fit"
-
-        class PeakCounts(QcParameter):
-            _name_template = "QC IFU WAVECAL PEAK CNTS"
-            _type = float
-            _unit = "counts"
-            _default = None
-            _description_template = "Peak counts of the laser line"
-
-        class LineWidth(QcParameter):
-            _name_template = "QC IFU WAVECAL LINE WIDTH"
-            _type = float
-            _unit = "pixels"
-            _default = None
-            _description_template = "FWHM of the laser line as measured by fitting a Gaussian profile to it"
-            _comment = "This fulfils METIS-6073"
-
+        NLines = qc.ifu.IfuWavecalNLines
+        Rms = qc.ifu.IfuWavecalRms
+        PeakCounts = qc.ifu.IfuWavecalPeakCounts
+        LineWidth = qc.ifu.IfuWavecalLineWidth
     def _raw_header(self) -> cpl.core.PropertyList:
         """Primary header of the first raw frame, cached for keyword lookups."""
         if getattr(self, '_header_cache', None) is None:

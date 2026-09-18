@@ -32,12 +32,9 @@ from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.dataitems.background.subtracted import BackgroundSubtracted
 from pymetis.instruments.metis.dataitems.combined import Combined
 from pymetis.instruments.metis.dataitems.common import FluxCalTable
-from pymetis.instruments.metis.qc.std_process import (QcImgStdBackgroundRms, QcStdPeakCounts, QcStdApertureCounts,
-                                                      QcStdStrehl, QcStdEllipticity, QcStdFluxConversion,
-                                                      QcSensitivity, QcAreaSensitivity)
+from pymetis.instruments.metis import qc
 
 
-from pymetis.instruments.metis.qc.std_process import QcStdFwhm, QcStdAirmass
 class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
@@ -52,18 +49,16 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl)
 
     class Qc(QcParameterSet):
 
-        Fwhm = QcStdFwhm
-
-        Airmass = QcStdAirmass
-        BackgroundRms = QcImgStdBackgroundRms
-        PeakCounts = QcStdPeakCounts
-        ApertureCounts = QcStdApertureCounts
-        Strehl = QcStdStrehl
-        Ellipticity = QcStdEllipticity
-        FluxConversion = QcStdFluxConversion
-        Sensitivity = QcSensitivity
-        AreaSensitivity = QcAreaSensitivity
-
+        Fwhm = qc.std_process.QcStdFwhm
+        Airmass = qc.std_process.QcStdAirmass
+        BackgroundRms = qc.std_process.QcImgStdBackgroundRms
+        PeakCounts = qc.std_process.QcStdPeakCounts
+        ApertureCounts = qc.std_process.QcStdApertureCounts
+        Strehl = qc.std_process.QcStdStrehl
+        Ellipticity = qc.std_process.QcStdEllipticity
+        FluxConversion = qc.std_process.QcStdFluxConversion
+        Sensitivity = qc.std_process.QcSensitivity
+        AreaSensitivity = qc.std_process.QcAreaSensitivity
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')
 

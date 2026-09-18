@@ -30,10 +30,9 @@ from pymetis.instruments.metis.dataitems.hci.hci import (AdiCalibrated, SciCentr
                                                          SciContrastRadprof, SciContrastAdi, SciThroughput,
                                                          SciCoverage, SciSnr, PsfMedian)
 from pymetis.instruments.metis.inputs import RawInput
-from pymetis.instruments.metis.qc.hci import (HciSciNExp, HciSciSnrMean, HciSciSnrPeak,
-                                              HciSciContrastRawLamd, HciSciContrastAdiLamd, HciSciFwhm)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
+from pymetis.instruments.metis import qc
 
 
 class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
@@ -74,13 +73,12 @@ class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
         PsfMedian = PsfMedian
 
     class Qc(QcParameterSet):
-        SciNExp = HciSciNExp
-        SciSnrMean = HciSciSnrMean
-        SciSnrPeak = HciSciSnrPeak
-        SciContrastRawLamd = HciSciContrastRawLamd
-        SciContrastAdiLamd = HciSciContrastAdiLamd
-        SciFwhm = HciSciFwhm
-
+        SciNExp = qc.hci.HciSciNExp
+        SciSnrMean = qc.hci.HciSciSnrMean
+        SciSnrPeak = qc.hci.HciSciSnrPeak
+        SciContrastRawLamd = qc.hci.HciSciContrastRawLamd
+        SciContrastAdiLamd = qc.hci.HciSciContrastAdiLamd
+        SciFwhm = qc.hci.HciSciFwhm
     def process(self) -> set[DataItem]:
         image = self.inputset.raw.load_data('DET1.DATA')[0]
         table = create_dummy_table()

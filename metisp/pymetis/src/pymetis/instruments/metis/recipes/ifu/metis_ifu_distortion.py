@@ -25,7 +25,7 @@ from cpl.core import Msg
 from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, ParameterRange,
                                            ParameterValue)
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.drl.combine import combine_images
@@ -38,8 +38,8 @@ from pymetis.instruments.metis.mixins import DetectorIfuMixin
 from pymetis.instruments.metis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import qc
 
-from pymetis.instruments.metis.qc.distortion import QcIfuDistortRms, QcIfuDistortFwhm, QcIfuDistortNSpots
 class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class MasterDarkInput(OptionalInputMixin, MasterDarkInput):
@@ -69,18 +69,10 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
     class Qc(QcParameterSet):
 
-        Rms = QcIfuDistortRms
-
-        Fwhm = QcIfuDistortFwhm
-
-        NSpots = QcIfuDistortNSpots
-        class NTraces(QcParameter):
-            _name_template = "QC IFU DISTORT NTRACES"
-            _type = int
-            _unit = "counts"
-            _default = None
-            _description_template = "Number of slices traced"
-
+        Rms = qc.distortion.QcIfuDistortRms
+        Fwhm = qc.distortion.QcIfuDistortFwhm
+        NSpots = qc.distortion.QcIfuDistortNSpots
+        NTraces = qc.distortion.QcIfuDistortNTraces
     @staticmethod
     def _degree_or_best(value: str) -> int | Literal['best']:
         """

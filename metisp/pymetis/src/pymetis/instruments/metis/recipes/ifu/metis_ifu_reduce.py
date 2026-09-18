@@ -38,10 +38,9 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis.inputs import RawInput, WavecalInput, GainMapInput, LinearityInput
 from pymetis.instruments.metis.inputs.common import OptionalPersistenceMapInput
-from pymetis.instruments.metis.qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNBadPix
+from pymetis.instruments.metis import qc
 
 
-from pymetis.instruments.metis.qc.std_process import QcStdFwhm, QcStdEllipticity
 class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
@@ -72,14 +71,11 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         Combined = IfuCombined
 
     class Qc(QcParameterSet):
-
-        StdFwhm = QcStdFwhm
-
-        StdEllipticity = QcStdEllipticity
-        NBadPix = IfuReduceNBadPix
-        MeanBkg = IfuReduceMeanBkg
-        MeanStray = IfuReduceMeanStray
-
+        StdFwhm = qc.std_process.QcStdFwhm
+        StdEllipticity = qc.std_process.QcStdEllipticity
+        NBadPix = qc.reduce.IfuReduceNBadPix
+        MeanBkg = qc.reduce.IfuReduceMeanBkg
+        MeanStray = qc.reduce.IfuReduceMeanStray
     def _process_single_detector(self, detector: Metis.DetectorNumber) -> dict[str, Hdu]:
         """
         Process exposures for a single detector of the IFU.

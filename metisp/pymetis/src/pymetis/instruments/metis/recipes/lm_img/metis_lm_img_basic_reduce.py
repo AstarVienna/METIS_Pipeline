@@ -24,7 +24,7 @@ from cpl.core import Msg
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
@@ -36,6 +36,7 @@ from pymetis.instruments.metis.inputs import (RawInput, MasterFlatInput,
                                     OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import qc
 
 
 class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -86,27 +87,9 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
         BasicReduced = BasicReduced
 
     class Qc(QcParameterSet):
-        class Median(QcParameter):
-            _name_template = "QC LM IMG MEDIAN"
-            _type = float
-            _unit = "counts"
-            _default = None
-            _description_template = "Median level of the LM image"
-
-        class StandardDeviation(QcParameter):
-            _name_template = "QC LM IMG STANDARD DEVIATION"
-            _type = float
-            _unit = "counts"
-            _default = None
-            _description_template = "Standard deviation of the LM image"
-
-        class Peak(QcParameter):
-            _name_template = "QC LM IMG PEAK"
-            _type = float
-            _unit = "counts"
-            _default = None
-            _description_template = "Peak value of the LM image"
-
+        Median = qc.basic_reduce.LmImgMedian
+        StandardDeviation = qc.basic_reduce.LmImgStandardDeviation
+        Peak = qc.basic_reduce.LmImgPeak
     def process(self) -> set[DataItem]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.

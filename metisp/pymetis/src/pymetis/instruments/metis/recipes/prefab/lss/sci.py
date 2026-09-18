@@ -22,7 +22,7 @@ import cpl
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import SinglePipelineInput
-from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
@@ -36,9 +36,7 @@ from pymetis.instruments.metis.dataitems.lss.response import MasterResponse, Std
 from pymetis.instruments.metis.dataitems.lss.rsrf import MasterLssRsrf
 from pymetis.instruments.metis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, LssSciFlux2d
 from pymetis.instruments.metis.dataitems.lss.std import AoPsfModel
-from pymetis.instruments.metis.qc.lss import (LssInterorderLevel, LssWaveCalDevMean, LssWaveCalFwhm,
-                                              LssWaveCalNIdent, LssWaveCalNMatch, LssWaveCalPolyDeg,
-                                              LssWaveCalPolyCoeffN, LssSnr, LssNoiseLevel)
+from pymetis.instruments.metis import qc
 
 
 class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
@@ -91,32 +89,17 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         LssSciFlux1d = LssSciFlux1d
 
     class Qc(QcParameterSet):
-        class FluxSnr(QcParameter):
-            _name_template = "QC {band} LSS SCI FLUX SNR"
-            _type = float
-            _unit = None
-            _description_template = "Signal-to-noise ratio of flux calibrated science spectrum"
-            _comment = None
-
-        class FluxNoiseLevel(QcParameter):
-            _name_template = "QC {band} LSS SCI FLUX NOISELEV"
-            _type = float
-            _unit = "Jansky"
-            _default = None
-            _description_template = "Noise level of flux calibrated science spectrum"
-            _comment = None
-
-        Snr = LssSnr
-        NoiseLevel = LssNoiseLevel
-        InterorderLevel = LssInterorderLevel
-        WaveCalDevMean = LssWaveCalDevMean
-        WaveCalFwhm = LssWaveCalFwhm
-        WaveCalNIdent = LssWaveCalNIdent
-        WaveCalNMatch = LssWaveCalNMatch
-        WaveCalPolyDeg = LssWaveCalPolyDeg
-        WaveCalPolyCoeffN = LssWaveCalPolyCoeffN
-
-
+        FluxSnr = qc.lss.LssSciFluxSnr
+        FluxNoiseLevel = qc.lss.LssSciFluxNoiseLevel
+        Snr = qc.lss.LssSnr
+        NoiseLevel = qc.lss.LssNoiseLevel
+        InterorderLevel = qc.lss.LssInterorderLevel
+        WaveCalDevMean = qc.lss.LssWaveCalDevMean
+        WaveCalFwhm = qc.lss.LssWaveCalFwhm
+        WaveCalNIdent = qc.lss.LssWaveCalNIdent
+        WaveCalNMatch = qc.lss.LssWaveCalNMatch
+        WaveCalPolyDeg = qc.lss.LssWaveCalPolyDeg
+        WaveCalPolyCoeffN = qc.lss.LssWaveCalPolyCoeffN
     # CAVEAT: Dummy routine only! Will be replaced with functionality -------
     # Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++
     def process(self) -> set[DataItem]:

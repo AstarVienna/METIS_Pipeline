@@ -23,7 +23,7 @@ import cpl
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 from pymetis.engine.inputs import SinglePipelineInput
-from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.qc import QcParameterSet
 
 from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss
 from pymetis.instruments.metis.dataitems.lss.curve import LssDistSol, LssWaveGuess
@@ -37,12 +37,9 @@ from pymetis.instruments.metis.inputs import (RawInput, FluxstdCatalogInput, Mas
                                               AtmLineCatInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
-from pymetis.instruments.metis.qc.lss import (LssWaveCalPolyCoeffN, LssWaveCalPolyDeg,
-                                              LssWaveCalNMatch, LssWaveCalNIdent, LssWaveCalFwhm, LssWaveCalDevMean,
-                                              LssInterorderLevel, LssSnr, LssNoiseLevel)
+from pymetis.instruments.metis import qc
 
 
-from pymetis.instruments.metis.qc.lss import LssStdPsfLoss
 class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
@@ -95,55 +92,21 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
 
     class Qc(QcParameterSet):
 
-        PsfLoss = LssStdPsfLoss
-        class BackgroundMean(QcParameter):
-            _name_template = "QC {band} LSS STD BACKGD MEAN"
-            _type = float
-            _unit = "counts"
-            _default = None
-            _description_template = "Mean value of background"
-
-        class BackgroundMedian(QcParameter):
-            _name_template = "QC {band} LSS STD BACKGD MEDIAN"
-            _type = float
-            _unit = "counts"
-            _default = None
-            _description_template = "Median value of background"
-
-        class BackgroundStdev(QcParameter):
-            _name_template = "QC {band} LSS STD BACKGD STDEV"
-            _type = float
-            _unit = "counts"
-            _default = None
-            _description_template = "Standard deviation value of background"
-            _comment = None
-
-        class Fwhm(QcParameter):
-            _name_template = "QC {band} LSS STD FWHM"
-            _type = float
-            _unit = "Å"
-            _default = None
-            _description_template = "FWHM of flux standard spectrum"
-            _comment = None
-
-        class AverageLevel(QcParameter):
-            _name_template = "QC {band} LSS STD AVGLEVEL"
-            _type = float
-            _unit = "counts"
-            _default = None
-            _description_template = "Average level of the standard star flux"
-            _comment = None
-
-        Snr = LssSnr
-        NoiseLevel = LssNoiseLevel
-        InterorderLevel = LssInterorderLevel
-        WaveCalDevMean = LssWaveCalDevMean
-        WaveCalFwhm = LssWaveCalFwhm
-        WaveCalNIdent = LssWaveCalNIdent
-        WaveCalNMatch = LssWaveCalNMatch
-        WaveCalPolyDeg = LssWaveCalPolyDeg
-        WaveCalPolyCoeffN = LssWaveCalPolyCoeffN
-
+        PsfLoss = qc.lss.LssStdPsfLoss
+        BackgroundMean = qc.lss.LssStdBackgroundMean
+        BackgroundMedian = qc.lss.LssStdBackgroundMedian
+        BackgroundStdev = qc.lss.LssStdBackgroundStdev
+        Fwhm = qc.lss.LssStdFwhm
+        AverageLevel = qc.lss.LssStdAverageLevel
+        Snr = qc.lss.LssSnr
+        NoiseLevel = qc.lss.LssNoiseLevel
+        InterorderLevel = qc.lss.LssInterorderLevel
+        WaveCalDevMean = qc.lss.LssWaveCalDevMean
+        WaveCalFwhm = qc.lss.LssWaveCalFwhm
+        WaveCalNIdent = qc.lss.LssWaveCalNIdent
+        WaveCalNMatch = qc.lss.LssWaveCalNMatch
+        WaveCalPolyDeg = qc.lss.LssWaveCalPolyDeg
+        WaveCalPolyCoeffN = qc.lss.LssWaveCalPolyCoeffN
     def process(self) -> set[DataItem]:
         # Load raw image
         _std_raw_hdr = cpl.core.PropertyList()

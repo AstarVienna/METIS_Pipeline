@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_image, create_dummy_header
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 
@@ -29,6 +29,7 @@ from pymetis.instruments.metis.dataitems.ifu import IfuTelluric, IfuScienceCubeC
 from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.inputs.common import FluxCalTableInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import qc
 
 
 class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
@@ -47,22 +48,8 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         SciCubeCalibrated = IfuScienceCubeCalibrated
 
     class Qc(QcParameterSet):
-        # QCs here are apparently not very reusable, so we can define them here
-        class MinFlux(QcParameter):
-            _name_template = "QC IFU CALIB MINFLUX"
-            _type = float
-            _unit = "Jansky"
-            _description_template = "Minimum pixel flux in the calibrated image"
-            _comment = None
-
-        class MaxFlux(QcParameter):
-            _name_template = "QC IFU CALIB MAXFLUX"
-            _type = float
-            _unit = "Jansky"
-            _description_template = "Maximum pixel flux in the calibrated image"
-            _comment = None
-
-
+        MinFlux = qc.ifu.IfuCalibMinFlux
+        MaxFlux = qc.ifu.IfuCalibMaxFlux
     def process(self) -> set[DataItem]:
         _reduced = self.inputset.reduced.load_data(extension='DET1.DATA')
         self.inputset.reduced.use()

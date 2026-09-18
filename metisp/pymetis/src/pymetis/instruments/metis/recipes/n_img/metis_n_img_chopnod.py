@@ -32,9 +32,9 @@ from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
 from pymetis.instruments.metis.dataitems.img.raw import ImageRaw
 from pymetis.instruments.metis.inputs import (RawInput, MasterFlatInput,
                                               OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
-from pymetis.instruments.metis.qc.chopnod import ChopnodPeakCounts
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import qc
 
 
 class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -85,9 +85,7 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
         #Background = NStdBackground
 
     class Qc(QcParameterSet):
-        PeakCnt = ChopnodPeakCounts
-
-
+        PeakCnt = qc.chopnod.ChopnodPeakCounts
     def process(self) -> set[DataItem]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.

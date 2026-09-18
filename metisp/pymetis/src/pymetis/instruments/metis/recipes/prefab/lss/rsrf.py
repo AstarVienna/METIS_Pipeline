@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import copy
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRsrf, MeanLssRsrf, MasterLssRsrf
@@ -29,6 +29,7 @@ from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, Pers
                                               GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
+from pymetis.instruments.metis import qc
 
 
 class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
@@ -54,36 +55,11 @@ class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
         MasterLssRsrf = MasterLssRsrf
 
     class Qc(QcParameterSet):
-        class MeanLevel(QcParameter):
-            _name_template = "QC {band} LSS RSRF MEAN LEVEL"
-            _type = float
-            _unit = "counts"
-            _description_template = "Mean level of the RSRF"
-
-        class MedianLevel(QcParameter):
-            _name_template = "QC {band} LSS RSRF MEDIAN LEVEL"
-            _type = float
-            _unit = "counts"
-            _description_template = "Median level of the RSRF"
-
-        class InterorderLevel(QcParameter):
-            _name_template = "QC {band} LSS RSRF INTORDR LEVEL"
-            _type = float
-            _unit = "counts"
-            _description_template = "Flux level of the interorder background"
-
-        class NormStdev(QcParameter):
-            _name_template = "QC {band} LSS RSRF NORM STDEV"
-            _type = float
-            _unit = "counts"
-            _description_template = "Standard deviation of the normalized RSRF"
-
-        class NormSnr(QcParameter):
-            _name_template = "QC {band} LSS RSRF NORM SNR"
-            _type = float
-            _unit = None
-            _description_template = "SNR of the normalized RSRF"
-
+        MeanLevel = qc.lss.LssRsrfMeanLevel
+        MedianLevel = qc.lss.LssRsrfMedianLevel
+        InterorderLevel = qc.lss.LssRsrfInterorderLevel
+        NormStdev = qc.lss.LssRsrfNormStdev
+        NormSnr = qc.lss.LssRsrfNormSnr
     def process(self) -> set[DataItem]:
         """do something more fancy in the future"""
         # Load raw image

@@ -103,8 +103,12 @@ Worked example — `pyesorex metis_lm_img_flat` from import to product file:
      not a `RawInput` — its frames are stamped `FrameGroup.RAW`, everything
      else `CALIB`, whatever the item's own group);
    - `class ProductSet` — one member per product data item;
-   - `class Qc` — one member per QC parameter (shared ones live in
-     `instruments/metis/qc/`);
+   - `class Qc` — one member per QC parameter. Every QC class lives in
+     `instruments/metis/qc/`; the recipe imports the package
+     (`from pymetis.instruments.metis import qc`) and binds
+     `Name = qc.<module>.<Class>`, never a class defined in the recipe and
+     never one imported by name — so the origin of each parameter is visible
+     where it is used, and a bare template is not reused by accident;
    - `def process(self)` — the algorithm. All pixel manipulation happens
      here; delegate real math to functions in `drl/`. Return the set of
      built products.
