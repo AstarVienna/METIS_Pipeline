@@ -142,7 +142,12 @@ class InputSet(RawImageProcessor.InputSet):
 
 `__init__` creates `self.raw`, `self.master_dark`, ... as instances of the
 annotated classes — these are what `process()` accesses via
-`self.inputset.raw` etc. An input declared with a template item matches every
+`self.inputset.raw` etc. Data items are bound the same way as QC parameters:
+the recipe imports the catalogue package
+(`from pymetis.instruments.metis import dataitems`) and writes
+`Item = dataitems.DarkRaw` or `MasterDark = dataitems.MasterDark`, never
+importing a class by name. The package exports every catalogue class flat; a
+DRLD tag has exactly one class, so the module it lives in adds nothing. An input declared with a template item matches every
 leaf of the template, except leaves a more specific sibling input claims: with
 `raw: Item = IfuRaw` and `raw_sky: Item = IfuSkyRaw` in one set, `IFU_SKY_RAW`
 frames go to `raw_sky` only (the most specific input wins). Two different

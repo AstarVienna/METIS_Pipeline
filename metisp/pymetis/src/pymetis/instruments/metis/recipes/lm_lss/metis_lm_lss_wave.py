@@ -25,31 +25,28 @@ from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import SinglePipelineInput
 
-from pymetis.instruments.metis.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
-from pymetis.instruments.metis.dataitems.lss.rsrf import MasterLssRsrf
-from pymetis.instruments.metis.dataitems.lss.trace import LssTrace
-from pymetis.instruments.metis.dataitems.lss.wave import LssWaveRaw
 from pymetis.instruments.metis.inputs import RawInput, LaserTableInput
 from pymetis.instruments.metis.inputs.common import (WcuOffInput, OptionalInputMixin, PersistenceMapInput,
                                                      GainMapInput, LinearityInput, BadPixMapInput)
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LssWaveRaw
+            Item = dataitems.LssWaveRaw
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
         class MasterRsrfInput(SinglePipelineInput):
-            Item = MasterLssRsrf
+            Item = dataitems.MasterLssRsrf
 
         class LssTraceInput(SinglePipelineInput):
-            Item = LssTrace
+            Item = dataitems.LssTrace
 
         raw: RawInput
         persistence_map: PersistenceMapInput
@@ -62,9 +59,9 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         laser_table: LaserTableInput
 
     class ProductSet(PipelineProductSet):
-        LssCurve = LssCurve
-        LssDistSol = LssDistSol
-        LssWaveGuess = LssWaveGuess
+        LssCurve = dataitems.LssCurve
+        LssDistSol = dataitems.LssDistSol
+        LssWaveGuess = dataitems.LssWaveGuess
 
     class Qc(QcParameterSet):
         class PolyDeg(QcParameter):

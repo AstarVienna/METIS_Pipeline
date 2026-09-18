@@ -23,13 +23,13 @@ from pymetis.engine.inputs import SinglePipelineInput
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin, TargetStdMixin
 from pymetis.instruments.metis.recipes.prefab.lss.std import MetisLssStdImpl
-from pymetis.instruments.metis.dataitems.lss.trace import LssTrace
+from pymetis.instruments.metis import dataitems
 
 
 class MetisNLssStdImpl(BandNMixin, DetectorGeoMixin, TargetStdMixin, MetisLssStdImpl):
     class InputSet(MetisLssStdImpl.InputSet):
         class MasterLssTrace(SinglePipelineInput):
-            Item = LssTrace
+            Item = dataitems.LssTrace
 
         master_lss_trace: MasterLssTrace
 

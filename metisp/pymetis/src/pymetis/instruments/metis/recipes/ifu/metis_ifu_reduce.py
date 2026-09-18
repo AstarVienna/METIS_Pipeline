@@ -30,30 +30,27 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
-from pymetis.instruments.metis.dataitems.distortion.table import IfuDistortionTable
-from pymetis.instruments.metis.dataitems.ifu import (IfuSkyRaw, IfuRaw, IfuCombined,
-                                                     IfuReduced, IfuReducedCube, IfuBackground)
-from pymetis.instruments.metis.dataitems.rsrf import RsrfIfu
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis.inputs import RawInput, WavecalInput, GainMapInput, LinearityInput
 from pymetis.instruments.metis.inputs.common import OptionalPersistenceMapInput
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = IfuRaw
+            Item = dataitems.IfuRaw
 
         class RawSkyInput(RawInput):
-            Item = IfuSkyRaw
+            Item = dataitems.IfuSkyRaw
 
         class DistortionTableInput(SinglePipelineInput):
-            Item = IfuDistortionTable
+            Item = dataitems.IfuDistortionTable
 
         class RsrfInput(SinglePipelineInput):
-            Item = RsrfIfu
+            Item = dataitems.RsrfIfu
 
         raw: RawInput
         raw_sky: RawSkyInput
@@ -65,10 +62,10 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         rsrf: RsrfInput
 
     class ProductSet(PipelineProductSet):
-        Reduced = IfuReduced
-        Background = IfuBackground
-        ReducedCube = IfuReducedCube
-        Combined = IfuCombined
+        Reduced = dataitems.IfuReduced
+        Background = dataitems.IfuBackground
+        ReducedCube = dataitems.IfuReducedCube
+        Combined = dataitems.IfuCombined
 
     class Qc(QcParameterSet):
         StdFwhm = qc.std_process.QcStdFwhm

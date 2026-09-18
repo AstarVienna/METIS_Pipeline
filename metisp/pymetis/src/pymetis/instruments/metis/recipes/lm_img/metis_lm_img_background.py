@@ -24,29 +24,27 @@ from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 
-from pymetis.instruments.metis.dataitems.background import Background, BackgroundSubtracted
-from pymetis.instruments.metis.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced
-from pymetis.instruments.metis.dataitems.objectcatalog import ObjectCatalog
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class BasicReducedInput(PrimaryInputMixin, SinglePipelineInput):
-            Item = BasicReduced
+            Item = dataitems.BasicReduced
 
         class SkyBasicReducedInput(SinglePipelineInput):
-            Item = LmSkyBasicReduced
+            Item = dataitems.LmSkyBasicReduced
 
         basic_reduced: BasicReducedInput
         sky_basic_reduced: SkyBasicReducedInput
 
     class ProductSet(PipelineProductSet):
-        Bkg = Background
-        BkgSubtracted = BackgroundSubtracted
-        ObjectCatalog = ObjectCatalog
+        Bkg = dataitems.Background
+        BkgSubtracted = dataitems.BackgroundSubtracted
+        ObjectCatalog = dataitems.ObjectCatalog
 
     class Qc(QcParameterSet):
         Median = qc.background.QcLmImgBkgMedian

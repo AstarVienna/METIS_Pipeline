@@ -24,21 +24,20 @@ from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput, Prima
 from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.recipes import Recipe
 
-from pymetis.instruments.metis.dataitems.coadd import IfuSciCoadd
-from pymetis.instruments.metis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class SciCubeCalibratedInput(PrimaryInputMixin, MultiplePipelineInput):
-            Item = IfuScienceCubeCalibrated
+            Item = dataitems.IfuScienceCubeCalibrated
 
         sci_cube_calibrated: SciCubeCalibratedInput
 
     class ProductSet(PipelineProductSet):
-        SciCoadd = IfuSciCoadd
+        SciCoadd = dataitems.IfuSciCoadd
 
     class Qc(QcParameterSet):
         # QCs are apprently not very reusable, so we can define them here

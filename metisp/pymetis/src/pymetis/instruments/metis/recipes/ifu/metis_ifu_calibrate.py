@@ -25,26 +25,26 @@ from pymetis.engine.core.functions.dummy import create_dummy_image, create_dummy
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
-from pymetis.instruments.metis.dataitems.ifu import IfuTelluric, IfuScienceCubeCalibrated, IfuSciReduced
 from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.inputs.common import FluxCalTableInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class ReducedInput(PrimaryInputMixin, SinglePipelineInput):
-            Item = IfuSciReduced
+            Item = dataitems.IfuSciReduced
 
         class TelluricInput(SinglePipelineInput):
-            Item = IfuTelluric
+            Item = dataitems.IfuTelluric
 
         reduced: ReducedInput
         telluric: TelluricInput
         flux_cal_table: FluxCalTableInput
 
     class ProductSet(PipelineProductSet):
-        SciCubeCalibrated = IfuScienceCubeCalibrated
+        SciCubeCalibrated = dataitems.IfuScienceCubeCalibrated
 
     class Qc(QcParameterSet):
         # QCs here are apparently not very reusable, so we can define them here

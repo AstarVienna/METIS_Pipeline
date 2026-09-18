@@ -32,14 +32,13 @@ from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.dataitems import DataItem, PipelineProductSet
 
-from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat, FlatRaw
-from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
 from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin,
                                               PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 if TYPE_CHECKING:
     from pymetis.engine.recipes.recipe import Recipe
@@ -54,7 +53,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
             pass
 
         class RawInput(RawInput):
-            Item = FlatRaw
+            Item = dataitems.FlatRaw
 
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
@@ -62,8 +61,8 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         raw: RawInput
 
     class ProductSet(PipelineProductSet):
-        MasterFlat = MasterImgFlat
-        BadPixMap = BadPixMap
+        MasterFlat = dataitems.MasterImgFlat
+        BadPixMap = dataitems.BadPixMap
 
     class Qc(QcParameterSet):
         MFlatRms = qc.flat.MFlatRms

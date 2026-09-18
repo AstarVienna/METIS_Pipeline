@@ -29,23 +29,21 @@ from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis.mixins import TargetStdMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
-from pymetis.instruments.metis.dataitems.background.subtracted import BackgroundSubtracted
-from pymetis.instruments.metis.dataitems.combined import Combined
-from pymetis.instruments.metis.dataitems.common import FluxCalTable
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
-            Item = BackgroundSubtracted
+            Item = dataitems.BackgroundSubtracted
 
         raw: RawInput
         fluxstd_catalog: FluxstdCatalogInput
 
     class ProductSet(PipelineProductSet):
-        ImgFluxCalTable = FluxCalTable
-        ImgStdCombined = Combined
+        ImgFluxCalTable = dataitems.FluxCalTable
+        ImgStdCombined = dataitems.Combined
 
     class Qc(QcParameterSet):
 

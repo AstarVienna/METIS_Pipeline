@@ -24,26 +24,24 @@ from pymetis.engine.inputs import MultiplePipelineInput, PrimaryInputMixin
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_image, create_dummy_header
 
-from pymetis.instruments.metis.dataitems.distortion import (DistortionMap, DistortionRaw,
-                                                            DistortionReduced, DistortionTable)
-from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.rawimage import RawImageProcessor
 from pymetis.instruments.metis.inputs import (RawInput, PinholeTableInput, GainMapInput, LinearityInput,
                                               OptionalInputMixin, PersistenceMapInput)
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = WcuOffRaw
+            Item = dataitems.WcuOffRaw
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
         class DistortionInput(PrimaryInputMixin, MultiplePipelineInput):
-            Item = DistortionRaw
+            Item = dataitems.DistortionRaw
 
         raw: RawInput
         persistence_map: PersistenceMapInput
@@ -53,9 +51,9 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
         pinhole_table: PinholeTableInput
 
     class ProductSet(PipelineProductSet):
-        DistortionTable = DistortionTable
-        DistortionMap = DistortionMap
-        DistortionReduced = DistortionReduced
+        DistortionTable = dataitems.DistortionTable
+        DistortionMap = dataitems.DistortionMap
+        DistortionReduced = dataitems.DistortionReduced
 
     class Qc(QcParameterSet):
         Rms = qc.distortion.QcDistortRms

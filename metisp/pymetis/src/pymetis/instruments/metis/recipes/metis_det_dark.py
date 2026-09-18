@@ -41,14 +41,13 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.description import Metis
 
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
-from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark
-from pymetis.instruments.metis.dataitems.masterdark.raw import DarkRaw
 from pymetis.instruments.metis.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
                                               GainMapInput, OptionalInputMixin)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecipeImpl):
@@ -70,7 +69,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         # Therefore, we override the `_tags` attribute and also the description,
         # since this is specific to this raw input, not all raw inputs.
         class RawInput(RawInput):
-            Item = DarkRaw
+            Item = dataitems.DarkRaw
 
         # Next, we define all other input classes using predefined ones.
         # Here we mark them as optional, but if we did not need that, we could have also said
@@ -103,7 +102,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         # Assign product classes. This should be just a data item class.
         # It is not strictly necessary, and we can create the product directly,
         # but it enables us to introspect the class for the manpage and DRLD.
-        MasterDark = MasterDark
+        MasterDark = dataitems.MasterDark
 
     class Qc(QcParameterSet):
         DarkMedian = qc.dark.DarkMedian

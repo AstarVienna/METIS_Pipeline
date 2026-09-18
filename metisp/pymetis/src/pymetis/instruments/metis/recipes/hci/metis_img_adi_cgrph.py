@@ -24,15 +24,11 @@ from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.dataitems.img.basicreduced import SciCalibrated
-from pymetis.instruments.metis.dataitems.hci.hci import (AdiCalibrated, SciCentred, CentroidTab, SciSpeckle,
-                                                         SciHifilt, SciDerotatedPsfsub, SciDerotated,
-                                                         SciContrastRadprof, SciContrastAdi, SciThroughput,
-                                                         SciCoverage, SciSnr, PsfMedian)
 from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
@@ -49,28 +45,28 @@ class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
 
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = SciCalibrated
+            Item = dataitems.SciCalibrated
 
         class ThroughputInput(SinglePipelineInput):
-            Item = SciThroughput
+            Item = dataitems.SciThroughput
 
         raw: RawInput
         throughput: ThroughputInput
 
     class ProductSet(PipelineProductSet):
-        SciCalibrated = AdiCalibrated
-        SciCentred = SciCentred
-        CentroidTab = CentroidTab
-        SciSpeckle = SciSpeckle
-        SciHifilt = SciHifilt
-        SciDerotatedPsfsub = SciDerotatedPsfsub
-        SciDerotated = SciDerotated
-        SciContrastRadprof = SciContrastRadprof
-        SciContrastAdi = SciContrastAdi
-        SciThroughput = SciThroughput
-        SciCoverage = SciCoverage
-        SciSnr = SciSnr
-        PsfMedian = PsfMedian
+        SciCalibrated = dataitems.AdiCalibrated
+        SciCentred = dataitems.SciCentred
+        CentroidTab = dataitems.CentroidTab
+        SciSpeckle = dataitems.SciSpeckle
+        SciHifilt = dataitems.SciHifilt
+        SciDerotatedPsfsub = dataitems.SciDerotatedPsfsub
+        SciDerotated = dataitems.SciDerotated
+        SciContrastRadprof = dataitems.SciContrastRadprof
+        SciContrastAdi = dataitems.SciContrastAdi
+        SciThroughput = dataitems.SciThroughput
+        SciCoverage = dataitems.SciCoverage
+        SciSnr = dataitems.SciSnr
+        PsfMedian = dataitems.PsfMedian
 
     class Qc(QcParameterSet):
         SciNExp = qc.hci.HciSciNExp
@@ -84,9 +80,9 @@ class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
         table = create_dummy_table()
         primary_header = create_dummy_header()
 
-        images = ('SciCalibrated', 'SciCentred', 'SciSpeckle', 'SciHifilt', 'SciDerotatedPsfsub',
-                  'SciDerotated', 'SciCoverage', 'SciSnr', 'PsfMedian')
-        tables = ('CentroidTab', 'SciContrastRadprof', 'SciContrastAdi', 'SciThroughput')
+        images = ('dataitems.SciCalibrated', 'dataitems.SciCentred', 'dataitems.SciSpeckle', 'dataitems.SciHifilt', 'dataitems.SciDerotatedPsfsub',
+                  'dataitems.SciDerotated', 'dataitems.SciCoverage', 'dataitems.SciSnr', 'dataitems.PsfMedian')
+        tables = ('dataitems.CentroidTab', 'dataitems.SciContrastRadprof', 'dataitems.SciContrastAdi', 'dataitems.SciThroughput')
 
         # FixMe: compute the real QC values; None marks a parameter that is not available yet
         primary_header.append(self.collect_qc_parameters(

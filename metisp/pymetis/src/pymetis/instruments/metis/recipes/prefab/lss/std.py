@@ -25,44 +25,38 @@ from pymetis.engine.core.functions.dummy import create_dummy_header, create_dumm
 from pymetis.engine.inputs import SinglePipelineInput
 from pymetis.engine.qc import QcParameterSet, QcParameter
 
-from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss
-from pymetis.instruments.metis.dataitems.lss.curve import LssDistSol, LssWaveGuess
-from pymetis.instruments.metis.dataitems.lss.raw import LssRaw
-from pymetis.instruments.metis.dataitems.lss.response import MasterResponse, StdTransmission
-from pymetis.instruments.metis.dataitems.lss.science import LssSkyMap, LssObjMap
-from pymetis.instruments.metis.dataitems.lss.std import RefStdCat, AoPsfModel, LssStd1d
-from pymetis.instruments.metis.dataitems.synth import SynthTrans
 from pymetis.instruments.metis.inputs import (RawInput, FluxstdCatalogInput, MasterRsrfInput,
                                               PersistenceMapInput, GainMapInput, LinearityInput,
                                               AtmLineCatInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LssRaw
+            Item = dataitems.LssRaw
 
         class MasterLssDistSol(SinglePipelineInput):
-            Item = LssDistSol
+            Item = dataitems.LssDistSol
 
         class MasterLssWaveGuess(SinglePipelineInput):
-            Item = LssWaveGuess
+            Item = dataitems.LssWaveGuess
 
         class MasterAoPsfModel(SinglePipelineInput):
-            Item = AoPsfModel
+            Item = dataitems.AoPsfModel
 
         # STATIC CALIBS ++++++++++++++++++++++++++++++++++++++++++++
         class MasterAdcSlitlossInput(SinglePipelineInput):
-            Item = AdcSlitloss
+            Item = dataitems.AdcSlitloss
 
         class LssSynthTransInput(SinglePipelineInput):
-            Item = SynthTrans
+            Item = dataitems.SynthTrans
 
         class RefStdCatInput(FluxstdCatalogInput):
-            Item = RefStdCat
+            Item = dataitems.RefStdCat
             """
             Catalogue of reference stars
             """
@@ -83,12 +77,12 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
     # ++++++++++++ Intermediate / QC products ++++++++++++
 
     class ProductSet(PipelineProductSet):
-        LssStdObjMap = LssObjMap
-        LssStdSkyMap = LssSkyMap
-        MasterResponse = MasterResponse
-        StdTransmission = StdTransmission
-        LssWave = LssWaveGuess
-        LssStd1d = LssStd1d
+        LssStdObjMap = dataitems.LssObjMap
+        LssStdSkyMap = dataitems.LssSkyMap
+        MasterResponse = dataitems.MasterResponse
+        StdTransmission = dataitems.StdTransmission
+        LssWave = dataitems.LssWaveGuess
+        LssStd1d = dataitems.LssStd1d
 
     class Qc(QcParameterSet):
 

@@ -22,10 +22,9 @@ from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, Primary
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.dataitems.lss.science import LssSciFlux1d, LssSci1d
-from pymetis.instruments.metis.dataitems.molecfit.model import MfBestFitTable
 from pymetis.instruments.metis.inputs import AtmLineCatInput, AtmProfileInput, LsfKernelInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLssMfModelImpl(MetisRecipeImpl):
@@ -33,11 +32,11 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         # ++++++++++++ Main input ++++++++++++
         # Default (Path #2 in DRLD Section CritAlg)
         class LssSciFlux1dInput(PrimaryInputMixin, SinglePipelineInput):
-            Item = LssSciFlux1d
+            Item = dataitems.LssSciFlux1d
 
         # Alternative (Path #3 in DRLD Section CritAlg)
         class LssSci1dInput(SinglePipelineInput):
-            Item = LssSci1d
+            Item = dataitems.LssSci1d
 
         atm_line_cat: AtmLineCatInput
         atm_profile: AtmProfileInput
@@ -46,7 +45,7 @@ class MetisLssMfModelImpl(MetisRecipeImpl):
         lss_sci_1d: LssSci1dInput
 
     class ProductSet(PipelineProductSet):
-        MfBestFitTable = MfBestFitTable
+        MfBestFitTable = dataitems.MfBestFitTable
 
     class Qc(QcParameterSet):
         pass # RD17 from DRLD (finish)

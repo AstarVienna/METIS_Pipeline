@@ -27,19 +27,18 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
-from pymetis.instruments.metis.dataitems.coadd import LmSciCoadd
-from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
-            Item = LmSciCalibrated
+            Item = dataitems.LmSciCalibrated
 
         raw: RawInput
 
     class ProductSet(PipelineProductSet):
-        LmImgSciCoadd = LmSciCoadd
+        LmImgSciCoadd = dataitems.LmSciCoadd
 
     class Qc(QcParameterSet):
         class SciNExp(QcParameter):

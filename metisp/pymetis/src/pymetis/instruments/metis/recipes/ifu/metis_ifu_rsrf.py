@@ -35,14 +35,6 @@ from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe, RecipeImpl
 
 from pymetis.instruments.metis.description import Metis
-from pymetis.instruments.metis.dataitems.badpixmap import BadPixMapIfu
-from pymetis.instruments.metis.dataitems.distortion import IfuDistortionTable
-from pymetis.instruments.metis.dataitems.gainmap import GainMapIfu
-from pymetis.instruments.metis.dataitems.linearity.linearity import LinearityMapIfu
-from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDarkIfu
-from pymetis.instruments.metis.dataitems.masterflat import MasterFlatIfu
-from pymetis.instruments.metis.dataitems.raw.wcuoff import IfuWcuOffRaw
-from pymetis.instruments.metis.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
 
 from pymetis.instruments.metis.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput, WavecalInput,
                                               DistortionTableInput, LinearityInput, OptionalInputMixin,
@@ -52,6 +44,7 @@ from pymetis.instruments.metis.mixins import DetectorIfuMixin, BandIfuMixin
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import dataitems
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
@@ -60,33 +53,33 @@ EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME inste
 class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = IfuRsrfRaw
+            Item = dataitems.IfuRsrfRaw
 
         class MasterDarkInput(MasterDarkInput):
-            Item = MasterDarkIfu
+            Item = dataitems.MasterDarkIfu
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
-            Item = GainMapIfu
+            Item = dataitems.GainMapIfu
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
-            Item = LinearityMapIfu
+            Item = dataitems.LinearityMapIfu
 
         class RsrfWcuOffInput(RawInput):
             """
             WCU_OFF input illuminated by the WCU up-to and including the
             integrating sphere, but no source.
             """
-            Item = IfuWcuOffRaw
+            Item = dataitems.IfuWcuOffRaw
 
         # TBC: could this be replaced by the MASTER_DARK_IFU input?
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
-            Item = BadPixMapIfu
+            Item = dataitems.BadPixMapIfu
 
         class DistortionTableInput(DistortionTableInput):
-            Item = IfuDistortionTable
+            Item = dataitems.IfuDistortionTable
 
         raw: RawInput
         master_dark: MasterDarkInput
@@ -100,10 +93,10 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         wavecal: WavecalInput
 
     class ProductSet(PipelineProductSet):
-        RsrfBackground = IfuRsrfBackground
-        MasterFlat = MasterFlatIfu
-        RsrfIfu = RsrfIfu
-        BadPixMap = BadPixMapIfu
+        RsrfBackground = dataitems.IfuRsrfBackground
+        MasterFlat = dataitems.MasterFlatIfu
+        RsrfIfu = dataitems.RsrfIfu
+        BadPixMap = dataitems.BadPixMapIfu
 
     class Qc(QcParameterSet):
         NBadPix = qc.rsrf.IfuRsrfNBadPix

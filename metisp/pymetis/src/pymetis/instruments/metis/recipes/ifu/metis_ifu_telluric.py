@@ -26,10 +26,9 @@ from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
-from pymetis.instruments.metis.dataitems.common import FluxCalTable
-from pymetis.instruments.metis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined, IfuTelluric
 from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 # The aim of this recipe is twofold:
@@ -49,7 +48,7 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         #  until the recipe consumes it, the combined 2D product stands in as the primary input.
 
         class CombinedInput(PrimaryInputMixin, SinglePipelineInput):
-            Item = IfuCombined
+            Item = dataitems.IfuCombined
 
         combined: CombinedInput
         fluxstd_catalog: FluxstdCatalogInput
@@ -62,9 +61,9 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
     # Note that these should not be used directly if there is any chance of promotion.
 
     class ProductSet(PipelineProductSet):
-        TelluricTransmission = IfuTelluric
-        ResponseFunction = IfuReduced1d
-        FluxcalTab = FluxCalTable
+        TelluricTransmission = dataitems.IfuTelluric
+        ResponseFunction = dataitems.IfuReduced1d
+        FluxcalTab = dataitems.FluxCalTable
 
     class Qc(QcParameterSet):
         # QCs are apprently not very reusable, so we can define them here

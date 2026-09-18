@@ -35,10 +35,10 @@ from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput,
                                               GainMapInput, LinearityInput)
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
-from pymetis.instruments.metis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
@@ -55,7 +55,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
             pass
 
         class RawInput(RawInput):
-            Item = IfuDistortionRaw
+            Item = dataitems.IfuDistortionRaw
 
         master_dark: MasterDarkInput
         persistence_map: PersistenceMapInput
@@ -64,8 +64,8 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         raw: RawInput
 
     class ProductSet(PipelineProductSet):
-        DistortionTable = IfuDistortionTable
-        DistortionReduced = IfuDistortionReduced
+        DistortionTable = dataitems.IfuDistortionTable
+        DistortionReduced = dataitems.IfuDistortionReduced
 
     class Qc(QcParameterSet):
 

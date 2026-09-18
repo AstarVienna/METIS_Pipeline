@@ -29,13 +29,11 @@ from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
-from pymetis.instruments.metis.dataitems.img.basicreduced import BasicReduced
-from pymetis.instruments.metis.dataitems.img.raw import ImageRaw
-from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
 from pymetis.instruments.metis.inputs import (RawInput, MasterFlatInput,
                                     OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -65,7 +63,7 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
         # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            Item = ImageRaw
+            Item = dataitems.ImageRaw
             # FIXME (or better, fix the DRLD): SKY is not documented, but it is requested by other recipes.
             #    See https://github.com/AstarVienna/METIS_DRLD/issues/321
 
@@ -74,7 +72,7 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
 
         # Also, one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
-            Item = MasterImgFlat
+            Item = dataitems.MasterImgFlat
 
         raw: RawInput
         persistence_map: PersistenceMapInput
@@ -83,7 +81,7 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
         master_flat: MasterFlatInput
 
     class ProductSet(PipelineProductSet):
-        BasicReduced = BasicReduced
+        BasicReduced = dataitems.BasicReduced
 
     class Qc(QcParameterSet):
         class Median(QcParameter):

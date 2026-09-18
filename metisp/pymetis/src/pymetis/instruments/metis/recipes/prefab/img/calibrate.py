@@ -25,28 +25,26 @@ from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, Primary
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import TargetSciMixin
-from pymetis.instruments.metis.dataitems.background.subtracted import BackgroundSubtracted
-from pymetis.instruments.metis.dataitems.distortion.table import DistortionTable
-from pymetis.instruments.metis.dataitems.img.basicreduced import Calibrated
 from pymetis.instruments.metis.inputs import FluxCalTableInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 class MetisImgCalibrateImpl(TargetSciMixin, MetisRecipeImpl, ABC):
     class InputSet(PipelineInputSet):
         class BackgroundInput(PrimaryInputMixin, SinglePipelineInput):
-            Item = BackgroundSubtracted
+            Item = dataitems.BackgroundSubtracted
 
         # ToDo let's make TAB / TABLE consistent one day
         class DistortionTableInput(SinglePipelineInput):
-            Item = DistortionTable
+            Item = dataitems.DistortionTable
 
         background: BackgroundInput
         fluxcal_table: FluxCalTableInput
         distortion_table: DistortionTableInput
 
     class ProductSet(PipelineProductSet):
-        SciCalibrated = Calibrated
+        SciCalibrated = dataitems.Calibrated
 
     class Qc(QcParameterSet):
         """ No QC outputs """

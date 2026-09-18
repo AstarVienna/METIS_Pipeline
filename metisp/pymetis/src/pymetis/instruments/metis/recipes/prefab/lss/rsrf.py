@@ -23,24 +23,23 @@ from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
-from pymetis.instruments.metis.dataitems.lss.rsrf import LssRsrfRaw, MedianLssRsrf, MeanLssRsrf, MasterLssRsrf
-from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
                                               GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LssRsrfRaw
+            Item = dataitems.LssRsrfRaw
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
         class LmRsrfWcuOffInput(RawInput):
-            Item = WcuOffRaw
+            Item = dataitems.WcuOffRaw
 
         raw: RawInput
         persistence_map: PersistenceMapInput
@@ -49,9 +48,9 @@ class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
         lm_rsrf_wcu_off: LmRsrfWcuOffInput
 
     class ProductSet(PipelineProductSet):
-        MedianLssRsrf = MedianLssRsrf
-        MeanLssRsrf = MeanLssRsrf
-        MasterLssRsrf = MasterLssRsrf
+        MedianLssRsrf = dataitems.MedianLssRsrf
+        MeanLssRsrf = dataitems.MeanLssRsrf
+        MasterLssRsrf = dataitems.MasterLssRsrf
 
     class Qc(QcParameterSet):
         class MeanLevel(QcParameter):

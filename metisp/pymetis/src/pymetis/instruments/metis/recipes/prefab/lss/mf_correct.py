@@ -22,24 +22,23 @@ from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.dataitems.lss.science import LssSciFlux1d, LssSciFluxTellCorr1d
-from pymetis.instruments.metis.dataitems.synth import LssSynthTrans
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLssMfCorrectImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class LssSciFlux1dInput(PrimaryInputMixin, SinglePipelineInput):
-            Item = LssSciFlux1d
+            Item = dataitems.LssSciFlux1d
 
         class TransmissionInput(SinglePipelineInput):
-            Item = LssSynthTrans
+            Item = dataitems.LssSynthTrans
 
         lss_sci_flux_1d: LssSciFlux1dInput
         transmission: TransmissionInput
 
     class ProductSet(PipelineProductSet):
-        TellCorrFinal = LssSciFluxTellCorr1d
+        TellCorrFinal = dataitems.LssSciFluxTellCorr1d
 
     class Qc(QcParameterSet):
         pass # RD17 from DRLD (finish)

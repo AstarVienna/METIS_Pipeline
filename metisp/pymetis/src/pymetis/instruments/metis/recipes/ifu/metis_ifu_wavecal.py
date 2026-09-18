@@ -36,13 +36,12 @@ from pymetis.drl.wavecal import (SliceSolution, build_wavelength_map, linear_sol
                                  solutions_to_table, solve_slice)
 
 from pymetis.instruments.metis.description import Metis
-from pymetis.instruments.metis.dataitems.wavecal import (IfuWavecalRaw, IfuWavecal,
-                                                         IfuWavecalTab)
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.inputs import (MasterDarkInput, RawInput, DistortionTableInput, OptionalInputMixin,
                                               PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import dataitems
 
 # Microns per Angstrom, for reporting the fit residual in the unit the DRLD declares
 MICRON_IN_ANGSTROM = 1.0e4
@@ -56,7 +55,7 @@ FALLBACK_WAVELENGTH_END = (3.5823, 3.5547, 3.5541, 3.5820)
 class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = IfuWavecalRaw
+            Item = dataitems.IfuWavecalRaw
 
         class MasterDarkInput(OptionalInputMixin, MasterDarkInput):
             pass
@@ -78,8 +77,8 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         distortion_table: DistortionTableInput
 
     class ProductSet(PipelineProductSet):
-        IfuWavecal = IfuWavecal
-        IfuWavecalTab = IfuWavecalTab
+        IfuWavecal = dataitems.IfuWavecal
+        IfuWavecalTab = dataitems.IfuWavecalTab
 
     class Qc(QcParameterSet):
         class NLines(QcParameter):

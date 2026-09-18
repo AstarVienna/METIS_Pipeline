@@ -28,13 +28,12 @@ from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
-from pymetis.instruments.metis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
-from pymetis.instruments.metis.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
                                               PinholeTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, MetisRecipeImpl):  # TODO replace parent class?
@@ -43,10 +42,10 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
     class InputSet(RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
-            Item = LmChophomeRaw
+            Item = dataitems.LmChophomeRaw
 
         class WcuOffInput(RawInput):
-            Item = LmWcuOffRaw
+            Item = dataitems.LmWcuOffRaw
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
@@ -72,8 +71,8 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         pinhole_table: PinholeTableInput
 
     class ProductSet(PipelineProductSet):
-        Combined = LmChophomeCombined
-        Background = LmChophomeBackground
+        Combined = dataitems.LmChophomeCombined
+        Background = dataitems.LmChophomeBackground
 
     class Qc(QcParameterSet):
         Xcen = qc.chophome.CalChophomeXcen

@@ -33,11 +33,10 @@ from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.recipes import Recipe
 
-from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
-from pymetis.instruments.metis.dataitems.pupil import PupilRaw, PupilImagingReduced
 from pymetis.instruments.metis.inputs import RawInput, MasterFlatInput, GainMapInput, LinearityInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import dataitems
 
 
 class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
@@ -51,11 +50,11 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
         """
 
         class RawInput(RawInput):
-            Item = PupilRaw
+            Item = dataitems.PupilRaw
 
         # Also, one master flat is required. We use a prefabricated class
         class MasterFlatInput(MasterFlatInput):
-            Item = MasterImgFlat
+            Item = dataitems.MasterImgFlat
 
         raw: RawInput
         gain_map: GainMapInput
@@ -63,7 +62,7 @@ class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
         master_flat: MasterFlatInput
 
     class ProductSet(PipelineProductSet):
-        Reduced = PupilImagingReduced
+        Reduced = dataitems.PupilImagingReduced
 
     def prepare_flat(self, flat: Image, bias: Optional[Image]):
         """ Flat field preparation: subtract bias and normalize it to median 1 """

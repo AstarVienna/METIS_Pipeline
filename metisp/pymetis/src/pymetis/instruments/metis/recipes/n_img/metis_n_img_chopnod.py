@@ -27,14 +27,12 @@ from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import DetectorGeoMixin, BandNMixin
-from pymetis.instruments.metis.dataitems.background.subtracted import NBackgroundSubtracted
-from pymetis.instruments.metis.dataitems.masterflat import MasterImgFlat
-from pymetis.instruments.metis.dataitems.img.raw import ImageRaw
 from pymetis.instruments.metis.inputs import (RawInput, MasterFlatInput,
                                               OptionalInputMixin, PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -65,11 +63,11 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
         # It already knows that it wants a RawInput and MasterDarkInput class
         # but does not know about the tags yet. So here we define tags for the raw input:
         class RawInput(RawInput):
-            Item = ImageRaw
+            Item = dataitems.ImageRaw
 
         # Also one master flat is required. Again, we use a prefabricated class but reset the tags
         class MasterFlatInput(MasterFlatInput):
-            Item = MasterImgFlat
+            Item = dataitems.MasterImgFlat
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
@@ -81,7 +79,7 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
         linearity: LinearityInput
 
     class ProductSet(PipelineProductSet):
-        Reduced = NBackgroundSubtracted
+        Reduced = dataitems.NBackgroundSubtracted
         #Background = NStdBackground
 
     class Qc(QcParameterSet):

@@ -24,26 +24,20 @@ from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
 #from pymetis.instruments.metis.dataitems.hci import LmOffAxisPsfRaw, LmOnAxisPsfTemplate
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppCalibrated
 
 
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCentred, LmAppCentroidTab
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciSpeckle, LmAppSciDerotatedPsfsub
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciDerotated
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciContrastRadprof, LmAppSciContrastAdi, LmAppSciThroughput
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCoverage, LmAppSciSnr, LmAppPsfMedian
 from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmAppSciCalibrateImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LmSciCalibrated
+            Item = dataitems.LmSciCalibrated
 
         raw: RawInput
         #class LmOffAxisPsfRaw(RawInput):
@@ -54,18 +48,18 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
         
 
     class ProductSet(PipelineProductSet):
-        SciCalibrated = LmAppCalibrated
-        SciCentred = LmAppSciCentred
-        CentroidTab = LmAppCentroidTab
-        SciSpeckle = LmAppSciSpeckle
-        SciDerotatedPsfsub = LmAppSciDerotatedPsfsub
-        SciDerotated = LmAppSciDerotated
-        SciContrastRadprof = LmAppSciContrastRadprof
-        SciContrastAdi = LmAppSciContrastAdi
-        SciThroughput = LmAppSciThroughput
-        SciCoverage = LmAppSciCoverage
-        SciSnr = LmAppSciSnr
-        SciPsfMedian = LmAppPsfMedian
+        SciCalibrated = dataitems.LmAppCalibrated
+        SciCentred = dataitems.LmAppSciCentred
+        CentroidTab = dataitems.LmAppCentroidTab
+        SciSpeckle = dataitems.LmAppSciSpeckle
+        SciDerotatedPsfsub = dataitems.LmAppSciDerotatedPsfsub
+        SciDerotated = dataitems.LmAppSciDerotated
+        SciContrastRadprof = dataitems.LmAppSciContrastRadprof
+        SciContrastAdi = dataitems.LmAppSciContrastAdi
+        SciThroughput = dataitems.LmAppSciThroughput
+        SciCoverage = dataitems.LmAppSciCoverage
+        SciSnr = dataitems.LmAppSciSnr
+        SciPsfMedian = dataitems.LmAppPsfMedian
 
     class Qc(QcParameterSet):
         SciNExp = qc.hci.LmAppSciNExp

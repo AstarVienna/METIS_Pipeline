@@ -34,15 +34,12 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterValue
 
-from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
-from pymetis.instruments.metis.dataitems.gainmap import GainMap
 from pymetis.instruments.metis.description import Metis
-from pymetis.instruments.metis.dataitems.linearity.linearity import LinearityMap
-from pymetis.instruments.metis.dataitems.linearity.raw import LinearityRaw
 from pymetis.instruments.metis.inputs import RawInput, BadPixMapInput, OptionalInputMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 import numpy as np
 import astropy.stats
@@ -52,17 +49,17 @@ import astropy.stats
 class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LinearityRaw
+            Item = dataitems.LinearityRaw
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
-            Item = BadPixMap
+            Item = dataitems.BadPixMap
 
         raw: RawInput
         bad_pix_map: BadPixMapInput
 
     class ProductSet(PipelineProductSet):
-        GainMap = GainMap
-        Linearity = LinearityMap
-        BadPixMap = BadPixMap
+        GainMap = dataitems.GainMap
+        Linearity = dataitems.LinearityMap
+        BadPixMap = dataitems.BadPixMap
 
     class Qc(QcParameterSet):
         LinGainMean = qc.lingain.LinGainMean

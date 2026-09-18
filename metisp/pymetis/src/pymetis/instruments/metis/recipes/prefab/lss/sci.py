@@ -29,44 +29,38 @@ from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, Pers
                                               GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
-from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss
-from pymetis.instruments.metis.dataitems.lss.curve import LssDistSol, LssWaveGuess
-from pymetis.instruments.metis.dataitems.lss.raw import LssRaw
-from pymetis.instruments.metis.dataitems.lss.response import MasterResponse, StdTransmission
-from pymetis.instruments.metis.dataitems.lss.rsrf import MasterLssRsrf
-from pymetis.instruments.metis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, LssSciFlux2d
-from pymetis.instruments.metis.dataitems.lss.std import AoPsfModel
 from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LssRaw
+            Item = dataitems.LssRaw
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
         class MasterRsrfInput(SinglePipelineInput):
-            Item = MasterLssRsrf
+            Item = dataitems.MasterLssRsrf
 
         class MasterLssDistSolInput(SinglePipelineInput):
-            Item = LssDistSol
+            Item = dataitems.LssDistSol
 
         class MasterLssWaveGuessInput(SinglePipelineInput):
-            Item = LssWaveGuess
+            Item = dataitems.LssWaveGuess
 
         class MasterLssResponseInput(SinglePipelineInput):
-            Item = MasterResponse
+            Item = dataitems.MasterResponse
 
         class MasterStdTransmissionInput(OptionalInputMixin, SinglePipelineInput):
-            Item = StdTransmission
+            Item = dataitems.StdTransmission
 
         class MasterAdcSlitlossInput(SinglePipelineInput):
-            Item = AdcSlitloss
+            Item = dataitems.AdcSlitloss
 
         class MasterAoPsfModel(SinglePipelineInput):
-            Item = AoPsfModel
+            Item = dataitems.AoPsfModel
 
         raw: RawInput
         persistence_map: PersistenceMapInput
@@ -81,12 +75,12 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         master_ao_psf_model: MasterAoPsfModel
 
     class ProductSet(PipelineProductSet):
-        LssSciObjMap = LssObjMap
-        LssSciSkyMap = LssSkyMap
-        LssSci2d = LssSci2d
-        LssSci1d = LssSci1d
-        LssSciFlux2d = LssSciFlux2d
-        LssSciFlux1d = LssSciFlux1d
+        LssSciObjMap = dataitems.LssObjMap
+        LssSciSkyMap = dataitems.LssSkyMap
+        LssSci2d = dataitems.LssSci2d
+        LssSci1d = dataitems.LssSci1d
+        LssSciFlux2d = dataitems.LssSciFlux2d
+        LssSciFlux1d = dataitems.LssSciFlux1d
 
     class Qc(QcParameterSet):
         class FluxSnr(QcParameter):
