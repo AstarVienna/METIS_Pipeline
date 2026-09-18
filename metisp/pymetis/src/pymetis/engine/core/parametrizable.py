@@ -26,8 +26,12 @@ from .functions.format import partial_format, placeholders
 
 
 def _origin(klass: type) -> type:
-    """ The hand-written class a specialized clone stands for; a hand-written class itself. """
-    return getattr(klass, '_specialized_from', klass)
+    """ The hand-written class a specialized clone stands for; a hand-written class itself.
+    A clone of a clone (`.specialized(band=...)` then `.specialized(order=...)`) stands for
+    the same hand-written class as its parent, so the chain is followed to its end. """
+    while (origin := getattr(klass, '_specialized_from', None)) is not None and origin is not klass:
+        klass = origin
+    return klass
 
 
 class ParametrizableMeta(ABCMeta):
@@ -261,9 +265,11 @@ class ParametrizableItem(Parametrizable, abstract=True):
             return cls
         lookup = cls.find_template if '{' in template else cls.find
         if (owner := lookup(template)) is not None:
-            # The owner may only be this template's own clone or a hand-written class derived
-            # from it (the catalogue leaf); anything else would give the name two meanings.
-            if _origin(owner) is cls or (not hasattr(owner, '_specialized_from') and issubclass(owner, cls)):
+            # The owner may only be a clone standing for the same hand-written class as `cls`
+            # (clones are built from the bases, so two clones of one template are not
+            # subclasses of each other) or a hand-written class derived from it (the
+            # catalogue leaf); anything else would give the name two meanings.
+            if _origin(owner) is _origin(cls) or (not hasattr(owner, '_specialized_from') and issubclass(owner, cls)):
                 return owner
             raise TypeError(
                 f"{cls.__qualname__} resolves to '{template}', which is owned by the unrelated "

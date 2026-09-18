@@ -42,7 +42,9 @@ class QcParameter(ParametrizableItem, abstract=True):
     _templates: ClassVar[dict[str, type[Self]]] = {}      # name with placeholders -> hand-written template
 
     def __init__(self, value: Any):
-        if '{' in self.name():
+        # A value needs a fully resolved name to be written under; a parameter that is not
+        # available (None) is never written, so an index placeholder (`LCOEFF{order}`) may stay.
+        if value is not None and '{' in self.name():
             raise TypeError(f"{self.__class__.__qualname__}: QC name {self.name()!r} still has placeholders; "
                             f"specialize it first (e.g. `.specialized(order=1)`)")
         self._value = None if value is None else self._coerce(value)

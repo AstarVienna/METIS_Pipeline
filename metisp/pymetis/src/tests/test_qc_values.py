@@ -38,3 +38,15 @@ class TestNotAvailable:
     def test_collect_skips_unavailable_values(self):
         collected = RecipeImpl.collect_qc_parameters(SimpleNamespace(), DarkMean(1.0), DarkNBadpix(None), DarkNBadpix(4))
         assert [prop.name for prop in collected] == ['QC DARK MEAN', 'QC DARK NBADPIX']
+
+
+class TestIndexPlaceholders:
+    def test_a_missing_value_needs_no_resolved_index(self):
+        """ `self.Qc.LCoeff(None)` is the skeleton's placeholder for LCOEFF{order}; nothing is
+        written, so the index may stay open. A real value still needs `.specialized(order=n)`. """
+        from pymetis.instruments.metis.qc.trace import QcLssTraceLCoeff
+        klass = QcLssTraceLCoeff.specialized(band='LM')
+        assert klass(None).available is False
+        with pytest.raises(TypeError, match="still has placeholders"):
+            klass(1.0)
+        assert klass.specialized(order=2)(1.0).name() == 'QC LM LSS TRACE LCOEFF2'

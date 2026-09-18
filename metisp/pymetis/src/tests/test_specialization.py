@@ -335,3 +335,51 @@ def test_specialization_never_swaps_the_lineage_of_a_declared_member(recipe):
             origin = getattr(member, '_specialized_from', member)
             assert issubclass(origin, declared_member), \
                 f"{recipe._name}.{container_name}.{name}: {member.__qualname__} does not descend from {declared_member.__qualname__}"
+
+
+class TestEveryLeafBelongsToItsTemplate:
+    """
+    Promotion resolves a template with the run's tags and looks the resolved tag up in the
+    registry; the owner must descend from the template, or the run dies with "owned by the
+    unrelated ...". A hand-written leaf that spells the resolved name literally instead of
+    inheriting the template is exactly that defect (`LmSkyBasicReduced` and `IfuSkyRaw`
+    were: the EDPS sky task of metis_lm_img_basic_reduce failed at construction).
+    """
+
+    @staticmethod
+    def axis_values(root) -> dict[str, set[str]]:
+        from pymetis.engine.core.parametrizable import Parametrizable
+        values: dict[str, set[str]] = {}
+        for klass in [*root._registry.values(), *root._templates.values()]:
+            for axis, value in klass.tag_parameters().items():
+                if axis in Parametrizable._valid_tags and isinstance(value, str):   # not index keywords
+                    values.setdefault(axis, set()).add(value)
+        return values
+
+    @pytest.mark.parametrize("root", [DataItem, QcParameter], ids=lambda r: r.__name__)
+    def test_a_template_resolved_with_valid_tags_never_hits_an_unrelated_owner(self, root):
+        import itertools
+        import re
+        from pymetis.engine.core.functions.format import placeholders
+        values = self.axis_values(root)
+        offenders = []
+        for template_name, template in root._templates.items():
+            axes = sorted(placeholders(template_name) & set(values))
+            for combo in itertools.product(*(sorted(values[a]) for a in axes)):
+                name = template_name
+                for axis, value in zip(axes, combo):
+                    name = name.replace('{' + axis + '}', value)
+                owner = root._registry.get(name)
+                if owner is not None and not getattr(owner, '_specialized_from', None) and not issubclass(owner, template) \
+                        and not any(re.search(r'\{[a-z]+\}', base._name_template or '') for base in owner.__mro__[1:]
+                                    if isinstance(getattr(base, '_name_template', None), str)):
+                    offenders.append(f"{template.__qualname__} ({template_name}) -> {owner.__qualname__} ({name})")
+        assert not offenders, "literal leaves under a template's tag:\n  " + "\n  ".join(offenders)
+
+    def test_the_sky_targets_resolve_to_their_leaves(self):
+        from pymetis.instruments.metis.dataitems.img.basicreduced import LmBasicReduced, LmSkyBasicReduced
+        from pymetis.instruments.metis.dataitems.ifu.raw import IfuRaw, IfuSkyRaw
+        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_basic_reduce import MetisLmImgBasicReduceImpl
+        assert LmBasicReduced.specialized(target='SKY') is LmSkyBasicReduced
+        assert IfuRaw.specialized(target='SKY') is IfuSkyRaw
+        assert MetisLmImgBasicReduceImpl.ProductSet.promoted(target='SKY').BasicReduced is LmSkyBasicReduced

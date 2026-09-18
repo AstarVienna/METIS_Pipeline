@@ -21,7 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.engine.dataitems import ImageDataItem
-from pymetis.instruments.metis.mixins import TargetSciMixin, TargetStdMixin, BandLmMixin, BandNMixin
+from pymetis.instruments.metis.mixins import TargetSciMixin, TargetStdMixin, TargetSkyMixin, BandLmMixin, BandNMixin
 
 
 class BasicReduced(ImageDataItem, abstract=True):
@@ -50,18 +50,10 @@ class LmSciBasicReduced(TargetSciMixin, LmBasicReduced):
     pass
 
 
-class LmSkyBasicReduced(ImageDataItem):
-    _name_template = r'LM_SKY_BASIC_REDUCED'
-    _title_template = "LM SKY basic reduced"
-    _description_template = "Detrended exposure of the sky."
-    _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
-
-    _schema = {
-        'PRIMARY': None,
-        'DET1.DATA': Image,
-    }
+class LmSkyBasicReduced(TargetSkyMixin, LmBasicReduced):
+    """ The SKY leaf of the same template: a hand-written unrelated class with the literal
+    name used to be refused at promotion ('LM_SKY_BASIC_REDUCED is owned by an unrelated class'). """
+    _description_template = "Detrended exposure of the sky in the LM image mode."
 
 
 class Calibrated(ImageDataItem, abstract=True):

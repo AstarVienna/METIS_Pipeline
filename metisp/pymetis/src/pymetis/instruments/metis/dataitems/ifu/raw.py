@@ -22,7 +22,7 @@ from pymetis.engine.dataitems import detectors
 from cpl.core import Image
 
 from pymetis.instruments.metis.dataitems.raw import Raw
-from pymetis.instruments.metis.mixins import BandIfuMixin, TargetStdMixin, TargetSciMixin
+from pymetis.instruments.metis.mixins import BandIfuMixin, TargetStdMixin, TargetSciMixin, TargetSkyMixin
 
 
 class IfuRaw(BandIfuMixin, Raw, abstract=True):
@@ -45,12 +45,7 @@ class IfuSciRaw(TargetSciMixin, IfuRaw):
     _description_template = "IFU raw exposure of a science object."
 
 
-class IfuSkyRaw(BandIfuMixin, Raw):
-    _name_template = r'IFU_SKY_RAW'
-    _title_template = r"IFU sky raw"
-    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _frame_group = cpl.ui.Frame.FrameGroup.RAW
-    _oca_keywords = frozenset({"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
-                               "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
-                               "DRS.IFU"})
+class IfuSkyRaw(TargetSkyMixin, IfuRaw):
+    """ The SKY leaf of the IFU raw template; a hand-written unrelated class with the literal
+    name would be refused when `IfuRaw` is promoted with target='SKY'. """
     _description_template = "Blank sky image."
