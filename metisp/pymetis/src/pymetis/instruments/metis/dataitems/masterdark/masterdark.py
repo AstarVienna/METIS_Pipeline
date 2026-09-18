@@ -57,5 +57,5 @@ class MasterDarkIfu(DetectorIfuMixin, MasterDark):
     _schema = {
         'PRIMARY': None,
     } | {
-        f'DET{det:1d}.{ext}': Image for det in [1, 2, 3, 4] for ext in {'SCI', 'ERR', 'DQ'}
+        f'DET{det:1d}.{ext}': Image for det in [1, 2, 3, 4] for ext in ('SCI', 'ERR', 'DQ')
     }
