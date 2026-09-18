@@ -22,7 +22,7 @@ import cpl
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import SinglePipelineInput
-from pymetis.engine.qc import QcParameterSet
+from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
@@ -89,8 +89,21 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         LssSciFlux1d = LssSciFlux1d
 
     class Qc(QcParameterSet):
-        FluxSnr = qc.lss.LssSciFluxSnr
-        FluxNoiseLevel = qc.lss.LssSciFluxNoiseLevel
+        class FluxSnr(QcParameter):
+            _name_template = "QC {band} LSS SCI FLUX SNR"
+            _type = float
+            _unit = None
+            _description_template = "Signal-to-noise ratio of flux calibrated science spectrum"
+            _comment = None
+
+        class FluxNoiseLevel(QcParameter):
+            _name_template = "QC {band} LSS SCI FLUX NOISELEV"
+            _type = float
+            _unit = "Jansky"
+            _default = None
+            _description_template = "Noise level of flux calibrated science spectrum"
+            _comment = None
+
         Snr = qc.lss.LssSnr
         NoiseLevel = qc.lss.LssNoiseLevel
         InterorderLevel = qc.lss.LssInterorderLevel

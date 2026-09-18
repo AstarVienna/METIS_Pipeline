@@ -21,7 +21,7 @@ import copy
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet
+from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import SinglePipelineInput
 
@@ -35,7 +35,6 @@ from pymetis.instruments.metis.inputs.common import (WcuOffInput, OptionalInputM
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
-from pymetis.instruments.metis import qc
 
 
 class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -68,11 +67,45 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         LssWaveGuess = LssWaveGuess
 
     class Qc(QcParameterSet):
-        PolyDeg = qc.lss.LmLssWavePolyDeg
-        CoeffN = qc.lss.LmLssWaveCoeffN
-        NLines = qc.lss.LmLssWaveNLines
-        LineFwhmAvg = qc.lss.LmLssWaveLineFwhmAvg
-        InterorderLevel = qc.lss.LmLssWaveInterorderLevel
+        class PolyDeg(QcParameter):
+            _name_template = "QC LM LSS WAVE POLYDEG"
+            _type = int
+            _unit = None
+            _default = None
+            _description_template = "Degree of the first guess polynomial"
+            _comment = None
+
+        class CoeffN(QcParameter):
+            _name_template = "QC LM LSS WAVE COEFF{i}"
+            _type = float
+            _unit = "pixels^(1 - i)"
+            _default = None
+            _description_template = "{i}-th coefficient of the first guess polynomial"
+            _comment = None
+
+        class NLines(QcParameter):
+            _name_template = "QC LM LSS WAVE NLINES"
+            _type = int
+            _unit = "counts"
+            _default = None
+            _description_template = "Number of detected laser lines; should be constant"
+
+        class LineFwhmAvg(QcParameter):
+            _name_template = "QC LM LSS WAVE LINEFWHMAVG"
+            _type = float
+            _unit = "Å"
+            _default = None
+            _description_template = "Average of the FWHM of the detected lines (should be widely constant)"
+            _comment = None
+
+        class InterorderLevel(QcParameter):
+            _name_template = "QC LM LSS WAVE INTORDR LEVEL"
+            _type = float
+            _unit = "counts"
+            _default = None
+            _description_template = "Flux level of the interorder background"
+            _comment = None
+
 #   Method for processing
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""

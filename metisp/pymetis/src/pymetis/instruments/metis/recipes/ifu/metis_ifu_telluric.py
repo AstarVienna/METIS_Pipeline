@@ -22,7 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet
+from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
@@ -30,7 +30,6 @@ from pymetis.instruments.metis.dataitems.common import FluxCalTable
 from pymetis.instruments.metis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined, IfuTelluric
 from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
-from pymetis.instruments.metis import qc
 
 
 # The aim of this recipe is twofold:
@@ -69,9 +68,25 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
 
     class Qc(QcParameterSet):
         # QCs are apprently not very reusable, so we can define them here
-        Chi2 = qc.ifu.IfuTelluricChi2
-        NpThreshold = qc.ifu.IfuTelluricNpThreshold
-        Conversion = qc.ifu.IfuTelluricConversion
+        class Chi2(QcParameter):
+            _name_template = "QC IFU TELLURIC CHI2"
+            _type = float
+            _unit = None
+            _description_template = "Chi-squared of telluric fit from molecfit"
+
+        class NpThreshold(QcParameter):
+            _name_template = "QC IFU TELLURIC NPTHRESH"
+            _type = float
+            _unit = "counts"
+            _description_template = "Number of pixels above the threshold used to calculate the spectrum"
+
+        class Conversion(QcParameter):
+            _name_template = "QC IFU TELLURIC CONV"
+            _type = float
+            _unit = "Jansky / counts"
+            _description_template = "Calculated conversion factor"
+
+
     # TODO: Define input type for the paramfile in common.py
 
     # ++++++++++++++ Defining functions +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

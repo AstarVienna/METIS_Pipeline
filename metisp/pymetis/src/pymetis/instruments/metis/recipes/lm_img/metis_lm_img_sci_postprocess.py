@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.inputs import PipelineInputSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet
+from pymetis.engine.qc import QcParameter, QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
@@ -29,7 +29,6 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.dataitems.coadd import LmSciCoadd
 from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
-from pymetis.instruments.metis import qc
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
@@ -43,12 +42,48 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
         LmImgSciCoadd = LmSciCoadd
 
     class Qc(QcParameterSet):
-        SciNExp = qc.postprocess.LmSciNExp
-        PostprocGridRange = qc.postprocess.LmSciPostprocGridRange
-        PostprocMedMean = qc.postprocess.LmSciPostprocMedMean
-        PostprocMedRms = qc.postprocess.LmSciPostprocMedRms
-        PostprocMedMed = qc.postprocess.LmSciPostprocMedMed
-        PostprocDeltaCentre = qc.postprocess.LmSciPostprocDeltaCentre
+        class SciNExp(QcParameter):
+            _name_template = "QC LM SCI NEXP"
+            _type = int
+            _unit = "counts"
+            _default = None
+            _description_template = "Number of images that went into a LM_SCI_COADD"
+
+        class PostprocGridRange(QcParameter):
+            _name_template = "QC LM SCI POSTPROC GRIDRNG"
+            _type = float
+            _unit = "pixels"
+            _default = None
+            _description_template = "Maximum - minimum values of the interpolated grids"
+
+        class PostprocMedMean(QcParameter):
+            _name_template = "QC LM SCI POSTPROC MEDMEAN"
+            _type = float
+            _unit = "Jansky"
+            _default = None
+            _description_template = "Mean of the medians of the regridded images"
+
+        class PostprocMedRms(QcParameter):
+            _name_template = "QC LM SCI POSTPROC MEDRMS"
+            _type = float
+            _unit = "Jansky"
+            _default = None
+            _description_template = "Root-mean-squared of the medians of the regridded images"
+
+        class PostprocMedMed(QcParameter):
+            _name_template = "QC LM SCI POSTPROC MEDMED"
+            _type = float
+            _unit = "Jansky"
+            _default = None
+            _description_template = "Median of the medians of the regridded images"
+
+        class PostprocDeltaCentre(QcParameter):
+            _name_template = "QC LM SCI POSTPROC DELTAC"
+            _type = float
+            _unit = "pixels"
+            _default = None
+            _description_template = "Range of shifts in the center position for regridding"
+
     def process(self) -> set[DataItem]:
         print(self.__class__.ProductSet.__mro__)
         raw_images = self.inputset.raw.load_data('DET1.DATA')
