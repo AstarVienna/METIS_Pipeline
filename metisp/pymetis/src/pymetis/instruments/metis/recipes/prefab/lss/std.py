@@ -131,7 +131,7 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
             _type = float
             _unit = "counts"
             _default = None
-            _description_template = "" # FixMe missing in DRLD
+            _description_template = "Average level of the standard star flux"
             _comment = None
 
         Snr = LssSnr
