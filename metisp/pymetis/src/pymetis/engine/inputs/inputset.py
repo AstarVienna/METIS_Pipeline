@@ -69,9 +69,14 @@ class PipelineInputSet(ParametrizableContainer):
         self.tag_matches: dict[str, str] = {}
 
         # Now iterate over all declared Inputs, instantiate them and feed them the frameset to filter.
+        # A frame that a more specific sibling input claims (IFU_SKY_RAW next to IFU_{target}_RAW)
+        # belongs to that sibling: the most specific input wins.
         Msg.debug(self.__class__.__qualname__, "Instantiating inputs")
-        for (name, input_class) in self.list_input_classes():
-            inp = input_class(frameset)
+        input_classes = self.list_input_classes()
+        for (name, input_class) in input_classes:
+            claimed = frozenset(other.Item for _, other in input_classes
+                                if other.Item is not input_class.Item and issubclass(other.Item, input_class.Item))
+            inp = input_class(frameset, claimed=claimed)
             setattr(self, name, inp)
             self.inputs += (inp,)
 
@@ -249,6 +254,7 @@ class PipelineInputSet(ParametrizableContainer):
         missing = []
         sources: dict[str, tuple[str, str]] = {}      # tag keyword -> (value, name of the input that set it)
         conflicts = []
+        pinned: dict[str, str] = {}                   # tags fixed by an input's declaration, not by its frames
         for name, _ in self.list_input_classes():
             inp = getattr(self, name)
             try:
@@ -258,14 +264,24 @@ class PipelineInputSet(ParametrizableContainer):
                 missing.append(str(e))
                 continue
             Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
+            # Only the tags the declaration left open come from the data. An input declared
+            # with a leaf (`Item = IfuSkyRaw`, target pinned to SKY by the class) says what it
+            # always is: it does not decide the run's tags where the frames do, and it cannot
+            # disagree with them -- but where nothing else determines a tag, it fills it in.
+            declared = type(inp).Item.tag_parameters()
+            from_data = {key: value for key, value in inp.Item.tag_parameters().items() if key not in declared}
+            pinned |= declared
             # The frames of one recipe run must agree on every data tag: a GEO gain map next
             # to 2RG darks is a mis-assembled set of frames, not a choice to be made for the user.
-            for key, value in inp.Item.tag_parameters().items():
+            for key, value in from_data.items():
                 if key in sources and sources[key][0] != value:
                     conflicts.append(f"{key}: {sources[key][1]} has {sources[key][0]!r}, {name} has {value!r}")
                 else:
                     sources.setdefault(key, (value, name))
-            self.tag_matches |= inp.Item.tag_parameters()
+            self.tag_matches |= from_data
+
+        for key, value in pinned.items():
+            self.tag_matches.setdefault(key, value)
 
         if missing:
             raise cpl.core.DataNotFoundError(

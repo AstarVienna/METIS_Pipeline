@@ -34,11 +34,11 @@ class MultiplePipelineInput(PipelineInput):
     _multiplicity: str = 'N'
 
     def __init__(self,
-                 frameset: cpl.ui.FrameSet):
+                 frameset: cpl.ui.FrameSet, **kwargs):
         self.items: list[DataItem] = []
         self.frameset: Optional[cpl.ui.FrameSet] = cpl.ui.FrameSet()
         self._use_requested: bool = False
-        super().__init__(frameset)
+        super().__init__(frameset, **kwargs)
 
     def _load_frameset_specific(self, frameset: cpl.ui.FrameSet):
         """

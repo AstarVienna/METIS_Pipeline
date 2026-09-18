@@ -173,3 +173,43 @@ class TestTagAxesMustBeDeclared:
                     pass
         finally:
             Parametrizable._valid_tags = declared
+
+
+class TestMostSpecificInputWins:
+    """ An input declared with a template item matches all its leaves, but a leaf that a
+    more specific sibling input declares belongs to that sibling. The SKY leaves are the
+    case: `IfuSkyRaw` under `IfuRaw`, `LmSkyBasicReduced` under `BasicReduced`. """
+
+    @staticmethod
+    def frameset(directory, *tags):
+        frames = cpl.ui.FrameSet()
+        for i, tag in enumerate(tags):
+            filename = str(directory / f"{tag.lower()}_{i}.fits")
+            cpl.core.PropertyList().save(filename, cpl.core.io.CREATE)
+            frames.append(cpl.ui.Frame(filename, tag=tag))
+        return frames
+
+    def test_sky_frames_go_to_the_sky_input_of_the_ifu_reduce_recipe(self, tmp_path):
+        from pymetis.instruments.metis.recipes.ifu.metis_ifu_reduce import MetisIfuReduceImpl
+        from pymetis.instruments.metis.dataitems.ifu.raw import IfuSciRaw, IfuSkyRaw
+        frames = self.frameset(tmp_path, 'IFU_SCI_RAW', 'IFU_SCI_RAW', 'IFU_SKY_RAW')
+        inputset = MetisIfuReduceImpl.InputSet(frames)
+        assert inputset.raw.Item is IfuSciRaw
+        assert len(inputset.raw.frameset) == 2
+        assert inputset.raw_sky.Item is IfuSkyRaw
+        assert len(inputset.raw_sky.frameset) == 1
+
+    def test_sky_basic_reduced_goes_to_the_sky_input_of_the_background_recipe(self, tmp_path):
+        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_background import MetisLmImgBackgroundImpl
+        from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciBasicReduced, LmSkyBasicReduced
+        frames = self.frameset(tmp_path, 'LM_SCI_BASIC_REDUCED', 'LM_SKY_BASIC_REDUCED')
+        inputset = MetisLmImgBackgroundImpl.InputSet(frames)
+        assert inputset.basic_reduced.Item is LmSciBasicReduced
+        assert inputset.sky_basic_reduced.Item is LmSkyBasicReduced
+        inputset.validate()
+
+    def test_two_leaves_without_a_claiming_sibling_are_still_ambiguous(self, tmp_path):
+        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_background import MetisLmImgBackgroundImpl
+        frames = self.frameset(tmp_path, 'LM_SCI_BASIC_REDUCED', 'LM_STD_BASIC_REDUCED', 'LM_SKY_BASIC_REDUCED')
+        with pytest.raises(cpl.core.IllegalInputError, match='several different data items'):
+            MetisLmImgBackgroundImpl.InputSet(frames)

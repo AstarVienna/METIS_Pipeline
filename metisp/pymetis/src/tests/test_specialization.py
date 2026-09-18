@@ -383,3 +383,38 @@ class TestEveryLeafBelongsToItsTemplate:
         assert LmBasicReduced.specialized(target='SKY') is LmSkyBasicReduced
         assert IfuRaw.specialized(target='SKY') is IfuSkyRaw
         assert MetisLmImgBasicReduceImpl.ProductSet.promoted(target='SKY').BasicReduced is LmSkyBasicReduced
+
+
+class TestEveryRecipePromotesWithEveryTag:
+    """
+    The run-time path: the Impl's containers are specialized with its mixin tags at import
+    and promoted with the data tags at run time. For every recipe and every combination of
+    valid values for the axes its declarations leave open, promotion must either resolve
+    or report a catalogue gap ("no concrete class owns"); "owned by the unrelated" is a
+    defect in the catalogue or the engine (the LM background of metis_lm_img_background
+    died that way: LmSciBackground under a band-specialized clone of Background).
+    """
+
+    @staticmethod
+    def open_axes(container) -> list[str]:
+        from pymetis.engine.core.functions.format import placeholders
+        from pymetis.engine.core.parametrizable import Parametrizable
+        axes = set()
+        for _, klass in container.list_classes():
+            axes |= placeholders(klass.name()) & Parametrizable._valid_tags
+        return sorted(axes)
+
+    @pytest.mark.parametrize("recipe", sorted(Recipe._registry.values(), key=lambda r: r._name), ids=lambda r: r._name)
+    @pytest.mark.parametrize("container", ["ProductSet", "Qc"])
+    def test_promotion_never_hits_an_unrelated_owner(self, recipe, container):
+        import itertools
+        values = TestEveryLeafBelongsToItsTemplate.axis_values(DataItem if container == "ProductSet" else QcParameter)
+        declared = getattr(recipe.Impl, container)
+        axes = self.open_axes(declared)
+        for combo in itertools.product(*(sorted(values.get(axis, ())) for axis in axes)):
+            tags = dict(zip(axes, combo))
+            try:
+                declared.promoted(**tags)
+            except TypeError as e:
+                assert 'unrelated' not in str(e), f"{recipe._name}.{container} with {tags}: {e}"
+                assert 'no concrete class owns' in str(e), f"{recipe._name}.{container} with {tags}: {e}"

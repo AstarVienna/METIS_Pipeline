@@ -137,7 +137,11 @@ class InputSet(RawImageProcessor.InputSet):
 
 `__init__` creates `self.raw`, `self.master_dark`, ... as instances of the
 annotated classes — these are what `process()` accesses via
-`self.inputset.raw` etc. The names are ordinary annotated attributes: IDEs
+`self.inputset.raw` etc. An input declared with a template item matches every
+leaf of the template, except leaves a more specific sibling input claims: with
+`raw: Item = IfuRaw` and `raw_sky: Item = IfuSkyRaw` in one set, `IFU_SKY_RAW`
+frames go to `raw_sky` only (the most specific input wins). Two different
+leaves landing on one input with no sibling to take them is still an error. The names are ordinary annotated attributes: IDEs
 complete and type them, and grep finds them. A subclass that overrides an
 input class must re-annotate the attribute; forgetting this raises a
 `TypeError` at recipe construction (`engine/inputs/inputset.py`).

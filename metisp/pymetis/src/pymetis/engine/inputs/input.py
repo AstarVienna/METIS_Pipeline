@@ -88,11 +88,15 @@ class PipelineInput(ABC):
         """
         return cls._multiplicity
 
-    def __init__(self, frameset: cpl.ui.FrameSet):
+    def __init__(self, frameset: cpl.ui.FrameSet, *, claimed: frozenset[type[DataItem]] = frozenset()):
         """
         Verify that all required class attributes are defined
         and promote to the most specialized derived class
         depending on the input frameset.
+
+        `claimed` holds the items of sibling inputs in the same set that are more specific
+        than this one's (`IfuSkyRaw` next to `IfuRaw`): the most specific input wins, so
+        such frames are left to the sibling instead of making this input ambiguous.
         """
         assert self.Item is not None, \
             f"Pipeline input {self.__class__.__qualname__} has no defined data item"
@@ -119,6 +123,9 @@ class PipelineInput(ABC):
             if cls is None:
                 Msg.warning(self.__class__.__qualname__,
                             f"Found a frame with tag '{tag}', which is not a registered data item. Ignoring.")
+            elif any(issubclass(cls, other) for other in claimed):
+                Msg.debug(self.__class__.__qualname__,
+                          f"Found {cls.__name__} with tag {tag}, which a more specific sibling input claims")
             elif issubclass(cls, self.Item):
                 matches[tag] = (cls, frames)
             else:

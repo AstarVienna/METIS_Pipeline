@@ -269,7 +269,7 @@ class ParametrizableItem(Parametrizable, abstract=True):
             # (clones are built from the bases, so two clones of one template are not
             # subclasses of each other) or a hand-written class derived from it (the
             # catalogue leaf); anything else would give the name two meanings.
-            if _origin(owner) is _origin(cls) or (not hasattr(owner, '_specialized_from') and issubclass(owner, cls)):
+            if _origin(owner) is _origin(cls) or (not hasattr(owner, '_specialized_from') and issubclass(owner, _origin(cls))):
                 return owner
             raise TypeError(
                 f"{cls.__qualname__} resolves to '{template}', which is owned by the unrelated "
