@@ -125,6 +125,9 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
                 self.Qc.Fwhm(pinhole_loc['fwhm_x']),
                 # FixMe: FWHM should be 2D?
                 self.Qc.Snr(pinhole_loc['snr']),
+                # FixMe: compute the chopper offsets; None marks a parameter that is not available yet
+                self.Qc.OffX(None),
+                self.Qc.OffY(None),
             )
         )
 

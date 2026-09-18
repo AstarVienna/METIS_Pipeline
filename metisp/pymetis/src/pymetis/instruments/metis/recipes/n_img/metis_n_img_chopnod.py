@@ -122,6 +122,11 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
         #    Hdu(header_background, combined_image, name='DET1.DATA')
         #)
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.PeakCnt(None),
+        ))
+
         return {product_reduced}#, product_background}
 
 

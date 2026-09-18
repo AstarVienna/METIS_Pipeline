@@ -74,6 +74,12 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
         table = create_dummy_table()
         image = create_dummy_image()
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.NSource(None),
+            self.Qc.Rms(None),
+        ))
+
         return {
             self.ProductSet.DistortionTable(
                 copy.deepcopy(primary_header),

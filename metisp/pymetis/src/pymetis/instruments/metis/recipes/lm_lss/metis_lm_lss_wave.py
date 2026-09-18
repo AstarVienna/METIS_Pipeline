@@ -119,6 +119,15 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         lm_lss_dist_sol_hdr = create_dummy_header()
         lm_lss_wave_guess_hdr = create_dummy_header()
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.CoeffN(None),
+            self.Qc.InterorderLevel(None),
+            self.Qc.LineFwhmAvg(None),
+            self.Qc.NLines(None),
+            self.Qc.PolyDeg(None),
+        ))
+
         return {
             self.ProductSet.LssCurve(
                 copy.deepcopy(primary_header),

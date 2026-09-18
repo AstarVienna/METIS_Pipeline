@@ -129,8 +129,9 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
 
         _combined = self.inputset.combined.load_data('DET1.DATA')
 
+        primary_header = create_dummy_header()
         product_telluric_transmission = self.ProductSet.TelluricTransmission(
-            create_dummy_header(),
+            primary_header,
             Hdu(header_transmission, table, name='TABLE'),
         )
         product_reduced_1d = self.ProductSet.ResponseFunction(
@@ -141,6 +142,13 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
             create_dummy_header(),
             Hdu(header_fluxcal_tab, table, name='TABLE'),
         )
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.Chi2(None),
+            self.Qc.Conversion(None),
+            self.Qc.NpThreshold(None),
+        ))
 
         return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}
 

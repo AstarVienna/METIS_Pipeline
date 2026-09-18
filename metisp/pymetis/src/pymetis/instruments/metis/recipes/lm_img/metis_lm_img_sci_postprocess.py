@@ -97,6 +97,16 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
             Hdu(header_combined, combined_image, name='IMAGE')
         )
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.PostprocDeltaCentre(None),
+            self.Qc.PostprocGridRange(None),
+            self.Qc.PostprocMedMean(None),
+            self.Qc.PostprocMedMed(None),
+            self.Qc.PostprocMedRms(None),
+            self.Qc.SciNExp(None),
+        ))
+
         return {product_coadd}
 
 

@@ -75,6 +75,15 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         trace_tab_header = create_dummy_header()
         trace_tab_data = create_dummy_table()
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.InterorderLevel(None),
+            self.Qc.LCoeff(None),
+            self.Qc.LPolyDeg(None),
+            self.Qc.RCoeff(None),
+            self.Qc.RPolyDeg(None),
+        ))
+
         return {
             self.ProductSet.TraceTable(
                 primary_header,

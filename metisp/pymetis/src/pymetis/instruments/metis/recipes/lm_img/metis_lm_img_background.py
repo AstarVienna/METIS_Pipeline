@@ -73,6 +73,12 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
             Hdu(header_object_cat, table, name='TABLE'),
         )
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.Median(None),
+            self.Qc.MedianDev(None),
+        ))
+
         return {product_bkg, product_bkg_subtracted, product_object_cat}
 
 

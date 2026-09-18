@@ -319,7 +319,13 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
         Msg.info(self.__class__.__qualname__, f"QC IFU DISTORT NTRACES = {n_traces}")
 
-        return self.collect_qc_parameters(self.Qc.NTraces(n_traces))
+        return self.collect_qc_parameters(
+            self.Qc.NTraces(n_traces),
+            # FixMe: compute the real QC values; None marks a parameter that is not available yet
+            self.Qc.Rms(None),
+            self.Qc.Fwhm(None),
+            self.Qc.NSpots(None),
+        )
 
 
 class MetisIfuDistortion(Recipe):

@@ -205,14 +205,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         # SKEL: Add QC keywords
         qc_badpix_count = spec_flat_img.count_rejected()
-        spec_flat_hdr.append(
-            cpl.core.Property(
-                "QC IFU RSRF NBADPIX",
-                cpl.core.Type.INT,
-                qc_badpix_count,
-                "Number of bad pixels"
-            )
-        )
+        spec_flat_hdr.append(self.collect_qc_parameters(self.Qc.NBadPix(qc_badpix_count)))
 
         # create bad pixel map product
         Msg.info(self.__class__.__qualname__,
@@ -227,14 +220,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         badpix_img.fill_rejected(1) # set rejected pixels to 1
         # TODO: create QC1 parameters:
         # Add QC keywords
-        badpix_hdr.append(
-            cpl.core.Property(
-                "QC IFU RSRF NBADPIX",
-                cpl.core.Type.INT,
-                qc_badpix_count,
-                "Number of bad pixels"
-            )
-        )
+        badpix_hdr.append(self.collect_qc_parameters(self.Qc.NBadPix(qc_badpix_count)))
 
         # extract 1D RSRF curves
         Msg.info(self.__class__.__qualname__,

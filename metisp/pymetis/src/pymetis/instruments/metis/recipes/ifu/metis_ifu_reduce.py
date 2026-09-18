@@ -136,6 +136,15 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         raw_images = self.inputset.raw.use().load_data(extension=r'DET1.DATA')
         combined_image = self.combine_images(raw_images, "average")
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        header_reduced.append(self.collect_qc_parameters(
+            self.Qc.MeanBkg(None),
+            self.Qc.MeanStray(None),
+            self.Qc.NBadPix(None),
+            self.Qc.StdEllipticity(None),
+            self.Qc.StdFwhm(None),
+        ))
+
         return {
             product_reduced,
             product_background,

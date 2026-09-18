@@ -90,6 +90,16 @@ class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
                   'SciDerotated', 'SciCoverage', 'SciSnr', 'PsfMedian')
         tables = ('CentroidTab', 'SciContrastRadprof', 'SciContrastAdi', 'SciThroughput')
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.SciContrastAdiLamd(None),
+            self.Qc.SciContrastRawLamd(None),
+            self.Qc.SciFwhm(None),
+            self.Qc.SciNExp(None),
+            self.Qc.SciSnrMean(None),
+            self.Qc.SciSnrPeak(None),
+        ))
+
         return {
             getattr(self.ProductSet, name)(primary_header, Hdu(create_dummy_header(), data, name='DET1.DATA'))
             for names, data in ((images, image), (tables, table))

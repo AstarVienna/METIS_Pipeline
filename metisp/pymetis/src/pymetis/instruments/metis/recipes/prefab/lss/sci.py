@@ -141,6 +141,21 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         _header_lss_sci_flux_tell_corr1d = create_dummy_header()
 
         # Write files
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.FluxNoiseLevel(None),
+            self.Qc.FluxSnr(None),
+            self.Qc.InterorderLevel(None),
+            self.Qc.NoiseLevel(None),
+            self.Qc.Snr(None),
+            self.Qc.WaveCalDevMean(None),
+            self.Qc.WaveCalFwhm(None),
+            self.Qc.WaveCalNIdent(None),
+            self.Qc.WaveCalNMatch(None),
+            self.Qc.WaveCalPolyCoeffN(None),
+            self.Qc.WaveCalPolyDeg(None),
+        ))
+
         return {
             self.ProductSet.LssSci1d(
                 copy.deepcopy(primary_header),

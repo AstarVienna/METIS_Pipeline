@@ -103,6 +103,15 @@ class MetisLssRsrfImpl(DarkImageProcessor, MetisRecipeImpl):
         combined_median_hdr = create_dummy_header()
         combined_median_img = self.combine_images(raw_images, "median")
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.InterorderLevel(None),
+            self.Qc.MeanLevel(None),
+            self.Qc.MedianLevel(None),
+            self.Qc.NormSnr(None),
+            self.Qc.NormStdev(None),
+        ))
+
         return {
             self.ProductSet.MasterLssRsrf(
                 copy.deepcopy(primary_header),

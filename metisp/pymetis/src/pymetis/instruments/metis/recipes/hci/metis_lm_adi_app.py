@@ -145,6 +145,16 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
                     Hdu(header_lmSciPsfMedian, image, name='DET1.DATA'),
             )
 
+            # FixMe: compute the real QC values; None marks a parameter that is not available yet
+            primary_header.append(self.collect_qc_parameters(
+                self.Qc.SciContrastAdiLamd(None),
+                self.Qc.SciContrastRawLamd(None),
+                self.Qc.SciFwhm(None),
+                self.Qc.SciNExp(None),
+                self.Qc.SciSnrMean(None),
+                self.Qc.SciSnrPeak(None),
+            ))
+
             return {
                 product_lmSciCalibrated,
                 product_lmSciCentred,

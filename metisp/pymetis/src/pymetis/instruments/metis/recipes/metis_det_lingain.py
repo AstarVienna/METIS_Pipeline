@@ -579,6 +579,21 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             *[output['badpix_map'] for output in all_hdus]
         )
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header_gain_map.append(self.collect_qc_parameters(
+            self.Qc.GainCoeff(None),
+            self.Qc.GainLin(None),
+            self.Qc.LinGainMean(None),
+            self.Qc.LinGainRms(None),
+        ))
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header_linearity.append(self.collect_qc_parameters(
+            self.Qc.LinMaxFlux(None),
+            self.Qc.LinMinFlux(None),
+            self.Qc.LinNumBadpix(None),
+        ))
+
         return {product_gain_map, product_linearity, product_badpix_map}
 
 

@@ -154,8 +154,7 @@ class TestDeclaredQcParametersAreWritten:
 
     RECIPES_WITH_UNWRITTEN_QC = frozenset({
         'metis_cal_chophome', 'metis_det_lingain',
-        'metis_ifu_calibrate', 'metis_ifu_distortion', 'metis_ifu_postprocess', 'metis_ifu_reduce', 'metis_ifu_rsrf',
-        'metis_ifu_telluric',
+        'metis_ifu_calibrate', 'metis_ifu_distortion', 'metis_ifu_postprocess', 'metis_ifu_reduce', 'metis_ifu_telluric',
         'metis_img_adi_cgrph', 'metis_lm_adi_app',
         'metis_lm_img_background', 'metis_lm_img_distortion', 'metis_lm_img_flat',
         'metis_lm_img_sci_postprocess', 'metis_lm_img_std_process',
@@ -176,6 +175,12 @@ class TestDeclaredQcParametersAreWritten:
                 sources.append(Path(path).read_text())
         return '\n'.join(sources)
 
+    @staticmethod
+    def is_computed(attr: str, source: str) -> bool:
+        """ `self.Qc.X(value)` with a real value; `self.Qc.X(None)` is the placeholder a
+        skeleton recipe wires in ("not available", skipped at collection) and does not count. """
+        return re.search(r'\bQc\.' + re.escape(attr) + r'\(\s*(?!None\s*[,)])', source) is not None
+
     def test_every_declared_qc_parameter_is_instantiated(self, recipe, request):
         if recipe._name in self.RECIPES_WITH_UNWRITTEN_QC:
             request.applymarker(pytest.mark.xfail(
@@ -183,7 +188,7 @@ class TestDeclaredQcParametersAreWritten:
         source = self.implementation_source(recipe)
         unwritten = [f"{attr} ({klass.name()})"
                      for attr, klass in recipe._list_qc_parameters()
-                     if not re.search(r'\bQc\.' + re.escape(attr) + r'\(', source)]
+                     if not self.is_computed(attr, source)]
         assert not unwritten, \
             (f"{recipe._name} declares {len(unwritten)} QC parameter(s) it never writes: "
              + ', '.join(unwritten))

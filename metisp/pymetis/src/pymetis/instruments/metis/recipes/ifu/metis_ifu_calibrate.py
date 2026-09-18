@@ -76,6 +76,12 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
             Hdu(header_scc, image, name='IMAGE'),
         )
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.MaxFlux(None),
+            self.Qc.MinFlux(None),
+        ))
+
         return {product_scc}
 
 

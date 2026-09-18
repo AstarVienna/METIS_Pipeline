@@ -83,4 +83,18 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl)
             Hdu(header_table, table, name='TABLE')
         )
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.Airmass(None),
+            self.Qc.ApertureCounts(None),
+            self.Qc.AreaSensitivity(None),
+            self.Qc.BackgroundRms(None),
+            self.Qc.Ellipticity(None),
+            self.Qc.FluxConversion(None),
+            self.Qc.Fwhm(None),
+            self.Qc.PeakCounts(None),
+            self.Qc.Sensitivity(None),
+            self.Qc.Strehl(None),
+        ))
+
         return {product_fluxcal, product_combined}

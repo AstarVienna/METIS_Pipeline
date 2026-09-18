@@ -103,6 +103,15 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
             Hdu(header_coadd, coadded, name='IMAGE')
         )
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.DeltaC(None),
+            self.Qc.GridRange(None),
+            self.Qc.MedMean(None),
+            self.Qc.MedMed(None),
+            self.Qc.MedRms(None),
+        ))
+
         return {product}  # ToDo is just a dummy for now
 
 
