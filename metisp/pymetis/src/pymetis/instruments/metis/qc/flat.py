@@ -64,6 +64,12 @@ class LmMFlatNBadPix(BandLmMixin, MFlatNBadPix):
 class NMFlatNBadPix(BandNMixin, MFlatNBadPix):
     pass
 
+# ToDo (decision of 2026-09-18, MFLAT only): the master-flat QC is written once per product
+#      under the MFLAT family; the product tag already says whether the flat is LAMP or
+#      TWILIGHT. The MLFLAT / MTFLAT classes below have no DRLD card any more and no recipe
+#      uses them -- remove them once the flat recipe PR has landed, or re-add the cards to the
+#      DRLD if per-source QC is wanted after all. The recipe should then also declare and
+#      compute MFLAT MEDIAN and FLAT MEDIAN MEAN, which are on its DRLD card.
 # -------------------------------
 # MLFLAT base classes
 # -------------------------------
