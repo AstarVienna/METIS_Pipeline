@@ -39,6 +39,7 @@ from pymetis.instruments.metis.dataitems.distortion import IfuDistortionRaw, Ifu
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 
+from pymetis.instruments.metis.qc.distortion import QcIfuDistortRms, QcIfuDistortFwhm, QcIfuDistortNSpots
 class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class MasterDarkInput(OptionalInputMixin, MasterDarkInput):
@@ -67,6 +68,12 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         DistortionReduced = IfuDistortionReduced
 
     class Qc(QcParameterSet):
+
+        Rms = QcIfuDistortRms
+
+        Fwhm = QcIfuDistortFwhm
+
+        NSpots = QcIfuDistortNSpots
         class NTraces(QcParameter):
             _name_template = "QC IFU DISTORT NTRACES"
             _type = int

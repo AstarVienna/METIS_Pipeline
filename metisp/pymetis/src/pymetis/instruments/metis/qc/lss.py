@@ -89,3 +89,10 @@ class LssWaveCalPolyCoeffN(QcParameter):
     _type = float
     _unit = "Å/pixel^(n + 1)"
     _description_template = "{n}-th coefficient of the wavelength polynomial"
+
+
+class LssStdPsfLoss(QcParameter):
+    _name_template = "QC {band} LSS STD PSFLOSS"
+    _type = float
+    _unit = None
+    _description_template = "Fraction of AO-induced slit losses of the standard star"

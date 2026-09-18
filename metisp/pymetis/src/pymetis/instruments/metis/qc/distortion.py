@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from ..mixins import BandLmMixin, BandNMixin
+from ..mixins import BandLmMixin, BandNMixin, BandIfuMixin
 from pymetis.engine.qc import QcParameter
 
 
@@ -35,6 +35,20 @@ class QcDistortNSource(QcParameter):
     _description_template = "Number of positions used to fit the distortion polynomial"
 
 
+class QcDistortFwhm(QcParameter):
+    _name_template = "QC {band} DISTORT FWHM"
+    _type = float
+    _unit = "pixels"
+    _description_template = "Measured FWHM of the spots"
+
+
+class QcDistortNSpots(QcParameter):
+    _name_template = "QC {band} DISTORT NSPOTS"
+    _type = int
+    _unit = "counts"
+    _description_template = "Number of identified spots"
+
+
 class QcLmDistortRms(BandLmMixin, QcDistortRms):
     pass
 
@@ -48,4 +62,16 @@ class QcLmDistortNSource(BandLmMixin, QcDistortNSource):
 
 
 class QcNDistortNSource(BandNMixin, QcDistortNSource):
+    pass
+
+
+class QcIfuDistortRms(BandIfuMixin, QcDistortRms):
+    pass
+
+
+class QcIfuDistortFwhm(BandIfuMixin, QcDistortFwhm):
+    pass
+
+
+class QcIfuDistortNSpots(BandIfuMixin, QcDistortNSpots):
     pass

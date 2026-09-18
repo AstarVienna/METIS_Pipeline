@@ -1,1 +1,1 @@
-from . import (dark, flat, hci, lingain, background, chophome, chopnod, distortion, lss, reduce, rsrf, std_process, trace)
+from . import (dark, flat, hci, lingain, background, chophome, chopnod, distortion, lss, persistence, reduce, rsrf, std_process, trace)

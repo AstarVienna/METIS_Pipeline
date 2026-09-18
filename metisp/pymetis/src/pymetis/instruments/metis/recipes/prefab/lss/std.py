@@ -42,6 +42,7 @@ from pymetis.instruments.metis.qc.lss import (LssWaveCalPolyCoeffN, LssWaveCalPo
                                               LssInterorderLevel, LssSnr, LssNoiseLevel)
 
 
+from pymetis.instruments.metis.qc.lss import LssStdPsfLoss
 class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
@@ -93,6 +94,8 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
         LssStd1d = LssStd1d
 
     class Qc(QcParameterSet):
+
+        PsfLoss = LssStdPsfLoss
         class BackgroundMean(QcParameter):
             _name_template = "QC {band} LSS STD BACKGD MEAN"
             _type = float

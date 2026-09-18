@@ -154,7 +154,8 @@ class TestDeclaredQcParametersAreWritten:
 
     RECIPES_WITH_UNWRITTEN_QC = frozenset({
         'metis_cal_chophome', 'metis_det_lingain',
-        'metis_ifu_calibrate', 'metis_ifu_postprocess', 'metis_ifu_reduce', 'metis_ifu_rsrf', 'metis_ifu_telluric',
+        'metis_ifu_calibrate', 'metis_ifu_distortion', 'metis_ifu_postprocess', 'metis_ifu_reduce', 'metis_ifu_rsrf',
+        'metis_ifu_telluric',
         'metis_img_adi_cgrph', 'metis_lm_adi_app',
         'metis_lm_img_background', 'metis_lm_img_distortion', 'metis_lm_img_flat',
         'metis_lm_img_sci_postprocess', 'metis_lm_img_std_process',

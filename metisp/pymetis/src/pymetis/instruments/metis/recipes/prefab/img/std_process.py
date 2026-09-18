@@ -37,6 +37,7 @@ from pymetis.instruments.metis.qc.std_process import (QcImgStdBackgroundRms, QcS
                                                       QcSensitivity, QcAreaSensitivity)
 
 
+from pymetis.instruments.metis.qc.std_process import QcStdFwhm, QcStdAirmass
 class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
@@ -50,6 +51,10 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl)
         ImgStdCombined = Combined
 
     class Qc(QcParameterSet):
+
+        Fwhm = QcStdFwhm
+
+        Airmass = QcStdAirmass
         BackgroundRms = QcImgStdBackgroundRms
         PeakCounts = QcStdPeakCounts
         ApertureCounts = QcStdApertureCounts

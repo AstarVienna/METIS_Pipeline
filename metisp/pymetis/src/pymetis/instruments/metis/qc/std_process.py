@@ -50,11 +50,18 @@ class QcStdStrehl(QcParameter):
     _description_template = "Strehl ratio of the standard star"
 
 
+class QcStdFwhm(QcParameter):
+    _name_template = "QC {band} STD FWHM"
+    _type = float
+    _unit = "pixels"
+    _description_template = "FWHM of the standard star PSF"
+
+
 class QcStdAirmass(QcParameter):
     _name_template = "QC {band} STD AIRMASS"
     _type = float
     _unit = None
-    _description_template = "Ellipticity of the standard star PSF"
+    _description_template = "Airmass of the standard star observation"
 
 
 class QcStdEllipticity(QcParameter):

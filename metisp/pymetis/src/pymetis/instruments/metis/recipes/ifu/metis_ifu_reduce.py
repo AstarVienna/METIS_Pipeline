@@ -41,6 +41,7 @@ from pymetis.instruments.metis.inputs.common import OptionalPersistenceMapInput
 from pymetis.instruments.metis.qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNBadPix
 
 
+from pymetis.instruments.metis.qc.std_process import QcStdFwhm, QcStdEllipticity
 class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
@@ -71,6 +72,10 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         Combined = IfuCombined
 
     class Qc(QcParameterSet):
+
+        StdFwhm = QcStdFwhm
+
+        StdEllipticity = QcStdEllipticity
         NBadPix = IfuReduceNBadPix
         MeanBkg = IfuReduceMeanBkg
         MeanStray = IfuReduceMeanStray
