@@ -31,7 +31,7 @@ class LssSnr(QcParameter):
 class LssNoiseLevel(QcParameter):
     _name_template = "QC {band} LSS {target} NOISELEV"
     _type = float
-    _unit = "Jansky"
+    _unit = "counts"
     _description_template = "Noise level of the {target} spectrum"
     _comment = None
 
@@ -39,7 +39,7 @@ class LssNoiseLevel(QcParameter):
 class LssInterorderLevel(QcParameter):
     _name_template = "QC {band} LSS {target} INTORDR LEVEL"
     _type = float
-    _unit = "Jansky"
+    _unit = "counts"
     _description_template = "Flux level of the interorder background"
     _comment = None
 
