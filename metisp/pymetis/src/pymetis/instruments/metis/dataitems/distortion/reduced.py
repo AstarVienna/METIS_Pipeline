@@ -20,15 +20,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl.ui
 from cpl.core import Image
 
-from pymetis.engine.dataitems import TableDataItem
+from pymetis.engine.dataitems import ImageDataItem
 
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin, BandIfuMixin
 
 
-class DistortionReduced(TableDataItem, abstract=True):
+class DistortionReduced(ImageDataItem, abstract=True):
     _name_template =  r'{band}_DIST_REDUCED'
     _title_template = r"{band} distortion reduced"
-    _description_template = r"Table of polynomial coefficients for distortion correction"
+    _description_template = r"Stacked {band} pinhole exposure for the distortion determination"   # the DRLD card wrongly repeats DISTORTION_TABLE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG'})
@@ -55,4 +55,3 @@ class IfuDistortionReduced(BandIfuMixin, DistortionReduced):
     } | {
         rf'DET{detector:1d}.DATA': Image for detector in [1, 2, 3, 4]
     }
-    # FixMe here DRLD specifies a Table

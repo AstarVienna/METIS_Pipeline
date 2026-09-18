@@ -22,43 +22,43 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.core.functions.dummy import create_dummy_image, create_dummy_header
-from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
-from pymetis.instruments.metis.dataitems.ifu import IfuTelluric, IfuScienceCubeCalibrated, IfuSciReduced
 from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.inputs.common import FluxCalTableInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class ReducedInput(SinglePipelineInput):
-            Item = IfuSciReduced
+        class ReducedInput(PrimaryInputMixin, SinglePipelineInput):
+            Item = dataitems.IfuSciReduced
 
         class TelluricInput(SinglePipelineInput):
-            Item = IfuTelluric
+            Item = dataitems.IfuTelluric
 
         reduced: ReducedInput
         telluric: TelluricInput
         flux_cal_table: FluxCalTableInput
 
     class ProductSet(PipelineProductSet):
-        SciCubeCalibrated = IfuScienceCubeCalibrated
+        SciCubeCalibrated = dataitems.IfuScienceCubeCalibrated
 
     class Qc(QcParameterSet):
-        # QCs are apprently not very reusable, so we can define them here
+        # QCs here are apparently not very reusable, so we can define them here
         class MinFlux(QcParameter):
             _name_template = "QC IFU CALIB MINFLUX"
             _type = float
-            _unit = "1"
+            _unit = "Jansky"
             _description_template = "Minimum pixel flux in the calibrated image"
             _comment = None
 
         class MaxFlux(QcParameter):
             _name_template = "QC IFU CALIB MAXFLUX"
             _type = float
-            _unit = "1"
+            _unit = "Jansky"
             _description_template = "Maximum pixel flux in the calibrated image"
             _comment = None
 
@@ -75,6 +75,12 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
             primary_header,
             Hdu(header_scc, image, name='IMAGE'),
         )
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.MaxFlux(None),
+            self.Qc.MinFlux(None),
+        ))
 
         return {product_scc}
 

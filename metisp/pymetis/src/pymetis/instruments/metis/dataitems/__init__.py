@@ -17,19 +17,26 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from .adc import *
-from .background import *
-from .chophome import *
-from .distortion import *
-from .hci import *
-from .img import *
-from .linearity import *
-from .lss import *
-from .masterdark import *
-from .masterflat import *
-from .molecfit import *
-from .pupil import *
-from .raw import *
-from .rsrf import *
+"""
+The METIS data-item catalogue. Every class is reachable flat as
+`pymetis.instruments.metis.dataitems.<Class>` -- a DRLD tag has exactly one class, so the
+module a class lives in carries no information a user of the catalogue needs. Recipes and
+inputs import the package (`from pymetis.instruments.metis import dataitems`) and bind
+`Item = dataitems.LmSciBasicReduced`, never a class by name.
+"""
+import importlib
+import pkgutil
 
-from .badpixmap import *
+from pymetis.engine.dataitems import DataItem
+
+__all__ = []
+for _module_info in pkgutil.walk_packages(__path__, __name__ + '.'):
+    _module = importlib.import_module(_module_info.name)
+    for _name, _obj in list(vars(_module).items()):
+        if isinstance(_obj, type) and issubclass(_obj, DataItem) and _obj.__module__ == _module.__name__:
+            if _name in globals() and globals()[_name] is not _obj:
+                raise ImportError(f"two data item classes are called {_name}: {globals()[_name].__module__} and {_module.__name__}")
+            globals()[_name] = _obj
+            __all__.append(_name)
+__all__.sort()
+del _module_info, _module, _name, _obj

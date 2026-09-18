@@ -20,7 +20,7 @@ from typing import Literal
 
 import cpl
 import numpy as np
-from numpy._typing import NDArray
+from numpy.typing import NDArray
 
 from pymetis.engine.core.classes.instrument import InstrumentDescription
 
@@ -31,6 +31,8 @@ class Metis(InstrumentDescription):
     border_geo = 28
     border_ifu_x = 64
     border_ifu_y = 32
+
+    DetectorNumber = Literal[1, 2, 3, 4]       # Ints admissible as detector numbers
 
     class MaskFlags(InstrumentDescription.MaskFlags):
         # det_dark
@@ -63,7 +65,7 @@ class Metis(InstrumentDescription):
             raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
     @classmethod
-    def get_detector_mask(cls, tech: str, detector: Literal[1, 2, 3, 4]) -> NDArray[bool]:
+    def get_detector_mask(cls, tech: str, detector: DetectorNumber) -> NDArray[bool]:
         """
         A mask to ignore the masked pixels at the edge of the detector.
         EXTERNAL CALIBRATION, in case of the IFU the mask needs to only cover the visible traces.
@@ -85,7 +87,7 @@ class Metis(InstrumentDescription):
                         ((yy >= cls.border_ifu_y) & (yy < (det_height - cls.border_ifu_y))))
             elif detector in [2, 4]:
                 return (((xx >= 0) & (xx < (det_width - cls.border_ifu_x))) &
-                        ((yy >= cls.border_ifu_y) & (yy < (det_width - cls.border_ifu_y))))
+                        ((yy >= cls.border_ifu_y) & (yy < (det_height - cls.border_ifu_y))))
             else:
                 raise cpl.core.IllegalInputError(f"Detector ID {detector} not recognised")
         else:

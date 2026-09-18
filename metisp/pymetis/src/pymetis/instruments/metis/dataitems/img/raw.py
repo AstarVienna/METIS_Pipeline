@@ -35,7 +35,7 @@ class ImageRaw(Raw, abstract=True):
                                "INS.OPTI9.NAME", "INS.OPTI10.NAME", "DRS.FILTER"})
 
 
-class LmImageRaw(BandLmMixin, ImageRaw):
+class LmImageRaw(BandLmMixin, ImageRaw, abstract=True):
     pass
 
 
@@ -51,7 +51,7 @@ class LmImageSkyRaw(TargetSkyMixin, LmImageRaw):
     pass
 
 
-class NImageRaw(BandNMixin, ImageRaw):
+class NImageRaw(BandNMixin, ImageRaw, abstract=True):
     pass
 
 

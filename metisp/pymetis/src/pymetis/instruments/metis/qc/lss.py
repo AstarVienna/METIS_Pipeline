@@ -23,23 +23,23 @@ from pymetis.engine.qc import QcParameter
 class LssSnr(QcParameter):
     _name_template = "QC {band} LSS {target} SNR"
     _type = float
-    _unit = "1"
-    _description_template = "Signal-to-noise ratio of science spectrum"
+    _unit = None
+    _description_template = "Signal-to-noise ratio of the {target} spectrum"
     _comment = None
 
 
 class LssNoiseLevel(QcParameter):
     _name_template = "QC {band} LSS {target} NOISELEV"
     _type = float
-    _unit = "Jansky"
-    _description_template = "Noise level of science spectrum"
+    _unit = "counts"
+    _description_template = "Noise level of the {target} spectrum"
     _comment = None
 
 
 class LssInterorderLevel(QcParameter):
     _name_template = "QC {band} LSS {target} INTORDR LEVEL"
     _type = float
-    _unit = "Jansky"
+    _unit = "counts"
     _description_template = "Flux level of the interorder background"
     _comment = None
 
@@ -63,7 +63,7 @@ class LssWaveCalFwhm(QcParameter):
 class LssWaveCalNIdent(QcParameter):
     _name_template = "QC {band} LSS {target} WAVECAL NIDENT"
     _type = int
-    _unit = "1"
+    _unit = "counts"
     _description_template = "Number of identified lines"
     _comment = None
 
@@ -71,15 +71,15 @@ class LssWaveCalNIdent(QcParameter):
 class LssWaveCalNMatch(QcParameter):
     _name_template = "QC {band} LSS {target} WAVECAL NMATCH"
     _type = int
-    _unit = "1"
-    _description_template = "Number of line matched between catalogue and spectrum"
+    _unit = "counts"
+    _description_template = "Number of lines matched between catalogue and spectrum"
     _comment = None
 
 
 class LssWaveCalPolyDeg(QcParameter):
     _name_template = "QC {band} LSS {target} WAVECAL POLYDEG"
     _type = int
-    _unit = "1"
+    _unit = None
     _description_template = "Degree of the wavelength polynomial"
     _comment = None
 
@@ -89,3 +89,10 @@ class LssWaveCalPolyCoeffN(QcParameter):
     _type = float
     _unit = "Å/pixel^(n + 1)"
     _description_template = "{n}-th coefficient of the wavelength polynomial"
+
+
+class LssStdPsfLoss(QcParameter):
+    _name_template = "QC {band} LSS STD PSFLOSS"
+    _type = float
+    _unit = None
+    _description_template = "Fraction of AO-induced slit losses of the standard star"

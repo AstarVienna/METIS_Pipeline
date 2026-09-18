@@ -25,31 +25,28 @@ from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.inputs import SinglePipelineInput
 
-from pymetis.instruments.metis.dataitems.lss.curve import LssCurve, LssDistSol, LssWaveGuess
-from pymetis.instruments.metis.dataitems.lss.rsrf import MasterLssRsrf
-from pymetis.instruments.metis.dataitems.lss.trace import LssTrace
-from pymetis.instruments.metis.dataitems.lss.wave import LssWaveRaw
 from pymetis.instruments.metis.inputs import RawInput, LaserTableInput
 from pymetis.instruments.metis.inputs.common import (WcuOffInput, OptionalInputMixin, PersistenceMapInput,
                                                      GainMapInput, LinearityInput, BadPixMapInput)
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LssWaveRaw
+            Item = dataitems.LssWaveRaw
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
         class MasterRsrfInput(SinglePipelineInput):
-            Item = MasterLssRsrf
+            Item = dataitems.MasterLssRsrf
 
         class LssTraceInput(SinglePipelineInput):
-            Item = LssTrace
+            Item = dataitems.LssTrace
 
         raw: RawInput
         persistence_map: PersistenceMapInput
@@ -62,15 +59,15 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         laser_table: LaserTableInput
 
     class ProductSet(PipelineProductSet):
-        LssCurve = LssCurve
-        LssDistSol = LssDistSol
-        LssWaveGuess = LssWaveGuess
+        LssCurve = dataitems.LssCurve
+        LssDistSol = dataitems.LssDistSol
+        LssWaveGuess = dataitems.LssWaveGuess
 
     class Qc(QcParameterSet):
         class PolyDeg(QcParameter):
             _name_template = "QC LM LSS WAVE POLYDEG"
             _type = int
-            _unit = "1"
+            _unit = None
             _default = None
             _description_template = "Degree of the first guess polynomial"
             _comment = None
@@ -78,7 +75,7 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         class CoeffN(QcParameter):
             _name_template = "QC LM LSS WAVE COEFF{i}"
             _type = float
-            _unit = "pixels ^ (1 - i)"
+            _unit = "pixels^(1 - i)"
             _default = None
             _description_template = "{i}-th coefficient of the first guess polynomial"
             _comment = None
@@ -86,7 +83,7 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         class NLines(QcParameter):
             _name_template = "QC LM LSS WAVE NLINES"
             _type = int
-            _unit = "1"
+            _unit = "counts"
             _default = None
             _description_template = "Number of detected laser lines; should be constant"
 
@@ -118,6 +115,15 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         lm_lss_curve_header = create_dummy_header()
         lm_lss_dist_sol_hdr = create_dummy_header()
         lm_lss_wave_guess_hdr = create_dummy_header()
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.CoeffN(None),
+            self.Qc.InterorderLevel(None),
+            self.Qc.LineFwhmAvg(None),
+            self.Qc.NLines(None),
+            self.Qc.PolyDeg(None),
+        ))
 
         return {
             self.ProductSet.LssCurve(

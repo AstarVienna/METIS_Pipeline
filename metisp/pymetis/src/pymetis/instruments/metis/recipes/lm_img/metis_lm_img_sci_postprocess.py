@@ -27,25 +27,24 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
-from pymetis.instruments.metis.dataitems.coadd import LmSciCoadd
-from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
-            Item = LmSciCalibrated
+            Item = dataitems.LmSciCalibrated
 
         raw: RawInput
 
     class ProductSet(PipelineProductSet):
-        LmImgSciCoadd = LmSciCoadd
+        LmImgSciCoadd = dataitems.LmSciCoadd
 
     class Qc(QcParameterSet):
         class SciNExp(QcParameter):
             _name_template = "QC LM SCI NEXP"
             _type = int
-            _unit = "1"
+            _unit = "counts"
             _default = None
             _description_template = "Number of images that went into a LM_SCI_COADD"
 
@@ -96,6 +95,16 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
             primary_header,
             Hdu(header_combined, combined_image, name='IMAGE')
         )
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.PostprocDeltaCentre(None),
+            self.Qc.PostprocGridRange(None),
+            self.Qc.PostprocMedMean(None),
+            self.Qc.PostprocMedMed(None),
+            self.Qc.PostprocMedRms(None),
+            self.Qc.SciNExp(None),
+        ))
 
         return {product_coadd}
 

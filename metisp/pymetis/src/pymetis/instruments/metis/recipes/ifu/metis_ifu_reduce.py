@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import copy
-from typing import Literal
 
 import cpl
 
@@ -29,31 +28,29 @@ from pymetis.engine.recipes import Recipe
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
-from pymetis.instruments.metis.dataitems.distortion.table import IfuDistortionTable
-from pymetis.instruments.metis.dataitems.ifu import (IfuSkyRaw, IfuRaw, IfuCombined,
-                                                     IfuReduced, IfuReducedCube, IfuBackground)
-from pymetis.instruments.metis.dataitems.rsrf import RsrfIfu
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis.inputs import RawInput, WavecalInput, GainMapInput, LinearityInput
 from pymetis.instruments.metis.inputs.common import OptionalPersistenceMapInput
-from pymetis.instruments.metis.qc.reduce import IfuReduceMeanBkg, IfuReduceMeanStray, IfuReduceNbadpix
+from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = IfuRaw
+            Item = dataitems.IfuRaw
 
         class RawSkyInput(RawInput):
-            Item = IfuSkyRaw
+            Item = dataitems.IfuSkyRaw
 
         class DistortionTableInput(SinglePipelineInput):
-            Item = IfuDistortionTable
+            Item = dataitems.IfuDistortionTable
 
         class RsrfInput(SinglePipelineInput):
-            Item = RsrfIfu
+            Item = dataitems.RsrfIfu
 
         raw: RawInput
         raw_sky: RawSkyInput
@@ -65,23 +62,25 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         rsrf: RsrfInput
 
     class ProductSet(PipelineProductSet):
-        Reduced = IfuReduced
-        Background = IfuBackground
-        ReducedCube = IfuReducedCube
-        Combined = IfuCombined
+        Reduced = dataitems.IfuReduced
+        Background = dataitems.IfuBackground
+        ReducedCube = dataitems.IfuReducedCube
+        Combined = dataitems.IfuCombined
 
     class Qc(QcParameterSet):
-        Nbadpix = IfuReduceNbadpix
-        MeanBkg = IfuReduceMeanBkg
-        MeanStray = IfuReduceMeanStray
+        StdFwhm = qc.std_process.QcStdFwhm
+        StdEllipticity = qc.std_process.QcStdEllipticity
+        NBadPix = qc.reduce.IfuReduceNBadPix
+        MeanBkg = qc.reduce.IfuReduceMeanBkg
+        MeanStray = qc.reduce.IfuReduceMeanStray
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+    def _process_single_detector(self, detector: Metis.DetectorNumber) -> dict[str, Hdu]:
         """
         Process exposures for a single detector of the IFU.
 
         Parameters
         ----------
-        detector : Literal[1, 2, 3, 4]
+        detector : Metis.DetectorNumber
 
         Returns
         -------
@@ -130,6 +129,15 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         # cready dummy image for cube outputs
         raw_images = self.inputset.raw.use().load_data(extension=r'DET1.DATA')
         combined_image = self.combine_images(raw_images, "average")
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        header_reduced.append(self.collect_qc_parameters(
+            self.Qc.MeanBkg(None),
+            self.Qc.MeanStray(None),
+            self.Qc.NBadPix(None),
+            self.Qc.StdEllipticity(None),
+            self.Qc.StdFwhm(None),
+        ))
 
         return {
             product_reduced,

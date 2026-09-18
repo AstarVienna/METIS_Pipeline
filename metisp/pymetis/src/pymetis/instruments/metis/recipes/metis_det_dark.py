@@ -23,13 +23,13 @@ import operator
 import re
 import numpy as np
 
-from typing import Literal, Dict, Any
+from typing import Dict, Any
 
 import cpl
 from cpl.core import Msg
 
 from pymetis.drl.combine import combine_images
-from pymetis.drl.noise import estimate_noise_list, calculate_outliers
+from pymetis.drl.noise import estimate_noise_list, calculate_outliers, calculate_outliers_sequence
 from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
@@ -41,16 +41,13 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.description import Metis
 
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
-from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark
-from pymetis.instruments.metis.dataitems.masterdark.raw import DarkRaw
 from pymetis.instruments.metis.inputs import (RawInput, BadPixMapInput, PersistenceMapInput,
                                               GainMapInput, OptionalInputMixin)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 
-from pymetis.instruments.metis.qc.dark import (DarkMean, DarkMedian, DarkRms, DarkNColdpix, DarkNHotpix, DarkNBadpix,
-                                               DarkMedianMedian, DarkMedianMean,
-                                               DarkMedianRms, DarkMedianMin, DarkMedianMax)
+from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecipeImpl):
@@ -72,7 +69,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         # Therefore, we override the `_tags` attribute and also the description,
         # since this is specific to this raw input, not all raw inputs.
         class RawInput(RawInput):
-            Item = DarkRaw
+            Item = dataitems.DarkRaw
 
         # Next, we define all other input classes using predefined ones.
         # Here we mark them as optional, but if we did not need that, we could have also said
@@ -105,20 +102,20 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         # Assign product classes. This should be just a data item class.
         # It is not strictly necessary, and we can create the product directly,
         # but it enables us to introspect the class for the manpage and DRLD.
-        MasterDark = MasterDark
+        MasterDark = dataitems.MasterDark
 
     class Qc(QcParameterSet):
-        DarkMedian = DarkMedian
-        DarkMean = DarkMean
-        DarkRms = DarkRms
-        DarkNBadpix = DarkNBadpix
-        DarkNColdpix = DarkNColdpix
-        DarkNHotpix = DarkNHotpix
-        DarkMedianMean = DarkMedianMean
-        DarkMedianMedian = DarkMedianMedian
-        DarkMedianRms = DarkMedianRms
-        DarkMedianMin = DarkMedianMin
-        DarkMedianMax = DarkMedianMax
+        DarkMedian = qc.dark.DarkMedian
+        DarkMean = qc.dark.DarkMean
+        DarkRms = qc.dark.DarkRms
+        DarkNBadpix = qc.dark.DarkNBadpix
+        DarkNColdpix = qc.dark.DarkNColdpix
+        DarkNHotpix = qc.dark.DarkNHotpix
+        DarkMedianMean = qc.dark.DarkMedianMean
+        DarkMedianMedian = qc.dark.DarkMedianMedian
+        DarkMedianRms = qc.dark.DarkMedianRms
+        DarkMedianMin = qc.dark.DarkMedianMin
+        DarkMedianMax = qc.dark.DarkMedianMax
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -161,7 +158,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         self.kappa_low = self.parameters["metis_det_dark.outliers.kappa_low"].value
         self.kappa_high = self.parameters["metis_det_dark.outliers.kappa_high"].value
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> list[Hdu]:
+    def _process_single_detector(self, detector: Metis.DetectorNumber) -> list[Hdu]:
         assert detector in [1, 2, 3, 4], \
             f"Unknown detector {detector}"
 
@@ -224,7 +221,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # get noisy pixels: we may need to revisit whether this is a good thing to do later TODO
         
-        mask_bad = self.calculate_outliers_sequence(raw_images_hdrl, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
+        mask_bad = calculate_outliers_sequence(raw_images_hdrl, kappa_low=self.kappa_low, kappa_high=self.kappa_high)
         qcnbad = mask_bad.count()
 
         Msg.info(self.__class__.__qualname__,
@@ -265,17 +262,17 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
         gg = self.collect_qc_parameters(
-            DarkMean(combined_image.image.get_mean()),
-            DarkMedian(combined_image.image.get_median()),
-            DarkRms(combined_image.image.get_stdev()),
-            DarkNBadpix(qcnbad),
-            DarkNColdpix(qcncold),
-            DarkNHotpix(qcnhot),
-            DarkMedianMean(np.median(np.array(means))),
-            DarkMedianMedian(np.median(np.array(medians))),
-            DarkMedianRms(np.median(np.array(stdevs))),
-            DarkMedianMin(np.median(np.array(mins))),
-            DarkMedianMax(np.median(np.array(maxs))),
+            self.Qc.DarkMean(combined_image.image.get_mean()),
+            self.Qc.DarkMedian(combined_image.image.get_median()),
+            self.Qc.DarkRms(combined_image.image.get_stdev()),
+            self.Qc.DarkNBadpix(qcnbad),
+            self.Qc.DarkNColdpix(qcncold),
+            self.Qc.DarkNHotpix(qcnhot),
+            self.Qc.DarkMedianMean(np.median(np.array(means))),
+            self.Qc.DarkMedianMedian(np.median(np.array(medians))),
+            self.Qc.DarkMedianRms(np.median(np.array(stdevs))),
+            self.Qc.DarkMedianMin(np.median(np.array(mins))),
+            self.Qc.DarkMedianMax(np.median(np.array(maxs))),
         )
 
         header_image.append(gg)

@@ -25,18 +25,20 @@ from cpl.core import Msg
 from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, ParameterRange,
                                            ParameterValue)
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.drl.combine import combine_images
 from pymetis.drl.trace import measure_trace_edges, trace, traces_to_table
 
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput,
                                               GainMapInput, LinearityInput)
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
-from pymetis.instruments.metis.dataitems.distortion import IfuDistortionRaw, IfuDistortionTable, IfuDistortionReduced
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
@@ -53,7 +55,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
             pass
 
         class RawInput(RawInput):
-            Item = IfuDistortionRaw
+            Item = dataitems.IfuDistortionRaw
 
         master_dark: MasterDarkInput
         persistence_map: PersistenceMapInput
@@ -62,17 +64,15 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         raw: RawInput
 
     class ProductSet(PipelineProductSet):
-        DistortionTable = IfuDistortionTable
-        DistortionReduced = IfuDistortionReduced
+        DistortionTable = dataitems.IfuDistortionTable
+        DistortionReduced = dataitems.IfuDistortionReduced
 
     class Qc(QcParameterSet):
-        class NTraces(QcParameter):
-            _name_template = "QC IFU DISTORT NTRACES"
-            _type = int
-            _unit = "1"
-            _default = None
-            _description_template = "Number of slices traced"
 
+        Rms = qc.distortion.QcIfuDistortRms
+        Fwhm = qc.distortion.QcIfuDistortFwhm
+        NSpots = qc.distortion.QcIfuDistortNSpots
+        NTraces = qc.distortion.QcIfuDistortNTraces
     @staticmethod
     def _degree_or_best(value: str) -> int | Literal['best']:
         """
@@ -165,7 +165,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         return continuum
 
     def _process_single_detector(self,
-                                 detector: Literal[1, 2, 3, 4],
+                                 detector: Metis.DetectorNumber,
                                  method: str,
                                  trace_parameters: dict) -> dict:
         """
@@ -180,7 +180,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
         Parameters
         ----------
-        detector : Literal[1, 2, 3, 4] # FixMe: Maybe make this fully customizable for any detector count?
+        detector : Metis.DetectorNumber # FixMe: Maybe make this fully customizable for any detector count?
         method : str
             Method used to stack the continuum-illuminated exposures.
         trace_parameters : dict
@@ -311,7 +311,13 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
         Msg.info(self.__class__.__qualname__, f"QC IFU DISTORT NTRACES = {n_traces}")
 
-        return self.collect_qc_parameters(self.Qc.NTraces(n_traces))
+        return self.collect_qc_parameters(
+            self.Qc.NTraces(n_traces),
+            # FixMe: compute the real QC values; None marks a parameter that is not available yet
+            self.Qc.Rms(None),
+            self.Qc.Fwhm(None),
+            self.Qc.NSpots(None),
+        )
 
 
 class MetisIfuDistortion(Recipe):

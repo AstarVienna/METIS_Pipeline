@@ -45,7 +45,7 @@ from pymetis.drl.lines import Line, detect_lines
 from pymetis.drl.rectify import rectify_trace
 from pymetis.drl.trace import traces_from_table, traces_to_table
 from pymetis.drl.trace_model import Trace
-from pymetis.engine.core.functions.polyfit2d import polyfit2d, polyval2d_safe
+from pymetis.drl.polyfit2d import polyfit2d, polyval2d_safe
 
 
 @dataclass

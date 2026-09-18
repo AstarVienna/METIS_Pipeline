@@ -34,10 +34,11 @@ class MultiplePipelineInput(PipelineInput):
     _multiplicity: str = 'N'
 
     def __init__(self,
-                 frameset: cpl.ui.FrameSet):
+                 frameset: cpl.ui.FrameSet, **kwargs):
         self.items: list[DataItem] = []
         self.frameset: Optional[cpl.ui.FrameSet] = cpl.ui.FrameSet()
-        super().__init__(frameset)
+        self._use_requested: bool = False
+        super().__init__(frameset, **kwargs)
 
     def _load_frameset_specific(self, frameset: cpl.ui.FrameSet):
         """
@@ -114,13 +115,13 @@ class MultiplePipelineInput(PipelineInput):
         frameset = cpl.ui.FrameSet()
 
         for frame in self.frameset:
-            frame.group = self.Item.frame_group()
+            frame.group = self._group
             frame.level = self.Item.frame_level()
             frame.type = self.Item.frame_type()
 
             Msg.debug(self.__class__.__qualname__,
                       f"Setting CPL attributes: "
-                      f"{self.Item.frame_group()} "
+                      f"{self._group} "
                       f"{self.Item.frame_level()} "
                       f"{self.Item.frame_type()}")
             frameset.append(frame)
@@ -129,7 +130,6 @@ class MultiplePipelineInput(PipelineInput):
 
     def validate(self):
         self._verify_frameset_is_not_empty()
-        self._verify_same_detector()
 
     def _verify_frameset_is_not_empty(self) -> None:
         """
@@ -154,18 +154,6 @@ class MultiplePipelineInput(PipelineInput):
         else:
             Msg.debug(self.__class__.__qualname__, f"Frameset OK: {count} frame{'s' if count > 1 else ''} found")
 
-    def _verify_same_detector(self) -> None:
-        """
-        Verify whether all the raw frames originate from the same detector.
-
-        Raises
-        ------
-        KeyError
-            If the found detector name is not a valid detector name.
-        ValueError
-            If dark frames from more than one detector are found.
-        """
-
     def as_dict(self) -> dict[str, Any]:
         """
         Return a dictionary representation of the input.
@@ -179,6 +167,8 @@ class MultiplePipelineInput(PipelineInput):
         return self.frameset
 
     def use(self) -> Self:
+        """ Mark the items as used; before loading, remember to mark them once they are. """
+        self._use_requested = True
         for item in self.items:
             item.use()
         return self

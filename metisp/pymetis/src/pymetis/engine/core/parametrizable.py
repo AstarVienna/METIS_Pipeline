@@ -22,7 +22,16 @@ from typing import ClassVar, Self, Optional, Any
 
 from cpl.core import Msg
 
-from .functions.format import partial_format
+from .functions.format import partial_format, placeholders
+
+
+def _origin(klass: type) -> type:
+    """ The hand-written class a specialized clone stands for; a hand-written class itself.
+    A clone of a clone (`.specialized(band=...)` then `.specialized(order=...)`) stands for
+    the same hand-written class as its parent, so the chain is followed to its end. """
+    while (origin := getattr(klass, '_specialized_from', None)) is not None and origin is not klass:
+        klass = origin
+    return klass
 
 
 class ParametrizableMeta(ABCMeta):
@@ -35,16 +44,38 @@ class ParametrizableMeta(ABCMeta):
       - skipping abstract classes
     """
 
-    def __new__(mcs, name, bases, namespace, *, abstract=False, **kwargs):
+    def __new__(mcs, name, bases, namespace, *, abstract=False, register=True, **kwargs):
+        """
+        `abstract=True` marks a template that must not be instantiated; `register=False`
+        keeps a class out of both registries (used for specialized clones whose name
+        still has placeholders: they are neither a tag nor a hand-written template).
+        """
         cls = super().__new__(mcs, name, bases, namespace)
         cls._abstract = abstract
 
-        # Reject tag keywords that are not declared in `_valid_tags` (if any are declared):
-        # a typo like `bnad='LM'` would otherwise silently create a class that never matches.
-        if kwargs and (valid := getattr(cls, "_valid_tags", frozenset())):
-            if unknown := set(kwargs) - set(valid):
+        template = namespace.get("_name_template")
+        if template is None:
+            template = next(
+                (b.__dict__["_name_template"] for b in cls.__mro__[1:]
+                 if b.__dict__.get("_name_template") is not None),
+                None,
+            )
+
+        # Reject keywords that are neither declared tags (`_valid_tags`, if any are declared)
+        # nor placeholders of this very name template: a typo like `bnad='LM'` would
+        # otherwise silently create a class that never matches. The second kind are
+        # indices such as `LCOEFF{order}`, filled per value rather than from the data.
+        if kwargs:
+            valid = getattr(cls, "_valid_tags", frozenset())
+            if not valid:
+                raise TypeError(f"{name}: tag keywords {sorted(kwargs)} given, but no tag axes are declared; "
+                                f"the instrument package must set `Parametrizable._valid_tags` "
+                                f"(pymetis.instruments.metis.mixins does) before tagged classes are defined.")
+            own = placeholders(template)
+            if unknown := set(kwargs) - set(valid) - own:
                 raise TypeError(f"{name}: unknown tag parameter(s) {sorted(unknown)}, "
-                                f"valid tags are {sorted(valid)}")
+                                f"valid tags are {sorted(valid)}"
+                                f"{f' and the placeholders of {template!r}' if own else ''}")
 
         # Merge tag parameters from MRO + class kwargs
         merged = {}
@@ -55,76 +86,102 @@ class ParametrizableMeta(ABCMeta):
         merged.update(kwargs)
         cls._tag_parameters = merged
 
+        # A mixin may label the value it sets (`_tag_labels = {'target': 'standard star'}`).
+        # Labels are kept per tag value on the root, so that a class arriving at the value
+        # by specialization or promotion (no mixin in its MRO) reads the same in prose.
+        own_labels = namespace.get("_tag_labels")
+        if isinstance(own_labels, dict):
+            for tag, label in own_labels.items():
+                if tag not in merged:
+                    raise TypeError(f"{name}: label for tag {tag!r} given, but the class sets no value for it")
+                Parametrizable._value_labels.setdefault(tag, {})[merged[tag]] = label
+
         # Resolve template against known parameters
-        template = namespace.get("_name_template")
-        if template is None:
-            template = next(
-                (b.__dict__["_name_template"] for b in cls.__mro__[1:]
-                 if b.__dict__.get("_name_template") is not None),
-                None,
-            )
         if template is not None and merged:
             cls._name_template = partial_format(template, **merged)
 
-        if not abstract:
+        if register:
             cls._register()
 
         return cls
 
-    def __init__(cls, name, bases, namespace, *, abstract=False, **kwargs):
+    def __init__(cls, name, bases, namespace, *, abstract=False, register=True, **kwargs):
         super().__init__(name, bases, namespace)
 
     def _register(cls) -> None:
         """
-        Register cls under its current _name_template in the nearest _registry up the MRO.
+        Register cls under its current _name_template with the nearest root up the MRO
+        (the class declaring `_registry`).
 
-        Hand-written classes own their tags exclusively: two hand-written classes resolving
-        to the same tag is a definition error and raises immediately (this is the tripwire
-        for copy-pasted mixin lists). Runtime clones (created by `ParametrizableContainer
-        .specialize`, marked `_synthesized`) never displace a registered owner.
+        A fully resolved name of a concrete class goes to `_registry`, the catalogue of
+        tags that data can carry. A name with placeholders left goes to `_templates`
+        instead, whether the class is abstract or not: such a class can never own a tag,
+        but `ParametrizableItem.specialized` must still find it, so that a hand-written
+        partial specialization (e.g. the LM flavour of a `{band}_{target}` item) is used
+        in preference to a synthesized clone.
+
+        Hand-written classes own their names exclusively: two hand-written classes resolving
+        to the same name is a definition error and raises immediately (this is the tripwire
+        for copy-pasted mixin lists). Specialized clones (see `ParametrizableItem
+        .specialized`, marked `_specialized_from`) never displace a hand-written owner.
         """
         key = getattr(cls, "_name_template", None)
         if key is None or key == "<unknown>":
             return
-        registry = next(
-            (b.__dict__["_registry"] for b in cls.__mro__ if "_registry" in b.__dict__),
-            None,
-        )
-        if registry is None:
+        root = next((b for b in cls.__mro__ if "_registry" in b.__dict__), None)
+        if root is None:
             return
+        if '{' in key:
+            registry = root.__dict__["_templates"]
+        elif cls._abstract:
+            return
+        else:
+            registry = root.__dict__["_registry"]
         existing = registry.get(key)
         if existing is None or existing is cls:
             registry[key] = cls
-        elif getattr(cls, "_synthesized", False):
-            # A clone found its tag already owned: cache hit, the owner stays.
-            pass
-        elif getattr(existing, "_synthesized", False):
-            # A hand-written class always takes the tag over from a runtime clone.
-            registry[key] = cls
-        elif issubclass(cls, existing) or issubclass(existing, cls):
-            # A refinement of the registered owner (e.g. a recipe-local subclass that
-            # only overrides the description): the first-registered class keeps the tag.
-            Msg.debug(cls.__qualname__,
-                      f"'{key}' already registered to related class {existing.__qualname__}, keeping it")
-        else:
-            raise TypeError(
-                f"Tag collision: '{key}' is claimed by two unrelated classes: "
-                f"{existing.__module__}.{existing.__qualname__} and {cls.__module__}.{cls.__qualname__}. "
-                f"Fix the tag mixins / name template, or mark the template class `abstract=True`."
-            )
+            return
+
+        # One name, one class. A clone is not a second class but a stand-in for its template,
+        # so a clone may meet the template's other clone or its hand-written leaf, and a leaf
+        # may arrive after the template's clone; every other encounter is a collision.
+        if hasattr(cls, "_specialized_from"):
+            if issubclass(_origin(existing), _origin(cls)):
+                return                                  # the owner already stands for this template
+        elif hasattr(existing, "_specialized_from") and issubclass(cls, _origin(existing)):
+            registry[key] = cls                         # the hand-written leaf displaces the template's clone
+            return
+        raise TypeError(
+            f"Tag collision: '{key}' is claimed by two classes, "
+            f"{existing.__module__}.{existing.__qualname__} and {cls.__module__}.{cls.__qualname__}. "
+            f"Every tag has exactly one class: if these mean the same thing they must derive from "
+            f"the same template, and if they do not, their names must differ."
+        )
 
     def find(cls, key: str) -> Optional[type]:
+        """ The concrete class owning the fully resolved tag `key`, if any. """
+        return cls._lookup("_registry", key)
+
+    def find_template(cls, key: str) -> Optional[type]:
+        """ The hand-written class whose name template (placeholders included) is `key`, if any. """
+        return cls._lookup("_templates", key)
+
+    def _lookup(cls, attribute: str, key: str) -> Optional[type]:
         for base in cls.__mro__:
-            if (reg := base.__dict__.get("_registry")) is not None:
+            if (reg := base.__dict__.get(attribute)) is not None:
                 if (hit := reg.get(key)) is not None:
                     return hit
         return None
 
     # This should NOT be a classmethod -- we are in a metaclass!
     def list_classes(cls) -> list[tuple[str, type[Self]]]:
+        """
+        The parametrizable classes attached to `cls` as public members. Underscored
+        attributes are bookkeeping (e.g. `_specialized_from`), never members.
+        """
         return [
             (n, k) for n, k in inspect.getmembers(cls, inspect.isclass)
-            if isinstance(k, ParametrizableMeta) and k is not cls
+            if isinstance(k, ParametrizableMeta) and k is not cls and not n.startswith('_')
         ]
 
 
@@ -164,10 +221,21 @@ class Parametrizable(ABC, metaclass=ParametrizableMeta):
     # When non-empty, ParametrizableMeta rejects unknown tag keywords at class creation.
     # The instrument package sets this once, before defining its mixins.
     _valid_tags: ClassVar[frozenset[str]] = frozenset()
+    _value_labels: ClassVar[dict[str, dict[str, str]]] = {}   # tag -> value -> label, see `tag_labels`
 
     @classmethod
     def tag_parameters(cls):
         return cls._tag_parameters
+
+    @classmethod
+    def tag_labels(cls) -> dict[str, str]:
+        """
+        The tag parameters as words for prose: a mixin may label its value
+        (`TargetStdMixin` labels 'STD' as 'standard star'); values without a label are
+        returned as they are. Names and titles use the raw values, descriptions the labels.
+        """
+        return {key: Parametrizable._value_labels.get(key, {}).get(value, value)
+                for key, value in cls._tag_parameters.items()}
 
 
 class ParametrizableItem(Parametrizable, abstract=True):
@@ -175,14 +243,44 @@ class ParametrizableItem(Parametrizable, abstract=True):
     _description_template: ClassVar[Optional[str]] = None
 
     @classmethod
-    def specialize(cls, **parameters: str) -> str:
+    def specialized(cls, **parameters) -> type[Self]:
         """
-        Specialize this class for parameters
+        The class this item specializes to under `parameters`.
+
+        Returns `cls` itself when the parameters resolve nothing in its tag, the
+        hand-written class owning the resolved tag (or, for a partial resolution, the
+        resulting template) where one exists, and otherwise a clone of `cls` with the
+        parameters applied. The clone keeps the abstractness of `cls` and, for concrete
+        items such as QC parameters, stands in for a leaf class nobody wrote. A concrete
+        clone is registered only when its tag is fully resolved (a tag with placeholders
+        left can never match anything); an abstract clone is never registered, so
+        `promoted()` can tell a missing leaf from a legitimate item. `cls` is never mutated.
+
+        Only the keywords that mean something to `cls` -- declared tags and the
+        placeholders of its own name -- are handed to the clone; an index such as `order`
+        meant for a sibling item would otherwise be rejected as an unknown tag.
         """
-        cls._tag_parameters = cls._tag_parameters | parameters
-        cls._name_template = partial_format(cls._name_template, **parameters)
-        type(cls)._register(cls)  # call the metaclass method
-        return cls._name_template
+        template = partial_format(cls._name_template, **(cls.tag_parameters() | parameters))
+        if template == cls._name_template:
+            return cls
+        lookup = cls.find_template if '{' in template else cls.find
+        if (owner := lookup(template)) is not None:
+            # The owner may only be a clone standing for the same hand-written class as `cls`
+            # (clones are built from the bases, so two clones of one template are not
+            # subclasses of each other) or a hand-written class derived from it (the
+            # catalogue leaf); anything else would give the name two meanings.
+            if _origin(owner) is _origin(cls) or (not hasattr(owner, '_specialized_from') and issubclass(owner, _origin(cls))):
+                return owner
+            raise TypeError(
+                f"{cls.__qualname__} resolves to '{template}', which is owned by the unrelated "
+                f"{owner.__module__}.{owner.__qualname__}; every tag has exactly one class.")
+        relevant = set(cls._valid_tags) | placeholders(cls._name_template)
+        clone = type(cls.__name__, cls.__bases__,
+                     dict(cls.__dict__) | {'_specialized_from': cls},
+                     abstract=cls._abstract, register='{' not in template,
+                     **{key: value for key, value in parameters.items() if key in relevant})
+        clone.__qualname__ = cls.__qualname__
+        return clone
 
     @classmethod
     def name(cls) -> str:
@@ -197,12 +295,12 @@ class ParametrizableItem(Parametrizable, abstract=True):
     def description(cls) -> str:
         """
         Return the human-readable description of the item.
-        By default, this just returns the protected internal attribute,
-        but can be overridden to build the description from other data, such as band or target.
+        Tag placeholders are filled with the labels of the tag values where the mixins
+        define them (`{target}` reads "standard star", not "STD"), else with the values.
         """
         assert cls._description_template is not None, \
             f"{cls.__qualname__} description template is None"
-        return partial_format(cls._description_template, **cls.tag_parameters())
+        return partial_format(cls._description_template, **cls.tag_labels())
 
 
 class ParametrizableContainer(Parametrizable, ABC):
@@ -229,44 +327,31 @@ class ParametrizableContainer(Parametrizable, ABC):
             return '\n'.join(sorted(items))
 
     @classmethod
-    def _specialized_item(cls, name: str, item_class: type['ParametrizableItem'], **parameters) \
-            -> type['ParametrizableItem']:
-        """
-        Resolve the class `item_class` specializes to under `parameters`:
-        the registered owner of the specialized tag where one exists, otherwise a
-        synthesized clone. The clone carries the `_synthesized` marker, which keeps
-        it from ever displacing a hand-written class in the registry (see
-        `ParametrizableMeta._register`, re-invoked by `new_class.specialize()`).
-        Note that the result of a no-op is not necessarily `item_class` itself:
-        an `abstract=True` template class never registers, so its tag may be owned
-        by a previously synthesized clone.
-        """
-        new_class: cls.Meta._T = type(item_class.__name__,
-                                      item_class.__bases__,
-                                      dict(item_class.__dict__) | {'_synthesized': True})
-        new_class.__qualname__ = f"{cls.__qualname__}.{name}"
-        new_class.__module__ = cls.__module__
-        new_class.specialize(**(item_class.tag_parameters() | parameters))
-
-        if (klass := cls.Meta._T.find(new_class._name_template)) is None:
-            Msg.debug(cls.__qualname__,
-                      f"Cannot specialize {item_class.__qualname__} ({item_class.name()}) with {parameters}, "
-                      f"had to create a new class {new_class.__qualname__} ({new_class.name()})")
-            return new_class
-        else:
-            Msg.debug(cls.__qualname__,
-                      f" - {item_class.__qualname__} specialized to {klass.__qualname__} ({klass.name()})")
-            return klass
+    def _derived(cls, namespace: dict[str, Any]) -> type[Self]:
+        """ A subclass of this container carrying `namespace`, named like its parent. """
+        derived = type(cls.__name__, (cls,), namespace)
+        derived.__qualname__ = cls.__qualname__
+        derived.__module__ = cls.__module__
+        return derived
 
     @classmethod
-    def specialize(cls, **parameters) -> None:
-        """ Specialize this class statically (class-based, from code). """
-        Msg.debug(cls.__qualname__,
-                  f"Specializing {cls.__qualname__} with {parameters} | {cls.tag_parameters()}")
+    def specialized(cls, **parameters) -> type[Self]:
+        """
+        A new subclass of this container with every inner item specialized statically
+        (class-based, from code), see `ParametrizableItem.specialized`.
 
-        for name, item_class in cls.list_classes():
-            setattr(cls, name, cls._specialized_item(name, item_class, **parameters))
+        Neither `cls` nor its items are mutated and nothing is registered. Specializing
+        an already specialized container starts over from the original, so repeated
+        calls cannot stack clones of clones.
+        """
+        # Only the container's own marker means "I am a specialization"; a hand-written
+        # subclass of a specialized container must keep the members it adds.
+        origin = cls.__dict__.get('_specialized_from', cls)
+        Msg.debug(origin.__qualname__,
+                  f"Specializing {origin.__qualname__} with {parameters} | {origin.tag_parameters()}")
 
+        resolved = {name: item.specialized(**parameters) for name, item in origin.list_classes()}
+        return origin._derived(resolved | {'_specialized_from': origin})
 
     @classmethod
     def promoted(cls, **parameters) -> type[Self]:
@@ -283,26 +368,39 @@ class ParametrizableContainer(Parametrizable, ABC):
         class creation. For instance, `recipe_{band}_{target}` can specify band=LM but
         no target, resulting in partial specialization. The target then has to be
         supplied from the actual data.
+
+        A hand-written class owning the resolved tag always wins; where none exists the
+        specialized item itself serves, provided it is concrete and no *tag* placeholder
+        is left: every keyword in `_valid_tags` must have been determined by now, from the
+        class or from the data. Other placeholders are indices (`LCOEFF{order}`,
+        `FWHM {nn}`) that the recipe fills per value when it emits the item, and they
+        survive promotion. An abstract template with no leaf for the tag is a gap in the
+        catalogue and raises.
         """
         Msg.info(cls.__qualname__,
                  f"Promoting {cls.__qualname__} with {parameters}")
 
         resolved = {}
         for name, item in cls.list_classes():
-            # Compute the target tag without mutating `item`
-            tag = partial_format(item._name_template,
-                                 **(item.tag_parameters() | parameters))
-
-            new_class = cls.Meta._T.find(tag)
-            if new_class is None:
+            candidate = item.specialized(**parameters)
+            tag = candidate.name()
+            # `specialized` already returns the owner where it resolved something; the lookup
+            # covers an item whose name was resolved to begin with. One tag has one class, so
+            # the owner can only be the candidate itself or its template's leaf.
+            owner = cls.Meta._T.find(tag)
+            if owner is not None and not issubclass(_origin(owner), _origin(candidate)):
                 raise TypeError(
-                    f"Could not promote {item.__qualname__}: "
-                    f"tag '{tag}' is not registered. "
-                    f"Known tags matching: {cls.Meta._T._registry}"
+                    f"Could not promote {item.__qualname__}: the tag '{tag}' is owned by the unrelated "
+                    f"{owner.__module__}.{owner.__qualname__}.")
+            new_class = owner or candidate
+            unresolved = placeholders(tag)
+            missing_tags = unresolved & (cls.Meta._T._valid_tags or unresolved)
+            if missing_tags or new_class._abstract:
+                raise TypeError(
+                    f"Could not promote {item.__qualname__} with {parameters}: "
+                    f"no concrete class owns the tag '{tag}'"
+                    f"{f' (tags {sorted(missing_tags)} remain unresolved)' if missing_tags else ''}."
                 )
             resolved[name] = new_class
 
-        promoted_cls = type(cls.__name__, (cls,), resolved)
-        promoted_cls.__qualname__ = cls.__qualname__
-        promoted_cls.__module__ = cls.__module__
-        return promoted_cls
+        return cls._derived(resolved)

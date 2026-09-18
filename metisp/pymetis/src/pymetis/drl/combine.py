@@ -38,7 +38,7 @@ def combine_images_hdrl(
         case "add":
             for idx, image in enumerate(images):
                 if idx == 0:
-                    combined_image = image
+                    combined_image = image.duplicate()   # never accumulate into the caller's frame
                 else:
                     # HDRL calls this function `add_image`, not just `add`
                     combined_image.add_image(image)
@@ -77,7 +77,7 @@ def combine_images_cpl(
         case "add":
             for idx, image in enumerate(images):
                 if idx == 0:
-                    combined_image = image
+                    combined_image = image.duplicate()   # never accumulate into the caller's frame
                 else:
                     combined_image.add(image)
         case "average":

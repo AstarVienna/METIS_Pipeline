@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Literal
 
 import cpl
 import numpy as np
@@ -35,23 +34,17 @@ from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe, RecipeImpl
 
-from pymetis.instruments.metis.dataitems.badpixmap import BadPixMapIfu
-from pymetis.instruments.metis.dataitems.distortion import IfuDistortionTable
-from pymetis.instruments.metis.dataitems.gainmap import GainMapIfu
-from pymetis.instruments.metis.dataitems.linearity.linearity import LinearityMapIfu
-from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDarkIfu
-from pymetis.instruments.metis.dataitems.masterflat import MasterFlatIfu
-from pymetis.instruments.metis.dataitems.raw.wcuoff import IfuWcuOffRaw
-from pymetis.instruments.metis.dataitems.rsrf import IfuRsrfRaw, IfuRsrfBackground, RsrfIfu
+from pymetis.instruments.metis.description import Metis
 
 from pymetis.instruments.metis.inputs import (BadPixMapInput, MasterDarkInput, RawInput, GainMapInput, WavecalInput,
                                               DistortionTableInput, LinearityInput, OptionalInputMixin,
                                               PersistenceMapInput)
 
 from pymetis.instruments.metis.mixins import DetectorIfuMixin, BandIfuMixin
-from pymetis.instruments.metis.qc.reduce import IfuReduceMeanStray, IfuReduceNbadpix, IfuReduceMeanBkg
+from pymetis.instruments.metis import qc
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import dataitems
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
@@ -60,33 +53,33 @@ EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME inste
 class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = IfuRsrfRaw
+            Item = dataitems.IfuRsrfRaw
 
         class MasterDarkInput(MasterDarkInput):
-            Item = MasterDarkIfu
+            Item = dataitems.MasterDarkIfu
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
-            Item = GainMapIfu
+            Item = dataitems.GainMapIfu
 
         class LinearityInput(OptionalInputMixin, LinearityInput):
-            Item = LinearityMapIfu
+            Item = dataitems.LinearityMapIfu
 
         class RsrfWcuOffInput(RawInput):
             """
             WCU_OFF input illuminated by the WCU up-to and including the
             integrating sphere, but no source.
             """
-            Item = IfuWcuOffRaw
+            Item = dataitems.IfuWcuOffRaw
 
         # TBC: could this be replaced by the MASTER_DARK_IFU input?
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
-            Item = BadPixMapIfu
+            Item = dataitems.BadPixMapIfu
 
         class DistortionTableInput(DistortionTableInput):
-            Item = IfuDistortionTable
+            Item = dataitems.IfuDistortionTable
 
         raw: RawInput
         master_dark: MasterDarkInput
@@ -100,19 +93,16 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         wavecal: WavecalInput
 
     class ProductSet(PipelineProductSet):
-        RsrfBackground = IfuRsrfBackground
-        MasterFlat = MasterFlatIfu
-        RsrfIfu = RsrfIfu
-        BadPixMap = BadPixMapIfu
+        RsrfBackground = dataitems.IfuRsrfBackground
+        MasterFlat = dataitems.MasterFlatIfu
+        RsrfIfu = dataitems.RsrfIfu
+        BadPixMap = dataitems.BadPixMapIfu
 
     class Qc(QcParameterSet):
-        # ToDo: DRLD lists "QC IFU RSRF NBADPIX"; the REDUCE parameter is reused here for now.
-        NBadPix = IfuReduceNbadpix
-        MeanBkg = IfuReduceMeanBkg
-        MeanStray = IfuReduceMeanStray
+        NBadPix = qc.rsrf.IfuRsrfNBadPix
 
 
-    def _process_single_detector(self, detector: Literal[1, 2, 3, 4]) -> dict[str, Hdu]:
+    def _process_single_detector(self, detector: Metis.DetectorNumber) -> dict[str, Hdu]:
         """
         Calculate the RSRF for a single detector of the IFU.
         This function processes the input images, for each detector:
@@ -125,7 +115,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         Parameters
         ----------
-        detector : Literal[1, 2, 3, 4] # FixMe: Maybe make this fully customizable for any detector count?
+        detector : Metis.DetectorNumber # FixMe: Maybe make this fully customizable for any detector count?
 
         Returns
         -------
@@ -208,14 +198,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
         # SKEL: Add QC keywords
         qc_badpix_count = spec_flat_img.count_rejected()
-        spec_flat_hdr.append(
-            cpl.core.Property(
-                "QC IFU RSRF NBADPIX",
-                cpl.core.Type.INT,
-                qc_badpix_count,
-                "Number of bad pixels"
-            )
-        )
+        spec_flat_hdr.append(self.collect_qc_parameters(self.Qc.NBadPix(qc_badpix_count)))
 
         # create bad pixel map product
         Msg.info(self.__class__.__qualname__,
@@ -230,14 +213,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         badpix_img.fill_rejected(1) # set rejected pixels to 1
         # TODO: create QC1 parameters:
         # Add QC keywords
-        badpix_hdr.append(
-            cpl.core.Property(
-                "QC IFU RSRF NBADPIX",
-                cpl.core.Type.INT,
-                qc_badpix_count,
-                "Number of bad pixels"
-            )
-        )
+        badpix_hdr.append(self.collect_qc_parameters(self.Qc.NBadPix(qc_badpix_count)))
 
         # extract 1D RSRF curves
         Msg.info(self.__class__.__qualname__,

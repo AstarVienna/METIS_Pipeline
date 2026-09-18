@@ -29,46 +29,38 @@ from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, Pers
                                               GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
-from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss
-from pymetis.instruments.metis.dataitems.lss.curve import LssDistSol, LssWaveGuess
-from pymetis.instruments.metis.dataitems.lss.raw import LssRaw
-from pymetis.instruments.metis.dataitems.lss.response import MasterResponse, StdTransmission
-from pymetis.instruments.metis.dataitems.lss.rsrf import MasterLssRsrf
-from pymetis.instruments.metis.dataitems.lss.science import LssObjMap, LssSkyMap, LssSci1d, LssSci2d, LssSciFlux1d, LssSciFlux2d
-from pymetis.instruments.metis.dataitems.lss.std import AoPsfModel
-from pymetis.instruments.metis.qc.lss import (LssInterorderLevel, LssWaveCalDevMean, LssWaveCalFwhm,
-                                              LssWaveCalNIdent, LssWaveCalNMatch, LssWaveCalPolyDeg,
-                                              LssWaveCalPolyCoeffN, LssSnr, LssNoiseLevel)
+from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LssRaw
+            Item = dataitems.LssRaw
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
         class MasterRsrfInput(SinglePipelineInput):
-            Item = MasterLssRsrf
+            Item = dataitems.MasterLssRsrf
 
         class MasterLssDistSolInput(SinglePipelineInput):
-            Item = LssDistSol
+            Item = dataitems.LssDistSol
 
         class MasterLssWaveGuessInput(SinglePipelineInput):
-            Item = LssWaveGuess
+            Item = dataitems.LssWaveGuess
 
         class MasterLssResponseInput(SinglePipelineInput):
-            Item = MasterResponse
+            Item = dataitems.MasterResponse
 
         class MasterStdTransmissionInput(OptionalInputMixin, SinglePipelineInput):
-            Item = StdTransmission
+            Item = dataitems.StdTransmission
 
         class MasterAdcSlitlossInput(SinglePipelineInput):
-            Item = AdcSlitloss
+            Item = dataitems.AdcSlitloss
 
         class MasterAoPsfModel(SinglePipelineInput):
-            Item = AoPsfModel
+            Item = dataitems.AoPsfModel
 
         raw: RawInput
         persistence_map: PersistenceMapInput
@@ -82,34 +74,19 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         master_adc_slitloss: MasterAdcSlitlossInput
         master_ao_psf_model: MasterAoPsfModel
 
-
-        # --------------------------------------------------------------------
-        # TODO:
-        # CHECK THE AO PSF MODEL - why not included? forgotten????
-        # """
-        # AO PSF MODEL
-        # """
-        # class MasterAoPsfModel(SinglePipelineInput):
-        #     _tags: re.Pattern = re.compile(r"AO_PSF_MODEL")
-        #     _group: cpl.ui.Frame.FrameGroup = cpl.ui.Frame.FrameGroup.CALIB
-        #     _title: str = "AO induced PSF model"
-        #     _description: str = "Model of the PSF induced by the AO"
-        # CHECK THE AO PSF MODEL - why not included? forgotten????
-        # --------------------------------------------------------------------
-
     class ProductSet(PipelineProductSet):
-        LssSciObjMap = LssObjMap
-        LssSciSkyMap = LssSkyMap
-        LssSci2d = LssSci2d
-        LssSci1d = LssSci1d
-        LssSciFlux2d = LssSciFlux2d
-        LssSciFlux1d = LssSciFlux1d
+        LssSciObjMap = dataitems.LssObjMap
+        LssSciSkyMap = dataitems.LssSkyMap
+        LssSci2d = dataitems.LssSci2d
+        LssSci1d = dataitems.LssSci1d
+        LssSciFlux2d = dataitems.LssSciFlux2d
+        LssSciFlux1d = dataitems.LssSciFlux1d
 
     class Qc(QcParameterSet):
         class FluxSnr(QcParameter):
             _name_template = "QC {band} LSS SCI FLUX SNR"
             _type = float
-            _unit = "1"
+            _unit = None
             _description_template = "Signal-to-noise ratio of flux calibrated science spectrum"
             _comment = None
 
@@ -121,17 +98,15 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
             _description_template = "Noise level of flux calibrated science spectrum"
             _comment = None
 
-        Snr = LssSnr
-        NoiseLevel = LssNoiseLevel
-        InterorderLevel = LssInterorderLevel
-        WaveCalDevMean = LssWaveCalDevMean
-        WaveCalFwhm = LssWaveCalFwhm
-        WaveCalNIdent = LssWaveCalNIdent
-        WaveCalNMatch = LssWaveCalNMatch
-        WaveCalPolyDeg = LssWaveCalPolyDeg
-        WaveCalPolyCoeffN = LssWaveCalPolyCoeffN
-
-
+        Snr = qc.lss.LssSnr
+        NoiseLevel = qc.lss.LssNoiseLevel
+        InterorderLevel = qc.lss.LssInterorderLevel
+        WaveCalDevMean = qc.lss.LssWaveCalDevMean
+        WaveCalFwhm = qc.lss.LssWaveCalFwhm
+        WaveCalNIdent = qc.lss.LssWaveCalNIdent
+        WaveCalNMatch = qc.lss.LssWaveCalNMatch
+        WaveCalPolyDeg = qc.lss.LssWaveCalPolyDeg
+        WaveCalPolyCoeffN = qc.lss.LssWaveCalPolyCoeffN
     # CAVEAT: Dummy routine only! Will be replaced with functionality -------
     # Dummy routine start +++++++++++++++++++++++++++++++++++++++++++++++++++
     def process(self) -> set[DataItem]:
@@ -156,6 +131,21 @@ class MetisLssSciImpl(DarkImageProcessor, MetisRecipeImpl):
         _header_lss_sci_flux_tell_corr1d = create_dummy_header()
 
         # Write files
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.FluxNoiseLevel(None),
+            self.Qc.FluxSnr(None),
+            self.Qc.InterorderLevel(None),
+            self.Qc.NoiseLevel(None),
+            self.Qc.Snr(None),
+            self.Qc.WaveCalDevMean(None),
+            self.Qc.WaveCalFwhm(None),
+            self.Qc.WaveCalNIdent(None),
+            self.Qc.WaveCalNMatch(None),
+            self.Qc.WaveCalPolyCoeffN(None),
+            self.Qc.WaveCalPolyDeg(None),
+        ))
+
         return {
             self.ProductSet.LssSci1d(
                 copy.deepcopy(primary_header),

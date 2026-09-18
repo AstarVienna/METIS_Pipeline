@@ -27,19 +27,19 @@ from ..mixins import BandLmMixin, BandNMixin
 class MFlatRms(QcParameter):
     _name_template = "QC {band} MFLAT RMS"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "RMS of the {band} master flat"
 
 class MFlatMedian(QcParameter):
     _name_template = "QC {band} MFLAT MEDIAN"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "Median of the {band} master flat"
 
-class MFlatNbadpix(QcParameter):
+class MFlatNBadPix(QcParameter):
     _name_template = "QC {band} MFLAT NBADPIX"
     _type = int
-    _unit = None
+    _unit = "counts"
     _description_template = "Number of bad pixels in the {band} master flat"
 
 # -------------------------------
@@ -58,12 +58,18 @@ class LmMFlatMedian(BandLmMixin, MFlatMedian):
 class NMFlatMedian(BandNMixin, MFlatMedian):
     pass
 
-class LmMFlatNbadpix(BandLmMixin, MFlatNbadpix):
+class LmMFlatNBadPix(BandLmMixin, MFlatNBadPix):
     pass
 
-class NMFlatNbadpix(BandNMixin, MFlatNbadpix):
+class NMFlatNBadPix(BandNMixin, MFlatNBadPix):
     pass
 
+# ToDo (decision of 2026-09-18, MFLAT only): the master-flat QC is written once per product
+#      under the MFLAT family; the product tag already says whether the flat is LAMP or
+#      TWILIGHT. The MLFLAT / MTFLAT classes below have no DRLD card any more and no recipe
+#      uses them -- remove them once the flat recipe PR has landed, or re-add the cards to the
+#      DRLD if per-source QC is wanted after all. The recipe should then also declare and
+#      compute MFLAT MEDIAN and FLAT MEDIAN MEAN, which are on its DRLD card.
 # -------------------------------
 # MLFLAT base classes
 # -------------------------------
@@ -71,19 +77,19 @@ class NMFlatNbadpix(BandNMixin, MFlatNbadpix):
 class MlFlatRms(QcParameter):
     _name_template = "QC {band} MLFLAT RMS"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "RMS of the {band} lamp master flat"
 
 class MlFlatMedian(QcParameter):
     _name_template = "QC {band} MLFLAT MEDIAN"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "Median of the {band} lamp master flat"
 
-class MlFlatNbadpix(QcParameter):
+class MlFlatNBadPix(QcParameter):
     _name_template = "QC {band} MLFLAT NBADPIX"
     _type = int
-    _unit = None
+    _unit = "counts"
     _description_template = "Number of bad pixels in the {band} lamp master flat"
 
 # -------------------------------
@@ -106,11 +112,11 @@ class NMlFlatMedian(BandNMixin, MlFlatMedian):
     pass
 
 
-class LmMlFlatNbadpix(BandLmMixin, MlFlatNbadpix):
+class LmMlFlatNBadPix(BandLmMixin, MlFlatNBadPix):
     pass
 
 
-class NMlFlatNbadpix(BandNMixin, MlFlatNbadpix):
+class NMlFlatNBadPix(BandNMixin, MlFlatNBadPix):
     pass
 
 # -------------------------------
@@ -120,21 +126,21 @@ class NMlFlatNbadpix(BandNMixin, MlFlatNbadpix):
 class MtFlatRms(QcParameter):
     _name_template = "QC {band} MTFLAT RMS"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "RMS of the {band} twilight master flat"
 
 
 class MtFlatMedian(QcParameter):
     _name_template = "QC {band} MTFLAT MEDIAN"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "Median of the {band} twilight master flat"
 
 
-class MtFlatNbadpix(QcParameter):
+class MtFlatNBadPix(QcParameter):
     _name_template = "QC {band} MTFLAT NBADPIX"
     _type = int
-    _unit = None
+    _unit = "counts"
     _description_template = "Number of bad pixels in the {band} twilight master flat"
 
 # -------------------------------
@@ -157,11 +163,11 @@ class NMtFlatMedian(BandNMixin, MtFlatMedian):
     pass
 
 
-class LmMtFlatNbadpix(BandLmMixin, MtFlatNbadpix):
+class LmMtFlatNBadPix(BandLmMixin, MtFlatNBadPix):
     pass
 
 
-class NMtFlatNbadpix(BandNMixin, MtFlatNbadpix):
+class NMtFlatNBadPix(BandNMixin, MtFlatNBadPix):
     pass
 
 # -------------------------------
@@ -171,37 +177,37 @@ class NMtFlatNbadpix(BandNMixin, MtFlatNbadpix):
 class FlatMean(QcParameter):
     _name_template = "QC {band} FLAT MEAN"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "Mean value of a single flat field image"
 
 class FlatRms(QcParameter):
     _name_template = "QC {band} FLAT RMS"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "RMS value of a single flat field image"
 
 class FlatMedianMean(QcParameter):
     _name_template = "QC {band} FLAT MEDIAN MEAN"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "Mean value of the medians of input flat frames"
 
 class FlatMedianMin(QcParameter):
     _name_template = "QC {band} FLAT MEDIAN MIN"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "Minimum value of the medians of input flat frames"
 
 class FlatMedianMax(QcParameter):
     _name_template = "QC {band} FLAT MEDIAN MAX"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "Maximum value of the medians of input flat frames"
 
 class FlatMedianRms(QcParameter):
     _name_template = "QC {band} FLAT MEDIAN RMS"
     _type = float
-    _unit = "Counts"
+    _unit = "counts"
     _description_template = "RMS value of the medians of input flat frames"
 
 # -------------------------------

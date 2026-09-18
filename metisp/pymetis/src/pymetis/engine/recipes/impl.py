@@ -22,7 +22,7 @@ from typing import Dict, Any, final, Optional, TYPE_CHECKING
 import cpl
 from cpl.core import Msg
 
-from pymetis.engine.core.parameter import ParameterList
+from pymetis.engine.core.parameter import Parameter, ParameterList
 from pymetis.engine.core.parametrizable import Parametrizable
 
 from pymetis.engine.dataitems import DataItem, PipelineProductSet
@@ -57,7 +57,9 @@ class RecipeImpl(Parametrizable, ABC):
         super().__init__()
         self.name = recipe.name
         self.version = recipe.version
-        self.parameters = recipe.parameters
+        # The declaration on the Recipe class is shared by every run; settings are applied
+        # to this run's own copy (pyesorex copies the same way before it sets values).
+        self.parameters = ParameterList([Parameter.from_cplui(parameter) for parameter in recipe.parameters])
 
         self.header: cpl.core.PropertyList | None = None
         self.products: set[DataItem] = set()
@@ -72,7 +74,15 @@ class RecipeImpl(Parametrizable, ABC):
         # - tag matches (from the loaded frameset, instance-based)
         # The promoted containers are assigned to the *instance* (shadowing the class
         # attributes), so runs of the same recipe never affect one another.
-        # ToDo: Decide what to do in case of a conflict between those two
+        # The recipe's own tags are authoritative: a frame that carries a different value
+        # for a tag the recipe pins does not belong to this recipe, whatever else it matched.
+        disputed = {key: (self.tag_parameters()[key], value)
+                    for key, value in self.inputset.tag_matches.items()
+                    if key in self.tag_parameters() and self.tag_parameters()[key] != value}
+        if disputed:
+            raise cpl.core.IllegalInputError(
+                f"{self.__class__.__qualname__}: the frames contradict the recipe's own tags: "
+                + ", ".join(f"{key} is {mine!r} here but {theirs!r} in the data" for key, (mine, theirs) in disputed.items()))
         tags = self.tag_parameters() | self.inputset.tag_matches
         try:
             self.ProductSet = self.ProductSet.promoted(**tags)
@@ -90,22 +100,27 @@ class RecipeImpl(Parametrizable, ABC):
         """
         Specialize the recipe implementation to the current class parameters.
 
-        Each Impl gets its own private ProductSet / Qc subclass exactly once, so that
-        specializing it cannot leak into a prefab parent shared with sibling recipes,
-        and repeated calls (e.g. repeated man-page rendering) do not grow the MRO.
+        Each Impl is given its own specialized InputSet / ProductSet / Qc (a new subclass
+        built by `specialized()`; the declared container is never mutated, so nothing
+        leaks into a prefab parent shared with sibling recipes). For the inputs this
+        narrows what a frame may match to the class the recipe's own tags imply: a 2RG
+        recipe accepts MASTER_DARK_2RG only, and a SOF offering another detector's dark
+        fails validation instead of running with it. Repeated calls, e.g. repeated
+        man-page rendering, find the work done.
         """
         Msg.debug(cls.__qualname__, f"Specializing Implementation {cls.__qualname__} with {cls.tag_parameters()}")
 
-        # InputSet is deliberately not in this loop yet: specializing it changes the
-        # frame-matching semantics of every recipe, which needs validation against
-        # real SOF data first. PipelineInputSet.specialize is ready when that lands.
-        for name in ("ProductSet", "Qc"):
-            if name not in cls.__dict__:
-                container = type(name, (getattr(cls, name),), {})
-                container.__qualname__ = f"{cls.__qualname__}.{name}"
-                container.__module__ = cls.__module__
-                setattr(cls, name, container)
-            getattr(cls, name).specialize(**cls.tag_parameters())
+        for name in ("InputSet", "ProductSet", "Qc"):
+            container = getattr(cls, name)
+            if getattr(container, '_specialized_for', None) is cls:
+                continue
+            specialized = container.specialized(**cls.tag_parameters())
+            if '_specialized_from' not in specialized.__dict__:
+                # Nothing to resolve (PipelineInputSet returns the declared class then);
+                # a shared declaration must not be stamped as anyone's specialization.
+                continue
+            specialized._specialized_for = cls
+            setattr(cls, name, specialized)
 
     def run(self) -> cpl.ui.FrameSet:
         """
@@ -133,17 +148,21 @@ class RecipeImpl(Parametrizable, ABC):
 
     def import_settings(self, settings: Dict[str, Any]) -> None:
         """
-        Update the recipe parameters with the values requested by the user.
-        Warn if any of the parameters is not recognized.
+        Update this run's recipe parameters with the values requested by the user.
+
+        pyesorex only ever passes names it took from the recipe's own declaration, so an
+        unknown name can only come from a direct caller (a test, a notebook) and is a bug
+        there: it is refused rather than silently reduced with the default.
         """
         for key, value in settings.items():
             try:
                 self.parameters[key].value = value
             except KeyError:
-                Msg.warning(self.__class__.__qualname__,
-                            f"Settings include '{key}' = {value} "
-                            f"but class {self.__class__.__qualname__} "
-                            f"has no parameter named {key}.")
+                raise cpl.core.IllegalInputError(
+                    f"{self.__class__.__qualname__}: no parameter named '{key}' "
+                    f"(settings gave it the value {value!r}); the recipe declares "
+                    f"{sorted(parameter.name for parameter in self.parameters)}") from None
+            Msg.debug(self.__class__.__qualname__, f"Parameter {key} set to {value!r}")
 
     @abstractmethod
     def process(self) -> set[DataItem]:
@@ -185,6 +204,11 @@ class RecipeImpl(Parametrizable, ABC):
         out = cpl.core.PropertyList()
         Msg.info(self.__class__.__qualname__, "Collecting QC Parameters")
         for qcparam in qc_parameters:
+            if not qcparam.available:
+                # ToDo: bump back to Msg.warning once the recipes compute their QC values; while
+                #       most recipes are skeletons that pass None, a warning per parameter is noise.
+                Msg.info(self.__class__.__qualname__, f"    {qcparam.name()} not available, not written")
+                continue
             Msg.info(self.__class__.__qualname__, f"    {qcparam.name()} = {qcparam.value!s}")
             out.append(qcparam.as_property())
 

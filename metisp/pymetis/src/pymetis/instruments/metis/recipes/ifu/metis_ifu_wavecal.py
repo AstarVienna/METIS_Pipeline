@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import copy
-from typing import Literal
 
 import cpl
 from cpl.core import Msg
@@ -36,13 +35,13 @@ from pymetis.drl.trace import traces_from_table
 from pymetis.drl.wavecal import (SliceSolution, build_wavelength_map, linear_solution,
                                  solutions_to_table, solve_slice)
 
-from pymetis.instruments.metis.dataitems.wavecal import (IfuWavecalRaw, IfuWavecal,
-                                                         IfuWavecalTab)
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.inputs import (MasterDarkInput, RawInput, DistortionTableInput, OptionalInputMixin,
                                               PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
+from pymetis.instruments.metis import dataitems
 
 # Microns per Angstrom, for reporting the fit residual in the unit the DRLD declares
 MICRON_IN_ANGSTROM = 1.0e4
@@ -56,7 +55,7 @@ FALLBACK_WAVELENGTH_END = (3.5823, 3.5547, 3.5541, 3.5820)
 class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = IfuWavecalRaw
+            Item = dataitems.IfuWavecalRaw
 
         class MasterDarkInput(OptionalInputMixin, MasterDarkInput):
             pass
@@ -78,14 +77,14 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         distortion_table: DistortionTableInput
 
     class ProductSet(PipelineProductSet):
-        IfuWavecal = IfuWavecal
-        IfuWavecalTab = IfuWavecalTab
+        IfuWavecal = dataitems.IfuWavecal
+        IfuWavecalTab = dataitems.IfuWavecalTab
 
     class Qc(QcParameterSet):
         class NLines(QcParameter):
             _name_template = "QC IFU WAVECAL NLINES"
             _type = int
-            _unit = "1"
+            _unit = "counts"
             _default = None
             _description_template = "Number of detected laser lines; should be constant"
 
@@ -240,7 +239,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         return heights
 
     def _approximate_solution(self,
-                             detector: Literal[1, 2, 3, 4],
+                             detector: Metis.DetectorNumber,
                              ncol: int) -> np.ndarray:
         """
         Approximate linear dispersion, used to identify lines and as the fallback.
@@ -283,7 +282,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         }
 
     def _process_single_detector(self,
-                                 detector: Literal[1, 2, 3, 4],
+                                 detector: Metis.DetectorNumber,
                                  method: str,
                                  wavelengths: list[float],
                                  solve_parameters: dict) -> dict:
@@ -298,7 +297,7 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
 
         Parameters
         ----------
-        detector : Literal[1, 2, 3, 4]
+        detector : Metis.DetectorNumber
         method : str
             Method used to stack the raw exposures.
         wavelengths : list[float]
@@ -440,15 +439,13 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
                         "wavelength maps rest on the approximate dispersion model and "
                         "QC RMS is not reported")
 
-        qc = [self.Qc.NLines(n_lines)]
-        if rms is not None:
-            qc.append(self.Qc.Rms(rms))
-        if peak_counts is not None:
-            qc.append(self.Qc.PeakCounts(peak_counts))
-        if line_width is not None:
-            qc.append(self.Qc.LineWidth(line_width))
-
-        return self.collect_qc_parameters(*qc)
+        # A value of None means "not determined"; such a parameter is reported but not written.
+        return self.collect_qc_parameters(
+            self.Qc.NLines(n_lines),
+            self.Qc.Rms(rms),
+            self.Qc.PeakCounts(peak_counts),
+            self.Qc.LineWidth(line_width),
+        )
 
 
 class MetisIfuWavecal(Recipe):

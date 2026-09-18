@@ -18,12 +18,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 import cpl
 
-from pymetis.engine.dataitems import ImageDataItem, TableDataItem
+from pymetis.engine.dataitems import ImageDataItem, TableDataItem, detectors
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
 from cpl.core import Table, Image
 
 
 class IfuWavecalRaw(DetectorIfuMixin, ImageDataItem):
+    _schema = detectors(Image, 4)
     _name_template = r'IFU_WAVE_RAW'
     _title_template = 'IFU wavecal raw'
     _description_template = ("Raw exposure of the WCU laser sources through the IFU to"

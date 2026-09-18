@@ -22,36 +22,33 @@ from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 
-from pymetis.instruments.metis.dataitems.background import Background, BackgroundSubtracted
-from pymetis.instruments.metis.dataitems.img.basicreduced import BasicReduced, LmSkyBasicReduced
-from pymetis.instruments.metis.dataitems.objectcatalog import ObjectCatalog
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
-from pymetis.instruments.metis.qc.background import QcLmImgBkgMedian, QcLmImgBkgMedianDeviation
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class BasicReducedInput(SinglePipelineInput):
-            Item = BasicReduced
+        class BasicReducedInput(PrimaryInputMixin, SinglePipelineInput):
+            Item = dataitems.BasicReduced
 
         class SkyBasicReducedInput(SinglePipelineInput):
-            Item = LmSkyBasicReduced
+            Item = dataitems.LmSkyBasicReduced
 
         basic_reduced: BasicReducedInput
         sky_basic_reduced: SkyBasicReducedInput
 
     class ProductSet(PipelineProductSet):
-        Bkg = Background
-        BkgSubtracted = BackgroundSubtracted
-        ObjectCatalog = ObjectCatalog
+        Bkg = dataitems.Background
+        BkgSubtracted = dataitems.BackgroundSubtracted
+        ObjectCatalog = dataitems.ObjectCatalog
 
     class Qc(QcParameterSet):
-        Median = QcLmImgBkgMedian
-        MedianDev = QcLmImgBkgMedianDeviation
-
+        Median = qc.background.QcLmImgBkgMedian
+        MedianDev = qc.background.QcLmImgBkgMedianDeviation
     def process(self) -> set[DataItem]:
         image = self.inputset.basic_reduced.load_data('DET1.DATA')
         primary_header = self.inputset.basic_reduced.item.primary_header
@@ -72,6 +69,12 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
             create_dummy_header(),
             Hdu(header_object_cat, table, name='TABLE'),
         )
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.Median(None),
+            self.Qc.MedianDev(None),
+        ))
 
         return {product_bkg, product_bkg_subtracted, product_object_cat}
 

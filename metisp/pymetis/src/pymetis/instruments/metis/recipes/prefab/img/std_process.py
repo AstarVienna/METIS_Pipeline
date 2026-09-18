@@ -29,36 +29,34 @@ from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis.mixins import TargetStdMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
-from pymetis.instruments.metis.dataitems.background.subtracted import BackgroundSubtracted
-from pymetis.instruments.metis.dataitems.combined import Combined
-from pymetis.instruments.metis.dataitems.common import FluxCalTable
-from pymetis.instruments.metis.qc.std_process import (QcImgStdBackgroundRms, QcStdPeakCounts, QcStdApertureCounts,
-                                                      QcStdStrehl, QcStdEllipticity, QcStdFluxConversion,
-                                                      QcSensitivity, QcAreaSensitivity)
+from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
         class RawInput(RawInput):
-            Item = BackgroundSubtracted
+            Item = dataitems.BackgroundSubtracted
 
         raw: RawInput
         fluxstd_catalog: FluxstdCatalogInput
 
     class ProductSet(PipelineProductSet):
-        ImgFluxCalTable = FluxCalTable
-        ImgStdCombined = Combined
+        ImgFluxCalTable = dataitems.FluxCalTable
+        ImgStdCombined = dataitems.Combined
 
     class Qc(QcParameterSet):
-        BackgroundRms = QcImgStdBackgroundRms
-        PeakCounts = QcStdPeakCounts
-        ApertureCounts = QcStdApertureCounts
-        Strehl = QcStdStrehl
-        Ellipticity = QcStdEllipticity
-        FluxConversion = QcStdFluxConversion
-        Sensitivity = QcSensitivity
-        AreaSensitivity = QcAreaSensitivity
 
+        Fwhm = qc.std_process.QcStdFwhm
+        Airmass = qc.std_process.QcStdAirmass
+        BackgroundRms = qc.std_process.QcImgStdBackgroundRms
+        PeakCounts = qc.std_process.QcStdPeakCounts
+        ApertureCounts = qc.std_process.QcStdApertureCounts
+        Strehl = qc.std_process.QcStdStrehl
+        Ellipticity = qc.std_process.QcStdEllipticity
+        FluxConversion = qc.std_process.QcStdFluxConversion
+        Sensitivity = qc.std_process.QcSensitivity
+        AreaSensitivity = qc.std_process.QcAreaSensitivity
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')
 
@@ -77,5 +75,19 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl)
             copy.deepcopy(primary_header),
             Hdu(header_table, table, name='TABLE')
         )
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.Airmass(None),
+            self.Qc.ApertureCounts(None),
+            self.Qc.AreaSensitivity(None),
+            self.Qc.BackgroundRms(None),
+            self.Qc.Ellipticity(None),
+            self.Qc.FluxConversion(None),
+            self.Qc.Fwhm(None),
+            self.Qc.PeakCounts(None),
+            self.Qc.Sensitivity(None),
+            self.Qc.Strehl(None),
+        ))
 
         return {product_fluxcal, product_combined}

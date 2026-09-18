@@ -20,15 +20,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 from cpl.core import Table
 
-from pymetis.engine.dataitems import ImageDataItem
+from pymetis.engine.dataitems import TableDataItem
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
-class GainMap(ImageDataItem, abstract=True):
+class GainMap(TableDataItem, abstract=True):
     _name_template = r'GAIN_MAP_{detector}'
     _title_template = "gain map for {detector} detector"
-    _description_template = "Gain map for the {detector} detector"
+    _description_template = "Gain and its uncertainty for the {detector} detector"   # one row per detector; the DRLD card says image
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG'})
 

@@ -20,28 +20,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.core.parameter import ParameterList
 
 # import the dataitems we use
-from pymetis.engine.dataitems import DataItem, Hdu
+from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
+from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciCalibrated
 #from pymetis.instruments.metis.dataitems.hci import LmOffAxisPsfRaw, LmOnAxisPsfTemplate
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppCalibrated
 
 
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCentred, LmAppCentroidTab
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciSpeckle, LmAppSciDerotatedPsfsub
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciDerotated
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciContrastRadprof, LmAppSciContrastAdi, LmAppSciThroughput
-from pymetis.instruments.metis.dataitems.hci.hci import LmAppSciCoverage, LmAppSciSnr, LmAppPsfMedian
 from pymetis.engine.recipes import Recipe
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.inputs import RawInput
+from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmAppSciCalibrateImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LmSciCalibrated
+            Item = dataitems.LmSciCalibrated
 
         raw: RawInput
         #class LmOffAxisPsfRaw(RawInput):
@@ -51,19 +47,27 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
 
         
 
-    ProductLmSciCalibrated = LmAppCalibrated
-    ProductLmSciCentred = LmAppSciCentred
-    ProductLmCentroidTab = LmAppCentroidTab
-    ProductLmSciSpeckle = LmAppSciSpeckle
-    ProductLmSciDerotatedPsfsub = LmAppSciDerotatedPsfsub
-    ProductLmSciDerotated = LmAppSciDerotated
-    ProductLmSciContrastRadprof = LmAppSciContrastRadprof
-    ProductLmSciContrastAdi = LmAppSciContrastAdi
-    ProductLmSciThroughput = LmAppSciThroughput
-    ProductLmSciCoverage = LmAppSciCoverage
-    ProductLmSciSnr = LmAppSciSnr
-    ProductLmSciPsfMedian = LmAppPsfMedian
-    
+    class ProductSet(PipelineProductSet):
+        SciCalibrated = dataitems.LmAppCalibrated
+        SciCentred = dataitems.LmAppSciCentred
+        CentroidTab = dataitems.LmAppCentroidTab
+        SciSpeckle = dataitems.LmAppSciSpeckle
+        SciDerotatedPsfsub = dataitems.LmAppSciDerotatedPsfsub
+        SciDerotated = dataitems.LmAppSciDerotated
+        SciContrastRadprof = dataitems.LmAppSciContrastRadprof
+        SciContrastAdi = dataitems.LmAppSciContrastAdi
+        SciThroughput = dataitems.LmAppSciThroughput
+        SciCoverage = dataitems.LmAppSciCoverage
+        SciSnr = dataitems.LmAppSciSnr
+        SciPsfMedian = dataitems.LmAppPsfMedian
+
+    class Qc(QcParameterSet):
+        SciNExp = qc.hci.LmAppSciNExp
+        SciSnrMean = qc.hci.LmAppSciSnrMean
+        SciSnrPeak = qc.hci.LmAppSciSnrPeak
+        SciContrastRawLamd = qc.hci.LmAppSciContrastRawLamd
+        SciContrastAdiLamd = qc.hci.LmAppSciContrastAdiLamd
+        SciFwhm = qc.hci.LmAppSciFwhm
     def process(self) -> set[DataItem]:
         
             image = self.inputset.raw.load_data('DET1.DATA')[0]
@@ -85,54 +89,64 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
             header_lmSciPsfMedian = create_dummy_header()
         
             
-            product_lmSciCalibrated = self.ProductLmSciCalibrated(
+            product_lmSciCalibrated = self.ProductSet.SciCalibrated(
                     primary_header,
                     Hdu(header_lmSciCalibrated, image, name='DET1.DATA'),
             )
-            product_lmSciCentred = self.ProductLmSciCentred(
+            product_lmSciCentred = self.ProductSet.SciCentred(
                     primary_header,
                     Hdu(header_lmSciCentred, image, name='DET1.DATA'),
             )
-            product_lmCentroidTable = self.ProductLmCentroidTab(
+            product_lmCentroidTable = self.ProductSet.CentroidTab(
                     primary_header,
                     Hdu(header_lmCentroidTable, table, name='DET1.DATA'),
             )
-            product_lmSciSpeckle = self.ProductLmSciSpeckle(
+            product_lmSciSpeckle = self.ProductSet.SciSpeckle(
                     primary_header,
                     Hdu(header_lmSciSpeckle, image, name='DET1.DATA'),
             )
-            product_lmSciDerotatedPsfsub = self.ProductLmSciDerotatedPsfsub(
+            product_lmSciDerotatedPsfsub = self.ProductSet.SciDerotatedPsfsub(
                     primary_header,
                     Hdu(header_lmSciDerotatedPsfsub, image, name='DET1.DATA'),
             )
-            product_lmSciDerotated = self.ProductLmSciDerotated(
+            product_lmSciDerotated = self.ProductSet.SciDerotated(
                     primary_header,
                     Hdu(header_lmSciDerotated, image, name='DET1.DATA'),
             )
-            product_lmSciContrastRadprof = self.ProductLmSciContrastRadprof(
+            product_lmSciContrastRadprof = self.ProductSet.SciContrastRadprof(
                     primary_header,
                     Hdu(header_lmSciContrastRadprof, table, name='DET1.DATA'),
             )
-            product_lmSciContrastAdi = self.ProductLmSciContrastAdi(
+            product_lmSciContrastAdi = self.ProductSet.SciContrastAdi(
                     primary_header,
                     Hdu(header_lmSciContrastAdi, table, name='DET1.DATA'),
             )
-            product_lmSciThroughput = self.ProductLmSciThroughput(
+            product_lmSciThroughput = self.ProductSet.SciThroughput(
                     primary_header,
                     Hdu(header_lmSciThroughput, table, name='DET1.DATA'),
             )
-            product_lmSciCoverage = self.ProductLmSciCoverage(
+            product_lmSciCoverage = self.ProductSet.SciCoverage(
                     primary_header,
                     Hdu(header_lmSciCoverage, image, name='DET1.DATA'),
             )
-            product_lmSciSnr = self.ProductLmSciSnr(
+            product_lmSciSnr = self.ProductSet.SciSnr(
                     primary_header,
                     Hdu(header_lmSciSnr, image, name='DET1.DATA'),
             )
-            product_lmSciPsfMedian = self.ProductLmSciPsfMedian(
+            product_lmSciPsfMedian = self.ProductSet.SciPsfMedian(
                     primary_header,
                     Hdu(header_lmSciPsfMedian, image, name='DET1.DATA'),
             )
+
+            # FixMe: compute the real QC values; None marks a parameter that is not available yet
+            primary_header.append(self.collect_qc_parameters(
+                self.Qc.SciContrastAdiLamd(None),
+                self.Qc.SciContrastRawLamd(None),
+                self.Qc.SciFwhm(None),
+                self.Qc.SciNExp(None),
+                self.Qc.SciSnrMean(None),
+                self.Qc.SciSnrPeak(None),
+            ))
 
             return {
                 product_lmSciCalibrated,
