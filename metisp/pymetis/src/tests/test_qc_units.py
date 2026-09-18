@@ -4,8 +4,6 @@ The unit vocabulary of the QC parameters.
 One spelling per quantity, agreed with the lead (2026-09-18): dimensionless is `None`
 (ratios, polynomial degrees), a number of things is "counts" (pixels, lines, exposures),
 fluxes are "Jansky" (never "Jy"), lengths on the detector "pixels", wavelengths "Å".
-The frozen flat-field module (Gilles' PR) still says "Counts" and is expected to fail
-until it is rewritten.
 """
 import pytest
 
@@ -29,9 +27,7 @@ QC_CLASSES = sorted(
 
 
 @pytest.mark.parametrize("klass", QC_CLASSES, ids=lambda klass: klass._name_template)
-def test_unit_is_in_the_vocabulary(klass, request):
-    if klass.__module__.endswith('.qc.flat') and klass._unit == "Counts":
-        request.applymarker(pytest.mark.xfail(strict=True, reason="flat-field QC still says 'Counts'; waits for Gilles' PR"))
+def test_unit_is_in_the_vocabulary(klass):
     assert klass._unit != "undefined", f"{klass.__qualname__} declares no unit"
     assert klass._unit in UNITS, \
         f"{klass.__qualname__} ({klass.name()}) has unit {klass._unit!r}, not in the vocabulary {sorted(map(str, UNITS))}"
