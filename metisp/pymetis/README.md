@@ -190,6 +190,14 @@ input class must re-annotate the attribute; forgetting this raises a
    (`--list`, `<TAG>`, or `--all --output <dir>`), including the
    `\RAW`/`\PROD`/`\EXTCALIB`/`\STATCALIB` kind, which is derived from the
    frame group, `_static`, and which recipes produce the item.
+   `--all --output DIR` writes one card per data item, recipe and QC parameter;
+   `--document FILE` assembles the three generated DRLD chapters — data items,
+   recipes, QC parameters — into one file, a fragment to `\input`, or with
+   `--standalone` a document that compiles on its own with the DRLD sources on
+   `TEXINPUTS` (`TEXINPUTS=/path/to/drld//: latexmk -pdf FILE`). The templates
+   are `dataitem.tex`, `recipe.tex`, `qc.tex` and `document.tex` next to the
+   script, Jinja2 with `(* *)` / `(% %)` delimiters; jinja2 comes with the dev
+   environment through pyesorex.
 
 ## Testing
 

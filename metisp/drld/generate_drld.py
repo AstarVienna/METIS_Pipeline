@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 """
 Render DRLD cards from the pymetis catalogue: one data-item card per registered, fully
-resolved `DataItem` class and one recipe card per registered `Recipe`.
+resolved `DataItem` class, one recipe card per registered `Recipe`, one QC-parameter card
+per parameter the recipes declare -- and, with --document, the generated chapters of the
+DRLD assembled into one file (a fragment, or a compilable document with --standalone).
 
 Everything on a card comes from the code -- the item classes themselves (name,
 description, OCA keywords, HDU structure, kind) and the recipes' `InputSet`s,
 `ProductSet`s, `Qc` sets and parameters. The Jinja2 templates `dataitem.tex` and
-`recipe.tex` use LaTeX-friendly delimiters: `(* expression *)`, `(% block %)` and
+`recipe.tex`, `qc.tex` and `document.tex` use LaTeX-friendly delimiters: `(* expression *)`, `(% block %)` and
 `(# comment #)`.
 
 Run from an environment where pymetis is importable, e.g.
@@ -14,9 +16,12 @@ Run from an environment where pymetis is importable, e.g.
     python drld/generate_drld.py --list
     python drld/generate_drld.py MASTER_IMG_FLAT_LAMP_LM metis_lm_img_flat
     python drld/generate_drld.py --all --output build/drld
+    python drld/generate_drld.py --document build/drld.tex --standalone
+    TEXINPUTS=/path/to/drld//: latexmk -pdf build/drld.tex
 """
 
 import argparse
+import datetime
 import re
 import sys
 from dataclasses import dataclass, field
@@ -64,6 +69,20 @@ class Card:
 
 
 @dataclass
+class QcCard:
+    """ One QC-parameter card of the DRLD chapter "QC Parameters". """
+    name: str                       # placeholders lowercase without braces, as the DRLD writes them
+    label: str
+    type: str                       # double / int / string, the DRLD's spelling
+    format: str                     # the DRLD's "Value" row: %.3f, %d, %s
+    unit: str
+    default: str
+    description: str
+    comment: str
+    created_by: list[str] = field(default_factory=list)
+
+
+@dataclass
 class RecipeCard:
     """ Everything the recipe template needs for one recipe; rows are ready-made LaTeX. """
     name: str
@@ -74,6 +93,45 @@ class RecipeCard:
     algorithm: list[str]
     outputs: list[str]
     qc_parameters: list[str]
+    description: str = ''           # the author's long text, for the section before the card
+
+
+@dataclass
+class Group:
+    """ A titled group of cards: a DRLD (sub)section. """
+    title: str
+    items: list = field(default_factory=list)
+    kinds: list = field(default_factory=list)      # item families: sub-groups by kind (raw / calibration / product)
+    recipes: list = field(default_factory=list)
+    qcs: list = field(default_factory=list)
+
+
+@dataclass
+class Document:
+    """ Everything `document.tex` needs to assemble the generated chapters. """
+    item_families: list[Group]
+    recipe_families: list[Group]
+    qc_families: list[Group]
+    standalone: bool
+    version: str
+    date: str
+
+
+# How the DRLD groups things: recipe families in the order of chapter "Pipeline Recipes",
+# keyed by the recipe subpackage; item families by band and module.
+RECIPE_FAMILIES = [
+    ('Detector calibrations', ('',)),
+    ('LM imaging', ('lm_img',)),
+    ('N imaging', ('n_img',)),
+    ('LM long-slit spectroscopy', ('lm_lss',)),
+    ('N long-slit spectroscopy', ('n_lss',)),
+    ('IFU', ('ifu',)),
+    ('High-contrast imaging', ('hci',)),
+    ('Technical', ('cal', 'instrument')),
+]
+ITEM_KINDS = [('Raw data', 'RAW'), ('Calibrations and intermediate products', 'CALIB'), ('Final products', 'FINAL')]
+QC_TYPES = {'float': 'double', 'int': 'int', 'str': 'string', 'bool': 'int'}
+QC_FORMATS = {'float': '%.3f', 'int': '%d', 'str': '%s', 'bool': '%d'}
 
 
 def latex(text: str) -> str:
@@ -158,9 +216,22 @@ class Catalogue:
                 return 'PROD' if created else 'EXTCALIB'
 
     def reference(self, item: type[DataItem], tag: str) -> str:
-        """ `\\PROD{TAG}` and friends, with placeholders shown as `<name>`. """
+        """
+        `\\PROD{TAG}` and friends. A tag with placeholders left for the data is written as
+        the DRLD writes it, as the alternatives the catalogue offers joined by "or"
+        (`\\RAW{LM_FLAT_LAMP_RAW} or \\RAW{LM_FLAT_TWILIGHT_RAW}`); with no catalogue
+        entry to expand to, the placeholders are shown as `<name>`.
+        """
+        alternatives = self.expand(tag) if '{' in tag else []
+        if alternatives:
+            return ' or '.join(rf'\{self.macro_of(self.items[t], t)}{{{t}}}' for t in alternatives)
         shown = re.sub(r'\{(\w+)\}', r'<\1>', tag)
         return rf'\{self.macro_of(item, tag)}{{{shown}}}'
+
+    @staticmethod
+    def qc_shown(name: str) -> str:
+        """ A QC name as the DRLD writes it: run-time placeholders lowercase, no braces. """
+        return re.sub(r'\{(\w+)\}', lambda m: m.group(1).lower(), name)
 
     # --- data items ---
 
@@ -227,8 +298,100 @@ class Catalogue:
             parameters=parameters,
             algorithm=algorithm,
             outputs=[self.reference(product, product.name()) for _, product in recipe._list_products()],
-            qc_parameters=[rf'\QC{{{qc.name()}}}' for _, qc in recipe._list_qc_parameters()],
+            qc_parameters=[rf'\QC{{{self.qc_shown(qc.name())}}}' for _, qc in recipe._list_qc_parameters()],
         )
+
+
+    # --- QC parameters ---
+
+    def qc_cards(self) -> dict[str, QcCard]:
+        """
+        One card per distinct QC parameter name over all recipes' Qc sets (the sets as
+        specialized with the recipe's own tags; a placeholder left for the data or an index
+        stays, lowercase without braces, as the DRLD writes generic cards). "Created by" is
+        every recipe whose set declares the name.
+        """
+        cards: dict[str, QcCard] = {}
+        for name, recipe in self.recipes.items():
+            for _, klass in recipe._list_qc_parameters():
+                shown = self.qc_shown(klass.name())
+                if shown in cards:
+                    if name not in cards[shown].created_by:
+                        cards[shown].created_by.append(name)
+                    continue
+                type_name = getattr(klass._type, '__name__', str(klass._type))
+                cards[shown] = QcCard(
+                    name=shown,
+                    label=re.sub(r'[^a-z0-9]+', '_', shown.lower()).strip('_'),
+                    type=QC_TYPES.get(type_name, type_name),
+                    format=QC_FORMATS.get(type_name, '%s'),
+                    unit='None' if klass._unit is None else str(klass._unit),
+                    default='None' if klass._default is None else str(klass._default),
+                    description=re.sub(r'\{(\w+)\}', lambda m: m.group(1).lower(), klass.description()),
+                    comment=klass._comment or '',
+                    created_by=[name],
+                )
+        return cards
+
+    # --- the whole thing ---
+
+    @staticmethod
+    def recipe_family(recipe: type[Recipe]) -> str:
+        parts = recipe.__module__.replace('pymetis.instruments.metis.recipes', '').strip('.').split('.')
+        return parts[0] if len(parts) > 1 else ''
+
+    @staticmethod
+    def item_family(item: type[DataItem]) -> str:
+        module = item.__module__.replace('pymetis.instruments.metis.dataitems.', '')
+        if module.startswith('hci'):
+            return 'High-contrast imaging'
+        if item.tag_parameters().get('band') == 'IFU' or module.split('.')[0] in ('ifu', 'wavecal', 'rsrf'):
+            return 'IFU'
+        if module.split('.')[0] in ('lss', 'adc', 'synth', 'molecfit'):
+            return 'Long-slit spectroscopy'
+        if module.split('.')[0] in ('raw', 'masterdark', 'linearity', 'gainmap', 'badpixmap', 'common'):
+            return 'Detector and common calibrations'
+        return 'Imaging'
+
+    def item_kind(self, item: type[DataItem]) -> str:
+        if item.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
+            return 'RAW'
+        if item.frame_level() == cpl.ui.Frame.FrameLevel.FINAL and item.frame_group() == cpl.ui.Frame.FrameGroup.PRODUCT:
+            return 'FINAL'
+        return 'CALIB'
+
+    def document(self, standalone: bool) -> Document:
+        families = ['Detector and common calibrations', 'Imaging', 'Long-slit spectroscopy', 'IFU', 'High-contrast imaging']
+        item_families = []
+        for title in families:
+            members = [tag for tag, item in self.items.items() if self.item_family(item) == title]
+            kinds = [Group(title=kind_title, items=[self.item_card(t) for t in members if self.item_kind(self.items[t]) == kind])
+                     for kind_title, kind in ITEM_KINDS]
+            kinds = [k for k in kinds if k.items]
+            if kinds:
+                item_families.append(Group(title=title, kinds=kinds))
+
+        recipe_families, qc_families = [], []
+        qc_cards = self.qc_cards()
+        for title, subpackages in RECIPE_FAMILIES:
+            names = [n for n, r in self.recipes.items() if self.recipe_family(r) in subpackages]
+            if not names:
+                continue
+            cards = [self.recipe_card(n) for n in names]
+            for card in cards:
+                card.description = self.recipes[card.name]._long_description or ''
+            recipe_families.append(Group(title=title, recipes=cards))
+            qcs = [c for c in qc_cards.values() if c.created_by[0] in names]
+            if qcs:
+                qc_families.append(Group(title=title, qcs=qcs))
+
+        try:
+            from importlib.metadata import version
+            pymetis_version = version('pymetis')
+        except Exception:   # noqa: BLE001  -- an editable checkout without metadata
+            pymetis_version = 'development'
+        return Document(item_families=item_families, recipe_families=recipe_families, qc_families=qc_families,
+                        standalone=standalone, version=pymetis_version, date=datetime.date.today().isoformat())
 
 
 def environment() -> jinja2.Environment:
@@ -257,7 +420,12 @@ def main() -> None:
     parser.add_argument('--list', '-l', action='store_true',
                         help='list the catalogue tags and recipe names and exit')
     parser.add_argument('--output', '-o', type=Path,
-                        help='directory to write into: items/<TAG>.tex and recipes/<name>.tex (default: stdout)')
+                        help='directory to write into: items/<TAG>.tex, recipes/<name>.tex, qc/<NAME>.tex (default: stdout)')
+    parser.add_argument('--document', '-d', type=Path, metavar='FILE',
+                        help='assemble the generated DRLD chapters (data items, recipes, QC parameters) into FILE')
+    parser.add_argument('--standalone', action='store_true',
+                        help='with --document: a compilable document instead of a fragment; compile with the DRLD '
+                             'sources on TEXINPUTS, e.g. TEXINPUTS=/path/to/drld//: latexmk -pdf FILE')
     parser.add_argument('--debug', action='store_true',
                         help='enable debug mode (sets CPL Msg level to DEBUG)')
     args = parser.parse_args()
@@ -274,8 +442,16 @@ def main() -> None:
             print(f"{name:<40} {recipe.__module__}.{recipe.__qualname__}")
         return
 
+    if args.document is not None:
+        env = environment()
+        args.document.parent.mkdir(parents=True, exist_ok=True)
+        args.document.write_text(env.get_template('document.tex').render(doc=catalogue.document(args.standalone)))
+        print(f"generated DRLD chapters written to {args.document}"
+              + (" (standalone)" if args.standalone else " (fragment)"))
+        return
+
     if not args.all and not args.names:
-        parser.error("give data item tags or recipe names, or --all, or --list")
+        parser.error("give data item tags or recipe names, or --all, --document, or --list")
 
     if args.all:
         tags, names = list(catalogue.items), list(catalogue.recipes)
@@ -290,6 +466,9 @@ def main() -> None:
                 for tag in tags]
     rendered += [('recipes', name, env.get_template('recipe.tex').render(recipe=catalogue.recipe_card(name)))
                  for name in names]
+    if args.all:
+        rendered += [('qc', card.label, env.get_template('qc.tex').render(qc=card))
+                     for card in catalogue.qc_cards().values()]
 
     if args.output is None:
         for _, _, text in rendered:
@@ -298,7 +477,8 @@ def main() -> None:
         for kind, name, text in rendered:
             (args.output / kind).mkdir(parents=True, exist_ok=True)
             (args.output / kind / f"{name}.tex").write_text(text)
-        print(f"{len(tags)} item cards and {len(names)} recipe cards written to {args.output}")
+        counts = {kind: sum(1 for k, _, _ in rendered if k == kind) for kind in ('items', 'recipes', 'qc')}
+        print(f"{counts['items']} item cards, {counts['recipes']} recipe cards and {counts['qc']} QC cards written to {args.output}")
 
 
 if __name__ == '__main__':
