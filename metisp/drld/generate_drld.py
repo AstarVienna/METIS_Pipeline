@@ -113,6 +113,43 @@ class DprRow:
 
 
 @dataclass
+class ChartNode:
+    key: str
+    reference: str                  # \RAW{...} and friends, alternatives joined by "or"
+    style: str                      # a node style of recipe_config.tex
+    optional: bool = False
+    step: str = ''                  # calibrations: the step they are attached above
+    above: str = 'input'            # calibrations: the node above that step
+    fraction: float = 0.5           # position between `above` and `step`, or between the last step and stop
+
+
+@dataclass
+class ChartStep:
+    key: str
+    label: str
+    style: str = 'redstep'
+    gap: float = 2.0                # cm below the previous step
+
+
+@dataclass
+class FlowChart:
+    """ One per-recipe flowchart (`tikz/metis_<recipe>.tex`). """
+    recipe: str
+    templates: list[str]
+    raw_inputs: list[str]
+    calibrations: list[ChartNode]
+    steps: list[ChartStep]
+    products: list[ChartNode]
+    first_step_gap: float
+    stop_gap: float
+    findings: list[str] = field(default_factory=list)
+
+
+STEP_PITCH = 1.2        # cm of vertical room per calibration or product box hanging off a connection
+PLACEHOLDER_STEP = 'algorithm steps:\\ not declared'
+
+
+@dataclass
 class Group:
     """ A titled group of cards: a DRLD (sub)section. """
     title: str
@@ -260,6 +297,81 @@ class Catalogue:
     def qc_shown(name: str) -> str:
         """ A QC name as the DRLD writes it: run-time placeholders lowercase, no braces. """
         return re.sub(r'\{(\w+)\}', lambda m: m.group(1).lower(), name)
+
+    # --- flowcharts ---
+
+    def flowchart(self, name: str) -> FlowChart:
+        """
+        The flowchart skeleton of a recipe: raw input(s) at the top, calibrations hanging off the
+        left, products off the right, the frame and label. Steps come from `Recipe._steps`, a tuple
+        of `(label, input attribute names)` pairs, where declared: each calibration attaches above
+        the step naming it, the rest above the first step. Without `_steps` a single placeholder
+        step stands in for the algorithm.
+        """
+        recipe = self.recipes[name]
+        chart = FlowChart(recipe=name, templates=list(getattr(recipe, '_templates', ()) or ()),
+                          raw_inputs=[], calibrations=[], steps=[], products=[], first_step_gap=0, stop_gap=0)
+
+        declared = list(getattr(recipe, '_steps', ()) or ())
+        if not declared:
+            declared = [(PLACEHOLDER_STEP, ())]
+            chart.findings.append(f"{name} declares no _steps; a placeholder step stands in for the algorithm")
+        for label, _ in declared:
+            chart.steps.append(ChartStep(key=re.sub(r'[^a-z0-9]', '', label.lower())[:24], label=label))
+        consumed_at = {}
+        for (label, inputs), step in zip(declared, chart.steps):
+            for attr in inputs:
+                consumed_at.setdefault(attr, step.key)
+
+        inputs = sorted(recipe._list_inputs(),
+                        key=lambda e: (e[1]._group != cpl.ui.Frame.FrameGroup.RAW, self.input_tag(recipe, e[1])))
+        per_step: dict[str, list[ChartNode]] = {step.key: [] for step in chart.steps}
+        for attr, inp in inputs:
+            tag = self.input_tag(recipe, inp)
+            ref = self.reference(inp.Item, tag)
+            if inp.multiplicity() == 'N':
+                ref = r'\textsl{N} ' + ref.replace(' or ', r' \\ or \textsl{N} ')
+            if inp._group == cpl.ui.Frame.FrameGroup.RAW:
+                chart.raw_inputs.append(ref)
+                continue
+            macro = self.macro_of(inp.Item, tag)
+            style = 'calproduct' if macro == 'PROD' else 'external'
+            step = consumed_at.get(attr, chart.steps[0].key)
+            if attr in consumed_at and consumed_at[attr] not in per_step:
+                step = chart.steps[0].key
+            per_step[step].append(ChartNode(key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=ref, style=style,
+                                            optional=not inp.required(), step=step))
+        for attr in consumed_at:
+            if attr not in dict(inputs):
+                chart.findings.append(f"{name}: _steps names an input `{attr}` the InputSet does not have")
+
+        # Vertical room: each step gets enough space above it for the boxes attached there.
+        above = 'input'
+        for i, step in enumerate(chart.steps):
+            attached = per_step[step.key]
+            gap = max(2.0, STEP_PITCH * (len(attached) + 1))
+            if i == 0:
+                chart.first_step_gap = gap
+            else:
+                step.gap = gap
+            for j, node in enumerate(attached):
+                node.above = above
+                node.fraction = round((j + 1) / (len(attached) + 1), 3)
+                chart.calibrations.append(node)
+            above = f"step_{step.key}"
+
+        products = []
+        for _, product in recipe._list_products():
+            tag = product.name()
+            ref = self.reference(product, tag).replace(' or ', r'\\ or ')
+            science = product.frame_group() == cpl.ui.Frame.FrameGroup.PRODUCT
+            products.append(ChartNode(key=re.sub(r'[^a-z0-9]', '', product.__name__.lower()), reference=ref,
+                                      style='sciproduct' if science else 'calproduct'))
+        chart.stop_gap = max(2.5, STEP_PITCH * (len(products) + 1))
+        for j, node in enumerate(products):
+            node.fraction = round((j + 1) / (len(products) + 1), 3)
+            chart.products.append(node)
+        return chart
 
     # --- data items ---
 
@@ -455,6 +567,7 @@ def environment() -> jinja2.Environment:
     env.filters['latex'] = latex
     env.filters['fits'] = fits_keywords
     env.filters['raw'] = lambda tag: rf'\RAW{{{tag}}}'
+    env.filters['tpl'] = lambda name: rf'\TPL{{{name}}}'
     return env
 
 
@@ -486,6 +599,9 @@ def main() -> None:
                              'or the workflows directory next to pymetis)')
     parser.add_argument('--split', action='store_true',
                         help='with --assomap: two figures per workflow, cut at the AIT/daily separator')
+    parser.add_argument('--flowchart', nargs='+', metavar='RECIPE',
+                        help=f'render the per-recipe flowchart skeleton(s) into {BUILD}/flowchart_<recipe>.tex '
+                             '(steps from Recipe._steps where declared, else a placeholder)')
     parser.add_argument('--tables', action='store_true',
                         help=f'render the DPR keywords table and the matched-keywords summary into {BUILD}')
     parser.add_argument('--lint-flowcharts', action='store_true',
@@ -520,6 +636,19 @@ def main() -> None:
                 path = BUILD / f"assomap_{amap.mode}.tex"
                 path.write_text(env.get_template('assomap.tex').render(map=amap))
                 print(f"{path}: {len(amap.columns)} tasks, {len(amap.rows)} rows, {len(amap.findings)} findings")
+        return
+
+    if args.flowchart:
+        env = environment()
+        BUILD.mkdir(parents=True, exist_ok=True)
+        for name in args.flowchart:
+            if name not in catalogue.recipes:
+                parser.error(f"no recipe {name}")
+            chart = catalogue.flowchart(name)
+            path = BUILD / f"flowchart_{name}.tex"
+            path.write_text(env.get_template('flowchart.tex').render(chart=chart))
+            print(f"{path}: {len(chart.calibrations)} calibrations, {len(chart.steps)} steps, "
+                  f"{len(chart.products)} products, {len(chart.findings)} findings")
         return
 
     if args.tables:
