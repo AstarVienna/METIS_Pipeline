@@ -15,13 +15,18 @@ Run from an environment where pymetis is importable, e.g.
 
     python drld/generate_drld.py --list
     python drld/generate_drld.py MASTER_IMG_FLAT_LAMP_LM metis_lm_img_flat
-    python drld/generate_drld.py --all --output build/drld
-    python drld/generate_drld.py --document build/drld.tex --standalone
-    TEXINPUTS=/path/to/drld//: latexmk -pdf build/drld.tex
+    python drld/generate_drld.py --all                      # cards into drld/build/cards/
+    python drld/generate_drld.py --document --standalone --pdf   # drld/build/drld.pdf
+
+Everything generated goes under drld/build/ (ignored by git); --pdf runs latexmk there with
+the DRLD sources on TEXINPUTS (--drld DIR, default $METIS_DRLD or the `drld` checkout next
+to the pipeline checkout).
 """
 
 import argparse
 import datetime
+import os
+import subprocess
 import re
 import sys
 from dataclasses import dataclass, field
@@ -38,6 +43,7 @@ from pymetis.engine.dataitems import DataItem
 from pymetis.engine.recipes import Recipe
 
 HERE = Path(__file__).resolve().parent
+BUILD = HERE / 'build'            # every generated file lands here; the directory is not version-controlled
 
 # What a FITS extension holding each CPL type is called in the DRLD structure lists.
 CPL_TYPES = {
@@ -419,13 +425,21 @@ def main() -> None:
                         help='render every registered data item and recipe')
     parser.add_argument('--list', '-l', action='store_true',
                         help='list the catalogue tags and recipe names and exit')
-    parser.add_argument('--output', '-o', type=Path,
-                        help='directory to write into: items/<TAG>.tex, recipes/<name>.tex, qc/<NAME>.tex (default: stdout)')
-    parser.add_argument('--document', '-d', type=Path, metavar='FILE',
-                        help='assemble the generated DRLD chapters (data items, recipes, QC parameters) into FILE')
+    parser.add_argument('--output', '-o', type=Path, metavar='DIR',
+                        help='directory to write the cards into: items/<TAG>.tex, recipes/<name>.tex, qc/<NAME>.tex '
+                             f'(default: {BUILD / "cards"} with --all, stdout for named cards)')
+    parser.add_argument('--document', '-d', type=Path, metavar='FILE', nargs='?', const=BUILD / 'drld.tex',
+                        help='assemble the generated DRLD chapters (data items, recipes, QC parameters) into FILE '
+                             f'(default: {BUILD / "drld.tex"})')
     parser.add_argument('--standalone', action='store_true',
-                        help='with --document: a compilable document instead of a fragment; compile with the DRLD '
-                             'sources on TEXINPUTS, e.g. TEXINPUTS=/path/to/drld//: latexmk -pdf FILE')
+                        help='with --document: a compilable document instead of a fragment to \\input')
+    parser.add_argument('--pdf', action='store_true',
+                        help='with --document --standalone: run latexmk on it, into the same directory, with the DRLD '
+                             'sources on TEXINPUTS')
+    parser.add_argument('--drld', type=Path, metavar='DIR',
+                        default=Path(os.environ.get('METIS_DRLD', HERE.parents[2] / 'drld')),
+                        help='the DRLD sources (normal_style.tex, styles_data.tex, acronyms.tex) for --pdf '
+                             '(default: $METIS_DRLD, else the drld checkout next to the pipeline checkout)')
     parser.add_argument('--debug', action='store_true',
                         help='enable debug mode (sets CPL Msg level to DEBUG)')
     args = parser.parse_args()
@@ -448,6 +462,20 @@ def main() -> None:
         args.document.write_text(env.get_template('document.tex').render(doc=catalogue.document(args.standalone)))
         print(f"generated DRLD chapters written to {args.document}"
               + (" (standalone)" if args.standalone else " (fragment)"))
+        if args.pdf:
+            if not args.standalone:
+                parser.error("--pdf needs --standalone: a fragment does not compile on its own")
+            if not (args.drld / 'styles_data.tex').exists():
+                parser.error(f"DRLD sources not found in {args.drld}; give --drld DIR or set METIS_DRLD")
+            build_dir = args.document.parent
+            result = subprocess.run(
+                ['latexmk', '-pdf', '-interaction=nonstopmode', f'-output-directory={build_dir}', args.document.name],
+                cwd=build_dir, env=os.environ | {'TEXINPUTS': f'{args.drld}//:'},
+                capture_output=True, text=True)
+            if result.returncode != 0:
+                errors = [line for line in result.stdout.splitlines() if line.startswith('!')]
+                raise SystemExit("latexmk failed" + (":\n  " + "\n  ".join(errors[:10]) if errors else f"; see {build_dir}"))
+            print(f"compiled to {args.document.with_suffix('.pdf')}")
         return
 
     if not args.all and not args.names:
@@ -470,6 +498,8 @@ def main() -> None:
         rendered += [('qc', card.label, env.get_template('qc.tex').render(qc=card))
                      for card in catalogue.qc_cards().values()]
 
+    if args.output is None and args.all:
+        args.output = BUILD / 'cards'
     if args.output is None:
         for _, _, text in rendered:
             sys.stdout.write(text)
