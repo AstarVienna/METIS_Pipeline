@@ -100,6 +100,8 @@ class RecipeCard:
     outputs: list[str]
     qc_parameters: list[str]
     description: str = ''           # the author's long text, for the section before the card
+    templates: list[str] = field(default_factory=list)
+    has_flowchart: bool = False     # `_steps` declared: the document shows the generated flowchart after the card
 
 
 @dataclass
@@ -118,9 +120,10 @@ class ChartNode:
     reference: str                  # \RAW{...} and friends, alternatives joined by "or"
     style: str                      # a node style of recipe_config.tex
     optional: bool = False
-    step: str = ''                  # calibrations: the step they are attached above
-    above: str = 'input'            # calibrations: the node above that step
-    fraction: float = 0.5           # position between `above` and `step`, or between the last step and stop
+    step: str = ''                  # the step the box belongs to (consumed by / produced by)
+    above: str = 'input'            # the node the connection sits below
+    below: str = 'stop-t'           # the node the connection sits above
+    fraction: float = 0.5           # position between `above` and `below`
 
 
 @dataclass
@@ -145,6 +148,7 @@ class FlowChart:
     findings: list[str] = field(default_factory=list)
 
 
+CHART_ALTERNATIVES = 2   # a flowchart box lists at most this many "or" alternatives, else the placeholders
 STEP_PITCH = 1.2        # cm of vertical room per calibration or product box hanging off a connection
 PLACEHOLDER_STEP = 'algorithm steps:\\ not declared'
 
@@ -280,7 +284,7 @@ class Catalogue:
                 created = any(self.created_by[t] for t in self.expand(tag or item.name()))
                 return 'PROD' if created else 'EXTCALIB'
 
-    def reference(self, item: type[DataItem], tag: str) -> str:
+    def reference(self, item: type[DataItem], tag: str, max_alternatives: int | None = None) -> str:
         """
         `\\PROD{TAG}` and friends. A tag with placeholders left for the data is written as
         the DRLD writes it, as the alternatives the catalogue offers joined by "or"
@@ -288,6 +292,8 @@ class Catalogue:
         entry to expand to, the placeholders are shown as `<name>`.
         """
         alternatives = self.expand(tag) if '{' in tag else []
+        if max_alternatives is not None and len(alternatives) > max_alternatives:
+            alternatives = []           # the flowcharts write <band>_<cgrph>_SCI_CENTRED rather than five items
         if alternatives:
             return ' or '.join(rf'\{self.macro_of(self.items[t], t)}{{{t}}}' for t in alternatives)
         shown = re.sub(r'\{(\w+)\}', r'<\1>', tag)
@@ -302,74 +308,85 @@ class Catalogue:
 
     def flowchart(self, name: str) -> FlowChart:
         """
-        The flowchart skeleton of a recipe: raw input(s) at the top, calibrations hanging off the
-        left, products off the right, the frame and label. Steps come from `Recipe._steps`, a tuple
-        of `(label, input attribute names)` pairs, where declared: each calibration attaches above
-        the step naming it, the rest above the first step. Without `_steps` a single placeholder
-        step stands in for the algorithm.
+        The flowchart of a recipe (`tikz/metis_<recipe>.tex`): raw input(s) at the top, the
+        steps of `Recipe._steps` down the middle, each calibration hanging off the left above
+        the step consuming it, each product off the right below the step producing it, the
+        frame and label. Inputs no step names hang above the first step, products no step
+        names below the last; without `_steps` a single placeholder step stands in.
         """
+        from pymetis.engine.recipes import Step
         recipe = self.recipes[name]
-        chart = FlowChart(recipe=name, templates=list(getattr(recipe, '_templates', ()) or ()),
-                          raw_inputs=[], calibrations=[], steps=[], products=[], first_step_gap=0, stop_gap=0)
-
-        declared = list(getattr(recipe, '_steps', ()) or ())
-        if not declared:
-            declared = [(PLACEHOLDER_STEP, ())]
+        chart = FlowChart(recipe=name, templates=list(recipe._templates), raw_inputs=[], calibrations=[],
+                          steps=[], products=[], first_step_gap=0, stop_gap=0)
+        declared = list(recipe._steps) or [Step(PLACEHOLDER_STEP)]
+        if not recipe._steps:
             chart.findings.append(f"{name} declares no _steps; a placeholder step stands in for the algorithm")
-        for label, _ in declared:
-            chart.steps.append(ChartStep(key=re.sub(r'[^a-z0-9]', '', label.lower())[:24], label=label))
-        consumed_at = {}
-        for (label, inputs), step in zip(declared, chart.steps):
-            for attr in inputs:
-                consumed_at.setdefault(attr, step.key)
+        keys = []
+        for step in declared:
+            key = re.sub(r'[^a-z0-9]', '', step.label.lower())[:24] or 'step'
+            while key in keys:
+                key += 'x'
+            keys.append(key)
+            chart.steps.append(ChartStep(key=key, label=latex(step.label).replace('\n', r'\\ ')))
+        consumed_at = {attr: keys[i] for i, step in enumerate(declared) for attr in step.inputs}
+        produced_at = {attr: keys[i] for i, step in enumerate(declared) for attr in step.products}
 
         inputs = sorted(recipe._list_inputs(),
                         key=lambda e: (e[1]._group != cpl.ui.Frame.FrameGroup.RAW, self.input_tag(recipe, e[1])))
-        per_step: dict[str, list[ChartNode]] = {step.key: [] for step in chart.steps}
+        left: dict[str, list[ChartNode]] = {key: [] for key in keys}
         for attr, inp in inputs:
             tag = self.input_tag(recipe, inp)
-            ref = self.reference(inp.Item, tag)
+            ref = self.reference(inp.Item, tag, max_alternatives=CHART_ALTERNATIVES)
             if inp.multiplicity() == 'N':
                 ref = r'\textsl{N} ' + ref.replace(' or ', r' \\ or \textsl{N} ')
             if inp._group == cpl.ui.Frame.FrameGroup.RAW:
                 chart.raw_inputs.append(ref)
                 continue
             macro = self.macro_of(inp.Item, tag)
-            style = 'calproduct' if macro == 'PROD' else 'external'
-            step = consumed_at.get(attr, chart.steps[0].key)
-            if attr in consumed_at and consumed_at[attr] not in per_step:
-                step = chart.steps[0].key
-            per_step[step].append(ChartNode(key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=ref, style=style,
-                                            optional=not inp.required(), step=step))
+            left[consumed_at.get(attr, keys[0])].append(ChartNode(
+                key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=ref,
+                style='calproduct' if macro == 'PROD' else 'external', optional=not inp.required()))
         for attr in consumed_at:
             if attr not in dict(inputs):
-                chart.findings.append(f"{name}: _steps names an input `{attr}` the InputSet does not have")
+                chart.findings.append(f"{name}: _steps consumes `{attr}`, which the InputSet does not have")
 
-        # Vertical room: each step gets enough space above it for the boxes attached there.
+        right: dict[str, list[ChartNode]] = {key: [] for key in keys}
+        products = dict(recipe._list_products())
+        for attr, product in products.items():
+            tag = product.name()
+            ref = self.reference(product, tag, max_alternatives=CHART_ALTERNATIVES).replace(' or ', r'\\ or ')
+            science = product.frame_group() == cpl.ui.Frame.FrameGroup.PRODUCT
+            right[produced_at.get(attr, keys[-1])].append(ChartNode(
+                key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=ref,
+                style='sciproduct' if science else 'calproduct'))
+        for attr in produced_at:
+            if attr not in products:
+                chart.findings.append(f"{name}: _steps produces `{attr}`, which the ProductSet does not have")
+
+        # Vertical room between consecutive anchors: enough for the boxes hanging off either side.
         above = 'input'
-        for i, step in enumerate(chart.steps):
-            attached = per_step[step.key]
-            gap = max(2.0, STEP_PITCH * (len(attached) + 1))
+        for i, key in enumerate(keys):
+            attached = left[key]
+            outgoing = right[keys[i - 1]] if i else []
+            gap = max(2.0, STEP_PITCH * (max(len(attached), len(outgoing)) + 1))
             if i == 0:
                 chart.first_step_gap = gap
             else:
-                step.gap = gap
+                chart.steps[i].gap = gap
             for j, node in enumerate(attached):
-                node.above = above
+                node.step, node.above, node.below = key, above, f"step_{key}"
                 node.fraction = round((j + 1) / (len(attached) + 1), 3)
                 chart.calibrations.append(node)
-            above = f"step_{step.key}"
-
-        products = []
-        for _, product in recipe._list_products():
-            tag = product.name()
-            ref = self.reference(product, tag).replace(' or ', r'\\ or ')
-            science = product.frame_group() == cpl.ui.Frame.FrameGroup.PRODUCT
-            products.append(ChartNode(key=re.sub(r'[^a-z0-9]', '', product.__name__.lower()), reference=ref,
-                                      style='sciproduct' if science else 'calproduct'))
-        chart.stop_gap = max(2.5, STEP_PITCH * (len(products) + 1))
-        for j, node in enumerate(products):
-            node.fraction = round((j + 1) / (len(products) + 1), 3)
+            for j, node in enumerate(outgoing):
+                node.step, node.above, node.below = keys[i - 1], above, f"step_{key}"
+                node.fraction = round((j + 1) / (len(outgoing) + 1), 3)
+                chart.products.append(node)
+            above = f"step_{key}"
+        last = right[keys[-1]]
+        chart.stop_gap = max(2.5, STEP_PITCH * (len(last) + 1))
+        for j, node in enumerate(last):
+            node.step, node.above, node.below = keys[-1], f"step_{keys[-1]}", 'stop-t'
+            node.fraction = round((j + 1) / (len(last) + 1), 3)
             chart.products.append(node)
         return chart
 
@@ -460,6 +477,7 @@ class Catalogue:
             algorithm=algorithm,
             outputs=[self.reference(product, product.name()) for _, product in recipe._list_products()],
             qc_parameters=[rf'\QC{{{self.qc_shown(qc.name())}}}' for _, qc in recipe._list_qc_parameters()],
+            templates=list(recipe._templates), has_flowchart=bool(recipe._steps),
         )
 
 
@@ -689,6 +707,10 @@ def main() -> None:
         for amap in doc.assomaps:
             (args.document.parent / f"assomap_{amap.mode}.tex").write_text(env.get_template('assomap.tex').render(map=amap))
         (args.document.parent / 'dpr.tex').write_text(env.get_template('dpr.tex').render(doc=doc))
+        for name, recipe in catalogue.recipes.items():
+            if recipe._steps:
+                (args.document.parent / f"flowchart_{name}.tex").write_text(
+                    env.get_template('flowchart.tex').render(chart=catalogue.flowchart(name)))
         if doc.keyword_rows:
             (args.document.parent / 'matched_keywords.tex').write_text(env.get_template('matched_keywords.tex').render(doc=doc))
         args.document.write_text(env.get_template('document.tex').render(doc=doc))

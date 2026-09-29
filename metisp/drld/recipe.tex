@@ -13,7 +13,11 @@
   Purpose:             & (* recipe.synopsis|latex *) \\
 %  Requirements:        & \REQ{METIS-XXXX} \\
 %  Type:                & Calibration | Science | Technical \\
+(% if recipe.templates %)
+(* rows("Templates:", recipe.templates|map("tpl")|list) -*)
+(% else %)
 %  Templates:           & \TPL{...} \\
+(% endif %)
 (* rows("Input data:", recipe.inputs) -*)
 (* rows("Matched keywords:", recipe.matched_keywords|map("fits")|list) -*)
 (* rows("Parameters:", recipe.parameters) -*)

@@ -77,6 +77,16 @@
 (* recipe.description|latex *)
 
 (% include 'recipe.tex' %)
+(% if recipe.has_flowchart %)
+\begin{figure}[hb]
+  \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{flowchart_(* recipe.name *)}
+  \caption[Recipe: \REC*{(* recipe.name *)}]{\REC*{(* recipe.name *)} -- (* recipe.synopsis|latex *)}
+  \label{fig:(* recipe.name *)}
+\end{figure}
+(% endif %)
 (% endfor %)
 (% endfor %)
 (# ---------------------------------------------------------------- association maps #)

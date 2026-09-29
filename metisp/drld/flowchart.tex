@@ -51,14 +51,14 @@
 
   %% calibration inputs, attached above the step that consumes them
 (% for c in chart.calibrations %)
-  \node (connect_(* c.key *)) [connection] at ($((* c.above *))!(* c.fraction *)!(step_(* c.step *))$) {};
+  \node (connect_(* c.key *)) [connection] at ($((* c.above *))!(* c.fraction *)!((* c.below *))$) {};
   \node ((* c.key *)) [left=of connect_(* c.key *), (* c.style *)] {(* c.reference *)};
   \draw [connection_arrow(% if c.optional %), dashed(% endif %)] ((* c.key *)) -- (connect_(* c.key *));
 (% endfor %)
 
-  %% products
+  %% products, attached below the step that produces them
 (% for p in chart.products %)
-  \node (connect_(* p.key *)) [connection] at ($(step_(* chart.steps[-1].key *))!(* p.fraction *)!(stop-t)$) {};
+  \node (connect_(* p.key *)) [connection] at ($((* p.above *))!(* p.fraction *)!((* p.below *))$) {};
   \node ((* p.key *)) [right=of connect_(* p.key *), (* p.style *)] {(* p.reference *)};
   \draw [connection_arrow] (connect_(* p.key *)) -- ((* p.key *));
 (% endfor %)
