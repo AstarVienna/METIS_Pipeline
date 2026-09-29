@@ -123,7 +123,11 @@ class MapBuilder:
         return self.catalogue.reference(item, tag)
 
     def is_raw(self, tag: str) -> bool:
-        item = self.item(tag)
+        return self.is_raw_tag(tag)
+
+    @staticmethod
+    def is_raw_tag(tag: str) -> bool:
+        item = DataItem.find(tag)
         return item is not None and item.frame_group() == cpl.ui.Frame.FrameGroup.RAW
 
     # --- the map ---
@@ -300,3 +304,128 @@ class MapBuilder:
 
 def association_maps(catalogue, module_name: str, split: bool = False) -> list[AssoMap]:
     return MapBuilder(catalogue, module_name).build(split=split)
+
+
+# --- the matched-keywords summary (DRLD `tab:fitsmatchedkeywordssummary`) -------------------
+
+# The DRLD's keyword aliases (`tab:fitskeywordaliasses`): the instrument keywords each stands for.
+# DRS.IFU is used throughout the recipes and the DRLD table itself but is missing from the alias table.
+ALIASES: dict[str, list[str]] = {
+    'DRS.FILTER': ['INS.OPTI10.NAME', 'INS.OPTI13.NAME'],
+    'DRS.NDFILTER': ['INS.OPTI11.NAME', 'INS.OPTI13.NAME'],
+    'DRS.SLIT': ['INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI9.NAME'],
+    'DRS.MASK': ['INS.OPTI1.NAME', 'INS.OPTI3.NAME', 'INS.OPTI5.NAME', 'INS.OPTI9.NAME', 'INS.OPTI12.NAME'],
+    'DRS.PUPIL': ['INS.OPTI15.NAME', 'INS.OPTI16.NAME'],
+    'DRS.IFU': ['INS.OPTI6.NAME'],
+}
+
+
+@dataclass
+class KeywordRow:
+    recipe: str
+    tasks: list[str]                # workflow tasks running the recipe ([] for a recipe without one)
+    main_inputs: list[str]          # LaTeX references
+    calibrations: list[str]         # LaTeX references
+    fits_keywords: list[str]        # the aliases expanded to instrument keywords
+    aliases: list[str]              # `Recipe._matched_keywords`
+
+
+def matched_keywords(catalogue, module_names, findings: list[str] | None = None) -> list[KeywordRow]:
+    """
+    One row per recipe, as the DRLD table: the main input(s) and the associated calibrations of
+    every workflow task that runs the recipe, in the modules' task order, and the recipe's
+    matched keywords. A recipe no task runs is listed from its own InputSet.
+    """
+    from pymetis.engine.recipes import Recipe
+    findings = findings if findings is not None else []
+    rows: dict[str, KeywordRow] = {}
+
+    def ref(tag: str) -> str:
+        item = DataItem.find(tag)
+        return catalogue.reference(item, tag) if item is not None else rf'\EXTCALIB{{{tag}}}'
+
+    def add(row: KeywordRow, attr: str, tags) -> None:
+        for tag in tags:
+            r = ref(tag)
+            if r not in getattr(row, attr):
+                getattr(row, attr).append(r)
+
+    for module in module_names:
+        for task in wf.tasks(wf.load_workflow(module)):
+            recipe = Recipe._registry.get(task.command)
+            if recipe is None:
+                findings.append(f"{task.name}: recipe {task.command} is not registered")
+                continue
+            row = rows.setdefault(task.command, KeywordRow(
+                recipe=task.command, tasks=[], main_inputs=[], calibrations=[], fits_keywords=[],
+                aliases=sorted(recipe._matched_keywords)))
+            if task.name not in row.tasks:
+                row.tasks.append(task.name)
+            add(row, 'main_inputs', wf.main_tags(task))
+            for assoc in task.flatten_associated_inputs():
+                tags = wf.assoc_tags(assoc)
+                raws = [t for t in tags if wf.is_data_source(assoc.input_task) and MapBuilder.is_raw_tag(t)]
+                add(row, 'main_inputs', raws)
+                add(row, 'calibrations', [t for t in tags if t not in raws])
+
+    for name, recipe in catalogue.recipes.items():
+        if name in rows:
+            continue
+        findings.append(f"{name}: no workflow task runs this recipe; inputs listed from the recipe")
+        row = rows[name] = KeywordRow(recipe=name, tasks=[], main_inputs=[], calibrations=[], fits_keywords=[],
+                                      aliases=sorted(recipe._matched_keywords))
+        for _, inp in recipe._list_inputs():
+            tag = catalogue.input_tag(recipe, inp)
+            attr = 'main_inputs' if inp._group == cpl.ui.Frame.FrameGroup.RAW else 'calibrations'
+            r = catalogue.reference(inp.Item, tag)
+            if r not in getattr(row, attr):
+                getattr(row, attr).append(r)
+
+    for row in rows.values():
+        for alias in row.aliases:
+            for keyword in ALIASES.get(alias, [alias]):
+                if keyword not in row.fits_keywords:
+                    row.fits_keywords.append(keyword)
+            if alias.startswith('DRS.') and alias not in ALIASES:
+                findings.append(f"{row.recipe}: matched keyword {alias} is not a known alias")
+    return [rows[name] for name in catalogue.recipes if name in rows]
+
+
+# --- the hand-drawn per-recipe flowcharts against the recipes ---------------------------------
+
+# How the DRLD flowcharts spell a placeholder inside a tag (`LINEARITY_det`) -> the catalogue's keyword.
+FLOWCHART_PLACEHOLDERS = {'det': 'detector', 'band': 'band', 'cgrph': 'cgrph', 'target': 'target', 'source': 'source'}
+
+
+def lint_flowchart(catalogue, path) -> list[str]:
+    """
+    The `\\RAW`, `\\PROD`, `\\EXTCALIB` and `\\STATCALIB` tags a flowchart `tikz/metis_<recipe>.tex`
+    draws that are neither an input nor a product of that recipe, and the ones that are no
+    catalogue item at all. The macro a tag is drawn with is not checked: the flowcharts use
+    `\\STATCALIB` for any calibration taken from the database, not for static calibrations
+    only. The step chains themselves are prose and are not checked.
+    """
+    from pymetis.engine.recipes import Recipe
+    name = path.stem
+    recipe = Recipe._registry.get(name)
+    if recipe is None:
+        return [f"{path.name}: no recipe {name}"]
+    expected: set[str] = set()
+    for _, inp in recipe._list_inputs():
+        for tag in catalogue.items:
+            if issubclass(catalogue.items[tag], inp.Item):
+                expected.add(tag)
+    for _, product in recipe._list_products():
+        expected.update(catalogue.expand(product.name()))
+
+    out = []
+    text = path.read_text()
+    for macro, drawn in sorted(set(re.findall(r'\\(RAW|PROD|EXTCALIB|STATCALIB)\{([^}]*)\}', text))):
+        template = re.sub(r'(?<![A-Z])([a-z]+)(?![A-Z])',
+                          lambda m: '{' + FLOWCHART_PLACEHOLDERS.get(m.group(1), m.group(1)) + '}', drawn)
+        tags = catalogue.expand(template)
+        if not tags:
+            out.append(f"{path.name}: \\{macro}{{{drawn}}} is no catalogue item")
+        elif not any(t in expected for t in tags):
+            out.append(f"{path.name}: \\{macro}{{{drawn}}} is neither an input nor a product of {name}")
+    return out

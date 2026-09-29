@@ -26,6 +26,7 @@
 \usepackage{tikz}
 \usepackage[many]{tcolorbox}
 \usepackage{xstring}
+\usepackage{pdflscape}
 \usepackage{hyperref}
 \usepackage[nohyperlinks]{acronym}
 \setcounter{secnumdepth}{4}
@@ -33,6 +34,8 @@
 \lstset{basicstyle=\ttfamily, columns=flexible, showspaces=false}
 \input{normal_style}
 \input{styles_data}
+\input{tikz/assomap_common}
+\input{tikz/recipe_config}
 \providecommand{\CODE}[1]{\lstinline[]!#1!}
 \providecommand{\DRL}[1]{\lstinline[style=DRLstyle]!#1!}
 \providecommand{\TPL}[1]{\lstinline[style=TPLstyle]!#1!}
@@ -76,6 +79,40 @@
 (% include 'recipe.tex' %)
 (% endfor %)
 (% endfor %)
+(# ---------------------------------------------------------------- association maps #)
+(% if doc.assomaps %)
+\clearpage
+\section{Association maps}\label{sec:association_maps}
+One figure per EDPS workflow, derived from the workflow itself: a column per task, headed by the raw data that
+triggers it and the recipe it runs; a row per data item that flows between tasks; an arrow from a task to its
+products; a line from a product to every task that consumes it, dashed where EDPS treats the input as optional. The
+dashed vertical line separates the infrequent (AIT / monthly) calibrations from the daily ones. The comments at the
+top of each generated file list where the workflow and the recipe disagree.
+(% for map in doc.assomaps %)
+\begin{landscape}
+\begin{figure}[p]
+  \centering
+  \resizebox{\linewidth}{!}{\input{assomap_(* map.mode *)}}
+  \caption{Association map of \CODE{(* map.module|latex *)}(% if '_calib' in map.mode %), calibration cascade(% elif '_science' in map.mode %), science chain(% endif %).}
+  \label{fig:assomap_(* map.mode *)}
+\end{figure}
+\end{landscape}
+(% endfor %)
+(% endif %)
+(% if doc.keyword_rows %)
+\clearpage
+\subsection{Matched FITS keywords}\label{sec:matched_keywords}
+For every recipe: the main input and the calibrations its workflow task associates, and the FITS
+keywords the recipe declares it matches them on, with the aliases of \autoref{tab:fitskeywordaliasses}
+of the DRLD expanded to instrument keywords.
+\input{matched_keywords}
+(% endif %)
+(# ---------------------------------------------------------------- DPR keywords #)
+\clearpage
+\section{DPR keywords of the raw data}\label{sec:dpr_keywords}
+The ESO DPR classification each raw data item declares, and the recipes that take it as raw input.
+This is what the EDPS classification rules must assign.
+\input{dpr}
 (# ---------------------------------------------------------------- QC parameters #)
 \clearpage
 \section{QC Parameters}\label{sec:qc_parameters}

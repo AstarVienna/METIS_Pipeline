@@ -103,6 +103,16 @@ class RecipeCard:
 
 
 @dataclass
+class DprRow:
+    """ One line of the DRLD DPR keywords table (`tab:dpr_keywords`). """
+    catg: str
+    tech: str
+    type: str
+    tag: str
+    recipes: list[str]              # recipes taking the item on a RAW-role input
+
+
+@dataclass
 class Group:
     """ A titled group of cards: a DRLD (sub)section. """
     title: str
@@ -121,6 +131,18 @@ class Document:
     standalone: bool
     version: str
     date: str
+    assomaps: list = field(default_factory=list)       # AssoMap objects, rendered to assomap_<mode>.tex next to the document
+    dpr_rows: list[DprRow] = field(default_factory=list)
+    dpr_findings: list[str] = field(default_factory=list)
+    keyword_rows: list = field(default_factory=list)  # KeywordRow objects (workflows.py)
+    keyword_findings: list[str] = field(default_factory=list)
+
+
+# The workflows whose association maps the document shows, and which of them are drawn in two parts.
+DOCUMENT_WORKFLOWS = [('metis.metis_lm_img_wkf', False), ('metis.metis_n_img_wkf', False), ('metis.metis_ifu_wkf', False),
+                      ('metis.metis_lm_lss_wkf', True), ('metis.metis_n_lss_wkf', True)]
+# The workflows the matched-keywords table reads: everything, as the DRLD table lists every recipe.
+KEYWORD_WORKFLOWS = ['metis.metis_wkf', 'metis.metis_lm_app_wkf', 'metis.metis_lm_ravc_wkf']
 
 
 # How the DRLD groups things: recipe families in the order of chapter "Pipeline Recipes",
@@ -240,6 +262,27 @@ class Catalogue:
         return re.sub(r'\{(\w+)\}', lambda m: m.group(1).lower(), name)
 
     # --- data items ---
+
+    def raw_consumers(self, tag: str) -> list[str]:
+        """ The recipes that take `tag` on a RAW-role input (the DPR table's Recipes column). """
+        item = self.items[tag]
+        return sorted(name for name in self.input_for[tag]
+                      if any(inp._group == cpl.ui.Frame.FrameGroup.RAW and issubclass(item, inp.Item)
+                             for _, inp in self.recipes[name]._list_inputs()))
+
+    def dpr_rows(self, findings: list[str] | None = None) -> list[DprRow]:
+        """ The DPR classification of every raw item, ordered as the DRLD table (CATG, TECH, TYPE, tag). """
+        rows = []
+        for tag, item in self.items.items():
+            if item.frame_group() != cpl.ui.Frame.FrameGroup.RAW:
+                continue
+            dpr = item.dpr()
+            if dpr is None:
+                if findings is not None:
+                    findings.append(f"{tag} declares no DPR triple")
+                continue
+            rows.append(DprRow(*dpr, tag=tag, recipes=self.raw_consumers(tag)))
+        return sorted(rows, key=lambda r: (r.catg, r.tech, r.type, r.tag))
 
     def item_card(self, tag: str) -> Card:
         item = self.items[tag]
@@ -443,6 +486,11 @@ def main() -> None:
                              'or the workflows directory next to pymetis)')
     parser.add_argument('--split', action='store_true',
                         help='with --assomap: two figures per workflow, cut at the AIT/daily separator')
+    parser.add_argument('--tables', action='store_true',
+                        help=f'render the DPR keywords table and the matched-keywords summary into {BUILD}')
+    parser.add_argument('--lint-flowcharts', action='store_true',
+                        help='check the tags drawn in the DRLD per-recipe flowcharts (tikz/metis_*.tex under --drld) '
+                             'against the recipes\' inputs and products')
     parser.add_argument('--drld', type=Path, metavar='DIR',
                         default=Path(os.environ.get('METIS_DRLD', HERE.parents[2] / 'drld')),
                         help='the DRLD sources (normal_style.tex, styles_data.tex, acronyms.tex) for --pdf '
@@ -474,10 +522,47 @@ def main() -> None:
                 print(f"{path}: {len(amap.columns)} tasks, {len(amap.rows)} rows, {len(amap.findings)} findings")
         return
 
+    if args.tables:
+        from workflows import matched_keywords
+        env = environment()
+        BUILD.mkdir(parents=True, exist_ok=True)
+        doc = Document(item_families=[], recipe_families=[], qc_families=[], standalone=False, version='', date='')
+        doc.dpr_rows = catalogue.dpr_rows(doc.dpr_findings)
+        (BUILD / 'dpr.tex').write_text(env.get_template('dpr.tex').render(doc=doc))
+        print(f"{BUILD / 'dpr.tex'}: {len(doc.dpr_rows)} rows, {len(doc.dpr_findings)} findings")
+        doc.keyword_rows = matched_keywords(catalogue, KEYWORD_WORKFLOWS, doc.keyword_findings)
+        (BUILD / 'matched_keywords.tex').write_text(env.get_template('matched_keywords.tex').render(doc=doc))
+        print(f"{BUILD / 'matched_keywords.tex'}: {len(doc.keyword_rows)} rows, {len(doc.keyword_findings)} findings")
+        return
+
+    if args.lint_flowcharts:
+        from workflows import lint_flowchart
+        charts = sorted((args.drld / 'tikz').glob('metis_*.tex'))
+        if not charts:
+            parser.error(f"no flowcharts found in {args.drld / 'tikz'}; give --drld DIR or set METIS_DRLD")
+        problems = [line for chart in charts for line in lint_flowchart(catalogue, chart)]
+        print('\n'.join(problems) if problems else "every drawn tag is an input or a product of its recipe")
+        print(f"{len(charts)} flowcharts, {len(problems)} findings")
+        return
+
     if args.document is not None:
         env = environment()
         args.document.parent.mkdir(parents=True, exist_ok=True)
-        args.document.write_text(env.get_template('document.tex').render(doc=catalogue.document(args.standalone)))
+        doc = catalogue.document(args.standalone)
+        doc.dpr_rows = catalogue.dpr_rows(doc.dpr_findings)
+        try:
+            from workflows import association_maps, matched_keywords
+            for module, split in DOCUMENT_WORKFLOWS:
+                doc.assomaps += association_maps(catalogue, module, split=split)
+            doc.keyword_rows = matched_keywords(catalogue, KEYWORD_WORKFLOWS, doc.keyword_findings)
+        except (ImportError, FileNotFoundError) as e:
+            print(f"association maps and matched keywords skipped: {e}")
+        for amap in doc.assomaps:
+            (args.document.parent / f"assomap_{amap.mode}.tex").write_text(env.get_template('assomap.tex').render(map=amap))
+        (args.document.parent / 'dpr.tex').write_text(env.get_template('dpr.tex').render(doc=doc))
+        if doc.keyword_rows:
+            (args.document.parent / 'matched_keywords.tex').write_text(env.get_template('matched_keywords.tex').render(doc=doc))
+        args.document.write_text(env.get_template('document.tex').render(doc=doc))
         print(f"generated DRLD chapters written to {args.document}"
               + (" (standalone)" if args.standalone else " (fragment)"))
         if args.pdf:
