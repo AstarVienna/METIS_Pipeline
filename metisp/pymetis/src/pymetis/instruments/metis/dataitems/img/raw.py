@@ -40,15 +40,15 @@ class LmImageRaw(BandLmMixin, ImageRaw, abstract=True):
 
 
 class LmImageStdRaw(TargetStdMixin, LmImageRaw):
-    pass
+    _dpr = ('CALIB', 'IMAGE,{band}', 'STD')
 
 
 class LmImageSciRaw(TargetSciMixin, LmImageRaw):
-    pass
+    _dpr = ('SCIENCE', 'IMAGE,{band}', 'OBJECT')
 
 
 class LmImageSkyRaw(TargetSkyMixin, LmImageRaw):
-    pass
+    _dpr = ('CALIB', 'IMAGE,{band}', 'SKY')
 
 
 class NImageRaw(BandNMixin, ImageRaw, abstract=True):
@@ -56,8 +56,8 @@ class NImageRaw(BandNMixin, ImageRaw, abstract=True):
 
 
 class NImageStdRaw(TargetStdMixin, NImageRaw):
-    pass
+    _dpr = ('CALIB', 'IMAGE,{band}', 'STD')
 
 
 class NImageSciRaw(TargetSciMixin, NImageRaw):
-    pass
+    _dpr = ('SCIENCE', 'IMAGE,{band}', 'OBJECT')

@@ -49,6 +49,7 @@ class AdcSlitlossRaw(Raw, abstract=True):
     _description_template = "Raw files for ADC slitloss determination (TBD)."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = frozenset({'PRO.CATG'})
+    _dpr = ('CALIB', 'LSS,{band}', 'SLITLOSS')
 
     _schema = {
         'PRIMARY': None,

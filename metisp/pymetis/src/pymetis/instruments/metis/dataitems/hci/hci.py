@@ -31,6 +31,7 @@ class OffAxisPsfRaw(ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _dpr = ('CALIB', 'IMAGE,{band}', 'PSF,OFFAXIS')
 
     _schema = {
         'PRIMARY': None,

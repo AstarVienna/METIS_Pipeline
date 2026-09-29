@@ -82,6 +82,37 @@ def load_workflow(module_name: str, workflows_dir: Path | None = None):
     return WorkflowManager(None).create_workflow(importlib.import_module(module_name))
 
 
+# --- the classification rules --------------------------------------------------------------
+
+DPR_KEYWORDS = ('dpr.catg', 'dpr.tech', 'dpr.type')     # as `metis_keywords` spells them
+
+
+def classification_rules(workflows_dir: Path | None = None) -> dict[str, dict[str, Any]]:
+    """
+    The dictionary classification rules of `metis.metis_classification`, keyed by the
+    classification (tag) they assign: tag -> {keyword: value}. Raw data is classified by
+    its DPR triple, products by `pro.catg`.
+    """
+    directory = workflows_dir or workflows_directory()
+    if directory is None:
+        raise FileNotFoundError("the METIS workflow package was not found; set $METIS_WORKFLOWS to the "
+                                "directory holding `metis/`")
+    if str(directory) not in sys.path:
+        sys.path.insert(0, str(directory))
+    _edps()
+    module = importlib.import_module('metis.metis_classification')
+    rules: dict[str, dict[str, Any]] = {}
+    for value in vars(module).values():
+        if hasattr(value, 'classification') and isinstance(getattr(value, 'keyword_values', None), dict):
+            rules[value.classification] = dict(value.keyword_values)
+    return rules
+
+
+def rule_dpr(rule: dict[str, Any]) -> tuple[Any, Any, Any]:
+    """ The (DPR.CATG, DPR.TECH, DPR.TYPE) a rule requires; None where it leaves a keyword free. """
+    return tuple(rule.get(key) for key in DPR_KEYWORDS)
+
+
 # --- reading a workflow -------------------------------------------------------------------
 
 def tasks(workflow) -> list:

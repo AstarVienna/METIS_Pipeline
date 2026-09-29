@@ -64,6 +64,11 @@ class DataItem(ParametrizableItem, abstract=True):
 
     _oca_keywords: frozenset[str] = frozenset()     # Set of OCA keywords
 
+    # The ESO DPR classification of raw data: (DPR.CATG, DPR.TECH, DPR.TYPE), with tag
+    # placeholders resolved like the name (`('CALIB', 'IMAGE,{band}', 'FLAT,{source}')`).
+    # Declared on RAW-group items only; it is what the EDPS classification rules must say.
+    _dpr: ClassVar[Optional[tuple[str, str, str]]] = None
+
     # HDU schema: a dict of types or None
     # By default, only the primary header is present
     _schema: ClassVar[dict[str, Union[None, type[Image], type[Table], type[ImageList]]]] = {'PRIMARY': None}
@@ -129,6 +134,17 @@ class DataItem(ParametrizableItem, abstract=True):
         Whether this item is a static calibration (see `_static`).
         """
         return cls._static
+
+    @classmethod
+    def dpr(cls) -> Optional[tuple[str, str, str]]:
+        """
+        The (DPR.CATG, DPR.TECH, DPR.TYPE) triple that classifies this raw item, resolved
+        with the item's tag parameters, or None for an item that declares none.
+        """
+        if cls._dpr is None:
+            return None
+        catg, tech, kind = (partial_format(part, **cls.tag_parameters()) for part in cls._dpr)
+        return catg, tech, kind
 
     @classmethod
     def oca_keywords(cls):
