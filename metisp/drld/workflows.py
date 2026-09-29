@@ -53,6 +53,7 @@ class Link:
     src: str
     dst: str
     dashed: bool = False
+    head: bool = True               # arrows: an arrowhead at `dst` (a product); False for the plain continuation to a lower dot
 
 
 @dataclass
@@ -279,17 +280,20 @@ class MapBuilder:
                 cells = [Cell('ext', row.style, self.reference(row.tag)) if c.col == 'ext' else c for c in cells]
                 producer = None
             rows.append(Row(row.key, row.tag, row.style, producer, cells, row.consumers))
-        row_keys = {r.key for r in rows}
 
+        # One continuous vertical line per column, from the recipe header through every dot the column
+        # consumes to its products (arrowhead on each product); a dot below the last product, or a
+        # column without products, still gets the plain line down to its lowest dot.
         arrows: list[Link] = []
         for col in columns:
-            chain = [r.key for r in rows if r.producer == col.key]
-            if not chain:
-                continue
-            start = f"{col.key}_{col.main_row}" if col.fed_by_task and col.main_row in row_keys else f"{col.key}_raw"
-            for nxt in chain:
+            marked = [r.key for r in rows if any(c.col == col.key and c.style != 'empty' for c in r.cells)]
+            products = [r.key for r in rows if r.producer == col.key]
+            start = f"{col.key}_raw"
+            for nxt in products:
                 arrows.append(Link(start, f"{col.key}_{nxt}"))
                 start = f"{col.key}_{nxt}"
+            if marked and marked[-1] not in products:
+                arrows.append(Link(start, f"{col.key}_{marked[-1]}", head=False))
 
         matches: list[Link] = []
         for row in rows:

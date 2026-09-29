@@ -48,7 +48,7 @@
 (% endif %)
   %% Vertical connections: a task to its products
 (% for a in map.arrows %)
-  \draw [arrow] ((* a.src *)) -- ((* a.dst *));
+  \draw [arrow(% if not a.head %), -(% endif %)] ((* a.src *)) -- ((* a.dst *));
 (% endfor %)
 
   %% Horizontal connections: a product to the tasks that consume it (dashed: optional for that task)
