@@ -135,6 +135,9 @@ class MapBuilder:
         for task in ordered:
             binding = wf.bind(task, self.tasks, self.module)
             self.findings += [f"{task.name} ({task.command}) {p}" for p in binding.problems]
+            self.findings += [f"{task.name} ({task.command}) not fed (optional): {m}" for m in binding.missing_optional]
+            self.findings += [f"{task.name} ({task.command}) recipe also accepts {tag}; no task of this workflow feeds it"
+                              for tag in self.unfed_alternatives(task)]
 
         columns = {t.name: self.column(t) for t in ordered}
         for task in ordered:
@@ -148,10 +151,20 @@ class MapBuilder:
         if infrequent and daily:
             separator = Separator(left=columns[infrequent[-1].name].key, right=columns[daily[0].name].key)
 
-        if not split or separator is None:
+        if not split:
             return [self.assemble(mode_of(self.module), [columns[t.name] for t in ordered], rows, separator)]
-        return [self.assemble(f"{mode_of(self.module)}_calib", [columns[t.name] for t in infrequent], rows, None),
-                self.assemble(f"{mode_of(self.module)}_science", [columns[t.name] for t in daily], rows, None)]
+        # Two figures, as the LSS overview draws them: the calibration cascade, and the science chain
+        # (tasks with the SCIENCE target and everything fed from them).
+        calib = [t for t in ordered if not self.is_science(t)]
+        science = [t for t in ordered if self.is_science(t)]
+        sep_calib = separator if separator and any(columns[t.name].key == separator.right for t in calib) else None
+        return [self.assemble(f"{mode_of(self.module)}_calib", [columns[t.name] for t in calib], rows, sep_calib),
+                self.assemble(f"{mode_of(self.module)}_science", [columns[t.name] for t in science], rows, None)]
+
+    def is_science(self, task) -> bool:
+        if 'science' in task.meta_targets:
+            return True
+        return (not wf.is_data_source(task.main_input)) and self.is_science(task.main_input)
 
     def column(self, task) -> Column:
         main = wf.main_tags(task)
@@ -163,6 +176,26 @@ class MapBuilder:
         return Column(key=key_of(task.name), task=task.name, recipe=task.command, main_inputs=raws,
                       fed_by_task=fed_by_task, main_row=key_of(main[0]) if fed_by_task and main else None,
                       infrequent=wf.is_infrequent(task))
+
+    def unfed_alternatives(self, task) -> list[str]:
+        """ Catalogue tags the recipe's RAW-role inputs accept (LM_FLAT_TWILIGHT_RAW next to LM_FLAT_LAMP_RAW) that no task feeds. """
+        from pymetis.engine.recipes import Recipe
+        recipe = Recipe._registry.get(task.command)
+        if recipe is None:
+            return []
+        fed = set()
+        for t in self.tasks:
+            fed |= set(wf.main_tags(t))
+            for assoc in t.flatten_associated_inputs():
+                fed |= set(wf.assoc_tags(assoc))
+        out = []
+        for _, inp in recipe.Impl.InputSet.list_input_classes():
+            if inp._group != cpl.ui.Frame.FrameGroup.RAW:
+                continue
+            for tag in self.catalogue.expand(inp.Item.name()):
+                if tag not in fed and tag not in out:
+                    out.append(tag)
+        return out
 
     def fallback_products(self, task) -> list[str]:
         """ A terminal task: nobody asks for its products, so take the recipe's declaration, resolved with the main input's tags. """
@@ -202,10 +235,15 @@ class MapBuilder:
                     consumers.setdefault(tag, {})[col] = False
         for task in ordered:
             for tag in columns[task.name].products:
-                if not any(s[0] == tag for s in specs):
+                existing = next((i for i, s in enumerate(specs) if s[0] == tag), None)
+                if existing is None:
                     specs.append((tag, columns[task.name].key))
+                elif specs[existing][1] is None:
+                    # a data source duplicates a product of this workflow: the product wins the row
+                    specs[existing] = (tag, columns[task.name].key)
+                    self.findings.append(f"{task.name}: product {tag} is also offered as an external data source")
                 else:
-                    self.findings.append(f"{task.name}: product {tag} is also an external input or another task's product")
+                    self.findings.append(f"{task.name}: product {tag} is also a product of {specs[existing][1]}")
 
         rows = []
         for tag, producer in specs:
@@ -227,10 +265,16 @@ class MapBuilder:
         rows = []
         for row in all_rows:
             cells = [c for c in row.cells if c.col in keys]
-            if any(c.style != 'empty' for c in cells if c.col != 'ext') or (row.producer is None and any(c.style == 'connection' for c in cells)):
-                rows.append(Row(row.key, row.tag, row.style, row.producer, cells, row.consumers))
-        # drop external rows nobody in this part consumes
-        rows = [r for r in rows if r.producer is not None or any(c.style == 'connection' for c in r.cells)]
+            consumed_here = any(c.style == 'connection' for c in cells)
+            produced_here = row.producer in keys
+            if not (consumed_here or produced_here):
+                continue
+            producer = row.producer
+            if producer is not None and not produced_here:
+                # produced by a column of the other part: an external input to this figure
+                cells = [Cell('ext', row.style, self.reference(row.tag)) if c.col == 'ext' else c for c in cells]
+                producer = None
+            rows.append(Row(row.key, row.tag, row.style, producer, cells, row.consumers))
         row_keys = {r.key for r in rows}
 
         arrows: list[Link] = []

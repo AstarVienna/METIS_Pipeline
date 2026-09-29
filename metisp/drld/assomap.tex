@@ -57,10 +57,10 @@
 (% endfor %)
 
   %% Legend
-  \matrix (legend) [draw, fill=gray!15, above right, row sep=0.3cm,
+  \matrix (legend) [draw, fill=gray!15, below right, row sep=0.3cm,
     column 1/.style={anchor=base},
     column 2/.style={anchor=base west}]
-    at ([yshift=0ex]current bounding box.south west){%
+    at ([yshift=-1cm]current bounding box.south west){%
       \node (leg_recipe) [recipe] {recipe};
       & \node {recipe}; \\
       \node (leg_calproduct) [calibproduct] {MASTER\_DARK};
