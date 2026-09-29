@@ -115,8 +115,9 @@ Worked example — `pyesorex metis_lm_img_flat` from import to product file:
      built products.
 3. Define the `Recipe` subclass with the seven pyesorex attributes
    (`_name`, `_version`, `_author`, `_email`, `_copyright`, `_synopsis`,
-   `_description`) plus `_matched_keywords`, `_algorithm` and `parameters`.
-   Every parameter name must be prefixed `"<recipe_name>."`.
+   `_description`) plus `_matched_keywords`, `_algorithm`, `parameters`, and
+   for the DRLD flowchart `_templates` and `_steps` (see the data-item section
+   below, point 7). Every parameter name must be prefixed `"<recipe_name>."`.
 4. Register it: add the import to `instruments/metis/recipes/__init__.py`.
    pyesorex discovers recipes only through that module.
 5. Add a SOF file `<recipe>.sof` to the test data if applicable; the shared
@@ -219,8 +220,19 @@ input class must re-annotate the attribute; forgetting this raises a
    matched-keywords summary (`tab:fitsmatchedkeywordssummary`) and the DPR
    table (`tab:dpr_keywords`, from `_dpr`); `--tables` writes the two tables
    alone; `--lint-flowcharts` lists the tags the hand-drawn per-recipe
-   flowcharts draw that are neither inputs nor products of their recipe. The
-   per-recipe flowcharts themselves are prose and are not generated.
+   flowcharts draw that are neither inputs nor products of their recipe.
+7. The per-recipe flowcharts (`tikz/metis_<recipe>.tex`) are generated from the
+   recipe as well: `_templates` names the observing templates that produce its
+   raw data, and `_steps` is the algorithm as the flowchart draws it, a tuple
+   of `Step(label, inputs=(...), products=(...))` naming the InputSet and
+   ProductSet attributes each step consumes and produces (a newline in the
+   label breaks the box). Inputs no step names hang above the first step,
+   products no step names below the last. `--flowchart RECIPE` renders one;
+   `--document` renders every recipe that declares steps and places the figure
+   after its card. `_algorithm` stays the prose; the flowchart is drawn only
+   from `_steps`, so the two are checked by `TestFlowchartSteps` in
+   `test_registered_recipes.py` (every named attribute exists, every product
+   produced once; recipes without steps are a strict xfail list).
 
 ## Testing
 

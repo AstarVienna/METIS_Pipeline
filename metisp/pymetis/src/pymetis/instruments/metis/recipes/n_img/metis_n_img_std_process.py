@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 
 from pymetis.instruments.metis.mixins import BandNMixin
 from pymetis.instruments.metis.recipes.prefab.img.std_process import MetisImgStdProcessImpl
@@ -41,6 +41,14 @@ class MetisNImgStdProcess(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _templates = ("METIS_n_img_std_process",)
+    _steps = (
+        Step('Detect standard star in\nindividual frames', inputs=("fluxstd_catalog",)),
+        Step('shift and combine\nimages based\non the position\nof the standard star', products=("ImgStdCombined",)),
+        Step('measure flux from star\nin instrumental units\nin combined image'),
+        Step('compute conversion\nfactor to physical units', products=("ImgFluxCalTable",)),
+        Step('measure background\nnoise and calculate\ndetection limits'),
+    )
     _algorithm: str = """Call metis_n_calculate_std_flux to measure flux in input images
         call hdrl_resample_compute to recenter the images
         call hdrl_imagelist_collapse to stack the images

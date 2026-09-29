@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
@@ -163,6 +163,11 @@ class MetisIfuTelluric(Recipe):
     Compute telluric correction.
     Compute conversion to physical units as function of wave-length."""
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
+    _steps = (
+        Step('1D extraction', products=("ResponseFunction",)),
+        Step('Molecfit', inputs=("lsf_kernel", "atm_profile"), products=("TelluricTransmission",)),
+        Step('flux calibration', inputs=("fluxstd_catalog",), products=("FluxcalTab",)),
+    )
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
     parameters = ParameterList([

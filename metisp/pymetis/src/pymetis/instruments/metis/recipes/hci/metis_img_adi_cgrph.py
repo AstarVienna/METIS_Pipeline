@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import SinglePipelineInput
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
 from pymetis.instruments.metis.inputs import RawInput
@@ -109,6 +109,18 @@ class MetisImgAdiCgrph(Recipe):
     _synopsis: str = "ADI post-processing for the RAVC and CVC coronagraphs in the LM and N bands"
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER', 'DRS.MASK'})
+    _steps = (
+        Step('Centroid determination', products=("CentroidTab",)),
+        Step('Distortion correction and\nsubpixel alignment', products=("SciCentred",)),
+        Step('Estimate median PSF', products=("PsfMedian",)),
+        Step('Subtract median PSF', products=("SciSpeckle",)),
+        Step('Optionally: high-pass filter', products=("SciHifilt",)),
+        Step('Derotate images', products=("SciDerotated", "SciDerotatedPsfsub")),
+        Step('Contrast curve calculation',
+             inputs=("throughput",),
+             products=("SciContrastRadprof", "SciContrastAdi", "SciThroughput", "SciSnr")),
+        Step('Coadd images', products=("SciCoverage", "SciCalibrated")),
+    )
     _algorithm = """TODO"""
 
     parameters = ParameterList([])

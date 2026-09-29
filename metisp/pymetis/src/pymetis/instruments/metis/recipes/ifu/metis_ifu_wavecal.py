@@ -28,7 +28,7 @@ from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, Paramet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 
 from pymetis.drl.combine import combine_images
 from pymetis.drl.trace import traces_from_table
@@ -494,6 +494,13 @@ class MetisIfuWavecal(Recipe):
         Line detection and Gaussian centroiding are adapted from PyReduce (Piskunov &
         Valenti 2002, Piskunov, Wehrhahn & Marquart 2021), as prescribed by the DRLD."""
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
+    _templates = ("METIS_ifu_cal_InternalWave",)
+    _steps = (
+        Step('remove detector\nsignature',
+             inputs=("bad_pix_map", "persistence_map", "gain_map", "linearity", "master_dark")),
+        Step('locate lines', inputs=("distortion_table",)),
+        Step('fit polynomial', products=("IfuWavecal", "IfuWavecalTab")),
+    )
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
     parameters = ParameterList([

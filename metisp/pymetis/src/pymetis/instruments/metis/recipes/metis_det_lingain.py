@@ -31,7 +31,7 @@ from pymetis.drl.polyfit import weighted_polyfit
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.parameter import ParameterList, ParameterValue
 
 from pymetis.instruments.metis.description import Metis
@@ -606,6 +606,13 @@ class MetisDetLinGain(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset()
+    _templates = ("METIS_img_lm_cal_DetLin", "METIS_img_n_cal_DetLin", "METIS_ifu_cal_DetLin")
+    _steps = (
+        Step('subtract dark'),
+        Step('compute gain', products=("GainMap",)),
+        Step('linearity check', products=("Linearity",)),
+        Step('thresholding', products=("BadPixMap",)),
+    )
     _algorithm = """We expect two on and two dark (here named off) images per DIT
     for the Gain and Linearity calculation, similar to ESO's DETMON.
     The gain is determined from the slope of the average flux

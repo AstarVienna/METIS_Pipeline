@@ -25,7 +25,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_image, create_dummy
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.instruments.metis.inputs.common import FluxCalTableInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis import dataitems
@@ -96,6 +96,10 @@ class MetisIfuCalibrate(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
+    _steps = (
+        Step('Correct for telluric absorption.', inputs=("telluric",)),
+        Step('Apply flux calibration.', inputs=("flux_cal_table",), products=("SciCubeCalibrated",)),
+    )
     _algorithm = """Correct for telluric absorption.
     Apply flux calibration."""
 

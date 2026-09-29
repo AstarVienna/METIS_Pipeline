@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import Detector2rgMixin
@@ -41,6 +41,13 @@ class MetisLmImgCalibrate(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _templates = ("METIS_lm_img_calibrate",)
+    _steps = (
+        Step('Scale image data to\nphotons/s', inputs=("fluxcal_table",)),
+        Step('Add BUNIT and\ndistortion information\nto header',
+             inputs=("distortion_table",),
+             products=("SciCalibrated",)),
+    )
     _algorithm = """Call metis_lm_scale_image_flux to scale image data to photon / s
     Add header information (BUNIT, WCS, etc.)"""
 

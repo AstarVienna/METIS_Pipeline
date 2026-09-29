@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
@@ -39,15 +39,13 @@ class MetisLmImgFlat(Recipe):
     _description = "Prototype to create a METIS Masterflat for L/M band"
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
-
-    # Proof of concept for the generated DRLD flowchart (`generate_drld.py --flowchart`): the observing
-    # templates that produce the raw data, and the algorithm as steps, each naming the InputSet
-    # attributes it consumes. The prose stays in `_algorithm`.
     _templates = ("METIS_img_lm_cal_InternalFlat", "METIS_img_lm_cal_TwilightFlat")
     _steps = (
-        ("detector signature\\\\ removal", ("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),
-        ("linear fit (slope)", ()),
+        Step('detector signature\nremoval',
+             inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),
+        Step('linear fit (slope)', products=("MasterFlat", "BadPixMap")),
     )
+
     _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
     Subtract internal dark or master dark from flat exposures.
     Call `metis_lm_img_flat` to fit slope of pixel values against illumination level.

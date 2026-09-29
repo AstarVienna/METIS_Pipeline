@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
@@ -99,6 +99,12 @@ class MetisLmImgBackground(Recipe):
     ])
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _steps = (
+        Step('Average all or SKY\nexposures with\nobject rejection',
+             inputs=("sky_basic_reduced",),
+             products=("Bkg",)),
+        Step('Subtract background', products=("BkgSubtracted", "ObjectCatalog")),
+    )
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 

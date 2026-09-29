@@ -24,7 +24,7 @@ import cpl
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import SinglePipelineInput
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
@@ -164,6 +164,25 @@ class MetisIfuReduce(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
+    _templates = (
+        "METIS_ifu_obs_FixedSkyOffset",
+        "METIS_ifu_obs_GenericOffset",
+        "METIS_ifu_ext_obs_FixedSkyOffset",
+        "METIS_ifu_ext_obs_GenericOffset",
+        "METIS_ifu_vc_obs_FixedSkyOffset",
+        "METIS_ifu_ext_vc_obs_FixedSkyOffset",
+        "METIS_ifu_app_obs_Stare",
+        "METIS_ifu_ext_app_obs_Stare",
+        "METIS_ifu_cal_psf",
+        "METIS_ifu_cal_standard",
+    )
+    _steps = (
+        Step('detector signature\nremoval',
+             inputs=("bad_pix_map", "persistence_map", "linearity", "gain_map", "master_dark", "rsrf")),
+        Step('background\nsubtraction', products=("Background", "Reduced")),
+        Step('rectification', inputs=("wavecal", "distortion_table"), products=("ReducedCube",)),
+        Step('Image reconstruction', products=("Combined",)),
+    )
     _algorithm = """Subtract dark, divide by master flat
     Analyse and optionally remove masked regions and correct crosstalk and ghosts
     Estimate stray light and subtract

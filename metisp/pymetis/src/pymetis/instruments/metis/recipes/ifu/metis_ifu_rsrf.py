@@ -32,7 +32,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe, RecipeImpl
+from pymetis.engine.recipes import Recipe, RecipeImpl, Step
 
 from pymetis.instruments.metis.description import Metis
 
@@ -420,6 +420,13 @@ class MetisIfuRsrf(Recipe):
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
+    _templates = ("METIS_ifu_cal_rsrf",)
+    _steps = (
+        Step('detector signature\nand background removal',
+             inputs=("bad_pix_map", "persistence_map", "master_dark", "gain_map", "linearity", "distortion_table")),
+        Step('continuum\nnormalisation', inputs=("wavecal",)),
+        Step('average/median', products=("RsrfIfu", "MasterFlat", "BadPixMap")),
+    )
     _algorithm = """Average / median stack WCU_OFF images to create background image
         Obtain bad pixel map from master_dark
         Subtract background image from individual RSRF RAW frames

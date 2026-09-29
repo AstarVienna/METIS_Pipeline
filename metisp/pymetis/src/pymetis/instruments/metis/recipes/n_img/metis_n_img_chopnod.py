@@ -23,7 +23,7 @@ from cpl.core import Msg
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import DetectorGeoMixin, BandNMixin
@@ -149,6 +149,22 @@ class MetisNImgChopnod(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
+    _templates = (
+        "METIS_img_n_cal_standard",
+        "METIS_img_n_obs_AutoChopNod",
+        "METIS_img_n_obs_GenericChopNod",
+        "METIS_img_n_cvc_obs_AutoChop",
+        "METIS_img_n_cal_psf",
+        "METIS_img_lmn_obs_AutoChopNod",
+        "METIS_img_lmn_obs_GenericChopNod",
+    )
+    _steps = (
+        Step('Correct non-linearity', inputs=("bad_pix_map", "gain_map", "linearity")),
+        Step('Correct persistence', inputs=("persistence_map",)),
+        Step('subtract dark', inputs=("master_dark",)),
+        Step('divide by flat', inputs=("master_flat",)),
+        Step('analyse and remove masked regions', products=("Reduced",)),
+    )
     _algorithm = """Remove crosstalk, correct non-linearity
         Analyse and optionally remove masked regions
         Subtract dark, divide by flat

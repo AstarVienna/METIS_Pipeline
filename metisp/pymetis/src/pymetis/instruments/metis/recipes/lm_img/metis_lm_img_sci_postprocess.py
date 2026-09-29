@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.inputs import PipelineInputSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.inputs import RawInput
@@ -117,6 +117,11 @@ class MetisLmImgSciPostProcess(Recipe):
     _synopsis: str = "Coadd reduced images"
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _steps = (
+        Step('determine output grid'),
+        Step('resample images'),
+        Step('coadd images', products=("LmImgSciCoadd",)),
+    )
     _algorithm = """Check and refine WCS of input images by using the WFS-FS data.
     Determine output pixel grid encompassing all input images.
     Call hdrl_resample_compute to recenter the images.

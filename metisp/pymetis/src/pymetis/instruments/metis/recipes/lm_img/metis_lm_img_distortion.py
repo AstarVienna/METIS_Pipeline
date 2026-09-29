@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
@@ -37,6 +37,13 @@ class MetisLmImgDistortion(Recipe):
     _synopsis: str = "Determine optical distortion coefficients for the LM imager."
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _templates = ("METIS_img_lm_cal_distortion",)
+    _steps = (
+        Step('detector signature\nremoval', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
+        Step('subtract WCU OFF dark'),
+        Step('locate images', inputs=("pinhole_table",)),
+        Step('fit polynomial', products=("DistortionTable", "DistortionMap", "DistortionReduced")),
+    )
     _algorithm: str = """Subtract background image with `hdrl_imagelist_sub_image`.
     Measure location of point source images in frames with `hdrl_catalogue_create`.
     Call metis_fit_distortion to fit polynomial coefficients to deviations from grid positions."""
