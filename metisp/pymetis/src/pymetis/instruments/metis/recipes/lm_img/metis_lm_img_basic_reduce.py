@@ -211,6 +211,7 @@ class MetisLmImgBasicReduce(Recipe):
         "METIS_img_lm_cal_psf",
         "METIS_img_lmn_obs_AutoChopNod",
         "METIS_img_lmn_obs_GenericChopNod",
+        # every IFU template also creates an LM image (the LM imager keeps observing beside the IFU pick-off)
         "METIS_ifu_obs_FixedSkyOffset",
         "METIS_ifu_obs_GenericOffset",
         "METIS_ifu_ext_obs_FixedSkyOffset",

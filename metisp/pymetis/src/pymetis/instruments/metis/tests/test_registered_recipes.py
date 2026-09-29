@@ -279,9 +279,22 @@ class TestFlowchartSteps:
             unknown = [a for a in step.products if a not in products]
             assert not unknown, f"{recipe._name}: step {step.label!r} produces unknown products {unknown}"
 
+    def test_templates_are_known(self, recipe):
+        from pymetis.instruments.metis.templates import TEMPLATES
+        unknown = [t for t in recipe._templates if t not in TEMPLATES]
+        assert not unknown, f"{recipe._name} names observing templates not in the vocabulary: {unknown}"
+
     def test_each_product_is_produced_by_at_most_one_step(self, recipe):
         seen: dict[str, str] = {}
         for step in recipe._steps:
             for attr in step.products:
                 assert attr not in seen, f"{recipe._name}: {attr} produced by {seen[attr]!r} and {step.label!r}"
                 seen[attr] = step.label
+
+
+
+def test_every_known_template_is_claimed_by_a_recipe():
+    """ A template nobody reduces data from is a typo in the vocabulary, or a recipe missing its declaration. """
+    from pymetis.instruments.metis.templates import TEMPLATES
+    claimed = {t for recipe in RECIPES for t in recipe._templates}
+    assert TEMPLATES <= claimed, f"templates no recipe claims: {sorted(TEMPLATES - claimed)}"
