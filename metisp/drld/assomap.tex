@@ -21,7 +21,7 @@
 (% for col in map.columns %)
     \node [above] ((* col.key *)_raw){%
 (% if col.main_inputs %)
-      \recipebox{(* col.main_inputs|map('raw')|join(', ') *)}{\REC{(* col.recipe *)}}
+      \recipebox{(* col.main_inputs|map('raw')|join(' ') *)}{\REC{(* col.recipe *)}}
 (% else %)
       \recipenotitlebox{\REC{(* col.recipe *)}}
 (% endif %)
