@@ -146,7 +146,9 @@ class MapBuilder:
 
         columns = {t.name: self.column(t) for t in ordered}
         for task in ordered:
-            columns[task.name].products = wf.requested_products(task, self.tasks) or self.fallback_products(task)
+            products = wf.requested_products(task, self.tasks) or self.fallback_products(task)
+            declared = self.declared_order(task)
+            columns[task.name].products = sorted(products, key=lambda t: declared.index(t) if t in declared else len(declared))
             for tag in columns[task.name].products:
                 if tag not in self.catalogue.items and self.item(tag) is None:
                     self.findings.append(f"{task.name}: product {tag} is not a catalogue item")
@@ -202,6 +204,17 @@ class MapBuilder:
                     out.append(tag)
         return out
 
+    def declared_order(self, task) -> list[str]:
+        """ The recipe's products in declaration order, expanded to catalogue tags (LINEARITY before GAIN_MAP as the ProductSet lists them). """
+        from pymetis.engine.recipes import Recipe
+        recipe = Recipe._registry.get(task.command)
+        if recipe is None:
+            return []
+        out: list[str] = []
+        for _, product in recipe._list_products():
+            out += [t for t in self.catalogue.expand(product.name()) if t not in out]
+        return out
+
     def fallback_products(self, task) -> list[str]:
         """ A terminal task: nobody asks for its products, so take the recipe's declaration, resolved with the main input's tags. """
         from pymetis.engine.recipes import Recipe
@@ -222,7 +235,14 @@ class MapBuilder:
         return out
 
     def rows(self, ordered, columns: dict) -> list[Row]:
-        """ External files first (in order of first use), then every column's products in column order. """
+        """
+        Rows grouped by the column that produces them, the groups placed where they are first
+        needed: a group sits above the first column consuming any of its rows, as the DRLD
+        draws it (the distortion table next to the calibration recipe that reads it, not next
+        to the recipe that made it). External files are single-row groups placed the same way,
+        after the products a column consumes at the same point. Within a group the recipe's
+        product order holds.
+        """
         specs: list[tuple[str, str | None]] = []            # (tag, producer key or None)
         consumers: dict[str, dict[str, bool]] = {}
         for task in ordered:
@@ -249,6 +269,28 @@ class MapBuilder:
                     self.findings.append(f"{task.name}: product {tag} is also offered as an external data source")
                 else:
                     self.findings.append(f"{task.name}: product {tag} is also a product of {specs[existing][1]}")
+
+        col_index = {key: i for i, key in enumerate(['ext'] + [columns[t.name].key for t in ordered])}
+
+        def first_consumer(tag: str) -> int:
+            return min((col_index[c] for c in consumers.get(tag, {})), default=len(col_index))
+
+        # A group is placed at the later of its producer's column and the first column consuming
+        # any of its rows (a product fed backwards, the master flat into the distortion task, stays
+        # with its producer); at the same place products come before external files, producers in
+        # column order, and the more widely used external file first.
+        group_first: dict[str, int] = {}
+        for tag, producer in specs:
+            key = producer if producer is not None else f"ext:{tag}"
+            group_first[key] = min(group_first.get(key, len(col_index)), first_consumer(tag))
+
+        def place(spec: tuple[str, str | None]) -> tuple:
+            tag, producer = spec
+            if producer is None:
+                return group_first[f"ext:{tag}"], 1, -len(consumers.get(tag, {}))
+            return max(group_first[producer], col_index[producer]), 0, col_index[producer]
+
+        specs.sort(key=place)
 
         rows = []
         for tag, producer in specs:

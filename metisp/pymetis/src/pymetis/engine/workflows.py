@@ -78,8 +78,27 @@ def load_workflow(module_name: str, workflows_dir: Path | None = None):
                                 "directory holding `metis/`")
     if str(directory) not in sys.path:
         sys.path.insert(0, str(directory))
-    _, WorkflowManager = _edps()
-    return WorkflowManager(None).create_workflow(importlib.import_module(module_name))
+    edps_task, WorkflowManager = _edps()
+    module = importlib.import_module(module_name)
+    workflow = WorkflowManager(None).create_workflow(module)
+    # The order the tasks are written in (a module that imports other workflow modules inherits
+    # theirs, in import order): the tie-breaker of `tasks()`, so a map is drawn the same whichever
+    # modules were loaded before.
+    order: dict[int, int] = {}
+    seen: set[int] = set()
+
+    def walk(mod) -> None:
+        if id(mod) in seen:
+            return
+        seen.add(id(mod))
+        for value in list(vars(mod).values()):
+            if isinstance(value, type(module)) and getattr(value, '__name__', '').startswith(module_name.split('.')[0] + '.'):
+                walk(value)
+            elif isinstance(value, edps_task.Task):
+                order.setdefault(id(value), len(order))
+    walk(module)
+    workflow._pymetis_definition_order = order
+    return workflow
 
 
 # --- the classification rules --------------------------------------------------------------
@@ -116,9 +135,20 @@ def rule_dpr(rule: dict[str, Any]) -> tuple[Any, Any, Any]:
 # --- reading a workflow -------------------------------------------------------------------
 
 def tasks(workflow) -> list:
-    """ The tasks of a workflow in topological order (the sort also yields data sources). """
+    """
+    The tasks of a workflow in a deterministic topological order: by dependency depth (the
+    longest chain of tasks feeding a task), then by the order the tasks are defined in the
+    module. `Workflow.topological_sort()` alone is a valid order too, but which one it yields
+    depends on the modules loaded before.
+    """
     edps_task, _ = _edps()
-    return [node for node in workflow.topological_sort() if isinstance(node, edps_task.Task)]
+    nodes = [node for node in workflow.topological_sort() if isinstance(node, edps_task.Task)]
+    depth: dict[int, int] = {}
+    for task in nodes:                                  # topological: every predecessor is already done
+        preds = [task.main_input] + [a.input_task for a in task.flatten_associated_inputs()]
+        depth[id(task)] = 1 + max((depth.get(id(p), -1) for p in preds if isinstance(p, edps_task.Task)), default=-1)
+    definition = getattr(workflow, '_pymetis_definition_order', {})
+    return sorted(nodes, key=lambda t: (depth[id(t)], definition.get(id(t), len(definition)), t.name))
 
 
 def is_data_source(node) -> bool:
