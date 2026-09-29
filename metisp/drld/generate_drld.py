@@ -411,6 +411,7 @@ def environment() -> jinja2.Environment:
     )
     env.filters['latex'] = latex
     env.filters['fits'] = fits_keywords
+    env.filters['raw'] = lambda tag: rf'\RAW{{{tag}}}'
     return env
 
 
@@ -436,6 +437,12 @@ def main() -> None:
     parser.add_argument('--pdf', action='store_true',
                         help='with --document --standalone: run latexmk on it, into the same directory, with the DRLD '
                              'sources on TEXINPUTS')
+    parser.add_argument('--assomap', nargs='+', metavar='MODULE',
+                        help='render the association map(s) of EDPS workflow module(s), e.g. metis.metis_lm_img_wkf, '
+                             f'into {BUILD}/assomap_<mode>.tex (needs the metis workflow package: $METIS_WORKFLOWS '
+                             'or the workflows directory next to pymetis)')
+    parser.add_argument('--split', action='store_true',
+                        help='with --assomap: two figures per workflow, cut at the AIT/daily separator')
     parser.add_argument('--drld', type=Path, metavar='DIR',
                         default=Path(os.environ.get('METIS_DRLD', HERE.parents[2] / 'drld')),
                         help='the DRLD sources (normal_style.tex, styles_data.tex, acronyms.tex) for --pdf '
@@ -454,6 +461,17 @@ def main() -> None:
             print(f"{tag:<40} {item.__module__}.{item.__qualname__}")
         for name, recipe in catalogue.recipes.items():
             print(f"{name:<40} {recipe.__module__}.{recipe.__qualname__}")
+        return
+
+    if args.assomap:
+        from workflows import association_maps
+        env = environment()
+        BUILD.mkdir(parents=True, exist_ok=True)
+        for module in args.assomap:
+            for amap in association_maps(catalogue, module, split=args.split):
+                path = BUILD / f"assomap_{amap.mode}.tex"
+                path.write_text(env.get_template('assomap.tex').render(map=amap))
+                print(f"{path}: {len(amap.columns)} tasks, {len(amap.rows)} rows, {len(amap.findings)} findings")
         return
 
     if args.document is not None:
@@ -479,7 +497,7 @@ def main() -> None:
         return
 
     if not args.all and not args.names:
-        parser.error("give data item tags or recipe names, or --all, --document, or --list")
+        parser.error("give data item tags or recipe names, or --all, --document, --assomap, or --list")
 
     if args.all:
         tags, names = list(catalogue.items), list(catalogue.recipes)
