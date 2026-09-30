@@ -217,10 +217,16 @@ input class must re-annotate the attribute; forgetting this raises a
    `tikz/*_assomap_tikz.tex` (same styles and node names), with every
    workflow/recipe disagreement as a `% FINDING:` comment at the top;
    `--document` includes the LM, N, IFU and the split LM/N LSS maps, the
-   matched-keywords summary (`tab:fitsmatchedkeywordssummary`) and the DPR
-   table (`tab:dpr_keywords`, from `_dpr`); `--tables` writes the two tables
-   alone; `--lint-flowcharts` lists the tags the hand-drawn per-recipe
-   flowcharts draw that are neither inputs nor products of their recipe.
+   matched-keywords summary (`tab:fitsmatchedkeywordssummary`), the DPR table
+   (`tab:dpr_keywords`, from `_dpr`), the alias table and the FITS-keyword
+   cards (from the keyword vocabulary, each with the items, recipes and
+   workflow uses that refer to it); `--tables` writes the tables alone;
+   `--lint-flowcharts` lists the tags the hand-drawn per-recipe flowcharts
+   draw that are neither inputs nor products of their recipe; `--lint-keywords`
+   compares the DRLD's FITS-keyword appendix with the vocabulary; `--lint-drl`
+   compares the DRL-function names the DRLD cites with the functions that
+   exist. Recipe cards show a parameter's range, CLI alias and the value the
+   workflow sets where `metis_parameters.yaml` overrides the default.
 7. The per-recipe flowcharts (`tikz/metis_<recipe>.tex`) are generated from the
    recipe as well: `_steps` is the algorithm as the flowchart draws it, a tuple
    of `Step(label, inputs=(...), products=(...))` naming the InputSet and

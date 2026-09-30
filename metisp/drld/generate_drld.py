@@ -40,6 +40,7 @@ import pymetis.instruments.metis.dataitems  # noqa: F401  (registers the catalog
 import pymetis.instruments.metis.recipes    # noqa: F401  (registers the recipes; some items load with them)
 from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.dataitems import DataItem
+from pymetis.engine.keywords import Keyword
 from pymetis.engine.recipes import Recipe
 
 HERE = Path(__file__).resolve().parent
@@ -104,6 +105,35 @@ class RecipeCard:
 
 
 @dataclass
+class KeywordCard:
+    """ One FITS-keyword card of App02, plus the cross-references the code knows. """
+    name: str
+    label: str
+    labels: list[str]
+    context: str
+    type: str
+    format: str
+    unit: str
+    default: str
+    range: str
+    description: str
+    comment: list[str]
+    resolves_to: list = field(default_factory=list)       # Keyword objects (aliases)
+    joiner: str = 'or'
+    used_by: list[str] = field(default_factory=list)      # \RAW{}/\PROD{} references of the items listing it as OCA keyword
+    matched_by: list[str] = field(default_factory=list)   # recipes matching on it
+    read_by: list[str] = field(default_factory=list)      # recipes whose implementation reads it
+    workflow_use: list[str] = field(default_factory=list)  # 'grouping:DARK_2RG_RAW' ... from the EDPS workflows
+
+
+KEYWORD_TYPES = {'float': 'double', 'int': 'integer', 'str': 'string', 'bool': 'logical'}
+# The order and titles of the keyword sections: a context (the first dotted part, 'FITS' for bare names) per title.
+KEYWORD_GROUPS = [('Keyword aliases', ('DRS',)), ('Data product classification', ('DPR', 'PRO', 'DO')),
+                  ('Detector', ('DET',)), ('Instrument and calibration unit', ('INS', 'SEQ', 'OCS')),
+                  ('Observation and template', ('OBS', 'TPL')), ('FITS standard, WCS and product keywords', ('FITS',))]
+
+
+@dataclass
 class DprRow:
     """ One line of the DRLD DPR keywords table (`tab:dpr_keywords`). """
     catg: str
@@ -159,6 +189,7 @@ class Group:
     kinds: list = field(default_factory=list)      # item families: sub-groups by kind (raw / calibration / product)
     recipes: list = field(default_factory=list)
     qcs: list = field(default_factory=list)
+    keywords: list = field(default_factory=list)      # KeywordCard, for the FITS-keyword sections
 
 
 @dataclass
@@ -175,6 +206,9 @@ class Document:
     dpr_findings: list[str] = field(default_factory=list)
     keyword_rows: list = field(default_factory=list)  # KeywordRow objects (workflows.py)
     keyword_findings: list[str] = field(default_factory=list)
+    keyword_families: list = field(default_factory=list)          # Group objects with .keywords: KeywordCard
+    aliases: list = field(default_factory=list)                    # KeywordCard objects of the aliases
+    raw_keywords: list[str] = field(default_factory=list)          # the OCA keywords of every raw item, as shown
 
 
 # The workflows whose association maps the document shows, and which of them are drawn in two parts.
@@ -207,9 +241,10 @@ def latex(text: str) -> str:
 
 
 def fits_keywords(keywords) -> str:
-    if isinstance(keywords, str):
+    """ `\\FITS{DET.DIT}, ...` from Keyword objects (written as the DRLD shows them) or plain names. """
+    if isinstance(keywords, (str, Keyword)):
         keywords = [keywords]
-    return ', '.join(rf'\FITS{{{keyword}}}' for keyword in keywords)
+    return ', '.join(rf'\FITS{{{getattr(keyword, "shown", keyword)}}}' for keyword in keywords)
 
 
 def template_pattern(template: str, tag_values: dict[str, set[str]]) -> re.Pattern:
@@ -301,6 +336,87 @@ class Catalogue:
     def qc_shown(name: str) -> str:
         """ A QC name as the DRLD writes it: run-time placeholders lowercase, no braces. """
         return re.sub(r'\{(\w+)\}', lambda m: m.group(1).lower(), name)
+
+    def parameter_overrides(self) -> dict:
+        """ The workflows' recipe-parameter overrides (`pymetis.engine.workflows.parameter_overrides`), cached; {} without the workflow package. """
+        if not hasattr(self, '_parameter_overrides'):
+            try:
+                from pymetis.engine import workflows as wf
+                self._parameter_overrides = wf.parameter_overrides()
+            except (ImportError, FileNotFoundError):
+                self._parameter_overrides = {}
+        return self._parameter_overrides
+
+    # --- FITS keywords ---
+
+    def keyword_cards(self, findings: list[str] | None = None, workflow_usage: dict | None = None) -> dict[str, KeywordCard]:
+        """
+        One card per vocabulary keyword (a template as one card, 'SEQ.WCU.LASERn.WLEN'), with the
+        cross-references: the items listing it as OCA keyword, the recipes matching on it, the recipes
+        reading it, the EDPS uses. A keyword nobody refers to that is not declared-only is a finding.
+        """
+        from pymetis.engine.keywords import Keyword, Alias
+        from pymetis.engine.keywords.usage import keywords_read_in
+        from pymetis.instruments.metis import keywords as kw
+        used_by: dict[Keyword, set[str]] = {}
+        matched_by: dict[Keyword, set[str]] = {}
+        read_by: dict[Keyword, set[str]] = {}
+        for tag, item in self.items.items():
+            for keyword in item.oca_keywords():
+                used_by.setdefault(keyword, set()).add(self.reference(item, tag))
+        for name, recipe in self.recipes.items():
+            for keyword in recipe._matched_keywords or ():
+                matched_by.setdefault(keyword, set()).add(name)
+            for keyword in keywords_read_in(recipe, kw):
+                read_by.setdefault(keyword.template or keyword, set()).add(name)
+        vocabulary = sorted(k for k in vars(kw).values() if isinstance(k, Keyword))
+        for alias in (k for k in vocabulary if isinstance(k, Alias)):
+            for target in alias.resolves_to:
+                used_by.setdefault(target, set()).add(rf'\FITS{{{alias.name}}} (alias)')
+        workflow_use: dict[Keyword, set[str]] = {}
+        for spelling, where in (workflow_usage or {}).items():
+            keyword = Keyword.from_edps(spelling)
+            if keyword is not None:
+                workflow_use.setdefault(keyword.template or keyword, set()).update(where)
+
+        def text(value) -> str:
+            if value is None:
+                return 'None'
+            if isinstance(value, tuple):
+                return f"{value[0]}..{value[1]}"
+            return str(value)
+
+        cards: dict[str, KeywordCard] = {}
+        for keyword in vocabulary:
+            cards[keyword.name] = KeywordCard(
+                name=keyword.shown, label=keyword.label, labels=list(keyword.labels), context=keyword.group,
+                type=KEYWORD_TYPES.get(keyword.type.__name__, keyword.type.__name__), format=keyword.printf,
+                unit=text(keyword.unit), default=text(keyword.default), range=text(keyword.range),
+                description=keyword.description, comment=[c for c in keyword.comment.split('\n') if c],
+                resolves_to=list(keyword.resolves_to) if isinstance(keyword, Alias) else [],
+                joiner='and' if getattr(keyword, 'combine', 'any') == 'all' else 'or',
+                used_by=sorted(used_by.get(keyword, ())), matched_by=sorted(matched_by.get(keyword, ())),
+                read_by=sorted(read_by.get(keyword, ())), workflow_use=sorted(workflow_use.get(keyword, ())))
+            referred = used_by.get(keyword) or matched_by.get(keyword) or read_by.get(keyword) or workflow_use.get(keyword)
+            if findings is not None and not referred and keyword not in kw.DECLARED_ONLY and not isinstance(keyword, Alias):
+                findings.append(f"{keyword.name} is neither referred to nor declared-only")
+        return cards
+
+    def keyword_families(self, cards: dict[str, KeywordCard]) -> list[Group]:
+        families = []
+        for title, contexts in KEYWORD_GROUPS:
+            members = [c for c in cards.values() if c.context in contexts]
+            if members:
+                families.append(Group(title=title, keywords=members))
+        return families
+
+    def raw_keywords(self) -> list[str]:
+        """ The OCA keywords of every RAW item: what a raw exposure has to carry. """
+        out = set()
+        for item in self.items.values():
+            if item.frame_group() == cpl.ui.Frame.FrameGroup.RAW:
+                out |= {k.shown for k in item.oca_keywords()}
+        return sorted(out)
 
     # --- flowcharts ---
 
@@ -417,7 +533,7 @@ class Catalogue:
             name=tag,
             macro=self.macro_of(item),
             description=item.description(),
-            oca_keywords=sorted(item.oca_keywords()),
+            oca_keywords=[k.shown for k in sorted(item.oca_keywords())],
             created_by=sorted(self.created_by[tag]),
             input_for=sorted(self.input_for[tag]),
             structure=self.structure_of(item),
@@ -455,11 +571,19 @@ class Catalogue:
             inputs.append(row)
 
         parameters = []
+        overrides = self.parameter_overrides().get(name, {})
         for parameter in recipe.parameters:
-            row = rf'\CODE{{{latex(parameter.name)}}}: {latex(parameter.description)}'
+            row = rf'\CODE{{{latex(parameter.name)}}}'
+            if (alias := getattr(parameter, 'cli_alias', None)) and alias != parameter.name:
+                row += rf' (\texttt{{-{"-" if len(alias) > 1 else ""}{latex(alias)}}})'
+            row += f': {latex(parameter.description)}'
             if (alternatives := getattr(parameter, 'alternatives', None)) is not None:
                 row += ' (' + ', '.join(rf'\texttt{{{latex(a)}}}' for a in alternatives) + ')'
+            if getattr(parameter, 'min', None) is not None or getattr(parameter, 'max', None) is not None:
+                row += rf', range {latex(parameter.min)}..{latex(parameter.max)}'
             row += rf', default \texttt{{{latex(parameter.default)}}}'
+            for value, task in overrides.get(parameter.name, []):
+                row += rf'; the workflow sets \texttt{{{latex(value)}}} ({latex(task)})'
             parameters.append(row)
 
         # The algorithm is free text with `code` spans; LaTeX-escape it and typeset the spans.
@@ -470,7 +594,7 @@ class Catalogue:
             name=name,
             synopsis=recipe._synopsis,
             inputs=inputs,
-            matched_keywords=sorted(recipe._matched_keywords or ()),
+            matched_keywords=[k.shown for k in sorted(recipe._matched_keywords or ())],
             parameters=parameters,
             algorithm=algorithm,
             outputs=[self.reference(product, product.name()) for _, product in recipe._list_products()],
@@ -583,6 +707,7 @@ def environment() -> jinja2.Environment:
     env.filters['latex'] = latex
     env.filters['fits'] = fits_keywords
     env.filters['raw'] = lambda tag: rf'\RAW{{{tag}}}'
+    env.filters['rec'] = lambda name: rf'\REC{{{name}}}'
     return env
 
 
@@ -617,8 +742,15 @@ def main() -> None:
     parser.add_argument('--flowchart', nargs='+', metavar='RECIPE',
                         help=f'render the per-recipe flowchart skeleton(s) into {BUILD}/flowchart_<recipe>.tex '
                              '(steps from Recipe._steps where declared, else a placeholder)')
+    parser.add_argument('--lint-keywords', action='store_true',
+                        help='compare the FITS-keyword appendix of the DRLD checkout (App02_FITS_keywords.tex under --drld) '
+                             'with the keyword vocabulary: cards that are no vocabulary keyword, keywords without a card')
     parser.add_argument('--tables', action='store_true',
                         help=f'render the DPR keywords table and the matched-keywords summary into {BUILD}')
+    parser.add_argument('--lint-drl', action='store_true',
+                        help='compare the DRL-function names the DRLD cites (\\DRL{} in the DRL-function chapters and recipe '
+                             'cards, function-like names in the recipes\' _algorithm texts) with the functions that exist '
+                             'in pymetis (drl/, engine/core/functions, recipes/prefab), both ways')
     parser.add_argument('--lint-flowcharts', action='store_true',
                         help='check the tags drawn in the DRLD per-recipe flowcharts (tikz/metis_*.tex under --drld) '
                              'against the recipes\' inputs and products')
@@ -677,6 +809,77 @@ def main() -> None:
         doc.keyword_rows = matched_keywords(catalogue, KEYWORD_WORKFLOWS, doc.keyword_findings)
         (BUILD / 'matched_keywords.tex').write_text(env.get_template('matched_keywords.tex').render(doc=doc))
         print(f"{BUILD / 'matched_keywords.tex'}: {len(doc.keyword_rows)} rows, {len(doc.keyword_findings)} findings")
+        from pymetis.engine import workflows as wf
+        cards = catalogue.keyword_cards(doc.keyword_findings, wf.keyword_usage(KEYWORD_WORKFLOWS))
+        doc.keyword_families = catalogue.keyword_families(cards)
+        doc.aliases = [c for c in cards.values() if c.resolves_to]
+        doc.raw_keywords = catalogue.raw_keywords()
+        (BUILD / 'aliases.tex').write_text(env.get_template('aliases.tex').render(doc=doc))
+        (BUILD / 'fits_keywords.tex').write_text(env.get_template('fits_keywords.tex').render(doc=doc))
+        print(f"{BUILD / 'fits_keywords.tex'}: {len(cards)} keyword cards, {len(doc.aliases)} aliases")
+        return
+
+    if args.lint_keywords:
+        from pymetis.engine.keywords import Keyword
+        from pymetis.instruments.metis import keywords as kw  # noqa: F401  (fills the registry)
+        appendix = args.drld / 'App02_FITS_keywords.tex'
+        if not appendix.exists():
+            parser.error(f"{appendix} not found; give --drld DIR or set METIS_DRLD")
+        text = '\n'.join(l for l in appendix.read_text().splitlines() if not l.lstrip().startswith('%'))
+        cards = re.findall(r'\\subsubsection\{([^}]*)\}', text)
+        # the DRLD writes an index as a lowercase letter (CDELTn, ICCOEFi, CDn_ms): compare with the shown form
+        shown = {k.shown: k for k in Keyword.registry.values()}
+        def normalise(name: str) -> str:
+            return name.replace('\\_', '_').replace(' ', '.').replace('CDn_ms', 'CDn_m').replace('PVn_ks', 'PVn_m').replace('ICCOEFi', 'ICCOEFn')
+        problems = []
+        for card in cards:
+            if normalise(card) not in shown:
+                problems.append(f"App02 card {card!r} is no vocabulary keyword")
+        have = {normalise(c) for c in cards}
+        for name, keyword in sorted(shown.items()):
+            if name not in have:
+                problems.append(f"{keyword.name} has no App02 card")
+        mentioned = set(re.findall(r'\\FITS\*?\{([^}]*)\}', text))
+        for name in sorted(mentioned):
+            if normalise(name) not in shown and normalise(name) not in have:
+                problems.append(f"App02 mentions \\FITS{{{name}}}, neither a card nor a vocabulary keyword")
+        print('\n'.join(problems) if problems else "the appendix and the vocabulary agree")
+        print(f"{len(cards)} App02 cards, {len(shown)} vocabulary keywords, {len(problems)} findings")
+        return
+
+    if args.lint_drl:
+        import ast
+        import pymetis
+        root = Path(pymetis.__file__).parent
+        defined: dict[str, str] = {}                # module-level functions and classes, not methods or inner helpers
+        for folder in ('drl', 'engine/core/functions', 'instruments/metis/recipes/prefab'):
+            for path in sorted((root / folder).rglob('*.py')):
+                for node in ast.parse(path.read_text()).body:
+                    if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and not node.name.startswith('_'):
+                        defined.setdefault(node.name, str(path.relative_to(root)))
+        cited: dict[str, set[str]] = {}
+        for tex in sorted(list(args.drld.glob('*_drl_functions.tex')) + list(args.drld.glob('Recipes_*.tex'))):
+            text = '\n'.join(l for l in tex.read_text().splitlines() if not l.lstrip().startswith('%'))
+            for name in re.findall(r'\\DRL\*?\{([^}]*)\}', text):
+                cited.setdefault(name.replace('\\_', '_'), set()).add(tex.name)
+        for name, recipe in catalogue.recipes.items():
+            for fn in re.findall(r'\b((?:metis|hdrl|cpl)_[a-z0-9_]+)\b', recipe._algorithm or ''):
+                if fn not in catalogue.recipes:
+                    cited.setdefault(fn, set()).add(f"{name}._algorithm")
+        problems = []
+        for fn, where in sorted(cited.items()):
+            if fn not in defined and not fn.startswith(('hdrl_', 'cpl_')):
+                problems.append(f"{fn} (cited in {', '.join(sorted(where))}) exists nowhere in pymetis")
+        uncited: dict[str, list[str]] = {}
+        for fn, where in sorted(defined.items()):
+            if where.startswith('drl/') and fn not in cited:
+                uncited.setdefault(where, []).append(fn)
+        for where, names in sorted(uncited.items()):
+            problems.append(f"{where}: {len(names)} functions no DRLD card describes and no recipe cites: {', '.join(names)}")
+        print('\n'.join(problems) if problems else "every cited DRL function exists and every drl/ function is documented")
+        hdrl = sorted(n for n in cited if n.startswith(('hdrl_', 'cpl_')))
+        print(f"{len(cited)} names cited by the DRLD, {len(defined)} functions defined in pymetis, {len(problems)} findings; "
+              f"HDRL/CPL names cited: {len(hdrl)}")
         return
 
     if args.lint_flowcharts:
@@ -694,13 +897,22 @@ def main() -> None:
         args.document.parent.mkdir(parents=True, exist_ok=True)
         doc = catalogue.document(args.standalone)
         doc.dpr_rows = catalogue.dpr_rows(doc.dpr_findings)
+        workflow_usage = None
         try:
             from workflows import association_maps, matched_keywords
+            from pymetis.engine import workflows as wf
             for module, split in DOCUMENT_WORKFLOWS:
                 doc.assomaps += association_maps(catalogue, module, split=split)
             doc.keyword_rows = matched_keywords(catalogue, KEYWORD_WORKFLOWS, doc.keyword_findings)
+            workflow_usage = wf.keyword_usage(KEYWORD_WORKFLOWS)
         except (ImportError, FileNotFoundError) as e:
             print(f"association maps and matched keywords skipped: {e}")
+        cards = catalogue.keyword_cards(doc.keyword_findings, workflow_usage)
+        doc.keyword_families = catalogue.keyword_families(cards)
+        doc.aliases = [c for c in cards.values() if c.resolves_to]
+        doc.raw_keywords = catalogue.raw_keywords()
+        (args.document.parent / 'aliases.tex').write_text(env.get_template('aliases.tex').render(doc=doc))
+        (args.document.parent / 'fits_keywords.tex').write_text(env.get_template('fits_keywords.tex').render(doc=doc))
         for amap in doc.assomaps:
             (args.document.parent / f"assomap_{amap.mode}.tex").write_text(env.get_template('assomap.tex').render(map=amap))
         (args.document.parent / 'dpr.tex').write_text(env.get_template('dpr.tex').render(doc=doc))

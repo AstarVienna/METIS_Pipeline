@@ -1,0 +1,33 @@
+(# One DRLD FITS-keyword card (App02_FITS_keywords.tex), rendered by generate_drld.py with `kw` set to a
+   KeywordCard built from the instrument vocabulary. The rows are App02's; "Resolves to", "Used by",
+   "Matched by", "Read by" and "EDPS" are new: the cross-references the code knows. #)
+\subsubsection{(* kw.name|latex *)}\label{fits:(* kw.label *)}(% for extra in kw.labels %)\label{fits:(* extra *)}(% endfor %)
+\begin{recipedef}
+Name & (* kw.name|latex *) \tabularnewline
+Class & header \tabularnewline
+Context & (* kw.context|latex *) \tabularnewline
+Type & (* kw.type *) \tabularnewline
+Value & (* kw.format|latex *) \tabularnewline
+Unit & (* kw.unit|latex *) \tabularnewline
+Default & (* kw.default|latex *) \tabularnewline
+Range & (* kw.range|latex *) \tabularnewline
+(% if kw.resolves_to %)
+Resolves to & (* kw.resolves_to|fits|replace(', ', ' ' ~ kw.joiner ~ ' ') *) \tabularnewline
+(% endif %)
+(% for line in kw.comment %)
+(* "Comment" if loop.first else "" *) & (* line|latex *) \tabularnewline
+(% endfor %)
+Description & (* kw.description|latex *) \tabularnewline
+(% if kw.used_by %)
+Used by & (* kw.used_by|join(', ') *) \tabularnewline
+(% endif %)
+(% if kw.matched_by %)
+Matched by & (* kw.matched_by|map('rec')|join(', ') *) \tabularnewline
+(% endif %)
+(% if kw.read_by %)
+Read by & (* kw.read_by|map('rec')|join(', ') *) \tabularnewline
+(% endif %)
+(% if kw.workflow_use %)
+EDPS & (* kw.workflow_use|map('latex')|join(', ') *) \tabularnewline
+(% endif %)
+\end{recipedef}

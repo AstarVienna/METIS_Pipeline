@@ -17,6 +17,7 @@ import cpl
 
 from pymetis.engine import workflows as wf
 from pymetis.engine.dataitems import DataItem
+from pymetis.engine.keywords import Alias
 
 
 @dataclass
@@ -381,16 +382,6 @@ def association_maps(catalogue, module_name: str, split: bool = False) -> list[A
 
 # --- the matched-keywords summary (DRLD `tab:fitsmatchedkeywordssummary`) -------------------
 
-# The DRLD's keyword aliases (`tab:fitskeywordaliasses`): the instrument keywords each stands for.
-# DRS.IFU is used throughout the recipes and the DRLD table itself but is missing from the alias table.
-ALIASES: dict[str, list[str]] = {
-    'DRS.FILTER': ['INS.OPTI10.NAME', 'INS.OPTI13.NAME'],
-    'DRS.NDFILTER': ['INS.OPTI11.NAME', 'INS.OPTI13.NAME'],
-    'DRS.SLIT': ['INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI9.NAME'],
-    'DRS.MASK': ['INS.OPTI1.NAME', 'INS.OPTI3.NAME', 'INS.OPTI5.NAME', 'INS.OPTI9.NAME', 'INS.OPTI12.NAME'],
-    'DRS.PUPIL': ['INS.OPTI15.NAME', 'INS.OPTI16.NAME'],
-    'DRS.IFU': ['INS.OPTI6.NAME'],
-}
 
 
 @dataclass
@@ -399,8 +390,8 @@ class KeywordRow:
     tasks: list[str]                # workflow tasks running the recipe ([] for a recipe without one)
     main_inputs: list[str]          # LaTeX references
     calibrations: list[str]         # LaTeX references
-    fits_keywords: list[str]        # the aliases expanded to instrument keywords
-    aliases: list[str]              # `Recipe._matched_keywords`
+    fits_keywords: list             # Keyword objects: the aliases expanded to the instrument keywords they resolve to
+    aliases: list                   # Keyword objects: `Recipe._matched_keywords` as declared
 
 
 def matched_keywords(catalogue, module_names, findings: list[str] | None = None) -> list[KeywordRow]:
@@ -456,11 +447,9 @@ def matched_keywords(catalogue, module_names, findings: list[str] | None = None)
 
     for row in rows.values():
         for alias in row.aliases:
-            for keyword in ALIASES.get(alias, [alias]):
+            for keyword in (alias.resolves_to if isinstance(alias, Alias) else (alias,)):
                 if keyword not in row.fits_keywords:
                     row.fits_keywords.append(keyword)
-            if alias.startswith('DRS.') and alias not in ALIASES:
-                findings.append(f"{row.recipe}: matched keyword {alias} is not a known alias")
     return [rows[name] for name in catalogue.recipes if name in rows]
 
 
