@@ -409,7 +409,7 @@ class Catalogue:
                 if findings is not None:
                     findings.append(f"{tag} declares no DPR triple")
                 continue
-            rows.append(DprRow(*dpr, tag=tag, recipes=self.raw_consumers(tag)))
+            rows.append(DprRow(*(v if v is not None else 'any' for v in dpr), tag=tag, recipes=self.raw_consumers(tag)))
         return sorted(rows, key=lambda r: (r.catg, r.tech, r.type, r.tag))
 
     def item_card(self, tag: str) -> Card:

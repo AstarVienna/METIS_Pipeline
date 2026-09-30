@@ -174,10 +174,14 @@ input class must re-annotate the attribute; forgetting this raises a
    - `_oca_keywords` — a `frozenset` of the OCA keywords the item matches on,
      as listed on its DRLD card;
    - `_dpr` — for raw items, the `(DPR.CATG, DPR.TECH, DPR.TYPE)` triple that
-     classifies the data, with the same placeholders as the name
-     (`('CALIB', 'IMAGE,{band}', 'FLAT,{source}')`); `dpr()` resolves it. It is
-     what `metis_classification.py` in the workflow package must assign, and
-     `tests/test_dpr.py` checks the two against each other;
+     classifies the data, with the name's placeholders and `None` for a keyword
+     left free (`(None, 'IMAGE,{band}', 'SKY')`: a sky frame is CALIB or
+     SCIENCE). The EDPS classification rules are generated from it:
+     `python -m pymetis.engine.workflows --classification` rewrites
+     `workflows/metis/metis_classification.py` (one rule per raw item by its
+     DPR triple, one per other item by its PRO.CATG, named `<tag>_class`), and
+     `test_dpr.py` fails when the committed file differs from the generated
+     one. Never edit that file by hand;
    - `_schema` — dict of extension name → `Image` / `Table` / `None`.
 3. Declare one concrete leaf per DRLD tag
    (`class MasterDarkGeo(DetectorGeoMixin, MasterDark): pass`).
