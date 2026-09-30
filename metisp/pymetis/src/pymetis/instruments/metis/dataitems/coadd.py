@@ -22,6 +22,7 @@ from cpl.core import Image
 
 from pymetis.engine.dataitems import ImageDataItem
 from pymetis.instruments.metis.mixins import BandIfuMixin, BandLmMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class SciCoadd(ImageDataItem, abstract=True):
@@ -29,7 +30,7 @@ class SciCoadd(ImageDataItem, abstract=True):
     _title_template = r"{band} science co-added"
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_FILTER})
     _description_template = "{band} science co-added"
 
     _schema = {

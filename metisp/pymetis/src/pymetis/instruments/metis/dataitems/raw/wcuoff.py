@@ -22,6 +22,7 @@ from cpl.core import Image
 
 from pymetis.engine.dataitems import ImageDataItem
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class WcuOffRaw(ImageDataItem, abstract=True):
@@ -34,7 +35,7 @@ class WcuOffRaw(ImageDataItem, abstract=True):
     _description_template = "Raw data for dark subtraction in other recipes."
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE})
     _dpr = ('CALIB', 'IMAGE,{band}', 'DARK,WCUOFF')
 
     _schema = {
@@ -55,5 +56,5 @@ class NWcuOffRaw(BandNMixin, WcuOffRaw):
 
 
 class IfuWcuOffRaw(BandIfuMixin, WcuOffRaw):
-    _oca_keywords = WcuOffRaw._oca_keywords | frozenset({'DRS.IFU'})
+    _oca_keywords = WcuOffRaw._oca_keywords | frozenset({kw.DRS_IFU})
     _dpr = ('CALIB', 'IFU', 'DARK,WCUOFF')

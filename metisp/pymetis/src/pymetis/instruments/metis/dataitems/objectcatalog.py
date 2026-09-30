@@ -22,6 +22,7 @@ import cpl
 from pymetis.engine.dataitems import TableDataItem
 from pymetis.instruments.metis.mixins import (BandLmMixin, BandNMixin,
                                     TargetStdMixin, TargetSciMixin)
+from pymetis.instruments.metis import keywords as kw
 
 
 class ObjectCatalog(TableDataItem, abstract=True):
@@ -33,7 +34,7 @@ class ObjectCatalog(TableDataItem, abstract=True):
 
 
 class LmStdObjectCatalog(BandLmMixin, TargetStdMixin, ObjectCatalog):
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_FILTER})
 
 
 class NStdObjectCatalog(BandNMixin, TargetStdMixin, ObjectCatalog):
@@ -42,7 +43,7 @@ class NStdObjectCatalog(BandNMixin, TargetStdMixin, ObjectCatalog):
 
 
 class LmSciObjectCatalog(BandLmMixin, TargetSciMixin, ObjectCatalog):
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_FILTER})
 
 
 class NSciObjectCatalog(BandNMixin, TargetSciMixin, ObjectCatalog):

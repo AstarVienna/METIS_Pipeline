@@ -23,6 +23,7 @@ from cpl.core import Image
 from pymetis.engine.dataitems import ImageDataItem
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, \
     BandLmMixin, SourceLampMixin, BandNMixin, SourceTwilightMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class MasterFlat(ImageDataItem, abstract=True):
@@ -31,7 +32,7 @@ class MasterFlat(ImageDataItem, abstract=True):
     _description_template = "Abstract base class for master flats. Please subclass."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -64,7 +65,7 @@ class MasterImgFlat(ImageDataItem, abstract=True):
     _description_template = "Master flat frame for {band} data"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,

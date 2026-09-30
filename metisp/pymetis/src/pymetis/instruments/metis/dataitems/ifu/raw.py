@@ -23,6 +23,7 @@ from cpl.core import Image
 
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins import BandIfuMixin, TargetStdMixin, TargetSciMixin, TargetSkyMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class IfuRaw(BandIfuMixin, Raw, abstract=True):
@@ -31,9 +32,9 @@ class IfuRaw(BandIfuMixin, Raw, abstract=True):
     _description_template = r"{band} {target} raw image"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
-    _oca_keywords = frozenset({"DPR.CATG", "DPR.TECH", "DPR.TYPE", "INS.OPTI3.NAME",
-                               "INS.OPTI9.NAME", "INS.OPTI10.NAME", "INS.OPTI11.NAME",
-                               "DRS.IFU"})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE, kw.INS_OPTI3_NAME,
+                               kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.INS_OPTI11_NAME,
+                               kw.DRS_IFU})
     _schema = detectors(Image, 4)
 
 

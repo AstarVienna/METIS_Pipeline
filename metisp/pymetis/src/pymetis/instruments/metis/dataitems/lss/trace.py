@@ -21,6 +21,7 @@ import cpl
 
 from pymetis.engine.dataitems import TableDataItem
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class LssTrace(TableDataItem, abstract=True):
@@ -32,7 +33,7 @@ class LssTrace(TableDataItem, abstract=True):
     _description_template = "Table with polynomials describing the location of the traces on the detector"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_SLIT})
 
 
 class LmLssTrace(BandLmMixin, LssTrace):

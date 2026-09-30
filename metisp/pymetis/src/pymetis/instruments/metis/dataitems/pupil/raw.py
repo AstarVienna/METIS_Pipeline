@@ -21,6 +21,7 @@ import cpl
 
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins.band import BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class PupilRaw(Raw, abstract=True):
@@ -29,8 +30,8 @@ class PupilRaw(Raw, abstract=True):
     _description_template = "Raw exposure of the pupil in {band} image mode."
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.PUPIL'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE,
+                               kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_PUPIL})
     _dpr = ('TECHNICAL', 'PUP,{band}', 'PUPIL')
 
 

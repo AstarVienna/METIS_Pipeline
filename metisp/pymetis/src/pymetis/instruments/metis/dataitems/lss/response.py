@@ -21,6 +21,7 @@ import cpl
 
 from pymetis.engine.dataitems import TableDataItem
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class MasterResponse(TableDataItem, abstract=True):
@@ -29,7 +30,7 @@ class MasterResponse(TableDataItem, abstract=True):
     _description_template = "Master {band}-band response function for absolute flux calibration"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.MODE', 'INS.SPEC.SETUP', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_MODE, kw.INS_SPEC_SETUP, kw.DRS_SLIT})
 
 
 class MasterLmResponse(BandLmMixin, MasterResponse):
@@ -47,4 +48,4 @@ class StdTransmission(TableDataItem):
     _description_template = "Transmission curve derived by means of a standard star"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.MODE', 'INS.SPEC.SETUP', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_MODE, kw.INS_SPEC_SETUP, kw.DRS_SLIT})

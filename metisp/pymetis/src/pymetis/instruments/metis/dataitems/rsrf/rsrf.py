@@ -22,6 +22,7 @@ from cpl.core import Image, Table
 
 from pymetis.engine.dataitems import DataItem, ImageDataItem, TableDataItem
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class Rsrf(DataItem):
@@ -29,7 +30,7 @@ class Rsrf(DataItem):
     _title_template = "RSRF"
     _description_template = "2D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_IFU})
 
     _schema = {
         'PRIMARY': None,
@@ -43,7 +44,7 @@ class RsrfIfu(DetectorIfuMixin, TableDataItem):
     _description_template = "1D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_IFU})
 
     _schema = {
         'PRIMARY': None,

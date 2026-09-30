@@ -24,6 +24,7 @@ from cpl.core import Image
 
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class LinearityRaw(Raw, abstract=True):
@@ -32,20 +33,20 @@ class LinearityRaw(Raw, abstract=True):
     _description_template = r"Raw data for non-linearity determination for {detector} observations"
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE})
 
 
 class LinearityRaw2rg(Detector2rgMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.FILTER'})
+    _oca_keywords = LinearityRaw._oca_keywords | frozenset({kw.DRS_FILTER})
     _dpr = ('CALIB', 'IMAGE,LM', 'DETLIN')
 
 
 class LinearityRawGeo(DetectorGeoMixin, LinearityRaw):
-    _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.FILTER'})
+    _oca_keywords = LinearityRaw._oca_keywords | frozenset({kw.DRS_FILTER})
     _dpr = ('CALIB', 'IMAGE,N', 'DETLIN')
 
 
 class LinearityRawIfu(DetectorIfuMixin, LinearityRaw):
     _schema = detectors(Image, 4)
-    _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.IFU'})
+    _oca_keywords = LinearityRaw._oca_keywords | frozenset({kw.DRS_IFU})
     _dpr = ('CALIB', 'IFU', 'DETLIN')

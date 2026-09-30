@@ -21,6 +21,7 @@ import cpl
 
 from pymetis.engine.dataitems import TableDataItem
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class SynthTrans(TableDataItem, abstract=True):
@@ -30,7 +31,7 @@ class SynthTrans(TableDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
 
 class LmSynthTrans(BandLmMixin, SynthTrans):
@@ -51,7 +52,7 @@ class LssSynthTrans(TableDataItem, abstract=True):
                              "for telluric correction of flux standard stars.")
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
 
 class LmLssSynthTrans(BandLmMixin, LssSynthTrans):
@@ -59,6 +60,6 @@ class LmLssSynthTrans(BandLmMixin, LssSynthTrans):
 
 
 class NLssSynthTrans(BandNMixin, LssSynthTrans):
-    _oca_keywords = LssSynthTrans._oca_keywords | frozenset({'DRS.SLIT'})
+    _oca_keywords = LssSynthTrans._oca_keywords | frozenset({kw.DRS_SLIT})
 
 

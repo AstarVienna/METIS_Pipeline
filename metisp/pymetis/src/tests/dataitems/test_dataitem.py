@@ -30,18 +30,8 @@ from pymetis.instruments.metis.dataitems.common import AtmProfile
 from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark2rg, MasterDarkGeo, MasterDarkIfu
 from pymetis.instruments.metis.dataitems.masterflat import MasterFlat2rg, MasterFlatGeo, MasterFlatIfu
 from pymetis.instruments.metis.dataitems.raw import WcuOffRaw
+from pymetis.engine.keywords import Keyword
 
-# ToDo This is METIS-specific and should be moved
-# The keywords the DRLD data-item cards use in their "OCA keywords" lines.
-OCA_KEYWORDS: set[str] = {
-    'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-    'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME',
-    'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'INS.OPTI19.NAME', 'INS.OPTI20.NAME',
-    'INS.MODE', 'INS.SPEC.SETUP',
-    'DRS.FILTER', 'DRS.IFU', 'DRS.SLIT', 'DRS.MASK', 'DRS.PUPIL',
-    'DET.ID', 'DET.DIT', 'DET.NDIT',
-    'PRO.CATG',
-}
 
 @pytest.mark.dataitem
 @pytest.mark.parametrize('item', [LmStdBackground, NStdBackground, LmSciBackground, NSciBackground,
@@ -81,17 +71,12 @@ class TestDataItem:
             f"Data item {item.__qualname__} does not have a frame group defined!"
 
     @pytest.mark.metadata
-    def test_has_oca_keywords_defined_and_it_is_a_frozenset(self, item):
-        assert isinstance(item._oca_keywords, frozenset), \
-            f"Data item {item.__qualname__} OCA keywords are not a set"
-        #assert len(item._oca_keywords) > 0, \
-        #    f"Data item {item.__qualname__} does not define any OCA keywords" # This is actually OK sometimes
-
-    @pytest.mark.metadata
-    def test_are_oca_keywords_a_set_of_valid_strings(self, item):
-        for kw in item._oca_keywords:
-            assert kw in OCA_KEYWORDS, \
-                f"Data item {item.__qualname__} defines an invalid OCA keyword {kw}!"
+    def test_oca_keywords_are_vocabulary_keywords(self, item):
+        """ OCA keywords are the keyword objects of the instrument vocabulary, registered under their name. """
+        assert isinstance(item.oca_keywords(), frozenset)
+        for keyword in item.oca_keywords():
+            assert isinstance(keyword, Keyword), f"{item.__qualname__}: OCA keyword {keyword!r} is not a Keyword"
+            assert Keyword.registry.get(keyword.name) == keyword, f"{item.__qualname__}: {keyword} is not registered"
 
     @pytest.mark.metadata
     def test_has_schema_defined(self, item):
@@ -129,11 +114,11 @@ class TestRegisteredOcaKeywords:
     """
 
     @pytest.mark.parametrize('item', _registered_items(), ids=lambda item: item.name())
-    def test_oca_keywords_are_a_frozenset_of_known_keywords(self, item):
+    def test_oca_keywords_are_a_frozenset_of_vocabulary_keywords(self, item):
         assert isinstance(item.oca_keywords(), frozenset), \
             f"Data item {item.name()} OCA keywords are not a frozenset"
-        assert item.oca_keywords() <= OCA_KEYWORDS, \
-            f"Data item {item.name()} defines unknown OCA keywords {item.oca_keywords() - OCA_KEYWORDS}"
+        strangers = {k for k in item.oca_keywords() if not isinstance(k, Keyword) or Keyword.registry.get(k.name) != k}
+        assert not strangers, f"Data item {item.name()} defines OCA keywords outside the vocabulary: {strangers}"
 
 
 @pytest.mark.dataitem

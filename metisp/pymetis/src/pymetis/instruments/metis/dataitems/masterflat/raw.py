@@ -23,6 +23,7 @@ from cpl.core import Image
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins.band import BandNMixin, BandLmMixin
 from pymetis.instruments.metis.mixins.source import SourceLampMixin, SourceTwilightMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class FlatRaw(Raw, abstract=True):
@@ -30,8 +31,8 @@ class FlatRaw(Raw, abstract=True):
     _title_template = r'{band} flat {source} raw'
     _description_template = r'Flat raw'
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                              'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE,
+                              kw.INS_OPTI3_NAME, kw.INS_OPTI12_NAME, kw.INS_OPTI13_NAME, kw.DRS_FILTER})
     _dpr = ('CALIB', 'IMAGE,{band}', 'FLAT,{source}')
 
     _schema = {

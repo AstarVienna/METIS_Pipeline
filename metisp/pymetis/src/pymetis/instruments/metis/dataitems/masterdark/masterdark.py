@@ -22,6 +22,7 @@ from cpl.core import Image
 
 from pymetis.engine.dataitems import ImageDataItem
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class MasterDark(ImageDataItem, abstract=True):
@@ -30,7 +31,7 @@ class MasterDark(ImageDataItem, abstract=True):
     _description_template = "Master dark frame for {detector} data"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,

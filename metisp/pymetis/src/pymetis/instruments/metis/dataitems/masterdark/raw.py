@@ -24,6 +24,7 @@ from cpl.core import Image
 
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class DarkRaw(Raw, abstract=True):
@@ -32,20 +33,20 @@ class DarkRaw(Raw, abstract=True):
     _description_template = r"Raw data for creating a {detector} master dark."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE', 'DET.ID', 'DET.DIT'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE, kw.DET_ID, kw.DET_DIT})
 
 
 class Dark2rgRaw(Detector2rgMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.FILTER'})
+    _oca_keywords = DarkRaw._oca_keywords | frozenset({kw.DRS_FILTER})
     _dpr = ('CALIB', 'IMAGE,LM', 'DARK')
 
 
 class DarkGeoRaw(DetectorGeoMixin, DarkRaw):
-    _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.FILTER'})
+    _oca_keywords = DarkRaw._oca_keywords | frozenset({kw.DRS_FILTER})
     _dpr = ('CALIB', 'IMAGE,N', 'DARK')
 
 
 class DarkIfuRaw(DetectorIfuMixin, DarkRaw):
     _schema = detectors(Image, 4)
-    _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.IFU'})
+    _oca_keywords = DarkRaw._oca_keywords | frozenset({kw.DRS_IFU})
     _dpr = ('CALIB', 'IFU', 'DARK')

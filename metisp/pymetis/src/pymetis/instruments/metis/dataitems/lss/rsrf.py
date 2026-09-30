@@ -23,6 +23,7 @@ from cpl.core import Image
 from pymetis.engine.dataitems import ImageDataItem
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class LssRsrfRaw(Raw, abstract=True):
@@ -30,9 +31,9 @@ class LssRsrfRaw(Raw, abstract=True):
     _title_template = "{band} LSS RSRF raw"
     _description_template = "Raw exposure of the WCU flat field lamp through the LSS to achieve the RSRF."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                               'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME',
-                               'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE,
+                               kw.INS_OPTI3_NAME, kw.INS_OPTI12_NAME, kw.INS_OPTI13_NAME,
+                               kw.DRS_SLIT})
     _dpr = ('CALIB', 'LSS,{band}', 'FLAT,LAMP')
 
     _schema = {
@@ -55,7 +56,7 @@ class MedianLssRsrf(ImageDataItem, abstract=True):
     _description_template = "Median {band} RSRF pixel map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI12_NAME, kw.INS_OPTI13_NAME, kw.INS_OPTI14_NAME, kw.DRS_SLIT})
 
     _schema = {
         'PRIMARY': None,
@@ -77,7 +78,7 @@ class MeanLssRsrf(ImageDataItem, abstract=True):
     _description_template = "Mean {band} RSRF pixel map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_SLIT})
 
     _schema = {
         'PRIMARY': None,
@@ -99,7 +100,7 @@ class MasterLssRsrf(ImageDataItem, abstract=True):
     _description_template = "Master {band} RSRF pixel map"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_SLIT})
 
     _schema = {
         'PRIMARY': None,
@@ -121,9 +122,9 @@ class LssRsrfPinholeRaw(ImageDataItem, abstract=True):
     _description_template = "Raw flats taken with black-body calibration lamp through the pinhole mask."
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                              'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI20.NAME',
-                              'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE,
+                              kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.INS_OPTI20_NAME,
+                              kw.DRS_SLIT})
     _dpr = ('CALIB', 'LSS,{band}', 'FLAT,LAMP,PINH')
 
     _schema = {

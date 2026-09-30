@@ -24,6 +24,7 @@ from cpl.core import Image
 
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins import DetectorIfuMixin, BandIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class RsrfRaw(Raw, abstract=True):
@@ -35,6 +36,6 @@ class RsrfRaw(Raw, abstract=True):
 class IfuRsrfRaw(DetectorIfuMixin, BandIfuMixin, RsrfRaw):
     _schema = detectors(Image, 4)
     _title_template = "IFU RSRF raw image"
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE,
+                               kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_IFU})
     _dpr = ('CALIB', 'IFU', 'RSRF')

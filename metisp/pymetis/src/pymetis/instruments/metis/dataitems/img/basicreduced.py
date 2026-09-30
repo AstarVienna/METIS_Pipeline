@@ -22,6 +22,7 @@ from cpl.core import Image
 
 from pymetis.engine.dataitems import ImageDataItem
 from pymetis.instruments.metis.mixins import TargetSciMixin, TargetStdMixin, TargetSkyMixin, BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class BasicReduced(ImageDataItem, abstract=True):
@@ -30,7 +31,7 @@ class BasicReduced(ImageDataItem, abstract=True):
     _description_template = "Detrended {target} exposure of the {band} image mode."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -63,7 +64,7 @@ class Calibrated(ImageDataItem, abstract=True):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -98,7 +99,7 @@ class NSciRestored(BandNMixin, ImageDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,

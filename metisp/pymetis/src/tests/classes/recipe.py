@@ -28,6 +28,7 @@ from pathlib import Path
 import cpl
 
 from pymetis.engine.recipes import Recipe
+from pymetis.engine.keywords import Keyword
 
 root = Path(os.path.expandvars("$SOF_DIR"))
 
@@ -133,9 +134,9 @@ class BaseRecipeTest(ABC):
             assert isinstance(item.oca_keywords(), frozenset), \
                 f"Data item {item.__qualname__} has no OCA keywords attribute defined, or they are not a frozenset"
 
-            for kw in item.oca_keywords():
-                assert isinstance(kw, str), \
-                    f"Data item {item.__qualname__} has an invalid OCA keyword {kw}"
+            for keyword in item.oca_keywords():
+                assert isinstance(keyword, Keyword), \
+                    f"Data item {item.__qualname__} has an invalid OCA keyword {keyword!r}: not a vocabulary keyword"
 
 
 class BandParamRecipeTest(BaseRecipeTest):

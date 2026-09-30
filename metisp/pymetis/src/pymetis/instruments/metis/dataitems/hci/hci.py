@@ -22,6 +22,7 @@ from cpl.core import Image, Table
 
 from pymetis.engine.dataitems import ImageDataItem, TableDataItem
 from pymetis.instruments.metis.mixins import CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin, BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class OffAxisPsfRaw(ImageDataItem, abstract=True):
@@ -30,7 +31,7 @@ class OffAxisPsfRaw(ImageDataItem, abstract=True):
     _description_template = "calibration ADI image data" 
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
     _dpr = ('CALIB', 'IMAGE,{band}', 'PSF,OFFAXIS')
 
     _schema = {
@@ -44,7 +45,7 @@ class AdiCalibrated(ImageDataItem, abstract=True):
     _description_template = "calibration ADI image data" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -57,7 +58,7 @@ class OnAxisPsfTemplate(ImageDataItem, abstract=True):
     _description_template = "calibration ADI image data" 
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -72,7 +73,7 @@ class SciCentred(ImageDataItem, abstract=True):
     _description_template = ""
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -85,7 +86,7 @@ class CentroidTab(TableDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -99,7 +100,7 @@ class SciSpeckle(ImageDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -113,7 +114,7 @@ class SciHifilt(ImageDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -127,7 +128,7 @@ class SciDerotatedPsfsub(ImageDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -141,7 +142,7 @@ class SciDerotated(ImageDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -155,7 +156,7 @@ class SciContrastRadprof(TableDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -169,7 +170,7 @@ class SciContrastAdi(TableDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -183,7 +184,7 @@ class SciThroughput(TableDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -197,7 +198,7 @@ class SciCoverage(ImageDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -211,7 +212,7 @@ class SciSnr(ImageDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,
@@ -225,7 +226,7 @@ class PsfMedian(ImageDataItem, abstract=True):
     _description_template = "" 
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
 
     _schema = {
         'PRIMARY': None,

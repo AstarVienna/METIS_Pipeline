@@ -22,6 +22,7 @@ from cpl.core import Image
 
 from pymetis.engine.dataitems import ImageDataItem
 from pymetis.instruments.metis.mixins.band import BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class PupilImagingReduced(ImageDataItem, abstract=True):
@@ -30,7 +31,7 @@ class PupilImagingReduced(ImageDataItem, abstract=True):
     _description_template = "Reduced pupil image in {band} mode."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.PUPIL'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_PUPIL})
 
     _schema = {
         'PRIMARY': None,

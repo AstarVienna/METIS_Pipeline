@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 
 from pymetis.engine.dataitems import TableDataItem
+from pymetis.instruments.metis import keywords as kw
 
 
 class MfBestFitTable(TableDataItem):
@@ -32,4 +33,4 @@ class MfBestFitTable(TableDataItem):
     # TODO: Check whether the new mf writes out the best-fit param file
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})

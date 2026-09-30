@@ -21,6 +21,7 @@ import cpl
 
 from pymetis.engine.dataitems import TableDataItem
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class LssStd1d(TableDataItem, abstract=True):
@@ -29,7 +30,7 @@ class LssStd1d(TableDataItem, abstract=True):
     _description_template = "Extracted {band} 1D standard star spectrum."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.INS_OPTI11_NAME, kw.DRS_SLIT})
 
 
 class LmLssStd1d(BandLmMixin, LssStd1d):
@@ -47,7 +48,7 @@ class RefStdCat(TableDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
 
 class AoPsfModel(TableDataItem):
@@ -56,4 +57,4 @@ class AoPsfModel(TableDataItem):
     _description_template = "Model of the AO induced PSF."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})

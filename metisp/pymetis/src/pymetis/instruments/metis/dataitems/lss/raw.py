@@ -21,6 +21,7 @@ import cpl
 
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins import BandLmMixin, TargetStdMixin, BandNMixin, TargetSciMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class LssRaw(Raw, abstract=True):
@@ -28,9 +29,9 @@ class LssRaw(Raw, abstract=True):
     _title_template = "{band} LSS {target} raw"
     _description_template = "{band}-band long-slit spectroscopy raw exposure of a {target}"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME',
-                               'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE,
+                               kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME,
+                               kw.DRS_SLIT})
 
 
 class LmLssRaw(BandLmMixin, LssRaw, abstract=True):

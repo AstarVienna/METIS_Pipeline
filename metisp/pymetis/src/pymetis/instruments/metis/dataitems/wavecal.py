@@ -21,6 +21,7 @@ import cpl
 from pymetis.engine.dataitems import ImageDataItem, TableDataItem, detectors
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
 from cpl.core import Table, Image
+from pymetis.instruments.metis import keywords as kw
 
 
 class IfuWavecalRaw(DetectorIfuMixin, ImageDataItem):
@@ -31,9 +32,9 @@ class IfuWavecalRaw(DetectorIfuMixin, ImageDataItem):
                              "achieve the first guess of the wavelength calibration.")
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.NONE
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME',
-                               'DRS.IFU'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE,
+                               kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME,
+                               kw.DRS_IFU})
     _dpr = ('CALIB', 'IFU', 'WAVE')
 
 
@@ -43,7 +44,7 @@ class IfuWavecal(DetectorIfuMixin, ImageDataItem):
     _description_template = "Image with wavelength at each pixel."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_IFU})
 
     _schema = {
         'PRIMARY': None,
@@ -68,7 +69,7 @@ class IfuWavecalTab(DetectorIfuMixin, TableDataItem):
                              "coefficients, fit residual and provenance.")
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_IFU})
 
     _schema = {
         'PRIMARY': None,

@@ -28,6 +28,8 @@ from .hdu import Hdu
 from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
+from pymetis.engine.keywords import Keyword
+from pymetis.engine.keywords import eso
 
 if TYPE_CHECKING:
     from pymetis.engine.recipes.impl import RecipeImpl
@@ -62,12 +64,15 @@ class DataItem(ParametrizableItem, abstract=True):
     # to (re)generate it. Only meaningful for items in the CALIB frame group.
     _static: ClassVar[bool] = False
 
-    _oca_keywords: frozenset[str] = frozenset()     # Set of OCA keywords
+    # The OCA keywords of the DRLD card: the header keywords EDPS matches this item on. Keyword objects
+    # of the instrument vocabulary (`pymetis.instruments.metis.keywords`), never strings.
+    _oca_keywords: ClassVar[frozenset[Keyword]] = frozenset()
 
     # The ESO DPR classification of raw data: (DPR.CATG, DPR.TECH, DPR.TYPE), with tag
     # placeholders resolved like the name (`('CALIB', 'IMAGE,{band}', 'FLAT,{source}')`).
     # Declared on RAW-group items only; it is what the EDPS classification rules must say.
     _dpr: ClassVar[Optional[tuple[str, str, str]]] = None
+    DPR: ClassVar[tuple[Keyword, Keyword, Keyword]] = (eso.DPR_CATG, eso.DPR_TECH, eso.DPR_TYPE)   # the triple's positions
 
     # HDU schema: a dict of types or None
     # By default, only the primary header is present
@@ -147,6 +152,12 @@ class DataItem(ParametrizableItem, abstract=True):
         return catg, tech, kind
 
     @classmethod
+    def dpr_rule(cls) -> Optional[dict[Keyword, str]]:
+        """ The classification an EDPS rule must state for this raw item: keyword -> value, or None. """
+        dpr = cls.dpr()
+        return None if dpr is None else dict(zip(cls.DPR, dpr))
+
+    @classmethod
     def oca_keywords(cls):
         """
         Return the OCA keywords of this data item.
@@ -161,6 +172,9 @@ class DataItem(ParametrizableItem, abstract=True):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+        if strings := [k for k in cls._oca_keywords if not isinstance(k, Keyword)]:
+            raise TypeError(f"{cls.__qualname__}: _oca_keywords holds {strings!r}; use the keyword objects of "
+                            f"pymetis.instruments.metis.keywords, not strings")
         # An item's kind (the CPL frame type) and its schema must agree: an image item may
         # not hold a table extension and a table item may not hold images.
         kinds = {klass for klass in cls._schema.values() if klass is not None}
@@ -384,17 +398,8 @@ class DataItem(ParametrizableItem, abstract=True):
         # the group describes the item's origin, and a raw item may still be saved
         # (e.g. a re-tagged copy).
         Msg.debug(self.__class__.__qualname__,
-                  f"Setting ESO PRO CATG to {self.name()} ({self.frame_group()})")
-        if "ESO PRO CATG" in self.primary_header:
-            self.primary_header["ESO PRO CATG"].value = self.name()
-        else:
-            self.primary_header.append(
-                cpl.core.Property(
-                    "ESO PRO CATG",
-                    cpl.core.Type.STRING,
-                    self.name(),
-                )
-            )
+                  f"Setting {eso.PRO_CATG.header} to {self.name()} ({self.frame_group()})")
+        eso.PRO_CATG.set(self.primary_header, self.name())
 
     def as_frame(self, filename: Optional[str] = None) -> cpl.ui.Frame:
         """ Create a CPL Frame from this DataItem

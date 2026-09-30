@@ -24,6 +24,7 @@ from cpl.core import Image
 
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin, BandIfuMixin, DetectorIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class DistortionRaw(Raw, abstract=True):
@@ -31,8 +32,8 @@ class DistortionRaw(Raw, abstract=True):
     _title_template = "distortion raw"
     _description_template = "Raw data for distortion determination in other recipes in the {band} band."
     _frame_level = cpl.ui.Frame.FrameLevel.TEMPORARY
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE,
+                               kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_IFU})
     _dpr = ('CALIB', 'IMAGE,{band}', 'DISTORTION')
 
     _schema = {

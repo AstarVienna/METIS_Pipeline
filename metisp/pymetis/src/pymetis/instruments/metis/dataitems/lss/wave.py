@@ -21,6 +21,7 @@ import cpl
 
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class LssWaveRaw(Raw, abstract=True):
@@ -29,7 +30,7 @@ class LssWaveRaw(Raw, abstract=True):
     _description_template = "Raw LSS spectra of the WCU lasers in {band} band"
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE})
     _dpr = ('CALIB', 'LSS,{band}', 'WAVE')
 
 

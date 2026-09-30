@@ -25,6 +25,7 @@ from cpl.core import Table
 from pymetis.engine.dataitems import TableDataItem
 
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class DistortionTable(TableDataItem, abstract=True):
@@ -33,7 +34,7 @@ class DistortionTable(TableDataItem, abstract=True):
     _description_template = r"Table of distortion coefficients for a {band} band data set"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_IFU})
 
     _schema = {
         'PRIMARY': None,

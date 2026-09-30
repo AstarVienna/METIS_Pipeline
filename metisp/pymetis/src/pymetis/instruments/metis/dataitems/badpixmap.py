@@ -22,6 +22,7 @@ from cpl.core import Image
 
 from pymetis.engine.dataitems import ImageDataItem
 from pymetis.instruments.metis.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class BadPixMap(ImageDataItem, abstract=True):
@@ -30,7 +31,7 @@ class BadPixMap(ImageDataItem, abstract=True):
     _description_template = "Bad pixel map. Warning: may contain detector masks."
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
     _schema = {
         'PRIMARY': None,

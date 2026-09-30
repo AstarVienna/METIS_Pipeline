@@ -23,6 +23,7 @@ from cpl.core import Image
 from pymetis.engine.dataitems import ImageDataItem
 
 from pymetis.instruments.metis.mixins.band import BandLmMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class LmChophomeCombined(BandLmMixin, ImageDataItem):
@@ -32,7 +33,7 @@ class LmChophomeCombined(BandLmMixin, ImageDataItem):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI20.NAME'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI20_NAME})
 
     _schema = {
         'PRIMARY': None,
@@ -50,7 +51,7 @@ class LmChophomeBackground(BandLmMixin, ImageDataItem):
     _frame_type = cpl.ui.Frame.FrameType.IMAGE
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI19.NAME', 'INS.OPTI20.NAME'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI19_NAME, kw.INS_OPTI20_NAME})
 
     _schema = {
         'PRIMARY': None,

@@ -22,6 +22,7 @@ from cpl.core import Table
 
 from pymetis.engine.dataitems import TableDataItem
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class GainMap(TableDataItem, abstract=True):
@@ -31,7 +32,7 @@ class GainMap(TableDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
     _schema = {
         'PRIMARY': None,

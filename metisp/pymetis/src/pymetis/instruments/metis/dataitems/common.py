@@ -21,6 +21,7 @@ import cpl
 from cpl.core import Image, Table
 
 from pymetis.engine.dataitems import ImageDataItem, TableDataItem
+from pymetis.instruments.metis import keywords as kw
 
 
 class PersistenceMap(ImageDataItem):
@@ -29,7 +30,7 @@ class PersistenceMap(ImageDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _description_template = "Persistence map"
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
     _pro_catg = r'PERSISTENCE_MAP'
 
     _schema = {
@@ -44,7 +45,7 @@ class FluxCalTable(TableDataItem):
     _description_template = "Conversion between instrumental and physical flux units"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
     _schema = {
         'PRIMARY': None,
@@ -58,7 +59,7 @@ class PinholeTable(TableDataItem):
     _description_template = "Table of pinhole locations"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
     _pro_catg = r'PINHOLE_TABLE'
 
     _schema = {
@@ -74,7 +75,7 @@ class AtmProfile(TableDataItem):
                              "pressure and molecular abundances")
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
     _schema = {
         'PRIMARY': None,
@@ -89,7 +90,7 @@ class LsfKernel(TableDataItem):
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
 
 class FluxStdCatalog(TableDataItem):
@@ -107,7 +108,7 @@ class AtmLineCatalog(TableDataItem):
     _description_template = "Catalogue containing a line list of atmospheric molecular lines"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
 
 class LaserTable(TableDataItem):
@@ -116,4 +117,4 @@ class LaserTable(TableDataItem):
     _description_template = "Table with laser lines"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})

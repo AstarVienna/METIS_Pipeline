@@ -23,6 +23,7 @@ from cpl.core import Image
 from pymetis.engine.dataitems import ImageDataItem
 
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin, BandIfuMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class DistortionReduced(ImageDataItem, abstract=True):
@@ -31,7 +32,7 @@ class DistortionReduced(ImageDataItem, abstract=True):
     _description_template = r"Stacked {band} pinhole exposure for the distortion determination"   # the DRLD card wrongly repeats DISTORTION_TABLE
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
-    _oca_keywords = frozenset({'PRO.CATG'})
+    _oca_keywords = frozenset({kw.PRO_CATG})
 
     _schema = {
         'PRIMARY': None,
@@ -40,15 +41,15 @@ class DistortionReduced(ImageDataItem, abstract=True):
 
 
 class LmDistortionReduced(BandLmMixin, DistortionReduced):
-    _oca_keywords = DistortionReduced._oca_keywords | frozenset({'DRS.FILTER'})
+    _oca_keywords = DistortionReduced._oca_keywords | frozenset({kw.DRS_FILTER})
 
 
 class NDistortionReduced(BandNMixin, DistortionReduced):
-    _oca_keywords = DistortionReduced._oca_keywords | frozenset({'DRS.FILTER'})
+    _oca_keywords = DistortionReduced._oca_keywords | frozenset({kw.DRS_FILTER})
 
 
 class IfuDistortionReduced(BandIfuMixin, DistortionReduced):
-    _oca_keywords = DistortionReduced._oca_keywords | frozenset({'DRS.IFU'})
+    _oca_keywords = DistortionReduced._oca_keywords | frozenset({kw.DRS_IFU})
 
     _schema = {
         'PRIMARY': None,

@@ -22,6 +22,7 @@ from cpl.core import Image
 
 from pymetis.engine.dataitems import ImageDataItem
 from pymetis.instruments.metis.mixins import TargetSciMixin, TargetStdMixin, BandLmMixin, BandNMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class BackgroundSubtracted(ImageDataItem, abstract=True):
@@ -30,7 +31,7 @@ class BackgroundSubtracted(ImageDataItem, abstract=True):
     _description_template = r"Thermal background subtracted {band} {target} exposures."
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'}) # maybe
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER}) # maybe
 
     _schema = {
         'PRIMARY': None,

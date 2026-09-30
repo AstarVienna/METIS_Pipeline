@@ -21,6 +21,7 @@ import cpl
 from cpl.core import Image
 
 from pymetis.instruments.metis.dataitems.raw import Raw
+from pymetis.instruments.metis import keywords as kw
 
 
 class LmChophomeRaw(Raw):
@@ -29,8 +30,8 @@ class LmChophomeRaw(Raw):
     _description_template = "Raw exposure of the LM image mode"
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
-    _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
-                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
+    _oca_keywords = frozenset({kw.DPR_CATG, kw.DPR_TECH, kw.DPR_TYPE,
+                               kw.INS_OPTI3_NAME, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.DRS_FILTER})
     _dpr = ('CALIB', 'IMAGE,LM', 'CHOPHOME')
 
     _schema = {

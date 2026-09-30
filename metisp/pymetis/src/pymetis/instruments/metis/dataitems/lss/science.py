@@ -22,6 +22,7 @@ from cpl.core import Table, Image
 
 from pymetis.engine.dataitems import ImageDataItem, TableDataItem
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin, TargetSciMixin, TargetStdMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class LssObjMap(ImageDataItem, abstract=True):
@@ -30,7 +31,7 @@ class LssObjMap(ImageDataItem, abstract=True):
     _description_template = "Pixel map of object pixels (QC)"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.DRS_SLIT})
 
     _schema = {
         'PRIMARY': None,
@@ -60,7 +61,7 @@ class LssSkyMap(ImageDataItem, abstract=True):
     _description_template = "Image with detected plain sky pixels of the {target} observation."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.INS_OPTI11_NAME, kw.DRS_SLIT})
 
     _schema = {
         'PRIMARY': None,
@@ -90,7 +91,7 @@ class LssSci1d(TableDataItem, abstract=True):
     _description_template = "Extracted {band} 1D science spectrum."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.INS_OPTI11_NAME, kw.DRS_SLIT})
 
 
 class LmLssSci1d(BandLmMixin, LssSci1d):
@@ -107,7 +108,7 @@ class LssSci2d(ImageDataItem, abstract=True):
     _description_template = "Rectified 2D {band} spectrum of science object."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.INS_OPTI11_NAME, kw.DRS_SLIT})
 
     _schema = {
         'PRIMARY': None,
@@ -132,7 +133,7 @@ class LssSciFlux1d(TableDataItem, abstract=True):
     _description_template = "Extracted, flux-calibrated 1D science spectrum"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.INS_OPTI11_NAME, kw.DRS_SLIT})
 
     _schema = {
         'PRIMARY': None,
@@ -157,7 +158,7 @@ class LssSciFlux2d(ImageDataItem, abstract=True):
     _description_template = "Rectified, flux-calibrated 2D {band}-band spectrum of the science object."
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI9_NAME, kw.INS_OPTI10_NAME, kw.INS_OPTI11_NAME, kw.DRS_SLIT})
 
     _schema = {
         'PRIMARY': None,
@@ -182,7 +183,7 @@ class LssSciFluxTellCorr1d(TableDataItem, abstract=True):
     _description_template = "Extracted, flux-calibrated, telluric-corrected 1D science spectrum"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
-    _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'DRS.SLIT'})
+    _oca_keywords = frozenset({kw.PRO_CATG, kw.INS_OPTI12_NAME, kw.INS_OPTI13_NAME, kw.INS_OPTI14_NAME, kw.DRS_SLIT})
 
 
 class LmLssSciFluxTellCorr1d(BandLmMixin, LssSciFluxTellCorr1d):
