@@ -93,7 +93,8 @@ class RecipeCard:
     """ Everything the recipe template needs for one recipe; rows are ready-made LaTeX. """
     name: str
     synopsis: str
-    inputs: list[str]
+    primary_inputs: list[str]       # the data the recipe processes (PrimaryInputMixin), raw or not
+    secondary_inputs: list[str]     # what is applied to it, calibration or not
     matched_keywords: list[str]
     parameters: list[str]
     algorithm: list[str]
@@ -110,7 +111,7 @@ class DprRow:
     tech: str
     type: str
     tag: str
-    recipes: list[str]              # recipes taking the item on a RAW-role input
+    recipes: list[str]              # recipes taking the item as a primary input
 
 
 @dataclass
@@ -137,7 +138,7 @@ class ChartStep:
 class FlowChart:
     """ One per-recipe flowchart (`tikz/metis_<recipe>.tex`). """
     recipe: str
-    raw_inputs: list[str]
+    primary_inputs: list[str]       # the header box: what the recipe processes
     calibrations: list[ChartNode]
     steps: list[ChartStep]
     products: list[ChartNode]
@@ -314,7 +315,7 @@ class Catalogue:
         """
         from pymetis.engine.recipes import Step
         recipe = self.recipes[name]
-        chart = FlowChart(recipe=name, raw_inputs=[], calibrations=[],
+        chart = FlowChart(recipe=name, primary_inputs=[], calibrations=[],
                           steps=[], products=[], first_step_gap=0, stop_gap=0)
         declared = list(recipe._steps) or [Step(PLACEHOLDER_STEP)]
         if not recipe._steps:
@@ -330,15 +331,15 @@ class Catalogue:
         produced_at = {attr: keys[i] for i, step in enumerate(declared) for attr in step.products}
 
         inputs = sorted(recipe._list_inputs(),
-                        key=lambda e: (e[1]._group != cpl.ui.Frame.FrameGroup.RAW, self.input_tag(recipe, e[1])))
+                        key=lambda e: (not e[1].is_primary(), self.input_tag(recipe, e[1])))
         left: dict[str, list[ChartNode]] = {key: [] for key in keys}
         for attr, inp in inputs:
             tag = self.input_tag(recipe, inp)
             ref = self.reference(inp.Item, tag, max_alternatives=CHART_ALTERNATIVES)
             if inp.multiplicity() == 'N':
                 ref = r'\textsl{N} ' + ref.replace(' or ', r' \\ or \textsl{N} ')
-            if inp._group == cpl.ui.Frame.FrameGroup.RAW:
-                chart.raw_inputs.append(ref)
+            if inp.is_primary():
+                chart.primary_inputs.append(ref)
                 continue
             macro = self.macro_of(inp.Item, tag)
             left[consumed_at.get(attr, keys[0])].append(ChartNode(
@@ -391,10 +392,10 @@ class Catalogue:
     # --- data items ---
 
     def raw_consumers(self, tag: str) -> list[str]:
-        """ The recipes that take `tag` on a RAW-role input (the DPR table's Recipes column). """
+        """ The recipes that take `tag` as a primary input (the DPR table's Recipes column). """
         item = self.items[tag]
         return sorted(name for name in self.input_for[tag]
-                      if any(inp._group == cpl.ui.Frame.FrameGroup.RAW and issubclass(item, inp.Item)
+                      if any(inp.is_primary() and issubclass(item, inp.Item)
                              for _, inp in self.recipes[name]._list_inputs()))
 
     def dpr_rows(self, findings: list[str] | None = None) -> list[DprRow]:
@@ -441,18 +442,16 @@ class Catalogue:
     def recipe_card(self, name: str) -> RecipeCard:
         recipe = self.recipes[name]
 
-        # Raw data first, as in the DRLD, then the calibrations alphabetically.
-        inputs = []
-        for _, input_class in sorted(recipe._list_inputs(),
-                                     key=lambda entry: (entry[1]._group != cpl.ui.Frame.FrameGroup.RAW,
-                                                        self.input_tag(recipe, entry[1]))):
+        # The primary inputs (what the recipe processes) and the secondary ones (what it applies), each alphabetical.
+        primary_inputs, secondary_inputs = [], []
+        for _, input_class in sorted(recipe._list_inputs(), key=lambda entry: self.input_tag(recipe, entry[1])):
             tag = self.input_tag(recipe, input_class)
             row = self.reference(input_class.Item, tag)
             if input_class.multiplicity() == 'N':
                 row += ' (one or more)'
             if not input_class.required():
                 row += ' (optional)'
-            inputs.append(row)
+            (primary_inputs if input_class.is_primary() else secondary_inputs).append(row)
 
         parameters = []
         for parameter in recipe.parameters:
@@ -469,7 +468,8 @@ class Catalogue:
         return RecipeCard(
             name=name,
             synopsis=recipe._synopsis,
-            inputs=inputs,
+            primary_inputs=primary_inputs,
+            secondary_inputs=secondary_inputs,
             matched_keywords=sorted(recipe._matched_keywords or ()),
             parameters=parameters,
             algorithm=algorithm,

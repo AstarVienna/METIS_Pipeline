@@ -2,7 +2,7 @@
 The EDPS workflows against the recipes they run.
 
 Every workflow task is loaded offline (`pymetis.engine.workflows`) and bound to its recipe's
-InputSet: the tags a task feeds must be accepted, the main input must land on a RAW-role
+InputSet: the tags a task feeds must be accepted, the main input must land on a primary
 input, optional / required and one / many must agree, every recipe input must be fed, and
 what consumers ask for must be a declared product. The workflow package is hand-written and
 disagrees with the recipes in many places today; each disagreement is a strict xfail below,
@@ -105,9 +105,9 @@ class TestTaskBinding:
         expect_failure(request, binding, FEEDS_UNACCEPTED_TAGS, "workflow feeds a tag the recipe has no input for")
         assert not binding.unaccepted, f"{binding.task} feeds {binding.recipe} tags no input accepts: {binding.unaccepted}"
 
-    def test_the_main_input_lands_on_a_raw_role_input(self, binding):
-        assert not binding.main_not_raw_role, \
-            f"{binding.task}: main input {binding.main_not_raw_role} is accepted only by calibration-role inputs of {binding.recipe}"
+    def test_the_main_input_lands_on_a_primary_input(self, binding):
+        assert not binding.main_not_primary, \
+            f"{binding.task}: main input {binding.main_not_primary} is accepted only by calibration-role inputs of {binding.recipe}"
 
     def test_optional_and_required_agree(self, binding, request):
         expect_failure(request, binding, OPTIONALITY_DISAGREES, "min_ret and OptionalInputMixin disagree")

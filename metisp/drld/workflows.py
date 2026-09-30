@@ -212,7 +212,7 @@ class MapBuilder:
         return raws
 
     def unfed_alternatives(self, task) -> list[str]:
-        """ Catalogue tags the recipe's RAW-role inputs accept (LM_FLAT_TWILIGHT_RAW next to LM_FLAT_LAMP_RAW) that no task feeds. """
+        """ Catalogue tags the recipe's primary inputs accept (LM_FLAT_TWILIGHT_RAW next to LM_FLAT_LAMP_RAW) that no task feeds. """
         from pymetis.engine.recipes import Recipe
         recipe = Recipe._registry.get(task.command)
         if recipe is None:
@@ -224,7 +224,7 @@ class MapBuilder:
                 fed |= set(wf.assoc_tags(assoc))
         out = []
         for _, inp in recipe.Impl.InputSet.list_input_classes():
-            if inp._group != cpl.ui.Frame.FrameGroup.RAW:
+            if not inp.is_primary():
                 continue
             for tag in self.catalogue.expand(inp.Item.name()):
                 if tag not in fed and tag not in out:
@@ -449,7 +449,7 @@ def matched_keywords(catalogue, module_names, findings: list[str] | None = None)
                                       aliases=sorted(recipe._matched_keywords))
         for _, inp in recipe._list_inputs():
             tag = catalogue.input_tag(recipe, inp)
-            attr = 'main_inputs' if inp._group == cpl.ui.Frame.FrameGroup.RAW else 'calibrations'
+            attr = 'main_inputs' if inp.is_primary() else 'calibrations'
             r = catalogue.reference(inp.Item, tag)
             if r not in getattr(row, attr):
                 getattr(row, attr).append(r)

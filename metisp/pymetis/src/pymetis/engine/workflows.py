@@ -37,7 +37,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import cpl
 
 from pymetis.engine.dataitems import DataItem
 from pymetis.engine.recipes import Recipe
@@ -235,7 +234,7 @@ class InputBinding:
     tag: str
     role: str                       # 'main' or 'assoc'
     accepted_by: list[str]          # attribute names of the recipe inputs whose Item covers the tag
-    raw_role: bool                  # some accepting input has the RAW role (PrimaryInputMixin)
+    primary: bool                   # some accepting input is a primary input of the recipe
     min_ret: int
     max_ret: int
     optional: bool                  # EDPS side: min_ret == 0 or conditional
@@ -249,7 +248,7 @@ class TaskBinding:
     inputs: list[InputBinding] = field(default_factory=list)
     unaccepted: list[str] = field(default_factory=list)             # fed tags no recipe input covers
     unknown: list[str] = field(default_factory=list)                # fed tags that are no catalogue item at all
-    main_not_raw_role: list[str] = field(default_factory=list)      # main-input tags accepted only by CALIB-role inputs
+    main_not_primary: list[str] = field(default_factory=list)       # main-input tags accepted only by secondary inputs
     optionality: list[str] = field(default_factory=list)            # "TAG: workflow optional, recipe required" and vice versa
     multiplicity: list[str] = field(default_factory=list)           # inputs taking N frames fed with max_ret 1
     missing_required: list[str] = field(default_factory=list)       # recipe inputs (attribute: Item) no task input feeds
@@ -259,7 +258,7 @@ class TaskBinding:
     @property
     def problems(self) -> list[str]:
         out = []
-        for label in ('unaccepted', 'unknown', 'main_not_raw_role', 'optionality', 'multiplicity',
+        for label in ('unaccepted', 'unknown', 'main_not_primary', 'optionality', 'multiplicity',
                       'missing_required', 'products_not_declared'):
             out += [f"{label}: {entry}" for entry in getattr(self, label)]
         return out
@@ -286,13 +285,13 @@ def bind(task, tasks_of_map=(), workflow: str = '') -> TaskBinding:
             binding.unknown.append(tag)
             continue
         accepting = [(name, inp) for name, inp in inputs if issubclass(item, inp.Item)]
-        raw_role = any(inp._group == cpl.ui.Frame.FrameGroup.RAW for _, inp in accepting)
-        binding.inputs.append(InputBinding(tag, role, [n for n, _ in accepting], raw_role, min_ret, max_ret, optional))
+        primary = any(inp.is_primary() for _, inp in accepting)
+        binding.inputs.append(InputBinding(tag, role, [n for n, _ in accepting], primary, min_ret, max_ret, optional))
         if not accepting:
             binding.unaccepted.append(tag)
             continue
-        if role == 'main' and not raw_role:
-            binding.main_not_raw_role.append(tag)
+        if role == 'main' and not primary:
+            binding.main_not_primary.append(tag)
         if role == 'assoc':
             required = all(inp.required() for _, inp in accepting)
             if optional and required:

@@ -257,7 +257,7 @@ them at your Recipe/Impl and naming the SOF) or when it has recipe-specific
 tests to add.
 
 `instruments/metis/tests/test_workflows.py` binds every task of the EDPS
-workflows to its recipe (accepted tags, RAW-role main input, optional/required,
+workflows to its recipe (accepted tags, main input on a primary input, optional/required,
 one/many, every input fed, requested products declared, every recipe has a
 task) and `test_dpr.py` checks the raw items' `_dpr` against
 `metis_classification.py`; both need `edps` importable and the workflow package

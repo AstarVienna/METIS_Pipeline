@@ -75,6 +75,16 @@ class PipelineInput(ABC):
         """
 
     @classmethod
+    def is_primary(cls) -> bool:
+        """
+        Whether this input is one of the recipe's primary inputs: the frames it processes
+        (`PrimaryInputMixin`, stamped RAW for CPL DFS), as opposed to the secondary inputs
+        applied to them. A primary input need not be raw data, a secondary one need not be
+        a calibration.
+        """
+        return cls._group == cpl.ui.Frame.FrameGroup.RAW
+
+    @classmethod
     def required(cls) -> bool:
         """
         Returns whether this pipeline input is required. Used during validation.

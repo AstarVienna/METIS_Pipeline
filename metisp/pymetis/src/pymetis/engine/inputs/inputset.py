@@ -340,7 +340,7 @@ class PipelineInputSet(ParametrizableContainer):
 
     def inputs_by_role(self) -> tuple[PipelineInput, ...]:
         """ The inputs with the RAW role first, each group in declaration order. """
-        return tuple(sorted(self.inputs, key=lambda inp: inp._group != cpl.ui.Frame.FrameGroup.RAW))
+        return tuple(sorted(self.inputs, key=lambda inp: not inp.is_primary()))
 
     @property
     def primary_frame(self) -> cpl.ui.Frame | None:
@@ -351,7 +351,7 @@ class PipelineInputSet(ParametrizableContainer):
         order of `used_frames`, see there).
         """
         for inp in self.inputs_by_role():
-            if inp._group != cpl.ui.Frame.FrameGroup.RAW:
+            if not inp.is_primary():
                 return None
             frames = getattr(inp, 'frameset', None)
             if frames is None:
