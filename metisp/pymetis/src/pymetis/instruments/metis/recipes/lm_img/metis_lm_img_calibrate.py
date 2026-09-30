@@ -41,7 +41,6 @@ class MetisLmImgCalibrate(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
-    _templates = ("METIS_lm_img_calibrate",)
     _steps = (
         Step('Scale image data to\nphotons/s', inputs=("fluxcal_table",)),
         Step('Add BUNIT and\ndistortion information\nto header',

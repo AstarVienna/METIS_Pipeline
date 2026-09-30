@@ -494,7 +494,6 @@ class MetisIfuWavecal(Recipe):
         Line detection and Gaussian centroiding are adapted from PyReduce (Piskunov &
         Valenti 2002, Piskunov, Wehrhahn & Marquart 2021), as prescribed by the DRLD."""
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
-    _templates = ("METIS_ifu_cal_InternalWave",)
     _steps = (
         Step('remove detector\nsignature',
              inputs=("bad_pix_map", "persistence_map", "gain_map", "linearity", "master_dark")),

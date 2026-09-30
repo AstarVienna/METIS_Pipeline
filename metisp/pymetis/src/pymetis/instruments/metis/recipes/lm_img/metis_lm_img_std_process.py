@@ -47,7 +47,6 @@ class MetisLmImgStdProcess(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
-    _templates = ("METIS_lm_img_std_process",)
     _steps = (
         Step('Detect standard star in\nindividual frames', inputs=("fluxstd_catalog",)),
         Step('shift and combine\nimages based\non the position\nof the standard star', products=("ImgStdCombined",)),

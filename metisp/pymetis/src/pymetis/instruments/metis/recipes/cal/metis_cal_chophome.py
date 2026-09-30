@@ -216,7 +216,6 @@ class MetisCalChophome(Recipe):
     """
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT'})
-    _templates = ("METIS_img_lm_cal_ChopperHome",)
     _steps = (
         Step('detector signature\nremoval', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
         Step('median-combine WCU_OFF\nsubtract from CHOPHOME', inputs=("wcu_off",), products=("Background",)),

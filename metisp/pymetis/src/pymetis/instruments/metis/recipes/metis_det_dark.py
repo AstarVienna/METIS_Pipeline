@@ -326,7 +326,6 @@ class MetisDetDark(Recipe):
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
     # for the man page. Later, we would like to be able to compare them directly to DRLD and test for that.
     _matched_keywords: frozenset[str] = frozenset()
-    _templates = ("METIS_gen_cal_dark", "METIS_gen_cal_InsDark")
     _steps = (
         Step('apply non-linearity correction', inputs=("bad_pix_map", "gain_map")),
         Step('apply persistence correction', inputs=("persistence_map",)),

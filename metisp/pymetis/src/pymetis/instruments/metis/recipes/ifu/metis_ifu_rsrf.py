@@ -420,7 +420,6 @@ class MetisIfuRsrf(Recipe):
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
-    _templates = ("METIS_ifu_cal_rsrf",)
     _steps = (
         Step('detector signature\nand background removal',
              inputs=("bad_pix_map", "persistence_map", "master_dark", "gain_map", "linearity", "distortion_table")),

@@ -164,18 +164,6 @@ class MetisIfuReduce(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
-    _templates = (
-        "METIS_ifu_obs_FixedSkyOffset",
-        "METIS_ifu_obs_GenericOffset",
-        "METIS_ifu_ext_obs_FixedSkyOffset",
-        "METIS_ifu_ext_obs_GenericOffset",
-        "METIS_ifu_vc_obs_FixedSkyOffset",
-        "METIS_ifu_ext_vc_obs_FixedSkyOffset",
-        "METIS_ifu_app_obs_Stare",
-        "METIS_ifu_ext_app_obs_Stare",
-        "METIS_ifu_cal_psf",
-        "METIS_ifu_cal_standard",
-    )
     _steps = (
         Step('detector signature\nremoval',
              inputs=("bad_pix_map", "persistence_map", "linearity", "gain_map", "master_dark", "rsrf")),

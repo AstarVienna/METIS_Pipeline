@@ -100,7 +100,6 @@ class RecipeCard:
     outputs: list[str]
     qc_parameters: list[str]
     description: str = ''           # the author's long text, for the section before the card
-    templates: list[str] = field(default_factory=list)
     has_flowchart: bool = False     # `_steps` declared: the document shows the generated flowchart after the card
 
 
@@ -138,7 +137,6 @@ class ChartStep:
 class FlowChart:
     """ One per-recipe flowchart (`tikz/metis_<recipe>.tex`). """
     recipe: str
-    templates: list[str]
     raw_inputs: list[str]
     calibrations: list[ChartNode]
     steps: list[ChartStep]
@@ -316,7 +314,7 @@ class Catalogue:
         """
         from pymetis.engine.recipes import Step
         recipe = self.recipes[name]
-        chart = FlowChart(recipe=name, templates=list(recipe._templates), raw_inputs=[], calibrations=[],
+        chart = FlowChart(recipe=name, raw_inputs=[], calibrations=[],
                           steps=[], products=[], first_step_gap=0, stop_gap=0)
         declared = list(recipe._steps) or [Step(PLACEHOLDER_STEP)]
         if not recipe._steps:
@@ -477,7 +475,7 @@ class Catalogue:
             algorithm=algorithm,
             outputs=[self.reference(product, product.name()) for _, product in recipe._list_products()],
             qc_parameters=[rf'\QC{{{self.qc_shown(qc.name())}}}' for _, qc in recipe._list_qc_parameters()],
-            templates=list(recipe._templates), has_flowchart=bool(recipe._steps),
+            has_flowchart=bool(recipe._steps),
         )
 
 
@@ -585,7 +583,6 @@ def environment() -> jinja2.Environment:
     env.filters['latex'] = latex
     env.filters['fits'] = fits_keywords
     env.filters['raw'] = lambda tag: rf'\RAW{{{tag}}}'
-    env.filters['tpl'] = lambda name: rf'\TPL{{{name}}}'
     return env
 
 

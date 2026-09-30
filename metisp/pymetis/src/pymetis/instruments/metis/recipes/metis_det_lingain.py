@@ -606,7 +606,6 @@ class MetisDetLinGain(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset()
-    _templates = ("METIS_img_lm_cal_DetLin", "METIS_img_n_cal_DetLin", "METIS_ifu_cal_DetLin")
     _steps = (
         Step('subtract dark'),
         Step('compute gain', products=("GainMap",)),

@@ -149,15 +149,6 @@ class MetisNImgChopnod(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
-    _templates = (
-        "METIS_img_n_cal_standard",
-        "METIS_img_n_obs_AutoChopNod",
-        "METIS_img_n_obs_GenericChopNod",
-        "METIS_img_n_cvc_obs_AutoChop",
-        "METIS_img_n_cal_psf",
-        "METIS_img_lmn_obs_AutoChopNod",
-        "METIS_img_lmn_obs_GenericChopNod",
-    )
     _steps = (
         Step('Correct non-linearity', inputs=("bad_pix_map", "gain_map", "linearity")),
         Step('Correct persistence', inputs=("persistence_map",)),

@@ -71,9 +71,6 @@ class Recipe(cpl.ui.PyRecipe):
     _matched_keywords: frozenset[str] | None = None
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"
-    # The observing templates that produce the raw data this recipe reduces, as the DRLD names
-    # them (`METIS_img_lm_cal_InternalFlat`). Documentation only; nothing in the pipeline reads it.
-    _templates: tuple[str, ...] = ()
     # The algorithm as the DRLD flowchart draws it: one `Step` per box, in order, each naming the
     # InputSet attributes it consumes and the ProductSet attributes it produces. The flowchart in
     # the DRLD is generated from this (`metisp/drld/generate_drld.py --flowchart`), so the

@@ -39,7 +39,6 @@ class MetisNImgFlat(Recipe):
     _description = "Prototype to create a METIS master flat for N band"
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
-    _templates = ("METIS_img_n_cal_InternalFlat", "METIS_img_n_cal_TwilightFlat")
     _steps = (
         Step('detector signature\nremoval',
              inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),

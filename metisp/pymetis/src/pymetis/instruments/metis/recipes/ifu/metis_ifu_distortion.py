@@ -358,7 +358,6 @@ class MetisIfuDistortion(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
-    _templates = ("METIS_ifu_cal_distortion",)
     _steps = (
         Step('detector signature\nremoval',
              inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),

@@ -37,7 +37,6 @@ class MetisLmImgDistortion(Recipe):
     _synopsis: str = "Determine optical distortion coefficients for the LM imager."
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
-    _templates = ("METIS_img_lm_cal_distortion",)
     _steps = (
         Step('detector signature\nremoval', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
         Step('subtract WCU OFF dark'),
