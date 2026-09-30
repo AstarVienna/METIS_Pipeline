@@ -39,6 +39,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
@@ -145,15 +146,15 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         continuum = []
         for index, frame in enumerate(raw.frameset):
             header = cpl.core.PropertyList.load(frame.file, 0)
-            keyword = 'ESO INS OPTI20 POSNAME'
+            keyword = kw.INS_OPTI20_POSNAME
 
-            if keyword not in header:
+            if not keyword.present(header):
                 Msg.warning(self.__class__.__qualname__,
-                            f"{frame.file}: no {keyword}, so it cannot be told apart "
+                            f"{frame.file}: no {keyword.header}, so it cannot be told apart "
                             f"from a pinhole-grid exposure; not used for tracing")
                 continue
 
-            if str(header[keyword].value).strip() == self.OPEN_MASK:
+            if keyword.get(header).strip() == self.OPEN_MASK:
                 continuum.append(index)
 
         dropped = len(raw.frameset) - len(continuum)
@@ -357,7 +358,7 @@ class MetisIfuDistortion(Recipe):
         "four detectors."
     )
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
+    _matched_keywords = frozenset({kw.DRS_IFU})
     _steps = (
         Step('detector signature\nremoval',
              inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),

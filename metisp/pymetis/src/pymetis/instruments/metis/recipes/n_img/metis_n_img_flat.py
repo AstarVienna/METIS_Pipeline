@@ -23,6 +23,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum, Paramete
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.instruments.metis.recipes.prefab import MetisBaseImgFlatImpl
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisNImgFlatImpl(PersistenceCorrectionMixin, BandNMixin, DetectorGeoMixin, MetisBaseImgFlatImpl):
@@ -38,7 +39,7 @@ class MetisNImgFlat(Recipe):
     _synopsis = "Create master flat for N band detectors"
     _description = "Prototype to create a METIS master flat for N band"
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_FILTER})
     _steps = (
         Step('detector signature\nremoval',
              inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),

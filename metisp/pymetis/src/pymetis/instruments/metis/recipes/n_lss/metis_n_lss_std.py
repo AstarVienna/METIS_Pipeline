@@ -24,6 +24,7 @@ from pymetis.engine.inputs import SinglePipelineInput
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin, TargetStdMixin
 from pymetis.instruments.metis.recipes.prefab.lss.std import MetisLssStdImpl
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisNLssStdImpl(BandNMixin, DetectorGeoMixin, TargetStdMixin, MetisLssStdImpl):
@@ -49,7 +50,7 @@ class MetisNLssStd(Recipe):
     _synopsis: str = ("Reduction of the standard star frames for determining the response "
                       "function (flux calibration) and/or the transmission (telluric correction)")
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_SLIT})
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

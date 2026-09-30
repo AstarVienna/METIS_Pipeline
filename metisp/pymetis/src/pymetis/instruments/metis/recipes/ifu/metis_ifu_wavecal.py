@@ -42,6 +42,7 @@ from pymetis.instruments.metis.inputs import (MasterDarkInput, RawInput, Distort
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 # Microns per Angstrom, for reporting the fit residual in the unit the DRLD declares
 MICRON_IN_ANGSTROM = 1.0e4
@@ -131,11 +132,10 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         header = self._raw_header()
 
         from_header = []
-        for laser in range(1, 5):
-            for keyword in (f"ESO SEQ WCU LASER{laser} WLEN",
-                            f"ESO INS WCU LASER{laser} WLEN"):
-                if keyword in header:
-                    value = float(header[keyword].value)
+        for laser in kw.SEQ_WCU_LASER_WLEN.index:
+            for keyword in (kw.SEQ_WCU_LASER_WLEN[laser], kw.INS_WCU_LASER_WLEN[laser]):
+                if keyword.present(header):
+                    value = keyword.get(header)
                     if value > 0:
                         from_header.append(value)
                     break
@@ -251,8 +251,8 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
         width = float(self.parameters[f"{self.name}.dispersion.width"].value)
 
         header = self._raw_header()
-        if 'ESO INS WLEN CEN' in header:
-            centre = float(header['ESO INS WLEN CEN'].value)
+        if kw.INS_WLEN_CEN.present(header):
+            centre = kw.INS_WLEN_CEN.get(header)
             # fixme: determine det location from the header, not the hardcoded order
             if detector in [1,3]:
                 centre -= 0.5 * width
@@ -493,7 +493,7 @@ class MetisIfuWavecal(Recipe):
 
         Line detection and Gaussian centroiding are adapted from PyReduce (Piskunov &
         Valenti 2002, Piskunov, Wehrhahn & Marquart 2021), as prescribed by the DRLD."""
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_IFU})
     _steps = (
         Step('remove detector\nsignature',
              inputs=("bad_pix_map", "persistence_map", "gain_map", "linearity", "master_dark")),

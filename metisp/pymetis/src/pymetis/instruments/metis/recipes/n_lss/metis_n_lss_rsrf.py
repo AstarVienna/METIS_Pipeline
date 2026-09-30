@@ -22,6 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.instruments.metis.recipes.prefab.lss.rsrf import MetisLssRsrfImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisNLssRsrfImpl(BandNMixin, DetectorGeoMixin, MetisLssRsrfImpl):
@@ -53,7 +54,7 @@ class MetisNLssRsrf(Recipe):
 
 # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_SLIT})
     _algorithm = """Fancy algorithm description follows ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

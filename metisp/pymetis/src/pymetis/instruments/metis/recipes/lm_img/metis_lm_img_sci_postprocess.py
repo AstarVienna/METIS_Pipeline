@@ -28,6 +28,7 @@ from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
@@ -116,7 +117,7 @@ class MetisLmImgSciPostProcess(Recipe):
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Coadd reduced images"
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _matched_keywords = frozenset({kw.DRS_FILTER})
     _steps = (
         Step('determine output grid'),
         Step('resample images'),

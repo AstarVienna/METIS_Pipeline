@@ -28,6 +28,7 @@ from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
@@ -98,7 +99,7 @@ class MetisLmImgBackground(Recipe):
         )
     ])
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _matched_keywords = frozenset({kw.DRS_FILTER})
     _steps = (
         Step('Average all or SKY\nexposures with\nobject rejection',
              inputs=("sky_basic_reduced",),

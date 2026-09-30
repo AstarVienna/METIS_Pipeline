@@ -40,6 +40,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 import numpy as np
 import astropy.stats
@@ -406,14 +407,12 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         for i_frame in range(length):
             header = cpl.core.PropertyList.load(self.inputset.raw.frameset[i_frame].file, 0)
             headers.append(header)
-            #print(header_linearity['ESO DET1 DIT'].value)
-            #print(header_linearity['ESO DRS NDFILTER'].value)
-            fws.append(header['ESO DRS FILTER'].value)
-            dits.append(header['ESO DET DIT'].value)
+            fws.append(kw.DRS_FILTER.get(header))
+            dits.append(kw.DET_DIT.get(header))
             images.append(raw_images[i_frame].as_array())
 
-        if len(techs := list(set([header['ESO DPR TECH'].value for header in headers]))) != 1:
-            raise cpl.core.IllegalInputError(f"More than one ESO DPR TECH detected in {headers}: {techs}")
+        if len(techs := list({kw.DPR_TECH.get(header) for header in headers})) != 1:
+            raise cpl.core.IllegalInputError(f"More than one {kw.DPR_TECH.header} detected in {headers}: {techs}")
         else:
             self.tech = techs[0]
             self.set_detector_characteristics(self.tech)

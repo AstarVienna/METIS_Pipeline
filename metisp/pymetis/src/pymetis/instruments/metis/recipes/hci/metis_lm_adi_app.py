@@ -32,6 +32,7 @@ from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisLmAppSciCalibrateImpl(RawImageProcessor):
@@ -171,7 +172,7 @@ class MetisLmAppSciCalibrated(Recipe):
     _email: str = "jkarr@asiaa.sinica.edu.tw"
     _synopsis: str = "ADI post-processing for the LM-band APP coronagraph"
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _matched_keywords = frozenset({kw.DRS_FILTER})
     _steps = (
         Step('Centroid determination', products=("CentroidTab",)),
         Step('Distortion correction and\nsubpixel alignment', products=("SciCentred",)),

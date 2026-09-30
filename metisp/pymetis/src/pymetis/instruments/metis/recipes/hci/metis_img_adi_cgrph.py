@@ -29,6 +29,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
@@ -108,7 +109,7 @@ class MetisImgAdiCgrph(Recipe):
     _email: str = "jkarr@asiaa.sinica.edu.tw"
     _synopsis: str = "ADI post-processing for the RAVC and CVC coronagraphs in the LM and N bands"
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER', 'DRS.MASK'})
+    _matched_keywords = frozenset({kw.DRS_FILTER, kw.DRS_MASK})
     _steps = (
         Step('Centroid determination', products=("CentroidTab",)),
         Step('Distortion correction and\nsubpixel alignment', products=("SciCentred",)),

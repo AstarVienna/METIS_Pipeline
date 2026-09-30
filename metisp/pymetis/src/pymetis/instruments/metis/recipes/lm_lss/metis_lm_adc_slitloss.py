@@ -24,6 +24,7 @@ from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.prefab.lss.adc import MetisAdcSlitlossImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisLmAdcSlitlossImpl(BandLmMixin, Detector2rgMixin, MetisAdcSlitlossImpl):
@@ -40,7 +41,7 @@ class MetisLmAdcSlitloss(Recipe):
     _synopsis: str = "Determines ADC slitlosses"
     # TODO: Check whether WCU_OFF frames are necessary as input (cf. ifu rsrf recipe)
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_SLIT})
     _algorithm = """Incredible fancy description of algorithm follows... ***TBD***""" # TODO: Write description
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

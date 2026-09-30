@@ -34,6 +34,7 @@ from pymetis.instruments.metis.inputs import (RawInput, MasterFlatInput,
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -200,7 +201,7 @@ class MetisLmImgBasicReduce(Recipe):
         "and it is divided by the master flat."
     )
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_FILTER})
     _steps = (
         Step('Correct non-linearity', inputs=("bad_pix_map", "gain_map", "linearity")),
         Step('Correct persistence', inputs=("persistence_map",)),

@@ -22,6 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandNMixin
 from pymetis.instruments.metis.recipes.prefab.lss.mf_model import MetisLssMfModelImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisNLssMfModelImpl(BandNMixin, MetisLssMfModelImpl):
@@ -37,7 +38,7 @@ class MetisNLssMfModel(Recipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of molecfit model"
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_SLIT})
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

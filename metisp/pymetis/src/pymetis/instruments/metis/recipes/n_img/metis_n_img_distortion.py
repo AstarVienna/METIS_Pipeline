@@ -22,6 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.instruments.metis.recipes.prefab import MetisBaseImgDistortionImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisNImgDistortionImpl(BandNMixin, DetectorGeoMixin, MetisBaseImgDistortionImpl):
@@ -36,7 +37,7 @@ class MetisNImgDistortion(Recipe):
     _email: str = "chyan@asiaa.sinica.edu.tw"
     _synopsis: str = "Determine optical distortion coefficients for the N imager."
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _matched_keywords = frozenset({kw.DRS_FILTER})
     _steps = (
         Step('detector signature\nremoval', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
         Step('subtract WCU OFF dark'),

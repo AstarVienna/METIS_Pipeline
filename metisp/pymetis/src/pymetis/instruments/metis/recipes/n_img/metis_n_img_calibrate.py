@@ -22,6 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.instruments.metis.recipes.prefab import MetisImgCalibrateImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisNImgCalibrateImpl(BandNMixin, DetectorGeoMixin, MetisImgCalibrateImpl):
@@ -39,7 +40,7 @@ class MetisNImgCalibrate(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _matched_keywords = frozenset({kw.DRS_FILTER})
     _steps = (
         Step('Scale image data to\nphotons/s', inputs=("fluxcal_table",)),
         Step('Add BUNIT and\ndistortion information\nto header',

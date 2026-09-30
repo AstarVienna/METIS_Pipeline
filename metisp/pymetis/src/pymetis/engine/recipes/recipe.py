@@ -28,6 +28,7 @@ from ..dataitems import DataItem
 from ..qc import QcParameter
 from ..recipes.impl import RecipeImpl
 from ..inputs import PipelineInput
+from ..keywords import Keyword
 
 
 @dataclass(frozen=True)
@@ -68,7 +69,9 @@ class Recipe(cpl.ui.PyRecipe):
     # The author's long description, kept apart from `_description`, which pyesorex reads and
     # which `__init_subclass__` replaces with the generated man page.
     _long_description: str | None = None
-    _matched_keywords: frozenset[str] | None = None
+    # The header keywords the recipe's calibrations are matched to its raw data on, as the DRLD card lists them:
+    # keyword objects of the instrument vocabulary, never strings. None: not declared (a test enforces it).
+    _matched_keywords: frozenset[Keyword] | None = None
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"
     # The algorithm as the DRLD flowchart draws it: one `Step` per box, in order, each naming the
@@ -91,6 +94,9 @@ class Recipe(cpl.ui.PyRecipe):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+        if strings := [k for k in (cls._matched_keywords or ()) if not isinstance(k, Keyword)]:
+            raise TypeError(f"{cls.__qualname__}: _matched_keywords holds {strings!r}; use the keyword objects of "
+                            f"pymetis.instruments.metis.keywords, not strings")
         if '_description' in cls.__dict__:
             cls._long_description = cls.__dict__['_description']
         cls._description: str = cls._build_description()
@@ -169,7 +175,7 @@ class Recipe(cpl.ui.PyRecipe):
             matched_keywords = '--- none ---'
         else:
             # `_matched_keywords` is a frozenset: sort it so the man page is deterministic
-            matched_keywords = '\n  '.join(sorted(cls._matched_keywords))
+            matched_keywords = '\n  '.join(k.dotted for k in sorted(cls._matched_keywords))
 
         cls.Impl.specialize()
 

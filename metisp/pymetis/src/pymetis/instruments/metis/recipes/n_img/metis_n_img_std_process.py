@@ -22,6 +22,7 @@ from pymetis.engine.recipes import Recipe, Step
 
 from pymetis.instruments.metis.mixins import BandNMixin
 from pymetis.instruments.metis.recipes.prefab.img.std_process import MetisImgStdProcessImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisNImgStdProcessImpl(BandNMixin, MetisImgStdProcessImpl):
@@ -40,7 +41,7 @@ class MetisNImgStdProcess(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _matched_keywords = frozenset({kw.DRS_FILTER})
     _steps = (
         Step('Detect standard star in\nindividual frames', inputs=("fluxstd_catalog",)),
         Step('shift and combine\nimages based\non the position\nof the standard star', products=("ImgStdCombined",)),

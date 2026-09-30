@@ -25,6 +25,7 @@ from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, Primary
 
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisNImgRestoreImpl(MetisRecipeImpl):
@@ -58,7 +59,7 @@ class MetisNImgRestore(Recipe):
     _email = "martin.balaz@univie.ac.at"
     _synopsis = "Restore a single positive beam from chop-nod difference image."
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _matched_keywords = frozenset({kw.DRS_FILTER})
     _algorithm = """Call metis_cutout_region to cut regions around beams
     Add regions with appropriate signs with `hdrl_imagelist_collapse`"""
 

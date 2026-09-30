@@ -37,6 +37,7 @@ from pymetis.instruments.metis.inputs import RawInput, MasterFlatInput, GainMapI
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisPupilImagingImpl(DarkImageProcessor, MetisRecipeImpl):
@@ -153,7 +154,7 @@ class MetisPupilImaging(Recipe):
         images of the pupil masks. This recipe is not expected to be used by observers
         during regular use."""  # FixMe this is not shown anywhere now
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.PUPIL'})
+    _matched_keywords = frozenset({kw.DRS_PUPIL})
     _algorithm = """Apply dark current and flat field corrections."""
 
     parameters = ParameterList([

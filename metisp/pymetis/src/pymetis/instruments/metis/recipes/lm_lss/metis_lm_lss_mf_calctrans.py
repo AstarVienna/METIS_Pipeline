@@ -22,6 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandLmMixin
 from pymetis.instruments.metis.recipes.prefab.lss.mf_calctrans import MetisLssMfCalctransImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisLmLssMfCalctransImpl(BandLmMixin, MetisLssMfCalctransImpl):
@@ -43,7 +44,7 @@ class MetisLmLssMfCalctrans(Recipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Calculation of transmission function"
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.SLIT'})
+    _matched_keywords = frozenset({kw.DRS_SLIT})
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

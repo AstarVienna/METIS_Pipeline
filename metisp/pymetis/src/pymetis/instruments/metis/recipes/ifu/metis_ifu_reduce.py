@@ -36,6 +36,7 @@ from pymetis.instruments.metis.inputs import RawInput, WavecalInput, GainMapInpu
 from pymetis.instruments.metis.inputs.common import OptionalPersistenceMapInput
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -163,7 +164,7 @@ class MetisIfuReduce(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_IFU})
     _steps = (
         Step('detector signature\nremoval',
              inputs=("bad_pix_map", "persistence_map", "linearity", "gain_map", "master_dark", "rsrf")),

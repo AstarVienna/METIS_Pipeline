@@ -22,6 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin, TargetStdMixin
 from pymetis.instruments.metis.recipes.prefab.lss.std import MetisLssStdImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisLmLssStdImpl(BandLmMixin, Detector2rgMixin, TargetStdMixin, MetisLssStdImpl):
@@ -43,7 +44,7 @@ class MetisLmLssStd(Recipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Reduction of the standard star frames for determining the response function (flux calibration) and/or the transmission (telluric correction)"
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_SLIT})
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

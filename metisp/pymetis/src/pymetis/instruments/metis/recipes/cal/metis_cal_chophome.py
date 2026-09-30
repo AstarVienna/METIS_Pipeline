@@ -34,6 +34,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, MetisRecipeImpl):  # TODO replace parent class?
@@ -215,7 +216,7 @@ class MetisCalChophome(Recipe):
         (nothing yet)
     """
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT})
     _steps = (
         Step('detector signature\nremoval', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
         Step('median-combine WCU_OFF\nsubtract from CHOPHOME', inputs=("wcu_off",), products=("Background",)),

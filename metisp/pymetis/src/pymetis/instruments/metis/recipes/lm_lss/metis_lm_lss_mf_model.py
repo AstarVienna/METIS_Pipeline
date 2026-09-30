@@ -22,6 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandLmMixin
 from pymetis.instruments.metis.recipes.prefab.lss.mf_model import MetisLssMfModelImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisLmLssMfModelImpl(BandLmMixin, MetisLssMfModelImpl):
@@ -36,7 +37,7 @@ class MetisLmLssMfModel(Recipe):
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _synopsis: str = "Calculation of molecfit model"
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.SLIT'})
+    _matched_keywords = frozenset({kw.DRS_SLIT})
     _algorithm = """Fit of telluric features visible in the science input spectrum
     Determination of best-fit parameter set"""
 

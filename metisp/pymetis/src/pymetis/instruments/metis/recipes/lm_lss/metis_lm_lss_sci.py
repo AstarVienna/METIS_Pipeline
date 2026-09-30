@@ -22,6 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin, TargetSciMixin
 from pymetis.instruments.metis.recipes.prefab.lss.sci import MetisLssSciImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisLmLssSciImpl(BandLmMixin, Detector2rgMixin, TargetSciMixin, MetisLssSciImpl):
@@ -43,7 +44,7 @@ class MetisLmLssSci(Recipe):
     _copyright = "GPL-3.0-or-later"
     _synopsis = "Reduction of the LSS science star frames"
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_SLIT})
     _algorithm = """Fancy algorithm description follows ***TBD***"""
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++

@@ -27,6 +27,7 @@ from pymetis.engine.recipes import Recipe, Step
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
@@ -124,7 +125,7 @@ class MetisIfuPostprocess(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
+    _matched_keywords = frozenset({kw.DRS_IFU})
     _steps = (
         Step('determine output grid'),
         Step('resample cubes'),

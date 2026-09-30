@@ -29,6 +29,7 @@ from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 
 # The aim of this recipe is twofold:
@@ -162,7 +163,7 @@ class MetisIfuTelluric(Recipe):
     _algorithm = """Extract 1D spectrum of science object or standard star.
     Compute telluric correction.
     Compute conversion to physical units as function of wave-length."""
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_IFU})
     _steps = (
         Step('1D extraction', products=("ResponseFunction",)),
         Step('Molecfit', inputs=("lsf_kernel", "atm_profile"), products=("TelluricTransmission",)),

@@ -45,6 +45,7 @@ from pymetis.instruments.metis import qc
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis import keywords as kw
 
 ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
@@ -419,7 +420,7 @@ class MetisIfuRsrf(Recipe):
     _email: str = "janus.brink@univie.ac.at"
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_IFU})
     _steps = (
         Step('detector signature\nand background removal',
              inputs=("bad_pix_map", "persistence_map", "master_dark", "gain_map", "linearity", "distortion_table")),

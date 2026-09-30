@@ -22,6 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
 from pymetis.instruments.metis.recipes.prefab.lss.trace import MetisLssTraceImpl
+from pymetis.instruments.metis import keywords as kw
 
 
 class MetisNLssTraceImpl(BandNMixin, DetectorGeoMixin, MetisLssTraceImpl):
@@ -43,7 +44,7 @@ class MetisNLssTrace(Recipe):
     _copyright: str = "GPL-3.0-or-later"
     _synopsis: str = "Detection of N order location on the GEO detector"
 
-    _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})
+    _matched_keywords = frozenset({kw.DET_DIT, kw.DET_NDIT, kw.DRS_SLIT})
     _algorithm = """Fancy algorithm description follows ***TBD*** """
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
