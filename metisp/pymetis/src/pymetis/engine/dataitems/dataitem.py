@@ -69,9 +69,11 @@ class DataItem(ParametrizableItem, abstract=True):
     _oca_keywords: ClassVar[frozenset[Keyword]] = frozenset()
 
     # The ESO DPR classification of raw data: (DPR.CATG, DPR.TECH, DPR.TYPE), with tag
-    # placeholders resolved like the name (`('CALIB', 'IMAGE,{band}', 'FLAT,{source}')`).
-    # Declared on RAW-group items only; it is what the EDPS classification rules must say.
-    _dpr: ClassVar[Optional[tuple[str, str, str]]] = None
+    # placeholders resolved like the name (`('CALIB', 'IMAGE,{band}', 'FLAT,{source}')`); a
+    # None position leaves that keyword unconstrained (a sky frame is CALIB or SCIENCE).
+    # Declared on RAW-group items only; the EDPS classification rules are generated from it
+    # (`python -m pymetis.engine.workflows --classification`).
+    _dpr: ClassVar[Optional[tuple[Optional[str], Optional[str], Optional[str]]]] = None
     DPR: ClassVar[tuple[Keyword, Keyword, Keyword]] = (eso.DPR_CATG, eso.DPR_TECH, eso.DPR_TYPE)   # the triple's positions
 
     # HDU schema: a dict of types or None
@@ -148,14 +150,14 @@ class DataItem(ParametrizableItem, abstract=True):
         """
         if cls._dpr is None:
             return None
-        catg, tech, kind = (partial_format(part, **cls.tag_parameters()) for part in cls._dpr)
+        catg, tech, kind = (None if part is None else partial_format(part, **cls.tag_parameters()) for part in cls._dpr)
         return catg, tech, kind
 
     @classmethod
     def dpr_rule(cls) -> Optional[dict[Keyword, str]]:
         """ The classification an EDPS rule must state for this raw item: keyword -> value, or None. """
         dpr = cls.dpr()
-        return None if dpr is None else dict(zip(cls.DPR, dpr))
+        return None if dpr is None else {keyword: value for keyword, value in zip(cls.DPR, dpr) if value is not None}
 
     @classmethod
     def oca_keywords(cls):

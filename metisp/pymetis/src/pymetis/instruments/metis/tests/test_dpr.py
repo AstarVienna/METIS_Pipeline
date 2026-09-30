@@ -36,16 +36,11 @@ def expect_failure(request, key: str, names: frozenset[str], reason: str) -> Non
         request.applymarker(pytest.mark.xfail(strict=True, reason=reason))
 
 
-# Snapshot of the disagreements on 2026-09-29; remove an entry once the rule or the item is fixed.
-RAW_ITEMS_WITHOUT_A_RULE = frozenset({          # raw items metis_classification.py does not know
-    'LM_CHOPHOME_RAW', 'LM_PUPIL_RAW', 'N_PUPIL_RAW', 'N_OFF_AXIS_PSF_RAW',
-})
-RULES_DISAGREEING_WITH_THE_ITEM = frozenset({   # the rule's triple differs from the item's
-    'LM_IMAGE_SKY_RAW',                         # the rule leaves DPR.CATG free (CALIB or SCIENCE); the item says CALIB
-})
-DPR_RULES_WITHOUT_AN_ITEM = frozenset({         # rules classifying raw data no catalogue item carries
-    'LM_LSS_SKY_RAW', 'N_IMAGE_SKY_RAW', 'N_LSS_SKY_RAW',
-})
+# metis_classification.py is generated from the items (`python -m pymetis.engine.workflows --classification`),
+# so these lists are empty; they stay as the place to record a disagreement should a rule ever be edited by hand.
+RAW_ITEMS_WITHOUT_A_RULE = frozenset()
+RULES_DISAGREEING_WITH_THE_ITEM = frozenset()
+DPR_RULES_WITHOUT_AN_ITEM = frozenset()
 PRODUCT_RULES_WITHOUT_AN_ITEM = frozenset()
 
 
@@ -58,8 +53,10 @@ class TestDprDeclaration:
         assert RAW_ITEMS[tag].dpr() is not None, f"{tag} declares no _dpr"
 
     def test_the_triple_is_fully_resolved(self, tag):
+        """ No placeholder left; a None position (keyword left free) is allowed, an empty string is not. """
         dpr = RAW_ITEMS[tag].dpr()
-        assert dpr is not None and all(part and '{' not in part for part in dpr), f"{tag}: {dpr}"
+        assert dpr is not None and all(part is None or (part and '{' not in part) for part in dpr), f"{tag}: {dpr}"
+        assert any(part is not None for part in dpr), f"{tag}: a triple with nothing constrained classifies everything"
 
     def test_only_raw_items_declare_a_triple(self):
         wrong = [tag for tag, item in DataItem._registry.items()
@@ -81,7 +78,9 @@ class TestClassificationRules:
         if tag not in RULES:
             pytest.skip("no rule")
         expect_failure(request, tag, RULES_DISAGREEING_WITH_THE_ITEM, "the rule's DPR triple differs")
-        assert {k.edps: v for k, v in RAW_ITEMS[tag].dpr_rule().items()} == dict(zip(wf.DPR_KEYWORDS, wf.rule_dpr(RULES[tag])))
+        declared = {k.edps: v for k, v in RAW_ITEMS[tag].dpr_rule().items()}
+        stated = {k: v for k, v in zip(wf.DPR_KEYWORDS, wf.rule_dpr(RULES[tag])) if v is not None}
+        assert stated == declared
 
     @pytest.mark.parametrize('rule_tag', sorted(DPR_RULES), ids=lambda tag: tag)
     def test_every_dpr_rule_names_a_raw_item(self, rule_tag, request):
@@ -92,3 +91,9 @@ class TestClassificationRules:
     def test_every_product_rule_names_a_catalogue_item(self, rule_tag, request):
         expect_failure(request, rule_tag, PRODUCT_RULES_WITHOUT_AN_ITEM, "the rule names no catalogue item")
         assert DataItem.find(rule_tag) is not None, f"rule {rule_tag} names no catalogue item"
+
+    def test_the_module_is_what_the_pipeline_generates(self):
+        """ metis_classification.py is a generated file: regenerate it, do not edit it. """
+        path = wf.classification_path()
+        assert path is not None and path.read_text() == wf.classification_module(), \
+            "metis_classification.py differs from the generated rules; run `python -m pymetis.engine.workflows --classification`"
