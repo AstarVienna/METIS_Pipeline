@@ -48,7 +48,7 @@ class LmImageSciRaw(TargetSciMixin, LmImageRaw):
 
 
 class LmImageSkyRaw(TargetSkyMixin, LmImageRaw):
-    _dpr = (None, 'IMAGE,{band}', 'SKY')          # a sky frame is CALIB or SCIENCE, as the workflow rule had it
+    _dpr = (..., 'IMAGE,{band}', 'SKY')           # any DPR.CATG: a sky frame is CALIB or SCIENCE, as the workflow rule had it
 
 
 class NImageRaw(BandNMixin, ImageRaw, abstract=True):

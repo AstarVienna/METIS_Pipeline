@@ -174,8 +174,8 @@ input class must re-annotate the attribute; forgetting this raises a
    - `_oca_keywords` — a `frozenset` of the OCA keywords the item matches on,
      as listed on its DRLD card;
    - `_dpr` — for raw items, the `(DPR.CATG, DPR.TECH, DPR.TYPE)` triple that
-     classifies the data, with the name's placeholders and `None` for a keyword
-     left free (`(None, 'IMAGE,{band}', 'SKY')`: a sky frame is CALIB or
+     classifies the data, with the name's placeholders and `...` for a keyword
+     left free (`(..., 'IMAGE,{band}', 'SKY')`: a sky frame is CALIB or
      SCIENCE). The EDPS classification rules are generated from it:
      `python -m pymetis.engine.workflows --classification` rewrites
      `workflows/metis/metis_classification.py` (one rule per raw item by its

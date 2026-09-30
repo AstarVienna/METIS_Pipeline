@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import datetime
 from pathlib import Path
+from types import EllipsisType
 from typing import Optional, Self, final, Union, ClassVar, TYPE_CHECKING
 
 import cpl
@@ -66,10 +67,10 @@ class DataItem(ParametrizableItem, abstract=True):
 
     # The ESO DPR classification of raw data: (DPR.CATG, DPR.TECH, DPR.TYPE), with tag
     # placeholders resolved like the name (`('CALIB', 'IMAGE,{band}', 'FLAT,{source}')`); a
-    # None position leaves that keyword unconstrained (a sky frame is CALIB or SCIENCE).
-    # Declared on RAW-group items only; the EDPS classification rules are generated from it
-    # (`python -m pymetis.engine.workflows --classification`).
-    _dpr: ClassVar[Optional[tuple[Optional[str], Optional[str], Optional[str]]]] = None
+    # `...` in a position leaves that keyword unconstrained (`(..., 'IMAGE,{band}', 'SKY')`: a sky
+    # frame is CALIB or SCIENCE). Declared on RAW-group items only; the EDPS classification rules
+    # are generated from it (`python -m pymetis.engine.workflows --classification`).
+    _dpr: ClassVar[Optional[tuple[str | EllipsisType, str | EllipsisType, str | EllipsisType]]] = None
     DPR_KEYWORDS: ClassVar[tuple[str, str, str]] = ('dpr.catg', 'dpr.tech', 'dpr.type')   # the triple's positions, as EDPS spells them
 
     # HDU schema: a dict of types or None
@@ -142,18 +143,18 @@ class DataItem(ParametrizableItem, abstract=True):
     def dpr(cls) -> Optional[tuple[str, str, str]]:
         """
         The (DPR.CATG, DPR.TECH, DPR.TYPE) triple that classifies this raw item, resolved
-        with the item's tag parameters, or None for an item that declares none.
+        with the item's tag parameters (`...` where the keyword is left free), or None for an item that declares none.
         """
         if cls._dpr is None:
             return None
-        catg, tech, kind = (None if part is None else partial_format(part, **cls.tag_parameters()) for part in cls._dpr)
+        catg, tech, kind = (... if part is ... else partial_format(part, **cls.tag_parameters()) for part in cls._dpr)
         return catg, tech, kind
 
     @classmethod
     def dpr_rule(cls) -> Optional[dict[str, str]]:
         """ The classification an EDPS rule must state for this raw item: keyword (EDPS spelling) -> value, or None. """
         dpr = cls.dpr()
-        return None if dpr is None else {keyword: value for keyword, value in zip(cls.DPR_KEYWORDS, dpr) if value is not None}
+        return None if dpr is None else {keyword: value for keyword, value in zip(cls.DPR_KEYWORDS, dpr) if value is not ...}
 
     @classmethod
     def oca_keywords(cls):

@@ -53,10 +53,10 @@ class TestDprDeclaration:
         assert RAW_ITEMS[tag].dpr() is not None, f"{tag} declares no _dpr"
 
     def test_the_triple_is_fully_resolved(self, tag):
-        """ No placeholder left; a None position (keyword left free) is allowed, an empty string is not. """
+        """ No placeholder left; `...` (keyword left free) is allowed, an empty string or None is not. """
         dpr = RAW_ITEMS[tag].dpr()
-        assert dpr is not None and all(part is None or (part and '{' not in part) for part in dpr), f"{tag}: {dpr}"
-        assert any(part is not None for part in dpr), f"{tag}: a triple with nothing constrained classifies everything"
+        assert dpr is not None and all(part is ... or (part and '{' not in part) for part in dpr), f"{tag}: {dpr}"
+        assert any(part is not ... for part in dpr), f"{tag}: a triple with nothing constrained classifies everything"
 
     def test_only_raw_items_declare_a_triple(self):
         wrong = [tag for tag, item in DataItem._registry.items()

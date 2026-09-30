@@ -121,7 +121,7 @@ def rule_name(tag: str) -> str:
 def classification_module() -> str:
     """
     The text of `metis_classification.py`: every registered item as an EDPS classification
-    rule, raws by their DPR triple (a None position omitted), everything else by PRO.CATG.
+    rule, raws by their DPR triple (a `...` position omitted), everything else by PRO.CATG.
     """
     raws, products = [], []
     for tag, item in sorted(DataItem._registry.items()):
