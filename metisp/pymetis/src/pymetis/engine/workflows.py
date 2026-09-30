@@ -103,7 +103,7 @@ def load_workflow(module_name: str, workflows_dir: Path | None = None):
 
 # --- the classification rules --------------------------------------------------------------
 
-DPR_KEYWORDS = ('dpr.catg', 'dpr.tech', 'dpr.type')     # as `metis_keywords` spells them
+DPR_KEYWORDS = tuple(k.edps for k in DataItem.DPR)      # ('dpr.catg', 'dpr.tech', 'dpr.type'): the workflow package's spelling
 
 
 def classification_rules(workflows_dir: Path | None = None) -> dict[str, dict[str, Any]]:
@@ -130,6 +130,82 @@ def classification_rules(workflows_dir: Path | None = None) -> dict[str, dict[st
 def rule_dpr(rule: dict[str, Any]) -> tuple[Any, Any, Any]:
     """ The (DPR.CATG, DPR.TECH, DPR.TYPE) a rule requires; None where it leaves a keyword free. """
     return tuple(rule.get(key) for key in DPR_KEYWORDS)
+
+
+# --- the keyword strings the workflows use ---------------------------------------------------
+
+def keyword_usage(module_names) -> dict[str, set[str]]:
+    """
+    Every header keyword string the workflow package uses, in its own (lowercase) spelling,
+    and where: 'grouping:<data source>', 'setup:<data source>', 'match:<data source>',
+    'rule:<classification>', 'constant:<name>' (metis_keywords.py), 'read:<function>'
+    (get_keyword_value() calls in the task functions). The test against the vocabulary
+    reads this; the workflow package itself never imports pymetis.
+    """
+    import re
+    from collections import defaultdict
+    out: dict[str, set[str]] = defaultdict(set)
+    seen: set[int] = set()
+    for module in module_names:
+        for task in tasks(load_workflow(module)):
+            sources = [task.main_input] + [a.input_task for a in task.flatten_associated_inputs()]
+            for source in sources:
+                if not is_data_source(source) or id(source) in seen:
+                    continue
+                seen.add(id(source))
+                for k in source.grouping_keywords or ():
+                    out[k].add(f"grouping:{source.name}")
+                for k in source.setup_keywords or ():
+                    out[k].add(f"setup:{source.name}")
+                for k in source.match_keywords or ():
+                    out[k].add(f"match:{source.name}")
+                for config in source.assoc_configs or ():
+                    for k in config.match_keywords or ():
+                        out[k].add(f"match:{source.name}")
+                for rule in source.classification_rules or ():
+                    for k in getattr(rule, 'keyword_values', {}) or {}:
+                        out[k].add(f"rule:{rule.classification}")
+    directory = workflows_directory()
+    if directory is not None:
+        constants = importlib.import_module('metis.metis_keywords')
+        for name, value in vars(constants).items():
+            if isinstance(value, str) and not name.startswith('_'):
+                out[value].add(f"constant:{name}")
+            elif isinstance(value, tuple) and not name.startswith('_'):
+                for v in value:
+                    out[v].add(f"constant:{name}")
+        functions = (directory / 'metis' / 'metis_task_functions.py').read_text()
+        for m in re.finditer(r'get_keyword_value\(\s*["\']([^"\']+)["\']', functions):
+            out[m.group(1)].add("read:metis_task_functions")
+    return dict(out)
+
+
+# --- recipe parameter overrides of the workflows -----------------------------------------------
+
+# What `metis_task_functions.instrument_to_linlimit` injects per detector, mirrored here for the documentation.
+LINLIMIT_PER_TECH = {'LM': 22100, 'N': 13000, 'IFU': 44000}
+
+
+def parameter_overrides() -> dict[str, dict[str, list[tuple[Any, str]]]]:
+    """
+    The recipe-parameter defaults the workflows override: recipe -> parameter -> [(value, task)].
+    From `metis_parameters.yaml` (default_parameters.recipe_parameters, keyed by task, entries
+    `<recipe>.<parameter>: value`) plus the per-detector linearity limit the lingain task
+    function sets. Empty when the workflow package is not around.
+    """
+    directory = workflows_directory()
+    if directory is None:
+        return {}
+    import yaml
+    out: dict[str, dict[str, list[tuple[Any, str]]]] = {}
+    config = yaml.safe_load((directory / 'metis' / 'metis_parameters.yaml').read_text()) or {}
+    for task, parameters in (config.get('default_parameters', {}).get('recipe_parameters') or {}).items():
+        for name, value in (parameters or {}).items():
+            recipe = name.split('.')[0]
+            out.setdefault(recipe, {}).setdefault(name, []).append((value, task))
+    for tech, limit in LINLIMIT_PER_TECH.items():
+        out.setdefault('metis_det_lingain', {}).setdefault('metis_det_lingain.linlimit', []).append((limit, f"DPR.TECH {tech}"))
+    return out
 
 
 # --- reading a workflow -------------------------------------------------------------------

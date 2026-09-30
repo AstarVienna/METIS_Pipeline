@@ -81,7 +81,7 @@ class TestClassificationRules:
         if tag not in RULES:
             pytest.skip("no rule")
         expect_failure(request, tag, RULES_DISAGREEING_WITH_THE_ITEM, "the rule's DPR triple differs")
-        assert wf.rule_dpr(RULES[tag]) == RAW_ITEMS[tag].dpr()
+        assert {k.edps: v for k, v in RAW_ITEMS[tag].dpr_rule().items()} == dict(zip(wf.DPR_KEYWORDS, wf.rule_dpr(RULES[tag])))
 
     @pytest.mark.parametrize('rule_tag', sorted(DPR_RULES), ids=lambda tag: tag)
     def test_every_dpr_rule_names_a_raw_item(self, rule_tag, request):

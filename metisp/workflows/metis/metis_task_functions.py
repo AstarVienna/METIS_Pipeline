@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from . import metis_keywords as metis_kwd
 from edps import JobParameters, get_parameter, Job
 
 
@@ -50,7 +51,7 @@ def _classify_lingain_frames(files):
     dits, on_idx, off_idx = [], [], []
     for i, f in enumerate(files):
         dits.append(f.get_keyword_value("det.dit", None))
-        fw = (f.get_keyword_value("drs.filter", "") or "").strip()
+        fw = next((v for k in metis_kwd.drs_filter_alternatives if (v := f.get_keyword_value(k, None))), "").strip()
         if fw == "closed":
             off_idx.append(i)
         elif fw:
