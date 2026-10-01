@@ -459,10 +459,16 @@ class Retrofit:
         A label re-emitted after an \\input that another fragment or block also defines (the DRLD gave two
         cards the same alias label) would be multiply defined: drop the later standalone copies.
         """
-        defined: set[str] = set()
-        for path in sorted(self.drld.glob('generated/**/*.tex')):
-            defined |= set(LABEL.findall(self.strip_comments(path.read_text())))
         files = list(ITEM_FILES.values()) + RECIPE_FILES + QC_FILES
+        # only the fragments the document inputs define labels; a leaf card nobody inputs does not
+        used = set()
+        for name in files:
+            used |= set(re.findall(r'\\input\{generated/([^}]*)\}', (self.drld / name).read_text()))
+        defined: set[str] = set()
+        for fragment in sorted(used):
+            path = self.drld / 'generated' / f"{fragment}.tex"
+            if path.exists():
+                defined |= set(LABEL.findall(self.strip_comments(path.read_text())))
         for name in files:
             path = self.drld / name
             out = []
