@@ -236,6 +236,16 @@ input class must re-annotate the attribute; forgetting this raises a
    from `_steps`, so the two are checked by `TestFlowchartSteps` in
    `test_registered_recipes.py` (every named attribute exists, every product
    produced once; recipes without steps are a strict xfail list).
+8. `--fragments DIR` writes every generated part as separate files under
+   `DIR/generated/` (one file per card, flowchart, map and table, plus a
+   preamble with the orange hand-written-card environments), and
+   `drld/retrofit.py --drld DIR` applies them to a *copy* of the DRLD checkout:
+   each card, flowchart, map and table the pipeline generates becomes an
+   `\input{generated/...}` where it stood, a placeholder card of the DRLD
+   (`det_cgrph_SCI_CENTRED`) becomes one template card listing its instances,
+   what the pipeline does not define stays hand-written on an orange background
+   with a `% HANDWRITTEN` comment, and `generated/RETROFIT.md` lists it all.
+   It refuses to run on the approved checkout at `~/astar/drld`.
 
 ## Testing
 

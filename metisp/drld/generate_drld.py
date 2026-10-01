@@ -68,6 +68,7 @@ class Card:
     created_by: list[str] = field(default_factory=list)
     input_for: list[str] = field(default_factory=list)
     structure: list[tuple[str, str]] = field(default_factory=list)   # (C type, comment)
+    instances: list[str] = field(default_factory=list)   # template cards: the \\RAW{}/\\PROD{} leaves it stands for
 
     @property
     def is_raw(self) -> bool:
@@ -86,6 +87,7 @@ class QcCard:
     description: str
     comment: str
     created_by: list[str] = field(default_factory=list)
+    raw: str = ''                   # the name with its placeholders in braces, as the class declares it
 
 
 @dataclass
@@ -236,6 +238,8 @@ class Catalogue:
         self.recipes: dict[str, type[Recipe]] = dict(sorted(Recipe._registry.items()))
         self.created_by: dict[str, set[str]] = {tag: set() for tag in self.items}
         self.input_for: dict[str, set[str]] = {tag: set() for tag in self.items}
+        # tag -> dataitem label of the card that stands for it (a template card), set by the retrofit
+        self.alias_targets: dict[str, str] = {}
 
         # The values each tag keyword takes anywhere in the catalogue, e.g. target -> SCI, STD, SKY.
         self.tag_values: dict[str, set[str]] = {}
@@ -292,16 +296,25 @@ class Catalogue:
         """
         alternatives = self.expand(tag) if '{' in tag else []
         if max_alternatives is not None and len(alternatives) > max_alternatives:
-            alternatives = []           # the flowcharts write <band>_<cgrph>_SCI_CENTRED rather than five items
+            alternatives = []           # the flowcharts write det_cgrph_SCI_CENTRED rather than five items
         if alternatives:
-            return ' or '.join(rf'\{self.macro_of(self.items[t], t)}{{{t}}}' for t in alternatives)
-        shown = re.sub(r'\{(\w+)\}', r'<\1>', tag)
-        return rf'\{self.macro_of(item, tag)}{{{shown}}}'
+            return ' or '.join(self.linked(self.macro_of(self.items[t], t), t) for t in alternatives)
+        return self.linked(self.macro_of(item, tag), self.drld_name(tag))
 
-    @staticmethod
-    def qc_shown(name: str) -> str:
-        """ A QC name as the DRLD writes it: run-time placeholders lowercase, no braces. """
-        return re.sub(r'\{(\w+)\}', lambda m: m.group(1).lower(), name)
+    def linked(self, macro: str, tag: str) -> str:
+        """
+        `\\PROD{TAG}`, which hyperlinks to the item's own card; a tag whose card is a template card
+        standing for it (`alias_targets`) is written unlinked and wrapped in a hyperref to that card.
+        """
+        target = self.alias_targets.get(tag)
+        if target is None:
+            return rf'\{macro}{{{tag}}}'
+        return rf'\hyperref[dataitem:{target}]{{\{macro}*{{{tag}}}}}'
+
+    @classmethod
+    def qc_shown(cls, name: str) -> str:
+        """ A QC name as the DRLD writes it: run-time placeholders lowercase, no braces, `det` for the band. """
+        return re.sub(r'\{(\w+)\}', lambda m: cls.DRLD_PLACEHOLDERS.get(m.group(1), m.group(1).lower()), name)
 
     # --- flowcharts ---
 
@@ -390,6 +403,39 @@ class Catalogue:
         return chart
 
     # --- data items ---
+
+    # How the DRLD spells a placeholder inside a tag: `det` for the band and the detector, the keyword otherwise.
+    DRLD_PLACEHOLDERS = {'band': 'det', 'detector': 'det'}
+
+    @classmethod
+    def drld_name(cls, template: str) -> str:
+        """ '{band}_{cgrph}_SCI_CENTRED' -> 'det_cgrph_SCI_CENTRED', as the DRLD writes a placeholder card. """
+        return re.sub(r'\{(\w+)\}', lambda m: cls.DRLD_PLACEHOLDERS.get(m.group(1), m.group(1)), template)
+
+    def template_card(self, template: str, **partial) -> Card:
+        """
+        The card of a template class, standing for every leaf it expands to (the DRLD's
+        `det_cgrph_SCI_CENTRED`): created-by and input-for unioned over the leaves, and an
+        Instances row naming them. `partial` fixes some placeholders (`band='LM'` for the
+        DRLD's `LM_cgrph_SCI_THROUGHPUT`). Shown and labelled in the DRLD's placeholder spelling.
+        """
+        klass = DataItem.find_template(template)
+        if klass is None:
+            raise KeyError(f"no template {template}")
+        if partial:
+            klass = klass.specialized(**partial)
+            template = partial_format(template, **partial)
+        leaves = self.expand(template)
+        return Card(
+            name=self.drld_name(template),
+            macro=self.macro_of(klass, template),
+            description=klass.description(),
+            oca_keywords=sorted(klass.oca_keywords()),
+            created_by=sorted({r for t in leaves for r in self.created_by[t]}),
+            input_for=sorted({r for t in leaves for r in self.input_for[t]}),
+            structure=self.structure_of(klass),
+            instances=[self.reference(self.items[t], t) for t in leaves],
+        )
 
     def raw_consumers(self, tag: str) -> list[str]:
         """ The recipes that take `tag` as a primary input (the DPR table's Recipes column). """
@@ -507,6 +553,7 @@ class Catalogue:
                     description=re.sub(r'\{(\w+)\}', lambda m: m.group(1).lower(), klass.description()),
                     comment=klass._comment or '',
                     created_by=[name],
+                    raw=klass.name(),
                 )
         return cards
 
@@ -571,6 +618,57 @@ class Catalogue:
                         standalone=standalone, version=pymetis_version, date=datetime.date.today().isoformat())
 
 
+def write_fragments(catalogue: 'Catalogue', env: jinja2.Environment, directory: Path, templates=()) -> dict[str, int]:
+    """
+    Everything the generator produces, as separate files under `directory/generated/`, for a
+    DRLD that `\\input`s them in place: items/<tag>.tex, items/<drld name>.tex for the
+    template cards asked for, recipes/<name>.tex, qc/<label>.tex, flowcharts/<name>.tex for the
+    recipes declaring steps, assomap_<mode>.tex, matched_keywords.tex, dpr.tex, preamble.tex.
+    Returns the counts per kind.
+    """
+    out = directory / 'generated'
+    for sub in ('items', 'recipes', 'qc', 'flowcharts'):
+        (out / sub).mkdir(parents=True, exist_ok=True)
+    counts: dict[str, int] = {}
+    for tag in catalogue.items:
+        (out / 'items' / f"{tag}.tex").write_text(env.get_template('dataitem.tex').render(item=catalogue.item_card(tag)))
+    counts['items'] = len(catalogue.items)
+    for template in templates:                       # a template name, or (template name, partial parameters)
+        name, partial = template if isinstance(template, tuple) else (template, {})
+        card = catalogue.template_card(name, **partial)
+        (out / 'items' / f"{card.name}.tex").write_text(env.get_template('dataitem.tex').render(item=card))
+    counts['template cards'] = len(templates)
+    for name in catalogue.recipes:
+        (out / 'recipes' / f"{name}.tex").write_text(env.get_template('recipe.tex').render(recipe=catalogue.recipe_card(name)))
+    counts['recipes'] = len(catalogue.recipes)
+    qc_cards = catalogue.qc_cards()
+    for card in qc_cards.values():
+        (out / 'qc' / f"{card.label}.tex").write_text(env.get_template('qc.tex').render(qc=card))
+    counts['qc'] = len(qc_cards)
+    flowcharts = [name for name, recipe in catalogue.recipes.items() if recipe._steps]
+    for name in flowcharts:
+        (out / 'flowcharts' / f"{name}.tex").write_text(env.get_template('flowchart.tex').render(chart=catalogue.flowchart(name)))
+    counts['flowcharts'] = len(flowcharts)
+    doc = Document(item_families=[], recipe_families=[], qc_families=[], standalone=False, version='', date='')
+    doc.dpr_rows = catalogue.dpr_rows(doc.dpr_findings)
+    (out / 'dpr.tex').write_text(env.get_template('dpr.tex').render(doc=doc))
+    try:
+        from workflows import association_maps, matched_keywords
+        for module, split in DOCUMENT_WORKFLOWS:
+            doc.assomaps += association_maps(catalogue, module, split=split)
+        doc.keyword_rows = matched_keywords(catalogue, KEYWORD_WORKFLOWS, doc.keyword_findings)
+    except (ImportError, FileNotFoundError) as e:
+        print(f"association maps and matched keywords skipped: {e}")
+    for amap in doc.assomaps:
+        (out / f"assomap_{amap.mode}.tex").write_text(env.get_template('assomap.tex').render(map=amap))
+    counts['association maps'] = len(doc.assomaps)
+    if doc.keyword_rows:
+        (out / 'matched_keywords.tex').write_text(env.get_template('matched_keywords.tex').render(doc=doc))
+    counts['tables'] = 1 + bool(doc.keyword_rows)
+    (out / 'preamble.tex').write_text(env.get_template('handwritten.tex').render())
+    return counts
+
+
 def environment() -> jinja2.Environment:
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(HERE),
@@ -617,6 +715,9 @@ def main() -> None:
     parser.add_argument('--flowchart', nargs='+', metavar='RECIPE',
                         help=f'render the per-recipe flowchart skeleton(s) into {BUILD}/flowchart_<recipe>.tex '
                              '(steps from Recipe._steps where declared, else a placeholder)')
+    parser.add_argument('--fragments', type=Path, metavar='DIR',
+                        help='write every generated part as separate files under DIR/generated/ (cards, flowcharts, '
+                             'association maps, tables, preamble), for a DRLD that inputs them in place')
     parser.add_argument('--tables', action='store_true',
                         help=f'render the DPR keywords table and the matched-keywords summary into {BUILD}')
     parser.add_argument('--lint-flowcharts', action='store_true',
@@ -664,6 +765,11 @@ def main() -> None:
             path.write_text(env.get_template('flowchart.tex').render(chart=chart))
             print(f"{path}: {len(chart.calibrations)} calibrations, {len(chart.steps)} steps, "
                   f"{len(chart.products)} products, {len(chart.findings)} findings")
+        return
+
+    if args.fragments is not None:
+        counts = write_fragments(catalogue, environment(), args.fragments)
+        print(f"{args.fragments / 'generated'}: " + ', '.join(f"{n} {k}" for k, n in counts.items()))
         return
 
     if args.tables:

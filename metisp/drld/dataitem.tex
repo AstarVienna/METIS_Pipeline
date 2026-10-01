@@ -22,6 +22,9 @@
                         & \REC{(* recipe *)} \\
             (% endfor %)
         (% endif %)
+        (% if item.instances %)
+        Instances: & (* item.instances|join(', ') *) \\[0.3cm]
+        (% endif %)
         Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
     \end{recipedef}
 
