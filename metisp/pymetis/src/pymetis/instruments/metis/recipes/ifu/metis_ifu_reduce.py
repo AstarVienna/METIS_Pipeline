@@ -165,9 +165,9 @@ class MetisIfuReduce(Recipe):
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
     _steps = (
-        Step('detector signature\nremoval',
+        Step('detector signature removal',
              inputs=("bad_pix_map", "persistence_map", "linearity", "gain_map", "master_dark", "rsrf")),
-        Step('background\nsubtraction', products=("Background", "Reduced")),
+        Step('background subtraction', products=("Background", "Reduced")),
         Step('rectification', inputs=("wavecal", "distortion_table"), products=("ReducedCube",)),
         Step('Image reconstruction', products=("Combined",)),
     )

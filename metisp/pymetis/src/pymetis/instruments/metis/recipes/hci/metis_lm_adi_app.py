@@ -174,9 +174,9 @@ class MetisLmAppSciCalibrated(Recipe):
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _steps = (
         Step('Centroid determination', products=("CentroidTab",)),
-        Step('Distortion correction and\nsubpixel alignment', products=("SciCentred",)),
-        Step('Sub-PSFs extraction and\nalignment'),
-        Step('Merger of\ncoronagraphic PSFs'),
+        Step('Distortion correction and subpixel alignment', products=("SciCentred",)),
+        Step('Sub-PSFs extraction and alignment'),
+        Step('Merger of coronagraphic PSFs'),
         Step('Estimate median PSF', products=("SciPsfMedian",)),
         Step('Subtract median PSF', products=("SciSpeckle",)),
         Step('Optionally: high-pass filter'),

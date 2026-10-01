@@ -495,7 +495,7 @@ class MetisIfuWavecal(Recipe):
         Valenti 2002, Piskunov, Wehrhahn & Marquart 2021), as prescribed by the DRLD."""
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
     _steps = (
-        Step('remove detector\nsignature',
+        Step('remove detector signature',
              inputs=("bad_pix_map", "persistence_map", "gain_map", "linearity", "master_dark")),
         Step('locate lines', inputs=("distortion_table",)),
         Step('fit polynomial', products=("IfuWavecal", "IfuWavecalTab")),

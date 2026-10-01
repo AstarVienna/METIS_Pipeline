@@ -40,7 +40,7 @@ class MetisLmImgFlat(Recipe):
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
     _steps = (
-        Step('detector signature\nremoval',
+        Step('detector signature removal',
              inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),
         Step('linear fit (slope)', products=("MasterFlat", "BadPixMap")),
     )

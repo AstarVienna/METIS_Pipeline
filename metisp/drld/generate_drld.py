@@ -357,7 +357,7 @@ class Catalogue:
             while key in keys:
                 key += 'x'
             keys.append(key)
-            chart.steps.append(ChartStep(key=key, label=latex(step.label).replace('\n', r'\\ ')))
+            chart.steps.append(ChartStep(key=key, label=latex(step.label)))   # tikz breaks it to the box width
         consumed_at = {attr: keys[i] for i, step in enumerate(declared) for attr in step.inputs}
         produced_at = {attr: keys[i] for i, step in enumerate(declared) for attr in step.products}
 

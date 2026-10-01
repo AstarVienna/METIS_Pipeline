@@ -421,9 +421,9 @@ class MetisIfuRsrf(Recipe):
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
     _steps = (
-        Step('detector signature\nand background removal',
+        Step('detector signature and background removal',
              inputs=("bad_pix_map", "persistence_map", "master_dark", "gain_map", "linearity", "distortion_table")),
-        Step('continuum\nnormalisation', inputs=("wavecal",)),
+        Step('continuum normalisation', inputs=("wavecal",)),
         Step('average/median', products=("RsrfIfu", "MasterFlat", "BadPixMap")),
     )
     _algorithm = """Average / median stack WCU_OFF images to create background image

@@ -40,10 +40,10 @@ class MetisLmImgCalibrate(Recipe):
         "Currently just a skeleton prototype."
     )
 
-    _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _matched_keywords = frozenset({'DRS.FILTER'})
     _steps = (
-        Step('Scale image data to\nphotons/s', inputs=("fluxcal_table",)),
-        Step('Add BUNIT and\ndistortion information\nto header',
+        Step('Scale image data to photons/s', inputs=("fluxcal_table",)),
+        Step('Add BUNIT and distortion information to header',
              inputs=("distortion_table",),
              products=("SciCalibrated",)),
     )

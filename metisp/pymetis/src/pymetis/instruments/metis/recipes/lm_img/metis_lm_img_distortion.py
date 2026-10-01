@@ -38,7 +38,7 @@ class MetisLmImgDistortion(Recipe):
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _steps = (
-        Step('detector signature\nremoval', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
+        Step('detector signature removal', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
         Step('subtract WCU OFF dark'),
         Step('locate images', inputs=("pinhole_table",)),
         Step('fit polynomial', products=("DistortionTable", "DistortionMap", "DistortionReduced")),

@@ -42,11 +42,11 @@ class MetisNImgStdProcess(Recipe):
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _steps = (
-        Step('Detect standard star in\nindividual frames', inputs=("fluxstd_catalog",)),
-        Step('shift and combine\nimages based\non the position\nof the standard star', products=("ImgStdCombined",)),
-        Step('measure flux from star\nin instrumental units\nin combined image'),
-        Step('compute conversion\nfactor to physical units', products=("ImgFluxCalTable",)),
-        Step('measure background\nnoise and calculate\ndetection limits'),
+        Step('Detect standard star in individual frames', inputs=("fluxstd_catalog",)),
+        Step('shift and combine images based on the position of the standard star', products=("ImgStdCombined",)),
+        Step('measure flux from star in instrumental units in combined image'),
+        Step('compute conversion factor to physical units', products=("ImgFluxCalTable",)),
+        Step('measure background noise and calculate detection limits'),
     )
     _algorithm: str = """Call metis_n_calculate_std_flux to measure flux in input images
         call hdrl_resample_compute to recenter the images

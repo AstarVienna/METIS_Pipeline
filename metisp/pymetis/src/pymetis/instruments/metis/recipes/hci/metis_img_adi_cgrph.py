@@ -111,7 +111,7 @@ class MetisImgAdiCgrph(Recipe):
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER', 'DRS.MASK'})
     _steps = (
         Step('Centroid determination', products=("CentroidTab",)),
-        Step('Distortion correction and\nsubpixel alignment', products=("SciCentred",)),
+        Step('Distortion correction and subpixel alignment', products=("SciCentred",)),
         Step('Estimate median PSF', products=("PsfMedian",)),
         Step('Subtract median PSF', products=("SciSpeckle",)),
         Step('Optionally: high-pass filter', products=("SciHifilt",)),

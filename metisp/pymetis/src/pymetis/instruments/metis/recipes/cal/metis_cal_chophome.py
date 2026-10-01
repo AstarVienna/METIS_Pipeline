@@ -217,9 +217,9 @@ class MetisCalChophome(Recipe):
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT'})
     _steps = (
-        Step('detector signature\nremoval', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
-        Step('median-combine WCU_OFF\nsubtract from CHOPHOME', inputs=("wcu_off",), products=("Background",)),
-        Step('Centroid peak\ndetection', inputs=("pinhole_table",)),
+        Step('detector signature removal', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
+        Step('median-combine WCU_OFF subtract from CHOPHOME', inputs=("wcu_off",), products=("Background",)),
+        Step('Centroid peak detection', inputs=("pinhole_table",)),
         Step('offset calculation', products=("Combined",)),
     )
     _algorithm = """

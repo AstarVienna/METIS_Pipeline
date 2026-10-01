@@ -100,7 +100,7 @@ class MetisLmImgBackground(Recipe):
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
     _steps = (
-        Step('Average all or SKY\nexposures with\nobject rejection',
+        Step('Average all or SKY exposures with object rejection',
              inputs=("sky_basic_reduced",),
              products=("Bkg",)),
         Step('Subtract background', products=("BkgSubtracted", "ObjectCatalog")),
