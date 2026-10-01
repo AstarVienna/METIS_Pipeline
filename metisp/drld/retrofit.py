@@ -425,6 +425,11 @@ class Retrofit:
     # --- the run ---
 
     def run(self) -> None:
+        already = [name for name in list(ITEM_FILES.values()) + RECIPE_FILES + QC_FILES
+                   if 'generated/' in (self.drld / name).read_text()]
+        if already:
+            raise SystemExit(f"{self.drld} is already retrofitted ({already[0]} inputs generated fragments); "
+                             f"reset it to the baseline commit first, the surgery is not repeatable in place")
         for name in ITEM_FILES.values():
             self.retrofit_items(self.drld / name)
         self.append_code_only_items()
