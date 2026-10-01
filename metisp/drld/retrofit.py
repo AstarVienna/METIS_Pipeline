@@ -443,10 +443,35 @@ class Retrofit:
                     self.catalogue.alias_targets[leaf] = self.catalogue.drld_name(resolved).lower()
         counts = write_fragments(self.catalogue, self.env, self.drld, templates=self.templates_used)
         self.report.notes.append('fragments: ' + ', '.join(f"{n} {k}" for k, n in counts.items()))
+        self.dedupe_labels()
         missing = self.labels_before - self.all_labels()
         if missing:
             self.report.notes.append(f"LABELS LOST ({len(missing)}): {sorted(missing)}")
         self.write_report()
+
+    def dedupe_labels(self) -> None:
+        """
+        A label re-emitted after an \\input that another fragment or block also defines (the DRLD gave two
+        cards the same alias label) would be multiply defined: drop the later standalone copies.
+        """
+        defined: set[str] = set()
+        for path in sorted(self.drld.glob('generated/**/*.tex')):
+            defined |= set(LABEL.findall(self.strip_comments(path.read_text())))
+        files = list(ITEM_FILES.values()) + RECIPE_FILES + QC_FILES
+        for name in files:
+            path = self.drld / name
+            out = []
+            for line in path.read_text().split('\n'):
+                m = re.fullmatch(r'\\label\{([^}]*)\}', line.strip())
+                if m:
+                    if m.group(1) in defined:
+                        self.report.notes.append(f"{name}: duplicate label {m.group(1)} dropped")
+                        continue
+                    defined.add(m.group(1))
+                else:
+                    defined |= set(LABEL.findall(re.sub(r'(?<!\\)%.*', '', line)))
+                out.append(line)
+            path.write_text('\n'.join(out))
 
     def write_report(self) -> None:
         r = self.report

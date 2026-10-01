@@ -149,7 +149,7 @@ class FlowChart:
     findings: list[str] = field(default_factory=list)
 
 
-CHART_ALTERNATIVES = 2   # a flowchart box lists at most this many "or" alternatives, else the placeholders
+CHART_ALTERNATIVES = 3   # a flowchart box lists at most this many "or" alternatives (SCI/STD/SKY), else the placeholders
 STEP_PITCH = 1.2        # cm of vertical room per calibration or product box hanging off a connection
 PLACEHOLDER_STEP = 'algorithm steps:\\ not declared'
 
