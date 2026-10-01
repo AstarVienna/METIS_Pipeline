@@ -123,9 +123,9 @@ class ChartNode:
     style: str                      # a node style of recipe_config.tex
     optional: bool = False
     step: str = ''                  # the step the box belongs to (consumed by / produced by)
-    above: str = 'input'            # the node the connection sits below
-    below: str = 'stop-t'           # the node the connection sits above
-    fraction: float = 0.5           # position between `above` and `below`
+    anchor: str = 'input.south'     # the connection sits this many cm below this anchor
+    offset: float = 0.5
+    height: float = 0.75            # estimated box height in cm, for the vertical packing
 
 
 @dataclass
@@ -133,7 +133,7 @@ class ChartStep:
     key: str
     label: str
     style: str = 'redstep'
-    gap: float = 2.0                # cm below the previous step
+    gap: float = 0.6                # cm between the previous box's bottom and this step's top
 
 
 @dataclass
@@ -150,7 +150,15 @@ class FlowChart:
 
 
 CHART_ALTERNATIVES = 3   # a flowchart box lists at most this many "or" alternatives (SCI/STD/SKY), else the placeholders
-STEP_PITCH = 1.2        # cm of vertical room per calibration or product box hanging off a connection
+# Vertical packing of a flowchart, in cm: tikz sizes the boxes, these estimates only space them.
+LINE_HEIGHT = 0.43      # one text line at \fontsize{10}{12}
+OR_LINE_HEIGHT = 0.3    # the "or" line between two alternatives, set small and tight
+BOX_PADDING = 0.3       # inner sep of a box, with a margin for the estimate
+BOX_SPACING = 0.25      # between two boxes hanging off the same side
+LABEL_ROOM = 0.6        # below the primary input, for the recipe label in the frame corner
+MIN_STEP_GAP = 0.6      # between two steps with nothing hanging in between
+MIN_STOP_GAP = 0.9      # between the last step and the stop button
+OR = r' \\[-0.5ex] {\footnotesize or} \\[-0.5ex] '   # alternatives of one box on separate lines, the "or" on its own
 PLACEHOLDER_STEP = 'algorithm steps:\\ not declared'
 
 
@@ -343,20 +351,30 @@ class Catalogue:
         consumed_at = {attr: keys[i] for i, step in enumerate(declared) for attr in step.inputs}
         produced_at = {attr: keys[i] for i, step in enumerate(declared) for attr in step.products}
 
+        def box(reference: str, minimum: float = 0.75) -> float:
+            """ Estimated height of a box showing `reference` ("A or B or C", lines broken by \\\\). """
+            alternatives = reference.count(' or ')
+            return max(minimum, (reference.count(r'\\') + alternatives + 1) * LINE_HEIGHT
+                       + alternatives * OR_LINE_HEIGHT + BOX_PADDING)
+
+        def lines(reference: str, prefix: str = '') -> str:
+            """ The alternatives of `reference` on separate lines, each with `prefix`, the "or" on its own. """
+            return prefix + reference.replace(' or ', OR + prefix)
+
         inputs = sorted(recipe._list_inputs(),
                         key=lambda e: (not e[1].is_primary(), self.input_tag(recipe, e[1])))
         left: dict[str, list[ChartNode]] = {key: [] for key in keys}
         for attr, inp in inputs:
             tag = self.input_tag(recipe, inp)
             ref = self.reference(inp.Item, tag, max_alternatives=CHART_ALTERNATIVES)
-            if inp.multiplicity() == 'N':
-                ref = r'\textsl{N} ' + ref.replace(' or ', r' \\ or \textsl{N} ')
+            shown = lines(ref, r'\textsl{N} ' if inp.multiplicity() == 'N' else '')
             if inp.is_primary():
-                chart.primary_inputs.append(ref)
+                if shown not in chart.primary_inputs:     # two inputs of the same item (IFU sky twice)
+                    chart.primary_inputs.append(shown)
                 continue
             macro = self.macro_of(inp.Item, tag)
             left[consumed_at.get(attr, keys[0])].append(ChartNode(
-                key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=ref,
+                key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=shown, height=box(ref),
                 style='calproduct' if macro == 'PROD' else 'external', optional=not inp.required()))
         for attr in consumed_at:
             if attr not in dict(inputs):
@@ -366,39 +384,46 @@ class Catalogue:
         products = dict(recipe._list_products())
         for attr, product in products.items():
             tag = product.name()
-            ref = self.reference(product, tag, max_alternatives=CHART_ALTERNATIVES).replace(' or ', r'\\ or ')
+            ref = self.reference(product, tag, max_alternatives=CHART_ALTERNATIVES)
             science = product.frame_group() == cpl.ui.Frame.FrameGroup.PRODUCT
             right[produced_at.get(attr, keys[-1])].append(ChartNode(
-                key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=ref,
+                key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=lines(ref), height=box(ref),
                 style='sciproduct' if science else 'calproduct'))
         for attr in produced_at:
             if attr not in products:
                 chart.findings.append(f"{name}: _steps produces `{attr}`, which the ProductSet does not have")
 
-        # Vertical room between consecutive anchors: enough for the boxes hanging off either side.
-        above = 'input'
+        # Pack the boxes hanging off either side between two consecutive nodes of the spine, top down;
+        # the spine's gap is whatever the fuller side needs.
+        def pack(nodes: list[ChartNode], anchor: str, start: float) -> float:
+            y = start
+            for node in nodes:
+                node.anchor, node.offset = anchor, round(y + node.height / 2, 2)
+                y += node.height + BOX_SPACING
+            return y if nodes else 0.0
+
+        anchor = 'input.south'
         for i, key in enumerate(keys):
             attached = left[key]
             outgoing = right[keys[i - 1]] if i else []
-            gap = max(2.0, STEP_PITCH * (max(len(attached), len(outgoing)) + 1))
+            gap = max(MIN_STEP_GAP,
+                      pack(attached, anchor, LABEL_ROOM if i == 0 else BOX_SPACING),
+                      pack(outgoing, anchor, BOX_SPACING))
             if i == 0:
-                chart.first_step_gap = gap
+                chart.first_step_gap = round(gap, 2)
             else:
-                chart.steps[i].gap = gap
-            for j, node in enumerate(attached):
-                node.step, node.above, node.below = key, above, f"step_{key}"
-                node.fraction = round((j + 1) / (len(attached) + 1), 3)
+                chart.steps[i].gap = round(gap, 2)
+            for node in attached:
+                node.step = key
                 chart.calibrations.append(node)
-            for j, node in enumerate(outgoing):
-                node.step, node.above, node.below = keys[i - 1], above, f"step_{key}"
-                node.fraction = round((j + 1) / (len(outgoing) + 1), 3)
+            for node in outgoing:
+                node.step = keys[i - 1]
                 chart.products.append(node)
-            above = f"step_{key}"
+            anchor = f"step_{key}.south"
         last = right[keys[-1]]
-        chart.stop_gap = max(2.5, STEP_PITCH * (len(last) + 1))
-        for j, node in enumerate(last):
-            node.step, node.above, node.below = keys[-1], f"step_{keys[-1]}", 'stop-t'
-            node.fraction = round((j + 1) / (len(last) + 1), 3)
+        chart.stop_gap = round(max(MIN_STOP_GAP, pack(last, anchor, BOX_SPACING) + 0.2), 2)
+        for node in last:
+            node.step = keys[-1]
             chart.products.append(node)
         return chart
 
