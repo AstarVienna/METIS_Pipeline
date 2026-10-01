@@ -540,7 +540,7 @@ class Catalogue:
             tag = self.input_tag(recipe, input_class)
             row = self.reference(input_class.Item, tag, bound=None if input_class.is_primary() else bound)
             if input_class.multiplicity() == 'N':
-                row += ' (one or more)'
+                row += ' (1--N)'
             if not input_class.required():
                 row += ' (optional)'
             (primary_inputs if input_class.is_primary() else secondary_inputs).append(row)
