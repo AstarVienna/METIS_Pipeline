@@ -248,6 +248,8 @@ class Catalogue:
         self.input_for: dict[str, set[str]] = {tag: set() for tag in self.items}
         # tag -> dataitem label of the card that stands for it (a template card), set by the retrofit
         self.alias_targets: dict[str, str] = {}
+        # dataitem labels of the template cards the document has (`det_cgrph_centroid_tab`), set by the retrofit
+        self.template_cards: set[str] = set()
 
         # The values each tag keyword takes anywhere in the catalogue, e.g. target -> SCI, STD, SKY.
         self.tag_values: dict[str, set[str]] = {}
@@ -295,13 +297,21 @@ class Catalogue:
                 created = any(self.created_by[t] for t in self.expand(tag or item.name()))
                 return 'PROD' if created else 'EXTCALIB'
 
-    def reference(self, item: type[DataItem], tag: str, max_alternatives: int | None = None) -> str:
+    def reference(self, item: type[DataItem], tag: str, max_alternatives: int | None = None,
+                  bound: set[str] | None = None) -> str:
         """
         `\\PROD{TAG}` and friends. A tag with placeholders left for the data is written as
         the DRLD writes it, as the alternatives the catalogue offers joined by "or"
         (`\\RAW{LM_FLAT_LAMP_RAW} or \\RAW{LM_FLAT_TWILIGHT_RAW}`); with no catalogue
-        entry to expand to, the placeholders are shown as `<name>`.
+        entry to expand to, the placeholders are shown as `<name>`. Placeholders that the
+        recipe's inputs bind (`bound`) are not a choice, the item has to match the inputs:
+        such a tag stays unresolved (`det_cgrph_CENTROID_TAB`) when the document has a
+        template card for it to link to.
         """
+        placeholders = set(re.findall(r'\{(\w+)\}', tag))
+        if (bound is not None and placeholders and placeholders <= bound
+                and self.drld_name(tag).lower() in self.template_cards):
+            return self.linked(self.macro_of(item, tag), self.drld_name(tag))
         alternatives = self.expand(tag) if '{' in tag else []
         if max_alternatives is not None and len(alternatives) > max_alternatives:
             alternatives = []           # the flowcharts write det_cgrph_SCI_CENTRED rather than five items
@@ -363,10 +373,12 @@ class Catalogue:
 
         inputs = sorted(recipe._list_inputs(),
                         key=lambda e: (not e[1].is_primary(), self.input_tag(recipe, e[1])))
+        bound = self.bound_placeholders(recipe)
         left: dict[str, list[ChartNode]] = {key: [] for key in keys}
         for attr, inp in inputs:
             tag = self.input_tag(recipe, inp)
-            ref = self.reference(inp.Item, tag, max_alternatives=CHART_ALTERNATIVES)
+            ref = self.reference(inp.Item, tag, max_alternatives=CHART_ALTERNATIVES,
+                                 bound=None if inp.is_primary() else bound)
             shown = lines(ref, r'\textsl{N} ' if inp.multiplicity() == 'N' else '')
             if inp.is_primary():
                 if shown not in chart.primary_inputs:     # two inputs of the same item (IFU sky twice)
@@ -384,7 +396,7 @@ class Catalogue:
         products = dict(recipe._list_products())
         for attr, product in products.items():
             tag = product.name()
-            ref = self.reference(product, tag, max_alternatives=CHART_ALTERNATIVES)
+            ref = self.reference(product, tag, max_alternatives=CHART_ALTERNATIVES, bound=bound)
             science = product.frame_group() == cpl.ui.Frame.FrameGroup.PRODUCT
             right[produced_at.get(attr, keys[-1])].append(ChartNode(
                 key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=lines(ref), height=box(ref),
@@ -510,14 +522,23 @@ class Catalogue:
 
     # --- recipes ---
 
+    def bound_placeholders(self, recipe: type[Recipe]) -> set[str]:
+        """
+        The tag placeholders the recipe's inputs bind (the band by the primary input, the coronagraph
+        by the throughput curve, ...); the products and the other inputs have to match them.
+        """
+        return {name for _, inp in recipe._list_inputs()
+                for name in re.findall(r'\{(\w+)\}', self.input_tag(recipe, inp))}
+
     def recipe_card(self, name: str) -> RecipeCard:
         recipe = self.recipes[name]
 
         # The primary inputs (what the recipe processes) and the secondary ones (what it applies), each alphabetical.
         primary_inputs, secondary_inputs = [], []
+        bound = self.bound_placeholders(recipe)
         for _, input_class in sorted(recipe._list_inputs(), key=lambda entry: self.input_tag(recipe, entry[1])):
             tag = self.input_tag(recipe, input_class)
-            row = self.reference(input_class.Item, tag)
+            row = self.reference(input_class.Item, tag, bound=None if input_class.is_primary() else bound)
             if input_class.multiplicity() == 'N':
                 row += ' (one or more)'
             if not input_class.required():
@@ -544,7 +565,7 @@ class Catalogue:
             matched_keywords=sorted(recipe._matched_keywords or ()),
             parameters=parameters,
             algorithm=algorithm,
-            outputs=[self.reference(product, product.name()) for _, product in recipe._list_products()],
+            outputs=[self.reference(product, product.name(), bound=bound) for _, product in recipe._list_products()],
             qc_parameters=[rf'\QC{{{self.qc_shown(qc.name())}}}' for _, qc in recipe._list_qc_parameters()],
             has_flowchart=bool(recipe._steps),
         )

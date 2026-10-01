@@ -443,6 +443,7 @@ class Retrofit:
         self.retrofit_preamble_and_build()
         for template, partial in self.templates_used:          # references to a covered leaf point at its template card
             resolved = partial_format(template, **partial)
+            self.catalogue.template_cards.add(self.catalogue.drld_name(resolved).lower())
             for leaf in self.catalogue.expand(resolved):
                 if leaf not in self.matched_tags:
                     self.catalogue.alias_targets[leaf] = self.catalogue.drld_name(resolved).lower()
