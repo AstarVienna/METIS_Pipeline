@@ -115,7 +115,8 @@ Worked example — `pyesorex metis_lm_img_flat` from import to product file:
      built products.
 3. Define the `Recipe` subclass with the seven pyesorex attributes
    (`_name`, `_version`, `_author`, `_email`, `_copyright`, `_synopsis`,
-   `_description`) plus `_matched_keywords`, `_algorithm` and `parameters`.
+   `_description`) plus `_matched_keywords`, `_algorithm`, `parameters`, and
+   for the DRLD flowchart `_steps` (see the data-item section below, point 7).
    Every parameter name must be prefixed `"<recipe_name>."`.
 4. Register it: add the import to `instruments/metis/recipes/__init__.py`.
    pyesorex discovers recipes only through that module.
@@ -172,6 +173,15 @@ input class must re-annotate the attribute; forgetting this raises a
      database, even if a recipe can regenerate it);
    - `_oca_keywords` — a `frozenset` of the OCA keywords the item matches on,
      as listed on its DRLD card;
+   - `_dpr` — for raw items, the `(DPR.CATG, DPR.TECH, DPR.TYPE)` triple that
+     classifies the data, with the name's placeholders and `...` for a keyword
+     left free (`(..., 'IMAGE,{band}', 'SKY')`: a sky frame is CALIB or
+     SCIENCE). The EDPS classification rules are generated from it:
+     `python -m pymetis.engine.workflows --classification` rewrites
+     `workflows/metis/metis_classification.py` (one rule per raw item by its
+     DPR triple, one per other item by its PRO.CATG, named `<tag>_class`), and
+     `test_dpr.py` fails when the committed file differs from the generated
+     one. Never edit that file by hand;
    - `_schema` — dict of extension name → `Image` / `Table` / `None`.
 3. Declare one concrete leaf per DRLD tag
    (`class MasterDarkGeo(DetectorGeoMixin, MasterDark): pass`).
@@ -190,6 +200,52 @@ input class must re-annotate the attribute; forgetting this raises a
    (`--list`, `<TAG>`, or `--all --output <dir>`), including the
    `\RAW`/`\PROD`/`\EXTCALIB`/`\STATCALIB` kind, which is derived from the
    frame group, `_static`, and which recipes produce the item.
+   `--all --output DIR` writes one card per data item, recipe and QC parameter;
+   `--document FILE` assembles the three generated DRLD chapters — data items,
+   recipes, QC parameters — into one file, a fragment to `\input`, or with
+   `--standalone` a document that compiles on its own with the DRLD sources on
+   `TEXINPUTS` (`TEXINPUTS=/path/to/drld//: latexmk -pdf FILE`). The templates
+   are `dataitem.tex`, `recipe.tex`, `qc.tex` and `document.tex` next to the
+   script, Jinja2 with `(* *)` / `(% %)` delimiters; jinja2 comes with the dev
+   environment through pyesorex.
+   Everything generated goes to `metisp/drld/build/` (not version-controlled);
+   `--pdf` compiles the standalone document there with the DRLD checkout
+   (`--drld DIR`, default `$METIS_DRLD` or `../../drld`) on `TEXINPUTS`.
+6. The DRLD association maps and tables are generated from the EDPS workflows
+   rather than from the recipes: `engine/workflows.py` loads a workflow module
+   offline (edps 1.7, workflow package from `$METIS_WORKFLOWS` or
+   `metisp/workflows`) and `bind()` compares each task with its recipe's
+   `InputSet`; `metisp/drld/workflows.py` lays the tasks out as the DRLD
+   matrices. `--assomap metis.metis_lm_img_wkf [--split]` writes
+   `build/assomap_<mode>.tex`, drop-in compatible with the hand-drawn
+   `tikz/*_assomap_tikz.tex` (same styles and node names), with every
+   workflow/recipe disagreement as a `% FINDING:` comment at the top;
+   `--document` includes the LM, N, IFU and the split LM/N LSS maps, the
+   matched-keywords summary (`tab:fitsmatchedkeywordssummary`) and the DPR
+   table (`tab:dpr_keywords`, from `_dpr`); `--tables` writes the two tables
+   alone; `--lint-flowcharts` lists the tags the hand-drawn per-recipe
+   flowcharts draw that are neither inputs nor products of their recipe.
+7. The per-recipe flowcharts (`tikz/metis_<recipe>.tex`) are generated from the
+   recipe as well: `_steps` is the algorithm as the flowchart draws it, a tuple
+   of `Step(label, inputs=(...), products=(...))` naming the InputSet and
+   ProductSet attributes each step consumes and produces (a newline in the
+   label breaks the box). Inputs no step names hang above the first step,
+   products no step names below the last. `--flowchart RECIPE` renders one;
+   `--document` renders every recipe that declares steps and places the figure
+   after its card. `_algorithm` stays the prose; the flowchart is drawn only
+   from `_steps`, so the two are checked by `TestFlowchartSteps` in
+   `test_registered_recipes.py` (every named attribute exists, every product
+   produced once; recipes without steps are a strict xfail list).
+8. `--fragments DIR` writes every generated part as separate files under
+   `DIR/generated/` (one file per card, flowchart, map and table, plus a
+   preamble with the orange hand-written-card environments), and
+   `drld/retrofit.py --drld DIR` applies them to a *copy* of the DRLD checkout:
+   each card, flowchart, map and table the pipeline generates becomes an
+   `\input{generated/...}` where it stood, a placeholder card of the DRLD
+   (`det_cgrph_SCI_CENTRED`) becomes one template card listing its instances,
+   what the pipeline does not define stays hand-written on an orange background
+   with a `% HANDWRITTEN` comment, and `generated/RETROFIT.md` lists it all.
+   It refuses to run on the approved checkout at `~/astar/drld`.
 
 ## Testing
 
@@ -213,6 +269,17 @@ per band or target (subclass `BaseRecipeTest`/`BandParamRecipeTest`/
 `TargetParamRecipeTest` and `BaseInputSetTest` from `tests.classes`, pointing
 them at your Recipe/Impl and naming the SOF) or when it has recipe-specific
 tests to add.
+
+`instruments/metis/tests/test_workflows.py` binds every task of the EDPS
+workflows to its recipe (accepted tags, main input on a primary input, optional/required,
+one/many, every input fed, requested products declared, every recipe has a
+task) and `test_dpr.py` checks the raw items' `_dpr` against
+`metis_classification.py`; both need `edps` importable and the workflow package
+(`$METIS_WORKFLOWS` or `metisp/workflows`) and skip otherwise. Where the
+hand-written workflows and the recipes disagree today, the disagreement is a
+`strict` xfail listed per test in the module — fixing a workflow line or a
+recipe flips exactly that entry to an unexpected pass, so the list has to
+shrink with the fix (the pattern of `RECIPES_WITH_UNWRITTEN_QC`).
 
 ### Caveats
 

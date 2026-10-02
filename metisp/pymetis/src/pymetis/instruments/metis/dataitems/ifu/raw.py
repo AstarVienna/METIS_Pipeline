@@ -39,13 +39,16 @@ class IfuRaw(BandIfuMixin, Raw, abstract=True):
 
 class IfuStdRaw(TargetStdMixin, IfuRaw):
     _description_template = "Raw spectra of flux standard star."
+    _dpr = ('CALIB', 'IFU', 'STD')
 
 
 class IfuSciRaw(TargetSciMixin, IfuRaw):
     _description_template = "IFU raw exposure of a science object."
+    _dpr = ('SCIENCE', 'IFU', 'OBJECT')
 
 
 class IfuSkyRaw(TargetSkyMixin, IfuRaw):
     """ The SKY leaf of the IFU raw template; a hand-written unrelated class with the literal
     name would be refused when `IfuRaw` is promoted with target='SKY'. """
     _description_template = "Blank sky image."
+    _dpr = ('CALIB', 'IFU', 'SKY')

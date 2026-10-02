@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
@@ -39,6 +39,11 @@ class MetisNImgFlat(Recipe):
     _description = "Prototype to create a METIS master flat for N band"
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
+    _steps = (
+        Step('detector signature removal',
+             inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),
+        Step('linear fit (slope)', products=("MasterFlat", "BadPixMap")),
+    )
     _algorithm = """For internal flats: call metis_det_dark with LAMP OFF im ages to create dark frame.
     Subtract internal dark or master dark from flat exposures.
     Call metis_n_img_flat to fit slope of pixel values against illumination level.

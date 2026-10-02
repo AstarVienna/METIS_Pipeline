@@ -27,7 +27,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_header, create_dumm
 #from pymetis.instruments.metis.dataitems.hci import LmOffAxisPsfRaw, LmOnAxisPsfTemplate
 
 
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis import qc
@@ -172,6 +172,19 @@ class MetisLmAppSciCalibrated(Recipe):
     _synopsis: str = "ADI post-processing for the LM-band APP coronagraph"
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
+    _steps = (
+        Step('Centroid determination', products=("CentroidTab",)),
+        Step('Distortion correction and subpixel alignment', products=("SciCentred",)),
+        Step('Sub-PSFs extraction and alignment'),
+        Step('Merger of coronagraphic PSFs'),
+        Step('Estimate median PSF', products=("SciPsfMedian",)),
+        Step('Subtract median PSF', products=("SciSpeckle",)),
+        Step('Optionally: high-pass filter'),
+        Step('Derotate images', products=("SciDerotated", "SciDerotatedPsfsub")),
+        Step('Contrast curve calculation',
+             products=("SciContrastRadprof", "SciContrastAdi", "SciThroughput", "SciSnr")),
+        Step('Coadd images', products=("SciCoverage", "SciCalibrated")),
+    )
     _algorithm = """TODO"""
 
     parameters = ParameterList([])

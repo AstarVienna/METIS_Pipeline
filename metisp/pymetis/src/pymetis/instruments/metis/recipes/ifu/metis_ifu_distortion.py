@@ -26,7 +26,7 @@ from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, Paramet
                                            ParameterValue)
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.drl.combine import combine_images
 from pymetis.drl.trace import measure_trace_edges, trace, traces_to_table
@@ -358,6 +358,12 @@ class MetisIfuDistortion(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
+    _steps = (
+        Step('detector signature removal',
+             inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),
+        Step('locate images'),
+        Step('fit polynomial', products=("DistortionTable", "DistortionReduced")),
+    )
     _algorithm = """Stack the continuum-illuminated raw exposures.
     Estimate the local background by smoothing along the cross-dispersion direction
     and threshold against it, to separate illuminated from inter-slice pixels.

@@ -1,0 +1,138 @@
+(# The generated parts of the DRLD in one document, rendered by generate_drld.py with `doc` set to a Document:
+   the data-item paragraphs (DRLD chapter "DRL Data Items and Structures"), the recipe cards ("Pipeline Recipes")
+   and the QC-parameter cards ("QC Parameters"), each grouped as the DRLD groups them. With `doc.standalone` the
+   file compiles on its own, provided the DRLD sources are reachable through TEXINPUTS (it reuses the DRLD's
+   normal_style, styles_data and acronyms); otherwise it is a fragment to \input into the DRLD. #)
+(% if doc.standalone %)
+\documentclass[11pt,oneside,a4paper]{article}
+\raggedbottom
+\textheight=246mm
+\textwidth=164mm
+\oddsidemargin=-2mm
+\parindent=0mm
+\parskip=0.3em
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage[scaled=0.92]{helvet}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{colortbl}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage[many]{tcolorbox}
+\usepackage{xstring}
+\usepackage{pdflscape}
+\usepackage{hyperref}
+\usepackage[nohyperlinks]{acronym}
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{2}
+\lstset{basicstyle=\ttfamily, columns=flexible, showspaces=false}
+\input{normal_style}
+\input{styles_data}
+\input{tikz/assomap_common}
+\input{tikz/recipe_config}
+\providecommand{\CODE}[1]{\lstinline[]!#1!}
+\providecommand{\DRL}[1]{\lstinline[style=DRLstyle]!#1!}
+\providecommand{\TPL}[1]{\lstinline[style=TPLstyle]!#1!}
+\providecommand{\REQ}[1]{\texttt{#1}}
+\newenvironment{recipedef}
+  {\begin{tcolorbox}[breakable,enhanced jigsaw]\begin{longtable*}{p{0.24\hsize}p{0.69\hsize}}}
+  {\end{longtable*}\end{tcolorbox}}
+\newenvironment{datastructdef}
+  {\begin{tcolorbox}[breakable,enhanced jigsaw]\begin{longtable*}{p{0.97\hsize}}}
+  {\end{longtable*}\end{tcolorbox}}
+\title{METIS DRLD --- generated cards}
+\author{generate\_drld.py, pymetis (* doc.version|latex *)}
+\date{(* doc.date *)}
+\begin{document}
+\maketitle
+\tableofcontents
+\clearpage
+\input{acronyms}
+\clearpage
+(% endif %)
+(# ---------------------------------------------------------------- data items #)
+\section{DRL Data Items and Structures}\label{sec:drl_data_structures}
+(% for family in doc.item_families %)
+\subsection{(* family.title|latex *) data items}
+(% for kind in family.kinds %)
+\subsubsection{(* kind.title|latex *)}
+(% for item in kind.items %)
+(% include 'dataitem.tex' %)
+(% endfor %)
+(% endfor %)
+(% endfor %)
+(# ---------------------------------------------------------------- recipes #)
+\clearpage
+\section{Pipeline Recipes}\label{sec:pipeline_recipes}
+(% for family in doc.recipe_families %)
+\subsection{(* family.title|latex *)}
+(% for recipe in family.recipes %)
+\subsubsection{\REC*{(* recipe.name *)}: (* recipe.synopsis|latex *)}\label{rec:(* recipe.name *)}
+(* recipe.description|prose *)
+
+(% include 'recipe.tex' %)
+(% if recipe.has_flowchart %)
+\begin{figure}[hb]
+  \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{flowchart_(* recipe.name *)}
+  \caption[Recipe: \REC*{(* recipe.name *)}]{\REC*{(* recipe.name *)} -- (* recipe.synopsis|latex *)}
+  \label{fig:(* recipe.name *)}
+\end{figure}
+(% endif %)
+(% endfor %)
+(% endfor %)
+(# ---------------------------------------------------------------- association maps #)
+(% if doc.assomaps %)
+\clearpage
+\section{Association maps}\label{sec:association_maps}
+One figure per EDPS workflow, derived from the workflow itself: a column per task, headed by the raw data that
+triggers it and the recipe it runs; a row per data item that flows between tasks; an arrow from a task to its
+products; a line from a product to every task that consumes it, dashed where EDPS treats the input as optional. The
+dashed vertical line separates the infrequent (AIT / monthly) calibrations from the daily ones. The comments at the
+top of each generated file list where the workflow and the recipe disagree.
+(% for map in doc.assomaps %)
+\begin{landscape}
+\begin{figure}[p]
+  \centering
+  \resizebox{\linewidth}{!}{\input{assomap_(* map.mode *)}}
+  \caption{Association map of \CODE{(* map.module|latex *)}(% if '_calib' in map.mode %), calibration cascade(% elif '_science' in map.mode %), science chain(% endif %).}
+  \label{fig:assomap_(* map.mode *)}
+\end{figure}
+\end{landscape}
+(% endfor %)
+(% endif %)
+(% if doc.keyword_rows %)
+\clearpage
+\subsection{Matched FITS keywords}\label{sec:matched_keywords}
+For every recipe: the main input and the calibrations its workflow task associates, and the FITS
+keywords the recipe declares it matches them on, with the aliases of \autoref{tab:fitskeywordaliasses}
+of the DRLD expanded to instrument keywords.
+\input{matched_keywords}
+(% endif %)
+(# ---------------------------------------------------------------- DPR keywords #)
+\clearpage
+\section{DPR keywords of the raw data}\label{sec:dpr_keywords}
+The ESO DPR classification each raw data item declares, and the recipes that take it as raw input.
+This is what the EDPS classification rules must assign.
+\input{dpr}
+(# ---------------------------------------------------------------- QC parameters #)
+\clearpage
+\section{QC Parameters}\label{sec:qc_parameters}
+Placeholders in a parameter name (\CODE{band}, \CODE{cgrph}, \CODE{nn}) stand for values known only at run time.
+(% for family in doc.qc_families %)
+\subsection{(* family.title|latex *)}
+(% for qc in family.qcs %)
+(% include 'qc.tex' %)
+(% endfor %)
+(% endfor %)
+(% if doc.standalone %)
+\end{document}
+(% endif %)

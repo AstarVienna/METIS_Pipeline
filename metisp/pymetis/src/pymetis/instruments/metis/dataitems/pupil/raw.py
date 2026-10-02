@@ -31,6 +31,7 @@ class PupilRaw(Raw, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                                'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.PUPIL'})
+    _dpr = ('TECHNICAL', 'PUP,{band}', 'PUPIL')
 
 
 class LmPupilRaw(BandLmMixin, PupilRaw):

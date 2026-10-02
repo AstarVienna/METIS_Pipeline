@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
+from dataclasses import dataclass
 import re
 from typing import Any, Generator, Self, ClassVar
 
@@ -27,6 +28,19 @@ from ..dataitems import DataItem
 from ..qc import QcParameter
 from ..recipes.impl import RecipeImpl
 from ..inputs import PipelineInput
+
+
+@dataclass(frozen=True)
+class Step:
+    """
+    One box of a recipe's DRLD flowchart: what the step is called, which inputs it consumes
+    (InputSet attribute names) and which products it produces (ProductSet attribute names).
+    Inputs no step names hang above the first step, products no step names below the last.
+    A newline in the label is a line break in the box.
+    """
+    label: str
+    inputs: tuple[str, ...] = ()
+    products: tuple[str, ...] = ()
 
 
 class Recipe(cpl.ui.PyRecipe):
@@ -57,6 +71,11 @@ class Recipe(cpl.ui.PyRecipe):
     _matched_keywords: frozenset[str] | None = None
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"
+    # The algorithm as the DRLD flowchart draws it: one `Step` per box, in order, each naming the
+    # InputSet attributes it consumes and the ProductSet attributes it produces. The flowchart in
+    # the DRLD is generated from this (`metisp/drld/generate_drld.py --flowchart`), so the
+    # declaration and the figure cannot drift apart; `_algorithm` stays the prose.
+    _steps: tuple[Step, ...] = ()
 
     # By default, a recipe does not have any parameters.
     parameters: ParameterList = ParameterList([])

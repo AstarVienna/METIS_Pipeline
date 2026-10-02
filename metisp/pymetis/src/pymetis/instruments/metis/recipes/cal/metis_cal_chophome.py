@@ -24,7 +24,7 @@ from pymetis.drl.combine import combine_images
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
@@ -216,6 +216,12 @@ class MetisCalChophome(Recipe):
     """
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT'})
+    _steps = (
+        Step('detector signature removal', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
+        Step('median-combine WCU_OFF subtract from CHOPHOME', inputs=("wcu_off",), products=("Background",)),
+        Step('Centroid peak detection', inputs=("pinhole_table",)),
+        Step('offset calculation', products=("Combined",)),
+    )
     _algorithm = """
     The position of the pinhole image on the detector is measured from the
     stacked background-subtracted images. The measured position is compared

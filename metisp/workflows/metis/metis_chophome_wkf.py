@@ -6,20 +6,15 @@ TODO - need N band version
 
 from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
 from edps import task, data_source, classification_rule
+from .metis_classification import lm_chophome_raw_class
 from .metis_datasources import *
 from . import metis_keywords as metis_kwd
 
 
-lm_chophome_class = classification_rule("LM_CHOPHOME_RAW",
-                                {"instrume":"METIS", 
-                                 "dpr.catg":"CALIB", 
-                                 "dpr.type":"CHOPHOME",
-                                 "dpr.tech":"IMAGE,LM",
-                                 })
 
 
 lm_raw_chophome = (data_source()
-            .with_classification_rule(lm_chophome_class)        
+            .with_classification_rule(lm_chophome_raw_class)        
             .with_match_keywords(["instrume"])
             .build())
 

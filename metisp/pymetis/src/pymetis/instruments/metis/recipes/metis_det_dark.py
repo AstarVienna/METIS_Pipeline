@@ -35,7 +35,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum, Paramete
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.drl.image import zeros_like
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.description import Metis
@@ -326,6 +326,12 @@ class MetisDetDark(Recipe):
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
     # for the man page. Later, we would like to be able to compare them directly to DRLD and test for that.
     _matched_keywords: frozenset[str] = frozenset()
+    _steps = (
+        Step('apply non-linearity correction', inputs=("bad_pix_map", "gain_map")),
+        Step('apply persistence correction', inputs=("persistence_map",)),
+        Step('per pixel median/ mean filtering', products=("MasterDark",)),
+        Step('thresholding'),
+    )
     _algorithm = """
         - Group files by detector and `DIT`, based on header keywords
         - Call function `metis_determine_dark` for each set of files

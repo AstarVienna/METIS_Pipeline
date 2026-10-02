@@ -22,7 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput, PrimaryInputMixin
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
@@ -125,6 +125,11 @@ class MetisIfuPostprocess(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
+    _steps = (
+        Step('determine output grid'),
+        Step('resample cubes'),
+        Step('coadd cubes', products=("SciCoadd",)),
+    )
     _algorithm = """Call metis_ifu_grid_output to find the output grid encompassing all input cubes
     Call metis_ifu_resampling to resample input cubes to output grid
     Call metis_ifu_coadd to stack the images"""
