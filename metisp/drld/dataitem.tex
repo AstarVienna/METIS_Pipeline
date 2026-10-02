@@ -8,7 +8,11 @@
         (% if not item.is_raw %)
         \FITS{PRO.CATG}: & \CODE{(* item.name *)} \\[0.3cm]
         (% endif %)
-        OCA keywords: & (* item.oca_keywords|fits *)\\
+        (% for keyword in item.oca_keywords %)
+        (* "OCA keywords:" if loop.first else "" *) & (* [keyword]|fits *)\\
+        (% else %)
+        OCA keywords: & --- none --- \\
+        (% endfor %)
         \FITS{DO.CATG}: & \CODE{(* item.name *)}\\[0.3cm]
         (% if item.created_by %)
             Created by: & \REC{(* item.created_by[0] *)} \\
