@@ -113,6 +113,7 @@ class DprRow:
     tech: str
     type: str
     tag: str
+    ref: str                        # the tag as a hyperlink to its card
     recipes: list[str]              # recipes taking the item as a primary input
 
 
@@ -319,6 +320,37 @@ class Catalogue:
             return ' or '.join(self.linked(self.macro_of(self.items[t], t), t) for t in alternatives)
         return self.linked(self.macro_of(item, tag), self.drld_name(tag))
 
+    NAME_TOKEN = re.compile(r'`[^`]+`|metis_[a-z0-9_]+|[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+')
+
+    def link(self, name: str) -> str | None:
+        """ The hyperlinked macro for a recipe name or an item tag, None for anything else. """
+        if name in self.recipes:
+            return rf'\REC{{{name}}}'
+        if name in self.items and '_' in name:          # a bare word that is also a tag (RSRF) stays prose
+            return self.linked(self.macro_of(self.items[name], name), name)
+        return None
+
+    def prose(self, text) -> str:
+        """
+        Free text (a description, a synopsis, an algorithm line) escaped for LaTeX, with every
+        mention of a catalogue item or recipe hyperlinked to its card; a `code` span that is
+        not one is set in typewriter.
+        """
+        text = str(text)
+        out, pos = [], 0
+        for m in self.NAME_TOKEN.finditer(text):
+            token = m.group()
+            bare = token.strip('`')
+            link = self.link(bare)
+            if link is None and token.startswith('`'):
+                link = rf'\texttt{{{latex(bare)}}}'
+            if link is None:
+                continue
+            out += [latex(text[pos:m.start()]), link]
+            pos = m.end()
+        out.append(latex(text[pos:]))
+        return ''.join(out)
+
     def linked(self, macro: str, tag: str) -> str:
         """
         `\\PROD{TAG}`, which hyperlinks to the item's own card; a tag whose card is a template card
@@ -492,7 +524,8 @@ class Catalogue:
                 if findings is not None:
                     findings.append(f"{tag} declares no DPR triple")
                 continue
-            rows.append(DprRow(*('any' if v is ... else v for v in dpr), tag=tag, recipes=self.raw_consumers(tag)))
+            rows.append(DprRow(*('any' if v is ... else v for v in dpr), tag=tag, ref=self.reference(item, tag),
+                               recipes=self.raw_consumers(tag)))
         return sorted(rows, key=lambda r: (r.catg, r.tech, r.type, r.tag))
 
     def item_card(self, tag: str) -> Card:
@@ -547,15 +580,14 @@ class Catalogue:
 
         parameters = []
         for parameter in recipe.parameters:
-            row = rf'\CODE{{{latex(parameter.name)}}}\newline {latex(parameter.description)}'   # the name on its own line
+            row = rf'\CODE{{{latex(parameter.name)}}}\newline {self.prose(parameter.description)}'   # the name on its own line
             if (alternatives := getattr(parameter, 'alternatives', None)) is not None:
                 row += ' (' + ', '.join(rf'\texttt{{{latex(a)}}}' for a in alternatives) + ')'
             row += rf', default \texttt{{{latex(parameter.default)}}}'
             parameters.append(row)
 
-        # The algorithm is free text with `code` spans; LaTeX-escape it and typeset the spans.
-        algorithm = [re.sub(r'`([^`]+)`', r'\\texttt{\1}', latex(line.strip()))
-                     for line in recipe._algorithm.splitlines() if line.strip()]
+        # The algorithm is free text with `code` spans: escaped, mentions linked, other spans in typewriter.
+        algorithm = [self.prose(line.strip()) for line in recipe._algorithm.splitlines() if line.strip()]
 
         return RecipeCard(
             name=name,
@@ -715,7 +747,7 @@ def write_fragments(catalogue: 'Catalogue', env: jinja2.Environment, directory: 
     return counts
 
 
-def environment() -> jinja2.Environment:
+def environment(catalogue: 'Catalogue | None' = None) -> jinja2.Environment:
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(HERE),
         variable_start_string='(*', variable_end_string='*)',
@@ -725,6 +757,7 @@ def environment() -> jinja2.Environment:
         autoescape=False, undefined=jinja2.StrictUndefined,
     )
     env.filters['latex'] = latex
+    env.filters['prose'] = catalogue.prose if catalogue is not None else latex     # escaped, mentions hyperlinked
     env.filters['fits'] = fits_keywords
     env.filters['raw'] = lambda tag: rf'\RAW{{{tag}}}'
     return env
@@ -791,7 +824,7 @@ def main() -> None:
 
     if args.assomap:
         from workflows import association_maps
-        env = environment()
+        env = environment(catalogue)
         BUILD.mkdir(parents=True, exist_ok=True)
         for module in args.assomap:
             for amap in association_maps(catalogue, module, split=args.split):
@@ -801,7 +834,7 @@ def main() -> None:
         return
 
     if args.flowchart:
-        env = environment()
+        env = environment(catalogue)
         BUILD.mkdir(parents=True, exist_ok=True)
         for name in args.flowchart:
             if name not in catalogue.recipes:
@@ -814,13 +847,13 @@ def main() -> None:
         return
 
     if args.fragments is not None:
-        counts = write_fragments(catalogue, environment(), args.fragments)
+        counts = write_fragments(catalogue, environment(catalogue), args.fragments)
         print(f"{args.fragments / 'generated'}: " + ', '.join(f"{n} {k}" for k, n in counts.items()))
         return
 
     if args.tables:
         from workflows import matched_keywords
-        env = environment()
+        env = environment(catalogue)
         BUILD.mkdir(parents=True, exist_ok=True)
         doc = Document(item_families=[], recipe_families=[], qc_families=[], standalone=False, version='', date='')
         doc.dpr_rows = catalogue.dpr_rows(doc.dpr_findings)
@@ -842,7 +875,7 @@ def main() -> None:
         return
 
     if args.document is not None:
-        env = environment()
+        env = environment(catalogue)
         args.document.parent.mkdir(parents=True, exist_ok=True)
         doc = catalogue.document(args.standalone)
         doc.dpr_rows = catalogue.dpr_rows(doc.dpr_findings)
@@ -892,7 +925,7 @@ def main() -> None:
         if unknown := [n for n in args.names if n not in catalogue.items and n not in catalogue.recipes]:
             raise SystemExit(f"Neither a registered, fully resolved data item nor a recipe: {', '.join(unknown)}")
 
-    env = environment()
+    env = environment(catalogue)
     rendered = [('items', tag, env.get_template('dataitem.tex').render(item=catalogue.item_card(tag)))
                 for tag in tags]
     rendered += [('recipes', name, env.get_template('recipe.tex').render(recipe=catalogue.recipe_card(name)))

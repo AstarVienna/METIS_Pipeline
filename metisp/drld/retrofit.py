@@ -124,7 +124,7 @@ class Retrofit:
     def __init__(self, drld: Path):
         self.drld = drld
         self.catalogue = Catalogue()
-        self.env = environment()
+        self.env = environment(self.catalogue)
         self.report = Report()
         self.templates_used: list[str] = []
         self.covered_tags: set[str] = set()                 # leaves a template card stands for

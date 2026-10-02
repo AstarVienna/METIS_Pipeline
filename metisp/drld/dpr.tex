@@ -26,12 +26,12 @@
 (% for row in doc.dpr_rows %)
 (% for recipe in row.recipes %)
 (% if loop.first %)
- (* row.catg *) & (* row.tech *) & (* row.type *) & (* row.tag|latex *) & \REC{(* recipe *)} \\
+ (* row.catg *) & (* row.tech *) & (* row.type *) & (* row.ref *) & \REC{(* recipe *)} \\
 (% else %)
  " & " & " & " & \REC{(* recipe *)} \\
 (% endif %)
 (% else %)
- (* row.catg *) & (* row.tech *) & (* row.type *) & (* row.tag|latex *) & \\
+ (* row.catg *) & (* row.tech *) & (* row.type *) & (* row.ref *) & \\
 (% endfor %)
 (% endfor %)
  \hline
