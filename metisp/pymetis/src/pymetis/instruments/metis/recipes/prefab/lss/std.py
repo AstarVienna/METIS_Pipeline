@@ -81,7 +81,7 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
         LssStdSkyMap = dataitems.LssSkyMap
         MasterResponse = dataitems.MasterResponse
         StdTransmission = dataitems.StdTransmission
-        LssWave = dataitems.LssWaveGuess
+        LssStdWave = dataitems.LssStdWave      # the DRLD's optional product; the input wave guess is not re-emitted
         LssStd1d = dataitems.LssStd1d
 
     class Qc(QcParameterSet):
@@ -151,6 +151,7 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
         product_master_response_hdr = create_dummy_header()
         product_std_transmission_hdr = create_dummy_header()
         product_lss_std1d_hdr = create_dummy_header()
+        product_lss_std_wave_hdr = create_dummy_header()
         table = create_dummy_table()
 
         # Write files
@@ -185,6 +186,10 @@ class MetisLssStdImpl(DarkImageProcessor, MetisRecipeImpl):
             self.ProductSet.LssStd1d(
                 copy.deepcopy(primary_header),
                 Hdu(product_lss_std1d_hdr, table, name='TABLE')
+            ),
+            self.ProductSet.LssStdWave(
+                copy.deepcopy(primary_header),
+                Hdu(product_lss_std_wave_hdr, table, name='TABLE')
             ),
             self.ProductSet.LssStdObjMap(
                 copy.deepcopy(primary_header),
