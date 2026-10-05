@@ -45,6 +45,7 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
 
         class RawSkyInput(RawInput):
             Item = dataitems.IfuSkyRaw
+            _own_tags = frozenset({'target'})       # SKY next to the SCI/STD frames, by design
 
         class DistortionTableInput(SinglePipelineInput):
             Item = dataitems.IfuDistortionTable

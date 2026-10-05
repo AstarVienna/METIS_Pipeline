@@ -37,6 +37,7 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
 
         class SkyBasicReducedInput(SinglePipelineInput):
             Item = dataitems.LmSkyBasicReduced
+            _own_tags = frozenset({'target'})       # the sky frame of a SCI/STD run, by design
 
         basic_reduced: BasicReducedInput
         sky_basic_reduced: SkyBasicReducedInput

@@ -50,6 +50,13 @@ class PipelineInput(ABC):
     # pipeline product) and is used when it is saved.
     _group: ClassVar[cpl.ui.Frame.FrameGroup] = cpl.ui.Frame.FrameGroup.CALIB
 
+    # Tag axes on which this input is deliberately different from the rest of the run: the sky
+    # frames next to the science frames are `target=SKY` for themselves while the run is SCI.
+    # Such an axis is neither filled into the run's tags by this input nor checked against them.
+    # Any other tag an input pins by its declaration (`Item = MasterDark2rg`) has to agree with
+    # what the other inputs' frames say; a GEO dark set next to a 2RG master dark is refused.
+    _own_tags: ClassVar[frozenset[str]] = frozenset()
+
     def load_frameset(self, frameset: cpl.ui.FrameSet) -> None:
         """
         Load the associated frames.

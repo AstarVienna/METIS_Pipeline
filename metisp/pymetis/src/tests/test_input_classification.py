@@ -213,3 +213,54 @@ class TestMostSpecificInputWins:
         frames = self.frameset(tmp_path, 'LM_SCI_BASIC_REDUCED', 'LM_STD_BASIC_REDUCED', 'LM_SKY_BASIC_REDUCED')
         with pytest.raises(cpl.core.IllegalInputError, match='several different data items'):
             MetisLmImgBackgroundImpl.InputSet(frames)
+
+
+class TestDeclaredTagsAgainstTheData:
+    """ A tag an input pins by its declaration (`Item = MasterDark2rg`) has to agree with the tag the
+    other inputs' frames carry; an axis the input declares as its own (the sky input's target) is
+    exempt. Before, a GEO dark set next to a declared 2RG master dark validated and the master dark
+    was promoted to GEO (Review III, G2). """
+
+    @staticmethod
+    def probe(own_tags=frozenset()):
+        from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
+        from pymetis.instruments.metis import dataitems
+        from pymetis.instruments.metis.inputs import RawInput
+
+        class DarkRawInput(RawInput):
+            Item = dataitems.DarkRaw
+
+        class MasterDarkInput2rg(SinglePipelineInput):
+            Item = MasterDark2rg
+            _own_tags = own_tags
+
+        class Probe(PipelineInputSet):
+            raw: DarkRawInput
+            dark: MasterDarkInput2rg
+
+        return Probe
+
+    def test_a_declared_leaf_contradicting_the_data_is_refused(self, tmp_path):
+        inputset = self.probe()(frameset(tmp_path, 'DARK_GEO_RAW', 'DARK_GEO_RAW', 'MASTER_DARK_2RG'))
+        with pytest.raises(cpl.core.IllegalInputError, match="detector: dark is declared '2RG', raw has 'GEO'"):
+            inputset.validate()
+
+    def test_a_declared_leaf_agreeing_with_the_data_validates(self, tmp_path):
+        inputset = self.probe()(frameset(tmp_path, 'DARK_2RG_RAW', 'MASTER_DARK_2RG'))
+        inputset.validate()
+        assert inputset.tag_matches['detector'] == '2RG'
+
+    def test_an_own_axis_is_neither_checked_nor_filled_in(self, tmp_path):
+        inputset = self.probe(own_tags=frozenset({'detector'}))(frameset(tmp_path, 'DARK_GEO_RAW', 'MASTER_DARK_2RG'))
+        inputset.validate()
+        assert inputset.tag_matches['detector'] == 'GEO'
+
+    def test_the_sky_input_of_ifu_reduce_keeps_its_own_target(self, tmp_path):
+        from pymetis.instruments.metis.recipes.ifu.metis_ifu_reduce import MetisIfuReduceImpl
+        frames = frameset(tmp_path, 'IFU_SCI_RAW', 'IFU_SKY_RAW', 'IFU_DISTORTION_TABLE', 'IFU_WAVECAL',
+                          'MASTER_DARK_IFU', 'RSRF_IFU', 'LINEARITY_IFU', 'GAIN_MAP_IFU', 'BADPIX_MAP_IFU',
+                          'PERSISTENCE_MAP')
+        inputset = MetisIfuReduceImpl.InputSet(frames)
+        inputset.validate()
+        assert inputset.tag_matches['target'] == 'SCI'
+        assert inputset.raw_sky.Item.tag_parameters()['target'] == 'SKY'
