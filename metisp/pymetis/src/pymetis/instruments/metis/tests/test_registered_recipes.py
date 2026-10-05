@@ -220,14 +220,30 @@ class TestRecipeOnDefaultData:
         assert output.returncode == 0, f"Pyesorex exited with {output.returncode}"
         assert output.stderr == b"", f"Pyesorex exited with non-empty stderr: {output.stderr}"
 
-    def test_uses_all_input_frames(self, recipe, frameset):
-        # FixMe this currently does not actually track usage, just loading
+    def test_every_sof_frame_is_claimed_by_an_input(self, recipe, frameset):
+        """ `valid_frames` is the union of what the inputs matched, so a frame missing from it is a
+        surplus line in the SOF that no input knows what to do with. Usage is a different statement,
+        see the next test. """
         instance = recipe()
         instance.run(frameset, {})
         all_frames = {frame.file for frame in instance.implementation.inputset.frameset}
-        loaded_frames = {frame.file for frame in instance.implementation.inputset.valid_frames}
-        assert loaded_frames == all_frames, \
-            f"Frames are present in the SOF file but not used: {all_frames - loaded_frames}"
+        claimed = {frame.file for frame in instance.implementation.inputset.valid_frames}
+        assert claimed == all_frames, \
+            f"Frames are present in the SOF file but claimed by no input: {all_frames - claimed}"
+
+    def test_used_frames_come_from_the_sof_and_lead_with_the_primary_input(self, recipe, frameset):
+        """ The product header's provenance (PRO REC1 RAWn / CALn) is `used_frames` in order: every
+        used frame was in the SOF, something was used, and the first used frame belongs to the
+        input whose role is RAW, since CPL DFS inherits the primary header from it. """
+        instance = recipe()
+        instance.run(frameset, {})
+        inputset = instance.implementation.inputset
+        used = [frame.file for frame in inputset.used_frames]
+        assert used, f"{recipe._name} used no frames"
+        assert set(used) <= {frame.file for frame in inputset.frameset}
+        primary = inputset.inputs_by_role()[0]
+        assert used[0] in {frame.file for frame in primary.valid_frames()}, \
+            f"the first used frame {used[0]} is not from the primary input {primary}"
 
     def test_all_inputs_carry_complete_items(self, recipe, frameset):
         instance = recipe()
@@ -244,7 +260,7 @@ class TestRecipeOnDefaultData:
     @pytest.mark.inputset
     def test_input_set_loads_and_validates(self, recipe, frameset):
         instance = recipe.Impl.InputSet(frameset)
-        assert isinstance(instance.inputs, frozenset)
+        assert isinstance(instance.inputs, tuple)        # declaration order, see PipelineInputSet
         for name, attr in instance.__dict__.items():
             if isinstance(attr, PipelineInput):
                 assert attr in instance.inputs, f"Input {name} is not registered in inputs"
