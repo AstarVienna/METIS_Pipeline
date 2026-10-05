@@ -78,3 +78,15 @@ class TestEnhancedImageLoad:
         image = EnhancedImageBase.load(str(master_dark_file), 'DET1')
         assert np.array_equal(image.image.image.as_array(), SCI_DOUBLE)      # exact: no float32 truncation
         assert np.array_equal(image.dq.data.as_array(), DQ_BITS)
+
+
+class TestSavingALoadedItem:
+    def test_extensions_are_read_back_from_the_file(self, master_dark_file, tmp_path):
+        """ A loaded item holds no pixels; saving it (a re-tagged copy) reads them from its file (Review III, G3). """
+        item = MasterDark2rg.load(Frame(str(master_dark_file), tag='MASTER_DARK_2RG'))
+        copy = tmp_path / 'copy.fits'
+        CplPropertyList().save(str(copy), cpl.core.io.CREATE)
+        item.save_extensions(str(copy))
+        again = MasterDark2rg.load(Frame(str(copy), tag='MASTER_DARK_2RG'))
+        assert np.array_equal(np.asarray(again.load_data('DET1.DQ')), DQ_BITS)
+        assert np.array_equal(np.asarray(again.load_data('DET1.SCI')), SCI_DOUBLE)

@@ -92,16 +92,22 @@ class Hdu:
     def __repr__(self) -> str:
         return f"<HDU {self.name=}, {self.extno=}, {self.klass=}>"
 
-    def save(self, filename):
+    def save(self, filename, data=None):
+        """ Append this HDU to `filename`; `data` stands in for the HDU's own when that was never loaded. """
         Msg.info(self.__class__.__name__,
                  f"Saving HDU '{self.name}' to '{filename}'")
+        if self.klass is None:          # the primary HDU: its header is saved by DataItem.save, nothing to append
+            return
+        data = self.data if data is None else data
+        if data is None:
+            raise cpl.core.DataNotFoundError(f"HDU '{self.name}' has no data to save")
 
         # FixMe this is ugly as hell, but works
         if self.klass == CplImage:
-            self.data.save(filename, self.header, cpl.core.io.EXTEND)
+            data.save(filename, self.header, cpl.core.io.EXTEND)
         elif self.klass == CplTable:
             # Here the signature is (primary_header, header, filename, mode) for whatever reason...
             # FixMe What if there are multiple tables? Is primary header overwritten or what?
-            self.data.save(self.header, self.header, filename, cpl.core.io.EXTEND)
+            data.save(self.header, self.header, filename, cpl.core.io.EXTEND)
         elif self.klass == CplImageList:
-            self.data.save(filename, self.header, cpl.core.io.EXTEND)
+            data.save(filename, self.header, cpl.core.io.EXTEND)

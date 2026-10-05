@@ -485,9 +485,19 @@ class DataItem(ParametrizableItem, abstract=True):
 
     def save_extensions(self,
                         filename: str) -> None:
-        """ Save extension data to the same file. Implementation depends on the type of the data. """
+        """
+        Save extension data to the same file. An item loaded from a file holds no pixels until
+        asked (its HDUs have `data=None`): saving such an item, a re-tagged copy for instance,
+        reads each extension from its file first.
+        """
         for name, hdu in self.hdus.items():
-            hdu.save(filename)
+            if hdu.data is None and hdu.klass is not None:          # the primary HDU carries no data
+                if getattr(self, 'filename', None) is None:
+                    raise cpl.core.DataNotFoundError(
+                        f"{self.__class__.__qualname__}: HDU '{name}' has no data and no file to read it from")
+                hdu.save(filename, data=self.load_data(name))
+            else:
+                hdu.save(filename)
 
     def as_dict(self) -> dict[str, str]:
         return {
