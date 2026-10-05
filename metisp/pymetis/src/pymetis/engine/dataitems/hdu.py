@@ -28,6 +28,28 @@ from cpl.core import (Image as CplImage,
 from pymetis.engine.core.functions.property import make_cpl_property
 
 
+def pixel_type(header: CplPropertyList) -> cpl.core.Type:
+    """
+    The CPL pixel type that holds an HDU's data exactly, from its BITPIX: floating-point data as
+    written (-32 FLOAT, -64 DOUBLE), integers of up to 32 bits as INT, 64-bit integers and
+    BZERO/BSCALE-scaled 32-bit integers as DOUBLE, since CPL has no 64-bit integer image. A header
+    without BITPIX gives FLOAT. Loading everything as FLOAT, as before, truncated DOUBLE data and
+    corrupted DQ bit fields above bit 23.
+    """
+    try:
+        bitpix = header['BITPIX'].value
+    except KeyError:
+        return cpl.core.Type.FLOAT
+    if bitpix == -64:
+        return cpl.core.Type.DOUBLE
+    if bitpix == -32:
+        return cpl.core.Type.FLOAT
+    scaled = 'BZERO' in header or 'BSCALE' in header
+    if bitpix in (8, 16) or (bitpix == 32 and not scaled):
+        return cpl.core.Type.INT
+    return cpl.core.Type.DOUBLE
+
+
 class Hdu:
     """
     A loose association of a header and data.

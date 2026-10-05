@@ -25,7 +25,7 @@ from typing import Optional, Self, final, Union, ClassVar, TYPE_CHECKING
 import cpl
 from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyList
 
-from .hdu import Hdu
+from .hdu import Hdu, pixel_type
 from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
@@ -347,12 +347,12 @@ class DataItem(ParametrizableItem, abstract=True):
         """
 
         try:
-            if self[extension].klass == Image:
-                return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
-            elif self[extension].klass == Table:
-                return self[extension].klass.load(self.filename, self._hdus[extension].extno)
-            elif self[extension].klass == ImageList:
-                return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
+            hdu = self._hdus[extension]
+            if hdu.klass == Image or hdu.klass == ImageList:
+                # the pixel type the file holds, so DQ bit fields and double data come back exactly
+                return hdu.klass.load(self.filename, pixel_type(hdu.header), hdu.extno)
+            elif hdu.klass == Table:
+                return hdu.klass.load(self.filename, hdu.extno)
             else:
                 raise KeyError
         except cpl.core.DataNotFoundError as exc:
