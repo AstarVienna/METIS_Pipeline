@@ -20,15 +20,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 from cpl.core import Image, Table
 
-from pymetis.engine.dataitems import DataItem, ImageDataItem, TableDataItem
+from pymetis.engine.dataitems import ImageDataItem, TableDataItem
 from pymetis.instruments.metis.mixins import DetectorIfuMixin
 
 
-class Rsrf(DataItem):
+class Rsrf(ImageDataItem):
+    """
+    The 2D relative spectral response function. No DRLD card and no recipe uses it yet (the 1D one is
+    `RSRF_IFU`); kept in the catalogue pending a decision, as a complete item rather than one that
+    could not be instantiated (Review III, G5).
+    """
     _name_template = r'RSRF'
     _title_template = "RSRF"
     _description_template = "2D relative spectral response function"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG', 'DRS.IFU'})
 
     _schema = {

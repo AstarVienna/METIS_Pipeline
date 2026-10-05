@@ -55,3 +55,14 @@ class TestDeclarations:
     def test_product_file_names_fit_the_dicd_limit(self, item):
         """ <TAG>_<21-character timestamp>.fits must not exceed 56 characters. """
         assert len(item.name()) + 1 + 21 + 5 <= 56, f"{item.name()} makes a file name longer than 56 characters"
+
+
+class TestEveryRegisteredItemIsComplete:
+    """ The catalogue is only useful if every entry can be instantiated: a concrete item without a
+    frame level or type (the bare RSRF, Review III G5) raised the moment a recipe would use it. """
+
+    @pytest.mark.parametrize('item', ITEMS, ids=lambda item: item.name())
+    def test_level_type_and_construction(self, item):
+        assert item.frame_level() is not None, f"{item.name()} has no frame level"
+        assert item.frame_type() is not None, f"{item.name()} has no frame type"
+        assert item(cpl.core.PropertyList()).name() == item.name()
