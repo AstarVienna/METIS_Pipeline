@@ -85,6 +85,10 @@ class TestRecipeMetadata:
         assert "If you see this in a recipe" not in recipe._description
         assert recipe._build_description() == recipe._build_description()
 
+    def test_the_impl_names_its_instrument(self, recipe):
+        # cpl.dfs.save_propertylist needs it; a prefab base that skips MetisRecipeImpl loses it (Review III, R2)
+        assert isinstance(recipe.Impl.instrument, str) and recipe.Impl.instrument
+
     def test_recipe_can_be_instantiated(self, recipe):
         assert isinstance(recipe(), cpl.ui.PyRecipe)
 

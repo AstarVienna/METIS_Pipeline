@@ -34,7 +34,7 @@ from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
 
 
-class MetisLmAppSciCalibrateImpl(RawImageProcessor):
+class MetisLmAdiAppImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = dataitems.LmSciCalibrated
@@ -164,7 +164,7 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
             }
 
 
-class MetisLmAppSciCalibrated(Recipe):
+class MetisLmAdiApp(Recipe):
     _name: str = "metis_lm_adi_app"
     _version: str = "0.1"
     _author: str = "Jennifer Karr, A*"
@@ -189,6 +189,6 @@ class MetisLmAppSciCalibrated(Recipe):
 
     parameters = ParameterList([])
 
-    Impl = MetisLmAppSciCalibrateImpl
+    Impl = MetisLmAdiAppImpl
 
     
