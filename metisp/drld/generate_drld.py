@@ -305,9 +305,9 @@ class Catalogue:
         the DRLD writes it, as the alternatives the catalogue offers joined by "or"
         (`\\RAW{LM_FLAT_LAMP_RAW} or \\RAW{LM_FLAT_TWILIGHT_RAW}`); with no catalogue
         entry to expand to, the placeholders are shown as `<name>`. Placeholders that the
-        recipe's inputs bind (`bound`) are not a choice, the item has to match the inputs:
-        such a tag stays unresolved (`det_cgrph_CENTROID_TAB`) when the document has a
-        template card for it to link to.
+        recipe's inputs bind (`bound`) are set once for the whole run, by the primary input
+        included: every mention stays unresolved (`DARK_det_RAW`, `MASTER_DARK_det`) when the
+        document has a template card for it to link to; otherwise the alternatives are listed.
         """
         placeholders = set(re.findall(r'\{(\w+)\}', tag))
         if (bound is not None and placeholders and placeholders <= bound
@@ -409,8 +409,7 @@ class Catalogue:
         left: dict[str, list[ChartNode]] = {key: [] for key in keys}
         for attr, inp in inputs:
             tag = self.input_tag(recipe, inp)
-            ref = self.reference(inp.Item, tag, max_alternatives=CHART_ALTERNATIVES,
-                                 bound=None if inp.is_primary() else bound)
+            ref = self.reference(inp.Item, tag, max_alternatives=CHART_ALTERNATIVES, bound=bound)
             shown = lines(ref, r'\textsl{N} ' if inp.multiplicity() == 'N' else '')
             if inp.is_primary():
                 if shown not in chart.primary_inputs:     # two inputs of the same item (IFU sky twice)
@@ -571,7 +570,7 @@ class Catalogue:
         bound = self.bound_placeholders(recipe)
         for _, input_class in sorted(recipe._list_inputs(), key=lambda entry: self.input_tag(recipe, entry[1])):
             tag = self.input_tag(recipe, input_class)
-            row = self.reference(input_class.Item, tag, bound=None if input_class.is_primary() else bound)
+            row = self.reference(input_class.Item, tag, bound=bound)        # the primary too: det is set once, for the whole card
             if input_class.multiplicity() == 'N':
                 row += ' (1--N)'
             if not input_class.required():
