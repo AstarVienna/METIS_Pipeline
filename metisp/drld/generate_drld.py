@@ -580,7 +580,7 @@ class Catalogue:
 
         parameters = []
         for parameter in recipe.parameters:
-            row = rf'\CODE{{{latex(parameter.name)}}}\newline {self.prose(parameter.description)}'   # the name on its own line
+            row = rf'\CODE{{{parameter.name}}}\newline {self.prose(parameter.description)}'   # verbatim: \CODE is lstinline, a \_ there escapes to text
             if (alternatives := getattr(parameter, 'alternatives', None)) is not None:
                 row += ' (' + ', '.join(rf'\texttt{{{latex(a)}}}' for a in alternatives) + ')'
             row += rf', default \texttt{{{latex(parameter.default)}}}'
