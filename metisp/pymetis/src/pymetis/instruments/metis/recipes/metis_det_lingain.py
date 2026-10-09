@@ -70,6 +70,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         GainLin = qc.lingain.GainLin
         GainCoeff = qc.lingain.GainCoeff
 
+    _steps = (
+        Step('subtract dark'),
+        Step('compute gain', products=(ProductSet.GainMap,)),
+        Step('linearity check', products=(ProductSet.Linearity,)),
+        Step('thresholding', products=(ProductSet.BadPixMap,)),
+    )
+
     def __init__(self,
                  recipe: 'Recipe',
                  frameset: cpl.ui.FrameSet,
@@ -606,12 +613,6 @@ class MetisDetLinGain(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset()
-    _steps = (
-        Step('subtract dark'),
-        Step('compute gain', products=("GainMap",)),
-        Step('linearity check', products=("Linearity",)),
-        Step('thresholding', products=("BadPixMap",)),
-    )
     _algorithm = """We expect two on and two dark (here named off) images per DIT
     for the Gain and Linearity calculation, similar to ESO's DETMON.
     The gain is determined from the slope of the average flux

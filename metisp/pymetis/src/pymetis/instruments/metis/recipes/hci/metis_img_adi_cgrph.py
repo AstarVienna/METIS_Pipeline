@@ -78,6 +78,20 @@ class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
         SciContrastAdiLamd = qc.hci.HciSciContrastAdiLamd
         SciFwhm = qc.hci.HciSciFwhm
 
+    _steps = (
+        Step('Centroid determination', products=(ProductSet.CentroidTab,)),
+        Step('Distortion correction and subpixel alignment', products=(ProductSet.SciCentred,)),
+        Step('Estimate median PSF', products=(ProductSet.PsfMedian,)),
+        Step('Subtract median PSF', products=(ProductSet.SciSpeckle,)),
+        Step('Optionally: high-pass filter', products=(ProductSet.SciHifilt,)),
+        Step('Derotate images', products=(ProductSet.SciDerotated, ProductSet.SciDerotatedPsfsub,)),
+        Step('Contrast curve calculation',
+             inputs=(InputSet.ThroughputInput,),
+             products=(ProductSet.SciContrastRadprof, ProductSet.SciContrastAdi, ProductSet.SciThroughput,
+                       ProductSet.SciSnr,)),
+        Step('Coadd images', products=(ProductSet.SciCoverage, ProductSet.SciCalibrated,)),
+    )
+
     def process(self) -> set[DataItem]:
         image = self.inputset.raw.load_data('DET1.DATA')[0]
         table = create_dummy_table()
@@ -110,18 +124,6 @@ class MetisImgAdiCgrph(Recipe):
     _synopsis: str = "ADI post-processing for the RAVC and CVC coronagraphs in the LM and N bands"
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER', 'DRS.MASK'})
-    _steps = (
-        Step('Centroid determination', products=("CentroidTab",)),
-        Step('Distortion correction and subpixel alignment', products=("SciCentred",)),
-        Step('Estimate median PSF', products=("PsfMedian",)),
-        Step('Subtract median PSF', products=("SciSpeckle",)),
-        Step('Optionally: high-pass filter', products=("SciHifilt",)),
-        Step('Derotate images', products=("SciDerotated", "SciDerotatedPsfsub")),
-        Step('Contrast curve calculation',
-             inputs=("throughput",),
-             products=("SciContrastRadprof", "SciContrastAdi", "SciThroughput", "SciSnr")),
-        Step('Coadd images', products=("SciCoverage", "SciCalibrated")),
-    )
     _algorithm = """TODO"""
 
     parameters = ParameterList([])

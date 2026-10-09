@@ -101,6 +101,14 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
     class Qc(QcParameterSet):
         NBadPix = qc.rsrf.IfuRsrfNBadPix
 
+    _steps = (
+        Step('detector signature and background removal',
+             inputs=(InputSet.BadPixMapInput, InputSet.PersistenceMapInput, InputSet.MasterDarkInput,
+                     InputSet.GainMapInput, InputSet.LinearityInput, InputSet.DistortionTableInput,)),
+        Step('continuum normalisation', inputs=(WavecalInput,)),
+        Step('average/median', products=(ProductSet.RsrfIfu, ProductSet.MasterFlat, ProductSet.BadPixMap,)),
+    )
+
 
     def _process_single_detector(self, detector: Metis.DetectorNumber) -> dict[str, Hdu]:
         """
@@ -420,12 +428,6 @@ class MetisIfuRsrf(Recipe):
     _synopsis: str = "Determine the relative spectral response function for the IFU detector."
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
-    _steps = (
-        Step('detector signature and background removal',
-             inputs=("bad_pix_map", "persistence_map", "master_dark", "gain_map", "linearity", "distortion_table")),
-        Step('continuum normalisation', inputs=("wavecal",)),
-        Step('average/median', products=("RsrfIfu", "MasterFlat", "BadPixMap")),
-    )
     _algorithm = """Average / median stack WCU_OFF images to create background image
         Obtain bad pixel map from master_dark
         Subtract background image from individual RSRF RAW frames

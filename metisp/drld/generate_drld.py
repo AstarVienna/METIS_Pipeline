@@ -371,7 +371,7 @@ class Catalogue:
     def flowchart(self, name: str) -> FlowChart:
         """
         The flowchart of a recipe (`tikz/metis_<recipe>.tex`): raw input(s) at the top, the
-        steps of `Recipe._steps` down the middle, each calibration hanging off the left above
+        steps of `Impl._steps` down the middle, each calibration hanging off the left above
         the step consuming it, each product off the right below the step producing it, the
         frame and label. Inputs no step names hang above the first step, products no step
         names below the last; without `_steps` a single placeholder step stands in.
@@ -380,8 +380,8 @@ class Catalogue:
         recipe = self.recipes[name]
         chart = FlowChart(recipe=name, primary_inputs=[], calibrations=[],
                           steps=[], products=[], first_step_gap=0, stop_gap=0)
-        declared = list(recipe._steps) or [Step(PLACEHOLDER_STEP)]
-        if not recipe._steps:
+        declared = list(recipe.Impl._steps) or [Step(PLACEHOLDER_STEP)]
+        if not recipe.Impl._steps:
             chart.findings.append(f"{name} declares no _steps; a placeholder step stands in for the algorithm")
         keys = []
         for step in declared:
@@ -390,8 +390,17 @@ class Catalogue:
                 key += 'x'
             keys.append(key)
             chart.steps.append(ChartStep(key=key, label=latex(step.label)))   # tikz breaks it to the box width
-        consumed_at = {attr: keys[i] for i, step in enumerate(declared) for attr in step.inputs}
-        produced_at = {attr: keys[i] for i, step in enumerate(declared) for attr in step.products}
+        # A step names input and product classes; the Impl resolves them to its attribute names.
+        consumed_at: dict[str, str] = {}
+        produced_at: dict[str, str] = {}
+        for i, step in enumerate(declared):
+            for klass, where, resolve in ((step.inputs, consumed_at, recipe.Impl.input_name),
+                                          (step.products, produced_at, recipe.Impl.product_name)):
+                for item in klass:
+                    try:
+                        where[resolve(item)] = keys[i]
+                    except LookupError as error:
+                        chart.findings.append(f"{name}: _steps: {error}")
 
         def box(reference: str, minimum: float = 0.75) -> float:
             """ Estimated height of a box showing `reference` ("A or B or C", lines broken by \\\\). """
@@ -419,10 +428,6 @@ class Catalogue:
             left[consumed_at.get(attr, keys[0])].append(ChartNode(
                 key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=shown, height=box(ref),
                 style='calproduct' if macro == 'PROD' else 'external', optional=not inp.required()))
-        for attr in consumed_at:
-            if attr not in dict(inputs):
-                chart.findings.append(f"{name}: _steps consumes `{attr}`, which the InputSet does not have")
-
         right: dict[str, list[ChartNode]] = {key: [] for key in keys}
         products = dict(recipe._list_products())
         for attr, product in products.items():
@@ -432,10 +437,6 @@ class Catalogue:
             right[produced_at.get(attr, keys[-1])].append(ChartNode(
                 key=re.sub(r'[^a-z0-9]', '', attr.lower()), reference=lines(ref), height=box(ref),
                 style='sciproduct' if science else 'calproduct'))
-        for attr in produced_at:
-            if attr not in products:
-                chart.findings.append(f"{name}: _steps produces `{attr}`, which the ProductSet does not have")
-
         # Pack the boxes hanging off either side between two consecutive nodes of the spine, top down;
         # the spine's gap is whatever the fuller side needs.
         def pack(nodes: list[ChartNode], anchor: str, start: float) -> float:
@@ -610,7 +611,7 @@ class Catalogue:
             algorithm=algorithm,
             outputs=[self.reference(product, product.name(), bound=bound) for _, product in recipe._list_products()],
             qc_parameters=[rf'\QC{{{self.qc_shown(qc.name())}}}' for _, qc in recipe._list_qc_parameters()],
-            has_flowchart=bool(recipe._steps),
+            has_flowchart=bool(recipe.Impl._steps),
         )
 
 
@@ -734,7 +735,7 @@ def write_fragments(catalogue: 'Catalogue', env: jinja2.Environment, directory: 
     for card in qc_cards.values():
         (out / 'qc' / f"{card.label}.tex").write_text(env.get_template('qc.tex').render(qc=card))
     counts['qc'] = len(qc_cards)
-    flowcharts = [name for name, recipe in catalogue.recipes.items() if recipe._steps]
+    flowcharts = [name for name, recipe in catalogue.recipes.items() if recipe.Impl._steps]
     for name in flowcharts:
         (out / 'flowcharts' / f"{name}.tex").write_text(env.get_template('flowchart.tex').render(chart=catalogue.flowchart(name)))
     counts['flowcharts'] = len(flowcharts)
@@ -804,7 +805,7 @@ def main() -> None:
                         help='with --assomap: two figures per workflow, cut at the AIT/daily separator')
     parser.add_argument('--flowchart', nargs='+', metavar='RECIPE',
                         help=f'render the per-recipe flowchart skeleton(s) into {BUILD}/flowchart_<recipe>.tex '
-                             '(steps from Recipe._steps where declared, else a placeholder)')
+                             '(steps from Impl._steps where declared, else a placeholder)')
     parser.add_argument('--fragments', type=Path, metavar='DIR',
                         help='write every generated part as separate files under DIR/generated/ (cards, flowcharts, '
                              'association maps, tables, preamble), for a DRLD that inputs them in place')
@@ -901,7 +902,7 @@ def main() -> None:
             (args.document.parent / f"assomap_{amap.mode}.tex").write_text(env.get_template('assomap.tex').render(map=amap))
         (args.document.parent / 'dpr.tex').write_text(env.get_template('dpr.tex').render(doc=doc))
         for name, recipe in catalogue.recipes.items():
-            if recipe._steps:
+            if recipe.Impl._steps:
                 (args.document.parent / f"flowchart_{name}.tex").write_text(
                     env.get_template('flowchart.tex').render(chart=catalogue.flowchart(name)))
         if doc.keyword_rows:

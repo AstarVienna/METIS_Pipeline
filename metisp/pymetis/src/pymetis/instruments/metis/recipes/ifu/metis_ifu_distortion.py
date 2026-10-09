@@ -73,6 +73,14 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         Fwhm = qc.distortion.QcIfuDistortFwhm
         NSpots = qc.distortion.QcIfuDistortNSpots
         NTraces = qc.distortion.QcIfuDistortNTraces
+
+    _steps = (
+        Step('detector signature removal',
+             inputs=(InputSet.BadPixMapInput, InputSet.GainMapInput, InputSet.LinearityInput,
+                     InputSet.PersistenceMapInput, InputSet.MasterDarkInput,)),
+        Step('locate images'),
+        Step('fit polynomial', products=(ProductSet.DistortionTable, ProductSet.DistortionReduced,)),
+    )
     @staticmethod
     def _degree_or_best(value: str) -> int | Literal['best']:
         """
@@ -358,12 +366,6 @@ class MetisIfuDistortion(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
-    _steps = (
-        Step('detector signature removal',
-             inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map", "master_dark")),
-        Step('locate images'),
-        Step('fit polynomial', products=("DistortionTable", "DistortionReduced")),
-    )
     _algorithm = """Stack the continuum-illuminated raw exposures.
     Estimate the local background by smoothing along the cross-dispersion direction
     and threshold against it, to separate illuminated from inter-slice pixels.

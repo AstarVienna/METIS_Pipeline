@@ -17,13 +17,13 @@
 
   %% algorithm steps
   \node (step_applynonlinearitycorrect) [below=2.6cm of input, redstep]{%
-    apply non-linearity correction};
+    Apply non-linearity correction};
   \node (step_applypersistencecorrecti) [below=1.25cm of step_applynonlinearitycorrect, redstep]{%
-    apply persistence correction};
+    Apply persistence correction};
   \node (step_perpixelmedianmeanfilter) [below=0.6cm of step_applypersistencecorrecti, redstep]{%
-    per pixel median/ mean filtering};
+    Per pixel median / mean filtering};
   \node (step_thresholding) [below=1.25cm of step_perpixelmedianmeanfilter, redstep]{%
-    thresholding};
+    Thresholding};
   \pic (stop) [below=0.9cm of step_thresholding] {stop};
 
   \draw [connection_arrow] (start-m) -- (input);

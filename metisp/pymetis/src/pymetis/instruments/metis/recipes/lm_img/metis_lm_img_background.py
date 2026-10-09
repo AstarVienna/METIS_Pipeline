@@ -50,6 +50,13 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
     class Qc(QcParameterSet):
         Median = qc.background.QcLmImgBkgMedian
         MedianDev = qc.background.QcLmImgBkgMedianDeviation
+
+    _steps = (
+        Step('Average all or SKY exposures with object rejection',
+             inputs=(InputSet.SkyBasicReducedInput,),
+             products=(ProductSet.Bkg,)),
+        Step('Subtract background', products=(ProductSet.BkgSubtracted, ProductSet.ObjectCatalog,)),
+    )
     def process(self) -> set[DataItem]:
         image = self.inputset.basic_reduced.load_data('DET1.DATA')
         primary_header = self.inputset.basic_reduced.item.primary_header
@@ -100,12 +107,6 @@ class MetisLmImgBackground(Recipe):
     ])
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
-    _steps = (
-        Step('Average all or SKY exposures with object rejection',
-             inputs=("sky_basic_reduced",),
-             products=("Bkg",)),
-        Step('Subtract background', products=("BkgSubtracted", "ObjectCatalog")),
-    )
     _algorithm = """Average all or SKY exposures with object rejection
     Subtract background"""
 

@@ -117,6 +117,13 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         DarkMedianMin = qc.dark.DarkMedianMin
         DarkMedianMax = qc.dark.DarkMedianMax
 
+    _steps = (
+        Step('Apply non-linearity correction', inputs=(InputSet.BadPixMapInput, InputSet.GainMapInput,)),
+        Step('Apply persistence correction', inputs=(InputSet.PersistenceMapInput,)),
+        Step('Per pixel median / mean filtering', products=(ProductSet.MasterDark,)),
+        Step('Thresholding'),
+    )
+
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
     # See the documentation of the parent's `process` function for more details.
@@ -326,12 +333,6 @@ class MetisDetDark(Recipe):
     # And also fill in information from DRLD. These are specific to METIS and are used to build the description
     # for the man page. Later, we would like to be able to compare them directly to DRLD and test for that.
     _matched_keywords: frozenset[str] = frozenset()
-    _steps = (
-        Step('apply non-linearity correction', inputs=("bad_pix_map", "gain_map")),
-        Step('apply persistence correction', inputs=("persistence_map",)),
-        Step('per pixel median/ mean filtering', products=("MasterDark",)),
-        Step('thresholding'),
-    )
     _algorithm = """
         - Group files by detector and `DIT`, based on header keywords
         - Call function `metis_determine_dark` for each set of files

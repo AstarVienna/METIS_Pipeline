@@ -33,6 +33,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis.inputs.common import MasterDarkInput
 
 
 class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -84,6 +85,14 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
 
     class Qc(QcParameterSet):
         PeakCnt = qc.chopnod.ChopnodPeakCounts
+
+    _steps = (
+        Step('Correct non-linearity', inputs=(InputSet.BadPixMapInput, GainMapInput, LinearityInput,)),
+        Step('Correct persistence', inputs=(InputSet.PersistenceMapInput,)),
+        Step('subtract dark', inputs=(MasterDarkInput,)),
+        Step('divide by flat', inputs=(InputSet.MasterFlatInput,)),
+        Step('analyse and remove masked regions', products=(ProductSet.Reduced,)),
+    )
     def process(self) -> set[DataItem]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.
@@ -149,13 +158,6 @@ class MetisNImgChopnod(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
-    _steps = (
-        Step('Correct non-linearity', inputs=("bad_pix_map", "gain_map", "linearity")),
-        Step('Correct persistence', inputs=("persistence_map",)),
-        Step('subtract dark', inputs=("master_dark",)),
-        Step('divide by flat', inputs=("master_flat",)),
-        Step('analyse and remove masked regions', products=("Reduced",)),
-    )
     _algorithm = """Remove crosstalk, correct non-linearity
         Analyse and optionally remove masked regions
         Subtract dark, divide by flat

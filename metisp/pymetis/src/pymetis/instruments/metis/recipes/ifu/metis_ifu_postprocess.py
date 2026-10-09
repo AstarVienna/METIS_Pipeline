@@ -76,6 +76,12 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
             _default = None
             _description_template = "Range of shifts in the center position for regridding"
 
+    _steps = (
+        Step('determine output grid'),
+        Step('resample cubes'),
+        Step('coadd cubes', products=(ProductSet.SciCoadd,)),
+    )
+
     def determine_output_grid(self):
         pass
 
@@ -125,11 +131,6 @@ class MetisIfuPostprocess(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
-    _steps = (
-        Step('determine output grid'),
-        Step('resample cubes'),
-        Step('coadd cubes', products=("SciCoadd",)),
-    )
     _algorithm = """Call metis_ifu_grid_output to find the output grid encompassing all input cubes
     Call metis_ifu_resampling to resample input cubes to output grid
     Call metis_ifu_coadd to stack the images"""

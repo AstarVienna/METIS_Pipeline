@@ -272,9 +272,10 @@ class TestRecipeOnDefaultData:
 @pytest.mark.metadata
 class TestFlowchartSteps:
     """
-    `Recipe._steps` is what the DRLD flowchart is generated from: every step must name inputs
-    and products the recipe actually has. Recipes without a hand-drawn flowchart to transcribe
-    have no steps yet; they are a strict xfail list, to shrink as authors declare them.
+    The Impl's `_steps` is what the DRLD flowchart is generated from: every step names input and
+    product classes, and each must resolve to exactly one attribute of the recipe's InputSet or
+    ProductSet. Recipes without a hand-drawn flowchart to transcribe have no steps yet; they are
+    a strict xfail list, to shrink as authors declare them.
     """
     RECIPES_WITHOUT_STEPS = frozenset({         # no hand-drawn DRLD flowchart existed to transcribe (2026-09-29)
         'metis_lm_adc_slitloss', 'metis_n_adc_slitloss', 'metis_pupil_imaging', 'metis_n_img_restore',
@@ -287,22 +288,24 @@ class TestFlowchartSteps:
     def test_steps_are_declared(self, recipe, request):
         if recipe._name in self.RECIPES_WITHOUT_STEPS:
             request.applymarker(pytest.mark.xfail(strict=True, reason="no _steps declared yet"))
-        assert recipe._steps, f"{recipe._name} declares no _steps"
+        assert recipe.Impl._steps, f"{recipe._name} declares no _steps"
 
     def test_steps_name_real_inputs_and_products(self, recipe):
-        inputs = {attr for attr, _ in recipe._list_inputs()}
-        products = {attr for attr, _ in recipe._list_products()}
-        for step in recipe._steps:
+        """ Every class a step names resolves to exactly one attribute (none or several raises). """
+        for step in recipe.Impl._steps:
             assert step.label.strip(), f"{recipe._name}: a step has no label"
-            unknown = [a for a in step.inputs if a not in inputs]
-            assert not unknown, f"{recipe._name}: step {step.label!r} consumes unknown inputs {unknown}"
-            unknown = [a for a in step.products if a not in products]
-            assert not unknown, f"{recipe._name}: step {step.label!r} produces unknown products {unknown}"
+            for klass in step.inputs:
+                assert isinstance(klass, type), f"{recipe._name}: step {step.label!r} input {klass!r} is not a class"
+                recipe.Impl.input_name(klass)
+            for klass in step.products:
+                assert isinstance(klass, type), f"{recipe._name}: step {step.label!r} product {klass!r} is not a class"
+                recipe.Impl.product_name(klass)
 
     def test_each_product_is_produced_by_at_most_one_step(self, recipe):
         seen: dict[str, str] = {}
-        for step in recipe._steps:
-            for attr in step.products:
+        for step in recipe.Impl._steps:
+            for klass in step.products:
+                attr = recipe.Impl.product_name(klass)
                 assert attr not in seen, f"{recipe._name}: {attr} produced by {seen[attr]!r} and {step.label!r}"
                 seen[attr] = step.label
 

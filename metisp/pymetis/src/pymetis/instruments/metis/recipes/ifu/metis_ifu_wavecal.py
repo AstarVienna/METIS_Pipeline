@@ -110,6 +110,14 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
             _description_template = "FWHM of the laser line as measured by fitting a Gaussian profile to it"
             _comment = "This fulfils METIS-6073"
 
+    _steps = (
+        Step('remove detector signature',
+             inputs=(InputSet.BadPixMapInput, InputSet.PersistenceMapInput, InputSet.GainMapInput,
+                     InputSet.LinearityInput, InputSet.MasterDarkInput,)),
+        Step('locate lines', inputs=(DistortionTableInput,)),
+        Step('fit polynomial', products=(ProductSet.IfuWavecal, ProductSet.IfuWavecalTab,)),
+    )
+
     def _raw_header(self) -> cpl.core.PropertyList:
         """Primary header of the first raw frame, cached for keyword lookups."""
         if getattr(self, '_header_cache', None) is None:
@@ -494,12 +502,6 @@ class MetisIfuWavecal(Recipe):
         Line detection and Gaussian centroiding are adapted from PyReduce (Piskunov &
         Valenti 2002, Piskunov, Wehrhahn & Marquart 2021), as prescribed by the DRLD."""
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.IFU'})
-    _steps = (
-        Step('remove detector signature',
-             inputs=("bad_pix_map", "persistence_map", "gain_map", "linearity", "master_dark")),
-        Step('locate lines', inputs=("distortion_table",)),
-        Step('fit polynomial', products=("IfuWavecal", "IfuWavecalTab")),
-    )
 
     # Define the parameters as required by the recipe. Again, this is needed by `pyesorex`.
     parameters = ParameterList([

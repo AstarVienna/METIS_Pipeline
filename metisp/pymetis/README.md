@@ -110,13 +110,17 @@ Worked example — `pyesorex metis_lm_img_flat` from import to product file:
      only this recipe uses is defined in place, inside its `Qc` set. Either
      way the origin of each parameter is visible where it is used, and a
      bare template is not reused by accident;
+   - `_steps` — the algorithm as the DRLD flowchart draws it, declared after
+     the containers so it can refer to them: a tuple of
+     `Step(label, inputs=(InputSet.X, ...), products=(ProductSet.Y, ...))`
+     (see the data-item section below, point 7). A prefab declares the steps
+     its recipes share;
    - `def process(self)` — the algorithm. All pixel manipulation happens
      here; delegate real math to functions in `drl/`. Return the set of
      built products.
 3. Define the `Recipe` subclass with the seven pyesorex attributes
    (`_name`, `_version`, `_author`, `_email`, `_copyright`, `_synopsis`,
-   `_description`) plus `_matched_keywords`, `_algorithm`, `parameters`, and
-   for the DRLD flowchart `_steps` (see the data-item section below, point 7).
+   `_description`) plus `_matched_keywords`, `_algorithm` and `parameters`.
    Every parameter name must be prefixed `"<recipe_name>."`.
 4. Register it: add the import to `instruments/metis/recipes/__init__.py`.
    pyesorex discovers recipes only through that module.
@@ -226,15 +230,19 @@ input class must re-annotate the attribute; forgetting this raises a
    alone; `--lint-flowcharts` lists the tags the hand-drawn per-recipe
    flowcharts draw that are neither inputs nor products of their recipe.
 7. The per-recipe flowcharts (`tikz/metis_<recipe>.tex`) are generated from the
-   recipe as well: `_steps` is the algorithm as the flowchart draws it, a tuple
-   of `Step(label, inputs=(...), products=(...))` naming the InputSet and
-   ProductSet attributes each step consumes and produces (a newline in the
-   label breaks the box). Inputs no step names hang above the first step,
-   products no step names below the last. `--flowchart RECIPE` renders one;
-   `--document` renders every recipe that declares steps and places the figure
-   after its card. `_algorithm` stays the prose; the flowchart is drawn only
-   from `_steps`, so the two are checked by `TestFlowchartSteps` in
-   `test_registered_recipes.py` (every named attribute exists, every product
+   recipe as well: the Impl's `_steps` is the algorithm as the flowchart draws
+   it, a tuple of `Step(label, inputs=(...), products=(...))` naming the input
+   classes and the product data items each step consumes and produces
+   (`InputSet.PersistenceMapInput`, `ProductSet.MasterDark`, or a shared class
+   such as `MasterDarkInput` for an input a prefab declares). A misspelt
+   reference fails at import; `RecipeImpl.input_name`/`product_name` resolve
+   each to the attribute it is bound to and refuse a class that matches none
+   or several. Inputs no step names hang above the first step, products no
+   step names below the last. `--flowchart RECIPE` renders one; `--document`
+   renders every recipe that declares steps and places the figure after its
+   card. `_algorithm` stays the prose; the flowchart is drawn only from
+   `_steps`, so the two are checked by `TestFlowchartSteps` in
+   `test_registered_recipes.py` (every reference resolves, every product
    produced once; recipes without steps are a strict xfail list).
 8. `--fragments DIR` writes every generated part as separate files under
    `DIR/generated/` (one file per card, flowchart, map and table, plus a

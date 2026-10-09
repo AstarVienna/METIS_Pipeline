@@ -83,6 +83,12 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
             _default = None
             _description_template = "Range of shifts in the center position for regridding"
 
+    _steps = (
+        Step('determine output grid'),
+        Step('resample images'),
+        Step('coadd images', products=(ProductSet.LmImgSciCoadd,)),
+    )
+
     def process(self) -> set[DataItem]:
         print(self.__class__.ProductSet.__mro__)
         raw_images = self.inputset.raw.load_data('DET1.DATA')
@@ -117,11 +123,6 @@ class MetisLmImgSciPostProcess(Recipe):
     _synopsis: str = "Coadd reduced images"
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
-    _steps = (
-        Step('determine output grid'),
-        Step('resample images'),
-        Step('coadd images', products=("LmImgSciCoadd",)),
-    )
     _algorithm = """Check and refine WCS of input images by using the WFS-FS data.
     Determine output pixel grid encompassing all input images.
     Call hdrl_resample_compute to recenter the images.

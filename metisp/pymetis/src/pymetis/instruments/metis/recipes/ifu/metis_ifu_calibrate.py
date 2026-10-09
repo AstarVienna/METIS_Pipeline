@@ -62,6 +62,13 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
             _description_template = "Maximum pixel flux in the calibrated image"
             _comment = None
 
+    _steps = (
+        Step('Correct for telluric absorption.', inputs=(InputSet.TelluricInput,)),
+        Step('Apply flux calibration.',
+             inputs=(FluxCalTableInput,),
+             products=(ProductSet.SciCubeCalibrated,)),
+    )
+
 
     def process(self) -> set[DataItem]:
         _reduced = self.inputset.reduced.load_data(extension='DET1.DATA')
@@ -96,10 +103,6 @@ class MetisIfuCalibrate(Recipe):
     )
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.IFU'})
-    _steps = (
-        Step('Correct for telluric absorption.', inputs=("telluric",)),
-        Step('Apply flux calibration.', inputs=("flux_cal_table",), products=("SciCubeCalibrated",)),
-    )
     _algorithm = """Correct for telluric absorption.
     Apply flux calibration."""
 

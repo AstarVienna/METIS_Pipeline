@@ -300,7 +300,7 @@ class Retrofit:
             if fm and not line.lstrip().startswith('%'):
                 name = fm.group(1)
                 recipe = self.catalogue.recipes.get(name)
-                if recipe is not None and recipe._steps:
+                if recipe is not None and recipe.Impl._steps:
                     out.append(line.replace(fm.group(0), f"\\input{{generated/flowcharts/{name}}}"))
                     self.report.replaced['flowcharts'] += 1
                 else:

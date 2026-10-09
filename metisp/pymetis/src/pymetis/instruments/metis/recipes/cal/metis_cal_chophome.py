@@ -83,6 +83,17 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         Snr = qc.chophome.CalChophomeSnr
         OffX = qc.chophome.CalChophomeOffx
         OffY = qc.chophome.CalChophomeOffy
+
+    _steps = (
+        Step('detector signature removal',
+             inputs=(InputSet.BadPixMapInput, InputSet.GainMapInput, InputSet.LinearityInput,
+                     InputSet.PersistenceMapInput,)),
+        Step('median-combine WCU_OFF subtract from CHOPHOME',
+             inputs=(InputSet.WcuOffInput,),
+             products=(ProductSet.Background,)),
+        Step('Centroid peak detection', inputs=(InputSet.PinholeTableInput,)),
+        Step('offset calculation', products=(ProductSet.Combined,)),
+    )
     def process(self) -> set[DataItem]:
         """This function processes the input images
 
@@ -216,12 +227,6 @@ class MetisCalChophome(Recipe):
     """
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT'})
-    _steps = (
-        Step('detector signature removal', inputs=("bad_pix_map", "gain_map", "linearity", "persistence_map")),
-        Step('median-combine WCU_OFF subtract from CHOPHOME', inputs=("wcu_off",), products=("Background",)),
-        Step('Centroid peak detection', inputs=("pinhole_table",)),
-        Step('offset calculation', products=("Combined",)),
-    )
     _algorithm = """
     The position of the pinhole image on the detector is measured from the
     stacked background-subtracted images. The measured position is compared
