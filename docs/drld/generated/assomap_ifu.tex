@@ -39,7 +39,7 @@
       \settowidth{\assomapwidth}{\REC{metis_ifu_distortion}}%
       \settowidth{\assomaptagwidth}{\RAW{IFU_DISTORTION_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
       \recipebox{\RAW{IFU_DISTORTION_RAW}}{\makebox[\assomapwidth]{\REC{metis_ifu_distortion}}}
-    }; &
+    }; &[4mm]
     \node [above] (detdark_raw){%
       \settowidth{\assomapwidth}{\REC{metis_det_dark}}%
       \settowidth{\assomaptagwidth}{\RAW{DARK_IFU_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
@@ -291,10 +291,12 @@
     \\
   };
 
-  %% AIT / monthly calibrations to the left, daily calibrations and science to the right
-  \node (sep_top) at ($(ifudistortion_raw.north east)!0.5!(detdark_raw.north west)$){};
-  \node (sep_bottom) at ($(ifudistortion_ifuscicoadd.south east)!0.5!(detdark_ifuscicoadd.south west)$){};
-  \draw [thick, dashed] ([yshift=5mm]sep_top.center) -- ([yshift=-5mm]sep_bottom.center);
+  %% AIT / monthly calibrations to the left, daily calibrations and science to the right: a vertical
+  %% line halfway between the two columns' widest nodes (the fit nodes span a column; the header row
+  %% leaves 4mm more room at this boundary)
+  \node [fit=(ifudistortion_raw)(ifudistortion_badpixmapifu)(ifudistortion_gainmapifu)(ifudistortion_linearityifu)(ifudistortion_persistencemap)(ifudistortion_masterdarkifu)(ifudistortion_ifudistortiontable)(ifudistortion_ifuwavecal)(ifudistortion_rsrfifu)(ifudistortion_ifuscicombined)(ifudistortion_ifustdcombined)(ifudistortion_ifuscireduced)(ifudistortion_fluxstdcatalog)(ifudistortion_lsfkernel)(ifudistortion_atmprofile)(ifudistortion_fluxcaltab)(ifudistortion_ifutelluric)(ifudistortion_ifuscicubecalibrated)(ifudistortion_ifuscicoadd), inner sep=0pt] (sep_left) {};
+  \node [fit=(detdark_raw)(detdark_badpixmapifu)(detdark_gainmapifu)(detdark_linearityifu)(detdark_persistencemap)(detdark_masterdarkifu)(detdark_ifudistortiontable)(detdark_ifuwavecal)(detdark_rsrfifu)(detdark_ifuscicombined)(detdark_ifustdcombined)(detdark_ifuscireduced)(detdark_fluxstdcatalog)(detdark_lsfkernel)(detdark_atmprofile)(detdark_fluxcaltab)(detdark_ifutelluric)(detdark_ifuscicubecalibrated)(detdark_ifuscicoadd), inner sep=0pt] (sep_right) {};
+  \draw [thick, dashed] ($(sep_left.north east)!0.5!(sep_right.north west) + (0,5mm)$) -- ($(sep_left.south east)!0.5!(sep_right.south west) - (0,5mm)$);
 
   %% Vertical connections: a task to its products
   \draw [arrow] (detlingain_raw) -- (detlingain_gainmapifu);

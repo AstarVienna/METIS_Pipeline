@@ -38,7 +38,7 @@
 (% else %)
       \recipenotitlebox{\REC{(* col.recipe *)}}
 (% endif %)
-    };(% if not loop.last %) &(% endif %)
+    };(% if not loop.last %) &(% if map.separator and col.key == map.separator.left %)[4mm](% endif %)(% endif %)
 
 (% endfor %)
     \\
@@ -53,10 +53,12 @@
   };
 
 (% if map.separator %)
-  %% AIT / monthly calibrations to the left, daily calibrations and science to the right
-  \node (sep_top) at ($((* map.separator.left *)_raw.north east)!0.5!((* map.separator.right *)_raw.north west)$){};
-  \node (sep_bottom) at ($((* map.separator.left *)_(* map.rows[-1].key *).south east)!0.5!((* map.separator.right *)_(* map.rows[-1].key *).south west)$){};
-  \draw [thick, dashed] ([yshift=5mm]sep_top.center) -- ([yshift=-5mm]sep_bottom.center);
+  %% AIT / monthly calibrations to the left, daily calibrations and science to the right: a vertical
+  %% line halfway between the two columns' widest nodes (the fit nodes span a column; the header row
+  %% leaves 4mm more room at this boundary)
+  \node [fit=((* map.separator.left *)_raw)(% for row in map.rows %)((* map.separator.left *)_(* row.key *))(% endfor %), inner sep=0pt] (sep_left) {};
+  \node [fit=((* map.separator.right *)_raw)(% for row in map.rows %)((* map.separator.right *)_(* row.key *))(% endfor %), inner sep=0pt] (sep_right) {};
+  \draw [thick, dashed] ($(sep_left.north east)!0.5!(sep_right.north west) + (0,5mm)$) -- ($(sep_left.south east)!0.5!(sep_right.south west) - (0,5mm)$);
 
 (% endif %)
   %% Vertical connections: a task to its products

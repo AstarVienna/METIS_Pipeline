@@ -59,7 +59,7 @@
       \settowidth{\assomaptagwidth}{\RAW{N_ADC_SLITLOSS_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
       \settowidth{\assomaptagwidth}{\RAW{N_WCU_OFF_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
       \recipebox{\RAW{N_ADC_SLITLOSS_RAW} \RAW{N_WCU_OFF_RAW}}{\makebox[\assomapwidth]{\REC{metis_n_adc_slitloss}}}
-    }; &
+    }; &[4mm]
     \node [above] (detdark_raw){%
       \settowidth{\assomapwidth}{\REC{metis_det_dark}}%
       \settowidth{\assomaptagwidth}{\RAW{DARK_GEO_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
@@ -136,10 +136,12 @@
     \\
   };
 
-  %% AIT / monthly calibrations to the left, daily calibrations and science to the right
-  \node (sep_top) at ($(nadcslitloss_raw.north east)!0.5!(detdark_raw.north west)$){};
-  \node (sep_bottom) at ($(nadcslitloss_nlsstrace.south east)!0.5!(detdark_nlsstrace.south west)$){};
-  \draw [thick, dashed] ([yshift=5mm]sep_top.center) -- ([yshift=-5mm]sep_bottom.center);
+  %% AIT / monthly calibrations to the left, daily calibrations and science to the right: a vertical
+  %% line halfway between the two columns' widest nodes (the fit nodes span a column; the header row
+  %% leaves 4mm more room at this boundary)
+  \node [fit=(nadcslitloss_raw)(nadcslitloss_gainmapgeo)(nadcslitloss_linearitygeo)(nadcslitloss_persistencemap)(nadcslitloss_masterdarkgeo)(nadcslitloss_masternlssrsrf)(nadcslitloss_nadcslitloss)(nadcslitloss_nlsstrace), inner sep=0pt] (sep_left) {};
+  \node [fit=(detdark_raw)(detdark_gainmapgeo)(detdark_linearitygeo)(detdark_persistencemap)(detdark_masterdarkgeo)(detdark_masternlssrsrf)(detdark_nadcslitloss)(detdark_nlsstrace), inner sep=0pt] (sep_right) {};
+  \draw [thick, dashed] ($(sep_left.north east)!0.5!(sep_right.north west) + (0,5mm)$) -- ($(sep_left.south east)!0.5!(sep_right.south west) - (0,5mm)$);
 
   %% Vertical connections: a task to its products
   \draw [arrow] (detlingain_raw) -- (detlingain_gainmapgeo);

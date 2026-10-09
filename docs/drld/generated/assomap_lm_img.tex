@@ -52,7 +52,7 @@
       \settowidth{\assomaptagwidth}{\RAW{LM_DISTORTION_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
       \settowidth{\assomaptagwidth}{\RAW{LM_WCU_OFF_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
       \recipebox{\RAW{LM_DISTORTION_RAW} \RAW{LM_WCU_OFF_RAW}}{\makebox[\assomapwidth]{\REC{metis_lm_img_distortion}}}
-    }; &
+    }; &[4mm]
     \node [above] (detdark_raw){%
       \settowidth{\assomapwidth}{\REC{metis_det_dark}}%
       \settowidth{\assomaptagwidth}{\RAW{DARK_2RG_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
@@ -277,10 +277,12 @@
     \\
   };
 
-  %% AIT / monthly calibrations to the left, daily calibrations and science to the right
-  \node (sep_top) at ($(lmimgdistortion_raw.north east)!0.5!(detdark_raw.north west)$){};
-  \node (sep_bottom) at ($(lmimgdistortion_lmscicoadd.south east)!0.5!(detdark_lmscicoadd.south west)$){};
-  \draw [thick, dashed] ([yshift=5mm]sep_top.center) -- ([yshift=-5mm]sep_bottom.center);
+  %% AIT / monthly calibrations to the left, daily calibrations and science to the right: a vertical
+  %% line halfway between the two columns' widest nodes (the fit nodes span a column; the header row
+  %% leaves 4mm more room at this boundary)
+  \node [fit=(lmimgdistortion_raw)(lmimgdistortion_gainmap2rg)(lmimgdistortion_linearity2rg)(lmimgdistortion_persistencemap)(lmimgdistortion_pinholetable)(lmimgdistortion_masterdark2rg)(lmimgdistortion_masterimgflatlamplm)(lmimgdistortion_lmscibasicreduced)(lmimgdistortion_lmskybasicreduced)(lmimgdistortion_lmstdbasicreduced)(lmimgdistortion_lmscibkgsubtracted)(lmimgdistortion_lmstdbkgsubtracted)(lmimgdistortion_fluxstdcatalog)(lmimgdistortion_lmdistortiontable)(lmimgdistortion_fluxcaltab)(lmimgdistortion_lmscicalibrated)(lmimgdistortion_lmscicoadd), inner sep=0pt] (sep_left) {};
+  \node [fit=(detdark_raw)(detdark_gainmap2rg)(detdark_linearity2rg)(detdark_persistencemap)(detdark_pinholetable)(detdark_masterdark2rg)(detdark_masterimgflatlamplm)(detdark_lmscibasicreduced)(detdark_lmskybasicreduced)(detdark_lmstdbasicreduced)(detdark_lmscibkgsubtracted)(detdark_lmstdbkgsubtracted)(detdark_fluxstdcatalog)(detdark_lmdistortiontable)(detdark_fluxcaltab)(detdark_lmscicalibrated)(detdark_lmscicoadd), inner sep=0pt] (sep_right) {};
+  \draw [thick, dashed] ($(sep_left.north east)!0.5!(sep_right.north west) + (0,5mm)$) -- ($(sep_left.south east)!0.5!(sep_right.south west) - (0,5mm)$);
 
   %% Vertical connections: a task to its products
   \draw [arrow] (detlingain_raw) -- (detlingain_gainmap2rg);
