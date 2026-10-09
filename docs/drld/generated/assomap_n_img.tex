@@ -214,9 +214,9 @@
   \draw [arrow] (nimgflat_raw) -- (nimgflat_masterimgflatlampn);
   \draw [arrow] (nimgchopnod_raw) -- (nimgchopnod_nscibkgsubtracted);
   \draw [arrow] (nimgchopnod_nscibkgsubtracted) -- (nimgchopnod_nstdbkgsubtracted);
-  \draw [arrow] (nimgstdprocess_raw) -- (nimgstdprocess_fluxcaltab);
-  \draw [arrow] (nimgcalibrate_raw) -- (nimgcalibrate_nscicalibrated);
-  \draw [arrow] (nimgrestore_raw) -- (nimgrestore_nscirestored);
+  \draw [arrow] (nimgstdprocess_nstdbkgsubtracted) -- (nimgstdprocess_fluxcaltab);
+  \draw [arrow] (nimgcalibrate_nscibkgsubtracted) -- (nimgcalibrate_nscicalibrated);
+  \draw [arrow] (nimgrestore_nscicalibrated) -- (nimgrestore_nscirestored);
 
   %% Horizontal connections: a product to the tasks that consume it (dashed: optional for that task)
   \draw [match] (detlingain_gainmapgeo) -- (nimgdistortion_gainmapgeo);

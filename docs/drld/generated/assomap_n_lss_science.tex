@@ -238,9 +238,9 @@
   \draw [arrow] (nlssstd_nlssstd1d) -- (nlssstd_masternresponse);
   \draw [arrow] (nlssstd_masternresponse) -- (nlssstd_stdtransmission);
   \draw [arrow] (nlsssci_raw) -- (nlsssci_nlsssciflux1d);
-  \draw [arrow] (nlssmfmodel_raw) -- (nlssmfmodel_mfbestfittab);
-  \draw [arrow] (nlssmfcalctrans_raw) -- (nlssmfcalctrans_nlsssynthtrans);
-  \draw [arrow] (nlssmfcorrect_raw) -- (nlssmfcorrect_nlssscifluxtellcorr1d);
+  \draw [arrow] (nlssmfmodel_atmlinecat) -- (nlssmfmodel_mfbestfittab);
+  \draw [arrow] (nlssmfcalctrans_atmlinecat) -- (nlssmfcalctrans_nlsssynthtrans);
+  \draw [arrow] (nlssmfcorrect_nlsssciflux1d) -- (nlssmfcorrect_nlssscifluxtellcorr1d);
 
   %% Horizontal connections: a product to the tasks that consume it (dashed: optional for that task)
   \draw [match] (ext_gainmapgeo) -- (nlssstd_gainmapgeo);

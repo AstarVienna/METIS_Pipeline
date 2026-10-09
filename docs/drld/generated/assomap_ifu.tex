@@ -5,8 +5,6 @@
 % FINDING: metis_ifu_distortion (metis_ifu_distortion) optionality: MASTER_DARK_IFU: workflow requires it, recipe has it optional
 % FINDING: metis_ifu_lingain (metis_det_lingain) recipe also accepts DETLIN_2RG_RAW; no task of this workflow feeds it
 % FINDING: metis_ifu_lingain (metis_det_lingain) recipe also accepts DETLIN_GEO_RAW; no task of this workflow feeds it
-% FINDING: metis_ifu_postprocess (metis_ifu_postprocess) missing_required: sci_cube_calibrated: IFU_SCI_CUBE_CALIBRATED
-% FINDING: metis_ifu_postprocess (metis_ifu_postprocess) recipe also accepts IFU_SCI_CUBE_CALIBRATED; no task of this workflow feeds it
 % FINDING: metis_ifu_rsrf (metis_ifu_rsrf) multiplicity: IFU_WCU_OFF_RAW: recipe takes N frames, workflow max_ret=1
 % FINDING: metis_ifu_sci_reduce (metis_ifu_reduce) multiplicity: IFU_SKY_RAW: recipe takes N frames, workflow max_ret=1
 % FINDING: metis_ifu_std_reduce (metis_ifu_reduce) multiplicity: IFU_SKY_RAW: recipe takes N frames, workflow max_ret=1
@@ -253,7 +251,7 @@
     \node (ifureduce_ifuscicubecalibrated)[empty]{}; &
     \node (ifutelluric_ifuscicubecalibrated)[empty]{}; &
     \node (ifucalibrate_ifuscicubecalibrated)[calibproduct]{\PROD{IFU_SCI_CUBE_CALIBRATED}}; &
-    \node (ifupostprocess_ifuscicubecalibrated)[empty]{};
+    \node (ifupostprocess_ifuscicubecalibrated)[connection]{};
     \\
     % Row IFU_SCI_COADD
     \node (ext_ifuscicoadd)[empty]{}; &
@@ -284,10 +282,10 @@
   \draw [arrow] (ifureduce_raw) -- (ifureduce_ifuscicombined);
   \draw [arrow] (ifureduce_ifuscicombined) -- (ifureduce_ifustdcombined);
   \draw [arrow] (ifureduce_ifustdcombined) -- (ifureduce_ifuscireduced);
-  \draw [arrow] (ifutelluric_raw) -- (ifutelluric_fluxcaltab);
+  \draw [arrow] (ifutelluric_ifuscicombined) -- (ifutelluric_fluxcaltab);
   \draw [arrow] (ifutelluric_fluxcaltab) -- (ifutelluric_ifutelluric);
-  \draw [arrow] (ifucalibrate_raw) -- (ifucalibrate_ifuscicubecalibrated);
-  \draw [arrow] (ifupostprocess_raw) -- (ifupostprocess_ifuscicoadd);
+  \draw [arrow] (ifucalibrate_ifuscireduced) -- (ifucalibrate_ifuscicubecalibrated);
+  \draw [arrow] (ifupostprocess_ifuscicubecalibrated) -- (ifupostprocess_ifuscicoadd);
 
   %% Horizontal connections: a product to the tasks that consume it (dashed: optional for that task)
   \draw [match, dashed] (ext_badpixmapifu) -- (detlingain_badpixmapifu);
@@ -329,6 +327,7 @@
   \draw [match] (ext_atmprofile) -- (ifutelluric_atmprofile);
   \draw [match] (ifutelluric_fluxcaltab) -- (ifucalibrate_fluxcaltab);
   \draw [match] (ifutelluric_ifutelluric) -- (ifucalibrate_ifutelluric);
+  \draw [match] (ifucalibrate_ifuscicubecalibrated) -- (ifupostprocess_ifuscicubecalibrated);
 
   %% Legend
   \matrix (legend) [draw, fill=gray!15, below right, row sep=0.3cm,

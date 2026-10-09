@@ -4,8 +4,9 @@ Association maps of the DRLD from the EDPS workflows.
 An association map is the DRLD's per-mode figure (`fig:IMG_LM_Assomap` and friends): a TikZ
 matrix with one column per workflow task, headed by the raw data that triggers it and the
 recipe it runs; one row per data item that flows between tasks; an arrow from a task down
-to its products; a horizontal line from a product to a dot in the column of every task that
-consumes it, dashed where EDPS treats the input as optional. The workflow decides the
+to its products (from the header when raw data enter there, from the first consumed product
+when the task is fed by an upstream task only); a horizontal line from a product to a dot in
+the column of every task that consumes it, dashed where EDPS treats the input as optional. The workflow decides the
 structure; the catalogue (`generate_drld.Catalogue`) decides how an item is named, styled
 and referenced; every disagreement between a task and its recipe (`pymetis.engine.workflows
 .bind`) is written into the figure as a `% FINDING:` comment.
@@ -25,8 +26,7 @@ class Column:
     tasks: list[str]                # the workflow tasks running this recipe; drawn as one column, as the DRLD does
     recipe: str
     main_inputs: list[str]          # raw tags in the header box (main input, plus associated raws)
-    fed_by_task: bool               # main input is an upstream task: no raw in the header
-    main_row: str | None            # row key of the main-input product, for the arrow into the column
+    fed_by_task: bool               # main input is an upstream task: no raw in the header, no line from it
     infrequent: bool
     products: list[str] = field(default_factory=list)
 
@@ -190,11 +190,8 @@ class MapBuilder:
         return (not wf.is_data_source(task.main_input)) and self.is_science(task.main_input)
 
     def column(self, task) -> Column:
-        main = wf.main_tags(task)
-        fed_by_task = not wf.is_data_source(task.main_input)
         return Column(key=key_of(task.command), tasks=[task.name], recipe=task.command, main_inputs=self.header_raws(task),
-                      fed_by_task=fed_by_task, main_row=key_of(main[0]) if fed_by_task and main else None,
-                      infrequent=wf.is_infrequent(task))
+                      fed_by_task=not wf.is_data_source(task.main_input), infrequent=wf.is_infrequent(task))
 
     def merge(self, col: Column, task) -> None:
         """ A further task running the column's recipe: its raws join the header, its cadence the column's. """
@@ -350,14 +347,16 @@ class MapBuilder:
                 producer = None
             rows.append(Row(row.key, row.tag, row.style, producer, cells, row.consumers))
 
-        # One continuous vertical line per column, from the recipe header through every dot the column
-        # consumes to its products (arrowhead on each product); a dot below the last product, or a
-        # column without products, still gets the plain line down to its lowest dot.
+        # One continuous vertical line per column, through every dot the column consumes to its
+        # products (arrowhead on each product); a dot below the last product, or a column without
+        # products, still gets the plain line down to its lowest dot. The line starts at the recipe
+        # header when raw data enter there; a column fed by upstream tasks only has nothing coming
+        # from the top, as the DRLD draws it, so its line starts at the uppermost dot.
         arrows: list[Link] = []
         for col in columns:
             marked = [r.key for r in rows if any(c.col == col.key and c.style != 'empty' for c in r.cells)]
             products = [r.key for r in rows if r.producer == col.key]
-            start = f"{col.key}_raw"
+            start = f"{col.key}_{marked[0]}" if col.fed_by_task and marked else f"{col.key}_raw"
             for nxt in products:
                 arrows.append(Link(start, f"{col.key}_{nxt}"))
                 start = f"{col.key}_{nxt}"

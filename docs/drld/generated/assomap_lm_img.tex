@@ -269,11 +269,11 @@
   \draw [arrow] (lmimgbasicreduce_raw) -- (lmimgbasicreduce_lmscibasicreduced);
   \draw [arrow] (lmimgbasicreduce_lmscibasicreduced) -- (lmimgbasicreduce_lmskybasicreduced);
   \draw [arrow] (lmimgbasicreduce_lmskybasicreduced) -- (lmimgbasicreduce_lmstdbasicreduced);
-  \draw [arrow] (lmimgbackground_raw) -- (lmimgbackground_lmscibkgsubtracted);
+  \draw [arrow] (lmimgbackground_lmscibasicreduced) -- (lmimgbackground_lmscibkgsubtracted);
   \draw [arrow] (lmimgbackground_lmscibkgsubtracted) -- (lmimgbackground_lmstdbkgsubtracted);
-  \draw [arrow] (lmimgstdprocess_raw) -- (lmimgstdprocess_fluxcaltab);
-  \draw [arrow] (lmimgcalibrate_raw) -- (lmimgcalibrate_lmscicalibrated);
-  \draw [arrow] (lmimgscipostprocess_raw) -- (lmimgscipostprocess_lmscicoadd);
+  \draw [arrow] (lmimgstdprocess_lmstdbkgsubtracted) -- (lmimgstdprocess_fluxcaltab);
+  \draw [arrow] (lmimgcalibrate_lmscibkgsubtracted) -- (lmimgcalibrate_lmscicalibrated);
+  \draw [arrow] (lmimgscipostprocess_lmscicalibrated) -- (lmimgscipostprocess_lmscicoadd);
 
   %% Horizontal connections: a product to the tasks that consume it (dashed: optional for that task)
   \draw [match] (detlingain_gainmap2rg) -- (lmimgdistortion_gainmap2rg);
