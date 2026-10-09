@@ -639,7 +639,7 @@ class MetisDetLinGain(Recipe):
             context=_name,
             description="Kappa factor for sigma clipping for BPM. "
                         "Values that deviate more than kappa*sigma from the median linearity are flagged.",
-            default=3,
+            default=3.0,
         ),
         ParameterValue(
             name=rf"{_name}.linlimit",

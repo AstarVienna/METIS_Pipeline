@@ -351,13 +351,13 @@ class MetisDetDark(Recipe):
             name=f"{_name}.outliers.kappa_low",
             context=_name,
             description="Lower bound for bad pixel clipping, in standard deviations",
-            default=5,
+            default=5.0,
         ),
         ParameterValue(
             name=f"{_name}.outliers.kappa_high",
             context=_name,
             description="Upper bound for bad pixel clipping, in standard deviations",
-            default=5,
+            default=5.0,
         ),
     ])
 
