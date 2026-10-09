@@ -572,7 +572,7 @@ class Catalogue:
             tag = self.input_tag(recipe, input_class)
             row = self.reference(input_class.Item, tag, bound=bound)        # the primary too: det is set once, for the whole card
             if input_class.multiplicity() == 'N':
-                row += ' (1--N)'
+                row += r' (N$\times$)'
             if not input_class.required():
                 row += ' (optional)'
             (primary_inputs if input_class.is_primary() else secondary_inputs).append(row)
