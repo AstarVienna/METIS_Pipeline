@@ -1,0 +1,366 @@
+\clearpage
+\section{Development plan}\label{sec:development_plan}
+
+This section describes the development plan for the METIS \ac{DRS} to comply with the the specifications and standards of the ESO data reduction libraries given in the ESO dataflow deliverables standards document (\cite{1618}). The development of the \ac{DRS} is a team effort lead by A* (Vienna and Innsbruck) with contributions from Uppsala and ASIAA (\cite{METIS-work_packages}, \cite{METIS-pbs}).
+
+The test and validation procedures for the pipeline software are described in~\cite{DRLVT}, fulfilling \REQ{METIS-6062}.
+Test data are required for the pipeline software development, including the development of pipeline recipes, workflows and for pipeline testing and validation. The sources of test data are:
+\begin{itemize}
+    \item Simulated data using the ScopeSim software tool
+    \item Archive data from similar instruments (e.g. \ac{VISIR}, SPHERE, ERIS)
+    \item Laboratory data obtained during the \ac{AIT} phase
+\end{itemize}
+Further details are given in~\cite{DRLVT}.
+
+The time schedule is subject to regular updates and review in close cooperation with
+
+\begin{itemize}
+    \item \ac{AIT} team: coordination of the pipeline implementation schedule
+    \item \ac{ICS} team: coordination with ICS implementation schedule to test the dataflow between ICS and pipeline and check consistency of FITS keywords
+    \item Detector group: coordination when detector characteristics become available
+    \item Calibration Scientist: check consistency of pipeline calibration data products, coordinate the population of the calibration database
+    \item Instrument Scientist: check consistency of FITS keywords, QC parameters, pipeline data products and coordination of the end-to-end tests of the pipeline
+    \item ESO: check consistency of FITS keywords, QC parameters, coordinate required input to software recipe development (detector persistence, ...) and coordinate the pipeline implementation schedule
+\end{itemize}
+
+Tables \ref{tab:development_schedule1}, \ref{tab:development_schedule2} and \ref{tab:development_schedule3} provide an overview of the milestone schedule for the METIS pipeline development.
+
+% HB: I replaced h! with !ht, because latex will do that anyway if necessary; there is no functional difference between "h!" and "!ht": 'here' will be tried first, and if that fails 'top' is tried, but just "h!" will lead to a warning if "top" is chosen. The document looks the same.
+\begin{table}[!ht]
+    \caption[Development schedule 1]{Milestones of the METIS pipeline software development schedule from \ac{FDR} to \ac{PAE}}
+  \label{tab:development_schedule1}
+
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{llll}
+
+\hline
+Date$\_$start &	Date$\_$end   &	Task                            &		Reference \\
+\hline\hline
+25.11.2023 & 25.11.2023 & Release of FDR board report = FDR                &	1 \\
+	  &		   & Baseline for PIP software development defined (EDPS, pyCPL) &	\\
+    &    	 & Updated detector characteristics LM \& N imager received    &	\\
+\hline
+25.05.2024 & 25.05.2025 & PR2 Simulated raw data, processed data = FDR+6m &	2 \\
+\hline
+25.11.2024 & 25.11.2024 & PR3 DRS Chain Skeleton = FDR+12m                &	2 \\
+	&		 &	OP3 Microservice modules and User Manual for              &	2 \\
+    &        &  Obs.Preparation = FDR+12m                                 &	\\
+\hline
+03.03.2025 & 03.03.2025 & Updated characteristic data of HCI sub-system received & \\
+\hline
+02.01.2025 & 23.09.2025 & SysAIV Phase D2 AB - CRY/ICS/CFO/WCU            &	3 \\
+\hline
+02.05.2025 & 02.05.2025 & Updated characteristic data of IMG sub-system received & \\
+\hline
+24.10.2025 & 23.04.2026 & SysAIV Phase D2 CD - CRY/ICS/CFO/WCU/LMS/DET/PIP            &	3 \\
+\hline
+24.10.2025 & 24.10.2025 & First dataflow system products ready for SysAIV:    &	4 \\
+    &          &  PIP interface to \ac{ICS}                                        &	\\
+    &          &  Detector characterisation                                   &	\\
+\hline
+14.11.2025 & 23.04.2026 & LMS testing:                                        &	3 \\ 
+    &          & Basic background subtraction (LMS \& IMG/LSS modes)          &	\\
+    &          & LMS cube reconstruction                                      &	\\
+\hline
+01.12.2025 & 01.12.2025 & Updated characteristic data of LMS received		  &   \\
+05.06.2026 & 09.07.2027 & SysAIV Phase D2 E - CRY/ICS/CFO/WCU/IMG/LMS/SCAO            &   3 \\
+26.06.2026 & 26.10.2026 & IMG testing (IMG \& LSS modes):                     &	3 \\
+   &           & Wavelength calibration        	                           & \\   
+   &           & Distortion correction                                        & \\
+\hline
+26.10.2026 & 26.10.2026 & Updated characteristic data LM \& N imaging, LMS, HCI, LSS      & 	\\
+\hline
+27.10.2026 & 15.09.2027 &	Further dataflow system products:		                      &	4 \\
+    &          &  Processing of LMS, LSS \& IMG data                          &	\\
+    &          &  Processing of HCI data                                      &	\\
+    &          &  QC parameters					            &	\\
+\hline
+16.09.2027 & 16.09.2027 & Pipeline Test Readiness Review = PAE-3m			  &	\\
+\hline
+04.11.2027 & 04.11.2027 & Pipeline end-to-end simulation  =PAE-6w			  &	\\
+\hline
+18.11.2027 & 18.11.2027 & PAE deliverables =PAE-4w                            &	2 \\
+    &          &  DC3 PAE Test and Calibration Data                           &	\\
+    &          &  DR3 Data Reduction Library v1.0 \& Test Report              &	\\
+    &          &  DR3 Pipeline/QC User Manual v1                              &	\\
+    &	       &  DT2 DRL Validation and Test Plan v2                         &	\\
+    &      	   &  ET3 Instrument Description Data v1.0                        &	\\
+    &   	   &  OP4 Observation Preparation Tool v1.0                       &	\\
+    &	   	   &  IP3 Instrument Package v1.0	                			  &	\\
+\hline
+16.12.2027 & 16.12.2027 & Preliminary Acceptance Europe PAE					  &	3 \\
+\hline\hline
+\end{tabularx}			
+\tiny
+\begin{tabularx}{\textwidth}{ll}
+1 & ESO-456292 METIS FDR Plan  \\
+2 & ESO-037611 Dataflow for ESO Observatories Deliverables Standard \\
+3 & E-PLA-NOVA-MET-1225$\_$4-0 METIS Project schedule \\
+4 & E-TNT-NOVA-MET-1292 METIS PIP Capabilities needed for AIT \\ 
+5 & E-PLA-MPIA-MET-1046$\_$2-0 Commissioning Plan \\
+6 & ESO-257874$\_$2 Statement of Work for the Construction of METIS \\
+\end{tabularx} 
+\end{table}
+
+
+\subsection{FDR to PAE development plan}
+\label{ssec:fdr2pae}
+
+It is planned to monitor the status of pipeline software implementation in regular progress meetings, where, if necessary, specific action items can be defined. Starting after \ac{FDR} the implementation of the development schedule (Table \ref{tab:development_schedule1}) will be carried out in the subsequent steps:
+
+\begin{enumerate}
+    \item The baseline for the pipeline development environment regarding the use of the \ac{EDPS} framework and of pyCPL needs to be established.
+    
+    \item Review and adapt the schedule for the pipeline software development after successful PIP FDR in compliance with the METIS DRL Validation and Test Plan (\cite{DRLVT}). A priority list for the implementation of the PIP capabilities will be agreed with the AIT team. It will categorize high, medium and low priorities of pipeline modules for subsystem and system level AIT. The priority list will be reviewed in regular intervals in progress of AIT.
+   
+    High priority tasks of the pipeline development (at start of Phase D): 
+    \begin{itemize}
+        \item The interface with ICS has to be set up in order to create proper FITS files 
+        \item Recipes needed for the detector characterisation
+    \end{itemize} 
+    These modules should be ready at the start of system AIT phase CD to support the integration of the detectors.
+    
+    Medium priority tasks to support the integration of \ac{LMS}, \ac{LSS} and \ac{IMG} modes:
+    \begin{itemize}
+        \item Processing of LMS, LSS and IMG data which includes in particular background subtraction, wavelength calibration recipes for the spectroscopic modes and LMS cube reconstruction
+        \item Additional recipes needed: Distortion map, RSRF calibration, contrast curve
+        \item Support of stray light analysis tools
+    \end{itemize}
+    Following the outline of the system AIT plan, LMS-related modules will be first available for the cold instrument verification, followed later by LSS and IMG-related modules which will be ready for the cold functional tests.
+
+    Low priority tasks:
+    \begin{itemize}
+        \item Processing of \ac{HCI} data (pupil imaging)
+        \item Slit-loss calibration
+        \item Fringing calibration recipe 
+        \item Characterisation of various background subtraction methods
+        \item Quality control parameters
+    \end{itemize}
+    The time table for receiving the characteristic data of the instrument modes necessary for the pipeline software development will finalized at the same time. These data include in particular raw data from the detectors, calibration data from the \ac{WCU} and laboratory data for the instrument modes obtained resulting from functional and verification tests at (sub-) system level during the AIT phase. 
+    
+    Further on, a detailed schedule will be set up with ESO regarding updated versions of pipeline package.
+    
+    \item Simulated and processed data at T$_{FDR}$ + 6 months: the package includes raw data, intermediate data and science data products for each instrument mode. The emphasis will be on the correct data structures and relevant data flow system keywords. Where applicable, the raw and intermediate data will be simulated with the ScopeSim tool. The simulated data will be used to test the data flow system, in particular for cross-checking the output of the \ac{DRS} chain skeleton to be delivered at T$_{FDR}$ + 12 months.
+    
+    \item Delivery of the \ac{DRS} chain skeleton at T$_{FDR}$ + 12 months: The pipeline skeleton consists of the recipes \emph{shells}, i.e.~the executable code that takes the expected inputs and parameters and produces output files, albeit without actually performing any reductions; pixel values of input and outputs are just dummy values at this stage. The purpose of chain skeleton is to demonstrate the data flow but is otherwise empty from the algorithmic point of view. Depending on the release status of the \ac{EDPS}, the chain can be assembled with it. Otherwise a simple software integration environment of the METIS data flow team will be used for this purpose. 
+
+    \item Updated versions of the pipeline package in previously agreed intervals consisting of:
+    \begin{itemize}
+        \item Updated version of the DRL document
+        \item Reports on tests performed at the level of pipeline recipes
+        \item Test and calibration data
+        \item Updated version of the pipeline/QC user manual
+        \item Report describing the status of the DRL implementation
+        \item List of action items
+    \end{itemize}
+    The updates will be maintained in a shared repository to allow ESO to monitor the work progress. The pipeline development and implementation will be done in close collaboration with ESO.
+\end{enumerate}
+
+
+\subsection{METIS Preliminary Acceptance in Europe (PAE)}
+\label{ssec:pae_europe}
+
+PAE completes the METIS AIT phase. At this stage, the pipeline software has reached a maturity level where all components are fully developed and integrated. It is expected that at this point also all necessary lab data from the AIT phase will be available for test and validation purposes in addition to the simulated test data package. The pipeline PAE will consist of 3 phases: a test readiness review, an end-to-end test of the data flow and the PAE review phase.
+
+\subsubsection{Test Readiness Review}
+\label{sssec:trr}
+
+The pipeline package will be carefully reviewed to check its compliance to~\cite{1618} approximately 3 months before the PAE review. The review requires:
+\begin{itemize}
+    \item The METIS instrument has been fully assembled, aligned and all tests at subsystem level have been performed
+    \item Both simulated data and lab data obtained during the AIT phase are available for verification purposes to cover all relevant instrument modes
+    \item Full unit tests have been implemented at the algorithmic level to check requirement compliance
+    \item Full error propagation has been implemented to check requirement compliance
+    \item A science use case has been assigned to each observing mode
+\end{itemize}
+The review will be carried out in close cooperation with ESO pipeline experts to prepare the integration of the pipeline at the observatory. This includes functionality checks of the data reduction pipeline in the QC0/QC1/QC2 operational environments.
+
+\subsubsection{End-to-End tests of the data flow system}
+\label{sssec:e2e}
+
+The scope of the data flow end-to-end test is to validate the full process of pipeline data management and processing. The process will consist of
+\begin{itemize}
+    \item One science case per observing mode will be used as demonstrator
+    \item Raw data will be processed in final data products
+    \item Check that that the input raw data are correctly organized
+    \item Check that recipes are executed in the correct order in the dataflow
+    \item Check that intermediate data products are passed correctly in the data flow
+    \item Final consistency checks on the data flow system (FITS keywords, QC parameters, ...)
+    \item Final check on relevant documents (user manuals)
+\end{itemize}
+Further details are specified in~\cite{DRLVT}.
+
+\subsubsection{PAE review phase}
+\label{sssec:paw_review}
+
+The PAE review phase will consist of the formal approval of the PAE deliverables described in~\cite{1618} (see also table \ref{tab:development_schedule1}). The reports of the Test Readiness Review and the data flow end-to-end simulation will be attached to them. 
+
+% HB: I replaced h! with !ht, because latex will do that anyway if necessary; there is no functional difference between "h!" and "!ht": 'here' will be tried first, and if that fails 'top' is tried, but just "h!" will lead to a warning if "top" is chosen. The document looks the same.
+\begin{table}[!ht]
+    \caption[Development schedule 2]{Milestones of the METIS pipeline software development schedule from First Light to PAC}
+  \label{tab:development_schedule2}
+
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{llll}
+
+\hline
+Date$\_$start &	Date$\_$end   &	Task                            &		Reference \\
+\hline\hline
+01.11.2028 & 01.11.2028 & First Light 						                  &	3 \\
+\hline
+17.04.2029 & 17.04.2029 & ET4 Instrument Description Data v1.1 =COM1-6w		  &	2 \\
+\hline
+01.05.2029 & 01.05.2029 & Deliverables COM1-4w                                &	2 \\
+    &          & DR4 Data Reduction Library v1.1 \& Test Report               &	\\
+    &	  	   & DF4 Observation Preparation Tools v1.1                       &	\\
+    &		   & IP4 Instrument Package v1.1				                  &	\\
+\hline
+22.05.2029 & 22.05.2029 & DR5 Pipeline v0.5 =COM1-1w				        &	2 \\
+\hline 
+29.05.2029 & 14.11.2029 & Commissioning TBC					                &	3 \\
+\hline
+29.05.2029 & 10.07.2029 & COM1 TBC						                    &	5 \\
+\hline
+11.07.2029 & 10.10.2029 & Performance Assessment Period PAP TBC			    &	5 \\
+\hline
+07.08.2029 & 07.08.2029 & DC4 Instrument Commissioning Data = COM1+4w		&   2 \\
+\hline
+16.08.2029 & 16.08.2029 & Deliverables COM2-8w                              &	2 \\
+    &          & Microservice modules for Obs.Prepration                    &	\\
+    &		   & User Manual for Obs.Prepration				                &	\\
+\hline
+13.09.2029 & 13.09.2029 & Deliverables COM2-4w                              & 	2 \\
+    &          & IP4 Instrument Package v1.x                                &	\\
+    &	       & OP6 Observation Preparation Tools v1.x                     &	\\
+    &		   & ET6 Exposure Time Calculator v1.0                          &	\\
+\hline
+20.09.2029 & 20.09.2029 & DR6 Data Reduction Library v1.2 \& Test Report =COM2-3w	    &	2 \\
+\hline
+11.10.2029 & 22.11.2029 & COM2 TBC						                    & 5 \\
+\hline
+25.10.2029 & 25.10.2029 & Deliverables COM2+2w                              & 2 \\
+   &           & DC5 Calibration Plan v1					                 &	\\
+   &           & DC6 Science Test Data                                      &	\\
+   &		    & DR7 Pipeline v1.0					                         &	\\
+\hline
+TBD    & TBD   & Observation Preparation Tools v2.0  =CFP-6w     	        & 2 \\
+\hline
+TBD	   & TBD   & Deliverables CFP-4w                                        & 2 \\
+   &           & ET6 Exposure Time Calculator v1.1			                 &	\\
+   &		    & IP5 Instrument Package v2				                     &	\\
+\hline
+TBD	   & TBD   & CFP Proposals (Phase 1) Preliminary  TBD		           & 2 \\
+\hline
+03.10.2029 & 03.10.2029 & ET7 Instrument Description Data v1.x =PAC-6w	   & 2 \\
+\hline
+17.10.2029 & 17.10.2029 & Deliverables PAC-4w                              &	\\
+   &           & DR8 Data Reduction Library v1.x \& Test Report            &	\\
+   &           & DR8 DRL Validation and Test Plan v3                       &	\\
+   &           & DR8 Data Reduction Library Design v2			            & 2 \\
+\hline
+14.11.2029 & 14.11.2029 & Preliminary Acceptance Chile PAC	               & 3 \\
+\hline\hline
+\end{tabularx}			
+\tiny
+\begin{tabularx}{\textwidth}{ll}
+1 & ESO-456292 METIS FDR Plan  \\
+2 & ESO-037611 Dataflow for ESO Observatories Deliverables Standard \\
+3 & E-PLA-NOVA-MET-1225$\_$4-0 METIS Project schedule \\
+4 & E-TNT-NOVA-MET-1292 METIS PIP Capabilities needed for AIT \\ 
+5 & E-PLA-MPIA-MET-1046$\_$2-0 Commissioning Plan \\
+6 & ESO-257874$\_$2 Statement of Work for the Construction of METIS \\
+\end{tabularx} 
+\end{table}
+
+
+
+% HB: I replaced h! with !ht, because latex will do that anyway if necessary; there is no functional difference between "h!" and "!ht": 'here' will be tried first, and if that fails 'top' is tried, but just "h!" will lead to a warning if "top" is chosen. The document looks the same.
+\begin{table}[!ht]
+    \caption[Development schedule 3]{Milestones of the METIS pipeline software development schedule covering the Guarantee Period until Final Acceptance}
+  \label{tab:development_schedule3}
+
+\centering
+\scriptsize
+\begin{tabularx}{\textwidth}{llll}
+
+\hline
+Date$\_$start &	Date$\_$end   &	Task                            &		Reference \\
+\hline\hline
+15.11.2029 & 14.11.2031 & Guarantee period 					               & 2 \\
+\hline
+TBD    & TBD   & ET8 Exposure Time Calculator v1.x =PH2-4w		           & 2 \\
+\hline
+TBD    & TBD   & PH2 Observation Preparation Phase 2    		           & 2 \\
+\hline
+TBD    & TBD   & IP6 Package v2.x =SO1-16w				                   & 2 \\
+\hline
+TBD    & TBD   & Deliverables SO1-4w                                & 2 \\
+   &           & DR10 Pipeline v1.x					             &	\\
+   &		    & DR10 Pipeline/QC User Manual v2		    	     &	\\
+\hline
+TBD    & TBD   & SO1 Science Operations (1st observation period) 	& 2 \\
+\hline
+TBD    & TBD   & Deliverables SO1+8w                                & 2 \\
+   &	 	    & DR11 DRL Validation and Test Plan v4	  		     &	\\
+   &		    & DR11 Data Reduction Library Design v3	  		     &	\\
+   &		    & DC7 Calibration Plan v2					         &	\\
+\hline
+TBD    & TBD   & SO2 Science Operations (2nd observation period) 	& 2 \\
+\hline
+TBD    & TBD   & Deliverables SO2+8w                                & 2 \\
+   &		    & DR12 Pipeline/QC User Manual v3				     &	\\
+\hline
+14.11.2031 & 14.11.2031 & Final Acceptance  = PAC+24m  TBD			& 6 \\
+\hline\hline
+\end{tabularx}			
+\tiny
+\begin{tabularx}{\textwidth}{ll}
+1 & ESO-456292 METIS FDR Plan  \\
+2 & ESO-037611 Dataflow for ESO Observatories Deliverables Standard \\
+3 & E-PLA-NOVA-MET-1225$\_$4-0 METIS Project schedule \\
+4 & E-TNT-NOVA-MET-1292 METIS PIP Capabilities needed for AIT \\ 
+5 & E-PLA-MPIA-MET-1046$\_$2-0 Commissioning Plan \\
+6 & ESO-257874$\_$2 Statement of Work for the Construction of METIS \\
+\end{tabularx} 
+\end{table}
+
+
+\subsection{METIS instrument commissioning}
+\label{ssec:com}
+
+It is planned that the commissioning period will be divided in three sections (see also table \ref{tab:development_schedule2}).
+
+\subsubsection{Commissioning period 1 (COM1)}
+\label{ssec:com1}
+
+The aim of the COM1 period is to test the interface of METIS with the ELT and the characterization of the instrument performance including the data reduction pipeline software. COM1 will consist of several observing runs to perform all necessary tests, observations and calibrations. This includes also the preparation of the data flow science operation system. The prerequisites for the data reduction pipeline are
+\begin{itemize}
+    \item METIS has been fully integrated at the ELT
+    \item METIS passed the instrument functional hardware and software tests
+    \item The data reduction pipeline  has been fully integrated and validated
+\end{itemize}
+The COM1 deliverables are specified in~\cite{1618}.
+
+\subsubsection{Performance Assessment Period (PAP)}
+\label{ssec:pap}
+
+The test results of COM1 will be analyzed and the instrument commissioning data will be released. The pipeline team will support this activity. This includes a full check of the data reduction pipeline functionality in the QC0/QC1/QC2 operational environments.
+
+\subsubsection{Commissioning period 2 (COM2)}
+\label{ssec:com2}
+
+The scope of COM2 is to establish the science operation readiness of METIS integrated at the ELT. This includes in particular the full data flow system and data reduction pipeline functionality with a first version of a completely populated calibration data base. The COM2 deliverables are specified in~\cite{1618} (see also table \ref{tab:development_schedule2}).
+
+\subsection{METIS Preliminary Acceptance in Chile}
+\label{ssec:pae_chile}
+
+At the time of PAC the final version of the Data Reduction Library package will be available. Data from the ESO Archive will be processed with the data reduction pipeline  which have to comply with ESO standards on data formats and data products. The functionality of the pipeline will be checked in the QC0/QC1/QC2 operational environments. The PAC deliverables are specified in~\cite{1618} (see also table \ref{tab:development_schedule2}). Upon successful completion of PAC, the two-year guarantee period will start as defined in the Statement of Work.
+
+\subsection{METIS science operations}
+\label{ssec:sciops}
+
+METIS science operations will consist of two observation periods, SO1 and SO2 respectively. SO1 will start upon successful completion of PAC. The data reduction pipeline will support the scientific data analysis with the METIS pipeline software team providing support to ESO. The SO1 deliverables are specified in~\cite{1618} (see also table \ref{tab:development_schedule3}).
+
+SO2 will be used to further refine the data reduction pipeline package based upon feedback from SO1. This should be the final consolidation of the pipelines software and all relevant documentation and user manuals. The SO2 deliverables are specified in~\cite{1618} (see also table \ref{tab:development_schedule3}).

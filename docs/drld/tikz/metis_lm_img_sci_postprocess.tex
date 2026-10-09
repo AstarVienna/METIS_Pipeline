@@ -1,0 +1,69 @@
+\input{black_style}
+\input{recipe_config}
+
+
+\begin{tikzpicture}
+  [x=1cm,
+  y=-1cm,
+  align=center,
+  node distance=2cm and 3cm]
+  \sffamily
+
+  %% Grid for orientation. Comment out for final figure!
+  %\draw[help lines, green](-5, 0) grid (8, 11);
+
+  %%% Put workflow commands here:
+  %% Main reduction workflow
+  \pic (start) {start};
+
+  \node (input) [below=0.75cm of start-m, input, text width=4cm, fill=sciproductcolor]{%
+    \textsl{N} \PROD{LM_SCI_CALIBRATED}};
+
+  \node (step_determinegrid) [below=2.5cm of input, redstep]{%
+    determine output grid};
+
+  \node (step_resample) [below=1.5cm of step_determinegrid, redstep]{%
+    resample images};
+
+  \node (step_coadd) [below=1.5cm of step_resample, redstep]{%
+    coadd images};
+
+  \pic (stop) [below=3cm of step_coadd] {stop};
+
+  %% Connections
+  \draw [connection_arrow] (start-m) -- (input);
+  \draw [connection_arrow] (input) -- (step_determinegrid);
+  \draw [connection_arrow] (step_determinegrid) -- (step_resample);
+  \draw [connection_arrow] (step_resample) -- (step_coadd);
+  \draw [connection_arrow] (step_coadd) -- (stop-t);
+
+  %% Input
+%  \node (connect_badpix) [connection] at ($(input)!0.75!(step_determinegrid)$) {};
+%  \node (badpix) [left=of connect_badpix, calproduct]{\PROD{BADPIX_MAP_2RG}};
+%  \draw [connection_arrow] (badpix) -- (connect_badpix);
+
+  %% Output
+  \node (connectcoadd) [connection] at
+  ($(step_coadd)!0.33!(stop-t)$) {};
+  \node (coadd) [right=of connectcoadd, sciproduct]{%
+    \PROD{LM_SCI_COADD}};
+  \draw [connection_arrow] (connectcoadd) -- (coadd);
+
+% HB: Contribution map is in an extension
+%  \node (connectcontrib) [connection] at
+%  ($(step_coadd)!0.6!(stop-t)$) {};
+%  \node (contrib) [right=of connectcontrib, sciproduct]{%
+%    \PROD{LM_SCI_COADD_CONTRIB}};
+%  \draw [connection_arrow] (connectcontrib) -- (contrib);
+
+
+  %% Frame around recipe
+  \draw [frame]
+  ($(input)!0.5!(step_determinegrid) - (2.5, 0)$) rectangle
+  ($(step_coadd)!0.85!(stop-t) + (2.5, 0)$);
+  \node [framecolor, anchor=north west] at
+  ($(input)!0.5!(step_determinegrid) - (2.5, 0)$){%
+    \REC{metis_lm_img_sci_postprocess}};
+
+\end{tikzpicture}
+\input{normal_style}

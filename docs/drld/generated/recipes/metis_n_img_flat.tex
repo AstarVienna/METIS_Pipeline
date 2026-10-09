@@ -1,0 +1,36 @@
+\begin{recipedef}
+  Name:                & \REC{metis_n_img_flat} \\
+  Purpose:             & Create master flat for N band detectors \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{N_FLAT_LAMP_RAW} or \RAW{N_FLAT_TWILIGHT_RAW} (1--N) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_GEO} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_GEO}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_GEO}} \\
+                       & \PROD{MASTER_DARK_GEO} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.FILTER} \\
+  Parameters:          & \CODE{metis_n_img_flat.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}), default \texttt{average} \\
+                       & \CODE{metis_n_img_flat.outliers.kappa_low}\newline Lower threshold for bad pixels, default \texttt{10} \\
+                       & \CODE{metis_n_img_flat.outliers.kappa_high}\newline Upper threshold for bad pixels, default \texttt{10} \\
+  Algorithm:           & For internal flats: call \REC{metis_det_dark} with LAMP OFF im ages to create dark frame. \\
+                       & Subtract internal dark or master dark from flat exposures. \\
+                       & Call \REC{metis_n_img_flat} to fit slope of pixel values against illumination level. \\
+                       & Frames with the same exposure time will be averaged. \\
+                       & Compute median or average of input frames to improve statistics. \\
+                       & Call metis\_update\_n\_flat\_mask to flag deviant pixels. \\
+  Output data:         & \PROD{BADPIX_MAP_GEO} \\
+                       & \PROD{MASTER_IMG_FLAT_LAMP_N} or \PROD{MASTER_IMG_FLAT_TWILIGHT_N} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC N FLAT MEAN} \\
+                       & \QC{QC N FLAT MEDIAN MAX} \\
+                       & \QC{QC N FLAT MEDIAN MIN} \\
+                       & \QC{QC N FLAT MEDIAN RMS} \\
+                       & \QC{QC N FLAT RMS} \\
+                       & \QC{QC N MFLAT NBADPIX} \\
+                       & \QC{QC N MFLAT RMS} \\
+\end{recipedef}
+

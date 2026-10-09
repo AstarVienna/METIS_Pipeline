@@ -1,0 +1,24 @@
+\paragraph{\STATCALIB{N_ADC_SLITLOSS}} \label{dataitem:n_adc_slitloss}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \STATCALIB{N_ADC_SLITLOSS}\\[0.3cm]
+        Description: & Table with ADC induced N slitlosses \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_ADC_SLITLOSS} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_ADC_SLITLOSS}\\[0.3cm]
+            Created by: & \REC{metis_n_adc_slitloss} \\
+            Input for: & \REC{metis_n_lss_sci} \\
+                        & \REC{metis_n_lss_std} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -1,0 +1,27 @@
+\paragraph{\RAW{LM_LSS_RSRF_PINH_RAW}} \label{dataitem:lm_lss_rsrf_pinh_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{LM_LSS_RSRF_PINH_RAW}\\[0.3cm]
+        Description: & Raw flats taken with black-body calibration lamp through the pinhole mask. \\[0.3cm]
+        OCA keywords: & \FITS{DPR.CATG}\\
+         & \FITS{DPR.TECH}\\
+         & \FITS{DPR.TYPE}\\
+         & \FITS{DRS.SLIT}\\
+         & \FITS{INS.OPTI10.NAME}\\
+         & \FITS{INS.OPTI20.NAME}\\
+         & \FITS{INS.OPTI3.NAME}\\
+         & \FITS{INS.OPTI9.NAME}\\
+        \FITS{DO.CATG}: & \CODE{LM_LSS_RSRF_PINH_RAW}\\[0.3cm]
+            Input for recipe: & \REC{metis_lm_lss_trace} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

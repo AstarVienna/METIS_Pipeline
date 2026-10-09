@@ -1,0 +1,46 @@
+\begin{recipedef}
+  Name:                & \REC{metis_ifu_distortion} \\
+  Purpose:             & Determine the geometric distortion of the IFU. \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{IFU_DISTORTION_RAW} (1--N) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_IFU} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_IFU}} (optional) \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_IFU}} (optional) \\
+                       & \PROD{MASTER_DARK_IFU} (optional) \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+  Matched keywords:    & \FITS{DRS.IFU} \\
+  Parameters:          & \CODE{metis_ifu_distortion.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}, \texttt{sigclip}), default \texttt{average} \\
+                       & \CODE{metis_ifu_distortion.trace.degree}\newline Polynomial degree of the fit to each slice, default \texttt{2} \\
+                       & \CODE{metis_ifu_distortion.trace.degree_before_merge}\newline Polynomial degree used while rating candidate merges, where the fits are still poorly constrained. An integer, or 'best' to choose one per cluster, default \texttt{best} \\
+                       & \CODE{metis_ifu_distortion.trace.min_cluster}\newline Smallest acceptable cluster of illuminated pixels, in pixels, default \texttt{1000} \\
+                       & \CODE{metis_ifu_distortion.trace.min_width}\newline Smallest acceptable cluster extent along the dispersion direction, as a fraction of the detector width. 0 disables the check, default \texttt{0.25} \\
+                       & \CODE{metis_ifu_distortion.trace.filter_x}\newline Smoothing width along the dispersion direction, applied before thresholding. 0 disables it, default \texttt{0} \\
+                       & \CODE{metis_ifu_distortion.trace.filter_y}\newline Smoothing width along the cross-dispersion direction, used to estimate the local background, default \texttt{200} \\
+                       & \CODE{metis_ifu_distortion.trace.filter_type}\newline Smoothing kernel used to estimate the local background. 'whittaker' preserves edges best, 'boxcar' is cheapest (\texttt{boxcar}, \texttt{gaussian}, \texttt{whittaker}), default \texttt{boxcar} \\
+                       & \CODE{metis_ifu_distortion.trace.noise}\newline Absolute detection threshold above the local background, default \texttt{120.0} \\
+                       & \CODE{metis_ifu_distortion.trace.noise_relative}\newline Detection threshold as a fraction of the local background. If this and the absolute threshold are both 0, 0.1\% is used, default \texttt{0.0} \\
+                       & \CODE{metis_ifu_distortion.trace.border_width}\newline Number of pixels to ignore at each detector edge, default \texttt{6} \\
+                       & \CODE{metis_ifu_distortion.trace.auto_merge_threshold}\newline Overlap rating at or above which two clusters are merged into one slice. 1 disables merging, default \texttt{0.9} \\
+                       & \CODE{metis_ifu_distortion.trace.merge_min_threshold}\newline Overlap rating below which a pair of clusters is not considered for merging, default \texttt{0.01} \\
+                       & \CODE{metis_ifu_distortion.trace.sigma}\newline If positive, split clusters that deviate from the common trace shape by more than this many standard deviations, default \texttt{0.0} \\
+  Algorithm:           & Stack the continuum-illuminated raw exposures. \\
+                       & Estimate the local background by smoothing along the cross-dispersion direction \\
+                       & and threshold against it, to separate illuminated from inter-slice pixels. \\
+                       & Discard the detector borders, then close gaps and remove specks morphologically. \\
+                       & Label connected components and discard those too small or too narrow to constrain \\
+                       & a fit, then merge the clusters that belong to the same slice. \\
+                       & Fit a polynomial mid-line and top/bottom edge polynomials to each surviving cluster \\
+                       & and tabulate their coefficients together with the valid column range. \\
+                       & Adapted from PyReduce (Piskunov \& Valenti 2002, Piskunov, Wehrhahn \& Marquart \\
+                       & 2021), as prescribed by the DRLD for IFU distortion correction. \\
+  Output data:         & \PROD{IFU_DIST_REDUCED} \\
+                       & \PROD{IFU_DISTORTION_TABLE} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC IFU DISTORT FWHM} \\
+                       & \QC{QC IFU DISTORT NSPOTS} \\
+                       & \QC{QC IFU DISTORT NTRACES} \\
+                       & \QC{QC IFU DISTORT RMS} \\
+\end{recipedef}
+

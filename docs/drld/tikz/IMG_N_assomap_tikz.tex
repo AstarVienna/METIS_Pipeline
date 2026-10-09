@@ -1,0 +1,272 @@
+%% IMG_N_assomap_tikz.tex
+%% Created by Oliver Czoske
+%%
+%% 2019-02-26: Changed to NQ only
+%% 2019-02-26: Try to align it with the recipe flow
+%% 2020-09-07: Pipeline redesign, N only
+
+\sffamily
+
+\input{black_style}
+\input{recipe_config}
+
+%%% Picture: flow chart
+\begin{tikzpicture}[on grid=false,node distance=0.8cm]
+
+  \matrix (recipes) [column sep=5mm, row sep=1cm]{
+    % The matrix has colums
+    % lin_*, dist_*, dark_*, flat_*, chop_*, std_*, cal_*, rest_*
+    %
+    % The matrix has rows
+    % *_raw, *_lin, *_dark, *_flat, *_std, *_sci1, *_sci2, *_prod
+
+    % Row *_raw
+    \node[above] (bpm_raw)[empty]{}; &
+    \node[above] (lin_raw){\recipebox{\RAW{DETLIN_GEO_RAW}}{\REC{metis_det_lingain}}}; &
+% TODO: Put back in once we actually include the persistence recipe in the DRLD
+%    \node[above] (pers_raw){\recipebox{\RAW{PERSISTENCE}}{\REC{metis_det_persistence_map}}}; &
+    \node[above] (pers_raw)[empty]{}; &
+    \node[above] (dist_raw){\recipebox{\RAW{N_DISTORTION_RAW}}{\REC{metis_n_img_distortion}}}; &
+    \node[above] (dark_raw){\recipebox{\RAW{DARK_GEO_RAW}}{\REC{metis_det_dark}}}; &
+    \node[above] (flat_raw){\recipebox{\RAW{N_FLAT_LAMP_RAW} \RAW{N_FLAT_TWILIGHT_RAW}}{\REC{metis_n_img_flat}}}; &
+    \node[above] (chop_raw){\recipebox{\RAW{N_IMAGE_SCI_RAW}}{\REC{metis_n_img_chopnod}}}; &
+    \node[above] (std_raw){\recipebox{\PROD{N_STD_BKG_SUBTRACTED}}{\REC{metis_n_img_std_process}}}; &
+    \node[above] (cal_raw){\recipebox{\PROD{N_SCI_BKG_SUBTRACTED}}{\REC{metis_n_img_calibrate}}}; &
+    \node[above] (rest_raw){\recipebox{\RAW{N_SCI_CALIBRATED}}{\REC{metis_n_img_restore}}}; \\
+
+    %%% Calibration products
+    % Row *_bpm
+    \node (bpm_bpm)[extcalfile]{\STATCALIB{BADPIX_MAP_GEO}}; &
+    \node (lin_bpm)[connection]{}; &
+    \node (pers_bpm)[empty]{}; &
+    \node (dist_bpm)[connection]{}; &
+    \node (dark_bpm)[connection]{}; &
+    \node (flat_bpm)[connection]{}; &
+    \node (chop_bpm)[connection]{}; &
+    \node (std_bpm)[empty]{}; &
+    \node (cal_bpm)[empty]{}; &
+    \node (rest_bpm)[empty]{}; \\
+
+    % Row *_lin
+    \node (bpm_lin)[empty]{}; &
+    \node (lin_lin)[statcalfile]{\STATCALIB{LINEARITY_GEO}}; &
+    \node (pers_lin)[empty]{}; &
+    \node (dist_lin)[connection]{}; &
+    \node (dark_lin)[connection]{}; &
+    \node (flat_lin)[connection]{}; &
+    \node (chop_lin)[connection]{}; &
+    \node (std_lin)[empty]{}; &
+    \node (cal_lin)[empty]{}; &
+    \node (rest_lin)[empty]{}; \\
+
+    % Row *_gain
+    \node (bpm_gain)[empty]{}; &
+    \node (lin_gain)[statcalfile]{\STATCALIB{GAIN_MAP_GEO}}; &
+    \node (pers_gain)[empty]{}; &
+    \node (dist_gain)[connection]{}; &
+    \node (dark_gain)[connection]{}; &
+    \node (flat_gain)[connection]{}; &
+    \node (chop_gain)[connection]{}; &
+    \node (std_gain)[empty]{}; &
+    \node (cal_gain)[empty]{}; &
+    \node (rest_gain)[empty]{}; \\
+
+    % Row persistence
+    \node (bpm_pers)[empty]{}; &
+    \node (lin_pers)[empty]{}; &
+    \node (pers_pers)[extcalfile]{\STATCALIB{PERSISTENCE_MAP}}; &
+    \node (dist_pers)[connection]{}; &
+    \node (dark_pers)[connection]{}; &
+    \node (flat_pers)[connection]{}; &
+    \node (chop_pers)[connection]{}; &
+    \node (std_pers)[empty]{}; &
+    \node (cal_pers)[empty]{}; &
+    \node (rest_pers)[empty]{}; \\
+
+    % Row pinhole table
+    \node (bpm_pinh)[empty]{}; &
+    \node (lin_pinh)[empty]{}; &
+    \node (pers_pinh)[extcalfile]{\STATCALIB{PINHOLE_TABLE}}; &
+    \node (dist_pinh)[connection]{}; &
+    \node (dark_pinh)[empty]{}; &
+    \node (flat_pinh)[empty]{}; &
+    \node (chop_pinh)[empty]{}; &
+    \node (std_pinh)[empty]{}; &
+    \node (cal_pinh)[empty]{}; &
+    \node (rest_pinh)[empty]{}; \\
+
+    %%% Calibration products
+    % Row *_dark
+    \node (bpm_dark)[empty]{}; &
+    \node (lin_dark)[empty]{}; &
+    \node (pers_dark)[empty]{}; &
+    \node (dist_dark)[empty]{}; &
+    \node (dark_dark)[qcproduct]{\STATCALIB{MASTER_DARK_GEO}}; &
+    \node (flat_dark)[connection]{}; &
+    \node (chop_dark)[connection]{}; &
+    \node (std_dark)[empty]{}; &
+    \node (cal_dark)[empty]{}; &
+    \node (rest_dark)[empty]{}; \\
+
+    % Row *_flat
+    \node (bpm_flat)[empty]{}; &
+    \node (lin_flat)[empty]{}; &
+    \node (pers_flat)[empty]{}; &
+    \node (dist_flat) [empty]{}; &
+    \node (dark_flat)[empty]{}; &
+    \node (flat_flat) [qcproduct]{\STATCALIB{MASTER_IMG_FLAT_LAMP_N}};
+      \node (flat_flat2) [qcproduct,below=.5cm]{\STATCALIB{MASTER_IMG_FLAT_TWILIGHT_N}}; &
+    \node (chop_flat)[connection]{}; &
+    \node (std_flat)[empty]{}; &
+    \node (cal_flat)[empty]{}; &
+    \node (rest_flat) [empty]{}; \\
+
+    % Row *_chopstd
+    \node (bpm_chopstd)[empty]{}; &
+    \node (lin_chopstd)[empty]{}; &
+    \node (pers_chopstd)[empty]{}; &
+    \node (dist_chopstd) [empty]{}; &
+    \node (dark_chopstd)[empty]{}; &
+    \node (flat_chopstd) [empty]{}; &
+    \node (chop_chopstd)[calibproduct]{\PROD{N_STD_BKG_SUBTRACTED}}; &
+    \node (std_chopstd)[connection]{}; &
+    \node (cal_chopstd)[empty]{}; &
+    \node (rest_chopstd) [empty]{}; \\
+
+    % Row *_chopsci
+    \node (bpm_chopsci)[empty]{}; &
+    \node (lin_chopsci)[empty]{}; &
+    \node (pers_chopsci)[empty]{}; &
+    \node (dist_chopsci) [empty]{}; &
+    \node (dark_chopsci)[empty]{}; &
+    \node (flat_chopsci) [empty]{}; &
+    \node (chop_chopsci)[scienceproduct]{\PROD{N_SCI_BKG_SUBTRACTED}}; &
+    \node (std_chopsci)[empty]{}; &
+    \node (cal_chopsci)[connection]{}; &
+    \node (rest_chopsci) [empty]{}; \\
+
+    % Row *_std
+    \node (bpm_std)[empty]{}; &
+    \node (lin_std) [empty]{}; &
+    \node (pers_std) [empty]{}; &
+    \node (dist_std)[empty]{}; &
+    \node (dark_std)[extcalfile]{\EXTCALIB{FLUXSTD_CATALOG}}; &
+    \node (flat_std)[empty]{}; &
+    \node (chop_std)[empty]{}; &
+    \node (std_std)[connection]{}; &
+    \node (cal_std)[empty]{}; &
+    \node (rest_std) [empty]{}; \\
+
+    % Row *_cal
+    \node (bpm_cal)[empty]{}; &
+    \node (lin_cal)[empty]{}; &
+    \node (pers_cal)[empty]{}; &
+    \node (dist_cal) [empty]{}; &
+    \node (dark_cal)[empty]{}; &
+    \node (flat_cal)[empty]{}; &
+    \node (chop_cal)[empty]{}; &
+    \node (std_cal)[calibproduct]{\PROD{FLUXCAL_TAB}}; &
+    \node (cal_cal)[connection]{}; &
+    \node (rest_cal) [empty]{}; \\
+
+    % Row *_dist
+    \node (bpm_dist)[empty]{}; &
+    \node (lin_dist)[empty]{}; &
+    \node (pers_dist)[empty]{}; &
+    \node (dist_dist)[statcalfile]{\STATCALIB{N_DISTORTION_TABLE}}; &
+    \node (dark_dist)[empty]{}; &
+    \node (flat_dist)[empty]{}; &
+    \node (chop_dist)[empty]{}; &
+    \node (std_dist)[empty]{}; &
+    \node (cal_dist)[connection]{}; &
+    \node (rest_dist)[empty]{}; \\
+
+
+    % Row *_rest
+    \node (bpm_rest)[empty]{}; &
+    \node (lin_rest)[empty]{}; &
+    \node (pers_rest)[empty]{}; &
+    \node (dist_rest)[empty]{}; &
+    \node (dark_rest)[empty]{}; &
+    \node (flat_rest)[empty]{}; &
+    \node (chop_rest)[empty] {}; &
+    \node (std_rest)[empty]{}; &
+    \node (cal_rest)[scienceproduct]{\PROD{N_SCI_CALIBRATED}}; &
+    \node (rest_rest) [connection]{}; \\
+
+    % Row *_prod
+    \node (bpm_prod)[empty]{}; &
+    \node (lin_prod)[empty]{}; &
+    \node (pers_prod)[empty]{}; &
+    \node (dist_prod)[empty]{}; &
+    \node (dark_prod)[empty]{}; &
+    \node (flat_prod)[empty]{}; &
+    \node (chop_prod)[empty]{}; &
+    \node (std_prod)[empty]{}; &
+    \node (cal_prod) [empty]{}; &
+    \node (rest_prod)[scienceproduct]{\PROD{N_SCI_RESTORED}};
+    \\
+%    & & & & & \\
+  };    % end matrix
+
+  \node (t1) at ($(dist_raw.east)!0.5!(dark_raw.west)$){};
+  \node (t2) at ($(dist_prod.east)!0.5!(dark_prod.west)$){} ;
+  \draw [thick,dashed] ([yshift=8mm]t1.north) -- ([yshift=-8mm]t2.south);
+
+  %% Vertical connections
+  \draw [arrow] (lin_raw) -- (lin_lin);
+  \draw [arrow] (lin_lin) -- (lin_gain);
+% TODO: Put back in once we actually include the persistence recipe in the DRLD
+%  \draw [arrow] (pers_raw) -- (pers_pers);
+  \draw [arrow] (dark_raw) -- (dark_dark);
+  \draw [arrow] (flat_raw) -- (flat_flat);
+  \draw [arrow] (dist_raw) -- (dist_dist);
+  \draw [arrow] (chop_raw) -- (chop_chopstd);
+  \draw [arrow] (chop_chopstd) -- (chop_chopsci);
+  \draw [arrow] (std_chopstd) -- (std_cal);
+  \draw [arrow] (cal_chopsci) -- (cal_rest);
+  \draw [arrow] (rest_rest) -- (rest_prod);
+
+  %% Horizontal connections
+  \draw [match, dashed] (bpm_bpm) -- (chop_bpm);
+  \draw [match] (lin_lin) -- (chop_lin);
+  \draw [match] (lin_gain) -- (chop_gain);
+  \draw [match] (pers_pers) -- (chop_pers);
+  \draw [match] (pers_pinh) -- (dist_pinh);
+  \draw [match] (dark_dark) -- (chop_dark);
+  \draw [match, dashed] (flat_flat) -- (chop_flat);
+  \draw [match] (dist_dist) -- (cal_dist);
+  \draw [match] (dark_std) -- (std_std);
+  \draw [match] (chop_chopstd) -- (std_chopstd);
+  \draw [match] (chop_chopsci) -- (cal_chopsci);
+  \draw [match] (std_cal) -- (cal_cal);
+  \draw [match] (cal_rest) -- (rest_rest);
+
+  %% Legend
+  \matrix (legend) [draw, fill=gray!15, above right, row sep=0.3cm,
+    column 1/.style={anchor=base},
+    column 2/.style={anchor=base west}]
+    at ([xshift=-4em,yshift=40ex]current bounding box.south west){%
+      \node (leg_recipe) [recipe] {n\_img\_flat};
+      & \node {recipe}; \\
+      \node (leg_calproduct) [calibproduct] {MASTER\_DARK\_GEO};
+      & \node {calib.\ product}; \\
+      \node (leg_sciproduct)[scienceproduct] {N\_SCI\_REDUCED};
+      & \node {science product}; \\
+      \node (leg_qcproduct)[qcproduct]{MASTER\_DARK\_GEO};
+      & \node {QC product}; \\
+      \node (leg_statcalfile)[statcalfile] {MASTER\_RSRF};
+      & \node {static calib.\ file};\\
+      \node (leg_calfile)[extcalfile]{FLUXSTD\_CATALOG};
+      & \node {external calib.\ file}; \\
+
+    \draw [arrow,fill=black] (0,0.4) -- (0,-0.3);  %% should be centred relative to column
+    & \node {processing step}; \\
+
+    \draw [connection_arrow] (-1, 0.5ex) -- (1,0.5ex) node [connection,yshift=0cm]{};
+    & \node {product match}; \\
+  };    %% end matrix (legend)
+
+\end{tikzpicture}
+
+\input{normal_style}

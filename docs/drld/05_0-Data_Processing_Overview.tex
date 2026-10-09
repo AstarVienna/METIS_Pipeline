@@ -1,0 +1,206 @@
+\section{Functional and Workflows Description}
+% ESO-037611 expects a section called "Functional and Workflows Description" in the DRLD
+% "Data Processing Overview" is the term used for the DRLS.
+%\section{Data Processing Overview}
+\label{sec:data_processing_overview}
+
+The METIS data reduction system runs in different environments and
+serves various purposes.  According to the setting, the following
+pipeline levels are distinguished~\cite{1618}:
+
+\begin{description}
+\item[Quality Control Level 0 (QC0):] The QC0 pipeline runs
+  automatically in real time on a dedicated pipeline workstation in
+  the instrument control room at the observatory. Its purpose is to
+  analyse every FITS file created by the instrument and produce
+  quality control parameters that allow assessment of whether the
+  observation and instrument performance were within specifications.
+  The appropriate reduction recipe is triggered either when a single
+  FITS file is delivered to the workstation or when a template is
+  finished. The files are classified based on header keywords, grouped
+  and associated to the necessary standard calibration files.
+
+\item[Quality Control Level 1 (QC1):] The goal of the QC1 pipeline is
+  to produce certified calibration products from calibration
+  observations as well as to produce QC parameters that are used to
+  check the quality of observations and to monitor observing
+  conditions and instrument health.
+  The QC1 pipeline is run automatically by ESO in Garching.
+  Calibration products and QC parameters are ingested into the ESO Science Archive.
+
+\item[Quality Control Level 2 (QC2):] The QC2 pipeline produces
+  Science Data Products compliant with~\cite{ESO-products_standard} as
+  well as QC parameters derived from science exposures. It runs
+  offline in an automatic way and uses the best calibration products
+  for the night of observation (produced by the QC1 pipeline).
+  The QC2 pipeline is run automatically by ESO in Garching.
+  Science data products and QC parameters are ingested into the ESO Science Archive.
+
+\item[Science-Grade Desktop Environment:] The pipeline recipes are
+  delivered to the astronomical community to enable users to reduce
+  data in an optimal and interactive way. Recipes can be run from the
+  command line using the \lstinline{esorex} front-end or in the
+  context of a \lstinline{Reflex}/\ac{EDPS} workflow. While the desktop recipes
+  are identical to those used in the QC2 pipeline, the user can change
+  recipe parameters to optimise the reduction. Within the
+  \lstinline{Reflex}/\ac{EDPS} environment, interactive tools are provided that
+  allow the user to assess the quality of individual reduction steps
+  and to repeat them with different parameters. The products of this
+  pipeline are compliant with~\cite{ESO-products_standard}.
+
+\end{description}
+
+
+The rest of this document describes the recipes primarily from the perspective of the desktop pipeline.
+The QC0, QC1, QC2 pipelines use the subset of these recipes necessary for the goals described above.
+Recipes used in the QC0 environment are written such that they can be run in real time, possibly requiring different defaults for processing parameters.
+
+
+\subsection{Required calibrations}
+\label{ssec:calibrations}
+
+Table~\ref{tab:calibrations_per_mode} (taken from
+\cite{METIS-calibration_plan}) lists the main calibration steps that
+are required for each instrument mode.
+
+%\TODO{Do we apply NCPA + PSF to HCI data? For ADI a simple recipe is foreseen.} The NCPA estimating algorithms are still under study by the HCI team.
+%\begin{landscape}
+\begin{table}
+  \newcommand{\yes}{\tikz\fill[scale=0.35,color=green!50!black](0,.35) -- (.25,0) -- (0.9,.7) -- (.25,.15) -- cycle;}
+  \newcommand{\no}{\textcolor{red!50!black}{---}}
+    \caption[Overview of required calibrations per instrument mode]{Overview of required calibrations per instrument mode.
+    The IFU modes refer to both the nominal configuration and to the extended wavelength configuration. From~\cite{METIS-calibration_plan}.}
+  \label{tab:calibrations_per_mode}
+  \centering\scriptsize
+  \begin{tabularx}{\textwidth}{lXccXccccc}
+    \hline
+                           & Dark / Linearity & Flat & Wave & Offset type & Telluric & Flux & Distortion & NCPA + PSF & RSRF \\
+    \hline\hline
+    \CODE{IMG_LM}          & \yes & \yes & \no  & Dither         & \no      & \yes & \yes       & \no        & \no  \\
+    \CODE{IMG_LM_(RA/C)VC} & \yes & \yes & \no  & ADI            & \no      & \yes & \yes       & \yes       & \no  \\
+ %   \CODE{IMG_LM_CLC}      & \yes & \yes & \no  & ADI            & \no      & \yes & \yes       & \yes       & \no  \\
+    \CODE{IMG_LM_APP}      & \yes & \yes & \no  & Dither + ADI   & \no      & \yes & \yes       & \yes       & \no  \\
+    \CODE{SPEC_LM}         & \yes & \no  & \yes & Dither along slit & \yes  & \yes & \yes       & \no        & \yes \\
+    \CODE{IFU}             & \yes & \no  & \yes & Dither         & \yes     & \yes & \yes       & \no        & \yes \\
+    \CODE{IFU_APP}         & \yes & \no  & \yes & Dither\footnote{Dithering for background subtraction + IFU\_APP will not be practical due to AO halo.}  + ADI  & \yes     & \yes & \yes       & \yes       & \yes \\
+    \CODE{IFU_(RA/C)VC}    & \yes  & \no  & \yes & ADI            & \yes     & \yes & \yes       & \yes       & \yes \\
+   % \CODE{IFU_CLC}         & \yes & \no  & \yes & Dither + ADI   & \yes     & \yes & \yes       & \yes       & \yes \\
+    \hline
+    \CODE{IMG_N}           & \yes  & \yes & \no  & chop/nod       & \no      & \yes & \yes       & \no        & \no  \\
+    \CODE{IMG_N_CVC}       & \yes  & \yes & \no  & three-point chopping & \no & \yes & \no       & \yes       & \no  \\
+ %   \CODE{IMG_N_CLC}       & \no  & \yes & \no  & out-of-field chopping & \no & \yes & \no      & \yes       & \no  \\
+    \CODE{SPEC_N_LOW}      & \yes  & \no  & \yes & chop/nod along slit & \yes & \yes & \yes      & \no        & \yes \\
+    \hline
+  \end{tabularx}
+\end{table}
+%\end{landscape}
+\FloatBarrier
+
+%%%
+\input{Overview_IMG_LM_N}
+
+%%%
+\input{Overview_LSS}
+
+%%%
+\input{Overview_IFU}
+
+\subsection{Parallel Observing Modes}
+\label{ssec:combinedmodes}
+
+There are three parallel observing modes:
+
+\begin{itemize}
+\item Parallel observing mode IMG-LM and IMG-N (Section~\ref{sssec:parallellmnimg})
+\item Parallel observing mode LSS-LM and LSS-N (Section~\ref{sssec:parallellmnspec})
+\item Parallel observing mode IMG-LM and IFU (Section~\ref{sssec:parallellmnspec})
+\end{itemize}
+
+The respective templates corresponding to these modes will produce raw data files that can be processed independently by the relevant workflows.
+That is, the templates will trigger two different recipe cascades, and there are no specific recipes for any of the parallel observing modes.
+
+\subsubsection{Parallel observing mode IMG-LM and IMG-N}\label{sssec:parallellmnimg}
+There are two specific templates for parallel imaging observations in the LM-band and N-band:
+\begin{itemize}
+ \item \TPL{METIS_img_lmn_obs_AutoChopNod}
+ \item \TPL{METIS_img_lmn_obs_GenericChopNod}
+\end{itemize}
+These templates produce two kind of raw images that are processed independently in either the LM-band or N-band imaging workflow.
+This fulfills \REQ{METIS-7244}.
+
+
+\subsubsection{Parallel observing mode LSS-LM and LSS-N}\label{sssec:parallellmnspec}
+There is one specific template for parallel LSS observations in the LM-band and N-band:
+\begin{itemize}
+ \item \TPL{METIS_spec_lmn_obs_AutoChopNodOnSlit}
+\end{itemize}
+These templates produce two kind of raw images that are processed independently in either the LM-band or N-band LSS workflow.
+This fulfills \REQ{METIS-7245}.
+
+\subsubsection{Parallel observing mode IMG-LM and IFU}\label{sssec:parallellmifu}
+Parallel observing mode IMG-LM and IFU is also needed to perform non-common path pointing and aberration correction in \ac{HCI} modes:
+real-time monitoring of non-common path aberrations between the \ac{SCAO} \ac{WFS} and the \ac{HCI} elements cannot be performed with the \ac{IFU} due to slicing and sampling issues.
+
+The IFU pickoff optic is a beamsplitter with a transmission of ~10\% to the LM imager and a reflectivity of ~90\% to the IFU. % https://polarion.astron.nl/polarion/#/project/METIS/workitem?id=METIS-3111
+LM-band images can therefore be taken in parallel with the IFU exposures, for any of the IFU templates.
+The LM-band images and IFU exposures are processed independently.
+This fulfills \REQ{METIS-6072}.
+
+
+\subsection{Workflows}
+The association matrices described in the previous sections will be converted one-to-one into Reflex or \ac{EDPS} workflows.
+
+Any interactivity in the workflows is described with the individual recipes.
+
+
+\subsection{Matched FITS keywords}
+
+The workflow management system (e.g. \ac{EDPS}) uses the `matched keywords'
+to find calibration data when processing data.
+That is, the system will compare the FITS keywords of the primary input, to
+the FITS headers of the pool of possible calibration files to use, in order
+to decide what data to use.
+
+For example, most calibration data has to be taken with the same \FITS{DET.DIT}
+and \FITS{DET.NDIT} combination as the science data.
+Several calibration products also need to use the same filter, or the same mask, or the same grism as the science data.
+
+All selections are done on equality.
+That is, no interpolation between, e.g., \FITS{DET.DIT}, will be done if only an approximate matching data product is found.
+
+The following two tables provide an overview of the matched FITS
+keywords. Table~\ref{tab:fitskeywordaliasses} defines several high level keyword
+aliases used for convenience when there are several combinations
+of instrumental keywords (INS.) which are needed to match with the correct
+calibration files. These keywords are used in the Matched Keyword
+descriptions in the recipes in Chapter~\ref{sec:pipeline_recipes}.
+Table~\ref{tab:fitsmatchedkeywordssummary}
+summaries the input data, calibration files, and the FITS
+keyworlds needed to match them for all the recipes listed in
+Chapter~\ref{sec:pipeline_recipes}. The second defines various high
+level aliases used for convenience when there are several combinations
+of instrumental keywords which are needed to match with the correct
+calibration files.
+
+\begin{table}
+    \caption{FITS keyword aliases}
+    \label{tab:fitskeywordaliasses}
+  \begin{tabular}[c]{|p{3cm}|p{5cm}|p{5cm}|}
+      \hline
+      \textbf{Alias} & \textbf{Description} & \textbf{FITS keywords} \\
+      \hline
+\FITS{DRS.FILTER}   & Filter Information (LM or N)  & value of \FITS{INS.OPTI10.NAME} or \FITS{INS.OPTI13.NAME} \\
+\FITS{DRS.NDFILTER} & ND Filter information	        & value of \FITS{INS.OPTI11.NAME} or \FITS{INS.OPTI13.NAME} \\
+\FITS{DRS.SLIT}     & Slit Information (LM or N)    & value of \FITS{INS.OPTI3.NAME} and \FITS{INS.OPTI12.NAME} or  \FITS{INS.OPTI9.NAME} \\
+\FITS{DRS.MASK}     & Mask information for Coronagraphy	& value of \FITS{INS.OPTI1.NAME}, \FITS{INS.OPTI3.NAME}, \FITS{INS.OPTI5.NAME}, \FITS{INS.OPTI9.NAME}, \FITS{INS.OPTI12.NAME} \\
+\FITS{DRS.PUPIL}    & Pupil information             & value of \FITS{INS.OPTI15.NAME} or \FITS{INS.OPTI16.NAME}\\
+\hline
+    \end{tabular}
+\end{table}
+
+
+\input{generated/matched_keywords}
+
+%%% Local Variables:
+%%% TeX-master: "METIS_DRLD"
+%%% End:

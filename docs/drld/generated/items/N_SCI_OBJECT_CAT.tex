@@ -1,0 +1,20 @@
+\paragraph{\EXTCALIB{N_SCI_OBJECT_CAT}} \label{dataitem:n_sci_object_cat}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \EXTCALIB{N_SCI_OBJECT_CAT}\\[0.3cm]
+        Description: & Catalog of masked objects in science target N exposures \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_SCI_OBJECT_CAT} \\[0.3cm]
+        OCA keywords: & --- none --- \\
+        \FITS{DO.CATG}: & \CODE{N_SCI_OBJECT_CAT}\\[0.3cm]
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

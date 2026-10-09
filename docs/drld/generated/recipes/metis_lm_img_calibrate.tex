@@ -1,0 +1,18 @@
+\begin{recipedef}
+  Name:                & \REC{metis_lm_img_calibrate} \\
+  Purpose:             & Determine optical distortion coefficients for the LM imager. \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \PROD{LM_SCI_BKG_SUBTRACTED} \\
+  Secondary inputs:    & \PROD{FLUXCAL_TAB} \\
+                       & \PROD{LM_DISTORTION_TABLE} \\
+  Matched keywords:    & \FITS{DRS.FILTER} \\
+  Parameters:          & \CODE{metis_lm_img_calibrate.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}, \texttt{sigclip}), default \texttt{average} \\
+  Algorithm:           & Call metis\_lm\_scale\_image\_flux to scale image data to photon / s \\
+                       & Add header information (BUNIT, WCS, etc.) \\
+  Output data:         & \PROD{LM_SCI_CALIBRATED} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & --- none --- \\
+\end{recipedef}
+

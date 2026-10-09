@@ -1,0 +1,23 @@
+\paragraph{\PROD{N_LSS_SYNTH_TRANS}} \label{dataitem:n_lss_synth_trans}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{N_LSS_SYNTH_TRANS}\\[0.3cm]
+        Description: & Synthetic N transmission curve to be usedfor telluric correction of flux standard stars. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_LSS_SYNTH_TRANS} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_LSS_SYNTH_TRANS}\\[0.3cm]
+            Created by: & \REC{metis_n_lss_mf_calctrans} \\
+            Input for: & \REC{metis_n_lss_mf_correct} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

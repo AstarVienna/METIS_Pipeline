@@ -1,0 +1,36 @@
+\paragraph{\RAW{det_WCU_OFF_RAW}} \label{dataitem:det_wcu_off_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{det_WCU_OFF_RAW}\\[0.3cm]
+        Description: & Raw data for dark subtraction in other recipes. \\[0.3cm]
+        OCA keywords: & \FITS{DPR.CATG}\\
+         & \FITS{DPR.TECH}\\
+         & \FITS{DPR.TYPE}\\
+        \FITS{DO.CATG}: & \CODE{det_WCU_OFF_RAW}\\[0.3cm]
+            Input for recipe: & \REC{metis_cal_chophome} \\
+                        & \REC{metis_ifu_rsrf} \\
+                        & \REC{metis_lm_adc_slitloss} \\
+                        & \REC{metis_lm_img_distortion} \\
+                        & \REC{metis_lm_lss_rsrf} \\
+                        & \REC{metis_lm_lss_trace} \\
+                        & \REC{metis_lm_lss_wave} \\
+                        & \REC{metis_n_adc_slitloss} \\
+                        & \REC{metis_n_img_distortion} \\
+                        & \REC{metis_n_lss_rsrf} \\
+                        & \REC{metis_n_lss_trace} \\
+        Instances: & \RAW{IFU_WCU_OFF_RAW}, \RAW{LM_WCU_OFF_RAW}, \RAW{N_WCU_OFF_RAW} \\[0.3cm]
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{hdrl\_image * det2\_data: Extension DET2.DATA}
+            \item \texttt{hdrl\_image * det3\_data: Extension DET3.DATA}
+            \item \texttt{hdrl\_image * det4\_data: Extension DET4.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

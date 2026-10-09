@@ -1,0 +1,24 @@
+\paragraph{\EXTCALIB{AO_PSF_MODEL}} \label{dataitem:ao_psf_model}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \EXTCALIB{AO_PSF_MODEL}\\[0.3cm]
+        Description: & Model of the AO induced PSF. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{AO_PSF_MODEL} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{AO_PSF_MODEL}\\[0.3cm]
+            Input for: & \REC{metis_lm_lss_sci} \\
+                        & \REC{metis_lm_lss_std} \\
+                        & \REC{metis_n_lss_sci} \\
+                        & \REC{metis_n_lss_std} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

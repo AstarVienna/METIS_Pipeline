@@ -1,0 +1,23 @@
+\paragraph{\PROD{LM_DISTORTION_TABLE}} \label{dataitem:lm_distortion_table}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_DISTORTION_TABLE}\\[0.3cm]
+        Description: & Table of distortion coefficients for a LM band data set \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_DISTORTION_TABLE} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.IFU}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_DISTORTION_TABLE}\\[0.3cm]
+            Created by: & \REC{metis_lm_img_distortion} \\
+            Input for: & \REC{metis_lm_img_calibrate} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

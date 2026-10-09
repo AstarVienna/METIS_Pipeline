@@ -1,0 +1,22 @@
+\paragraph{\STATCALIB{REF_STD_CAT}} \label{dataitem:ref_std_cat}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \STATCALIB{REF_STD_CAT}\\[0.3cm]
+        Description: & Catalogue with spectra of standard reference stars \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{REF_STD_CAT} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{REF_STD_CAT}\\[0.3cm]
+            Input for: & \REC{metis_lm_lss_std} \\
+                        & \REC{metis_n_lss_std} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

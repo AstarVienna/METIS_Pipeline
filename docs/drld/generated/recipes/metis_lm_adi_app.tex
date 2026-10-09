@@ -1,0 +1,32 @@
+\begin{recipedef}
+  Name:                & \REC{metis_lm_adi_app} \\
+  Purpose:             & ADI post-processing for the LM-band APP coronagraph \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \PROD{LM_SCI_CALIBRATED} (1--N) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_det} (optional) \\
+  Matched keywords:    & \FITS{DRS.FILTER} \\
+  Parameters:          & --- none --- \\
+  Algorithm:           & TODO \\
+  Output data:         & \PROD{LM_APP_CENTROID_TAB} \\
+                       & \PROD{LM_APP_SCI_CALIBRATED} \\
+                       & \PROD{LM_APP_SCI_CENTRED} \\
+                       & \PROD{LM_APP_SCI_CONTRAST_ADI} \\
+                       & \PROD{LM_APP_SCI_CONTRAST_RADPROF} \\
+                       & \PROD{LM_APP_SCI_COVERAGE} \\
+                       & \PROD{LM_APP_SCI_DEROTATED} \\
+                       & \PROD{LM_APP_SCI_DEROTATED_PSFSUB} \\
+                       & \PROD{LM_APP_PSF_MEDIAN} \\
+                       & \PROD{LM_APP_SCI_SNR} \\
+                       & \PROD{LM_APP_SCI_SPECKLE} \\
+                       & \PROD{LM_APP_SCI_THROUGHPUT} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC LM APP SCI CONTRAST ADI LAMD} \\
+                       & \QC{QC LM APP SCI CONTRAST RAW LAMD} \\
+                       & \QC{QC LM APP SCI FWHM nn} \\
+                       & \QC{QC LM APP SCI NEXP} \\
+                       & \QC{QC LM APP SCI SNR MEAN} \\
+                       & \QC{QC LM APP SCI SNR PEAK} \\
+\end{recipedef}
+

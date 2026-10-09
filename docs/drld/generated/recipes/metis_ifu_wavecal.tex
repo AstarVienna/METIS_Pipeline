@@ -1,0 +1,47 @@
+\begin{recipedef}
+  Name:                & \REC{metis_ifu_wavecal} \\
+  Purpose:             & Determine the wavelength calibration of the IFU \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{IFU_WAVE_RAW} (1--N) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_IFU} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_IFU}} (optional) \\
+                       & \PROD{IFU_DISTORTION_TABLE} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_IFU}} (optional) \\
+                       & \PROD{MASTER_DARK_IFU} (optional) \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.IFU} \\
+  Parameters:          & \CODE{metis_ifu_wavecal.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}, \texttt{sigclip}), default \texttt{average} \\
+                       & \CODE{metis_ifu_wavecal.lines.wavelengths}\newline Comma-separated wavelengths of the expected WCU laser lines, in microns. Used only when the frame header carries no laser wavelength keywords. Defaults to the three METIS WCU lasers, the middle one being the tuneable QCL, default \texttt{4.7, 4.71, 4.72, 4.73, 4.74, 4.75, 4.76} \\
+                       & \CODE{metis_ifu_wavecal.lines.match_tolerance}\newline Largest wavelength difference, in microns, allowed when matching a measured line to an expected laser wavelength, default \texttt{0.004} \\
+                       & \CODE{metis_ifu_wavecal.lines.smoothing}\newline Standard deviation, in pixels, of the Gaussian smoothing applied before line detection. Larger values reach fainter lines at the cost of blending close ones, default \texttt{0.1} \\
+                       & \CODE{metis_ifu_wavecal.lines.min_snr}\newline Minimum line peak height in units of the noise standard deviation. Zero disables the test, default \texttt{5.0} \\
+                       & \CODE{metis_ifu_wavecal.solution.degree_dispersion}\newline Polynomial degree of the wavelength solution along the dispersion direction. Reduced automatically when too few distinct wavelengths are identified to constrain it, default \texttt{2} \\
+                       & \CODE{metis_ifu_wavecal.solution.degree_spatial}\newline Polynomial degree of the wavelength solution across the slice. A degree of 1 captures a linear line tilt, default \texttt{1} \\
+                       & \CODE{metis_ifu_wavecal.solution.offsets}\newline Number of cross-dispersion positions at which each slice is sampled. Limits the achievable spatial degree to one less, default \texttt{3} \\
+                       & \CODE{metis_ifu_wavecal.slices.fill_factor}\newline Illuminated fraction of the spacing between neighbouring slices. Only used as a fallback, for distortion tables written before the measured slice edges were added to them; where those edges are present the extent is read from the table instead. The default reproduces the 114 pixel slice height of the METIS IFU simulated data, default \texttt{0.9} \\
+                       & \CODE{metis_ifu_wavecal.slices.broadening}\newline Fraction by which to widen the measured slice extent when painting the wavelength map. The measurement is a width at half maximum, so the slice still carries signal beyond it, and a pixel with no wavelength is one \REC{metis_ifu_rsrf} cannot use. Capped at the distance to the neighbouring slice. Ignored where the extent came from slices.fill\_factor instead, default \texttt{0.05} \\
+                       & \CODE{metis_ifu_wavecal.dispersion.width}\newline Instantaneous wavelength coverage of one detector, in microns, used with the grating central wavelength to build the approximate dispersion model, default \texttt{0.036} \\
+  Algorithm:           & Stack the raw exposures and take the slice geometry from the distortion table. \\
+                       & Extract spectra at several cross-dispersion offsets along each slice. \\
+                       & Measure line locations by Gaussian fit, giving sub-pixel centroid, width and height. \\
+                       & Group detections of the same line across offsets and fit the wavelength \\
+                       & solution lambda(x, y) per slice as a low-order polynomial, \\
+                       & reducing its degree where the available lines cannot constrain it. \\
+                       & Identify lines against the expected laser wavelengths, using the a simple \\
+                       & linear model per detector to resolve the assignment. \\
+                       & Evaluate the solution over each slice to build the wavelength map. \\
+                       & Line detection and Gaussian centroiding are adapted from PyReduce (Piskunov \& \\
+                       & Valenti 2002, Piskunov, Wehrhahn \& Marquart 2021), as prescribed by the DRLD. \\
+  Output data:         & \PROD{IFU_WAVECAL} \\
+                       & \PROD{IFU_WAVECAL_TAB} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC IFU WAVECAL LINE WIDTH} \\
+                       & \QC{QC IFU WAVECAL NLINES} \\
+                       & \QC{QC IFU WAVECAL PEAK CNTS} \\
+                       & \QC{QC IFU WAVECAL RMS} \\
+\end{recipedef}
+

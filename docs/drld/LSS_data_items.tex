@@ -1,0 +1,300 @@
+\clearpage
+\subsection{LSS mode data items}\label{ssec:lss_drl_items_structures}
+\subsubsection{Raw data item structures}\label{sssec:lssrawdatastructs}
+
+% ##################################################################################### LM SLITLOSS RAW 
+% HANDWRITTEN: LM_SLITLOSSES_RAW: no such data item in pymetis
+\paragraph{\RAW{LM_SLITLOSSES_RAW}}\label{dataitem:lm_slitlosses_raw}
+\notgenerated{no such data item in pymetis}
+
+\begin{handrecipedef}
+\textbf{\ac{FITS} file structure:}\\
+Name: & \RAW{LM_SLITLOSSES_RAW}\\[0.3cm]
+Description: & Raw exposure for determining the \ac{ADC} slitlosses.\\[0.3cm]
+\FITS{DPR.CATG}: & \CODE{CALIB}\\
+\FITS{DPR.TECH}: & \CODE{LSS,LM} \\
+\FITS{DPR.TYPE}: & \CODE{SLITLOSS} \\[0.3cm]
+OCA keywords: & \FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE}, \FITS{DRS.SLIT}\\
+\FITS{DO.CATG}: & \CODE{LM_SLITLOSSES_RAW}\\[0.3cm]
+Template: & \TPL{METIS_spec_lm_cal_SlitAdc}\\
+%Input for recipes: & \REC{metis_lm_lss_std}\\
+%& \REC{metis_lm_lss_sci}\\
+Input for recipes:    & \REC{metis_lm_adc_slitloss} \\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+%\paragraph{\PROD{LM_RSRF_RAW}}\label{drsstructure:LM_RSRF_RAW}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+    \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.SLIT})}
+    \item \texttt{hdrl\_image * image: Single image}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+% ##################################################################################### LM SLITLOSS RAW 
+% HANDWRITTEN: N_SLITLOSSES_RAW: no such data item in pymetis
+\paragraph{\RAW{N_SLITLOSSES_RAW}}\label{dataitem:n_slitlosses_raw}
+\notgenerated{no such data item in pymetis}
+
+\begin{handrecipedef}
+\textbf{\ac{FITS} file structure:}\\
+Name: & \RAW{N_SLITLOSSES_RAW}\\[0.3cm]
+Description: & Raw exposure for determining the \ac{ADC} slitlosses.\\[0.3cm]
+\FITS{DPR.CATG}: & \CODE{CALIB}\\
+\FITS{DPR.TECH}: & \CODE{LSS,N} \\
+\FITS{DPR.TYPE}: & \CODE{SLITLOSS} \\[0.3cm]
+OCA keywords: & \FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE}, \FITS{DRS.SLIT}\\
+\FITS{DO.CATG}: & \CODE{N_SLITLOSSES_RAW}\\[0.3cm]
+Template: & \TPL{METIS_spec_n_cal_slit}\\
+%Input for recipes: & \REC{metis_n_lss_std}\\
+%& \REC{metis_n_lss_sci}\\
+Input for recipes: & \REC{metis_n_adc_slitloss} \\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+%\paragraph{\PROD{LM_RSRF_RAW}}\label{drsstructure:LM_RSRF_RAW}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+    \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.SLIT})}
+    \item \texttt{hdrl\_image * image: Single image}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+% ##################################################################################### LM RSRF RAW 
+\input{generated/items/LM_LSS_RSRF_RAW}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_RSRF_PINH_RAW}
+%\TODO{CAVEAT: These obs are neither defined in the calib plan nor in the template manual yet! ToBe added after FDR}}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_WAVE_RAW}
+
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_STD_RAW}
+
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_SCI_RAW}
+
+
+% ##################################################################################### N RSRF RAW 
+\input{generated/items/N_LSS_RSRF_RAW}
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_WAVE_RAW}
+
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_RSRF_PINH_RAW}
+%\TODO{CAVEAT: These obs are neither defined in the calib plan nor in the template manual yet! ToBe added after FDR}}
+% ##################################################################################### 
+\input{generated/items/N_LSS_STD_RAW}
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_SCI_RAW}
+
+% #####################################################################################
+% HANDWRITTEN: LM_LSS_SKY_RAW: no such data item in pymetis
+\paragraph{\RAW{LM_LSS_SKY_RAW}}\label{dataitem:lm_lss_sky_raw}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} file structure:}\\
+Name: & \RAW{LM_LSS_SKY_RAW}\\[0.3cm]
+Description: & Blank sky exposure, optional. \\[0.3cm]
+\FITS{DPR.CATG}: & \CODE{CALIB}\\
+\FITS{DPR.TECH}: & \CODE{LSS,LM} \\
+\FITS{DPR.TYPE}: & \CODE{SKY} \\[0.3cm]
+OCA keywords: & \FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME}, \FITS{INS.OPTI10.NAME}, \FITS{INS.OPTI11.NAME}, \FITS{DRS.SLIT}\\
+\FITS{DO.CATG}: & \CODE{LM_LSS_SKY_RAW}\\[0.3cm]
+Templates:   & \TPL{METIS_spec_lm_obs_AutoNodOnSlit}\\
+             & \TPL{METIS_spec_lmn_obs_AutoChopNodOnSlit}\\
+             & \TPL{METIS_spec_lm_obs_GenericOffset}\\
+% TODO: Decide whether we indeed need LM_LSS_SKY_RAW.
+Input for recipe: & \\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+    \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{INS.OPTI11.NAME}, \FITS{DRS.SLIT})}
+    \item \texttt{hdrl\_image * image: Single image}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+% #####################################################################################
+% HANDWRITTEN: N_LSS_SKY_RAW: no such data item in pymetis
+\paragraph{\RAW{N_LSS_SKY_RAW}}\label{dataitem:n_lss_sky_raw}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} file structure:}\\
+Name: & \RAW{N_LSS_SKY_RAW}\\[0.3cm]
+Description: & Blank sky exposure, optional. \\[0.3cm]
+\FITS{DPR.CATG}: & \CODE{CALIB}\\
+\FITS{DPR.TECH}: & \CODE{LSS,N} \\
+\FITS{DPR.TYPE}: & \CODE{SKY} \\[0.3cm]
+OCA keywords: & \FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI11.NAME}, \FITS{INS.OPTI12.NAME}, \FITS{INS.OPTI13.NAME} , \FITS{INS.OPTI14.NAME}, \FITS{DRS.SLIT}\\
+\FITS{DO.CATG}: & \CODE{N_LSS_SKY_RAW}\\[0.3cm]
+Templates:   & \TPL{METIS_spec_lm_obs_AutoNodOnSlit}\\
+             & \TPL{METIS_spec_lmn_obs_AutoChopNodOnSlit}\\
+             & \TPL{METIS_spec_lm_obs_GenericOffset}\\
+% TODO: Decide whether we indeed need N_LSS_SKY_RAW.
+Input for recipe: & \\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+    \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI11.NAME}, \FITS{INS.OPTI12.NAME}, \FITS{INS.OPTI13.NAME} , \FITS{INS.OPTI14.NAME}, \FITS{DRS.SLIT})}
+    \item \texttt{hdrl\_image * image: Single image}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+\clearpage
+\subsubsection{Master calibration / intermediate data item structures}\label{sssec:lssprocdatastructs}
+
+% ##################################################################################### 
+\input{generated/items/MASTER_LM_LSS_RSRF}
+
+% ##################################################################################### 
+\input{generated/items/MEDIAN_LM_LSS_RSRF}
+% ##################################################################################### 
+\input{generated/items/MEAN_LM_LSS_RSRF}
+
+% ##################################################################################### 
+\input{generated/items/MASTER_N_LSS_RSRF}
+
+
+
+% ##################################################################################### 
+\input{generated/items/MEDIAN_N_LSS_RSRF}
+
+% ##################################################################################### 
+\input{generated/items/MEAN_N_LSS_RSRF}
+
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_TRACE}
+
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_TRACE}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_CURVE}
+
+% ##################################################################################### 
+
+% generated by pymetis: metisp/drld/generate_drld.py N_LSS_CURVE
+\input{generated/items/N_LSS_CURVE}
+
+\input{generated/items/LM_LSS_DIST_SOL}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_WAVE_GUESS}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_STD_OBJ_MAP}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_STD_SKY_MAP}
+% ##################################################################################### 
+\input{generated/items/LM_LSS_STD_1D}
+
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_STD_OBJ_MAP}
+% ##################################################################################### 
+\input{generated/items/N_LSS_STD_SKY_MAP}
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_STD_1D}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_SCI_OBJ_MAP}
+% ##################################################################################### 
+\input{generated/items/LM_LSS_SCI_SKY_MAP}
+% ##################################################################################### 
+\input{generated/items/LM_LSS_SCI_2D}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_SCI_1D}
+
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_SCI_OBJ_MAP}
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_SCI_SKY_MAP}
+% ##################################################################################### 
+\input{generated/items/N_LSS_SCI_2D}
+% ##################################################################################### 
+\input{generated/items/N_LSS_SCI_1D}
+
+% ##################################################################################### 
+\input{generated/items/STD_TRANSMISSION}
+
+
+% ##################################################################################### 
+\input{generated/items/MASTER_LM_RESPONSE}
+
+% ##################################################################################### 
+\input{generated/items/MASTER_N_RESPONSE}
+% ##################################################################################### 
+\input{generated/items/MF_BEST_FIT_TAB}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_SYNTH_TRANS}
+% ##################################################################################### 
+\input{generated/items/N_LSS_SYNTH_TRANS}
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_STD_WAVE}
+% Input for:    & \REC{metis_n_lss_sci} \\
+
+% ##################################################################################### 
+%\paragraph{\PROD{}}\label{dataitem:}
+
+% ##################################################################################### 
+%\paragraph{\PROD{}}\label{dataitem:}
+
+% ##################################################################################### 
+%\paragraph{\PROD{}}\label{dataitem:}
+
+\clearpage
+\subsubsection{Final data item structures}\label{sssec:lssfinaldatastructs}
+The pipeline aims for final data products following the data format described in the \ac{SDP}-document (\cite{ESO-products_standard}). We therefore give here only those final files, which are intended to be supplementary final data products.
+% ##################################################################################### 
+\input{generated/items/LM_LSS_SCI_FLUX_2D}
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_SCI_FLUX_2D}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_SCI_FLUX_1D}
+
+% ##################################################################################### 
+\input{generated/items/N_LSS_SCI_FLUX_1D}
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_STD_WAVE}
+
+
+% ##################################################################################### 
+\input{generated/items/LM_LSS_SCI_FLUX_TELLCORR_1D}
+% ##################################################################################### 
+\input{generated/items/N_LSS_SCI_FLUX_TELLCORR_1D}
+
+\subsubsection{Data items defined by the pipeline}
+Data items pymetis defines that the DRLD has no card for.
+\input{generated/items/LM_ADC_SLITLOSS_RAW}
+\input{generated/items/N_ADC_SLITLOSS_RAW}

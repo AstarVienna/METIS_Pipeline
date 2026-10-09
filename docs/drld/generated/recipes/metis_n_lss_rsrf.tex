@@ -1,0 +1,29 @@
+\begin{recipedef}
+  Name:                & \REC{metis_n_lss_rsrf} \\
+  Purpose:             & Create spectroscopic relative spectral response function (RSRF) for the GEO detector \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{N_LSS_RSRF_RAW} (1--N) \\
+                       & \RAW{N_WCU_OFF_RAW} (1--N) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_GEO} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_GEO}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_GEO}} \\
+                       & \PROD{MASTER_DARK_GEO} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.SLIT} \\
+  Parameters:          & \CODE{metis_n_lss_rsrf.stacking.method}\newline Name of the method used to combine the input images (\texttt{average}, \texttt{median}), default \texttt{median} \\
+  Algorithm:           & Fancy algorithm description follows ***TBD*** \\
+  Output data:         & \PROD{MASTER_N_LSS_RSRF} \\
+                       & \PROD{MEAN_N_LSS_RSRF} \\
+                       & \PROD{MEDIAN_N_LSS_RSRF} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC N LSS RSRF INTORDR LEVEL} \\
+                       & \QC{QC N LSS RSRF MEAN LEVEL} \\
+                       & \QC{QC N LSS RSRF MEDIAN LEVEL} \\
+                       & \QC{QC N LSS RSRF NORM SNR} \\
+                       & \QC{QC N LSS RSRF NORM STDEV} \\
+\end{recipedef}
+

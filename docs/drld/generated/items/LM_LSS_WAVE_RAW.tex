@@ -1,0 +1,22 @@
+\paragraph{\RAW{LM_LSS_WAVE_RAW}} \label{dataitem:lm_lss_wave_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{LM_LSS_WAVE_RAW}\\[0.3cm]
+        Description: & Raw LSS spectra of the WCU lasers in LM band \\[0.3cm]
+        OCA keywords: & \FITS{DPR.CATG}\\
+         & \FITS{DPR.TECH}\\
+         & \FITS{DPR.TYPE}\\
+        \FITS{DO.CATG}: & \CODE{LM_LSS_WAVE_RAW}\\[0.3cm]
+            Input for recipe: & \REC{metis_lm_lss_wave} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

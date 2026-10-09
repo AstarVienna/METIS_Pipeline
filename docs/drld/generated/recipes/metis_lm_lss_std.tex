@@ -1,0 +1,49 @@
+\begin{recipedef}
+  Name:                & \REC{metis_lm_lss_std} \\
+  Purpose:             & Reduction of the standard star frames for determining the response function (flux calibration) and/or the transmission (telluric correction) \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{LM_LSS_STD_RAW} (1--N) \\
+  Secondary inputs:    & \EXTCALIB{AO_PSF_MODEL} \\
+                       & \EXTCALIB{ATM_LINE_CAT} \\
+                       & \PROD{BADPIX_MAP_2RG} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_2RG}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_2RG}} \\
+                       & \STATCALIB{LM_ADC_SLITLOSS} \\
+                       & \PROD{LM_LSS_DIST_SOL} \\
+                       & \PROD{LM_LSS_WAVE_GUESS} \\
+                       & \STATCALIB{LM_SYNTH_TRANS} \\
+                       & \PROD{MASTER_DARK_2RG} \\
+                       & \PROD{MASTER_LM_LSS_RSRF} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} \\
+                       & \STATCALIB{REF_STD_CAT} \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.SLIT} \\
+  Parameters:          & \CODE{metis_lm_lss_std.parameter1}\newline Description of parameter 1 (\texttt{value2}, \texttt{value1}), default \texttt{value1} \\
+  Algorithm:           & Fancy algorithm description follows ***TBD*** \\
+  Output data:         & \PROD{LM_LSS_STD_1D} \\
+                       & \PROD{LM_LSS_STD_OBJ_MAP} \\
+                       & \PROD{LM_LSS_STD_SKY_MAP} \\
+                       & \PROD{LM_LSS_STD_WAVE} \\
+                       & \PROD{MASTER_LM_RESPONSE} \\
+                       & \PROD{STD_TRANSMISSION} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC LM LSS STD AVGLEVEL} \\
+                       & \QC{QC LM LSS STD BACKGD MEAN} \\
+                       & \QC{QC LM LSS STD BACKGD MEDIAN} \\
+                       & \QC{QC LM LSS STD BACKGD STDEV} \\
+                       & \QC{QC LM LSS STD FWHM} \\
+                       & \QC{QC LM LSS STD INTORDR LEVEL} \\
+                       & \QC{QC LM LSS STD NOISELEV} \\
+                       & \QC{QC LM LSS STD PSFLOSS} \\
+                       & \QC{QC LM LSS STD SNR} \\
+                       & \QC{QC LM LSS STD WAVECAL DEVMEAN} \\
+                       & \QC{QC LM LSS STD WAVECAL FWHM} \\
+                       & \QC{QC LM LSS STD WAVECAL NIDENT} \\
+                       & \QC{QC LM LSS STD WAVECAL NMATCH} \\
+                       & \QC{QC LM LSS STD WAVECAL POLYCOEFFn} \\
+                       & \QC{QC LM LSS STD WAVECAL POLYDEG} \\
+\end{recipedef}
+

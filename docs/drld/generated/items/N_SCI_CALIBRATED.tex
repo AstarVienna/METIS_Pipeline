@@ -1,0 +1,24 @@
+\paragraph{\PROD{N_SCI_CALIBRATED}} \label{dataitem:n_sci_calibrated}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{N_SCI_CALIBRATED}\\[0.3cm]
+        Description: & N band image with flux calibration and distortion information \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_SCI_CALIBRATED} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_SCI_CALIBRATED}\\[0.3cm]
+            Created by: & \REC{metis_n_img_calibrate} \\
+            Input for: & \REC{metis_img_adi_cgrph} \\
+                        & \REC{metis_n_img_restore} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

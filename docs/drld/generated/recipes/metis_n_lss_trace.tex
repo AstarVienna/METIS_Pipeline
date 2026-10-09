@@ -1,0 +1,28 @@
+\begin{recipedef}
+  Name:                & \REC{metis_n_lss_trace} \\
+  Purpose:             & Detection of N order location on the GEO detector \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{N_LSS_RSRF_PINH_RAW} (1--N) \\
+                       & \RAW{N_WCU_OFF_RAW} (1--N) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_GEO} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_GEO}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_GEO}} \\
+                       & \PROD{MASTER_DARK_GEO} \\
+                       & \PROD{MASTER_N_LSS_RSRF} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.SLIT} \\
+  Parameters:          & \CODE{metis_n_lss_trace.parameter1}\newline Description of parameter 1 (\texttt{value2}, \texttt{value1}), default \texttt{value1} \\
+  Algorithm:           & Fancy algorithm description follows ***TBD*** \\
+  Output data:         & \PROD{N_LSS_TRACE} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC N LSS TRACE INTORDR LEVEL} \\
+                       & \QC{QC N LSS TRACE LCOEFForder} \\
+                       & \QC{QC N LSS TRACE LPOLYDEG} \\
+                       & \QC{QC N LSS TRACE RCOEFForder} \\
+                       & \QC{QC N LSS TRACE RPOLYDEG} \\
+\end{recipedef}
+

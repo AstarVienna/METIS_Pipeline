@@ -1,0 +1,20 @@
+\paragraph{\RAW{N_ADC_SLITLOSS_RAW}} \label{dataitem:n_adc_slitloss_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{N_ADC_SLITLOSS_RAW}\\[0.3cm]
+        Description: & Raw files for ADC slitloss determination (TBD). \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_ADC_SLITLOSS_RAW}\\[0.3cm]
+            Input for recipe: & \REC{metis_n_adc_slitloss} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

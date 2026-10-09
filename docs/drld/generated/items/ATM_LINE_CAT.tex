@@ -1,0 +1,26 @@
+\paragraph{\EXTCALIB{ATM_LINE_CAT}} \label{dataitem:atm_line_cat}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \EXTCALIB{ATM_LINE_CAT}\\[0.3cm]
+        Description: & Catalogue containing a line list of atmospheric molecular lines \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{ATM_LINE_CAT} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{ATM_LINE_CAT}\\[0.3cm]
+            Input for: & \REC{metis_lm_lss_mf_calctrans} \\
+                        & \REC{metis_lm_lss_mf_model} \\
+                        & \REC{metis_lm_lss_std} \\
+                        & \REC{metis_n_lss_mf_calctrans} \\
+                        & \REC{metis_n_lss_mf_model} \\
+                        & \REC{metis_n_lss_std} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

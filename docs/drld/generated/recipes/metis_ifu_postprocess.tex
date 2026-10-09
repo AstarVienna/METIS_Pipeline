@@ -1,0 +1,22 @@
+\begin{recipedef}
+  Name:                & \REC{metis_ifu_postprocess} \\
+  Purpose:             & Coaddition and mosaicing of reduced science cubes. \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \PROD{IFU_SCI_CUBE_CALIBRATED} (1--N) \\
+  Secondary inputs:    & --- none --- \\
+  Matched keywords:    & \FITS{DRS.IFU} \\
+  Parameters:          & \CODE{metis_ifu_postprocess.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}, \texttt{sigclip}), default \texttt{average} \\
+  Algorithm:           & Call metis\_ifu\_grid\_output to find the output grid encompassing all input cubes \\
+                       & Call metis\_ifu\_resampling to resample input cubes to output grid \\
+                       & Call metis\_ifu\_coadd to stack the images \\
+  Output data:         & \PROD{IFU_SCI_COADD} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC IFU POSTPROC DELTAC} \\
+                       & \QC{QC IFU POSTPROC GRIDRNG} \\
+                       & \QC{QC IFU POSTPROC MEDMEAN} \\
+                       & \QC{QC IFU POSTPROC MEDMED} \\
+                       & \QC{QC IFU POSTPROC MEDRMS} \\
+\end{recipedef}
+

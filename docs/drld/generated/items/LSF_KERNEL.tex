@@ -1,0 +1,25 @@
+\paragraph{\STATCALIB{LSF_KERNEL}} \label{dataitem:lsf_kernel}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \STATCALIB{LSF_KERNEL}\\[0.3cm]
+        Description: & Wavelength dependent model of the LSF \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LSF_KERNEL} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LSF_KERNEL}\\[0.3cm]
+            Input for: & \REC{metis_ifu_telluric} \\
+                        & \REC{metis_lm_lss_mf_calctrans} \\
+                        & \REC{metis_lm_lss_mf_model} \\
+                        & \REC{metis_n_lss_mf_calctrans} \\
+                        & \REC{metis_n_lss_mf_model} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

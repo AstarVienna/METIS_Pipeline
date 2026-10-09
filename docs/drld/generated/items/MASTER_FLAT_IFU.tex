@@ -1,0 +1,25 @@
+\paragraph{\PROD{MASTER_FLAT_IFU}} \label{dataitem:master_flat_ifu}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{MASTER_FLAT_IFU}\\[0.3cm]
+        Description: & Abstract base class for master flats. Please subclass. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{MASTER_FLAT_IFU} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{MASTER_FLAT_IFU}\\[0.3cm]
+            Created by: & \REC{metis_ifu_rsrf} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_sci: Extension DET1.SCI}
+            \item \texttt{hdrl\_image * det2\_sci: Extension DET2.SCI}
+            \item \texttt{hdrl\_image * det3\_sci: Extension DET3.SCI}
+            \item \texttt{hdrl\_image * det4\_sci: Extension DET4.SCI}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

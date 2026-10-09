@@ -1,0 +1,22 @@
+\paragraph{\PROD{LM_DIST_REDUCED}} \label{dataitem:lm_dist_reduced}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_DIST_REDUCED}\\[0.3cm]
+        Description: & Stacked LM pinhole exposure for the distortion determination \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_DIST_REDUCED} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_DIST_REDUCED}\\[0.3cm]
+            Created by: & \REC{metis_lm_img_distortion} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * image: Extension IMAGE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

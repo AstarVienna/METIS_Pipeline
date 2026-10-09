@@ -1,0 +1,23 @@
+\paragraph{\RAW{DETLIN_det_RAW}} \label{dataitem:detlin_det_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{DETLIN_det_RAW}\\[0.3cm]
+        Description: & Raw data for non-linearity determination for \{detector\} observations \\[0.3cm]
+        OCA keywords: & \FITS{DPR.CATG}\\
+         & \FITS{DPR.TECH}\\
+         & \FITS{DPR.TYPE}\\
+        \FITS{DO.CATG}: & \CODE{DETLIN_det_RAW}\\[0.3cm]
+            Input for recipe: & \REC{metis_det_lingain} \\
+        Instances: & \RAW{DETLIN_2RG_RAW}, \RAW{DETLIN_GEO_RAW}, \RAW{DETLIN_IFU_RAW} \\[0.3cm]
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -1,0 +1,22 @@
+\paragraph{\PROD{IFU_SCI_COADD}} \label{dataitem:ifu_sci_coadd}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{IFU_SCI_COADD}\\[0.3cm]
+        Description: & Spectral cube of science object, a coadd of a number ofreduced IFU exposures covering a different spatial and wavelength ranges. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{IFU_SCI_COADD} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{IFU_SCI_COADD}\\[0.3cm]
+            Created by: & \REC{metis_ifu_postprocess} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * image: Extension IMAGE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

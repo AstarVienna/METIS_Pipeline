@@ -1,0 +1,31 @@
+\begin{recipedef}
+  Name:                & \REC{metis_lm_img_std_process} \\
+  Purpose:             & Determine the conversion factor between detector counts and physical source flux \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \PROD{LM_STD_BKG_SUBTRACTED} (1--N) \\
+  Secondary inputs:    & \EXTCALIB{FLUXSTD_CATALOG} \\
+  Matched keywords:    & \FITS{DRS.FILTER} \\
+  Parameters:          & \CODE{metis_lm_img_std_process.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}, \texttt{sigclip}), default \texttt{average} \\
+  Algorithm:           & Call metis\_lm\_calculate\_std\_flux to measure flux in input images \\
+                       & call hdrl\_resample\_compute to recenter the images \\
+                       & call hdrl\_imagelist\_collapse to stack the images \\
+                       & call metis\_lm\_calculate\_std\_flux on the stacked image to get flux of the star in detector units \\
+                       & call metis\_calculate\_std\_fluxcal to calculate the conversion factor to physical units \\
+                       & call metis\_calculate\_detection\_limits to compute background noise (std, rms) and compute detection limits \\
+  Output data:         & \PROD{FLUXCAL_TAB} \\
+                       & \PROD{LM_STD_COMBINED} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC LM STD AIRMASS} \\
+                       & \QC{QC LM STD APERTURE CNTS} \\
+                       & \QC{QC LM AREA SENS} \\
+                       & \QC{QC LM IMG STD BACKGD RMS} \\
+                       & \QC{QC LM STD ELLIP} \\
+                       & \QC{QC LM STD FLUXCONV} \\
+                       & \QC{QC LM STD FWHM} \\
+                       & \QC{QC LM STD PEAK CNTS} \\
+                       & \QC{QC LM SENS} \\
+                       & \QC{QC LM STD STREHL} \\
+\end{recipedef}
+

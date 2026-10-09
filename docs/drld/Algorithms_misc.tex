@@ -1,0 +1,50 @@
+\subsection{Miscellanea}
+\label{ssec:miscellanea}
+
+% HB 20230728: According to Thomas Bertran:
+%     For any given observation corresponding angles in the FITS file should come from the telescope itself and should
+%     not be calculated by this formula, as the telescope has a more precise knowledge of the angles.
+% \subsubsection{Parallactic angle}
+% \label{sssec:parallactic_angle}
+%
+% The parallactic angle is the angle between the meridian (direction to the celestial north pole) and the hour circle (direction to the zenith) through the target at the time of an observation. Given hour angle $h$ and declination $\delta$ of the target, as well as the latitude $\phi$ of the observatory, the parallactic angle $\eta$ is given by
+% \begin{equation}
+%   \label{eq:parallactic_angle}
+%   \tan\eta = \frac{\cos\phi\sin h}{\sin\phi \cos\delta - \cos\phi \sin\delta \cos h}
+% \end{equation}
+% The hour angle is computed from the telescope's pointing altitude and azimuth, or from the target's right ascension and the sidereal time stamp of the exposure.
+
+\subsubsection{Gain}
+\label{sssec:gain}
+
+The variance $N_{c}^{2}$ is related to the signal $S_{c}$ via~\cite[Section 9.1]{McLean2008}:
+\begin{equation}
+  \label{eq:signal-variance}
+  N_{c}^{2} = \frac{1}{g} S_{c} + R_{c}^{2},
+\end{equation}
+where $g$ is the gain and $R_{c}$ the readout noise. All quantities with subscript $c$ are in counts (ADU).
+
+\subsubsection{Conversion of wavelengths between vacuum and air regime}\label{ssec:vacair}
+
+Since METIS measures spectral lines inside a vacuum cryostat, it only makes
+sense that the DRL will use vacuum wavelengths throughout, both for long-slit
+and IFU spectroscopy. The line lists are an external input to the pipeline, and
+if needed the wavelengths can be transformed as follows.
+
+For the conversion of $\lambda_\textrm{vac}$ to $\lambda_\textrm{air}$ the \ac{IAU} standard formula provided by Donald Morton~\cite{mor00} $\lambda_\textrm{air}=\lambda_\textrm{vac}/n$ is used, where
+
+\begin{align}
+    s &=10^4 / \lambda_{\textrm{vac}}\\
+    n &= 1+0.0000834254 + \frac{0.02406147}{(130 - s^2)} + \frac{0.00015998}{(38.9 - s^2)} \label{eq:air2vacB}
+\end{align}
+
+The reverse transform $\lambda_\textrm{air}$ to $\lambda_\textrm{vac}$ was derived by N. Piskunov\footnote{\url{https://www.astro.uu.se/valdwiki/Air-to-vacuum\%20conversion}}, being $\lambda_\textrm{vac}=\lambda_\textrm{air}*n$ with 
+
+\begin{align}
+    s&=10^4 / \lambda_{\textrm{air}}\\
+    n&=1 + 0.000083366242 + \frac{0.0240892687}{(130.106592452 - s^2)} + \frac{0.00015997409}{(38.925687933 - s^2)} \label{eq:vac2air}
+\end{align}
+
+%%% Local Variables:
+%%% TeX-master: "METIS_DRLD"
+%%% End:

@@ -1,0 +1,40 @@
+\begin{recipedef}
+  Name:                & \REC{metis_det_lingain} \\
+  Purpose:             & Measure detector non-linearity and gain \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{DETLIN_det_RAW} (1--N) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_det} (optional) \\
+  Matched keywords:    & --- none --- \\
+  Parameters:          & \CODE{metis_det_lingain.fitdegree}\newline Degree of polynomial that is fit to linearity correction function, default \texttt{1} \\
+                       & \CODE{metis_det_lingain.kappa}\newline Kappa factor for sigma clipping for BPM. Values that deviate more than kappa*sigma from the median linearity are flagged., default \texttt{3} \\
+                       & \CODE{metis_det_lingain.linlimit}\newline Limit in ADU above which counts are excluded from both gain calculation and linearity correction function, default \texttt{22000.0} \\
+                       & \CODE{metis_det_lingain.truelimit}\newline Limit in ADU to consider as true linear. All flux rates will be corrected to the weighted average flux rate defined by the pixel values below this limit., default \texttt{10000.0} \\
+  Algorithm:           & We expect two on and two dark (here named off) images per DIT \\
+                       & for the Gain and Linearity calculation, similar to ESO's DETMON. \\
+                       & The gain is determined from the slope of the average flux \\
+                       & of the on-off maps and the variance of the on-on and off-off maps. \\
+                       & A gain correction factor is applied to correct for the inter pixel capacitance. \\
+                       & The noise on the gain is derived by resampling with replacement. \\
+                       & The linearity is determined following the CRIRES approach where for every pixel the flux rate \\
+                       & (ADU/s; including dark current) is calculated and the weighted average of the flux rate \\
+                       & at the lowest (most linear) fluxes are taken as the true ADU/s flux rate \\
+                       & to which all flux rates should be corrected. \\
+                       & This directly defines a correction factor as a function of flux with \\
+                       & the most linear fluxes having a correction close to 1. \\
+                       & An Nth order polynomial is fit (np.polyfit; taking into account errors) to these correction values as function of flux. \\
+                       & We add pixels with linearity coefficients that are significantly different from the mean to the BPM (astropy.stats.sigma\_clip). \\
+  Output data:         & \PROD{BADPIX_MAP_det} \\
+                       & \STATCALIB{GAIN_MAP_det} \\
+                       & \PROD{LINEARITY_det} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC GAIN COEFF} \\
+                       & \QC{QC GAIN LIN} \\
+                       & \QC{QC LIN GAIN MEAN} \\
+                       & \QC{QC LIN GAIN RMS} \\
+                       & \QC{QC LIN MAX FLUX} \\
+                       & \QC{QC LIN MIN FLUX} \\
+                       & \QC{QC LIN NUM BADPIX} \\
+\end{recipedef}
+
