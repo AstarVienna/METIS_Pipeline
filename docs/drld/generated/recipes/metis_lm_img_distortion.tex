@@ -12,7 +12,7 @@
                        & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
                        & \EXTCALIB{PINHOLE_TABLE} \\
   Matched keywords:    & \FITS{DRS.FILTER} \\
-  Parameters:          & \CODE{metis_lm_img_distortion.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}, \texttt{sigclip}), default \texttt{average} \\
+  Parameters:          & \CODE{metis_lm_img_distortion.stacking.method}: string\newline Name of the method used to combine the input images (\texttt{add}, \underline{\texttt{average}}, \texttt{median}, \texttt{sigclip}) \\
   Algorithm:           & Subtract background image with \texttt{hdrl\_imagelist\_sub\_image}. \\
                        & Measure location of point source images in frames with \texttt{hdrl\_catalogue\_create}. \\
                        & Call metis\_fit\_distortion to fit polynomial coefficients to deviations from grid positions. \\

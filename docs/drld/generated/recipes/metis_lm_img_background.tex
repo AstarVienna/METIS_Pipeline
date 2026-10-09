@@ -7,7 +7,7 @@
   Primary input:       & \PROD{LM_SCI_BASIC_REDUCED} or \PROD{LM_SKY_BASIC_REDUCED} or \PROD{LM_STD_BASIC_REDUCED} \\
   Secondary inputs:    & \PROD{LM_SKY_BASIC_REDUCED} \\
   Matched keywords:    & \FITS{DRS.FILTER} \\
-  Parameters:          & \CODE{metis_lm_img_background.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}), default \texttt{add} \\
+  Parameters:          & \CODE{metis_lm_img_background.stacking.method}: string\newline Name of the method used to combine the input images (\underline{\texttt{add}}, \texttt{average}, \texttt{median}) \\
   Algorithm:           & Average all or SKY exposures with object rejection \\
                        & Subtract background \\
   Output data:         & \PROD{LM_SCI_BKG} or \PROD{LM_STD_BKG} \\

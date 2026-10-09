@@ -562,6 +562,24 @@ class Catalogue:
         return {name for _, inp in recipe._list_inputs()
                 for name in re.findall(r'\{(\w+)\}', self.input_tag(recipe, inp))}
 
+    PARAMETER_TYPES = {cpl.core.Type.INT: 'int', cpl.core.Type.DOUBLE: 'float', cpl.core.Type.BOOL: 'bool',
+                       cpl.core.Type.STRING: 'string'}
+
+    def parameter_row(self, parameter) -> str:
+        """
+        `name: type` on the first line, the description on the next. A range shows its bounds with the type,
+        an enumeration lists its alternatives once with the default underlined, anything else names its default.
+        """
+        kind = self.PARAMETER_TYPES.get(parameter.data_type, str(parameter.data_type).lower())
+        if isinstance(parameter, cpl.ui.ParameterRange):
+            kind += rf' in $[{latex(parameter.min)}, {latex(parameter.max)}]$'
+        row = rf'\CODE{{{parameter.name}}}: {kind}\newline {self.prose(parameter.description)}'   # \CODE is lstinline: verbatim
+        if isinstance(parameter, cpl.ui.ParameterEnum):
+            choices = [rf'\underline{{\texttt{{{latex(a)}}}}}' if a == parameter.default else rf'\texttt{{{latex(a)}}}'
+                       for a in parameter.alternatives]
+            return row + ' (' + ', '.join(choices) + ')'
+        return row + rf', default \texttt{{{latex(parameter.default)}}}'
+
     def recipe_card(self, name: str) -> RecipeCard:
         recipe = self.recipes[name]
 
@@ -577,13 +595,7 @@ class Catalogue:
                 row += ' (optional)'
             (primary_inputs if input_class.is_primary() else secondary_inputs).append(row)
 
-        parameters = []
-        for parameter in recipe.parameters:
-            row = rf'\CODE{{{parameter.name}}}\newline {self.prose(parameter.description)}'   # verbatim: \CODE is lstinline, a \_ there escapes to text
-            if (alternatives := getattr(parameter, 'alternatives', None)) is not None:
-                row += ' (' + ', '.join(rf'\texttt{{{latex(a)}}}' for a in alternatives) + ')'
-            row += rf', default \texttt{{{latex(parameter.default)}}}'
-            parameters.append(row)
+        parameters = [self.parameter_row(parameter) for parameter in recipe.parameters]
 
         # The algorithm is free text with `code` spans: escaped, mentions linked, other spans in typewriter.
         algorithm = [self.prose(line.strip()) for line in recipe._algorithm.splitlines() if line.strip()]

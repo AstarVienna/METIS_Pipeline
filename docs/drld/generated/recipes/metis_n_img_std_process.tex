@@ -7,7 +7,7 @@
   Primary input:       & \PROD{N_STD_BKG_SUBTRACTED} (N$\times$) \\
   Secondary inputs:    & \EXTCALIB{FLUXSTD_CATALOG} \\
   Matched keywords:    & \FITS{DRS.FILTER} \\
-  Parameters:          & \CODE{metis_n_img_std_process.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}, \texttt{sigclip}), default \texttt{average} \\
+  Parameters:          & \CODE{metis_n_img_std_process.stacking.method}: string\newline Name of the method used to combine the input images (\texttt{add}, \underline{\texttt{average}}, \texttt{median}, \texttt{sigclip}) \\
   Algorithm:           & Call metis\_n\_calculate\_std\_flux to measure flux in input images \\
                        & call hdrl\_resample\_compute to recenter the images \\
                        & call hdrl\_imagelist\_collapse to stack the images \\

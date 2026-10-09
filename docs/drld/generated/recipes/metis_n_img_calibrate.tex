@@ -8,7 +8,7 @@
   Secondary inputs:    & \PROD{FLUXCAL_TAB} \\
                        & \PROD{N_DISTORTION_TABLE} \\
   Matched keywords:    & \FITS{DRS.FILTER} \\
-  Parameters:          & \CODE{metis_n_img_calibrate.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}, \texttt{sigclip}), default \texttt{average} \\
+  Parameters:          & \CODE{metis_n_img_calibrate.stacking.method}: string\newline Name of the method used to combine the input images (\texttt{add}, \underline{\texttt{average}}, \texttt{median}, \texttt{sigclip}) \\
   Algorithm:           & Call metis\_n\_scale\_image\_flux to scale image data to photon / s \\
                        & Add header information (BUNIT, WCS, etc.) \\
   Output data:         & \PROD{N_SCI_CALIBRATED} \\

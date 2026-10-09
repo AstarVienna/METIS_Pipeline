@@ -7,7 +7,7 @@
   Primary input:       & \PROD{N_SCI_CALIBRATED} \\
   Secondary inputs:    & --- none --- \\
   Matched keywords:    & \FITS{DRS.FILTER} \\
-  Parameters:          & \CODE{metis_n_img_restore.cutout_size}\newline Name of the method used to combine the input images, default \texttt{0} \\
+  Parameters:          & \CODE{metis_n_img_restore.cutout_size}: int\newline Name of the method used to combine the input images, default \texttt{0} \\
   Algorithm:           & Call metis\_cutout\_region to cut regions around beams \\
                        & Add regions with appropriate signs with \texttt{hdrl\_imagelist\_collapse} \\
   Output data:         & \PROD{N_SCI_RESTORED} \\

@@ -16,8 +16,8 @@
   Matched keywords:    & \FITS{DET.DIT} \\
                        & \FITS{DET.NDIT} \\
                        & \FITS{DRS.IFU} \\
-  Parameters:          & \CODE{metis_ifu_rsrf.stacking.method}\newline Name of the method used to combine the input images (\texttt{average}, \texttt{median}), default \texttt{median} \\
-                       & \CODE{metis_ifu_rsrf.extract.hwidth}\newline Half width of trace for 1D RSRF extraction [pix], default \texttt{20} \\
+  Parameters:          & \CODE{metis_ifu_rsrf.stacking.method}: string\newline Name of the method used to combine the input images (\texttt{average}, \underline{\texttt{median}}) \\
+                       & \CODE{metis_ifu_rsrf.extract.hwidth}: int in $[1, 30]$\newline Half width of trace for 1D RSRF extraction [pix], default \texttt{20} \\
   Algorithm:           & Average / median stack WCU\_OFF images to create background image \\
                        & Obtain bad pixel map from master\_dark \\
                        & Subtract background image from individual RSRF RAW frames \\

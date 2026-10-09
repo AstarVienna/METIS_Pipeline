@@ -9,9 +9,9 @@
                        & \STATCALIB{GAIN_MAP_det} (optional) \\
                        & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
   Matched keywords:    & --- none --- \\
-  Parameters:          & \CODE{metis_det_dark.stacking.method}\newline Name of the method used to combine the input images (\texttt{average}, \texttt{median}, \texttt{sigclip}), default \texttt{average} \\
-                       & \CODE{metis_det_dark.outliers.kappa_low}\newline Lower bound for bad pixel clipping, in standard deviations, default \texttt{5} \\
-                       & \CODE{metis_det_dark.outliers.kappa_high}\newline Upper bound for bad pixel clipping, in standard deviations, default \texttt{5} \\
+  Parameters:          & \CODE{metis_det_dark.stacking.method}: string\newline Name of the method used to combine the input images (\underline{\texttt{average}}, \texttt{median}, \texttt{sigclip}) \\
+                       & \CODE{metis_det_dark.outliers.kappa_low}: int\newline Lower bound for bad pixel clipping, in standard deviations, default \texttt{5} \\
+                       & \CODE{metis_det_dark.outliers.kappa_high}: int\newline Upper bound for bad pixel clipping, in standard deviations, default \texttt{5} \\
   Algorithm:           & - Group files by detector and \texttt{DIT}, based on header keywords \\
                        & - Call function \texttt{metis\_determine\_dark} for each set of files \\
                        & - Call \texttt{metis\_update\_dark\_mask} to flag deviant pixels \\

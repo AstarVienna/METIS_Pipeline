@@ -7,10 +7,10 @@
   Primary input:       & \RAW{DETLIN_det_RAW} (N$\times$) \\
   Secondary inputs:    & \PROD{BADPIX_MAP_det} (optional) \\
   Matched keywords:    & --- none --- \\
-  Parameters:          & \CODE{metis_det_lingain.fitdegree}\newline Degree of polynomial that is fit to linearity correction function, default \texttt{1} \\
-                       & \CODE{metis_det_lingain.kappa}\newline Kappa factor for sigma clipping for BPM. Values that deviate more than kappa*sigma from the median linearity are flagged., default \texttt{3} \\
-                       & \CODE{metis_det_lingain.linlimit}\newline Limit in ADU above which counts are excluded from both gain calculation and linearity correction function, default \texttt{22000.0} \\
-                       & \CODE{metis_det_lingain.truelimit}\newline Limit in ADU to consider as true linear. All flux rates will be corrected to the weighted average flux rate defined by the pixel values below this limit., default \texttt{10000.0} \\
+  Parameters:          & \CODE{metis_det_lingain.fitdegree}: int\newline Degree of polynomial that is fit to linearity correction function, default \texttt{1} \\
+                       & \CODE{metis_det_lingain.kappa}: int\newline Kappa factor for sigma clipping for BPM. Values that deviate more than kappa*sigma from the median linearity are flagged., default \texttt{3} \\
+                       & \CODE{metis_det_lingain.linlimit}: float\newline Limit in ADU above which counts are excluded from both gain calculation and linearity correction function, default \texttt{22000.0} \\
+                       & \CODE{metis_det_lingain.truelimit}: float\newline Limit in ADU to consider as true linear. All flux rates will be corrected to the weighted average flux rate defined by the pixel values below this limit., default \texttt{10000.0} \\
   Algorithm:           & We expect two on and two dark (here named off) images per DIT \\
                        & for the Gain and Linearity calculation, similar to ESO's DETMON. \\
                        & The gain is determined from the slope of the average flux \\

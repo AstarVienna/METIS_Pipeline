@@ -13,9 +13,9 @@
   Matched keywords:    & \FITS{DET.DIT} \\
                        & \FITS{DET.NDIT} \\
                        & \FITS{DRS.FILTER} \\
-  Parameters:          & \CODE{metis_n_img_flat.stacking.method}\newline Name of the method used to combine the input images (\texttt{add}, \texttt{average}, \texttt{median}), default \texttt{average} \\
-                       & \CODE{metis_n_img_flat.outliers.kappa_low}\newline Lower threshold for bad pixels, default \texttt{10} \\
-                       & \CODE{metis_n_img_flat.outliers.kappa_high}\newline Upper threshold for bad pixels, default \texttt{10} \\
+  Parameters:          & \CODE{metis_n_img_flat.stacking.method}: string\newline Name of the method used to combine the input images (\texttt{add}, \underline{\texttt{average}}, \texttt{median}) \\
+                       & \CODE{metis_n_img_flat.outliers.kappa_low}: int\newline Lower threshold for bad pixels, default \texttt{10} \\
+                       & \CODE{metis_n_img_flat.outliers.kappa_high}: int\newline Upper threshold for bad pixels, default \texttt{10} \\
   Algorithm:           & For internal flats: call \REC{metis_det_dark} with LAMP OFF im ages to create dark frame. \\
                        & Subtract internal dark or master dark from flat exposures. \\
                        & Call \REC{metis_n_img_flat} to fit slope of pixel values against illumination level. \\
