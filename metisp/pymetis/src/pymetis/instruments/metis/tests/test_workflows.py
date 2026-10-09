@@ -73,7 +73,6 @@ MULTIPLICITY_DISAGREES = frozenset({         # the recipe takes N frames, the wo
     'metis_n_adc_slitloss', 'metis_n_lss_rsrf', 'metis_n_lss_trace',
 })
 REQUIRED_INPUT_NOT_FED = frozenset({
-    'metis_ifu_postprocess',                 # IFU_SCI_CUBE_CALIBRATED: main input given without a class list
     'metis_lm_lss_mf_model', 'metis_n_lss_mf_model',     # *_LSS_SCI_1D
     'metis_lm_lss_wave',                     # BADPIX_MAP_2RG is required there
     'metis_lm_app_post', 'metis_lm_ravc_post',           # the throughput curve
