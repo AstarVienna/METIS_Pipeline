@@ -419,7 +419,7 @@ class Catalogue:
         for attr, inp in inputs:
             tag = self.input_tag(recipe, inp)
             ref = self.reference(inp.Item, tag, max_alternatives=CHART_ALTERNATIVES, bound=bound)
-            shown = lines(ref, r'\textsl{N} ' if inp.multiplicity() == 'N' else '')
+            shown = lines(ref, r'N$\times$ ' if inp.multiplicity() == 'N' else '')
             if inp.is_primary():
                 if shown not in chart.primary_inputs:     # two inputs of the same item (IFU sky twice)
                     chart.primary_inputs.append(shown)
