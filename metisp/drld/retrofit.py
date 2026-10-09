@@ -9,6 +9,8 @@ Idempotent: a block that is already an `\\input{generated/...}` is left alone, f
 rewritten. It refuses to run on the approved checkout; it is meant for a copy.
 """
 import argparse
+import json
+import os
 import re
 import sys
 from collections import Counter
@@ -25,6 +27,7 @@ from pymetis.engine.dataitems import DataItem  # noqa: E402
 from pymetis.engine.core.functions.format import partial_format  # noqa: E402
 
 APPROVED = Path('/home/kvik/astar/drld')
+PYMETIS_VENV_PYTHON = Path(__file__).resolve().parents[1] / 'pymetis' / '.venv' / 'bin' / 'python'
 ITEM_FILES = {'Detector and common calibrations': 'CalDB_data_items.tex', 'Imaging': 'IMG_data_items.tex',
               'Long-slit spectroscopy': 'LSS_data_items.tex', 'IFU': 'LMS_data_items.tex',
               'High-contrast imaging': 'ADI_data_items.tex'}
@@ -417,9 +420,9 @@ class Retrofit:
         if 'generated/' not in text:
             text = text.replace("\t$$(wildcard figures/*.*)\n", "\t$$(wildcard figures/*.*) \\\n\t$$(wildcard generated/*.tex) \\\n\t$$(wildcard generated/*/*.tex)\n", 1)
             text += ('\n# Regenerate every part that comes from the pipeline (a pymetis checkout with its venv next to this one).\n'
-                     'PYMETIS ?= ../pipeline/metisp/pymetis/.venv/bin/python\n'
-                     'RETROFIT ?= ../pipeline/metisp/drld/retrofit.py\n'
-                     'regenerate:\n\t$(PYMETIS) $(RETROFIT) --drld .\n')
+                     f'PYMETIS ?= {os.path.relpath(PYMETIS_VENV_PYTHON, self.drld)}\n'
+                     f'RETROFIT ?= {os.path.relpath(Path(__file__).resolve(), self.drld)}\n'
+                     'regenerate:\n\t$(PYMETIS) $(RETROFIT) --drld . --refresh\n')
             makefile.write_text(text)
 
     # --- the run ---
@@ -449,11 +452,43 @@ class Retrofit:
                     self.catalogue.alias_targets[leaf] = self.catalogue.drld_name(resolved).lower()
         counts = write_fragments(self.catalogue, self.env, self.drld, templates=self.templates_used)
         self.report.notes.append('fragments: ' + ', '.join(f"{n} {k}" for k, n in counts.items()))
+        self.save_state()
         self.dedupe_labels()
         missing = self.labels_before - self.all_labels()
         if missing:
             self.report.notes.append(f"LABELS LOST ({len(missing)}): {sorted(missing)}")
         self.write_report()
+
+    STATE = Path('generated') / 'retrofit_state.json'
+
+    def save_state(self) -> None:
+        """ What a later `--refresh` needs to re-emit the fragments of this tree: which template cards it
+        inputs, and which leaves have cards of their own. """
+        state = {'templates_used': [[template, partial] for template, partial in self.templates_used],
+                 'matched_tags': sorted(self.matched_tags)}
+        (self.drld / self.STATE).write_text(json.dumps(state, indent=1) + '\n')
+
+    @classmethod
+    def refresh(cls, drld: Path) -> dict[str, int]:
+        """
+        Re-emit the fragments of an already retrofitted tree from the current pipeline, leaving the
+        chapter files alone: the surgery is not repeatable, the fragments are. Reads the state the
+        surgery saved; a tree without it has to be retrofitted from its baseline again.
+        """
+        if not (drld / cls.STATE).exists():
+            raise SystemExit(f"{drld} has no {cls.STATE}: not a retrofitted tree, or one retrofitted before "
+                             f"the state file existed; retrofit it from its baseline instead")
+        state = json.loads((drld / cls.STATE).read_text())
+        self = cls(drld)
+        self.templates_used = [(template, partial) for template, partial in state['templates_used']]
+        self.matched_tags = set(state['matched_tags'])
+        for template, partial in self.templates_used:
+            resolved = partial_format(template, **partial)
+            self.catalogue.template_cards.add(self.catalogue.drld_name(resolved).lower())
+            for leaf in self.catalogue.expand(resolved):
+                if leaf not in self.matched_tags:
+                    self.catalogue.alias_targets[leaf] = self.catalogue.drld_name(resolved).lower()
+        return write_fragments(self.catalogue, self.env, self.drld, templates=self.templates_used)
 
     def dedupe_labels(self) -> None:
         """
@@ -504,12 +539,18 @@ class Retrofit:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--drld', type=Path, required=True, help='the DRLD copy to retrofit (never the approved checkout)')
+    parser.add_argument('--refresh', action='store_true',
+                        help='re-emit the generated fragments of an already retrofitted tree (the Makefile\'s regenerate)')
     args = parser.parse_args()
     if not (args.drld / 'METIS_DRLD.tex').exists():
         parser.error(f"{args.drld} is no DRLD checkout")
     if args.drld.resolve() == APPROVED.resolve():
         parser.error("refusing to retrofit the approved checkout; copy it first")
-    Retrofit(args.drld).run()
+    if args.refresh:
+        counts = Retrofit.refresh(args.drld)
+        print(f"{args.drld / 'generated'} refreshed: " + ', '.join(f"{n} {k}" for k, n in counts.items()))
+    else:
+        Retrofit(args.drld).run()
 
 
 if __name__ == '__main__':

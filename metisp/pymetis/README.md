@@ -245,7 +245,10 @@ input class must re-annotate the attribute; forgetting this raises a
    (`det_cgrph_SCI_CENTRED`) becomes one template card listing its instances,
    what the pipeline does not define stays hand-written on an orange background
    with a `% HANDWRITTEN` comment, and `generated/RETROFIT.md` lists it all.
-   It refuses to run on the approved checkout at `~/astar/drld`.
+   It refuses to run on the approved checkout at `~/astar/drld`. The surgery
+   is done once; `--refresh` (the copy's `make regenerate`) re-emits the
+   fragments of a retrofitted tree from the current code. The retrofitted
+   document lives in this repository under `docs/drld/`.
 
 ## Testing
 
