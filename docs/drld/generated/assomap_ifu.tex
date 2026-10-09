@@ -16,28 +16,52 @@
 \input{recipe_config}
 
 \begin{tikzpicture}[on grid=false,node distance=0.8cm]
+  % Narrower than the DRLD's hand-drawn maps, which are scaled to the line width anyway: the item
+  % boxes keep little side padding and the recipe boxes lose most of tcolorbox's, so a map with
+  % many columns comes out larger on the page. Local to this picture.
+  \tikzset{every node/.append style={inner xsep=2pt}}
+  \tcbset{boxsep=0.5mm, left=1mm, right=1mm}
+  % tcolorbox sizes an hbox after its body alone, so the recipe name is padded to the widest raw
+  % tag of the title (IFU_WCU_OFF_RAW is wider than metis_ifu_rsrf). The lengths are allocated once
+  % per document, whichever map comes first.
+  \ifdefined\assomapwidth\else\newlength{\assomapwidth}\newlength{\assomaptagwidth}\fi
 
-  \matrix (recipes) [column sep=0.1cm, row sep=1cm]{
+  \matrix (recipes) [column sep=0.05cm, row sep=1cm]{
     % Header row: the raw data that triggers a task, and the recipe it runs. Column `ext` holds the
     % external and static calibration files.
     \node [above] (ext_raw)[empty]{}; &
     \node [above] (detlingain_raw){%
-      \recipebox{\RAW{DETLIN_IFU_RAW}}{\REC{metis_det_lingain}}
+      \settowidth{\assomapwidth}{\REC{metis_det_lingain}}%
+      \settowidth{\assomaptagwidth}{\RAW{DETLIN_IFU_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
+      \recipebox{\RAW{DETLIN_IFU_RAW}}{\makebox[\assomapwidth]{\REC{metis_det_lingain}}}
     }; &
     \node [above] (ifudistortion_raw){%
-      \recipebox{\RAW{IFU_DISTORTION_RAW}}{\REC{metis_ifu_distortion}}
+      \settowidth{\assomapwidth}{\REC{metis_ifu_distortion}}%
+      \settowidth{\assomaptagwidth}{\RAW{IFU_DISTORTION_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
+      \recipebox{\RAW{IFU_DISTORTION_RAW}}{\makebox[\assomapwidth]{\REC{metis_ifu_distortion}}}
     }; &
     \node [above] (detdark_raw){%
-      \recipebox{\RAW{DARK_IFU_RAW}}{\REC{metis_det_dark}}
+      \settowidth{\assomapwidth}{\REC{metis_det_dark}}%
+      \settowidth{\assomaptagwidth}{\RAW{DARK_IFU_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
+      \recipebox{\RAW{DARK_IFU_RAW}}{\makebox[\assomapwidth]{\REC{metis_det_dark}}}
     }; &
     \node [above] (ifuwavecal_raw){%
-      \recipebox{\RAW{IFU_WAVE_RAW}}{\REC{metis_ifu_wavecal}}
+      \settowidth{\assomapwidth}{\REC{metis_ifu_wavecal}}%
+      \settowidth{\assomaptagwidth}{\RAW{IFU_WAVE_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
+      \recipebox{\RAW{IFU_WAVE_RAW}}{\makebox[\assomapwidth]{\REC{metis_ifu_wavecal}}}
     }; &
     \node [above] (ifursrf_raw){%
-      \recipebox{\RAW{IFU_RSRF_RAW} \RAW{IFU_WCU_OFF_RAW}}{\REC{metis_ifu_rsrf}}
+      \settowidth{\assomapwidth}{\REC{metis_ifu_rsrf}}%
+      \settowidth{\assomaptagwidth}{\RAW{IFU_RSRF_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
+      \settowidth{\assomaptagwidth}{\RAW{IFU_WCU_OFF_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
+      \recipebox{\RAW{IFU_RSRF_RAW} \RAW{IFU_WCU_OFF_RAW}}{\makebox[\assomapwidth]{\REC{metis_ifu_rsrf}}}
     }; &
     \node [above] (ifureduce_raw){%
-      \recipebox{\RAW{IFU_STD_RAW} \RAW{IFU_SKY_RAW} \RAW{IFU_SCI_RAW}}{\REC{metis_ifu_reduce}}
+      \settowidth{\assomapwidth}{\REC{metis_ifu_reduce}}%
+      \settowidth{\assomaptagwidth}{\RAW{IFU_STD_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
+      \settowidth{\assomaptagwidth}{\RAW{IFU_SKY_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
+      \settowidth{\assomaptagwidth}{\RAW{IFU_SCI_RAW}}\ifdim\assomaptagwidth>\assomapwidth \assomapwidth=\assomaptagwidth \fi%
+      \recipebox{\RAW{IFU_STD_RAW} \RAW{IFU_SKY_RAW} \RAW{IFU_SCI_RAW}}{\makebox[\assomapwidth]{\REC{metis_ifu_reduce}}}
     }; &
     \node [above] (ifutelluric_raw){%
       \recipenotitlebox{\REC{metis_ifu_telluric}}
