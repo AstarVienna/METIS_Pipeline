@@ -1,4 +1,4 @@
-from edps import task, SCIENCE
+from edps import task, SCIENCE, QC1_CALIB
 from .metis_datasources import *
 from .metis_task_functions import *
 
@@ -10,6 +10,7 @@ ifu_lingain_task = (task("metis_ifu_lingain")
                 .with_main_input(detlin_ifu_raw)
                 .with_associated_input(badpix_map_ifu, min_ret=0)
                 .with_job_processing(setup_lingain_job)
+                .with_meta_targets([QC1_CALIB])
                 .build())
 
 ifu_dark_task = (task("metis_ifu_dark")
@@ -19,6 +20,7 @@ ifu_dark_task = (task("metis_ifu_dark")
              .with_associated_input(ifu_lingain_task, [linearity_ifu_class, gain_map_ifu_class], min_ret=0)
              .with_associated_input(persistence_map, min_ret=0)
              .with_input_filter(linearity_ifu_class, gain_map_ifu_class, persistence_map_class)
+             .with_meta_targets([QC1_CALIB])
              .build())
 
 ifu_distortion_task = (task("metis_ifu_distortion")
@@ -29,6 +31,7 @@ ifu_distortion_task = (task("metis_ifu_distortion")
                    .with_associated_input(persistence_map, min_ret=0)
                    .with_associated_input(ifu_dark_task, [master_dark_ifu_class])
                    .with_input_filter(linearity_ifu_class, gain_map_ifu_class, master_dark_ifu_class, persistence_map_class)
+                   .with_meta_targets([QC1_CALIB])
                    .build())
 
 ifu_wavecal_task = (task("metis_ifu_wavecal")
@@ -40,6 +43,7 @@ ifu_wavecal_task = (task("metis_ifu_wavecal")
              .with_associated_input(ifu_dark_task, [master_dark_ifu_class])
              .with_associated_input(ifu_distortion_task, [ifu_distortion_table_class])
              .with_input_filter(linearity_ifu_class, gain_map_ifu_class, master_dark_ifu_class, ifu_distortion_table_class, persistence_map_class, pinhole_table_class)
+             .with_meta_targets([QC1_CALIB])
              .build())
 
 ifu_rsrf_task = (task("metis_ifu_rsrf")
@@ -53,6 +57,7 @@ ifu_rsrf_task = (task("metis_ifu_rsrf")
              .with_associated_input(ifu_wcu_off_raw)
              .with_associated_input(ifu_wavecal_task, [ifu_wavecal_class])
              .with_input_filter(linearity_ifu_class, gain_map_ifu_class, master_dark_ifu_class, ifu_distortion_table_class, ifu_wavecal_class, persistence_map_class)
+             .with_meta_targets([QC1_CALIB])
              .build())
 
 ifu_std_reduce_task = (task("metis_ifu_std_reduce")
@@ -67,6 +72,7 @@ ifu_std_reduce_task = (task("metis_ifu_std_reduce")
             .with_associated_input(ifu_rsrf_task, [ifu_rsrf_class])
             .with_associated_input(ifu_sky_raw)
             .with_input_filter(linearity_ifu_class, gain_map_ifu_class, master_dark_ifu_class, persistence_map_class, ifu_distortion_table_class, ifu_wavecal_class, ifu_rsrf_class)
+            .with_meta_targets([SCIENCE])
             .build())
 
 ifu_sci_reduce_task = (task("metis_ifu_sci_reduce")
@@ -81,6 +87,7 @@ ifu_sci_reduce_task = (task("metis_ifu_sci_reduce")
             .with_associated_input(ifu_rsrf_task, [ifu_rsrf_class])
             .with_associated_input(ifu_sky_raw)
             .with_input_filter(linearity_ifu_class, gain_map_ifu_class, master_dark_ifu_class, persistence_map_class, ifu_distortion_table_class, ifu_wavecal_class, ifu_rsrf_class)
+            .with_meta_targets([SCIENCE])
             .build())
 
 ifu_sci_telluric_task = (task("metis_ifu_sci_telluric")
