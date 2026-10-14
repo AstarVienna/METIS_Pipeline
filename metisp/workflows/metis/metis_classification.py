@@ -27,7 +27,7 @@ lm_distortion_raw_class = classification_rule("LM_DISTORTION_RAW",
 lm_wcu_off_raw_class = classification_rule("LM_WCU_OFF_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
-     metis_kwd.dpr_type: "DARK,WCUOFF",
+     metis_kwd.dpr_type: "DARK,WCU_OFF",
      metis_kwd.dpr_tech: "IMAGE,LM",
     })
 
@@ -107,7 +107,7 @@ n_distortion_raw_class = classification_rule("N_DISTORTION_RAW",
 n_wcu_off_raw_class = classification_rule("N_WCU_OFF_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
-     metis_kwd.dpr_type: "DARK,WCUOFF",
+     metis_kwd.dpr_type: "DARK,WCU_OFF",
      metis_kwd.dpr_tech: "IMAGE,N",
     })
 
