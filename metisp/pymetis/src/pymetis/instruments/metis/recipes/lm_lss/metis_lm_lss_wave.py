@@ -42,9 +42,6 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
 
-        class MasterRsrfInput(SinglePipelineInput):
-            Item = dataitems.MasterLssRsrf
-
         class LssTraceInput(SinglePipelineInput):
             Item = dataitems.LssTrace
 
@@ -53,7 +50,6 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         gain_map: GainMapInput
         linearity: LinearityInput
         bad_pix_map: BadPixMapInput
-        master_rsrf: MasterRsrfInput
         lss_trace: LssTraceInput
         wcu_off: WcuOffInput
         laser_table: LaserTableInput
@@ -107,9 +103,8 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
         _raws = self.inputset.raw.load_data('DET1.DATA')
-        _master_lss_rsrf = self.inputset.master_rsrf.load_data('DET1.DATA')
 
-        primary_header = self.inputset.master_rsrf.item.primary_header
+        primary_header = create_dummy_header()
         table = create_dummy_table()
 
         lm_lss_curve_header = create_dummy_header()
