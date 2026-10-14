@@ -45,15 +45,12 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw
 
-        class MasterRsrfInput(SinglePipelineInput):
-            Item = MasterLssRsrf
 
         raw: RawInput
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
         lm_rsrf_wcu_off: LmRsrfWcuOffInput
-        master_rsrf: MasterRsrfInput
 
     class ProductSet(PipelineProductSet):
         TraceTable = LssTrace
@@ -68,9 +65,8 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
         _raws = self.inputset.raw.load_data('DET1.DATA')
-        _master_rsrf = self.inputset.master_rsrf.load_data('DET1.DATA')
 
-        primary_header = self.inputset.master_rsrf.item.primary_header
+        primary_header = create_dummy_header()
 
         trace_tab_header = create_dummy_header()
         trace_tab_data = create_dummy_table()
