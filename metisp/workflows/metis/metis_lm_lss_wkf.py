@@ -78,6 +78,7 @@ lm_lss_wave_task = (task("metis_lm_lss_wave")
             .with_associated_input(lm_lss_dark_task, [master_dark_2rg_class])
             .with_associated_input(lm_lss_trace_task, [lm_lss_trace_class])
             .with_associated_input(laser_tab)
+            .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, master_dark_2rg_class, persistence_map_class, pinhole_table_class)
             .with_meta_targets([QC1_CALIB])
             .build())
 
