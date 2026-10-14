@@ -35,7 +35,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum, Paramete
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.drl.image import zeros_like
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.instruments.metis.description import Metis
@@ -116,6 +116,13 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         DarkMedianRms = qc.dark.DarkMedianRms
         DarkMedianMin = qc.dark.DarkMedianMin
         DarkMedianMax = qc.dark.DarkMedianMax
+
+    _steps = (
+        Step('Apply non-linearity correction', inputs=(InputSet.BadPixMapInput, InputSet.GainMapInput,)),
+        Step('Apply persistence correction', inputs=(InputSet.PersistenceMapInput,)),
+        Step('Per pixel median / mean filtering', products=(ProductSet.MasterDark,)),
+        Step('Thresholding'),
+    )
 
     # At this point, we should have all inputs and outputs defined -- the "what" part of the recipe implementation.
     # Now we define the "how" part, or the actions to be performed on the data.
@@ -345,13 +352,13 @@ class MetisDetDark(Recipe):
             name=f"{_name}.outliers.kappa_low",
             context=_name,
             description="Lower bound for bad pixel clipping, in standard deviations",
-            default=5,
+            default=5.0,
         ),
         ParameterValue(
             name=f"{_name}.outliers.kappa_high",
             context=_name,
             description="Upper bound for bad pixel clipping, in standard deviations",
-            default=5,
+            default=5.0,
         ),
     ])
 

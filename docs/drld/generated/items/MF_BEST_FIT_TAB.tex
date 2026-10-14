@@ -1,0 +1,24 @@
+\paragraph{\PROD{MF_BEST_FIT_TAB}} \label{dataitem:mf_best_fit_tab}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{MF_BEST_FIT_TAB}\\[0.3cm]
+        Description: & Table with best-fit parameters for calctrans. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{MF_BEST_FIT_TAB} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{MF_BEST_FIT_TAB}\\[0.3cm]
+            Created by: & \REC{metis_lm_lss_mf_model} \\
+                        & \REC{metis_n_lss_mf_model} \\
+            Input for: & \REC{metis_lm_lss_mf_calctrans} \\
+                        & \REC{metis_n_lss_mf_calctrans} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

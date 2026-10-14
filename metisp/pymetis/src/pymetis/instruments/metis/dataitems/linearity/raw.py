@@ -37,12 +37,15 @@ class LinearityRaw(Raw, abstract=True):
 
 class LinearityRaw2rg(Detector2rgMixin, LinearityRaw):
     _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.FILTER'})
+    _dpr = ('CALIB', 'IMAGE,LM', 'DETLIN')
 
 
 class LinearityRawGeo(DetectorGeoMixin, LinearityRaw):
     _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.FILTER'})
+    _dpr = ('CALIB', 'IMAGE,N', 'DETLIN')
 
 
 class LinearityRawIfu(DetectorIfuMixin, LinearityRaw):
     _schema = detectors(Image, 4)
     _oca_keywords = LinearityRaw._oca_keywords | frozenset({'DRS.IFU'})
+    _dpr = ('CALIB', 'IFU', 'DETLIN')

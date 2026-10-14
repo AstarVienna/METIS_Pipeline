@@ -1,0 +1,28 @@
+\paragraph{\PROD{IFU_DISTORTION_TABLE}} \label{dataitem:ifu_distortion_table}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{IFU_DISTORTION_TABLE}\\[0.3cm]
+        Description: & Table of distortion coefficients for a IFU band data set \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{IFU_DISTORTION_TABLE} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.IFU}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{IFU_DISTORTION_TABLE}\\[0.3cm]
+            Created by: & \REC{metis_ifu_distortion} \\
+            Input for: & \REC{metis_ifu_reduce} \\
+                        & \REC{metis_ifu_rsrf} \\
+                        & \REC{metis_ifu_wavecal} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * det1: Extension DET1}
+            \item \texttt{cpl\_table * det2: Extension DET2}
+            \item \texttt{cpl\_table * det3: Extension DET3}
+            \item \texttt{cpl\_table * det4: Extension DET4}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

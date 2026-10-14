@@ -1,0 +1,26 @@
+\paragraph{\RAW{LM_PUPIL_RAW}} \label{dataitem:lm_pupil_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{LM_PUPIL_RAW}\\[0.3cm]
+        Description: & Raw exposure of the pupil in LM image mode. \\[0.3cm]
+        OCA keywords: & \FITS{DPR.CATG}\\
+         & \FITS{DPR.TECH}\\
+         & \FITS{DPR.TYPE}\\
+         & \FITS{DRS.PUPIL}\\
+         & \FITS{INS.OPTI10.NAME}\\
+         & \FITS{INS.OPTI3.NAME}\\
+         & \FITS{INS.OPTI9.NAME}\\
+        \FITS{DO.CATG}: & \CODE{LM_PUPIL_RAW}\\[0.3cm]
+            Input for recipe: & \REC{metis_pupil_imaging} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

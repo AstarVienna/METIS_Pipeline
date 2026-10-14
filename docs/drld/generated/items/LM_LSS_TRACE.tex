@@ -1,0 +1,23 @@
+\paragraph{\PROD{LM_LSS_TRACE}} \label{dataitem:lm_lss_trace}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_LSS_TRACE}\\[0.3cm]
+        Description: & Table with polynomials describing the location of the traces on the detector \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_LSS_TRACE} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_LSS_TRACE}\\[0.3cm]
+            Created by: & \REC{metis_lm_lss_trace} \\
+            Input for: & \REC{metis_lm_lss_wave} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -1,0 +1,23 @@
+\paragraph{\STATCALIB{N_LSS_DIST_SOL}} \label{dataitem:n_lss_dist_sol}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \STATCALIB{N_LSS_DIST_SOL}\\[0.3cm]
+        Description: & Distortion solution for rectifying \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_LSS_DIST_SOL} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_LSS_DIST_SOL}\\[0.3cm]
+            Input for: & \REC{metis_n_lss_sci} \\
+                        & \REC{metis_n_lss_std} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

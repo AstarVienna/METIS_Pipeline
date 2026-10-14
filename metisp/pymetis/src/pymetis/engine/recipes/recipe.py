@@ -57,7 +57,6 @@ class Recipe(cpl.ui.PyRecipe):
     _matched_keywords: frozenset[str] | None = None
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"
-
     # By default, a recipe does not have any parameters.
     parameters: ParameterList = ParameterList([])
     # Default implementation class. This will not work, because it is abstract, but this is an abstract class too.

@@ -1,0 +1,23 @@
+\begin{recipedef}
+  Name:                & \REC{metis_n_adc_slitloss} \\
+  Purpose:             & Determines ADC slitlosses \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{N_ADC_SLITLOSS_RAW} (N$\times$) \\
+                       & \RAW{N_WCU_OFF_RAW} (N$\times$) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_GEO} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_GEO}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_GEO}} \\
+                       & \PROD{MASTER_DARK_GEO} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.SLIT} \\
+  Parameters:          & \CODE{metis_n_adc_slitloss.parameter1}: string\newline Description of parameter 1 (\texttt{value2}, \underline{\texttt{value1}}) \\
+  Algorithm:           & Incredible fancy description of algorithm follows... ***TBD*** \\
+  Output data:         & \STATCALIB{N_ADC_SLITLOSS} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & --- none --- \\
+\end{recipedef}
+

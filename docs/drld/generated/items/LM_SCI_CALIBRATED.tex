@@ -1,0 +1,25 @@
+\paragraph{\PROD{LM_SCI_CALIBRATED}} \label{dataitem:lm_sci_calibrated}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_SCI_CALIBRATED}\\[0.3cm]
+        Description: & LM band image with flux calibration, WC coordinate system and distortion information \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_SCI_CALIBRATED} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_SCI_CALIBRATED}\\[0.3cm]
+            Created by: & \REC{metis_lm_img_calibrate} \\
+            Input for: & \REC{metis_img_adi_cgrph} \\
+                        & \REC{metis_lm_adi_app} \\
+                        & \REC{metis_lm_img_sci_postprocess} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

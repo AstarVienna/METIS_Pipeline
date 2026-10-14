@@ -32,6 +32,7 @@ class FlatRaw(Raw, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                               'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'DRS.FILTER'})
+    _dpr = ('CALIB', 'IMAGE,{band}', 'FLAT,{source}')
 
     _schema = {
         'PRIMARY': None,

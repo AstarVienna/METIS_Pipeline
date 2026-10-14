@@ -1,0 +1,23 @@
+\paragraph{\PROD{IFU_TELLURIC}} \label{dataitem:ifu_telluric}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{IFU_TELLURIC}\\[0.3cm]
+        Description: & Transmission function for the telluric correction. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{IFU_TELLURIC} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.IFU}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{IFU_TELLURIC}\\[0.3cm]
+            Created by: & \REC{metis_ifu_telluric} \\
+            Input for: & \REC{metis_ifu_calibrate} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

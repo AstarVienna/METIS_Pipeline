@@ -24,7 +24,7 @@ import cpl
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import SinglePipelineInput
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
@@ -33,7 +33,7 @@ from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis.inputs import RawInput, WavecalInput, GainMapInput, LinearityInput
-from pymetis.instruments.metis.inputs.common import OptionalPersistenceMapInput
+from pymetis.instruments.metis.inputs.common import OptionalPersistenceMapInput, MasterDarkInput
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
 
@@ -45,6 +45,7 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
 
         class RawSkyInput(RawInput):
             Item = dataitems.IfuSkyRaw
+            _own_tags = frozenset({'target'})       # SKY next to the SCI/STD frames, by design
 
         class DistortionTableInput(SinglePipelineInput):
             Item = dataitems.IfuDistortionTable
@@ -73,6 +74,17 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         NBadPix = qc.reduce.IfuReduceNBadPix
         MeanBkg = qc.reduce.IfuReduceMeanBkg
         MeanStray = qc.reduce.IfuReduceMeanStray
+
+    _steps = (
+        Step('detector signature removal',
+             inputs=(InputSet.BadPixMapInput, OptionalPersistenceMapInput, LinearityInput, GainMapInput,
+                     MasterDarkInput, InputSet.RsrfInput,)),
+        Step('background subtraction', products=(ProductSet.Background, ProductSet.Reduced,)),
+        Step('rectification',
+             inputs=(WavecalInput, InputSet.DistortionTableInput,),
+             products=(ProductSet.ReducedCube,)),
+        Step('Image reconstruction', products=(ProductSet.Combined,)),
+    )
 
     def _process_single_detector(self, detector: Metis.DetectorNumber) -> dict[str, Hdu]:
         """

@@ -1,0 +1,25 @@
+\clearpage
+
+\section{Pipeline Recipes / CPL Plugins}
+\label{sec:pipeline_recipes}
+
+All functionality of the METIS pipeline is provided through \emph{recipes}, i.e.~CPL plugins that run in the contexts that ESO tools provide. The only dependencies are the ESO libraries CPL and HDRL (including their respective dependencies), and the ESO workflow system. This is in accordance with~\cite{1618} and fulfills requirements \REQ{METIS-6058} and its parts \REQ{METIS-6059}, \REQ{METIS-6060} and \REQ{METIS-5945}.
+
+Throughout this document we use the following color scheme for the
+recipe workflows:
+\begin{center}
+  \includegraphics[width=0.3\textheight]{colour_legend}
+\end{center}
+
+\input{Recipes_Detector}
+\input{Recipes_Imaging_LM}
+\input{Recipes_Imaging_N}
+\input{Recipes_LSS_LM}
+\input{Recipes_LSS_N}
+\input{Recipes_IFU_LM}
+\input{Recipes_ADI}
+\input{Recipes_Technical}
+
+%%% Local Variables:
+%%% TeX-master: "METIS_DRLD"
+%%% End:

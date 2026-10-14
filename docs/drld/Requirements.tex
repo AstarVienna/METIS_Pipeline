@@ -1,0 +1,95 @@
+
+The following table connects the requirements (Polarion-links) to the relevant
+place in this document.
+%All pipeline subsystem requirements are listed; an entry
+%stating \emph{N/A} in the last column indicates that this document does not
+%provide evidence to verify the requirement in question.
+Only those pipeline subsystem requirements are listed for which this document
+provides evidence to verify the requirement in question.
+See \cite{DRLVT} for information about their verification.
+The full set of evidence for all PIP requirements is traced in \cite{PIPVCD}
+
+Requirements marked with $\star$ are commented on individually below the table.
+
+\begin{longtable}[c]{|l|l|l|}
+	\caption{Requirements compliance}
+	\endfirsthead
+ \hline
+ \textbf{Req. ID} & \textbf{Requirement Title} & \textbf{Section} \\
+ \hline
+    \endhead
+ \hline
+ \textbf{Req. ID} & \textbf{Requirement Title} & \textbf{Section} \\
+    \hline
+		\REQ{METIS-5945} & DRS for science-grade data reduction & \ref{sec:pipeline_recipes} \\
+		\REQ{METIS-5989} & ADI post-processing &  \ref{ssec:ADI_postprocessing}\\
+		\REQ{METIS-5997} & Detector linearity characterisation & \ref{rec:metis_det_lingain} \\
+		\REQ{METIS-6058} & Data reduction package & \ref{sec:pipeline_recipes} \\
+		\REQ{METIS-6059} & DRS for Quick-Look and Operational Data QC & \ref{sec:pipeline_recipes} \\
+		\REQ{METIS-6060} & Interactive data reduction system &  \ref{sec:pipeline_recipes}\\
+		\REQ{METIS-6061} & Reduced simulated data products & \ref{ssec:reduced_data_format} \\
+		\REQ{METIS-6062} & Software Assurance Requirements & \ref{sec:development_plan} \\
+		\REQ{METIS-6063} & Master dark frames & \ref{rec:metis_det_dark} \\
+% 		\REQ{METIS-6065} & System Engineering Management Plan & N/A \\
+% 		\REQ{METIS-6067} & PIP Requirement Precedence & N/A  \\
+% 		\REQ{METIS-6069} & METIS Standards & N/A \\
+		\REQ{METIS-6070} & METIS coordinate systems definition & \ref{ssec:instrument_data_format} \\
+% 		\REQ{METIS-6071} & External Interfaces to METIS &  N/A \\
+		\REQ{METIS-6072} & Parallel observing mode IMG-LM and LMS & \ref{sssec:parallellmifu} \\
+		\REQ{METIS-6073} & LMS Spectral Resolution & \ref{qc:qc_ifu_wavecal_line_width} \\
+		\REQ{METIS-6074} & Wavelength calibration & \ref{rec:metis_lm_lss_wave}, \ref{rec:metis_n_lss_std} \ref{rec:metis_ifu_wavecal}\\
+		\REQ{METIS-6075} & Data rates & \ref{ssec:criticalifudatarate} \\
+		\REQ{METIS-6077} & Operational use cases &  $\star$ \\
+% 		\REQ{METIS-6078} & Electrical power consumption of DRS work station &  N/A \\
+		\REQ{METIS-6080} & FITS format and meta-data of generated data & \ref{ssec:reduced_data_format} \\
+		\REQ{METIS-6081} & FITS keywords & \ref{ssec:instrument_data_format}  \\
+		\REQ{METIS-6082} & Data products conformity to ESO standards &  \ref{ssec:reduced_data_format}\\
+% 		\REQ{METIS-6083} & Material usage & N/A \\
+		\REQ{METIS-6084} & Low-resolution slit spectroscopy & \ref{ssec:recipes_lss_lm}, \ref{ssec:recipes_lss_n} \\
+		\REQ{METIS-6085} & Background subtraction in IMG-LM with dedicated sky observations & \ref{rec:metis_lm_img_background} \\
+		\REQ{METIS-6086} & Background subtraction in IMG-LM from dithered images & \ref{rec:metis_lm_img_background} \\
+		\REQ{METIS-6087} & Distortion/plate-scale calibration & \ref{rec:metis_lm_img_distortion}, \ref{rec:metis_n_img_distortion} \\
+		\REQ{METIS-6088} & Distortion correction & \ref{rec:metis_n_img_calibrate}, \ref{rec:metis_lm_img_calibrate} \\
+		\REQ{METIS-6089} & Masked region of the N-band detector & \ref{rec:metis_n_img_chopnod} \\
+		\REQ{METIS-6090} & Masked region of the IMG\_LM detector & \ref{rec:metis_lm_img_basic_reduce} \\
+		\REQ{METIS-6091} & Telluric calibration recipe & \ref{rec:metis_lm_lss_mf_model}, \ref{rec:metis_n_lss_mf_correct} \\
+% 		\REQ{METIS-6092} & METIS Internal Interfaces & N/A \\
+		\REQ{METIS-6093} & Format and content of the raw data & \ref{ssec:instrument_data_format} \\
+		\REQ{METIS-6094} & Background subtraction in chopping-nodding mode & \ref{rec:metis_n_img_chopnod} \\
+		\REQ{METIS-6096} & LM-band imaging flatfield & \ref{rec:metis_lm_img_flat} \\
+		\REQ{METIS-6098} & N-band imaging flatfield & \ref{rec:metis_n_img_flat} \\
+		\REQ{METIS-6104} & IMG-LM data products & \ref{rec:lm_img_calibrate}, \ref{rec:lm_img_postprocess} \\
+		\REQ{METIS-6105} & IMG-N data products & \ref{rec:n_img_calibrate}, \ref{rec:n_img_restoration} \\
+		\REQ{METIS-6112} & SPEC-LM data products & \ref{ssec:recipes_lss_lm} \\
+		\REQ{METIS-6113} & SPEC-N data products & \ref{ssec:recipes_lss_n} \\
+		\REQ{METIS-6131} & LMS data products & \ref{rec:metis_ifu_reduce} \\
+		\REQ{METIS-6265} & LMS straylight & \ref{rec:metis_ifu_reduce}  \\
+% 		\REQ{METIS-6267} & Design Life & N/A \\
+		\REQ{METIS-6309} & Masked regions of the LMS detectors & \ref{rec:metis_ifu_reduce} \\
+		\REQ{METIS-6681} & Error propagation & \ref{Sec:critalg_errorprop} \\
+		\REQ{METIS-6698} & Characterisation and correction of relative spectral response function & \ref{rec:metis_lm_lss_rsrf}, \ref{rec:metis_n_lss_rsrf}, \ref{rec:metis_ifu_rsrf} \\
+		\REQ{METIS-6733} & Auxiliary Parameters in Data Products & \ref{ssec:reduced_data_format} \\
+		\REQ{METIS-6923} & QC parameters for permanent monitoring &  \ref{sec:qc_parameters}\\
+		\REQ{METIS-7244} & Parallel observing mode IMG-LM and IMG-N & \ref{sssec:parallellmnimg} \\
+		\REQ{METIS-7245} & Parallel observing mode LSS-LM and LSS-N & \ref{sssec:parallellmnspec} \\
+		\REQ{METIS-9145} & Persistence Correction & \ref{rec:metis_det_persistence} \\
+		\REQ{METIS-9150} & Calibration of atmospheric dispersion correction and slit losses & \ref{sssec:adc_slitlosses} \\
+		\REQ{METIS-9151} & Fringing correction & \ref{rec:metis_fringing_correction} \\
+		\REQ{METIS-9212} & IMG-LM\_(RA/C)VC data products & \ref{sssec:adi_img_vc} \\
+		\REQ{METIS-9213} & IMG-LM\_APP data products & \ref{sssec:adi_img_app} \\
+		\REQ{METIS-9214} & IMG-N\_CVC data products & \ref{sssec:adi_img_vc} \\
+		\REQ{METIS-9215} & LMS\_(RA/C)VC data products & \ref{sssec:adi_ifu} \\
+		\REQ{METIS-9216} & LMS\_APP data products & \ref{sssec:adi_ifu} \\
+		\REQ{METIS-9355} & Code documentation & \ref{sec:drl_functions} \\
+		\REQ{METIS-9626} & AO Telemetry in Science Data Products &  \ref{ssec:reduced_data_format}\\
+		\REQ{METIS-9627} & Data provenance & \ref{ssec:reduced_data_format} \\
+		\REQ{METIS-10300} & Wavelength-to-pixel calibration uncertainty during AIT  & \ref{rec:metis_lm_lss_wave}, \ref{rec:metis_ifu_wavecal}  \\ 
+    \hline
+\end{longtable}
+
+Notes on individual requirements:
+
+\noindent\REQ{METIS-6077} refers to the operational use cases
+\emph{observation}, \emph{calibration} and \emph{maintenance}. As such, there is
+no single point in this document to point to for verification evidence. The recipes in Chapter \ref{sec:pipeline_recipes} cover all of
+these use cases.

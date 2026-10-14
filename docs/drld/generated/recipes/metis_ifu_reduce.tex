@@ -1,0 +1,38 @@
+\begin{recipedef}
+  Name:                & \REC{metis_ifu_reduce} \\
+  Purpose:             & Reduce raw science exposures of the IFU. \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{IFU_SKY_RAW} (N$\times$) \\
+                       & \RAW{IFU_SCI_RAW} or \RAW{IFU_SKY_RAW} or \RAW{IFU_STD_RAW} (N$\times$) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_IFU} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_IFU}} \\
+                       & \PROD{IFU_DISTORTION_TABLE} \\
+                       & \PROD{IFU_WAVECAL} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_IFU}} \\
+                       & \PROD{MASTER_DARK_IFU} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+                       & \PROD{RSRF_IFU} \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.IFU} \\
+  Parameters:          & \CODE{metis_ifu_reduce.stacking.method}: string\newline Name of the method used to combine the input images (\texttt{add}, \underline{\texttt{average}}, \texttt{median}, \texttt{sigclip}) \\
+  Algorithm:           & Subtract dark, divide by master flat \\
+                       & Analyse and optionally remove masked regions and correct crosstalk and ghosts \\
+                       & Estimate stray light and subtract \\
+                       & Estimate background from dithered science exposures or blank-sky exposures and subtract \\
+                       & Rectify spectra and assemble cube \\
+                       & Extract 1D object spectrum \\
+  Output data:         & \PROD{IFU_SCI_BACKGROUND} or \PROD{IFU_STD_BACKGROUND} \\
+                       & \PROD{IFU_SCI_COMBINED} or \PROD{IFU_STD_COMBINED} \\
+                       & \PROD{IFU_SCI_REDUCED} or \PROD{IFU_STD_REDUCED} \\
+                       & \PROD{IFU_SCI_REDUCED_CUBE} or \PROD{IFU_STD_REDUCED_CUBE} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC IFU REDUCE MEANBKG} \\
+                       & \QC{QC IFU REDUCE MEANSTRY} \\
+                       & \QC{QC IFU REDUCE NBADPIX} \\
+                       & \QC{QC IFU STD ELLIP} \\
+                       & \QC{QC IFU STD FWHM} \\
+\end{recipedef}
+

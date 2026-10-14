@@ -32,7 +32,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe, RecipeImpl
+from pymetis.engine.recipes import Recipe, RecipeImpl, Step
 
 from pymetis.instruments.metis.description import Metis
 
@@ -100,6 +100,14 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
 
     class Qc(QcParameterSet):
         NBadPix = qc.rsrf.IfuRsrfNBadPix
+
+    _steps = (
+        Step('detector signature and background removal',
+             inputs=(InputSet.BadPixMapInput, InputSet.PersistenceMapInput, InputSet.MasterDarkInput,
+                     InputSet.GainMapInput, InputSet.LinearityInput, InputSet.DistortionTableInput,)),
+        Step('continuum normalisation', inputs=(WavecalInput,)),
+        Step('average/median', products=(ProductSet.RsrfIfu, ProductSet.MasterFlat, ProductSet.BadPixMap,)),
+    )
 
 
     def _process_single_detector(self, detector: Metis.DetectorNumber) -> dict[str, Hdu]:

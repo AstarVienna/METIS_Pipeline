@@ -1,0 +1,32 @@
+\paragraph{\PROD{LINEARITY_GEO}} \label{dataitem:linearity_geo}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LINEARITY_GEO}\\[0.3cm]
+        Description: & Coefficients for the pixel GEO non-linearity correction \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LINEARITY_GEO} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LINEARITY_GEO}\\[0.3cm]
+            Created by: & \REC{metis_det_lingain} \\
+            Input for: & \REC{metis_n_adc_slitloss} \\
+                        & \REC{metis_n_img_chopnod} \\
+                        & \REC{metis_n_img_distortion} \\
+                        & \REC{metis_n_img_flat} \\
+                        & \REC{metis_n_lss_rsrf} \\
+                        & \REC{metis_n_lss_sci} \\
+                        & \REC{metis_n_lss_std} \\
+                        & \REC{metis_n_lss_trace} \\
+                        & \REC{metis_pupil_imaging} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_imagelist * det1\_sci: Extension DET1.SCI}
+            \item \texttt{cpl\_imagelist * det1\_err: Extension DET1.ERR}
+            \item \texttt{hdrl\_image * det1\_dq: Extension DET1.DQ}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

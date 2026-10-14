@@ -25,7 +25,7 @@ from cpl.core import Msg
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
@@ -34,6 +34,7 @@ from pymetis.instruments.metis.inputs import (RawInput, MasterFlatInput,
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis.inputs.common import MasterDarkInput
 
 
 class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -104,6 +105,14 @@ class MetisLmImgBasicReduceImpl(BandLmMixin, Detector2rgMixin, DarkImageProcesso
             _unit = "counts"
             _default = None
             _description_template = "Peak value of the LM image"
+
+    _steps = (
+        Step('Correct non-linearity', inputs=(InputSet.BadPixMapInput, GainMapInput, LinearityInput,)),
+        Step('Correct persistence', inputs=(InputSet.PersistenceMapInput,)),
+        Step('subtract dark', inputs=(MasterDarkInput,)),
+        Step('divide by flat', inputs=(InputSet.MasterFlatInput,)),
+        Step('analyse and remove masked regions', products=(ProductSet.BasicReduced,)),
+    )
 
     def process(self) -> set[DataItem]:
         """

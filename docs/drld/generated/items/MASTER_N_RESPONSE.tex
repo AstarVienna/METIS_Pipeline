@@ -1,0 +1,25 @@
+\paragraph{\PROD{MASTER_N_RESPONSE}} \label{dataitem:master_n_response}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{MASTER_N_RESPONSE}\\[0.3cm]
+        Description: & Master N-band response function for absolute flux calibration \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{MASTER_N_RESPONSE} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{INS.MODE}\\
+         & \FITS{INS.SPEC.SETUP}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{MASTER_N_RESPONSE}\\[0.3cm]
+            Created by: & \REC{metis_n_lss_std} \\
+            Input for: & \REC{metis_n_lss_sci} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

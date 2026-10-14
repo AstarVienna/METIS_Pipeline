@@ -1,0 +1,26 @@
+\begin{recipedef}
+  Name:                & \REC{metis_n_img_distortion} \\
+  Purpose:             & Determine optical distortion coefficients for the N imager. \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{N_DISTORTION_RAW} (N$\times$) \\
+                       & \RAW{N_WCU_OFF_RAW} (N$\times$) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_GEO} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_GEO}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_GEO}} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+                       & \EXTCALIB{PINHOLE_TABLE} \\
+  Matched keywords:    & \FITS{DRS.FILTER} \\
+  Parameters:          & \CODE{metis_n_img_distortion.stacking.method}: string\newline Name of the method used to combine the input images (\texttt{add}, \underline{\texttt{average}}, \texttt{median}, \texttt{sigclip}) \\
+  Algorithm:           & Subtract background image with \texttt{hdrl\_imagelist\_sub\_image}. \\
+                       & Measure location of point source images in frames with \texttt{hdrl\_catalogue\_create}. \\
+                       & Call metis\_fit\_distortion to fit polynomial coefficients to deviations from grid positions. \\
+  Output data:         & \PROD{N_DISTORTION_MAP} \\
+                       & \PROD{N_DIST_REDUCED} \\
+                       & \PROD{N_DISTORTION_TABLE} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC N DISTORT NSOURCE} \\
+                       & \QC{QC N DISTORT RMS} \\
+\end{recipedef}
+

@@ -1,0 +1,23 @@
+\paragraph{\EXTCALIB{MASTER_FLAT_2RG}} \label{dataitem:master_flat_2rg}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \EXTCALIB{MASTER_FLAT_2RG}\\[0.3cm]
+        Description: & Abstract base class for master flats. Please subclass. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{MASTER_FLAT_2RG} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{MASTER_FLAT_2RG}\\[0.3cm]
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_sci: Extension DET1.SCI}
+            \item \texttt{hdrl\_image * det1\_err: Extension DET1.ERR}
+            \item \texttt{hdrl\_image * det1\_dq: Extension DET1.DQ}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -1,0 +1,23 @@
+\paragraph{\PROD{IFU_SCI_CUBE_CALIBRATED}} \label{dataitem:ifu_sci_cube_calibrated}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{IFU_SCI_CUBE_CALIBRATED}\\[0.3cm]
+        Description: & A telluric absorption corrected rectified spectral cube with a linear wavelength grid. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{IFU_SCI_CUBE_CALIBRATED} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.IFU}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{IFU_SCI_CUBE_CALIBRATED}\\[0.3cm]
+            Created by: & \REC{metis_ifu_calibrate} \\
+            Input for: & \REC{metis_ifu_postprocess} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * image: Extension IMAGE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

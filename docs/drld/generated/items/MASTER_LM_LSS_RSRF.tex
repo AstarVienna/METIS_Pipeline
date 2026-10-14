@@ -1,0 +1,26 @@
+\paragraph{\PROD{MASTER_LM_LSS_RSRF}} \label{dataitem:master_lm_lss_rsrf}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{MASTER_LM_LSS_RSRF}\\[0.3cm]
+        Description: & Master LM RSRF pixel map \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{MASTER_LM_LSS_RSRF} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{MASTER_LM_LSS_RSRF}\\[0.3cm]
+            Created by: & \REC{metis_lm_lss_rsrf} \\
+            Input for: & \REC{metis_lm_lss_sci} \\
+                        & \REC{metis_lm_lss_std} \\
+                        & \REC{metis_lm_lss_trace} \\
+                        & \REC{metis_lm_lss_wave} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

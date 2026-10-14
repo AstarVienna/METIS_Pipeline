@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
@@ -37,6 +37,7 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
 
         class SkyBasicReducedInput(SinglePipelineInput):
             Item = dataitems.LmSkyBasicReduced
+            _own_tags = frozenset({'target'})       # the sky frame of a SCI/STD run, by design
 
         basic_reduced: BasicReducedInput
         sky_basic_reduced: SkyBasicReducedInput
@@ -49,6 +50,13 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
     class Qc(QcParameterSet):
         Median = qc.background.QcLmImgBkgMedian
         MedianDev = qc.background.QcLmImgBkgMedianDeviation
+
+    _steps = (
+        Step('Average all or SKY exposures with object rejection',
+             inputs=(InputSet.SkyBasicReducedInput,),
+             products=(ProductSet.Bkg,)),
+        Step('Subtract background', products=(ProductSet.BkgSubtracted, ProductSet.ObjectCatalog,)),
+    )
     def process(self) -> set[DataItem]:
         image = self.inputset.basic_reduced.load_data('DET1.DATA')
         primary_header = self.inputset.basic_reduced.item.primary_header

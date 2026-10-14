@@ -1,0 +1,83 @@
+% % Document preamble. Comment out for final figure! Footer too!
+% \documentclass[tikz, margin=5mm, dvipsnames]{standalone}
+% \usepackage{listings}
+% \input{black_style}
+% \input{styles_data}
+% \begin{document}
+
+\input{black_style}
+\input{recipe_config}
+
+
+\begin{tikzpicture}
+  [x=1cm,
+  y=-1cm,
+  align=center,
+  node distance=2cm and 3cm]
+  \sffamily
+
+  %% Grid for orientation. Comment out for final figure!
+%   \draw[help lines, green](-5, 0) grid (8, 11);
+
+  %% Main reduction flow
+  \node (template) [template] {%
+    \TPL{METIS_gen_cal_dark}\\
+    \TPL{METIS_gen_cal_InsDark}};
+  \pic (start) [below=0.75cm of template] {start};
+  \node (input) [below=.75cm of start-m, input] {\textsl{N} \RAW{DARK_det_RAW}};
+  \node (step_linearity) [below=4.0cm of input, redstep] {%
+    apply non-linearity correction};
+
+  % Input
+  \node (connect_bpm) [connection] at ($(input)!0.3!(step_linearity)$) {};
+  \node (bpm) [left=of connect_bpm, external] {\EXTCALIB{BADPIX_MAP_det}};
+  \draw [connection_arrow, dashed] (bpm) -- (connect_bpm);
+
+  \node (connectlinearity) [connection] at ($(input)!0.55!(step_linearity)$){};
+  \node (linearity) [left=of connectlinearity, external]{\STATCALIB{LINEARITY_det}};
+  \draw [connection_arrow] (linearity) -- (connectlinearity);
+
+  \node (connectlinearity) [connection] at ($(input)!0.8!(step_linearity)$){};
+  \node (linearity) [left=of connectlinearity, external]{\STATCALIB{GAIN_MAP_det}};
+  \draw [connection_arrow] (linearity) -- (connectlinearity);
+
+  \node (step_persistence) [below of=step_linearity, redstep] {%
+    apply persistence correction};
+
+  \node (connectpersistence) [connection] at ($(step_linearity)!0.5!(step_persistence)$){};
+  \node (persistence) [left=of connectpersistence, external]{\EXTCALIB{PERSISTENCE_MAP}};
+  \draw [connection_arrow] (persistence) -- (connectpersistence);
+
+  \node (step_filtering) [below of=step_persistence, redstep] {%
+    per pixel median/ mean filtering};
+  \node (step_thresholding) [below of=step_filtering, redstep] {thresholding};
+  \pic (stop) [below=2.0cm of step_thresholding] {stop};
+
+  %% Connections
+  \draw [connection_arrow] (template) -- (input);
+  \draw [connection_arrow] (input) -- (step_linearity);
+  \draw [connection_arrow] (step_linearity) -- (step_persistence);
+  \draw [connection_arrow] (step_persistence) -- (step_filtering);
+  \draw [connection_arrow] (step_filtering) -- (step_thresholding);
+  \draw [connection_arrow] (step_thresholding) -- (stop-t);
+
+  %% Output
+  \node (connectdark) [connection] at ($(step_filtering)!0.5!(step_thresholding)$){};
+  \node (masterdark) [right=of connectdark, calproduct] {\STATCALIB{MASTER_DARK_det}};
+  \draw [connection_arrow] (connectdark) -- (masterdark);
+
+  \node (connecthot) [connection] at ($(step_thresholding)!0.5!(stop-t)$){};
+  \node (hot) [right=of connecthot, calproduct] {\STATCALIB{BADPIX_MAP_det}};
+  \draw [connection_arrow] (connecthot) -- (hot);
+
+  %% frame around recipe
+  \draw [frame] ($(input)!0.1!(step_linearity) - (2.8cm,0)$)
+  rectangle ($(step_thresholding)!0.7!(stop-t) + (2.8cm, 0)$);
+  \node [framecolor, anchor=north west] at
+  ($(input)!0.1!(step_linearity) - (2.5cm,0)$) {\REC{metis_det_dark}};
+
+\end{tikzpicture}
+\input{normal_style}
+
+% % Document footer. Comment out for final figure! Header too!
+% \end{document}

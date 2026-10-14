@@ -24,7 +24,7 @@ from pymetis.drl.combine import combine_images
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
@@ -83,6 +83,17 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         Snr = qc.chophome.CalChophomeSnr
         OffX = qc.chophome.CalChophomeOffx
         OffY = qc.chophome.CalChophomeOffy
+
+    _steps = (
+        Step('detector signature removal',
+             inputs=(InputSet.BadPixMapInput, InputSet.GainMapInput, InputSet.LinearityInput,
+                     InputSet.PersistenceMapInput,)),
+        Step('median-combine WCU_OFF subtract from CHOPHOME',
+             inputs=(InputSet.WcuOffInput,),
+             products=(ProductSet.Background,)),
+        Step('Centroid peak detection', inputs=(InputSet.PinholeTableInput,)),
+        Step('offset calculation', products=(ProductSet.Combined,)),
+    )
     def process(self) -> set[DataItem]:
         """This function processes the input images
 

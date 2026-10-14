@@ -1,0 +1,43 @@
+\begin{recipedef}
+  Name:                & \REC{metis_ifu_rsrf} \\
+  Purpose:             & Determine the relative spectral response function for the IFU detector. \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{IFU_RSRF_RAW} (N$\times$) \\
+                       & \RAW{IFU_WCU_OFF_RAW} (N$\times$) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_IFU} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_IFU}} (optional) \\
+                       & \PROD{IFU_DISTORTION_TABLE} \\
+                       & \PROD{IFU_WAVECAL} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_IFU}} (optional) \\
+                       & \PROD{MASTER_DARK_IFU} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.IFU} \\
+  Parameters:          & \CODE{metis_ifu_rsrf.stacking.method}: string\newline Name of the method used to combine the input images (\texttt{average}, \underline{\texttt{median}}) \\
+                       & \CODE{metis_ifu_rsrf.extract.hwidth}: int in $[1, 30]$\newline Half width of trace for 1D RSRF extraction [pix], default \texttt{20} \\
+  Algorithm:           & Average / median stack WCU\_OFF images to create background image \\
+                       & Obtain bad pixel map from master\_dark \\
+                       & Subtract background image from individual RSRF RAW frames \\
+                       & Stack the RSRF RAW frames \\
+                       & (TBC: subtract master\_dark from above frames first?) \\
+                       & (TBC: apply gain / linearity corrections to above frames?) \\
+                       & Create continuum image by mapping Planck spectrum at Tlamp to wavelength image \\
+                       & Scale continuum image to match the RSRF image \\
+                       & Divide stacked RAW frame by continuum image and save as \PROD{MASTER_FLAT_IFU} (2D RSRF) \\
+                       & Average in spatial direction for each spectral trace to obtain \\
+                       & relative response function (1D RSRF) - table with 1D spectra \\
+                       & (TBC: use proper PyReduce extract functionality including trace tilt) \\
+                       & Normalise the set of 1D spectra to a common level before saving as \PROD{RSRF_IFU} \\
+                       & Create bad pixel map from the master flat and update with locations \\
+                       & of zero values in the continuum image - save as \PROD{BADPIX_MAP_IFU} \\
+  Output data:         & \PROD{BADPIX_MAP_IFU} \\
+                       & \PROD{MASTER_FLAT_IFU} \\
+                       & \PROD{IFU_RSRF_BACKGROUND} \\
+                       & \PROD{RSRF_IFU} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC IFU RSRF NBADPIX} \\
+\end{recipedef}
+

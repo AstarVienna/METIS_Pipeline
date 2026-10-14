@@ -31,7 +31,7 @@ from pymetis.drl.polyfit import weighted_polyfit
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.parameter import ParameterList, ParameterValue
 
 from pymetis.instruments.metis.description import Metis
@@ -69,6 +69,13 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
         LinMaxFlux = qc.lingain.LinMaxFlux
         GainLin = qc.lingain.GainLin
         GainCoeff = qc.lingain.GainCoeff
+
+    _steps = (
+        Step('subtract dark'),
+        Step('compute gain', products=(ProductSet.GainMap,)),
+        Step('linearity check', products=(ProductSet.Linearity,)),
+        Step('thresholding', products=(ProductSet.BadPixMap,)),
+    )
 
     def __init__(self,
                  recipe: 'Recipe',
@@ -633,7 +640,7 @@ class MetisDetLinGain(Recipe):
             context=_name,
             description="Kappa factor for sigma clipping for BPM. "
                         "Values that deviate more than kappa*sigma from the median linearity are flagged.",
-            default=3,
+            default=3.0,
         ),
         ParameterValue(
             name=rf"{_name}.linlimit",

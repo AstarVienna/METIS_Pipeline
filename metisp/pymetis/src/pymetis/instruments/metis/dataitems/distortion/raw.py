@@ -33,6 +33,7 @@ class DistortionRaw(Raw, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.TEMPORARY
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                                'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'})
+    _dpr = ('CALIB', 'IMAGE,{band}', 'DISTORTION')
 
     _schema = {
         'PRIMARY': None,
@@ -50,3 +51,4 @@ class NDistortionRaw(BandNMixin, DistortionRaw):
 class IfuDistortionRaw(BandIfuMixin, DetectorIfuMixin, DistortionRaw):
     _schema = detectors(Image, 4)
     pass
+    _dpr = ('CALIB', 'IFU', 'DISTORTION')

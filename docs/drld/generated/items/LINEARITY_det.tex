@@ -1,0 +1,44 @@
+\paragraph{\PROD{LINEARITY_det}} \label{dataitem:linearity_det}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LINEARITY_det}\\[0.3cm]
+        Description: & Coefficients for the pixel \{detector\} non-linearity correction \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LINEARITY_det} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LINEARITY_det}\\[0.3cm]
+            Created by: & \REC{metis_det_lingain} \\
+            Input for: & \REC{metis_cal_chophome} \\
+                        & \REC{metis_ifu_distortion} \\
+                        & \REC{metis_ifu_reduce} \\
+                        & \REC{metis_ifu_rsrf} \\
+                        & \REC{metis_ifu_wavecal} \\
+                        & \REC{metis_lm_adc_slitloss} \\
+                        & \REC{metis_lm_img_basic_reduce} \\
+                        & \REC{metis_lm_img_distortion} \\
+                        & \REC{metis_lm_img_flat} \\
+                        & \REC{metis_lm_lss_rsrf} \\
+                        & \REC{metis_lm_lss_sci} \\
+                        & \REC{metis_lm_lss_std} \\
+                        & \REC{metis_lm_lss_trace} \\
+                        & \REC{metis_lm_lss_wave} \\
+                        & \REC{metis_n_adc_slitloss} \\
+                        & \REC{metis_n_img_chopnod} \\
+                        & \REC{metis_n_img_distortion} \\
+                        & \REC{metis_n_img_flat} \\
+                        & \REC{metis_n_lss_rsrf} \\
+                        & \REC{metis_n_lss_sci} \\
+                        & \REC{metis_n_lss_std} \\
+                        & \REC{metis_n_lss_trace} \\
+                        & \REC{metis_pupil_imaging} \\
+        Instances: & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_2RG}}, \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_GEO}}, \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_IFU}} \\[0.3cm]
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

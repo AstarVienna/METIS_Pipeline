@@ -34,6 +34,7 @@ class IfuWavecalRaw(DetectorIfuMixin, ImageDataItem):
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                                'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME',
                                'DRS.IFU'})
+    _dpr = ('CALIB', 'IFU', 'WAVE')
 
 
 class IfuWavecal(DetectorIfuMixin, ImageDataItem):
