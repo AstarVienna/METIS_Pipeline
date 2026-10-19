@@ -44,7 +44,7 @@ def estimate_noise(
     Msg.info("estimate_noise",
              f"Estimating noise for raw image, readnoise = {read_noise}")
 
-    noise = zeros_like(image)
+    noise = zeros_like(image, bpm=image.bpm)
     noise.copy_into(image, 0, 0)
 
     # add read noise plus shot noise

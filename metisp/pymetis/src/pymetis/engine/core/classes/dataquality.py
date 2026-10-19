@@ -152,8 +152,10 @@ class DataQuality:
         so only ``0x00000000`` is a valid pixel.
         """
         array = self._array()
+
         if bits is Ellipsis:
             return CplMask(array != 0)
-        # `& bits` isolates the selected bits
-        # `!= 0` collapses it to a boolean CplMask
-        return CplMask((array & bits) != 0)
+        else:
+            # `& bits` isolates the selected bits
+            # `!= 0` collapses it to a boolean CplMask
+            return CplMask((array & bits) != 0)
