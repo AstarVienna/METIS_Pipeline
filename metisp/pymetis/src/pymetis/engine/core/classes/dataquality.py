@@ -17,7 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from typing import Self, TYPE_CHECKING
+from types import EllipsisType
+from typing import Self
 
 import numpy as np
 
@@ -27,9 +28,8 @@ from cpl.core import (Image as CplImage,
                       Mask as CplMask,
                       Type as CplType,)
 
-if TYPE_CHECKING:
-    from .instrument import InstrumentDescription
-    
+from .instrument import InstrumentDescription
+
 
 class DataQuality:
     """
@@ -42,7 +42,7 @@ class DataQuality:
     boolean array -- so the individual bits cannot be carried through a
     CPL/HDRL call. The rich bitfield is kept here as the source of truth and
     collapsed to a binary bad-pixel mask only at that boundary via
-    :meth:`flatten` or :meth:`__getitem__` (also see DRLD section 3.5.3).
+    :meth:`__getitem__` (also see DRLD section 3.5.3).
 
     Bit arithmetic is done in numpy because ``cpl.core.Image`` exposes no
     bitwise operators; the canonical store is a ``CplType.INT`` image so it
@@ -57,7 +57,7 @@ class DataQuality:
 
         - a ``CplImage`` holding the raw bitfield,
         - a 1-bit ``CplMask`` (promoted to bit 0, i.e. a generic bad pixel), or
-        - another ``Mask`` (copy constructor).
+        - another ``DataQuality`` (copy constructor).
 
         The pixel data is always copied and coerced to ``int32``, so the new
         mask shares no buffer with its source.
@@ -69,7 +69,7 @@ class DataQuality:
         elif isinstance(data, CplImage):
             source = data.as_array().astype(np.int32)
         else:
-            raise TypeError(f"Cannot build a Mask from {type(data)}")
+            raise TypeError(f"Cannot build a DataQuality from {type(data)}")
         self.data: CplImage = CplImage(source, dtype=CplType.INT)
 
     def _array(self) -> np.ndarray:
@@ -89,9 +89,9 @@ class DataQuality:
         return DataQuality(self)
 
     @classmethod
-    def from_cpl_mask(cls, mask: CplMask, bit: int):
+    def from_cpl_mask(cls, mask: CplMask, bit: InstrumentDescription.MaskFlags):
         """
-        Create a new Mask from a CPL mask.
+        Create a new DataQuality from a single 1-bit CPL mask.
         """
         if bit.bit_count() != 1:
             raise ValueError("Only one bit must be set")
@@ -99,13 +99,16 @@ class DataQuality:
         return cls.from_cpl_masks({bit: mask})
 
     @classmethod
-    def from_cpl_masks(cls, masks: dict[int, CplMask]):
+    def from_cpl_masks(cls, masks: dict[InstrumentDescription.MaskFlags, CplMask]):
         """
         Create from a dictionary of 1-bit CPL masks in the form {bit: mask}.
         """
         # CPL images have no bitwise operators, so combine in numpy: each mask
         # is a boolean array and its bit is OR-ed in wherever the mask is set.
         arrays = {bit: np.asarray(mask).astype(bool) for bit, mask in masks.items()}
+
+        if not arrays:
+            raise hdrl.core.IncompatibleInputError("No masks given")
 
         # First ensure that all masks are the same size.
         shapes = {array.shape for array in arrays.values()}
@@ -121,15 +124,6 @@ class DataQuality:
     def zeros_like(cls, source) -> Self:
         return cls(CplImage.zeros_like(source))
 
-    def flatten(self) -> CplMask:
-        """
-        Flatten a 32-bit mask into a 1-bit mask for use with CPL / HDRL functions (see DRLD section 3.5.3).
-
-        A pixel is bad <=> any of the bits in the mask is nonzero,
-        hence only `0x00000000` represents a valid pixel.
-        """
-        return CplMask(self._array() != 0)
-
     def __and__(self, other: Self) -> Self:
         """Intersection of two masks: bitwise-AND of their flags."""
         return DataQuality(CplImage(self._array() & other._array(), dtype=CplType.INT))
@@ -138,14 +132,14 @@ class DataQuality:
         """Union of two masks: bitwise-OR of their flags."""
         return DataQuality(CplImage(self._array() | other._array(), dtype=CplType.INT))
 
-    def add(self, mask: CplMask, bit: int) -> Self:
-        """Add a CPL mask to this mask as bit `bit`."""
+    def add(self, mask: CplMask, bit: InstrumentDescription.MaskFlags) -> Self:
+        """Add a CPL mask to this mask as layer `bit`."""
         combined = self._array()
         combined[np.asarray(mask).astype(bool)] |= bit
         self.data = CplImage(combined, dtype=CplType.INT)
         return self
 
-    def __getitem__(self, bits: 'InstrumentDescription.MaskFlags') -> CplMask:
+    def __getitem__(self, bits: InstrumentDescription.MaskFlags | EllipsisType) -> CplMask:
         """
         Flatten the mask to 1-bit, using only selected bits, and return a corresponding CplMask.
 
@@ -154,7 +148,12 @@ class DataQuality:
         cpl_mask: CplMask = mask[Instrument.MaskFlags.COLD | Instrument.MaskFlags.HOT | Instrument.MaskFlags.BAD]
 
         Extracts all pixels that are (hot, cold or bad) and flattens that to a 1-bit CPL mask.
+        ``mask[...]`` collapses every layer: a pixel is bad iff any bit is set,
+        so only ``0x00000000`` is a valid pixel.
         """
+        array = self._array()
+        if bits is Ellipsis:
+            return CplMask(array != 0)
         # `& bits` isolates the selected bits
         # `!= 0` collapses it to a boolean CplMask
-        return CplMask((self._array() & bits) != 0)
+        return CplMask((array & bits) != 0)

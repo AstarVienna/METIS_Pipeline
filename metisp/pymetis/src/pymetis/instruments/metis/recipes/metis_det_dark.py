@@ -236,7 +236,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # Reject the same pixels on the local combined image, so that the QC
         # statistics are computed from the valid pixels only.
-        bad_pixels = output.dq.flatten()
+        bad_pixels = output.dq[...]
         combined_image.reject_from_mask(bad_pixels)
 
         Msg.info(self.__class__.__qualname__, "Actually Calculating QC parameters")

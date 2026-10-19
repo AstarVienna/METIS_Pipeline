@@ -183,7 +183,7 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
         # Reject the same pixels on the local master flat, so that the QC
         # statistics are computed from the valid pixels only.
-        bad_pixels = output.dq.flatten()
+        bad_pixels = output.dq[...]
         mflat.reject_from_mask(bad_pixels)
 
         Msg.info(self.__class__.__qualname__, "Calculating QC parameters")

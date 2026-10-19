@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 
+from types import EllipsisType
 from typing import Optional, ClassVar
 
 import numpy as np
@@ -240,7 +241,7 @@ class EnhancedImageBase:
 
     # ---- data quality ----
 
-    def reject(self, bits: InstrumentDescription.MaskFlags = InstrumentDescription.MaskFlags.ALL) -> None:
+    def reject(self, bits: InstrumentDescription.MaskFlags | EllipsisType = ...) -> None:
         """
         Extract the selected bits from the DQ layer and push them into the
         1-bit bad-pixel mask of every science plane. By default, all bits are active.

@@ -2,6 +2,11 @@ import enum
 
 
 class InstrumentDescription:
+    """
+    Base class for instrument descriptions.
+    Every instrument module should derive from this class and store its own global attributes in it.
+    """
+
     class MaskFlags(enum.IntFlag):
         """
         This class provides meanings for the mask bits.
