@@ -78,6 +78,14 @@ lm_off_axis_psf_raw = classification_rule("LM_OFF_AXIS_PSF_RAW",
      metis_kwd.dpr_tech: "IMAGE,LM",
     })
 
+persistence_map_lm_class = classification_rule("PERSISTENCE_MAP_lm",
+                                                {"instrume": "METIS",
+                                                 "dpr.catg": "CALIB",
+                                                 "pro.tech": "IMAGE,LM",
+                                                 "pro.type": "PERSISTENCE",
+                                                 "pro.catg": "PERSISTENCE_MAP"})
+
+
 # ------- N BAND CLASSIFICATIONS -----------
 
 
@@ -151,6 +159,12 @@ n_image_std_raw_class = classification_rule("N_IMAGE_STD_RAW",
      metis_kwd.dpr_tech: "IMAGE,N",
     })
 
+persistence_map_n_class = classification_rule("PERSISTENCE_MAP_N",
+                                                {"instrume": "METIS",
+                                                 "dpr.catg": "CALIB",
+                                                 "pro.tech": "IMAGE,N",
+                                                 "pro.type": "PERSISTENCE",
+                                                 "pro.catg": "PERSISTENCE_MAP"})
 
 
 # Flux standard catalog classification
@@ -252,9 +266,12 @@ ifu_sci_raw_class = classification_rule("IFU_SCI_RAW",
                                  "dpr.type": "OBJECT",
                                  })
 
-persistence_map_class = classification_rule("PERSISTENCE_MAP",
-                                        {"pro.catg": "PERSISTENCE_MAP",
-                                         })
+persistence_map_ifu_class = classification_rule("PERSISTENCE_MAP_IFU",
+                                                {"instrume": "METIS",
+                                                 "dpr.catg": "CALIB",
+                                                 "pro.tech": "IFU",
+                                                 "pro.type": "PERSISTENCE",
+                                                 "pro.catg": "PERSISTENCE_MAP"})
 
 master_dark_ifu_class = classification_rule("MASTER_DARK_IFU",
                                         {"pro.catg": "MASTER_DARK_IFU",
@@ -297,6 +314,15 @@ flux_tab_class = classification_rule("FLUXCAL_TAB",
 # ----- LM LSS Classifications -----
 
 # Slitloss files (TODO: Check the difference to STATIC ones - doubly defined??  Also check whether img or lss mode)
+
+lm_lss_wcu_off_raw_class = classification_rule("LM_LSS_WCU_OFF_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "DARK,WCUOFF",
+     metis_kwd.dpr_tech: "LSS,LM",
+    })
+
+
 lm_adc_slitloss_raw_class = classification_rule("LM_ADC_SLITLOSS_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
@@ -429,6 +455,15 @@ n_adc_slitloss_raw_class = classification_rule("N_ADC_SLITLOSS_RAW",
      metis_kwd.dpr_tech: "LSS,N",
      metis_kwd.dpr_type: "SLITLOSS",
     })
+
+
+n_lss_wcu_off_raw_class = classification_rule("N_LSS_WCU_OFF_RAW",
+    {metis_kwd.instrume: "METIS",
+     metis_kwd.dpr_catg: "CALIB",
+     metis_kwd.dpr_type: "DARK,WCUOFF",
+     metis_kwd.dpr_tech: "LSS,N",
+    })
+
 
 # RSRF / FLATFIELDS 
 n_lss_rsrf_raw_class = classification_rule("N_LSS_RSRF_RAW",

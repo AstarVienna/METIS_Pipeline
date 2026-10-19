@@ -23,6 +23,7 @@ detlin_2rg_raw = (data_source()
             .with_classification_rule(detlin_2rg_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
             .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 dark_2rg_raw = (data_source()
@@ -30,18 +31,21 @@ dark_2rg_raw = (data_source()
             .with_grouping_keywords(["det.ndit","det.dit"])
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_MONTH)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 lm_flat_lamp_raw = (data_source()
             .with_classification_rule(lm_flat_lamp_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_WEEK)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 lm_distortion_raw = (data_source()
             .with_classification_rule(lm_distortion_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
             .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 lm_wcu_off_raw = (data_source()
@@ -70,6 +74,7 @@ detlin_geo_raw = (data_source()
             .with_classification_rule(detlin_geo_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
             .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 dark_geo_raw = (data_source()
@@ -77,6 +82,7 @@ dark_geo_raw = (data_source()
             .with_grouping_keywords(["det.ndit","det.dit"])
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_MONTH)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 n_flat_lamp_raw = (data_source()
@@ -84,12 +90,14 @@ n_flat_lamp_raw = (data_source()
             .with_grouping_keywords(["instrume","tpl.start"])
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_WEEK)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 n_distortion_raw = (data_source()
             .with_classification_rule(n_distortion_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
             .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 n_wcu_off_raw = (data_source()
@@ -174,10 +182,22 @@ ifu_sci_raw = (data_source()
            .with_match_keywords(["instrume"])
            .build())
 
-persistence_map = (data_source()
-                     .with_classification_rule(persistence_map_class)
+persistence_map_lm = (data_source()
+                     .with_classification_rule(persistence_map_lm_class)
                      .with_match_keywords(["simple"])
                      .build())
+
+persistence_map_n = (data_source()
+                     .with_classification_rule(persistence_map_n_class)
+                     .with_match_keywords(["simple"])
+                     .build())
+
+persistence_map_ifu = (data_source()
+                     .with_classification_rule(persistence_map_ifu_class)
+                     .with_match_keywords(["simple"])
+                     .build())
+
+
 
 pinhole_table = (data_source()
                  .with_classification_rule(pinhole_table_class)
@@ -205,6 +225,12 @@ ifu_wavecal = (data_source()
             .build())
 
 # --- LM LSS Data Sources ---
+
+lm_lss_wcu_off_raw = (data_source()
+            .with_classification_rule(lm_lss_wcu_off_raw_class)
+            .with_match_keywords(["instrume"])
+            .build())
+
 lm_adc_slitloss_raw = (data_source()
             .with_classification_rule(lm_adc_slitloss_raw_class)
             # .with_min_group_size(MIN_NUM_SLITLOSPOS)
@@ -308,6 +334,11 @@ mf_best_fit_tab = (data_source()
             .build())
 
 # --- N LSS Data Sources ---
+
+n_lss_wcu_off_raw = (data_source()
+            .with_classification_rule(n_lss_wcu_off_raw_class)
+            .with_match_keywords(["instrume"])
+            .build())
 
 n_adc_slitloss_raw = (data_source()
             .with_classification_rule(n_adc_slitloss_raw_class)
