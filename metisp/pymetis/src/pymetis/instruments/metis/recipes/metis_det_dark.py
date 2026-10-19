@@ -318,7 +318,7 @@ class MetisDetDark(Recipe):
     _version = "0.1"
     _author = "Hugo Buddelmeijer, A*"
     _email = "hugo@buddelmeijer.nl"
-    _synopsis = "Create master dark"
+    _synopsis = "Create a master dark"
     _description = (
         "Prototype to create a METIS masterdark for {detector} in {2RG, GEO, IFU}"
     )

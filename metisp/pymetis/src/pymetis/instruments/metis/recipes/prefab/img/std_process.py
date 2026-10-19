@@ -24,8 +24,7 @@ from pymetis.engine.inputs import PipelineInputSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
 
-from pymetis.instruments.metis.inputs import FluxstdCatalogInput
-from pymetis.instruments.metis.inputs import RawInput
+from pymetis.instruments.metis.inputs import RawInput, FluxstdCatalogInput
 from pymetis.instruments.metis.mixins import TargetStdMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor

@@ -36,7 +36,7 @@ class MetisLmImgFlat(Recipe):
     _author = "A*"
     _email = "hugo@buddelmeijer.nl"
     _synopsis = "Create master flat for L/M band detectors"
-    _description = "Prototype to create a METIS Masterflat for L/M band"
+    _description = "Prototype to create a master flat for L/M band"
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
     _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
