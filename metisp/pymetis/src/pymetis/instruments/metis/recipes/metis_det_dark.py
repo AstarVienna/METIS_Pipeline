@@ -259,7 +259,6 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         header_image = cpl.core.PropertyList()
 
         hh = header_image.load(self.inputset.raw.frameset[0].file, 0)
-        Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
         gg = self.collect_qc_parameters(
             self.Qc.DarkMean(combined_image.image.get_mean()),
@@ -275,6 +274,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
             self.Qc.DarkMedianMax(np.median(np.array(maxs))),
         )
 
+        Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
         header_image.append(gg)
         header_image.append(hh)
 

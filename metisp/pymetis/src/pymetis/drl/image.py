@@ -27,9 +27,9 @@ from cpl.core import (Image as CplImage,
 
 def zeros_like(
         image: CplImage,
-        bpm: Optional[CplMask] = None,
-        *,
         new_type: Optional[CplType] = None,
+        *,
+        bpm: Optional[CplMask] = None,
     ) -> CplImage:
     """
     Create a new CPL Image with the same size as image, optionally with a new underlying type
