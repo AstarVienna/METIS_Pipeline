@@ -280,8 +280,10 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # for the time being append READNOISE to the header
         header_image.append(cpl.core.Property("READNOISE", cpl.core.Type.DOUBLE, read_noise[0]))
+
+        # Debug output only
         for elem in header_image:
-            Msg.info(self.__class__.__qualname__, f"HEADER IMAGE{elem}")
+            Msg.debug(self.__class__.__qualname__, f"    {elem.name} = {elem.value}")
 
         output.header_image = header_image
         output.header_error = copy.deepcopy(header_image) # FixMe this is temporary

@@ -207,9 +207,9 @@ class RecipeImpl(Parametrizable, ABC):
             if not qcparam.available:
                 # ToDo: bump back to Msg.warning once the recipes compute their QC values; while
                 #       most recipes are skeletons that pass None, a warning per parameter is noise.
-                Msg.info(self.__class__.__qualname__, f"    {qcparam.name()} not available, not written")
+                Msg.warning(self.__class__.__qualname__, f"    {qcparam.name()} not available, not written")
                 continue
-            Msg.info(self.__class__.__qualname__, f"    {qcparam.name()} = {qcparam.value!s}")
+            Msg.debug(self.__class__.__qualname__, f"    {qcparam.name()} = {qcparam.value!s}")
             out.append(qcparam.as_property())
 
         return out
