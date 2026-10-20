@@ -8,11 +8,13 @@ on `<recipe>.sof` from `$SOF_DIR` and skip for recipes whose SOFs are named
 differently (per band or target); those recipes keep their own test module under
 `tests/recipes/`, alongside any recipe-specific tests.
 """
+import ast
 import inspect
 import os
 import pprint
 import re
 import subprocess
+import textwrap
 from pathlib import Path
 
 import cpl
@@ -143,9 +145,9 @@ class TestDeclaredProducts:
 class TestDeclaredQcParametersAreWritten:
     """
     A QC parameter declared in a recipe's `Qc` set is advertised by the man page and by the
-    DRLD generator, so the recipe should actually produce it. This test checks statically
-    that every declared parameter is instantiated somewhere in the recipe implementation
-    (`self.Qc.<Name>(...)` in the Impl or one of its prefab bases). It fails for every
+    DRLD generator, so the recipe should actually produce it. This test checks statically,
+    by walking the AST, that every declared parameter is instantiated somewhere in the
+    recipe implementation (`self.Qc.<Name>(...)` in the Impl or one of its prefab bases). It fails for every
     skeleton recipe until the values are computed; the QC audit of 2026-09-17 counted
     141 of 178 declarations never written. Those recipes are listed below and marked
     `xfail(strict=True)`: once a recipe writes all of its QC parameters the test flips to
@@ -164,31 +166,44 @@ class TestDeclaredQcParametersAreWritten:
     })
 
     @staticmethod
-    def implementation_source(recipe: type[Recipe]) -> str:
-        sources = []
+    def computed_qc_parameters(recipe: type[Recipe]) -> set[str]:
+        """
+        Names of the QC parameters the recipe implementation instantiates, found by walking
+        the AST of every class in the Impl's MRO that lives in pymetis. A call
+        ``<anything>.Qc.<Name>(...)`` counts, unless its first argument is the literal
+        ``None``: that is the placeholder a skeleton recipe wires in ("not available",
+        skipped at collection). Comments and strings are invisible to the AST, so a
+        commented-out call does not count.
+        """
+        computed: set[str] = set()
         for base in recipe.Impl.__mro__:
             try:
                 path = inspect.getsourcefile(base)
-            except TypeError:
+                source = inspect.getsource(base)
+            except (TypeError, OSError):
                 continue
-            if path and 'pymetis' in path:
-                sources.append(Path(path).read_text())
-        return '\n'.join(sources)
-
-    @staticmethod
-    def is_computed(attr: str, source: str) -> bool:
-        """ `self.Qc.X(value)` with a real value; `self.Qc.X(None)` is the placeholder a
-        skeleton recipe wires in ("not available", skipped at collection) and does not count. """
-        return re.search(r'\bQc\.' + re.escape(attr) + r'\(\s*(?!None\s*[,)])', source) is not None
+            if not path or 'pymetis' not in path:
+                continue
+            for node in ast.walk(ast.parse(textwrap.dedent(source))):
+                if not (isinstance(node, ast.Call)
+                        and isinstance(node.func, ast.Attribute)
+                        and isinstance(node.func.value, ast.Attribute)
+                        and node.func.value.attr == 'Qc'):
+                    continue
+                first = node.args[0] if node.args else None
+                if isinstance(first, ast.Constant) and first.value is None:
+                    continue
+                computed.add(node.func.attr)
+        return computed
 
     def test_every_declared_qc_parameter_is_instantiated(self, recipe, request):
         if recipe._name in self.RECIPES_WITH_UNWRITTEN_QC:
             request.applymarker(pytest.mark.xfail(
                 strict=True, reason="skeleton recipe: declared QC parameters are not computed yet"))
-        source = self.implementation_source(recipe)
+        computed = self.computed_qc_parameters(recipe)
         unwritten = [f"{attr} ({klass.name()})"
                      for attr, klass in recipe._list_qc_parameters()
-                     if not self.is_computed(attr, source)]
+                     if attr not in computed]
         assert not unwritten, \
             (f"{recipe._name} declares {len(unwritten)} QC parameter(s) it never writes: "
              + ', '.join(unwritten))
