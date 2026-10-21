@@ -25,7 +25,7 @@ from pymetis.engine.core.functions.dummy import create_dummy_image, create_dummy
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.instruments.metis.inputs.common import FluxCalTableInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis import dataitems
@@ -61,6 +61,13 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
             _unit = "Jansky"
             _description_template = "Maximum pixel flux in the calibrated image"
             _comment = None
+
+    _steps = (
+        Step('Correct for telluric absorption.', inputs=(InputSet.TelluricInput,)),
+        Step('Apply flux calibration.',
+             inputs=(FluxCalTableInput,),
+             products=(ProductSet.SciCubeCalibrated,)),
+    )
 
 
     def process(self) -> set[DataItem]:

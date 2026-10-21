@@ -1,0 +1,26 @@
+\paragraph{\RAW{N_DISTORTION_RAW}} \label{dataitem:n_distortion_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{N_DISTORTION_RAW}\\[0.3cm]
+        Description: & Raw data for distortion determination in other recipes in the N band. \\[0.3cm]
+        OCA keywords: & \FITS{DPR.CATG}\\
+         & \FITS{DPR.TECH}\\
+         & \FITS{DPR.TYPE}\\
+         & \FITS{DRS.IFU}\\
+         & \FITS{INS.OPTI10.NAME}\\
+         & \FITS{INS.OPTI3.NAME}\\
+         & \FITS{INS.OPTI9.NAME}\\
+        \FITS{DO.CATG}: & \CODE{N_DISTORTION_RAW}\\[0.3cm]
+            Input for recipe: & \REC{metis_n_img_distortion} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -1,0 +1,27 @@
+\paragraph{\PROD{IFU_WAVECAL}} \label{dataitem:ifu_wavecal}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{IFU_WAVECAL}\\[0.3cm]
+        Description: & Image with wavelength at each pixel. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{IFU_WAVECAL} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.IFU}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{IFU_WAVECAL}\\[0.3cm]
+            Created by: & \REC{metis_ifu_wavecal} \\
+            Input for: & \REC{metis_ifu_reduce} \\
+                        & \REC{metis_ifu_rsrf} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1: Extension DET1}
+            \item \texttt{hdrl\_image * det2: Extension DET2}
+            \item \texttt{hdrl\_image * det3: Extension DET3}
+            \item \texttt{hdrl\_image * det4: Extension DET4}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

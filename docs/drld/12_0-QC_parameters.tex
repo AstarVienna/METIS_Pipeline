@@ -1,0 +1,986 @@
+\clearpage
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}} % override table of contents depth to 2 to exclude subsubsection, reverted at end of this document. replaced all paragraph by subsubsection. However this triggers a warning for \lstline
+\section{QC Parameters}\label{sec:qc_parameters}
+The following placeholders are used in the QC parameter names:
+\begin{itemize}
+  \item \CODE{det} is a placeholder for either \CODE{LM}, \CODE{N}, or \CODE{IFU}
+  \item \CODE{cgrph} is a placeholder for one of the coronographs
+% nn suffix removed for now because it caused problems with the headers
+%  \item \FITS{nn} is a placeholder for a numerical index
+\end{itemize}
+
+\subsection{Calibration}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      PERSISTENCE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% HANDWRITTEN: QC PERSIST COUNT: no such QC parameter in pymetis
+\subsubsection{QC PERSIST COUNT}\label{qc:qc_persist_count}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC PERSIST COUNT} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & int \tabularnewline
+Value & \%i \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \DRL{metis_apply_persistence_correction}\\
+Description & Number of pixels heavily affected by persistence \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      DARKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_dark_mean}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      DARKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_dark_median}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      DARKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_dark_rms}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      DARKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_dark_nbadpix}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      DARKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_dark_ncoldpix}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      DARKS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_dark_nhotpix}
+
+
+\input{generated/qc/qc_dark_median_median}
+
+
+\input{generated/qc/qc_dark_median_mean}
+
+
+\input{generated/qc/qc_dark_median_rms}
+
+
+\input{generated/qc/qc_dark_median_min}
+
+
+\input{generated/qc/qc_dark_median_max}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      FLATS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_mflat_rms}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% HANDWRITTEN: QC LM MFLAT MEDIAN: no such QC parameter in pymetis
+\subsubsection{QC LM MFLAT MEDIAN}\label{qc:qc_lm_mflat_median}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC LM MFLAT MEDIAN} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_lm_img_flat}\\
+Description & Median of the master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_mflat_nbadpix}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC LM MLFLAT RMS: no such QC parameter in pymetis
+\subsubsection{QC LM MLFLAT RMS}\label{qc:qc_lm_mlflat_rms}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC LM MLFLAT RMS} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_lm_img_flat}\\
+Description & RMS of the lamp master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC LM MLFLAT MEDIAN: no such QC parameter in pymetis
+\subsubsection{QC LM MLFLAT MEDIAN}\label{qc:qc_lm_mlflat_median}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC LM MLFLAT MEDIAN} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_lm_img_flat}\\
+Description & Median of the lamp master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC LM MLFLAT NBADPIX: no such QC parameter in pymetis
+\subsubsection{QC LM MLFLAT NBADPIX}\label{qc:qc_lm_mlflat_nbadpix}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC LM MLFLAT NBADPIX} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & int \tabularnewline
+Value & \%i \tabularnewline
+Unit & None \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_lm_img_flat}\\
+Description & Number of bad pixels in the lamp master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC LM MTFLAT RMS: no such QC parameter in pymetis
+\subsubsection{QC LM MTFLAT RMS}\label{qc:qc_lm_mtflat_rms}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC LM MTFLAT RMS} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_lm_img_flat}\\
+Description & RMS of the twilight master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC LM MTFLAT MEDIAN: no such QC parameter in pymetis
+\subsubsection{QC LM MTFLAT MEDIAN}\label{qc:qc_lm_mtflat_median}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC LM MTFLAT MEDIAN} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_lm_img_flat}\\
+Description & Median of the twilight master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC LM MTFLAT NBADPIX: no such QC parameter in pymetis
+\subsubsection{QC LM MTFLAT NBADPIX}\label{qc:qc_lm_mtflat_nbadpix}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC LM MFLAT NBADPIX} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & int \tabularnewline
+Value & \%i \tabularnewline
+Unit & None \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_lm_img_flat}\\
+Description & Number of bad pixels in the twilight master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_flat_mean}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_flat_rms}
+\label{qc:lmflatrms}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% HANDWRITTEN: QC LM FLAT MEDIAN MEAN: no such QC parameter in pymetis
+\subsubsection{QC LM FLAT MEDIAN MEAN}\label{qc:qc_lm_flat_median_mean}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC LM FLAT MEDIAN MEAN} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_lm_img_flat}\\
+Description & Mean value of the medians of input flat frames \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_lm_flat_median_min}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_lm_flat_median_max}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_lm_flat_median_rms}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_n_mflat_rms}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% HANDWRITTEN: QC N MFLAT MEDIAN: no such QC parameter in pymetis
+\subsubsection{QC N MFLAT MEDIAN}\label{qc:qc_n_mflat_median}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC N MFLAT MEDIAN} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_n_img_flat}\\
+Description & Median of the master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_mflat_nbadpix}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC N MLFLAT RMS: no such QC parameter in pymetis
+\subsubsection{QC N MLFLAT RMS}\label{qc:qc_n_mlflat_rms}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC N MLFLAT RMS} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_n_img_flat}\\
+Description & RMS of the lamp master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC N MLFLAT MEDIAN: no such QC parameter in pymetis
+\subsubsection{QC N MLFLAT MEDIAN}\label{qc:qc_n_mlflat_median}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC N MLFLAT MEDIAN} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_n_img_flat}\\
+Description & Median of the lamp master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC N MLFLAT NBADPIX: no such QC parameter in pymetis
+\subsubsection{QC N MLFLAT NBADPIX}\label{qc:qc_n_mlflat_nbadpix}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC N MLFLAT NBADPIX} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & int \tabularnewline
+Value & \%i \tabularnewline
+Unit & None \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_n_img_flat}\\
+Description & Number of bad pixels in the lamp master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC N MTFLAT RMS: no such QC parameter in pymetis
+\subsubsection{QC N MTFLAT RMS}\label{qc:qc_n_mtflat_rms}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC N MTFLAT RMS} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_n_img_flat}\\
+Description & RMS of the twilight master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC N MTFLAT MEDIAN: no such QC parameter in pymetis
+\subsubsection{QC N MTFLAT MEDIAN}\label{qc:qc_n_mtflat_median}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC N MTFLAT MEDIAN} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_n_img_flat}\\
+Description & Median of the twilight master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+% ToDo (decision 2026-09-18, "MFLAT only"): the master-flat QC is written once per product under the
+% MFLAT family; the product tag says whether the flat is LAMP or TWILIGHT. This per-source card is
+% kept for reference and is not produced by the pipeline; drop it or reinstate it deliberately.
+% HANDWRITTEN: QC N MTFLAT NBADPIX: no such QC parameter in pymetis
+\subsubsection{QC N MTFLAT NBADPIX}\label{qc:qc_n_mtflat_nbadpix}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC N MFLAT NBADPIX} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & int \tabularnewline
+Value & \%i \tabularnewline
+Unit & None \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_lm_img_flat}\\
+Description & Number of bad pixels in the twilight master flat \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_flat_mean}
+\label{qc:nflatmean}
+\label{qc:n_flat_mean}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_n_flat_rms}
+\label{qc:nflatrms}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% HANDWRITTEN: QC N FLAT MEDIAN MEAN: no such QC parameter in pymetis
+\subsubsection{QC N FLAT MEDIAN MEAN}\label{qc:qc_n_flat_median_mean}
+\notgenerated{no such QC parameter in pymetis}
+\begin{handrecipedef}
+Name & \QC{QC N FLAT MEDIAN MEAN} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & double \tabularnewline
+Value & \%.3f \tabularnewline
+Unit & Counts \tabularnewline
+Default & None  \tabularnewline
+Range & None \tabularnewline
+Created by & \REC{metis_n_img_flat}\\
+Description & Mean value of the medians of input flat frames \tabularnewline
+Comment & \tabularnewline
+\end{handrecipedef}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_n_flat_median_min}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_n_flat_median_max}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_n_flat_median_rms}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% CHOPHOME
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_cal_chophome_xcen}
+
+\input{generated/qc/qc_cal_chophome_xcen_stdev}
+
+\input{generated/qc/qc_cal_chophome_ycen}
+
+\input{generated/qc/qc_cal_chophome_ycen_stdev}
+
+\input{generated/qc/qc_cal_chophome_fwhm}
+
+\input{generated/qc/qc_cal_chophome_snr}
+
+\input{generated/qc/qc_cal_chophome_offx}
+
+\input{generated/qc/qc_cal_chophome_offy}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Imaging mode}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      PHOTOMETRIC CALIBRATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lin_gain_mean}
+
+\input{generated/qc/qc_lin_gain_rms}
+
+\input{generated/qc/qc_lin_min_flux}
+
+\input{generated/qc/qc_lin_max_flux}
+
+\input{generated/qc/qc_gain_lin}
+
+\input{generated/qc/qc_gain_coeff}
+
+\input{generated/qc/qc_lm_img_std_backgd_rms}
+
+\input{generated/qc/qc_lm_sci_nexp}
+
+\input{generated/qc/qc_lm_sci_postproc_gridrng}
+
+\input{generated/qc/qc_lm_sci_postproc_medmean}
+
+\input{generated/qc/qc_lm_sci_postproc_medrms}
+
+\input{generated/qc/qc_lm_sci_postproc_medmed}
+
+\input{generated/qc/qc_lm_sci_postproc_deltac}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_std_peak_cnts}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_std_aperture_cnts}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_std_strehl}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_lm_std_fwhm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_lm_std_ellip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_std_fluxconv}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_lm_std_airmass}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\input{generated/qc/qc_lm_sens}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\input{generated/qc/qc_lm_area_sens}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_img_std_backgd_rms}
+
+\input{generated/qc/qc_n_img_peak_cnts}
+
+\input{generated/qc/qc_n_std_peak_cnts}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_std_aperture_cnts}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_std_strehl}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_n_std_fwhm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_n_std_ellip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_n_std_fluxconv}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{generated/qc/qc_n_std_airmass}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\input{generated/qc/qc_n_sens}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\input{generated/qc/qc_n_area_sens}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      LM-Band
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_img_median}
+
+\input{generated/qc/qc_lm_img_standard_deviation}
+
+\input{generated/qc/qc_lm_img_peak}
+
+
+\input{generated/qc/qc_lm_img_bkg_median}
+
+
+\input{generated/qc/qc_lm_img_bkg_median_deviation}
+
+\input{generated/qc/qc_lin_num_badpix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{IFU mode}
+\label{ssec:qc_ifu}
+
+\input{generated/qc/qc_ifu_rsrf_nbadpix}
+
+\input{generated/qc/qc_ifu_std_fwhm}
+
+\input{generated/qc/qc_ifu_std_ellip}
+
+\input{generated/qc/qc_ifu_wavecal_nlines}
+
+
+\input{generated/qc/qc_ifu_wavecal_rms}
+
+
+\input{generated/qc/qc_ifu_wavecal_peak_cnts}
+
+\input{generated/qc/qc_ifu_wavecal_line_width}
+
+
+\input{generated/qc/qc_ifu_distort_rms}
+
+\input{generated/qc/qc_ifu_distort_fwhm}
+
+\input{generated/qc/qc_ifu_distort_nspots}
+
+
+\input{generated/qc/qc_ifu_reduce_nbadpix}
+
+
+\input{generated/qc/qc_ifu_reduce_meanbkg}
+
+
+\input{generated/qc/qc_ifu_reduce_meanstry}
+
+
+\input{generated/qc/qc_ifu_telluric_chi2}
+
+
+\input{generated/qc/qc_ifu_telluric_npthresh}
+
+
+\input{generated/qc/qc_ifu_telluric_conv}
+
+
+\input{generated/qc/qc_ifu_calib_minflux}
+
+
+\input{generated/qc/qc_ifu_calib_maxflux}
+
+
+\input{generated/qc/qc_ifu_postproc_gridrng}
+
+\input{generated/qc/qc_ifu_postproc_medmean}
+
+\input{generated/qc/qc_ifu_postproc_medrms}
+
+\input{generated/qc/qc_ifu_postproc_medmed}
+
+\input{generated/qc/qc_ifu_postproc_deltac}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Long-slit spectroscopy mode}
+
+
+%%      LM-Band
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_rsrf_mean_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_rsrf_median_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_rsrf_intordr_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_rsrf_norm_stdev}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_rsrf_norm_snr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_trace_lpolydeg}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_trace_lcoefforder}
+\label{qc:qc_lm_lss_trace_lcoeff<i>}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_trace_rpolydeg}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_trace_rcoefforder}
+\label{qc:qc_lm_lss_trace_rcoeff<i>}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_trace_intordr_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_wave_polydeg}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_wave_coeffi}
+\label{qc:qc_lm_lss_wave_coeff<i>}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_wave_nlines}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_wave_linefwhmavg}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_wave_intordr_level}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_backgd_mean}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_backgd_median}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_backgd_stdev}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_snr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_noiselev}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_fwhm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_intordr_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_avglevel}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_wavecal_devmean}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_wavecal_fwhm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_wavecal_nident}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_wavecal_nmatch}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_wavecal_polydeg}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_std_wavecal_polycoeffn}
+\label{qc:qc_lm_lss_std_wavecal_polycoeff<n>}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{QC LM LSS STD PSFLOSS}\label{qc:qc_lm_lss_std_psfloss}
+%\begin{recipedef}
+%Name & \QC{QC LM LSS STD PSFLOSS} \tabularnewline
+%Class & header \tabularnewline
+%Context & QC \tabularnewline
+%Type & double \tabularnewline
+%Value & \%.3f \tabularnewline
+%Unit & n/a \tabularnewline
+%Default & None  \tabularnewline
+%Range & None \tabularnewline
+%Created by & \REC{metis_lm_lss_std}\\
+%Description & Fraction of AO induced slit losses (TBdef) \tabularnewline
+%Comment & None \tabularnewline
+%\end{recipedef}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_snr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_noiselev}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_flux_snr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_flux_noiselev}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_intordr_level}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_wavecal_devmean}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_wavecal_fwhm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_wavecal_nident}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_wavecal_nmatch}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_wavecal_polydeg}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_lss_sci_wavecal_polycoeffn}
+\label{qc:qc_lm_lss_sci_wavecal_polycoeff<n>}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%      N-Band
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_rsrf_mean_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_rsrf_median_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_rsrf_intordr_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_rsrf_norm_stdev}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_rsrf_norm_snr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_trace_lpolydeg}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_trace_lcoefforder}
+\label{qc:qc_n_lss_trace_lcoeff<i>}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_trace_rpolydeg}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_trace_rcoefforder}
+\label{qc:qc_n_lss_trace_rcoeff<i>}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_trace_intordr_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_backgd_mean}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_backgd_median}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_backgd_stdev}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_snr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_noiselev}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_fwhm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_intordr_level}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_avglevel}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_wavecal_devmean}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_wavecal_fwhm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_wavecal_nident}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_wavecal_nmatch}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_wavecal_polydeg}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_std_wavecal_polycoeffn}
+\label{qc:qc_n_lss_std_wavecal_polycoeff<n>}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{QC N LSS STD PSFLOSS}\label{qc:qc_n_lss_std_psfloss}
+%\begin{recipedef}
+%Name & \QC{QC N LSS STD PSFLOSS} \tabularnewline
+%Class & header \tabularnewline
+%Context & QC \tabularnewline
+%Type & double \tabularnewline
+%Value & \%.3f \tabularnewline
+%Unit & n/a \tabularnewline
+%Default & None  \tabularnewline
+%Range & None \tabularnewline
+%Created by & \REC{metis_n_lss_std}\\
+%Description & Fraction of AO induced slit losses (TBdef) \tabularnewline
+%Comment & None \tabularnewline
+%\end{recipedef}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_snr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_noiselev}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_flux_snr}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_flux_noiselev}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_intordr_level}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_wavecal_devmean}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_wavecal_fwhm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_wavecal_nident}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_wavecal_nmatch}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_wavecal_polydeg}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_lss_sci_wavecal_polycoeffn}
+\label{qc:qc_n_lss_sci_wavecal_polycoeff<n>}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_distort_rms}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_distort_rms}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_lm_distort_nsource}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{generated/qc/qc_n_distort_nsource}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsubsection{}\label{qc:}
+%\begin{recipedef}
+%Name & \QC{} \tabularnewline
+%Class & header \tabularnewline
+%Context & QC \tabularnewline
+%Type & double \tabularnewline
+%Value & \%.3f \tabularnewline
+%Unit & n/a \tabularnewline
+%Default & None  \tabularnewline
+%Range & None \tabularnewline
+%Created by & \REC{}\\
+%Description &  \tabularnewline
+%Comment & None \tabularnewline
+%\end{recipedef}
+
+\subsubsection{QC parameters defined by the pipeline}
+QC parameters pymetis defines that the DRLD has no card for.
+\input{generated/qc/qc_ifu_distort_ntraces}
+\input{generated/qc/qc_lm_lss_std_psfloss}
+\input{generated/qc/qc_n_lss_std_psfloss}
+
+\input{ADI_QC_items}
+
+\input{QC_Health_Parameters}
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "METIS_DRLD"
+%%% End:

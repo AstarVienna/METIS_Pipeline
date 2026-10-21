@@ -1,0 +1,35 @@
+\begin{recipedef}
+  Name:                & \REC{metis_img_adi_cgrph} \\
+  Purpose:             & ADI post-processing for the RAVC and CVC coronagraphs in the LM and N bands \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \PROD{LM_SCI_CALIBRATED} or \PROD{N_SCI_CALIBRATED} (N$\times$) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_det} (optional) \\
+                       & \PROD{det_cgrph_SCI_THROUGHPUT} \\
+  Matched keywords:    & \FITS{DRS.FILTER} \\
+                       & \FITS{DRS.MASK} \\
+  Parameters:          & --- none --- \\
+  Algorithm:           & TODO \\
+  Output data:         & \PROD{det_cgrph_CENTROID_TAB} \\
+                       & \PROD{det_cgrph_PSF_MEDIAN} \\
+                       & \PROD{det_cgrph_SCI_CALIBRATED} \\
+                       & \PROD{det_cgrph_SCI_CENTRED} \\
+                       & \PROD{det_cgrph_SCI_CONTRAST_ADI} \\
+                       & \PROD{det_cgrph_SCI_CONTRAST_RADPROF} \\
+                       & \PROD{det_cgrph_SCI_COVERAGE} \\
+                       & \PROD{det_cgrph_SCI_DEROTATED} \\
+                       & \PROD{det_cgrph_SCI_DEROTATED_PSFSUB} \\
+                       & \PROD{det_cgrph_SCI_HIFILT} \\
+                       & \PROD{det_cgrph_SCI_SNR} \\
+                       & \PROD{det_cgrph_SCI_SPECKLE} \\
+                       & \PROD{det_cgrph_SCI_THROUGHPUT} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC det cgrph SCI CONTRAST ADI LAMD} \\
+                       & \QC{QC det cgrph SCI CONTRAST RAW LAMD} \\
+                       & \QC{QC det cgrph SCI FWHM nn} \\
+                       & \QC{QC det cgrph SCI NEXP} \\
+                       & \QC{QC det cgrph SCI SNR MEAN} \\
+                       & \QC{QC det cgrph SCI SNR PEAK} \\
+\end{recipedef}
+

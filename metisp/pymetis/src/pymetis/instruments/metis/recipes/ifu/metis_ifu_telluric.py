@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
@@ -84,6 +84,14 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
             _type = float
             _unit = "Jansky / counts"
             _description_template = "Calculated conversion factor"
+
+    _steps = (
+        Step('1D extraction', products=(ProductSet.ResponseFunction,)),
+        Step('Molecfit',
+             inputs=(LsfKernelInput, AtmProfileInput,),
+             products=(ProductSet.TelluricTransmission,)),
+        Step('flux calibration', inputs=(FluxstdCatalogInput,), products=(ProductSet.FluxcalTab,)),
+    )
 
 
     # TODO: Define input type for the paramfile in common.py

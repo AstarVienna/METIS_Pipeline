@@ -37,12 +37,15 @@ class DarkRaw(Raw, abstract=True):
 
 class Dark2rgRaw(Detector2rgMixin, DarkRaw):
     _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.FILTER'})
+    _dpr = ('CALIB', 'IMAGE,LM', 'DARK')
 
 
 class DarkGeoRaw(DetectorGeoMixin, DarkRaw):
     _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.FILTER'})
+    _dpr = ('CALIB', 'IMAGE,N', 'DARK')
 
 
 class DarkIfuRaw(DetectorIfuMixin, DarkRaw):
     _schema = detectors(Image, 4)
     _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.IFU'})
+    _dpr = ('CALIB', 'IFU', 'DARK')

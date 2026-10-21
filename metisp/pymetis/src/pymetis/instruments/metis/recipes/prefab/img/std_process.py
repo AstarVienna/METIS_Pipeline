@@ -30,6 +30,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.engine.recipes import Step
 
 
 class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl):
@@ -56,6 +57,15 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl)
         FluxConversion = qc.std_process.QcStdFluxConversion
         Sensitivity = qc.std_process.QcSensitivity
         AreaSensitivity = qc.std_process.QcAreaSensitivity
+
+    _steps = (
+        Step('Detect standard star in individual frames', inputs=(FluxstdCatalogInput,)),
+        Step('shift and combine images based on the position of the standard star',
+             products=(ProductSet.ImgStdCombined,)),
+        Step('measure flux from star in instrumental units in combined image'),
+        Step('compute conversion factor to physical units', products=(ProductSet.ImgFluxCalTable,)),
+        Step('measure background noise and calculate detection limits'),
+    )
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')
 

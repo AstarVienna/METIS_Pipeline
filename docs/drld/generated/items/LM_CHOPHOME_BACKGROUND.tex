@@ -1,0 +1,23 @@
+\paragraph{\PROD{LM_CHOPHOME_BACKGROUND}} \label{dataitem:lm_chophome_background}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_CHOPHOME_BACKGROUND}\\[0.3cm]
+        Description: & Stacked WCU background images. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_CHOPHOME_BACKGROUND} \\[0.3cm]
+        OCA keywords: & \FITS{INS.OPTI19.NAME}\\
+         & \FITS{INS.OPTI20.NAME}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_CHOPHOME_BACKGROUND}\\[0.3cm]
+            Created by: & \REC{metis_cal_chophome} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * image: Extension IMAGE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -23,15 +23,16 @@ from typing import Literal
 from cpl.core import Msg, Image as CplImage, ImageList as CplImageList
 
 from pymetis.drl.combine import combine_images
-from pymetis.engine.recipes import RecipeImpl
+
 from pymetis.engine.inputs import PipelineInputSet
 
 from ...inputs import RawInput, BadPixMapInput, OptionalInputMixin
+from ..base import MetisRecipeImpl
 
 CombineMethodType = Literal['add', 'average', 'median', 'sigclip']
 
 
-class RawImageProcessor(RecipeImpl, ABC):
+class RawImageProcessor(MetisRecipeImpl, ABC):
     """
     RawImageProcessor is a recipe implementation that takes a bunch of raw frames,
     categorizes them according to their properties and outputs and performs a sanity check or two.

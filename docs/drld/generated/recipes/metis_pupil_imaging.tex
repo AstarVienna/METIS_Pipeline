@@ -1,0 +1,20 @@
+\begin{recipedef}
+  Name:                & \REC{metis_pupil_imaging} \\
+  Purpose:             & Basic processing of pupil images \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{LM_PUPIL_RAW} or \RAW{N_PUPIL_RAW} (N$\times$) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_det} (optional) \\
+                       & \STATCALIB{GAIN_MAP_det} \\
+                       & \PROD{LINEARITY_det} \\
+                       & \PROD{MASTER_DARK_det} \\
+                       & \PROD{MASTER_IMG_FLAT_LAMP_LM} or \PROD{MASTER_IMG_FLAT_LAMP_N} or \PROD{MASTER_IMG_FLAT_TWILIGHT_LM} or \PROD{MASTER_IMG_FLAT_TWILIGHT_N} \\
+  Matched keywords:    & \FITS{DRS.PUPIL} \\
+  Parameters:          & \CODE{metis_pupil_imaging.stacking.method}: string\newline Name of the method used to combine the input images (\underline{\texttt{add}}, \texttt{average}, \texttt{median}) \\
+  Algorithm:           & Apply dark current and flat field corrections. \\
+  Output data:         & \PROD{LM_PUPIL_REDUCED} or \PROD{N_PUPIL_REDUCED} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & --- none --- \\
+\end{recipedef}
+

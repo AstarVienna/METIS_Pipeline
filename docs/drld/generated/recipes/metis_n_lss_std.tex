@@ -1,0 +1,50 @@
+\begin{recipedef}
+  Name:                & \REC{metis_n_lss_std} \\
+  Purpose:             & Reduction of the standard star frames for determining the response function (flux calibration) and/or the transmission (telluric correction) \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{N_LSS_STD_RAW} (N$\times$) \\
+  Secondary inputs:    & \EXTCALIB{AO_PSF_MODEL} \\
+                       & \EXTCALIB{ATM_LINE_CAT} \\
+                       & \PROD{BADPIX_MAP_GEO} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_GEO}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_GEO}} \\
+                       & \PROD{MASTER_DARK_GEO} \\
+                       & \PROD{MASTER_N_LSS_RSRF} \\
+                       & \STATCALIB{N_ADC_SLITLOSS} \\
+                       & \STATCALIB{N_LSS_DIST_SOL} \\
+                       & \PROD{N_LSS_TRACE} \\
+                       & \STATCALIB{N_LSS_WAVE_GUESS} \\
+                       & \STATCALIB{N_SYNTH_TRANS} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} \\
+                       & \STATCALIB{REF_STD_CAT} \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.SLIT} \\
+  Parameters:          & \CODE{metis_n_lss_std.parameter1}: string\newline Description of parameter 1 (\texttt{value2}, \underline{\texttt{value1}}) \\
+  Algorithm:           & Fancy algorithm description follows ***TBD*** \\
+  Output data:         & \PROD{N_LSS_STD_1D} \\
+                       & \PROD{N_LSS_STD_OBJ_MAP} \\
+                       & \PROD{N_LSS_STD_SKY_MAP} \\
+                       & \PROD{N_LSS_STD_WAVE} \\
+                       & \PROD{MASTER_N_RESPONSE} \\
+                       & \PROD{STD_TRANSMISSION} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC N LSS STD AVGLEVEL} \\
+                       & \QC{QC N LSS STD BACKGD MEAN} \\
+                       & \QC{QC N LSS STD BACKGD MEDIAN} \\
+                       & \QC{QC N LSS STD BACKGD STDEV} \\
+                       & \QC{QC N LSS STD FWHM} \\
+                       & \QC{QC N LSS STD INTORDR LEVEL} \\
+                       & \QC{QC N LSS STD NOISELEV} \\
+                       & \QC{QC N LSS STD PSFLOSS} \\
+                       & \QC{QC N LSS STD SNR} \\
+                       & \QC{QC N LSS STD WAVECAL DEVMEAN} \\
+                       & \QC{QC N LSS STD WAVECAL FWHM} \\
+                       & \QC{QC N LSS STD WAVECAL NIDENT} \\
+                       & \QC{QC N LSS STD WAVECAL NMATCH} \\
+                       & \QC{QC N LSS STD WAVECAL POLYCOEFFn} \\
+                       & \QC{QC N LSS STD WAVECAL POLYDEG} \\
+\end{recipedef}
+

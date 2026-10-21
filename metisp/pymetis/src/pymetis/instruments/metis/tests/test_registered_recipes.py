@@ -87,6 +87,10 @@ class TestRecipeMetadata:
         assert "If you see this in a recipe" not in recipe._description
         assert recipe._build_description() == recipe._build_description()
 
+    def test_the_impl_names_its_instrument(self, recipe):
+        # cpl.dfs.save_propertylist needs it; a prefab base that skips MetisRecipeImpl loses it (Review III, R2)
+        assert isinstance(recipe.Impl.instrument, str) and recipe.Impl.instrument
+
     def test_recipe_can_be_instantiated(self, recipe):
         assert isinstance(recipe(), cpl.ui.PyRecipe)
 
@@ -231,14 +235,30 @@ class TestRecipeOnDefaultData:
         assert output.returncode == 0, f"Pyesorex exited with {output.returncode}"
         assert output.stderr == b"", f"Pyesorex exited with non-empty stderr: {output.stderr}"
 
-    def test_uses_all_input_frames(self, recipe, frameset):
-        # FixMe this currently does not actually track usage, just loading
+    def test_every_sof_frame_is_claimed_by_an_input(self, recipe, frameset):
+        """ `valid_frames` is the union of what the inputs matched, so a frame missing from it is a
+        surplus line in the SOF that no input knows what to do with. Usage is a different statement,
+        see the next test. """
         instance = recipe()
         instance.run(frameset, {})
         all_frames = {frame.file for frame in instance.implementation.inputset.frameset}
-        loaded_frames = {frame.file for frame in instance.implementation.inputset.valid_frames}
-        assert loaded_frames == all_frames, \
-            f"Frames are present in the SOF file but not used: {all_frames - loaded_frames}"
+        claimed = {frame.file for frame in instance.implementation.inputset.valid_frames}
+        assert claimed == all_frames, \
+            f"Frames are present in the SOF file but claimed by no input: {all_frames - claimed}"
+
+    def test_used_frames_come_from_the_sof_and_lead_with_the_primary_input(self, recipe, frameset):
+        """ The product header's provenance (PRO REC1 RAWn / CALn) is `used_frames` in order: every
+        used frame was in the SOF, something was used, and the first used frame belongs to the
+        input whose role is RAW, since CPL DFS inherits the primary header from it. """
+        instance = recipe()
+        instance.run(frameset, {})
+        inputset = instance.implementation.inputset
+        used = [frame.file for frame in inputset.used_frames]
+        assert used, f"{recipe._name} used no frames"
+        assert set(used) <= {frame.file for frame in inputset.frameset}
+        primary = inputset.inputs_by_role()[0]
+        assert used[0] in {frame.file for frame in primary.valid_frames()}, \
+            f"the first used frame {used[0]} is not from the primary input {primary}"
 
     def test_all_inputs_carry_complete_items(self, recipe, frameset):
         instance = recipe()
@@ -255,9 +275,52 @@ class TestRecipeOnDefaultData:
     @pytest.mark.inputset
     def test_input_set_loads_and_validates(self, recipe, frameset):
         instance = recipe.Impl.InputSet(frameset)
-        assert isinstance(instance.inputs, frozenset)
+        assert isinstance(instance.inputs, tuple)        # declaration order, see PipelineInputSet
         for name, attr in instance.__dict__.items():
             if isinstance(attr, PipelineInput):
                 assert attr in instance.inputs, f"Input {name} is not registered in inputs"
         assert all(inp.Item is not None for inp in instance.inputs)
         assert instance.validate() is None
+
+
+@pytest.mark.recipe
+@pytest.mark.metadata
+class TestFlowchartSteps:
+    """
+    The Impl's `_steps` is what the DRLD flowchart is generated from: every step names input and
+    product classes, and each must resolve to exactly one attribute of the recipe's InputSet or
+    ProductSet. Recipes without a hand-drawn flowchart to transcribe have no steps yet; they are
+    a strict xfail list, to shrink as authors declare them.
+    """
+    RECIPES_WITHOUT_STEPS = frozenset({         # no hand-drawn DRLD flowchart existed to transcribe (2026-09-29)
+        'metis_lm_adc_slitloss', 'metis_n_adc_slitloss', 'metis_pupil_imaging', 'metis_n_img_restore',
+        'metis_lm_lss_rsrf', 'metis_lm_lss_trace', 'metis_lm_lss_wave', 'metis_lm_lss_std', 'metis_lm_lss_sci',
+        'metis_lm_lss_mf_model', 'metis_lm_lss_mf_calctrans', 'metis_lm_lss_mf_correct',
+        'metis_n_lss_rsrf', 'metis_n_lss_trace', 'metis_n_lss_std', 'metis_n_lss_sci',
+        'metis_n_lss_mf_model', 'metis_n_lss_mf_calctrans', 'metis_n_lss_mf_correct',
+    })
+
+    def test_steps_are_declared(self, recipe, request):
+        if recipe._name in self.RECIPES_WITHOUT_STEPS:
+            request.applymarker(pytest.mark.xfail(strict=True, reason="no _steps declared yet"))
+        assert recipe.Impl._steps, f"{recipe._name} declares no _steps"
+
+    def test_steps_name_real_inputs_and_products(self, recipe):
+        """ Every class a step names resolves to exactly one attribute (none or several raises). """
+        for step in recipe.Impl._steps:
+            assert step.label.strip(), f"{recipe._name}: a step has no label"
+            for klass in step.inputs:
+                assert isinstance(klass, type), f"{recipe._name}: step {step.label!r} input {klass!r} is not a class"
+                recipe.Impl.input_name(klass)
+            for klass in step.products:
+                assert isinstance(klass, type), f"{recipe._name}: step {step.label!r} product {klass!r} is not a class"
+                recipe.Impl.product_name(klass)
+
+    def test_each_product_is_produced_by_at_most_one_step(self, recipe):
+        seen: dict[str, str] = {}
+        for step in recipe.Impl._steps:
+            for klass in step.products:
+                attr = recipe.Impl.product_name(klass)
+                assert attr not in seen, f"{recipe._name}: {attr} produced by {seen[attr]!r} and {step.label!r}"
+                seen[attr] = step.label
+

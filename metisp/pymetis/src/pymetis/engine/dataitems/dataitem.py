@@ -19,12 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import datetime
 from pathlib import Path
+from types import EllipsisType
 from typing import Optional, Self, final, Union, ClassVar, TYPE_CHECKING
 
 import cpl
 from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyList
 
-from .hdu import Hdu
+from .hdu import Hdu, pixel_type
 from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
@@ -63,6 +64,14 @@ class DataItem(ParametrizableItem, abstract=True):
     _static: ClassVar[bool] = False
 
     _oca_keywords: frozenset[str] = frozenset()     # Set of OCA keywords
+
+    # The ESO DPR classification of raw data: (DPR.CATG, DPR.TECH, DPR.TYPE), with tag
+    # placeholders resolved like the name (`('CALIB', 'IMAGE,{band}', 'FLAT,{source}')`); a
+    # `...` in a position leaves that keyword unconstrained (`(..., 'IMAGE,{band}', 'SKY')`: a sky
+    # frame is CALIB or SCIENCE). Declared on RAW-group items only; the EDPS classification rules
+    # are generated from it (`python -m pymetis.engine.workflows --classification`).
+    _dpr: ClassVar[Optional[tuple[str | EllipsisType, str | EllipsisType, str | EllipsisType]]] = None
+    DPR_KEYWORDS: ClassVar[tuple[str, str, str]] = ('dpr.catg', 'dpr.tech', 'dpr.type')   # the triple's positions, as EDPS spells them
 
     # HDU schema: a dict of types or None
     # By default, only the primary header is present
@@ -135,6 +144,23 @@ class DataItem(ParametrizableItem, abstract=True):
         Whether this item is a static calibration (see `_static`).
         """
         return cls._static
+
+    @classmethod
+    def dpr(cls) -> Optional[tuple[str, str, str]]:
+        """
+        The (DPR.CATG, DPR.TECH, DPR.TYPE) triple that classifies this raw item, resolved
+        with the item's tag parameters (`...` where the keyword is left free), or None for an item that declares none.
+        """
+        if cls._dpr is None:
+            return None
+        catg, tech, kind = (... if part is ... else partial_format(part, **cls.tag_parameters()) for part in cls._dpr)
+        return catg, tech, kind
+
+    @classmethod
+    def dpr_rule(cls) -> Optional[dict[str, str]]:
+        """ The classification an EDPS rule must state for this raw item: keyword (EDPS spelling) -> value, or None. """
+        dpr = cls.dpr()
+        return None if dpr is None else {keyword: value for keyword, value in zip(cls.DPR_KEYWORDS, dpr) if value is not ...}
 
     @classmethod
     def oca_keywords(cls):
@@ -327,12 +353,12 @@ class DataItem(ParametrizableItem, abstract=True):
         """
 
         try:
-            if self[extension].klass == Image:
-                return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
-            elif self[extension].klass == Table:
-                return self[extension].klass.load(self.filename, self._hdus[extension].extno)
-            elif self[extension].klass == ImageList:
-                return self[extension].klass.load(self.filename, cpl.core.Type.FLOAT, self._hdus[extension].extno)
+            hdu = self._hdus[extension]
+            if hdu.klass == Image or hdu.klass == ImageList:
+                # the pixel type the file holds, so DQ bit fields and double data come back exactly
+                return hdu.klass.load(self.filename, pixel_type(hdu.header), hdu.extno)
+            elif hdu.klass == Table:
+                return hdu.klass.load(self.filename, hdu.extno)
             else:
                 raise KeyError
         except cpl.core.DataNotFoundError as exc:
@@ -465,9 +491,19 @@ class DataItem(ParametrizableItem, abstract=True):
 
     def save_extensions(self,
                         filename: str) -> None:
-        """ Save extension data to the same file. Implementation depends on the type of the data. """
+        """
+        Save extension data to the same file. An item loaded from a file holds no pixels until
+        asked (its HDUs have `data=None`): saving such an item, a re-tagged copy for instance,
+        reads each extension from its file first.
+        """
         for name, hdu in self.hdus.items():
-            hdu.save(filename)
+            if hdu.data is None and hdu.klass is not None:          # the primary HDU carries no data
+                if getattr(self, 'filename', None) is None:
+                    raise cpl.core.DataNotFoundError(
+                        f"{self.__class__.__qualname__}: HDU '{name}' has no data and no file to read it from")
+                hdu.save(filename, data=self.load_data(name))
+            else:
+                hdu.save(filename)
 
     def as_dict(self) -> dict[str, str]:
         return {

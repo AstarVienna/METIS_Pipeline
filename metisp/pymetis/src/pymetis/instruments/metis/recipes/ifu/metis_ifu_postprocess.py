@@ -22,7 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput, PrimaryInputMixin
 from pymetis.engine.qc import QcParameterSet, QcParameter
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
@@ -75,6 +75,12 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
             _unit = "pixels"
             _default = None
             _description_template = "Range of shifts in the center position for regridding"
+
+    _steps = (
+        Step('determine output grid'),
+        Step('resample cubes'),
+        Step('coadd cubes', products=(ProductSet.SciCoadd,)),
+    )
 
     def determine_output_grid(self):
         pass

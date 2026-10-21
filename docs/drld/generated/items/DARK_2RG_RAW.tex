@@ -1,0 +1,25 @@
+\paragraph{\RAW{DARK_2RG_RAW}} \label{dataitem:dark_2rg_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{DARK_2RG_RAW}\\[0.3cm]
+        Description: & Raw data for creating a 2RG master dark. \\[0.3cm]
+        OCA keywords: & \FITS{DET.DIT}\\
+         & \FITS{DET.ID}\\
+         & \FITS{DPR.CATG}\\
+         & \FITS{DPR.TECH}\\
+         & \FITS{DPR.TYPE}\\
+         & \FITS{DRS.FILTER}\\
+        \FITS{DO.CATG}: & \CODE{DARK_2RG_RAW}\\[0.3cm]
+            Input for recipe: & \REC{metis_det_dark} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

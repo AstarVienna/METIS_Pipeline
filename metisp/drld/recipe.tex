@@ -10,11 +10,12 @@
 (%- endmacro %)
 \begin{recipedef}
   Name:                & \REC{(* recipe.name *)} \\
-  Purpose:             & (* recipe.synopsis|latex *) \\
+  Purpose:             & (* recipe.synopsis|prose *) \\
 %  Requirements:        & \REQ{METIS-XXXX} \\
 %  Type:                & Calibration | Science | Technical \\
 %  Templates:           & \TPL{...} \\
-(* rows("Input data:", recipe.inputs) -*)
+(* rows("Primary input:", recipe.primary_inputs) -*)
+(* rows("Secondary inputs:", recipe.secondary_inputs) -*)
 (* rows("Matched keywords:", recipe.matched_keywords|map("fits")|list) -*)
 (* rows("Parameters:", recipe.parameters) -*)
 (* rows("Algorithm:", recipe.algorithm) -*)

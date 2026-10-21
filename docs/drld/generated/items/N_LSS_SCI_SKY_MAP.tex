@@ -1,0 +1,25 @@
+\paragraph{\PROD{N_LSS_SCI_SKY_MAP}} \label{dataitem:n_lss_sci_sky_map}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{N_LSS_SCI_SKY_MAP}\\[0.3cm]
+        Description: & Image with detected plain sky pixels of the science target observation. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_LSS_SCI_SKY_MAP} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{INS.OPTI10.NAME}\\
+         & \FITS{INS.OPTI11.NAME}\\
+         & \FITS{INS.OPTI9.NAME}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_LSS_SCI_SKY_MAP}\\[0.3cm]
+            Created by: & \REC{metis_n_lss_sci} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * image: Extension IMAGE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

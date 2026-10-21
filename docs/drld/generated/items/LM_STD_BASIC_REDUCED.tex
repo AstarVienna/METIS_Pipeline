@@ -1,0 +1,26 @@
+\paragraph{\PROD{LM_STD_BASIC_REDUCED}} \label{dataitem:lm_std_basic_reduced}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_STD_BASIC_REDUCED}\\[0.3cm]
+        Description: & Detrended standard star exposure of the LM image mode. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_STD_BASIC_REDUCED} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{INS.OPTI10.NAME}\\
+         & \FITS{INS.OPTI3.NAME}\\
+         & \FITS{INS.OPTI9.NAME}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_STD_BASIC_REDUCED}\\[0.3cm]
+            Created by: & \REC{metis_lm_img_basic_reduce} \\
+            Input for: & \REC{metis_lm_img_background} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

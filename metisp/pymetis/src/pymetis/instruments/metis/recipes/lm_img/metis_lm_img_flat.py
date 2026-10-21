@@ -39,6 +39,7 @@ class MetisLmImgFlat(Recipe):
     _description = "Prototype to create a master flat for L/M band"
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
+
     _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
     Subtract internal dark or master dark from flat exposures.
     Call `metis_lm_img_flat` to fit slope of pixel values against illumination level.
@@ -58,13 +59,13 @@ class MetisLmImgFlat(Recipe):
             name=f"{_name}.outliers.kappa_low",
             context=_name,
             description="Lower threshold for bad pixels",
-            default=10,
+            default=10.0,
         ),
         ParameterValue(
             name=f"{_name}.outliers.kappa_high",
             context=_name,
             description="Upper threshold for bad pixels",
-            default=10,
+            default=10.0,
         ),
     ])
 

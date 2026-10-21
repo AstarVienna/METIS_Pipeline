@@ -1,0 +1,43 @@
+\paragraph{\EXTCALIB{PERSISTENCE_MAP}} \label{dataitem:persistence_map}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \EXTCALIB{PERSISTENCE_MAP}\\[0.3cm]
+        Description: & Persistence map \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{PERSISTENCE_MAP} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{PERSISTENCE_MAP}\\[0.3cm]
+            Input for: & \REC{metis_cal_chophome} \\
+                        & \REC{metis_det_dark} \\
+                        & \REC{metis_ifu_distortion} \\
+                        & \REC{metis_ifu_reduce} \\
+                        & \REC{metis_ifu_rsrf} \\
+                        & \REC{metis_ifu_wavecal} \\
+                        & \REC{metis_lm_adc_slitloss} \\
+                        & \REC{metis_lm_img_basic_reduce} \\
+                        & \REC{metis_lm_img_distortion} \\
+                        & \REC{metis_lm_img_flat} \\
+                        & \REC{metis_lm_lss_rsrf} \\
+                        & \REC{metis_lm_lss_sci} \\
+                        & \REC{metis_lm_lss_std} \\
+                        & \REC{metis_lm_lss_trace} \\
+                        & \REC{metis_lm_lss_wave} \\
+                        & \REC{metis_n_adc_slitloss} \\
+                        & \REC{metis_n_img_chopnod} \\
+                        & \REC{metis_n_img_distortion} \\
+                        & \REC{metis_n_img_flat} \\
+                        & \REC{metis_n_lss_rsrf} \\
+                        & \REC{metis_n_lss_sci} \\
+                        & \REC{metis_n_lss_std} \\
+                        & \REC{metis_n_lss_trace} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * persistence\_map: Extension PERSISTENCE\_MAP}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -21,7 +21,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.inputs import PipelineInputSet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.inputs import RawInput
@@ -82,6 +82,12 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
             _unit = "pixels"
             _default = None
             _description_template = "Range of shifts in the center position for regridding"
+
+    _steps = (
+        Step('determine output grid'),
+        Step('resample images'),
+        Step('coadd images', products=(ProductSet.LmImgSciCoadd,)),
+    )
 
     def process(self) -> set[DataItem]:
         print(self.__class__.ProductSet.__mro__)

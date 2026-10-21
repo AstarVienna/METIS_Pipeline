@@ -26,7 +26,7 @@ from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, Paramet
                                            ParameterValue)
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.drl.combine import combine_images
 from pymetis.drl.trace import measure_trace_edges, trace, traces_to_table
@@ -73,6 +73,14 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         Fwhm = qc.distortion.QcIfuDistortFwhm
         NSpots = qc.distortion.QcIfuDistortNSpots
         NTraces = qc.distortion.QcIfuDistortNTraces
+
+    _steps = (
+        Step('detector signature removal',
+             inputs=(InputSet.BadPixMapInput, InputSet.GainMapInput, InputSet.LinearityInput,
+                     InputSet.PersistenceMapInput, InputSet.MasterDarkInput,)),
+        Step('locate images'),
+        Step('fit polynomial', products=(ProductSet.DistortionTable, ProductSet.DistortionReduced,)),
+    )
     @staticmethod
     def _degree_or_best(value: str) -> int | Literal['best']:
         """

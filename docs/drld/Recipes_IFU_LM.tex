@@ -1,0 +1,471 @@
+%% 06_5-Recipes_IFU.tex
+%% Created:     Fri Aug 25 13:14:02 2017 by Koehler@I-Mac
+%%
+%% subsection for IFU recipes
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+\subsection{LM integral-field spectroscopy (IFU) recipes}
+\label{ssec:IFU_recipes}
+
+% Moved to https://github.com/AstarVienna/METIS_DRLD/issues/100
+% \TODO{This section is identical to the PDR document~\cite{DRLS}. We
+% will consider rearranging the recipes to be in line with the imaging
+% pipelines. This would entail handling basic reduction and background
+% subtraction for both science and standard exposures in common
+% recipes (\CODE{metis_ifu_basic}, \CODE{metis_ifu_background}), then
+% having a recipe to analyse the standard observations
+% (\CODE{metis_ifu_photstd}). The science exposures are then fully
+% calibrated (\CODE{metis_ifu_calibrate}). A full set of exposures would
+% then be assembled and restored with a fully sampled PSF in a
+% post-processing recipe (\CODE{metis_ifu_combine}).}
+
+%------------------------------------------------------------------------------------------------------------------
+\subsubsection{\REC*{metis_ifu_wavecal}: IFU wavelength calibration}
+\label{sssec:ifu_wavecal}
+\label{rec:metis_ifu_wavecal}
+
+This recipe processes daytime wavelength calibration images to derive
+the pixel-to-wavelength relation for the LM integral-field
+spectrograph.
+
+The calibration template will use the lasers in the warm calibration
+unit to finely sample the desired wavelength range.
+The \ac{WCU} has three lasers \cite{METIS-calibration_plan}:
+(1) a fixed laser at \SI{3.39}{\micro\metre},
+(2) the \ac{QCL}, a laser tuneable from at least \SI{4.68}{\micro\metre} to \SI{4.78}{\micro\metre}), and
+(3) a fixed laser at \SI{5.26}{\micro\metre}.
+The tuneable laser can be tuned so quickly during a long exposure with the
+long-slit spectrograph or the LMS such that a single exposure with multiple
+lines is created.
+
+
+The image will consist of lines for each wavelength and slice.
+The solution will have to provide for each detector pixel
+$(x,y)$ the slice number $i$, the spatial position $\xi$ along the
+slice and the wavelength in the dispersion correction. As the slices
+and wavelength lines may be tilted with respect to the detector
+columns and rows, a combined solution is required
+\begin{align}
+  \label{eq:wavelength_solution}
+  \xi &= f_{i}(x, y) \\
+  \lambda &= g_{i}(x, y)
+\end{align}
+The functions $f_{i}$ and $g_{i}$ are expected to be
+sufficiently accurately described by low-order polynomials.
+
+In principle we know this relation from our optical models, but we expect small
+deviations ($\lesssim$ 1 px) because e.g.\ the main dispersion grating mechanism
+in the \ac{LMS} did not come back to exactly to the nominal position.
+We expect the offset from the optical model to be well represented either by a
+simple linear function or a low-order polynomial.
+The exact shape of the wavelength-to-pixel relation will be determined during
+\ac{AIT}.
+
+The wavelength range of the LM band is only partially covered by the lasers.
+The model will therefore be calibrated only on the part of the range covered by
+the lasers and subsequently extrapolated to the whole image.
+This calibrated optical model is then used by the other recipes as a first
+guess for the wavelength solution.
+%, even though it was directly verified only in a subset of the settings.
+
+The boundaries of the slice image on the detector are obtained by
+measuring the left and right edges of the wavelength lines.
+The slice number is then obtained by counting the
+slices according to the optical design of the spectrograph.
+The wavelength of each line is known from the settings of the \ac{QCL}, the $x$
+coordinate is obtained by
+%linear interpolation along the line (or perhaps
+using the distortion table from \REC{metis_ifu_distortion}.
+%if necessary).
+
+The recipe produces a multi-extension FITS file with an image
+extension mapping wavelength across each detector in the array.
+A table extension holds the polynomial coefficients.
+
+\input{generated/recipes/metis_ifu_wavecal}
+
+\begin{figure}[hb]
+    \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_ifu_wavecal}
+  \caption[Recipe: \REC*{metis_ifu_wavecal}]{\REC*{metis_ifu_wavecal} --
+    daytime wavelength calibration for the IFU.}
+  \label{fig:metis_ifu_wavecal}
+\end{figure}
+
+
+%------------------------------------------------------------------------------------------------------------------
+\clearpage
+\subsubsection{\REC*{metis_ifu_rsrf}: IFU relative spectral response function}
+\label{sssec:ifu_rsrf}
+\label{rec:metis_ifu_rsrf}
+
+This recipe creates a spectroscopic master flat and determines the
+relative spectral response function (RSRF) for the four HAWAII2RG
+detectors of the LM spectrograph. The input data are obtained by
+illuminating the field of view with the black-body calibration lamp at
+a selected temperature and subtracting a combinded "background" frame obtained
+by taking exposures with the \ac{WCU} input aperture closed (\CODE{WCU_OFF}
+frames).
+The RSRF is then determined by dividing the image by the known lamp continuum
+shape for the respective temperature. We refer to the two-dimensional image
+obtained by this division as \PROD{MASTER_FLAT_IFU} and the one-dimensional reponse
+function obtained by averaging along the spatial direction the
+\PROD{RSRF_IFU}. The bad pixel mask can be updated by identifying pixels
+that deviate strongly from their neighbours.
+
+\input{generated/recipes/metis_ifu_rsrf}
+
+\begin{figure}[hb]
+    \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_ifu_rsrf}
+  \caption[Recipe: \REC*{metis_ifu_rsrf}]{\REC*{metis_ifu_rsrf} --
+    creation of IFU relative spectral response function.}
+  \label{fig:metis_ifu_rsrf}
+\end{figure}
+
+
+%------------------------------------------------------------------------------------------------------------------
+%\clearpage
+%\subsubsection{\REC*{metis_ifu_std_processold}: IFU flux standard reduction}
+%\label{sssec:ifu_std_processold}
+%\label{rec:metis_ifu_std_processold}
+%
+%This recipe reduces and analyses a series of IFU observations of a
+%spectroscopic flux standard star. The comparison of the measured
+%detector counts (ADU) with the tabulated spectrum of the star gives
+%the wavelength-dependent conversion from ADU to physical units
+%(photons per second per centimetre square per micron per arcsec square).
+%
+%The wavelength calibration is taken from the daylight calibration. It
+%may be refined by measuring telluric emission and/or absorption lines
+%(by fitting with \lstinline{molecfit}).
+%
+%\begin{recipedef}
+%  Name:                & \REC{metis_ifu_std_process}                                            \\
+%  Purpose:             & Determine conversion between detector counts and physical source flux. \\
+%  Requirements:        & \REQ{METIS-6131}                                                       \\
+%  Type:                & Calibration                                                            \\
+%  Templates:           & \TPL{METIS_ifu_cal_standard}                                           \\
+%  Input data:          & \RAW{IFU_STD_RAW} (Raw spectra of flux standard star)                  \\
+%                       & \PROD{MASTER_DARK_IFU}            \\
+%                       & \PROD{RSRF_IFU} (2D relative spectral response function)               \\
+%                       & \EXTCALIB{BADPIX_MAP_IFU}  \\
+%                       & \PROD{IFU_WAVECAL} \\
+%                       & \PROD{IFU_DISTORTION_TABLE} \\
+%  Parameters:          & None                                                                   \\
+%  Algorithm:           & Subtract dark, divide by master flat                                   \\
+%                       & Estimate stray light and subtract                                      \\
+%                       & Estimate background and subtract                                       \\
+%                       & Rectify spectra and assemble cube                                      \\
+%                       & Extract 1D spectrum of star                                            \\
+%                       & Compute and apply telluric correction                                  \\
+%                       & Compute conversion to physical units as function of wavelength.        \\
+%  Output data:         & \PROD{IFU_STD_REDUCED_CUBE}  \\
+%                       & \PROD{IFU_STD_BACKGROUND_CUBE}                                         \\
+%                       & \PROD{IFU_STD_REDUCED_1D}                                              \\
+%                       & \PROD{IFU_STD_TELLURIC_1D}                                             \\
+%                       & \PROD{FLUXCAL_TAB}                                                     \\
+%  Expected accuracies: & $<5$\% absolute flux calibration \\
+%  QC1 parameters:      & \QC{QC IFU STD STRAYLIGHT MEAN}                                        \\
+%\end{recipedef}
+%
+%\begin{figure}[hb]
+%  \centering
+%    \def \globalscale {0.700000}
+%    \fontsize{10}{12}\selectfont
+%    \input{tikz/metis_ifu_std_process}
+%  \caption[Recipe: \REC*{metis_ifu_std_process}]{%
+%    \REC{metis_ifu_std_process} -- reduction of IFU flux standard
+%    frames and flux calibration (not all data products are shown).}
+%  \label{fig:metis_ifu_std_processHBOLD}
+%\end{figure}
+
+\clearpage
+\subsubsection{\REC*{metis_ifu_reduce}: IFU basic data reduction}
+\label{sssec:ifu_sci_process}
+\label{rec:metis_ifu_sci_process}
+\label{sssec:ifu_reduce}
+\label{rec:metis_ifu_reduce}
+
+This recipe performs basic reduction of raw science exposures or IFU
+observations of a spectroscopic flux standard star, applying
+dark and RSRF correction on each exposure individually, but no flux calibration
+(i.e.~conversion of pixel values to physical units).
+The
+recipe will be able to process data from either the nominal or the
+extended wavelength mode. For the nominal mode, all slices belong to
+the same echelle order. For the extended mode, slices belonging to the
+same echelle order are grouped and processing is iterated over the
+echelle orders.
+
+% from https://polarion.astron.nl/polarion/#/project/METIS/workitem?id=METIS-9141
+For the LM band detectors in the IFU, the pixels on the edges of the detectors will be masked with the following widths~\cite{matisse_minutes} (\REQ{METIS-9141}) (Fig.~\ref{fig:ifu_detector_masking}):
+\begin{itemize}
+\item 64 columns on each ``outside'' of the 2x2 detector array in the dispersion direction
+\item 0 columns on each ``inside'' of the 2x2 detector array in the dispersion direction
+\item 32 rows at the top and bottom of each of the 4 detectors.
+\end{itemize}
+Note: We define rows and columns in the H2RG detector as follow:
+\begin{itemize}
+\item A row is readout by 32 outputs
+\item A column is readout by 1 output
+\end{itemize}
+
+\begin{figure}[hb]
+  \centering
+  \includegraphics[width=0.7\textwidth]{LMS_detector_masking}
+  \caption[The IFU masking scheme]{%
+    The IFU masking scheme. Masked regions are in light blue.}
+  \label{fig:ifu_detector_masking}
+\end{figure}
+
+
+
+The level of stray light is estimated in the dark areas between the
+spectra and subtracted from the entire frame. The distribution of
+stray light across the field can only be characterised once the
+instrument is built. It is to be hoped that subtraction of a constant
+or a low-level 2D polynomial fit will be sufficient.
+
+The sky and thermal background, as well as residual straylight, is
+estimated from blank sky observations if these are available in the
+sequence of input frames or by combining (dithered) science
+frames. The initial wavelength solution is taken from the daylight
+calibration. It may be checked and corrected by measuring atmospheric
+lines if a sufficient number is available in the limited wavelength
+range.
+
+The recipe produces the following (intermediate) data products:
+\begin{itemize}\item Reduced 2D detector images. These are accompanied by additional
+  information describing the geometry of the slice layout, target
+  position and wavelength calibration to the extent that the exposure can be
+  combined with other exposures into a single rectified spectral cube.
+  This information can be stored in the FITS header or a table
+  extension.
+\item A rectified spectral cube for each exposure with a linear
+  wavelength grid, constructed by resampling each spectral slice onto
+  a spatial-wavelength grid common to all slices. The spatial pixels
+  are rectangular with along-slit pixel scale given by the detector
+  pixel scale and the across-slit pixel scale given by the slice
+  width.
+\item A spectral cube obtained by combining all exposures taken within
+  a template. This step involves the image reconstruction discussed in
+  Section~\ref{ssec:image_reconstruction}.
+% TODO: Decide on the below.
+%  Whether this step is included
+%  in the present recipe \REC{metis_ifu_sci_process} or is postponed to
+%  the more general recipe \REC{metis_ifu_sci_postprocess} is TBD. It
+%  may be formally required to do the image reconstruction here if
+%  templates are set up to obtain a fixed set of spatially dithered and
+%  rotated exposures aimed at reconstructing a fully sampled PSF in
+%  both spatial dimensions.
+\end{itemize}
+
+For the nominal mode, each output is a single-extension FITS file
+corresponding to one echelle order. For the extended mode, each of the
+echelle orders results in an extension in a multi-extension FITS
+file.
+
+% HB 20230902: We should not create a separate recipe, but maybe it is
+%     necessary to also implement a quick-and-dirty version of some
+%     algorithms, configurable via a parameter.
+%The recipe as described here is run in the science pipelines. For the
+%observatory pipeline, a variant of the recipe may be implemented with
+%reduced functionality and output.
+
+The LM-band images that are taken in parallel with the IFU exposures are
+processed with \REC{metis_lm_img_basic_reduce}.
+
+
+\input{generated/recipes/metis_ifu_reduce}
+
+\newgeometry{bottom=0.1cm, right=0.1cm, left=0.1cm, top=0.1cm}
+\begin{figure}[hb]
+  \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_ifu_reduce}
+  \caption[Recipe: \REC*{metis_ifu_reduce}]{%
+    \REC{metis_ifu_reduce} -- reduction of IFU science frames.}
+  \label{fig:metis_ifu_reduce}
+\end{figure}
+\restoregeometry
+
+\clearpage
+\subsubsection{\REC*{metis_ifu_telluric}: IFU telluric absorption correction (OUTDATET!)}
+\label{sssec:ifu_telluric}
+\label{rec:metis_ifu_telluric}
+
+This recipe derives calibration products from either a reduced science
+observation, or a reduced standard star observation.
+For standard star observations the recipe derives the flux calibration and the
+telluric absorption correction.
+For science observations, the recipe only derives the telluric absorption
+correction.
+
+The preferred approach to correct for the telluric absorption is to derive the
+correction directly from the science data.
+However, deriving the telluric absorption correction from the standard star
+is more conventional, and will be used if the telluric absorption cannot be
+determined from the science data.
+The resolution of the \ac{IFU} is higher than the \ac{LSS}, so it might be less
+relevant to use the standard star for the telluric correction.
+
+A telluric correction is determined by this recipe by automatically
+extracting a 1D spectrum from ``object'' pixels identified by a
+thresholding algorithm. \lstinline{molecfit} is applied to this
+spectrum and the correction is mapped back to the reduced 2D images or
+3D cubes using the wavelength images.
+
+In an interactive environment the telluric correction may be improved by asking
+the user to define an extraction aperture adapted to the target
+structure.
+
+% TODO: Allow metis_ifu_calibrate to do this?
+%The spectrum is extracted from a combined cube
+%(\PROD{IFU_SCI_COMBINED}) but may be applied to other products of
+%\REC{metis_ifu_reduce}.
+
+The actual calibration through the application of these corrections is done in \REC{metis_ifu_calibrate}.
+The workflow orchestration rules will prefer the telluric correction from the
+science data if both are available and of sufficient quality.
+% TODO: create rules that take the quality of the correction into account
+
+\input{generated/recipes/metis_ifu_telluric}
+
+\begin{figure}[hb]
+  \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_ifu_telluric}
+  \caption[Recipe: \REC*{metis_ifu_telluric}]{\REC*{metis_ifu_telluric}
+    -- telluric correction of reduced IFU science cubes.}
+  \label{fig:metis_ifu_telluric}
+\end{figure}
+
+\clearpage
+\subsubsection{\REC*{metis_ifu_telluric}: IFU telluric absorption correction (NEW!)}
+\label{sssec:ifu_telluric_new}
+\label{rec:metis_ifu_telluric_new}
+To Be adapted to the telluriccorr package of ESO --> WK to make 3 recipes out of it
+
+%------------------------------------------------------------------------------------------------------------------
+
+\clearpage
+\subsubsection{\REC*{metis_ifu_calibrate}: calibrate IFU science data}\label{rec:metis_ifu_calibrate}
+\label{sssec:ifu_calibrate}
+
+This recipe applies the calibrations from \REC{metis_ifu_telluric} to an
+\ac{IFU} science observation.
+In particular, the recipe will apply a telluric absorption correction and it
+will perform flux calibration (that is, conversion of pixel values to physical
+units).
+
+The telluric correction could be derived through different means, e.g.~from
+the science data itself or from a standard star.
+The workflow orchestration system will perform the selection of the best
+calibration data to use; this recipe simply performs the calibration.
+
+\input{generated/recipes/metis_ifu_calibrate}
+
+\begin{figure}[hb]
+  \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_ifu_calibrate}
+  \caption[Recipe: \REC*{metis_ifu_calibrate}]{\REC*{metis_ifu_calibrate}
+    -- calibration of reduced IFU science cubes.}
+  \label{fig:metis_ifu_calibrate}
+\end{figure}
+
+
+%------------------------------------------------------------------------------------------------------------------
+\clearpage
+\subsubsection{\REC*{metis_ifu_postprocess}: IFU science postprocessing}
+\label{sssec:ifu_sci_postprocess}\label{sssec:ifu_postprocess}
+\label{rec:metis_ifu_postprocess}
+
+This recipe combines a number of reduced IFU exposures covering a
+different spatial and wavelength ranges into a single data cube. The
+positions and orientations of the exposures may differ as follows (cf.~\cite{METIS-operational_concept}): %\TODO{Reference to operational concept}
+\begin{description}
+\item[Spatial dithering:] The target is placed at different positions
+  along and across the slice. Along-slice dithering aids in background
+  subtraction, across-slice dithering is necessary image
+  reconstruction given that the slice width undersamples the PSF\@.
+\item[Field rotation:] The field is rotated by 90 degrees between
+  exposures. The cube of a single exposure has different pixel scales
+  along and across the slice. The goal of combining exposures at
+  different rotation angles is to reconstruct images on a square grid
+  with pixel scale given by the detector scale (8.2\,mas). The exact
+  procedure remains to be investigated; one of the major challenges is
+  to find the exact centre of rotation
+  (Sect.~8.9 of~\cite{DRLS}).
+\item[Spectral dithering:] Sequences of exposures are taken at various
+  echelle angles in order to cover an increased contiguous wavelength
+  range. In the extended mode, such a sequence may cover the
+  wavelength gaps between echelle order coverage.
+\end{description}
+
+In order to allow co-addition of data from separate OBs, possibly taken
+months apart, the wavelengths will be corrected to the heliocentric
+reference system before co-addition.
+
+The recipe is only used in the science-grade pipelines, not at the
+observatory.
+
+\input{generated/recipes/metis_ifu_postprocess}
+
+\begin{figure}[hb]
+  \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_ifu_postprocess}
+  \caption[Recipe: \REC*{metis_ifu_postprocess}]{%
+    \REC{metis_ifu_postprocess} -- post-processing (coaddition) of
+    reduced IFU science frames.}
+  \label{fig:metis_ifu_sci_postprocess}
+\end{figure}
+
+
+%------------------------------------------------------------------------------------------------------------------
+\clearpage
+\subsubsection{\REC*{metis_ifu_distortion}: IFU distortion calibration}
+\label{sssec:ifu_distortion}
+\label{rec:metis_ifu_distortion}
+
+Calibration of the geometric distortion of the IFU is done by
+observing a pin hole mask located in a focal plane within the
+instrument. The distortion is described in terms of a polynomial model
+whose coefficients can be used to map positions in the detector
+array to sky positions. Measurement of the FWHM of the spots gives an
+indication of the variation of spectral resolution across the field of view.
+
+\input{generated/recipes/metis_ifu_distortion}
+
+\begin{figure}[hb]
+  \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_ifu_distortion}
+  \caption[Recipe: \REC*{metis_ifu_distortion}]{%
+    \REC{metis_ifu_distortion} -- IFU distortion calibration}
+  \label{fig:metis_ifu_distortion}
+\end{figure}
+
+
+\clearpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Local Variables:
+%%% TeX-master: "METIS_DRLD"
+%%% End:

@@ -1,0 +1,534 @@
+%% METIS_DRLD.tex
+%%
+%% METIS data reduction library design document
+%%
+%% 2020-05-27: initialised from specification document (OC)
+%% 2020-09-07: MTR release (OC)
+%% 2202-07-01: v0.4 Internal Review (HB)
+\RequirePackage[l2tabu, orthodox]{nag}
+
+\newcommand{\doctitle}{%
+  \parbox[t]{\textwidth}{Data Reduction Library\\Design}}
+\newcommand{\docnumber}	{E-REP-AST-MET-1006}     % Document number
+%% Email from Sander: "... set them all to issue 1-0 and only include update dates in the changelog.
+\newcommand{\issuenumber}{1.0}                % Version
+\newcommand{\issuedate}{2023-09-05}              % Date
+\newcommand{\workpackage}{8.2}      % Workpackage
+
+% The purpose of texorpdfstring is to provide different
+% strings for the title page (tex string) and for the pdf bookmark
+% (via hyperref, no tex formatting allowed).
+% The two versions need to be kept in sync.
+\newcommand{\authorname}{\texorpdfstring{%  % Authors
+  H.~Buddelmeijer, W.~Kausch, O.~Czoske,
+  N.~Sabha, J.~Karr, C.-H.~Yan, T.~Marquart,
+  G.~Otten, M.~Baláž, K.~Leschinski, W.~Zeilinger}
+  {Buddelmeijer, Kausch, Czoske, Sabha, Karr, Yan, Marquart, Otten, Baláž, Leschinski, Zeilinger}  % pdf string
+  }
+
+\newcommand{\authorsigndate}  {05-09-2023} % date of signature of author
+
+\newcommand{\reviewername}     {%
+W.~De~Meester, K.~Missiaen, R.~van~Boekel,
+B.~Brandl, W.~Brandner, R.~Stuik,
+C.~Salo, T.~Bertram, O.~Absil}       % checked by name
+\newcommand{\reviewersigndate} {In Polarion} % date of signature of checker
+
+\newcommand{\approvername}    {%
+Adrian Glauser}       % name of the approver
+\newcommand{\approvalsigndate}{In Polarion} % date of signature of approver
+
+\newcommand{\releasername}{%
+Felix Bettonvil}
+\newcommand{\releasesigndate}{In Polarion}  % date of release
+
+% Title displayed in the header
+\newcommand{\shorttitle}{Data Reduction Library Design}
+
+
+\newcommand{\aj}{The Astronomical Journal}
+\newcommand{\aap}{Astronomy \& Astrophysics}
+\newcommand{\aaps}{Astronomy \& Astrophysics, Supplement}
+\newcommand{\mnras}{Monthly Notices of the Royal Astronomical Society}
+\newcommand{\procspie}{Proceedings of the International Society for Optical Engineering}
+\newcommand{\pasp}{Publications of the Astronomical Society of the Pacific}
+\newcommand{\apjs}{The Astrophysical Journal, Supplement}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[11pt,oneside,a4paper]{article}
+
+%% Layout  --- TeX commands
+\raggedbottom
+\topmargin=-9mm
+\headsep=0.5cm
+\textheight=246mm
+\textwidth=164mm
+\hoffset=0cm
+\oddsidemargin=-2mm
+\parindent=0mm
+\parskip=0.3em
+
+% Attempt to allow a page full of floats. 
+% LaTeX might emit a warning like 
+%   Text page 382 contains only floats.
+% Such a warning occurs because many figures are included as
+%   \begin{figure}[ht!]
+% which excludes putting the floats on a separate page ([p]).
+% It would perhaps be better to use [htbp] than [ht!].
+% See further e.g. https://tex.stackexchange.com/q/546787/2775
+\renewcommand{\floatpagefraction}{1.0} % separate float page does not work
+\renewcommand{\bottomfraction}{1.0}
+\renewcommand{\topfraction}{1.0}
+\renewcommand{\textfraction}{0.0}
+
+%% Fonts
+\usepackage{mathptmx}
+\usepackage[scaled=0.92]{helvet}
+
+\usepackage[pdftex]{graphicx}
+\graphicspath{{./figures/}}
+\makeatletter
+\def\input@path{{./}{./tikz/}}
+\makeatother
+
+\usepackage{siunitx}
+\usepackage{fancyhdr}
+\setlength{\headheight}{19pt} % ...at least 18.26802pt
+\setlength{\footskip}{31pt}   % ...at least 30.86163pt
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{numprint}
+\usepackage{placeins}
+\usepackage{enumitem}
+\usepackage{acronym}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{arydshln}
+\setlength\dashlinedash{0.2pt}
+\setlength\dashlinegap{1.5pt}
+\setlength\arrayrulewidth{0.3pt}
+
+\definecolor{listingbg}{gray}{0.95}
+\definecolor{darkgreen}{rgb}{0.0, 0.7, 0.0}
+\definecolor{darkblue} {rgb}{0.0, 0.0, 0.7}
+\definecolor{darkred}  {rgb}{0.7, 0.0, 0.0}
+\definecolor{darkorange}{rgb}{1.0, 0.49, 0.0}
+
+\usepackage{tikz}
+\usepackage[many]{tcolorbox}
+\usepackage{multirow}
+
+\input{recipe_config}
+
+% does not work with my version of biblatex:
+% \usepackage[defernumbers=true,backend=biber,hyperref=true,url=false]{biblatex}
+\usepackage[%
+   defernumbers=true,
+   backend=biber,
+   hyperref=true,
+   url=false,
+   sorting=none]{biblatex}
+
+\usepackage[%
+% pagebackref=true,   % does not work with biblatex
+   pdfpagelabels=true,
+   plainpages=false,
+   colorlinks=false]{hyperref}
+
+
+% Git stuff, must be included after hyperref.
+% The git hash and commit date will be shown when compiling with --shell-escape
+% https://tex.stackexchange.com/a/598669/2775
+% flag to show git info instead of Issue info
+\newif\ifshowgit
+
+% "The control sequence \pdfshellescape is (only?) available in pdftex"
+% http://tex.stackexchange.com/a/13253/2595
+\ifnum\pdfshellescape=1
+    % Check for overleaf https://tex.stackexchange.com/a/598669/2775
+    \ifnum\pdfstrcmp{\jobname}{output}=0
+        % Apparently overleaf does not compile from their git repo.
+        \showgitfalse
+    \else
+        \showgittrue
+    \fi
+\else
+    \showgitfalse
+\fi
+
+\ifshowgit
+    \usepackage[noheader]{gitver}
+    \def\parsegitdate#1-#2-#3 #4\endparse{#3.#2.#1}
+    \makeatletter
+        \edef\gitdate{\@@input|"git log -1 --format=\@percentchar ci"}
+    \makeatother
+\fi
+
+
+% does not work with my version:
+%\usepackage[xindy,nopostdot,nogroupskip]{glossaries}
+\usepackage[xindy]{glossaries}
+%\makeglossaries
+
+\usepackage{lastpage}
+\usepackage{multirow}
+\usepackage[%
+   font=small,
+   format=plain,
+   indention=1.5em,
+   labelfont={small,bf},
+   up,
+   justification=justified,
+   singlelinecheck=true]{caption}
+
+%% for sidewaysfigure and sidewaystable
+\usepackage{rotating}
+
+%% for landscape
+\usepackage{pdflscape}
+
+% for newgeometry and restoregeometry
+\usepackage{geometry}
+
+%% put recipe names, QC parameters, etc., in \lstinline{}
+\usepackage{listings}
+\lstloadlanguages{csh, c}
+
+\usepackage{textcomp}
+
+\usepackage{csquotes}
+
+\usepackage[countmax]{subfloat}
+
+%\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
+
+% ADDING NEW DEFINITIONS -------------------------------------------- start
+\input{normal_style}
+
+\input{styles_data}
+\input{tikz/assomap_common}
+
+%% Write code snippets like this: \CODE{SOMETHING==ELSE}
+%% (I know, this is a bit stupid)
+\newcommand{\CODE}[1]{\lstinline[]!#1!}
+
+%% Use environment recipedef to define a new recipe.
+\newenvironment{recipedef}
+{% begin code
+% The enhanced jigsaw allows the box to visually continue when it is broken over two pages.
+   \begin{tcolorbox}[breakable,enhanced jigsaw]%
+    \begin{longtable*}{p{0.24\hsize}p{0.69\hsize}}}
+      {% end code
+    \end{longtable*}%
+  \end{tcolorbox}}
+
+%% Use environment datastructdef to define the data structure of a data item (see e.g. LSS_data_structures.tex)
+\newenvironment{datastructdef}
+{% begin code
+% The enhanced jigsaw allows the box to visually continue when it is broken over two pages.
+   \begin{tcolorbox}[breakable,enhanced jigsaw]%
+    \begin{longtable*}{p{0.97\hsize}}}
+      {% end code
+    \end{longtable*}%
+  \end{tcolorbox}}
+
+%% The hand-written-card environments and the flag of the retrofitted document
+\input{generated/preamble}
+
+
+%%%%% This is a definition that has the flow diagram within the box:
+%% \newcommand{\theimage}{}  % dummy definition
+%% \newenvironment{recipedef}[1]
+%% {% begin
+%% code
+%% \renewcommand{\theimage}{#1}
+%% \begin{tcolorbox}%
+%%   \begin{tabular}{p{0.24\hsize}p{0.74\hsize}}
+%%   }%
+%%     {% end code
+%%   \end{tabular}%
+%%   \begin{center}%
+%%     \includegraphics[width=0.6\textwidth]{\theimage}%
+%%   \end{center}%
+%% \end{tcolorbox}}
+
+
+%% Proper typography for micrometer
+\newcommand{\micron}{\textmu\mathrm{m}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+
+%% Ion
+\DeclareRobustCommand{\ion}[2]{%
+  \textup{#1{\mdseries\textsc{#2}}}%
+}
+
+%%%% \la...kleiner als ungef"ahr
+\def\la{\mathrel{\mathchoice {\vcenter{\offinterlineskip\halign{\hfil
+          $\displaystyle##$\hfil\cr<\cr\sim\cr}}}
+    {\vcenter{\offinterlineskip\halign{\hfil$\textstyle##$\hfil\cr
+          <\cr\sim\cr}}}
+    {\vcenter{\offinterlineskip\halign{\hfil$\scriptstyle##$\hfil\cr
+          <\cr\sim\cr}}}
+    {\vcenter{\offinterlineskip\halign{\hfil$\scriptscriptstyle##$\hfil\cr
+          <\cr\sim\cr}}}}}
+
+%%%% \ga...Gr"o"ser als ungef"ahr
+\def\ga{\mathrel{\mathchoice {\vcenter{\offinterlineskip\halign{\hfil
+          $\displaystyle##$\hfil\cr>\cr\sim\cr}}}
+    {\vcenter{\offinterlineskip\halign{\hfil$\textstyle##$\hfil\cr
+          >\cr\sim\cr}}}
+    {\vcenter{\offinterlineskip\halign{\hfil$\scriptstyle##$\hfil\cr
+          >\cr\sim\cr}}}
+    {\vcenter{\offinterlineskip\halign{\hfil$\scriptscriptstyle##$\hfil\cr
+          >\cr\sim\cr}}}}}
+
+%%%% Degrees, arcmin, arcsec
+\def\degr{\hbox{$^\circ$}}
+
+\def\arcmin{\hbox{$^\prime$}}
+
+\def\arcsec{\hbox{$^{\prime\prime}$}}
+
+%% Bright red for things that still need to be looked at. None of
+%% these should appear in the release version
+\newcommand{\TODO}[1]{\textcolor{red}{\bfseries TODO: #1}}
+\newcommand{\TBD}{\textcolor{red}{\bfseries TBD}}
+\newcommand{\mf}{\texttt{molecfit }}
+\newcommand{\intentblankpage}{}
+
+%% paragraph column, centred text
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+%=== Header / Footer definition ===============================================
+\newcommand{\headerformat}{%
+  \lhead{\small\sffamily
+    \begin{tabularx}{\textwidth}{Xlll}
+      \ifshowgit
+      % Just use "DRLD" here as name, because the gitVer and gitdate
+      % take up quite some space. Add "METIS" because we will often
+      % use just a few pages of the document to clear a RIX/AI.
+      METIS DRLD & \docnumber & GIT \gitVer & \gitdate\\[0.7ex]
+      \else
+      \shorttitle & \docnumber & \issuenumber & \issuedate\\[0.7ex]
+      \fi
+    \end{tabularx}}
+  \rhead{}
+  \cfoot{\small\bfseries\sffamily
+    Page {\textbf{\thepage}}  of {\textbf{\pageref{LastPage}}} }
+  \rfoot{\raisebox{-0.3\height}{\includegraphics[width=25mm]{metis_noText.pdf}} }
+}
+
+\fancypagestyle{plain}{\fancyhf{} \headerformat}
+\headerformat
+\definecolor{brn}{RGB}{99,36,35}
+\definecolor{rd1}{RGB}{229,184,183}
+\definecolor{rd2}{RGB}{242,219,219}
+
+\renewcommand\headrule{%
+  \begingroup
+  \color{brn}
+  \hrule height 0.5pt width\headwidth
+  \endgroup
+}
+
+\renewcommand{\contentsname}{Table of Contents}
+
+%% ---- Format of section titles --------------------------------
+% Combining sffamily and scshape works only for some fonts
+\titleformat{\section}{\LARGE\sffamily\scshape}{\thesection}{1em}{\textsc{}}
+\titleformat{\subsection}{\Large\sffamily}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\large\sffamily}{\thesubsubsection}{1em}{}
+% The paragraph title format seems to cause a tcolorbox Warning:
+% Package tcolorbox Warning: Using nobreak failed. Try to enlarge `lines before break' or set page breaks manually 
+% \titleformat{\paragraph}{\sffamily}{\theparagraph}{1em}{}
+
+\setlength\heavyrulewidth{1.5pt}
+
+
+% === PDF Definition ==========================================================
+\hypersetup{%
+  setpagesize,
+  bookmarksnumbered=true,
+  pdfborder= 0 0 0,
+  pdftitle={\shorttitle},
+  pdfauthor={\authorname}}
+%\pdfinfo{ /CreationDate (D:\issuedate)}
+
+
+% === biblatex Definitions ====================================================
+\bibstyle{apj}
+\addbibresource{references.bib}
+\newbibmacro{string+doiurlisbn}[1]{\iffieldundef{url}{#1}{\href{\thefield{url}}{#1}}}
+\DeclareFieldFormat{title}{\usebibmacro{string+doiurlisbn}{\mkbibemph{#1}}}
+
+
+% === glossaries definitions  =================================================
+% \input{../common/metis_glossary.tex}     % the common glossary file
+\renewcommand{\glossarysection}[2][]{}   % Avoid the heading 'Glossary'
+\setlength{\LTleft}{0pt}                 % make all longtables aligned left
+\setlength{\glsdescwidth}{0.8\textwidth}
+
+% === Headers for notebook rendering ==========================================
+\input{JuPyter_header}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Start of document
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\begin{document}
+
+% listings style
+\lstset{basicstyle=\ttfamily\lst@ifdisplaystyle\scriptsize\fi,
+  columns=flexible,
+  frame=single,
+  backgroundcolor=\color{listingbg},
+  captionpos=b,
+  showspaces=false}
+
+
+\input{00-Titlepage}
+%\end{document}
+% === MAIN TEXT================================================================
+
+\clearpage
+\pagestyle{fancy}
+
+% === Revision History =========================================================
+\section*{Revision History}
+
+\renewcommand{\arraystretch}{1.2}
+\arrayrulecolor{brn}
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+  \hline
+  \rowcolor{rd1}
+  \textbf{Issue} & \textbf{Date} & \textbf{Owner} & \textbf{Changes} \\
+  \hline
+                 & 2020-05-27    & Czoske         & initial draft    \\
+  0.1            & 2020-09-27    & all            & MTR release      \\
+  0.2            & 2022-06-30    & all            & preliminary internal release      \\
+  0.3            & 2022-09-07    & all  & LSS Sections \\
+  0.35           & 2023-05-26    & all   & Telluric correction revision \\
+  0.4            & 2023-07-01    & all   & Internal review release \\
+  1.0            & 2023-09-05    & all   & PIP-FDR release \\
+  \hline
+\end{tabularx}
+
+
+%=== Indexes ==================================================================
+\newpage
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+
+\clearpage
+\phantom{a}
+\vfill
+\begin{center}
+  This page intentionally left blank
+\end{center}
+\vfill
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% INTRODUCTION
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Scope}
+
+This document describes the design of the data reduction software for the \ac{METIS}, one of the instruments for the \ac{ELT}. It builds upon
+the Data Reduction Library Specifications document~\cite{DRLS}
+presented for \ac{PDR} and supersedes that document for \ac{FDR}.
+
+\subsection{Applicable documents}
+
+\begin{refcontext}[labelprefix=AD]
+  \printbibliography[keyword=applicable, heading=none]
+\end{refcontext}
+
+
+\subsection{Reference documents}
+
+\begin{refcontext}[labelprefix=RD]
+  \printbibliography[keyword=reference, heading=none]
+\end{refcontext}
+
+\subsection{Acronyms}
+\label{ssec:acronyms}
+\input{acronyms.tex}
+
+\subsection{Requirements}
+\label{ssec:requirements}
+\input{Requirements}
+
+\clearpage
+
+
+\input{02-Instrument_Modes}
+\input{03-Instrument_Data_Description}
+
+% General part on pipeline and DFS
+\input{05_0-Data_Processing_Overview}
+
+% Imaging-mode
+% \input{05_1-Overview_Imaging}
+
+% LSS-mode
+% \input{Overview_LSS}  % TO BE EDITED BY INNSBRUCK ONLY!!!!!
+
+\clearpage
+% IFU-mode
+% \input{05_3-Overview_IFU}
+
+\clearpage
+\input{06_0-Algorithms}
+
+
+\input{07_0-Pipeline_Recipes}
+% \input{06_1a-Recipes_Detector}
+% \newpage
+% \input{06_1b-Recipes_Imaging_LM}
+% \input{06_2-Recipes_Imaging_NQ}
+% \input{Recipes_LSS_LM}
+% \input{06_4-Recipes_LSS_N}
+% \input{06_5-Recipes_IFU}
+% \input{06_6-Recipes_HCI}
+
+
+% \subsection{Specifications and requirements}
+% \label{Subsec:polarion}
+% \input{01-Requirements}
+
+\input{08_0-DRL-Functions}
+
+\input{09_0-DRL-Data-Structures}
+\input{10_0-HDRL_algorithms}
+\input{11_0-critical_algorithms}
+\input{12_0-QC_parameters}
+\input{13_0-Developmentplan}
+
+\appendix
+% HB 20230730: For now I've disabled the Product Files appendix, as it is empty
+%\input{App01_Product_files}
+\input{App02_FITS_keywords}
+\input{App03_AtmoTrans}
+\input{App04_molecfit_summary}
+\end{document}
+
+%%
+%% THE END
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

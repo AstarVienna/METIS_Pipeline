@@ -50,6 +50,13 @@ class PipelineInput(ABC):
     # pipeline product) and is used when it is saved.
     _group: ClassVar[cpl.ui.Frame.FrameGroup] = cpl.ui.Frame.FrameGroup.CALIB
 
+    # Tag axes on which this input is deliberately different from the rest of the run: the sky
+    # frames next to the science frames are `target=SKY` for themselves while the run is SCI.
+    # Such an axis is neither filled into the run's tags by this input nor checked against them.
+    # Any other tag an input pins by its declaration (`Item = MasterDark2rg`) has to agree with
+    # what the other inputs' frames say; a GEO dark set next to a 2RG master dark is refused.
+    _own_tags: ClassVar[frozenset[str]] = frozenset()
+
     def load_frameset(self, frameset: cpl.ui.FrameSet) -> None:
         """
         Load the associated frames.
@@ -73,6 +80,16 @@ class PipelineInput(ABC):
         (`_group`), level and type come from the item. CPL DFS reads them when the
         product header is built, so this must run before any product is saved.
         """
+
+    @classmethod
+    def is_primary(cls) -> bool:
+        """
+        Whether this input is one of the recipe's primary inputs: the frames it processes
+        (`PrimaryInputMixin`, stamped RAW for CPL DFS), as opposed to the secondary inputs
+        applied to them. A primary input need not be raw data, a secondary one need not be
+        a calibration.
+        """
+        return cls._group == cpl.ui.Frame.FrameGroup.RAW
 
     @classmethod
     def required(cls) -> bool:

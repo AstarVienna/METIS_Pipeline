@@ -1,0 +1,18 @@
+\begin{recipedef}
+  Name:                & \REC{metis_n_lss_mf_correct} \\
+  Purpose:             & Application of the telluric correction \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \PROD{N_LSS_SCI_FLUX_1D} \\
+  Secondary inputs:    & \PROD{N_LSS_SYNTH_TRANS} \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.SLIT} \\
+  Parameters:          & \CODE{metis_n_lss_mf_correct.parameter1}: string\newline Description of parameter 1 (\texttt{value2}, \underline{\texttt{value1}}) \\
+  Algorithm:           & Fancy algorithm description follows ***TBD*** \\
+  Output data:         & \PROD{N_LSS_SCI_FLUX_TELLCORR_1D} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & --- none --- \\
+\end{recipedef}
+

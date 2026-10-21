@@ -1,0 +1,29 @@
+\begin{recipedef}
+  Name:                & \REC{metis_lm_lss_rsrf} \\
+  Purpose:             & Create spectroscopic relative spectral response function (RSRF) for the 2RG detector \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{LM_LSS_RSRF_RAW} (N$\times$) \\
+                       & \RAW{LM_WCU_OFF_RAW} (N$\times$) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_2RG} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_2RG}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_2RG}} \\
+                       & \PROD{MASTER_DARK_2RG} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.SLIT} \\
+  Parameters:          & \CODE{metis_lm_lss_rsrf.stacking.method}: string\newline Name of the method used to combine the input images (\texttt{average}, \underline{\texttt{median}}) \\
+  Algorithm:           & Fancy algorithm description follows ***TBD*** \\
+  Output data:         & \PROD{MASTER_LM_LSS_RSRF} \\
+                       & \PROD{MEAN_LM_LSS_RSRF} \\
+                       & \PROD{MEDIAN_LM_LSS_RSRF} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC LM LSS RSRF INTORDR LEVEL} \\
+                       & \QC{QC LM LSS RSRF MEAN LEVEL} \\
+                       & \QC{QC LM LSS RSRF MEDIAN LEVEL} \\
+                       & \QC{QC LM LSS RSRF NORM SNR} \\
+                       & \QC{QC LM LSS RSRF NORM STDEV} \\
+\end{recipedef}
+

@@ -35,6 +35,7 @@ class WcuOffRaw(ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.RAW
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE'})
+    _dpr = ('CALIB', 'IMAGE,{band}', 'DARK,WCUOFF')
 
     _schema = {
         'PRIMARY': None,
@@ -55,3 +56,4 @@ class NWcuOffRaw(BandNMixin, WcuOffRaw):
 
 class IfuWcuOffRaw(BandIfuMixin, WcuOffRaw):
     _oca_keywords = WcuOffRaw._oca_keywords | frozenset({'DRS.IFU'})
+    _dpr = ('CALIB', 'IFU', 'DARK,WCUOFF')

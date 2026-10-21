@@ -1,0 +1,22 @@
+\paragraph{\PROD{LM_STD_COMBINED}} \label{dataitem:lm_std_combined}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_STD_COMBINED}\\[0.3cm]
+        Description: & Stacked LM band exposures. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_STD_COMBINED} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_STD_COMBINED}\\[0.3cm]
+            Created by: & \REC{metis_lm_img_std_process} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * image: Extension IMAGE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

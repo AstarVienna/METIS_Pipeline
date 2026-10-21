@@ -1,0 +1,129 @@
+
+\subsection{Recipes for engineering templates}
+\label{ssec:recipes_technical}
+
+% HB 20230726: We decided that the recipes listed here should be included.
+%\TBD It is not clear (2020-11-19) whether data from maintenance
+%templates need to be reduced by the pipeline. This section and the
+%recipes described therein serves as a placeholder and may be removed
+%later.
+
+The CLC coronagraph was removed from the baseline coronagraphic modes before FDR however the coronagraph would be technically available during engineering. At this stage the DRL will not have the corresponding recipes to use the CLC. However, if the need arises during commissioning or after to make the CLC mode available, its DRL recipe can be adapted from the baseline RAVC/CVC coronagraph recipes as it is related in design and usage.
+
+%------------------------------------------------------------------------------------------------------------------
+\subsubsection{\REC*{metis_pupil_imaging}: Pupil imaging}\label{rec:metis_pupil_imaging}
+\label{sssec:pupil_imaging}
+
+This recipe refers to pupil imaging using the science detectors.
+Pupil imaging is needed to verify the alignment and illumination of the pupil masks (part of the HCI coronagraphs) with the telescope beam.
+It is not foreseen to be used by scientists in regular operation.
+
+% From OC:
+%Presumably it only contains the most basic reduction  steps.
+%There may have to be separate recipes for the various
+%subsystems.
+
+% From GO:
+%Also it can be used to record the pupil transmission which can improve PSF modelling.
+%A simple reduction to get rid of bias effects might be enough to align the pupil, and it might already be possible on the raw data.
+%If they want pupil transmission they likely also expect some pixel response or flatfield correction.
+
+\input{generated/recipes/metis_pupil_imaging}
+
+\clearpage
+%------------------------------------------------------------------------------------------------------------------
+\clearpage
+\subsubsection{\REC*{metis_cal_chophome}: Chopper home position recipe}
+\label{sssec:metiscalchophome}
+\label{sssec:metis_cal_chophome}
+\label{metis_cal_chophome}
+\label{rec:metiscalchophome}
+\label{rec:metis_cal_chophome}
+
+The recipe \REC{metis_cal_chophome} aims to detect chopper mirror zero positions. It is foreseen to be carried out on a daily basis; at the very least it is necessary after changes that possibly affect the absolute chopper position, e.g.\ after instrument interventions or unforeseen events like earthquakes (cf.\ Section ``Chopper Home Position'' in  \cite{METIS-calibration_plan}).
+
+The procedure consists in measuring the position of a point source
+from the \ac{WCU}, which has been centred on the \ac{WFS} pyramid (in
+the K-band), in the \CODE{IMG_LM} mode.  The recipe measures the
+position of the point source on the LM detector and derives a
+coordinate offset between the \ac{WFS} Pyramid focal plane and the
+science focal planes by comparing to the respective positional
+metrology values of the \ac{WFS} field selector and the chopper.
+% (the latter in plural because we have already calibrated the relative astrometry between between IMG-LM and IMG-N/LMS).
+The offset in $x$ and $y$ is delivered as QC parameters in the header
+of the \PROD{LM_CHOPHOME_COMBINED} product.
+
+\input{generated/recipes/metis_cal_chophome}
+
+
+\begin{figure}[hb]
+  \centering
+  \def \globalscale {0.600000}
+  \fontsize{10}{12}\selectfont
+  \input{generated/flowcharts/metis_cal_chophome}
+  \caption[Recipe: \REC*{metis_cal_chophome}]{\REC*{metis_cal_chophome} --
+    measurement of the zero position of the chopper mirror.}
+  \label{fig:metis_cal_chophome}
+\end{figure}
+
+\clearpage
+
+%------------------------------------------------------------------------------------------------------------------
+% Moved to https://github.com/AstarVienna/METIS_DRLD/issues/101
+% \subsubsection{Plate-scale calibration}
+% \TODO{Plate-scale calibration}
+
+%------------------------------------------------------------------------------------------------------------------
+\clearpage
+\subsubsection{\REC*{metis_lm_adc_slitloss} and \REC*{metis_n_adc_slitloss}: Slit loss determination }\label{sssec:adc_slitlosses}
+The recipes \REC{metis_lm_adc_slitloss} (Fig.~\ref{Fig:rec_lm_adc_slitloss}) and \REC{metis_n_adc_slitloss} (Fig.~\ref{Fig:rec_n_adc_slitloss}) aims to determine the throughput as function of the object position along the across-slit direction. It is expected that the usage of the fixed positioned \ac{ADC} will introduce flux losses (cf. Section "Calibration of slit losses" in  \cite{METIS-calibration_plan}). For the determination, the point sources (i.e. mask of the \ac{WCU}) is placed on several positions (distance $\sim\frac{1}{10}\lambda/D$) across the slit (cf. Fig.~\ref{Fig:slitloss}), and measure the wavelength dependent flux changes with respect to the respective positions. Finally, a simple model is determined to be able to correct for the flux losses  (see Section "Calibration of slit losses" in the Calibration Plan~\cite{METIS-calibration_plan} for more details). This recipe is to be carried out once in a while to update the static calibration database.
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.5\textheight]{figures/slitloss_det.pdf}
+  \caption[slitloss determination]{Algorithm for the slit-loss determination in recipe \REC{metis_lm_adc_slitloss} }
+  \label{Fig:slitloss}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.5\textheight]{figures/metis_lm_adc_slitloss_v0.83.pdf}
+    \notgenerated{flowchart: hand-drawn; the recipe declares no steps}
+  \caption[Recipe: \REC*{metis_lm_adc_slitloss}]{\REC*{metis_lm_adc_slitloss} --
+    Recipe workflow to determine the \ac{ADC} induced slit losses.}
+  \label{Fig:rec_lm_adc_slitloss}
+\end{figure}
+
+\input{generated/recipes/metis_lm_adc_slitloss}
+\label{rec:metislmadcmslitloss}
+\label{rec:metis_lm_adc_slitloss}
+
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.5\textheight]{figures/metis_n_adc_slitloss_v0.83.pdf}
+    \notgenerated{flowchart: hand-drawn; the recipe declares no steps}
+  \caption[Recipe: \REC*{metis_n_adc_slitloss}]{\REC*{metis_n_adc_slitloss} --
+    Recipe workflow to determine the \ac{ADC} induced slit losses.}
+  \label{Fig:rec_n_adc_slitloss}
+\end{figure}
+
+\input{generated/recipes/metis_n_adc_slitloss}
+\label{rec:metisnadcmslitloss}
+\label{rec:metis_n_adc_slitloss}
+
+%------------------------------------------------------------------------------------------------------------------
+\subsubsection{Fringing correction}
+\label{rec:metis_fringing_correction}
+
+It is unclear for the time being how much of a problem will be with the METIS
+detectors, and what the best strategy will be to tackle it. Therefore, the
+method to use will be chosen based on AIT results (\REQ{METIS-9151}, for rationale and basic method description see Ch.~3.12 in the Calibration Plan~\cite{METIS-calibration_plan}).
+
+Whether a stand-alone recipe will be required, or if the fringe-map will become
+part of another recipe, is part of that uncertainty. If needed, the design of
+said recipe will be minimal work and is thus omitted in this document.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "METIS_DRLD"
+%%% End:

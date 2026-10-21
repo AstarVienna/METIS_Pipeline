@@ -1,0 +1,588 @@
+\clearpage
+\subsection{ADI data items}\label{ssec:adi_drl_items_structures}
+
+\subsubsection{Raw data item structures}\label{sssec:adirawdatastructs}
+
+
+\input{generated/items/LM_OFF_AXIS_PSF_RAW}
+
+\input{generated/items/N_OFF_AXIS_PSF_RAW}
+
+% HANDWRITTEN: IFU_OFF_AXIS_PSF_RAW: no such data item in pymetis
+\paragraph{\RAW{IFU_OFF_AXIS_PSF_RAW}}\label{dataitem:ifu_off_axis_psf_raw}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \RAW{IFU_OFF_AXIS_PSF_RAW}\\[0.3cm]
+Description: & Raw off axis PSF image \\[0.3cm]
+\FITS{DPR.CATG}: & \CODE{CALIB}\\
+\FITS{DPR.TECH}: & \CODE{IFU}\\
+\FITS{DPR.TYPE}: & \CODE{PSF,OFFAXIS}\\
+OCA keywords: & \FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE}, \FITS{DRS.IFU}, \FITS{DRS.MASK} \\
+\FITS{DO.CATG}: & \CODE{IFU_OFF_AXIS_PSF_RAW}\\[0.3cm]
+Templates:             & \TPL{METIS_ifu_vc_obs_FixedSkyOffset} \\
+                       & \TPL{METIS_ifu_ext_vc_obs_FixedSkyOffset} \\
+Input for recipe: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.IFU}, \FITS{DRS.MASK})}
+    \item \texttt{hdrl\_image * images[]: Four Images}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+
+\subsubsection{Master calibration / intermediate data item structures}\label{sssec:adiprocdatastructs}
+\input{generated/items/LM_cgrph_SCI_THROUGHPUT}
+
+\input{generated/items/det_cgrph_SCI_THROUGHPUT}
+\label{dataitem:n_cgrph_sci_throughput}
+
+% HANDWRITTEN: IFU_cgrph_SCI_THROUGHPUT: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_THROUGHPUT}}\label{dataitem:ifu_cgrph_sci_throughput}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_THROUGHPUT}\\[0.3cm]
+Description: & ADI throughput curve \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_THROUGHPUT}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_THROUGHPUT}\\[0.3cm]
+% TODO: this is created by and input to the same recipe
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Input for:    & \REC{metis_ifu_adi_cgrph} \\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.MASK}, \FITS{DRS.IFU})}
+    \item \texttt{hdrl\_image * image: IFU Datacube}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+\input{generated/items/IFU_DISTORTION_TABLE}
+
+
+
+
+
+
+
+\subsubsection{Final data item structures}\label{sssec:adifinaldatastructs}
+
+
+
+\input{generated/items/LM_APP_SCI_CALIBRATED}
+
+
+
+
+\input{generated/items/LM_APP_SCI_CENTRED}
+
+
+
+
+\input{generated/items/LM_APP_SCI_SPECKLE}
+
+
+
+
+\input{generated/items/LM_APP_SCI_DEROTATED_PSFSUB}
+
+
+
+
+\input{generated/items/LM_APP_SCI_DEROTATED}
+
+
+\input{generated/items/LM_cgrph_SCI_HIFILT}
+
+
+
+\input{generated/items/det_cgrph_SCI_HIFILT}
+\label{dataitem:n_cgrph_sci_hifilt}
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_HIFILT: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_HIFILT}}\label{dataitem:ifu_cgrph_sci_hifilt}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_HIFILT}\\[0.3cm]
+Description: & Low-pass component subtracted in the optional high pass filter step for coronagraphic data reduction \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_HIFILT}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_HIFILT}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.MASK})}
+    \item \texttt{hdrl\_image * image: Image Cube}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+
+
+
+\input{generated/items/LM_APP_SCI_COVERAGE}
+
+
+
+
+\input{generated/items/LM_APP_SCI_SNR}
+
+
+
+
+\input{generated/items/LM_APP_SCI_CONTRAST_RADPROF}
+
+
+
+
+\input{generated/items/LM_APP_SCI_CONTRAST_ADI}
+
+
+
+
+\input{generated/items/LM_APP_SCI_THROUGHPUT}
+
+
+
+
+\input{generated/items/LM_APP_CENTROID_TAB}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\FITS{DPR.TECH}: & \CODE{IMAGE,LM}\\
+%\FITS{DPR.TYPE}: & \CODE{??}\\
+%OCA keywords: & \FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE} \\
+%\FITS{DO.CATG}: & \CODE{LM_APP_SCI_CALIBRATED}\\[0.3cm]
+%%Input for recipe: & \REC{metis_lm_adi_app}\\
+%Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+%\end{recipedef}
+%\begin{datastructdef}
+%\textbf{Corresponding \ac{CPL} structure:}
+%\begin{enumerate}
+% \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME})}
+%    \item \texttt{hdrl\_image * image: Single Image}
+%    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+%\end{enumerate}
+%\end{datastructdef}
+
+
+
+
+
+
+
+
+
+
+
+\input{generated/items/det_cgrph_SCI_CALIBRATED}
+\label{dataitem:lm_cgrph_sci_calibrated}
+\label{dataitem:n_cgrph_sci_calibrated}
+
+
+
+
+\input{generated/items/det_cgrph_SCI_CENTRED}
+\label{dataitem:lm_cgrph_sci_centred}
+\label{dataitem:n_cgrph_sci_centred}
+
+
+
+
+\input{generated/items/det_cgrph_SCI_SPECKLE}
+\label{dataitem:lm_cgrph_sci_speckle}
+\label{dataitem:n_cgrph_sci_speckle}
+
+
+
+
+\input{generated/items/det_cgrph_SCI_DEROTATED_PSFSUB}
+\label{dataitem:lm_cgrph_sci_derotated_psfsub}
+\label{dataitem:n_cgrph_sci_derotated_psfsub}
+
+
+
+
+\input{generated/items/det_cgrph_SCI_DEROTATED}
+\label{dataitem:lm_cgrph_sci_derotated}
+\label{dataitem:n_cgrph_sci_derotated}
+
+
+
+
+\input{generated/items/det_cgrph_SCI_COVERAGE}
+\label{dataitem:lm_cgrph_sci_coverage}
+\label{dataitem:n_cgrph_sci_coverage}
+
+
+
+
+\input{generated/items/det_cgrph_SCI_SNR}
+\label{dataitem:lm_cgrph_sci_snr}
+\label{dataitem:n_cgrph_sci_snr}
+
+
+
+
+\input{generated/items/det_cgrph_SCI_CONTRAST_RADPROF}
+\label{dataitem:lm_cgrph_sci_contrast_radprof}
+\label{dataitem:n_cgrph_sci_contrast_radprof}
+\label{dataitem:lm_cgrph_sci_contrast_raw}
+\label{dataitem:n_cgrph_sci_contrast_raw}
+
+
+
+
+\input{generated/items/det_cgrph_SCI_CONTRAST_ADI}
+\label{dataitem:lm_cgrph_sci_contrast_adi}
+\label{dataitem:n_cgrph_sci_contrast_adi}
+
+
+
+
+
+\input{generated/items/det_cgrph_CENTROID_TAB}
+\label{dataitem:n_cgrph_centroid_tab}
+\label{dataitem:lm_cgrph_centroid_tab}
+
+
+
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_CALIBRATED: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_CALIBRATED}}\label{dataitem:ifu_cgrph_sci_calibrated}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_CALIBRATED}\\[0.3cm]
+Description: & Coronagraphic image after distortion correction \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_CALIBRATED}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_CALIBRATED}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.MASK}, \FITS{DRS.IFU})}
+    \item \texttt{hdrl\_image * image: IFU Datacube}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_CENTRED: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_CENTRED}}\label{dataitem:ifu_cgrph_sci_centred}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_CENTRED}\\[0.3cm]
+Description: & Coronagraphic image after centering on the PSF and subpixel realignment \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_CENTRED}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_CENTRED}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.MASK}, \FITS{DRS.IFU})}
+    \item \texttt{hdrl\_image * image: IFU Datacube}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_SPECKLE: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_SPECKLE}}\label{dataitem:ifu_cgrph_sci_speckle}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_SPECKLE}\\[0.3cm]
+Description: & PSF Speckle image from coronagraphic data \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_SPECKLE}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_SPECKLE}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.MASK}, \FITS{DRS.IFU})}
+    \item \texttt{hdrl\_image * image: IFU Datacube}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_DEROTATED_PSFSUB: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_DEROTATED_PSFSUB}}\label{dataitem:ifu_cgrph_sci_derotated_psfsub}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_DEROTATED_PSFSUB}\\[0.3cm]
+Description: & Coronagraphic image after PSF subtraction, derotation and coaddition  \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_DEROTATED_PSFSUB}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_DEROTATED_PSFSUB}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.IFU}, \FITS{DRS.MASK})}
+    \item \texttt{hdrl\_image * image: 4D IFU Cube}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_DEROTATED: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_DEROTATED}}\label{dataitem:ifu_cgrph_sci_derotated}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_DEROTATED}\\[0.3cm]
+Description: & Coronagraphic image after derotation and coaddition \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_DEROTATED}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_DEROTATED}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.IFU})}
+    \item \texttt{hdrl\_image * image: IFU Datacube}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_COVERAGE: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_COVERAGE}}\label{dataitem:ifu_cgrph_sci_coverage}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_COVERAGE}\\[0.3cm]
+Description: & Map of effective number of frames contributing to the final coronagraphic image \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_COVERAGE}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_COVERAGE}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.IFU}, \FITS{DRS.MASK})}
+    \item \texttt{hdrl\_image * image: IFU Datacube}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_SNR: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_SNR}}\label{dataitem:ifu_cgrph_sci_snr}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_SNR}\\[0.3cm]
+Description: & ADI SNR Map \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_SNR}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_SNR}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.IFU}, \FITS{DRS.MASK})}
+    \item \texttt{hdrl\_image * image: IFU Datacube}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_CONTRAST_RADPROF: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_CONTRAST_RADPROF}}\label{dataitem:ifu_cgrph_sci_contrast_radprof}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_CONTRAST_RADPROF}\\[0.3cm]
+Description: & Raw contrast curve for ADI observations; a radial light intensity profile normalized to the brightness of the star if it were not obscured by the coronagraph. \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_CONTRAST_RADPROF}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_CONTRAST_RADPROF}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.IFU}, \FITS{DRS.MASK})}
+    \item \texttt{hdrl\_image * image: 2D Image}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_SCI_CONTRAST_ADI: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_SCI_CONTRAST_ADI}}\label{dataitem:ifu_cgrph_sci_contrast_adi}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} image structure:}\\
+Name: & \PROD{IFU_cgrph_SCI_CONTRAST_ADI}\\[0.3cm]
+Description: & Post-ADI contrast curve for ADI observations  \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_SCI_CONTRAST_ADI}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_CONTRAST_ADI}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.IFU}, \FITS{DRS.MASK})}
+    \item \texttt{hdrl\_image * image: 2D Image}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+
+
+
+
+% HB 20230626: The IFU_cgrph_SCI_REDUCED is currently not produced by any
+%    recipe. It is probably a subclass of IFU_SCI_REDUCED.
+%    For now I've just used IFU_SCI_REDUCED in metis_ifu_adi_cgrph
+% \paragraph{\PROD{IFU_cgrph_SCI_REDUCED}}\label{dataitem:ifu_cgrph_sci_reduced}
+% \begin{recipedef}
+% \textbf{\ac{FITS} image structure:}\\
+% Name: & \PROD{IFU_cgrph_SCI_REDUCED}\\[0.3cm]
+% Description: & IFU dataset after basic reduction \\[0.3cm]
+% \FITS{DPR.CATG}: & \CODE{SCI}\\
+% \FITS{DPR.TECH}: & \CODE{IMAGE,LM}\\
+% \FITS{DPR.TYPE}: & \CODE{??}\\
+% OCA keywords: & \FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE} \\
+% \FITS{DO.CATG}: & \CODE{IFU_cgrph_SCI_REDUCED}\\[0.3cm]
+% % Input for recipe: & \REC{metis_ifu_adi_cgrph}\\
+% Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+% %Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+% \end{recipedef}
+% \begin{datastructdef}
+% \textbf{Corresponding \ac{CPL} structure:}
+% \begin{enumerate}
+%  \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME})}
+%     \item \texttt{hdrl\_image * image: IFU Datacube}
+%     \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+% \end{enumerate}
+% \end{datastructdef}
+
+
+
+
+
+
+% HANDWRITTEN: IFU_cgrph_CENTROID_TAB: no such data item in pymetis
+\paragraph{\PROD{IFU_cgrph_CENTROID_TAB}}\label{dataitem:ifu_cgrph_centroid_tab}
+\notgenerated{no such data item in pymetis}
+\begin{handrecipedef}
+\textbf{\ac{FITS} structure:}\\
+Name: & \PROD{IFU_cgrph_CENTROID_TAB}\\[0.3cm]
+Description: & Table of central source centroids for an IFU cube  \\[0.3cm]
+\FITS{PRO.CATG}: & \CODE{IFU_cgrph_CENTROID_TAB}\\
+OCA keywords: & \FITS{PRO.CATG}, \FITS{DRS.MASK}, \FITS{DRS.IFU} \\
+\FITS{DO.CATG}: & \CODE{IFU_cgrph_CENTROID_TAB}\\[0.3cm]
+Created by: & \REC{metis_ifu_adi_cgrph}\\
+Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+%Data item structure: & see \ref{drsstructure:lmrsrfraw}\\
+\end{handrecipedef}
+\begin{handdatastructdef}
+\textbf{Corresponding \ac{CPL} structure:}
+\begin{enumerate}
+ \item \texttt{cpl\_propertylist * keywords: Primary keywords (\FITS{DPR.CATG},  \FITS{DPR.TECH},  \FITS{DPR.TYPE},  \FITS{INS.OPTI3.NAME},  \FITS{INS.OPTI9.NAME},  \FITS{INS.OPTI10.NAME}, \FITS{DRS.MASK}, \FITS{DRS.IFU})}
+    \item \texttt{cpl\_table * table: table of centroid positions}
+    \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+\end{enumerate}
+\end{handdatastructdef}
+
+% HB 20230707: I commented out the _PSF_MEDIAN data items, because they are not output from the recipes.
+%              They are still useful, but we don't want to wake sleeping dogs and get questions about why
+%              we only include (only) these intermediate data products.
+% HB 20230724: Added them back and made them output of the respective recipes
+%              after discussion with GO.
+\input{generated/items/det_cgrph_PSF_MEDIAN}
+\label{dataitem:lm_cgrph_psf_median}
+\label{dataitem:n_cgrph_psf_median}
+
+\input{generated/items/LM_APP_PSF_MEDIAN}

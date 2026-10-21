@@ -1,0 +1,22 @@
+\paragraph{\PROD{LM_SCI_OBJECT_CAT}} \label{dataitem:lm_sci_object_cat}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_SCI_OBJECT_CAT}\\[0.3cm]
+        Description: & Catalog of masked objects in science target LM exposures \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_SCI_OBJECT_CAT} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_SCI_OBJECT_CAT}\\[0.3cm]
+            Created by: & \REC{metis_lm_img_background} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

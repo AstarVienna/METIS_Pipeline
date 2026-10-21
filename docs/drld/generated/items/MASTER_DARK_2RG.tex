@@ -1,0 +1,33 @@
+\paragraph{\PROD{MASTER_DARK_2RG}} \label{dataitem:master_dark_2rg}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{MASTER_DARK_2RG}\\[0.3cm]
+        Description: & Master dark frame for 2RG data \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{MASTER_DARK_2RG} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{MASTER_DARK_2RG}\\[0.3cm]
+            Created by: & \REC{metis_det_dark} \\
+            Input for: & \REC{metis_lm_adc_slitloss} \\
+                        & \REC{metis_lm_img_basic_reduce} \\
+                        & \REC{metis_lm_img_flat} \\
+                        & \REC{metis_lm_lss_rsrf} \\
+                        & \REC{metis_lm_lss_sci} \\
+                        & \REC{metis_lm_lss_std} \\
+                        & \REC{metis_lm_lss_trace} \\
+                        & \REC{metis_lm_lss_wave} \\
+                        & \REC{metis_pupil_imaging} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_sci: Extension DET1.SCI}
+            \item \texttt{hdrl\_image * det1\_err: Extension DET1.ERR}
+            \item \texttt{hdrl\_image * det1\_dq: Extension DET1.DQ}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

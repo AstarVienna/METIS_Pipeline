@@ -1,0 +1,28 @@
+\begin{recipedef}
+  Name:                & \REC{metis_lm_img_basic_reduce} \\
+  Purpose:             & Basic science image data processing \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{LM_IMAGE_SCI_RAW} or \RAW{LM_IMAGE_SKY_RAW} or \RAW{LM_IMAGE_STD_RAW} (N$\times$) \\
+  Secondary inputs:    & \PROD{BADPIX_MAP_2RG} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_2RG}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_2RG}} \\
+                       & \PROD{MASTER_DARK_2RG} \\
+                       & \PROD{MASTER_IMG_FLAT_LAMP_LM} or \PROD{MASTER_IMG_FLAT_TWILIGHT_LM} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.FILTER} \\
+  Parameters:          & \CODE{metis_lm_img_basic_reduce.stacking.method}: string\newline Name of the method used to combine the input images (\underline{\texttt{add}}, \texttt{average}, \texttt{median}) \\
+  Algorithm:           & Remove crosstalk, correct non-linearity \\
+                       & Analyse and optionally remove masked regions \\
+                       & Subtract dark, divide by flat \\
+                       & Remove blank sky pattern \\
+  Output data:         & \PROD{LM_SCI_BASIC_REDUCED} or \PROD{LM_SKY_BASIC_REDUCED} or \PROD{LM_STD_BASIC_REDUCED} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC LM IMG MEDIAN} \\
+                       & \QC{QC LM IMG PEAK} \\
+                       & \QC{QC LM IMG STANDARD DEVIATION} \\
+\end{recipedef}
+

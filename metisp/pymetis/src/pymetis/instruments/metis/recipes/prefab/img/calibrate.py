@@ -28,6 +28,7 @@ from pymetis.instruments.metis.mixins import TargetSciMixin
 from pymetis.instruments.metis.inputs import FluxCalTableInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis import dataitems
+from pymetis.engine.recipes import Step
 
 
 class MetisImgCalibrateImpl(TargetSciMixin, MetisRecipeImpl, ABC):
@@ -48,6 +49,13 @@ class MetisImgCalibrateImpl(TargetSciMixin, MetisRecipeImpl, ABC):
 
     class Qc(QcParameterSet):
         """ No QC outputs """
+
+    _steps = (
+        Step('Scale image data to photons/s', inputs=(FluxCalTableInput,)),
+        Step('Add BUNIT and distortion information to header',
+             inputs=(InputSet.DistortionTableInput,),
+             products=(ProductSet.SciCalibrated,)),
+    )
 
     def process(self) -> set[DataItem]:
         background = self.inputset.background.load_data('DET1.DATA')

@@ -37,3 +37,4 @@ class IfuRsrfRaw(DetectorIfuMixin, BandIfuMixin, RsrfRaw):
     _title_template = "IFU RSRF raw image"
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                                'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.IFU'})
+    _dpr = ('CALIB', 'IFU', 'RSRF')

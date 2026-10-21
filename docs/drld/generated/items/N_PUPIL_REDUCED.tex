@@ -1,0 +1,22 @@
+\paragraph{\PROD{N_PUPIL_REDUCED}} \label{dataitem:n_pupil_reduced}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{N_PUPIL_REDUCED}\\[0.3cm]
+        Description: & Reduced pupil image in N mode. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_PUPIL_REDUCED} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.PUPIL}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_PUPIL_REDUCED}\\[0.3cm]
+            Created by: & \REC{metis_pupil_imaging} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * image: Extension IMAGE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

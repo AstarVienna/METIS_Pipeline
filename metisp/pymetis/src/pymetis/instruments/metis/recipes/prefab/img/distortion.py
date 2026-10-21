@@ -30,6 +30,7 @@ from pymetis.instruments.metis.inputs import (RawInput, PinholeTableInput, GainM
                                               OptionalInputMixin, PersistenceMapInput)
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.engine.recipes import Step
 
 
 class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
@@ -58,6 +59,15 @@ class MetisBaseImgDistortionImpl(RawImageProcessor, MetisRecipeImpl, ABC):
     class Qc(QcParameterSet):
         Rms = qc.distortion.QcDistortRms
         NSource = qc.distortion.QcDistortNSource
+
+    _steps = (
+        Step('detector signature removal',
+             inputs=(InputSet.BadPixMapInput, GainMapInput, LinearityInput, InputSet.PersistenceMapInput,)),
+        Step('subtract WCU OFF dark'),
+        Step('locate images', inputs=(PinholeTableInput,)),
+        Step('fit polynomial', products=(ProductSet.DistortionTable, ProductSet.DistortionMap,
+                                         ProductSet.DistortionReduced,)),
+    )
     def process(self) -> set[DataItem]:
         raw_images = self.inputset.raw.load_data('DET1.DATA')
 

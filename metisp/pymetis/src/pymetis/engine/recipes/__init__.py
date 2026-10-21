@@ -18,7 +18,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from .recipe import Recipe
+from .step import Step
 from .impl import RecipeImpl
 
 
-__all__ = ['Recipe', 'RecipeImpl']
+__all__ = ['Recipe', 'RecipeImpl', 'Step']
