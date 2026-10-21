@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-
-
+import functools
+import operator
 from types import EllipsisType
-from typing import Optional, ClassVar
+from typing import Optional, ClassVar, Iterable
 
 import numpy as np
 import cpl
@@ -146,13 +146,33 @@ class EnhancedImageBase:
     # ---- schema ----
 
     @classmethod
-    def schema(cls, prefix) -> dict[str, type]:
-        """Build a generic schema for the class, depending on the prefix."""
-        return {
-            f'{prefix}.{cls.sci_suffix}': cls._layer_type(),
-            f'{prefix}.{cls.err_suffix}': cls._layer_type(),
-            f'{prefix}.{cls.dq_suffix}': CplImage,   # the DQ layer is always a single 2D image
-        }
+    def schema(
+            cls,
+            prefix: str | Iterable,
+    ) -> dict[str, type]:
+        """
+        Build a generic schema for the class, depending on the prefix.
+        Schema is always a dict{str: type}
+
+        Prefix can be a string or an iterable of something convertible to a string,
+        in which case a full product (detectors × {SCI, ERR, DQ}) is built.
+        """
+        if isinstance(prefix, str):
+            # For a single string, return that with all possible suffixes
+            return {
+                f'{prefix}.{cls.sci_suffix}': cls._layer_type(),
+                f'{prefix}.{cls.err_suffix}': cls._layer_type(),
+                f'{prefix}.{cls.dq_suffix}': CplImage,   # the DQ layer is always a single 2D image
+            }
+        elif isinstance(prefix, Iterable):
+            # For an iterable prefix, return a Cartesian product of all possible prefixes and suffixes
+            return functools.reduce(operator.or_, [{
+                f'{p}.{cls.sci_suffix}': cls._layer_type(),
+                f'{p}.{cls.err_suffix}': cls._layer_type(),
+                f'{p}.{cls.dq_suffix}': CplImage,
+            } for p in prefix], {})
+        else:
+            raise TypeError(f"{cls.__name__} is not a string or iterable of strings")
 
     # ---- IO ----
 

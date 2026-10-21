@@ -39,7 +39,7 @@ class QcParameter(ParametrizableItem, abstract=True):
     _comment: ClassVar[str] = ""
 
     _registry: ClassVar[dict[str, type[Self]]] = {}       # fully resolved name -> concrete class
-    _templates: ClassVar[dict[str, type[Self]]] = {}      # name with placeholders -> hand-written template
+    _templates: ClassVar[dict[str, type[Self]]] = {}      # name with placeholders -> handwritten template
 
     def __init__(self, value: Any):
         # A value needs a fully resolved name to be written under; a parameter that is not
