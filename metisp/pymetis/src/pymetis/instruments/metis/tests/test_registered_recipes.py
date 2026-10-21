@@ -255,7 +255,7 @@ class TestRecipeOnDefaultData:
     @pytest.mark.inputset
     def test_input_set_loads_and_validates(self, recipe, frameset):
         instance = recipe.Impl.InputSet(frameset)
-        assert isinstance(instance.inputs, frozenset)
+        assert isinstance(instance.inputs, tuple)
         for name, attr in instance.__dict__.items():
             if isinstance(attr, PipelineInput):
                 assert attr in instance.inputs, f"Input {name} is not registered in inputs"
