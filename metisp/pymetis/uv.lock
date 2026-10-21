@@ -975,7 +975,7 @@ requires-dist = [
     { name = "astropy" },
     { name = "edps", index = "https://ftp.eso.org/pub/dfs/pipelines/repositories/stable/src" },
     { name = "numpy" },
-    { name = "pycpl", specifier = "==1.0.4.post4", index = "https://ivh.github.io/pycpl/simple/" },
+    { name = "pycpl", specifier = ">=1.0.4.post4,<1.0.5", index = "https://ivh.github.io/pycpl/simple/" },
     { name = "pyesorex", index = "https://ftp.eso.org/pub/dfs/pipelines/repositories/stable/src" },
     { name = "scipy" },
 ]
