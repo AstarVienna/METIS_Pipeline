@@ -324,7 +324,7 @@ class ParametrizableContainer(Parametrizable, ABC):
         if len(items) == 0:
             return "--- none ---"
         else:
-            return '\n'.join(sorted(items))
+            return '\n'.join([f"    {x}" for x in sorted(items)])
 
     @classmethod
     def _derived(cls, namespace: dict[str, Any]) -> type[Self]:
