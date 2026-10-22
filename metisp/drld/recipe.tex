@@ -1,0 +1,25 @@
+(# One DRLD recipe card, rendered by generate_drld.py with `recipe` set to a RecipeCard.
+   Fields the code does not record (Requirements, Type, Templates, Expected accuracies)
+   are left as comments for the author. #)
+(% macro rows(label, items) -%)
+(% for item in items %)
+  (* ("%-20s" % (label if loop.first else "")) *) & (* item *) \\
+(% else %)
+  (* "%-20s" % label *) & --- none --- \\
+(% endfor %)
+(%- endmacro %)
+\begin{recipedef}
+  Name:                & \REC{(* recipe.name *)} \\
+  Purpose:             & (* recipe.synopsis|latex *) \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+(* rows("Input data:", recipe.inputs) -*)
+(* rows("Matched keywords:", recipe.matched_keywords|map("fits")|list) -*)
+(* rows("Parameters:", recipe.parameters) -*)
+(* rows("Algorithm:", recipe.algorithm) -*)
+(* rows("Output data:", recipe.outputs) -*)
+%  Expected accuracies: & \\
+(* rows("QC1 parameters:", recipe.qc_parameters) -*)
+\end{recipedef}
+

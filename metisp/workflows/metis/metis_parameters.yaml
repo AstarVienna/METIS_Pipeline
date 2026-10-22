@@ -1,12 +1,18 @@
 default_parameters: &default
   is_default: yes
   recipe_parameters:
-    dark_task: 
+    # Keys are task names; parameter names are the recipe's own (as in the
+    # generated parameters.rc: <recipe>.<parameter>=<value>).
+    metis_lm_img_dark: &dark_parameters
       # Overriding the default for stacking
-      metis.metis_det_dark.stacking.method: "median"
-      metis.metis_det_dark.kappa_low: 4
-      metis.metis_det_dark.kappa_high: 4
-  
+      metis_det_dark.stacking.method: "median"
+      metis_det_dark.outliers.kappa_low: 4
+      metis_det_dark.outliers.kappa_high: 4
+    metis_n_img_dark: *dark_parameters
+    metis_ifu_dark: *dark_parameters
+    metis_lm_lss_dark: *dark_parameters
+    metis_n_lss_dark: *dark_parameters
+
   workflow_parameters:
     molecfit: "science"
 

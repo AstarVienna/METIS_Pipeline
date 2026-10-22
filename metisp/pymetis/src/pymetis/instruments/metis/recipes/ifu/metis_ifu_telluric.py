@@ -20,17 +20,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet
+from pymetis.engine.inputs import SinglePipelineInput, PipelineInputSet, PrimaryInputMixin
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_image, create_dummy_table
 
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
-from pymetis.instruments.metis.dataitems.common import FluxCalTable
-from pymetis.instruments.metis.dataitems.ifu.ifu import IfuReduced1d, IfuCombined, IfuTelluric
-from pymetis.instruments.metis.dataitems.ifu.raw import IfuRaw
-from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput, RawInput
+from pymetis.instruments.metis.inputs import FluxstdCatalogInput, LsfKernelInput, AtmProfileInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 # The aim of this recipe is twofold:
@@ -44,24 +42,14 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
     """Implementation class for metis_ifu_telluric"""
 
     # ++++++++++++++ Defining input +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Define molecfit main input class as one 1d spectrum, either Science or Standard spectrum
     class InputSet(PipelineInputSet):
         """Inputs for metis_ifu_telluric"""
-        # TODO: still needs to be added to the input set
-        # class Reduced1DInput(SinglePipelineInput):
-        #     _tags: re.Pattern = re.compile(rf"IFU_(?P<target>SCI|STD)_1D")
-        #     _group = cpl.ui.Frame.FrameGroup.CALIB
-        #     _title: str = "uncorrected mf input spectrum"
-        #     _description: str = "Uncorrected MF input spectrum."
+        # TODO the molecfit input proper is the uncorrected 1D spectrum (IFU_{target}_REDUCED_1D);
+        #  until the recipe consumes it, the combined 2D product stands in as the primary input.
 
-        # FixMe: using raw input to avoid empty frameset on product save issue
-        class RawInput(RawInput):
-            Item = IfuRaw
+        class CombinedInput(PrimaryInputMixin, SinglePipelineInput):
+            Item = dataitems.IfuCombined
 
-        class CombinedInput(SinglePipelineInput):
-            Item = IfuCombined
-
-        raw: RawInput
         combined: CombinedInput
         fluxstd_catalog: FluxstdCatalogInput
         lsf_kernel: LsfKernelInput
@@ -73,22 +61,22 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
     # Note that these should not be used directly if there is any chance of promotion.
 
     class ProductSet(PipelineProductSet):
-        TelluricTransmission = IfuTelluric
-        ResponseFunction = IfuReduced1d
-        FluxcalTab = FluxCalTable
+        TelluricTransmission = dataitems.IfuTelluric
+        ResponseFunction = dataitems.IfuReduced1d
+        FluxcalTab = dataitems.FluxCalTable
 
     class Qc(QcParameterSet):
         # QCs are apprently not very reusable, so we can define them here
         class Chi2(QcParameter):
             _name_template = "QC IFU TELLURIC CHI2"
             _type = float
-            _unit = "1"
+            _unit = None
             _description_template = "Chi-squared of telluric fit from molecfit"
 
         class NpThreshold(QcParameter):
             _name_template = "QC IFU TELLURIC NPTHRESH"
             _type = float
-            _unit = "1"
+            _unit = "counts"
             _description_template = "Number of pixels above the threshold used to calculate the spectrum"
 
         class Conversion(QcParameter):
@@ -140,8 +128,9 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
 
         _combined = self.inputset.combined.load_data('DET1.DATA')
 
+        primary_header = create_dummy_header()
         product_telluric_transmission = self.ProductSet.TelluricTransmission(
-            create_dummy_header(),
+            primary_header,
             Hdu(header_transmission, table, name='TABLE'),
         )
         product_reduced_1d = self.ProductSet.ResponseFunction(
@@ -152,6 +141,13 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
             create_dummy_header(),
             Hdu(header_fluxcal_tab, table, name='TABLE'),
         )
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.Chi2(None),
+            self.Qc.Conversion(None),
+            self.Qc.NpThreshold(None),
+        ))
 
         return {product_telluric_transmission, product_reduced_1d, product_fluxcal_tab}
 

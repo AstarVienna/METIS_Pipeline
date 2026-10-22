@@ -52,7 +52,9 @@ class Hdu:
         if not ((type(data) == klass) or (data is None) or (klass is None)):
             raise TypeError(f"Data type {type(data)} does not match `klass` {klass}")
 
-        self.header = header
+        # Own copy: EXTNAME is stamped below, and one header object is often shared between
+        # the extensions of a product.
+        self.header = CplPropertyList(header) if header is not None else CplPropertyList()
         self.data = data
         self.klass = klass if klass is not None else type(data) if data is not None else None
         self.extno = extno
@@ -60,7 +62,7 @@ class Hdu:
         self.name = name if name is not None else 'NONE'
 
         self.header.del_regexp(r'EXTNAME', False)
-        self.header.append(make_cpl_property('EXTNAME', name))
+        self.header.append(make_cpl_property('EXTNAME', self.name))
 
         Msg.debug(self.__class__.__qualname__,
                   f"Created a HDU '{self.name}' with extno={self.extno}, class is {self.klass}")

@@ -20,21 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from abc import ABC
 
 from pymetis.engine.inputs import SinglePipelineInput, MultiplePipelineInput
-from pymetis.engine.inputs.mixins import OptionalInputMixin
+from pymetis.engine.inputs.mixins import OptionalInputMixin, PrimaryInputMixin
+from pymetis.instruments.metis import dataitems
 
-from pymetis.instruments.metis.dataitems.common import (PersistenceMap, FluxCalTable, PinholeTable,
-                                                        AtmProfile, LsfKernel, FluxStdCatalog,
-                                                        AtmLineCatalog, LaserTable)
-from pymetis.instruments.metis.dataitems.linearity import LinearityMap
-from pymetis.instruments.metis.dataitems.raw import Raw, WcuOffRaw
-from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
-from pymetis.instruments.metis.dataitems.distortion.table import DistortionTable
-from pymetis.instruments.metis.dataitems.gainmap import GainMap
-from pymetis.instruments.metis.dataitems.masterdark.masterdark import MasterDark
-from pymetis.instruments.metis.dataitems.masterflat import MasterFlat
-from pymetis.instruments.metis.dataitems.synth import SynthTrans
-from pymetis.instruments.metis.dataitems.wavecal import IfuWavecal
-from pymetis.instruments.metis.dataitems.lss.rsrf import MasterLssRsrf
 
 """
 This file contains various ready-to-use `PipelineInput` classes.
@@ -58,82 +46,82 @@ You can override class attributes:
 """
 
 
-class RawInput(MultiplePipelineInput, ABC):
-    Item = Raw
+class RawInput(PrimaryInputMixin, MultiplePipelineInput, ABC):
+    Item = dataitems.Raw
 
 
 class MasterDarkInput(SinglePipelineInput):
-    Item = MasterDark
+    Item = dataitems.MasterDark
 
 
 class MasterFlatInput(SinglePipelineInput):
-    Item = MasterFlat
+    Item = dataitems.MasterFlat
 
 
 class LinearityInput(SinglePipelineInput):
-    Item = LinearityMap
+    Item = dataitems.LinearityMap
 
 
 class BadPixMapInput(SinglePipelineInput):
-    Item = BadPixMap
+    Item = dataitems.BadPixMap
 
 
 class PersistenceMapInput(SinglePipelineInput):
-    Item = PersistenceMap
+    Item = dataitems.PersistenceMap
 
 
 class OptionalPersistenceMapInput(OptionalInputMixin, SinglePipelineInput):
-    Item = PersistenceMap
+    Item = dataitems.PersistenceMap
 
 
 class GainMapInput(SinglePipelineInput):
-    Item = GainMap
+    Item = dataitems.GainMap
 
 
 class DistortionTableInput(SinglePipelineInput):
-    Item = DistortionTable
+    Item = dataitems.DistortionTable
 
 
 class WavecalInput(SinglePipelineInput):
-    Item = IfuWavecal
+    Item = dataitems.IfuWavecal
 
 
 class PinholeTableInput(SinglePipelineInput):
-    Item = PinholeTable
+    Item = dataitems.PinholeTable
 
 
 class FluxstdCatalogInput(SinglePipelineInput):
-    Item = FluxStdCatalog
+    Item = dataitems.FluxStdCatalog
 
 
 class MasterRsrfInput(SinglePipelineInput):
-    Item = MasterLssRsrf
+    Item = dataitems.MasterLssRsrf
 
 
 class FluxCalTableInput(SinglePipelineInput):
-    Item = FluxCalTable
+    Item = dataitems.FluxCalTable
 
 
 class LsfKernelInput(SinglePipelineInput):
-    Item = LsfKernel
+    Item = dataitems.LsfKernel
 
 
 class AtmProfileInput(SinglePipelineInput):
-    Item = AtmProfile
+    Item = dataitems.AtmProfile
 
 
 class AtmLineCatInput(SinglePipelineInput):
-    Item = AtmLineCatalog
+    Item = dataitems.AtmLineCatalog
 
 
 class LaserTableInput(SinglePipelineInput):
-    Item = LaserTable
+    Item = dataitems.LaserTable
 
 
 class SynthTransInput(SinglePipelineInput):
-    Item = SynthTrans
+    Item = dataitems.SynthTrans
 
 
 class WcuOffInput(RawInput):
-    Item = WcuOffRaw
+    Item = dataitems.WcuOffRaw
 

@@ -1,0 +1,36 @@
+(# One DRLD data-item card, rendered by generate_drld.py with `item` set to a Card.
+   Delimiters: (* expression *) and (% block %); this is a comment block. #)
+\paragraph{\(* item.macro *){(* item.name *)}} \label{dataitem:(* item.name|lower *)}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \(* item.macro *){(* item.name *)}\\[0.3cm]
+        Description: & (* item.description|latex *) \\[0.3cm]
+        (% if not item.is_raw %)
+        \FITS{PRO.CATG}: & \CODE{(* item.name *)} \\[0.3cm]
+        (% endif %)
+        OCA keywords: & (* item.oca_keywords|fits *)\\
+        \FITS{DO.CATG}: & \CODE{(* item.name *)}\\[0.3cm]
+        (% if item.created_by %)
+            Created by: & \REC{(* item.created_by[0] *)} \\
+            (% for recipe in item.created_by[1:] %)
+                        & \REC{(* recipe *)} \\
+            (% endfor %)
+        (% endif %)
+        (% if item.input_for %)
+            Input for(% if item.is_raw %) recipe(% endif %): & \REC{(* item.input_for[0] *)} \\
+            (% for recipe in item.input_for[1:] %)
+                        & \REC{(* recipe *)} \\
+            (% endfor %)
+        (% endif %)
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+        (% for ctype, comment in item.structure %)
+            \item \texttt{(* ctype|latex *): (* comment|latex *)}
+        (% endfor %)
+    \end{enumerate}
+\end{datastructdef}
+

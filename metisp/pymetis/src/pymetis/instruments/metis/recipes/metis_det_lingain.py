@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import itertools
 import re
 
-from typing import Literal, Dict, Any, Self
+from typing import Dict, Any, Self
 
 import cpl
 from cpl.core import Msg
@@ -27,23 +27,20 @@ from numpy._typing import NDArray
 
 from pymetis.engine.core.classes.image import EnhancedImage3D
 from pymetis.engine.core.classes.utilities import Stopwatch
-from pymetis.engine.core.functions.polyfit import weighted_polyfit
+from pymetis.drl.polyfit import weighted_polyfit
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterValue
 
-from pymetis.instruments.metis.dataitems.badpixmap import BadPixMap
-from pymetis.instruments.metis.dataitems.gainmap import GainMap
 from pymetis.instruments.metis.description import Metis
-from pymetis.instruments.metis.dataitems.linearity.linearity import LinearityMap
-from pymetis.instruments.metis.dataitems.linearity.raw import LinearityRaw
 from pymetis.instruments.metis.inputs import RawInput, BadPixMapInput, OptionalInputMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
-from pymetis.instruments.metis.qc.lingain import (LinGainMean, LinGainRms, LinNumBadpix, LinMinFlux, LinMaxFlux,
-                                                  GainLin, GainCoeff)
+from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
+
 import numpy as np
 import astropy.stats
 
@@ -52,26 +49,26 @@ import astropy.stats
 class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = LinearityRaw
+            Item = dataitems.LinearityRaw
         class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
-            Item = BadPixMap
+            Item = dataitems.BadPixMap
 
         raw: RawInput
         bad_pix_map: BadPixMapInput
 
     class ProductSet(PipelineProductSet):
-        GainMap = GainMap
-        Linearity = LinearityMap
-        BadPixMap = BadPixMap
+        GainMap = dataitems.GainMap
+        Linearity = dataitems.LinearityMap
+        BadPixMap = dataitems.BadPixMap
 
     class Qc(QcParameterSet):
-        LinGainMean = LinGainMean
-        LinGainRms = LinGainRms
-        LinNumBadpix = LinNumBadpix
-        LinMinFlux = LinMinFlux
-        LinMaxFlux = LinMaxFlux
-        GainLin = GainLin
-        GainCoeff = GainCoeff
+        LinGainMean = qc.lingain.LinGainMean
+        LinGainRms = qc.lingain.LinGainRms
+        LinNumBadpix = qc.lingain.LinNumBadpix
+        LinMinFlux = qc.lingain.LinMinFlux
+        LinMaxFlux = qc.lingain.LinMaxFlux
+        GainLin = qc.lingain.GainLin
+        GainCoeff = qc.lingain.GainCoeff
 
     def __init__(self,
                  recipe: 'Recipe',
@@ -117,15 +114,17 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             raise cpl.core.IllegalInputError(f"Unknown ESO DPR TECH {tech}")
 
     @staticmethod
-    def split_dits(fws: NDArray, # Filter wheel setting
-                   dits: NDArray[np.float64],
-                   un_on: NDArray[int]) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
+    def split_dits(
+        fws: NDArray, # Filter wheel setting
+        dits: NDArray[np.float64],
+        un_on: NDArray[int]
+    ) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
         """ Split DITs into on and off, depending on the filter wheel setting. """
         return (dits == un_on) & (fws != 'closed'), (dits == un_on) & (fws == 'closed')
 
-    def set_detector_characteristics(self, tech) -> Self:
+    def set_detector_characteristics(self, tech: str) -> Self:
         """
-        Get detector characteristics:
+        Set detector characteristics:
         - gain correction factor (dimensionless)
         - gain (e- / ADU)
         - read noise (ADU)
@@ -390,7 +389,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
 
     def _process_single_detector(
         self,
-        detector: Literal[1, 2, 3, 4]
+        detector: Metis.DetectorNumber
     ) -> dict[str, Hdu]:
         det_prefix = rf'DET{detector:1d}'
 
@@ -577,6 +576,21 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
             *[output['badpix_map'] for output in all_hdus]
         )
 
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header_gain_map.append(self.collect_qc_parameters(
+            self.Qc.GainCoeff(None),
+            self.Qc.GainLin(None),
+            self.Qc.LinGainMean(None),
+            self.Qc.LinGainRms(None),
+        ))
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header_linearity.append(self.collect_qc_parameters(
+            self.Qc.LinMaxFlux(None),
+            self.Qc.LinMinFlux(None),
+            self.Qc.LinNumBadpix(None),
+        ))
+
         return {product_gain_map, product_linearity, product_badpix_map}
 
 
@@ -617,7 +631,7 @@ class MetisDetLinGain(Recipe):
         ParameterValue(
             name=rf"{_name}.kappa",
             context=_name,
-            description="kappa factor for sigma clipping for BPM. "
+            description="Kappa factor for sigma clipping for BPM. "
                         "Values that deviate more than kappa*sigma from the median linearity are flagged.",
             default=3,
         ),

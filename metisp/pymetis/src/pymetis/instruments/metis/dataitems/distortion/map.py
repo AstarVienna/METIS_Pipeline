@@ -31,6 +31,7 @@ class DistortionMap(ImageDataItem, abstract=True):
     _description_template = "Map of pixel scale across the {band} detector"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    # FixMe no OCA keywords: the DRLD cards for LM/N_DISTORTION_MAP have no OCA line
 
     _schema = ImageDataItem._schema | {
         'DET1.DATA': Image,

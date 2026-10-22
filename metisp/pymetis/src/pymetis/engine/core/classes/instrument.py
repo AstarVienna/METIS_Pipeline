@@ -2,6 +2,11 @@ import enum
 
 
 class InstrumentDescription:
+    """
+    Base class for instrument descriptions.
+    Every instrument module should derive from this class and store its own global attributes in it.
+    """
+
     class MaskFlags(enum.IntFlag):
         """
         This class provides meanings for the mask bits.
@@ -10,8 +15,10 @@ class InstrumentDescription:
         signed 32-bit integer, so bit 31 is the sign bit and must stay unused.
         Every flag must set exactly one of bits 0-`MAX_FLAG_BIT`, and no two
         flags may share a bit; both are enforced for all subclasses at
-        definition time. Composite selections are built at the call site
-        (``HOT | COLD``), never declared as members.
+        definition time.
+
+        Composite selections are to be built at the call site (``HOT | COLD``),
+        never declared as members.
         """
 
         # FixMe: This should be also stored in the FITS file [Claude]

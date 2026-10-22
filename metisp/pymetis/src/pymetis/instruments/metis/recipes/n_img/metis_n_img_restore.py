@@ -21,21 +21,21 @@ from pymetis.engine.core.parameter import ParameterList, ParameterValue
 from pymetis.engine.core.functions.dummy import create_dummy_image
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 
-from pymetis.instruments.metis.dataitems.img.basicreduced import NSciCalibrated, NSciRestored
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 class MetisNImgRestoreImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class CalibratedInput(SinglePipelineInput):
-            Item = NSciCalibrated
+        class CalibratedInput(PrimaryInputMixin, SinglePipelineInput):
+            Item = dataitems.NSciCalibrated
 
         calibrated: CalibratedInput
 
     class ProductSet(PipelineProductSet):
-        Restored = NSciRestored
+        Restored = dataitems.NSciRestored
 
     def process(self) -> set[DataItem]:
         _calibrated = self.inputset.calibrated.load_data('DET1.DATA')

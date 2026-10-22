@@ -40,9 +40,10 @@ Tags are supplied in two ways, with project-specific vocabulary:
   definition, almost always by inheriting a mixin:
   `class MetisLmImgFlatImpl(BandLmMixin, ...)` sets `band='LM'`.
   When the recipe class is created, `RecipeImpl.specialize()` gives the Impl
-  a private copy of its `ProductSet`/`Qc` containers and formats every
-  member's template with the class tags
-  (`MASTER_IMG_FLAT_{source}_{band}` → `MASTER_IMG_FLAT_{source}_LM`).
+  its own subclass of each `ProductSet`/`Qc` container, whose members are the
+  declared items specialized with the class tags
+  (`MASTER_IMG_FLAT_{source}_{band}` → `MASTER_IMG_FLAT_{source}_LM`); the
+  declared containers and items are never mutated.
 - **Promotion** (dynamic, run time). Tags that depend on the data
   (e.g. `source` is `LAMP` or `TWILIGHT` depending on what was observed)
   are extracted from the matched input frames during `InputSet` validation.
@@ -53,15 +54,26 @@ Tags are supplied in two ways, with project-specific vocabulary:
 
 The lookup from a resolved tag string to the class that owns it goes through
 a **registry** (one per root: `DataItem._registry`, `QcParameter._registry`).
-Every non-abstract class registers itself at import time under its (possibly
-still partial) template. Two rules are enforced at import time and will fail
-your branch fast:
+At import time every concrete class with a fully resolved name registers
+itself there; a class whose name still has placeholders — abstract or not —
+goes to the root's `_templates` instead, where `specialized()` finds
+hand-written partial specializations. Two rules are enforced at import time
+and will fail your branch fast:
 
 - A tag may be claimed by only one class (subclass refinements of the owner
   are allowed). Two unrelated classes claiming one tag raise `TypeError` —
   this catches copy-pasted mixin lists.
 - Tag keywords are validated against the axes declared in
   `instruments/metis/mixins/__init__.py`; a typo like `bnad='LM'` raises.
+
+Names and titles always show the raw tag values; **descriptions** show the
+values as words where the mixin labels them
+(`TargetStdMixin` carries `_tag_labels = {'target': 'standard star'}`), so
+one shared class can read "Noise level of the standard star spectrum" for the
+STD recipe and "… of the science target spectrum" for the SCI recipe. Labels
+are kept per tag value on the root, so a class that reaches the value by
+specialization or promotion reads the same. Labelling a tag the class does
+not set raises.
 
 Worked example — `pyesorex metis_lm_img_flat` from import to product file:
 
@@ -86,10 +98,18 @@ Worked example — `pyesorex metis_lm_img_flat` from import to product file:
    `MetisRecipeImpl`), add the band/detector/target mixins, and declare:
    - `class InputSet` — one inner class or alias per input
      (see `instruments/metis/inputs/common.py` for shared ones; add
-     `OptionalInputMixin` first in the bases for optional inputs);
+     `OptionalInputMixin` first in the bases for optional inputs, and
+     `PrimaryInputMixin` for the input the recipe actually reduces when it is
+     not a `RawInput` — its frames are stamped `FrameGroup.RAW`, everything
+     else `CALIB`, whatever the item's own group);
    - `class ProductSet` — one member per product data item;
-   - `class Qc` — one member per QC parameter (shared ones live in
-     `instruments/metis/qc/`);
+   - `class Qc` — one member per QC parameter. A class shared by several
+     recipes lives in `instruments/metis/qc/`; the recipe imports the package
+     (`from pymetis.instruments.metis import qc`) and binds
+     `Name = qc.<module>.<Class>`, never importing a class by name. A class
+     only this recipe uses is defined in place, inside its `Qc` set. Either
+     way the origin of each parameter is visible where it is used, and a
+     bare template is not reused by accident;
    - `def process(self)` — the algorithm. All pixel manipulation happens
      here; delegate real math to functions in `drl/`. Return the set of
      built products.
@@ -99,10 +119,12 @@ Worked example — `pyesorex metis_lm_img_flat` from import to product file:
    Every parameter name must be prefixed `"<recipe_name>."`.
 4. Register it: add the import to `instruments/metis/recipes/__init__.py`.
    pyesorex discovers recipes only through that module.
-5. Add a test module under `instruments/metis/tests/recipes/<family>/`
-   mirroring a sibling, and a SOF file if applicable.
+5. Add a SOF file `<recipe>.sof` to the test data if applicable; the shared
+   test module picks it up. A test module of your own is needed only for
+   per-band/per-target SOFs or recipe-specific tests (see Testing below).
 6. Check the man page: `pyesorex --man-page metis_<name>` — the Inputs,
-   Outputs and QC sections are generated from your declarations.
+   Outputs and QC sections are generated from your declarations — and the
+   DRLD card: `python ../drld/generate_drld.py metis_<name>`.
 
 ### Input attribute names
 
@@ -120,7 +142,16 @@ class InputSet(RawImageProcessor.InputSet):
 
 `__init__` creates `self.raw`, `self.master_dark`, ... as instances of the
 annotated classes — these are what `process()` accesses via
-`self.inputset.raw` etc. The names are ordinary annotated attributes: IDEs
+`self.inputset.raw` etc. Data items are bound the same way as QC parameters:
+the recipe imports the catalogue package
+(`from pymetis.instruments.metis import dataitems`) and writes
+`Item = dataitems.DarkRaw` or `MasterDark = dataitems.MasterDark`, never
+importing a class by name. The package exports every catalogue class flat; a
+DRLD tag has exactly one class, so the module it lives in adds nothing. An input declared with a template item matches every
+leaf of the template, except leaves a more specific sibling input claims: with
+`raw: Item = IfuRaw` and `raw_sky: Item = IfuSkyRaw` in one set, `IFU_SKY_RAW`
+frames go to `raw_sky` only (the most specific input wins). Two different
+leaves landing on one input with no sibling to take them is still an error. The names are ordinary annotated attributes: IDEs
 complete and type them, and grep finds them. A subclass that overrides an
 input class must re-annotate the attribute; forgetting this raises a
 `TypeError` at recipe construction (`engine/inputs/inputset.py`).
@@ -132,19 +163,33 @@ input class must re-annotate the attribute; forgetting this raises a
    mixins; otherwise declare the template as `abstract=True` with:
    - `_name_template` — the DRLD tag, with `{placeholders}` for tag axes;
    - `_title_template`, `_description_template` — human-readable text;
-   - `_frame_group` / `_frame_level` — CPL classification (a missing group
-     causes obscure CPL errors at save time, so it is checked at
-     instantiation);
-   - `_oca_keywords` — the OCA keywords the item matches on;
+   - `_frame_group` / `_frame_level` — the item's origin as CPL sees it:
+     `RAW` for instrument data, `CALIB` for calibrations, `PRODUCT` for
+     science products (a missing group causes obscure CPL errors at save
+     time, so it is checked at instantiation). This is *not* the role the
+     frames play in a consuming recipe — that is the input's `_group`;
+   - `_static = True` for a static calibration (kept in the calibration
+     database, even if a recipe can regenerate it);
+   - `_oca_keywords` — a `frozenset` of the OCA keywords the item matches on,
+     as listed on its DRLD card;
    - `_schema` — dict of extension name → `Image` / `Table` / `None`.
 3. Declare one concrete leaf per DRLD tag
    (`class MasterDarkGeo(DetectorGeoMixin, MasterDark): pass`).
-   The class body stays empty unless the leaf genuinely differs.
+   The class body stays empty unless the leaf genuinely differs. Every class
+   whose name still has a placeholder — including per-band intermediates like
+   `LmImageRaw` — is `abstract=True`: only fully resolved names of concrete
+   classes enter `DataItem._registry`; templates are kept in
+   `DataItem._templates` for specialization. (QC parameters differ here on
+   purpose: a `QC {band} ...` template is concrete and its resolved clones
+   serve as the per-band parameters, because nobody writes those leaves.)
 4. Make sure the module is reachable from an import: top-level modules load
    via `dataitems/__init__.py`; subpackage modules (e.g. `hci/`) load when a
    registered recipe imports them.
-5. The declaration should mirror the DRLD exactly — the intent is that DRLD
-   data-item cards are regenerable from these classes.
+5. The declaration should mirror the DRLD exactly: the DRLD data-item cards
+   are regenerated from these classes by `metisp/drld/generate_drld.py`
+   (`--list`, `<TAG>`, or `--all --output <dir>`), including the
+   `\RAW`/`\PROD`/`\EXTCALIB`/`\STATCALIB` kind, which is derived from the
+   frame group, `_static`, and which recipes produce the item.
 
 ## Testing
 
@@ -157,16 +202,25 @@ together with `ruff check src`. Markers are declared in `pyproject.toml`;
 `external` needs full-size simulated data, `edps` marks the slow EDPS runs
 (exercised by the nightly `run_edps.yaml`).
 
-Per-recipe tests are declarative: subclass `BaseRecipeTest`,
-`BaseInputSetTest`, `BaseProductSetTest` from `tests.classes` and point them
-at your Recipe/Impl — the base classes contribute the actual test methods.
-Project conventions (author format, parameter-name prefixes, mandatory
-`_algorithm`/`_matched_keywords`) are enforced by these tests.
+Every registered recipe is tested automatically:
+`instruments/metis/tests/test_registered_recipes.py` iterates `Recipe._registry`
+and enforces the project conventions (author format, parameter-name prefixes,
+mandatory `_algorithm`/`_matched_keywords`, a renderable man page, product
+frame types) for all recipes, and runs the data-dependent checks on
+`<recipe>.sof` from `$SOF_DIR` where that file exists. A recipe needs its own
+module under `instruments/metis/tests/recipes/` only when its SOFs are named
+per band or target (subclass `BaseRecipeTest`/`BandParamRecipeTest`/
+`TargetParamRecipeTest` and `BaseInputSetTest` from `tests.classes`, pointing
+them at your Recipe/Impl and naming the SOF) or when it has recipe-specific
+tests to add.
 
 ### Caveats
 
-- At least one of the saved frames must have `cpl.ui.Frame.FrameLevel.RAW`
-  - "RAW" does not mean a raw file, but an original file
+- CPL DFS builds the product header from the input frames it is given and
+  ignores those in group `PRODUCT`. Loaded frames are therefore stamped with
+  the *input's* group (`RAW` for `RawInput`/`PrimaryInputMixin`, `CALIB` for
+  the rest), never with the item's own — a recipe whose inputs are all
+  calibrations works fine (`metis_ifu_calibrate`).
 - `ESO PRO CATG` must be set, otherwise you get a `DataNotFound` error
 
 [pycpl]: https://www.eso.org/sci/software/pycpl/

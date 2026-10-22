@@ -25,6 +25,7 @@ import hdrl.core
 from cpl.core import Mask as CplMask
 
 from pymetis.engine.core.classes.dataquality import DataQuality
+from pymetis.engine.core.classes.instrument import InstrumentDescription
 
 
 # Masks are exercised at a realistic-ish detector scale rather than a toy 2×2,
@@ -144,31 +145,36 @@ class TestFromCplMasks:
             DataQuality.from_cpl_masks({0x01: small, 0x02: big})
 
     def test_empty_dict_raises(self):
-        with pytest.raises(hdrl.core.IncompatibleInputError, match='same width and height'):
+        with pytest.raises(hdrl.core.IncompatibleInputError, match='No masks given'):
             DataQuality.from_cpl_masks({})
 
 
-# ---------- flatten ----------
+# ---------- collapse to 1-bit via [...] ----------
 
 
-class TestFlatten:
+class TestCollapseAll:
     def test_any_nonzero_bit_is_bad(self):
         mask = make_mask(bitfield({B: 0x01, C: 0x04}))
-        np.testing.assert_array_equal(np.asarray(mask.flatten()), selection(B, C))
+        np.testing.assert_array_equal(np.asarray(mask[...]), selection(B, C))
 
     def test_multi_bit_pixel_is_bad(self):
         """A pixel with several flags set collapses to a single bad pixel."""
         mask = make_mask(bitfield({A: 0x05}))
-        assert np.asarray(mask.flatten())[A]
+        assert np.asarray(mask[...])[A]
 
     def test_all_zero_is_all_good(self):
         mask = make_mask(bitfield({}))
-        assert not np.asarray(mask.flatten()).any()
+        assert not np.asarray(mask[...]).any()
 
     def test_returns_boolean_cpl_mask(self):
-        result = make_mask(bitfield({A: 0x01})).flatten()
+        result = make_mask(bitfield({A: 0x01}))[...]
         assert isinstance(result, CplMask)
         assert np.asarray(result).dtype == np.bool_
+
+    def test_ellipsis_equals_all_flags(self):
+        mask = make_mask(bitfield({A: 0x01, B: 0x40000000, C: 0x05}))
+        np.testing.assert_array_equal(np.asarray(mask[...]),
+                                      np.asarray(mask[InstrumentDescription.MaskFlags.ALL]))
 
 
 # ---------- combination operators ----------

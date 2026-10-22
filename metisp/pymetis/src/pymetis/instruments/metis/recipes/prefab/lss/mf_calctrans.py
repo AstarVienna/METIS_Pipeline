@@ -19,18 +19,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
-from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput
+from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
 
-from pymetis.instruments.metis.dataitems.molecfit.model import MfBestFitTable
-from pymetis.instruments.metis.dataitems.synth import LssSynthTrans
 from pymetis.instruments.metis.inputs import AtmLineCatInput, AtmProfileInput, LsfKernelInput
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLssMfCalctransImpl(MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class MfBestFitTableInput(SinglePipelineInput):
-            Item = MfBestFitTable
+        class MfBestFitTableInput(PrimaryInputMixin, SinglePipelineInput):
+            Item = dataitems.MfBestFitTable
 
         mf_best_fit_table: MfBestFitTableInput
         atm_line_cat: AtmLineCatInput
@@ -39,7 +38,7 @@ class MetisLssMfCalctransImpl(MetisRecipeImpl):
 
     # TODO: Check whether calctrans creates the transmission file directly, so it should not be defined here
     class ProductSet(PipelineProductSet):
-        Transmission = LssSynthTrans
+        Transmission = dataitems.LssSynthTrans
 
     # =========================================================================================
     #    Methods

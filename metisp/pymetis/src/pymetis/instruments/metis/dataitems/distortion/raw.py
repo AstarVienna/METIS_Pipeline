@@ -18,6 +18,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+
+from pymetis.engine.dataitems import detectors
 from cpl.core import Image
 
 from pymetis.instruments.metis.dataitems.raw import Raw
@@ -46,4 +48,5 @@ class NDistortionRaw(BandNMixin, DistortionRaw):
 
 
 class IfuDistortionRaw(BandIfuMixin, DetectorIfuMixin, DistortionRaw):
+    _schema = detectors(Image, 4)
     pass

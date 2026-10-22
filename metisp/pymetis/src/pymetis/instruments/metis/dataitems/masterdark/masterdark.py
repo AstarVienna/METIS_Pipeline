@@ -18,9 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Image
 
+from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.dataitems import ImageDataItem
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
 
@@ -32,21 +33,11 @@ class MasterDark(ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
-    _schema = {
-        'PRIMARY': None,
-        'DET1.SCI': Image,
-        'DET1.ERR': Image,
-        'DET1.DQ': Image,
-    }
+    _schema = ImageDataItem.EMPTY_PRIMARY | EnhancedImage.schema('DET1')
 
 
 class MasterDark2rg(Detector2rgMixin, MasterDark):
-    _schema = {
-        'PRIMARY': None,
-        'DET1.SCI': Image,
-        'DET1.ERR': Image,
-        'DET1.DQ': Image,
-    }
+    pass
 
 
 class MasterDarkGeo(DetectorGeoMixin, MasterDark):
@@ -54,8 +45,4 @@ class MasterDarkGeo(DetectorGeoMixin, MasterDark):
 
 
 class MasterDarkIfu(DetectorIfuMixin, MasterDark):
-    _schema = {
-        'PRIMARY': None,
-    } | {
-        f'DET{det:1d}.{ext}': Image for det in [1, 2, 3, 4] for ext in {'SCI', 'ERR', 'DQ'}
-    }
+    _schema = MasterDark.EMPTY_PRIMARY | EnhancedImage.schema(Metis.Ifu.detectors)

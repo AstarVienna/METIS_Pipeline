@@ -21,12 +21,12 @@ from pymetis.engine.core.parametrizable import Parametrizable
 
 
 class TargetStdMixin(Parametrizable, target='STD'):
-    pass
+    _tag_labels = {'target': 'standard star'}
 
 
 class TargetSciMixin(Parametrizable, target='SCI'):
-    pass
+    _tag_labels = {'target': 'science target'}
 
 
 class TargetSkyMixin(Parametrizable, target='SKY'):
-    pass
+    _tag_labels = {'target': 'sky'}

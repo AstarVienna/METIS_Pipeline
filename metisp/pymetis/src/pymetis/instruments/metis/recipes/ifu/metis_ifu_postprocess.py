@@ -20,25 +20,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
-from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput
+from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput, PrimaryInputMixin
 from pymetis.engine.qc import QcParameterSet, QcParameter
 from pymetis.engine.recipes import Recipe
 
-from pymetis.instruments.metis.dataitems.coadd import IfuSciCoadd
-from pymetis.instruments.metis.dataitems.ifu.ifu import IfuScienceCubeCalibrated
 from pymetis.instruments.metis.mixins import BandIfuMixin, DetectorIfuMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
+from pymetis.instruments.metis import dataitems
 
 
 class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class SciCubeCalibratedInput(MultiplePipelineInput):
-            Item = IfuScienceCubeCalibrated
+        class SciCubeCalibratedInput(PrimaryInputMixin, MultiplePipelineInput):
+            Item = dataitems.IfuScienceCubeCalibrated
 
         sci_cube_calibrated: SciCubeCalibratedInput
 
     class ProductSet(PipelineProductSet):
-        SciCoadd = IfuSciCoadd
+        SciCoadd = dataitems.IfuSciCoadd
 
     class Qc(QcParameterSet):
         # QCs are apprently not very reusable, so we can define them here
@@ -52,21 +51,21 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         class MedMean(QcParameter):
             _name_template = "QC IFU POSTPROC MEDMEAN"
             _type = float
-            _unit = "Jy"
+            _unit = "Jansky"
             _description_template = "Mean of medians of regridded images"
             _comment = None
 
         class MedRms(QcParameter):
             _name_template = "QC IFU POSTPROC MEDRMS"
             _type = float
-            _unit = "Jy"
+            _unit = "Jansky"
             _description_template = "Root-mean-square of the medians of the regridded images"
             _comment = None
 
         class MedMed(QcParameter):
             _name_template = "QC IFU POSTPROC MEDMED"
             _type = float
-            _unit = "Jy"
+            _unit = "Jansky"
             _description_template = "Median of the medians of the regridded images"
             _comment = None
 
@@ -102,6 +101,15 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
             primary_header,
             Hdu(header_coadd, coadded, name='IMAGE')
         )
+
+        # FixMe: compute the real QC values; None marks a parameter that is not available yet
+        primary_header.append(self.collect_qc_parameters(
+            self.Qc.DeltaC(None),
+            self.Qc.GridRange(None),
+            self.Qc.MedMean(None),
+            self.Qc.MedMed(None),
+            self.Qc.MedRms(None),
+        ))
 
         return {product}  # ToDo is just a dummy for now
 

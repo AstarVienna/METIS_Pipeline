@@ -32,10 +32,13 @@ from pymetis.instruments.metis.dataitems.masterflat import MasterFlat2rg, Master
 from pymetis.instruments.metis.dataitems.raw import WcuOffRaw
 
 # ToDo This is METIS-specific and should be moved
+# The keywords the DRLD data-item cards use in their "OCA keywords" lines.
 OCA_KEYWORDS: set[str] = {
     'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
     'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME',
-    'DRS.FILTER', 'DRS.IFU', 'DRS.SLIT',
+    'INS.OPTI12.NAME', 'INS.OPTI13.NAME', 'INS.OPTI14.NAME', 'INS.OPTI19.NAME', 'INS.OPTI20.NAME',
+    'INS.MODE', 'INS.SPEC.SETUP',
+    'DRS.FILTER', 'DRS.IFU', 'DRS.SLIT', 'DRS.MASK', 'DRS.PUPIL',
     'DET.ID', 'DET.DIT', 'DET.NDIT',
     'PRO.CATG',
 }
@@ -110,3 +113,34 @@ class TestDataItem:
             assert klass in [None, cpl.core.Image, cpl.core.Table], \
                 f"The schema type must be CPL Image or Table, not {klass}"
 
+
+
+def _registered_items() -> list[type[DataItem]]:
+    import pymetis.instruments.metis.recipes  # noqa: F401  (fills the registry)
+    return [item for tag, item in sorted(DataItem._registry.items()) if '{' not in tag]
+
+
+@pytest.mark.dataitem
+@pytest.mark.metadata
+class TestRegisteredOcaKeywords:
+    """
+    The OCA keywords of every catalogue item, not just the hand-picked list above:
+    an item that forgets `_oca_keywords` inherits the (frozen, empty) default silently.
+    """
+
+    @pytest.mark.parametrize('item', _registered_items(), ids=lambda item: item.name())
+    def test_oca_keywords_are_a_frozenset_of_known_keywords(self, item):
+        assert isinstance(item.oca_keywords(), frozenset), \
+            f"Data item {item.name()} OCA keywords are not a frozenset"
+        assert item.oca_keywords() <= OCA_KEYWORDS, \
+            f"Data item {item.name()} defines unknown OCA keywords {item.oca_keywords() - OCA_KEYWORDS}"
+
+
+@pytest.mark.dataitem
+@pytest.mark.metadata
+class TestRegisteredFrameGroups:
+    @pytest.mark.parametrize('item', _registered_items(), ids=lambda item: item.name())
+    def test_a_static_calibration_is_a_calibration(self, item):
+        if item.is_static():
+            assert item.frame_group() == cpl.ui.Frame.FrameGroup.CALIB, \
+                f"Static calibration {item.name()} is in frame group {item.frame_group()}"

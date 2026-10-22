@@ -43,19 +43,28 @@ class TestRecipe(BandParamRecipeTest):
     """ A bunch of simple and stupid test cases... just to see if it does something """
     Recipe = Recipe
 
-    @pytest.mark.skip
-    def test_fails_with_files_from_multiple_detectors(self, load_frameset):
-        with pytest.raises(ValueError):
-            instance = self.Recipe()
-            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mixed_raw_detectors.sof"))
-            instance.run(frameset, {})
+    @staticmethod
+    def _frameset(directory, *tags: str) -> cpl.ui.FrameSet:
+        """ One (empty) FITS file per tag; classification and validation never open them. """
+        frames = cpl.ui.FrameSet()
+        for i, tag in enumerate(tags):
+            filename = str(directory / f"{tag.lower()}_{i}.fits")
+            cpl.core.PropertyList().save(filename, cpl.core.io.CREATE)
+            frames.append(cpl.ui.Frame(filename, tag=tag))
+        return frames
 
-    @pytest.mark.skip
-    def test_fails_with_files_from_mismatched_detectors(self, load_frameset):
-        with pytest.raises(ValueError):
-            instance = self.Recipe()
-            frameset = cpl.ui.FrameSet(load_frameset("incorrect/metis_det_dark.lm.mismatched_detectors.sof"))
-            instance.run(frameset, {})
+    def test_fails_with_raw_files_from_multiple_detectors(self, tmp_path):
+        """ 2RG and GEO darks in one set of frames can never feed one input. """
+        frames = self._frameset(tmp_path, 'DARK_2RG_RAW', 'DARK_GEO_RAW', 'GAIN_MAP_2RG', 'LINEARITY_2RG')
+        with pytest.raises(cpl.core.IllegalInputError, match='DARK_2RG_RAW.*DARK_GEO_RAW'):
+            Impl.InputSet(frames)
+
+    def test_fails_with_calibrations_from_another_detector(self, tmp_path):
+        """ 2RG darks with a GEO gain map used to validate and tag the master dark GEO. """
+        frames = self._frameset(tmp_path, 'DARK_2RG_RAW', 'DARK_2RG_RAW', 'GAIN_MAP_GEO', 'LINEARITY_2RG')
+        inputset = Impl.InputSet(frames)
+        with pytest.raises(cpl.core.IllegalInputError, match="detector: raw has '2RG', gain_map has 'GEO'"):
+            inputset.validate()
 
 
 class TestInputSet(RawInputSetTest):

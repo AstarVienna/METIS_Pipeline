@@ -28,15 +28,12 @@ from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
-from pymetis.instruments.metis.dataitems.chophome import LmChophomeRaw, LmChophomeCombined, LmChophomeBackground
-from pymetis.instruments.metis.dataitems.raw.wcuoff import LmWcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, GainMapInput, PersistenceMapInput, BadPixMapInput,
                                               PinholeTableInput, LinearityInput, OptionalInputMixin)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
-from pymetis.instruments.metis.qc.chophome import (CalChophomeXcen, CalChophomeXcenStdev,
-                                                   CalChophomeYcen, CalChophomeYcenStdev,
-                                                   CalChophomeFwhm, CalChophomeSnr, CalChophomeOffx, CalChophomeOffy)
+from pymetis.instruments.metis import qc
+from pymetis.instruments.metis import dataitems
 
 
 class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, MetisRecipeImpl):  # TODO replace parent class?
@@ -45,10 +42,10 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
     class InputSet(RawImageProcessor.InputSet):
         """Inputs for metis_cal_chophome"""
         class RawInput(RawInput):
-            Item = LmChophomeRaw
+            Item = dataitems.LmChophomeRaw
 
         class WcuOffInput(RawInput):
-            Item = LmWcuOffRaw
+            Item = dataitems.LmWcuOffRaw
 
         class GainMapInput(OptionalInputMixin, GainMapInput):
             pass
@@ -74,19 +71,18 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         pinhole_table: PinholeTableInput
 
     class ProductSet(PipelineProductSet):
-        Combined = LmChophomeCombined
-        Background = LmChophomeBackground
+        Combined = dataitems.LmChophomeCombined
+        Background = dataitems.LmChophomeBackground
 
     class Qc(QcParameterSet):
-        Xcen = CalChophomeXcen
-        XcenStdev = CalChophomeXcenStdev
-        Ycen = CalChophomeYcen
-        YcenStdev = CalChophomeYcenStdev
-        Fwhm = CalChophomeFwhm
-        Snr = CalChophomeSnr
-        OffX = CalChophomeOffx
-        OffY = CalChophomeOffy
-
+        Xcen = qc.chophome.CalChophomeXcen
+        XcenStdev = qc.chophome.CalChophomeXcenStdev
+        Ycen = qc.chophome.CalChophomeYcen
+        YcenStdev = qc.chophome.CalChophomeYcenStdev
+        Fwhm = qc.chophome.CalChophomeFwhm
+        Snr = qc.chophome.CalChophomeSnr
+        OffX = qc.chophome.CalChophomeOffx
+        OffY = qc.chophome.CalChophomeOffy
     def process(self) -> set[DataItem]:
         """This function processes the input images
 
@@ -125,6 +121,9 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
                 self.Qc.Fwhm(pinhole_loc['fwhm_x']),
                 # FixMe: FWHM should be 2D?
                 self.Qc.Snr(pinhole_loc['snr']),
+                # FixMe: compute the chopper offsets; None marks a parameter that is not available yet
+                self.Qc.OffX(None),
+                self.Qc.OffY(None),
             )
         )
 

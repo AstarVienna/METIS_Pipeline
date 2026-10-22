@@ -22,7 +22,7 @@ import pytest
 from pymetis.instruments.metis.recipes.metis_det_lingain import (MetisDetLinGain as Recipe,
                                                                  MetisDetLinGainImpl as Impl)
 from tests.classes import RawInputSetTest, BandParamRecipeTest
-from tests.classes.product import ImageProductSetTest
+from tests.classes.product import ImageProductSetTest, TableProductSetTest
 
 recipe_name = r'metis_det_lingain'
 
@@ -46,7 +46,7 @@ class TestInputSet(RawInputSetTest):
     Impl = Impl
 
 
-class TestProductGain(ImageProductSetTest):
+class TestProductGain(TableProductSetTest):
     Product = Impl.ProductSet.GainMap
 
 

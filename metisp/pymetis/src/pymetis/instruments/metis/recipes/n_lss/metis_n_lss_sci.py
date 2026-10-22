@@ -22,7 +22,7 @@ from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 
 from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin, TargetSciMixin
 from pymetis.instruments.metis.recipes.prefab.lss.sci import MetisLssSciImpl
-from pymetis.instruments.metis.dataitems.lss.science import LssSciFluxTellCorr1d
+from pymetis.instruments.metis import dataitems
 
 
 class MetisNLssSciImpl(BandNMixin, DetectorGeoMixin, TargetSciMixin, MetisLssSciImpl):
@@ -30,7 +30,7 @@ class MetisNLssSciImpl(BandNMixin, DetectorGeoMixin, TargetSciMixin, MetisLssSci
         pass
 
     class ProductSet(MetisLssSciImpl.ProductSet):
-        LssSciFluxTellCorr1d = LssSciFluxTellCorr1d
+        LssSciFluxTellCorr1d = dataitems.LssSciFluxTellCorr1d
 
 
 class MetisNLssSci(Recipe):

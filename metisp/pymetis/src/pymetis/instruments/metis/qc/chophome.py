@@ -24,49 +24,49 @@ from pymetis.engine.qc import QcParameter
 class CalChophomeXcen(QcParameter):
     _name_template = "QC CAL CHOPHOME XCEN"
     _type = float
-    _unit = "pixel"
+    _unit = "pixels"
     _description_template = "Centroid of point source in x"
 
 
 class CalChophomeXcenStdev(QcParameter):
     _name_template = "QC CAL CHOPHOME XCEN STDEV"
     _type = float
-    _unit = "pixel"
+    _unit = "pixels"
     _description_template = "Uncertainty of centroid in x"
 
 
 class CalChophomeYcen(QcParameter):
     _name_template = "QC CAL CHOPHOME YCEN"
     _type = float
-    _unit = "pixel"
+    _unit = "pixels"
     _description_template = "Centroid of point source in y"
 
 
 class CalChophomeYcenStdev(QcParameter):
     _name_template = "QC CAL CHOPHOME YCEN STDEV"
     _type = float
-    _unit = "pixel"
+    _unit = "pixels"
     _description_template = "Uncertainty of centroid in y"
 
 
 class CalChophomeFwhm(QcParameter):
     _name_template = "QC CAL CHOPHOME FWHM"
     _type = float
-    _unit = "pixel"
+    _unit = "pixels"
     _description_template = "FWHM of point source"
 
 
 class CalChophomeSnr(QcParameter):
     _name_template = "QC CAL CHOPHOME SNR"
     _type = float
-    _unit = "pixel"
+    _unit = None
     _description_template = "Signal-to-noise ratio of point source"
 
 
 class CalChophomeOffx(QcParameter):
     _name_template = "QC CAL CHOPHOME OFFX"
     _type = float
-    _unit = "pixel"
+    _unit = "pixels"
     _description_template = "Chopper offset in x"
 
 

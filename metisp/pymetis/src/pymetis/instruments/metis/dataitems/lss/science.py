@@ -131,7 +131,7 @@ class LssSciFlux1d(TableDataItem, abstract=True):
     _title_template = "{band} LSS SCI 1D flux"
     _description_template = "Extracted, flux-calibrated 1D science spectrum"
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
-    _frame_group = cpl.ui.Frame.FrameGroup.RAW
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI11.NAME', 'DRS.SLIT'})
 
     _schema = {

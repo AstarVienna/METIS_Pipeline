@@ -22,17 +22,17 @@ from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
 from pymetis.instruments.metis.inputs.common import WcuOffInput
-from pymetis.instruments.metis.dataitems.adc.adc import AdcSlitloss, AdcSlitlossRaw
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin, PersistenceMapInput,
                                               GainMapInput, LinearityInput)
+from pymetis.instruments.metis import dataitems
 
 
 class MetisAdcSlitlossImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         class RawInput(RawInput):
-            Item = AdcSlitlossRaw
+            Item = dataitems.AdcSlitlossRaw
 
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
@@ -44,7 +44,7 @@ class MetisAdcSlitlossImpl(DarkImageProcessor, MetisRecipeImpl):
         wcu_off: WcuOffInput
 
     class ProductSet(PipelineProductSet):
-        AdcSlitloss = AdcSlitloss
+        AdcSlitloss = dataitems.AdcSlitloss
 
     class Qc(QcParameterSet):
         pass # Nothing here

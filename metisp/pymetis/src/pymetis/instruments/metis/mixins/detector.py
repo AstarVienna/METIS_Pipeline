@@ -17,7 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import cpl
 
 from pymetis.engine.core.parametrizable import Parametrizable
 
@@ -31,9 +30,6 @@ class DetectorGeoMixin(Parametrizable, detector='GEO'):
 
 
 class DetectorIfuMixin(Parametrizable, detector='IFU'):
-    # Default schema has to work with four detectors in METIS
-    _schema = {
-        r'PRIMARY': None,
-    } | {
-        fr'DET{det:1d}.DATA': cpl.core.Image for det in [1, 2, 3, 4]
-    }
+    # A tag mixin carries the tag only; the IFU items spell their four-detector layout
+    # themselves with `pymetis.engine.dataitems.detectors(Image, 4)`.
+    pass

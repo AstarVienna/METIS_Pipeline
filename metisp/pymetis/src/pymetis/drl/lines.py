@@ -76,8 +76,13 @@ class Line:
     wavelength: float | None = None
 
 
-def gaussian(x: np.ndarray, height: float, centre: float,
-             variance: float, background: float) -> np.ndarray:
+def gaussian(
+        x: np.ndarray,
+        height: float,
+        centre: float,
+        variance: float,
+        background: float
+) -> np.ndarray:
     """
     A Gaussian on a constant background.
 
@@ -88,9 +93,11 @@ def gaussian(x: np.ndarray, height: float, centre: float,
     return height * np.exp(-((x - centre) ** 2) / (2 * variance)) + background
 
 
-def fit_gaussian(x: np.ndarray,
-                 y: np.ndarray,
-                 centre_guess: float | None = None) -> tuple[float, float, float, float]:
+def fit_gaussian(
+        x: np.ndarray,
+        y: np.ndarray,
+        centre_guess: float | None = None
+) -> tuple[float, float, float, float]:
     """
     Fit a Gaussian on a constant background to a short segment of a spectrum.
 

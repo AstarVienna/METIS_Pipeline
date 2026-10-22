@@ -30,6 +30,7 @@ class AdcSlitloss(TableDataItem, abstract=True):
     _title_template = "{band} ADC slit loss"
     _description_template = "Table with ADC induced {band} slitlosses"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
+    _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
 

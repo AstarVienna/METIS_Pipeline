@@ -33,16 +33,18 @@ class ObjectCatalog(TableDataItem, abstract=True):
 
 
 class LmStdObjectCatalog(BandLmMixin, TargetStdMixin, ObjectCatalog):
-    pass
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
 
 class NStdObjectCatalog(BandNMixin, TargetStdMixin, ObjectCatalog):
+    # FixMe no OCA keywords: the DRLD has no card for this item (must not inherit the LM ones)
     pass
 
 
 class LmSciObjectCatalog(BandLmMixin, TargetSciMixin, ObjectCatalog):
-    pass
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
 
 class NSciObjectCatalog(BandNMixin, TargetSciMixin, ObjectCatalog):
+    # FixMe no OCA keywords: the DRLD has no card for this item (must not inherit the LM ones)
     pass

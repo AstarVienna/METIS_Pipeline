@@ -17,7 +17,7 @@ from pymetis.drl.wavecal import (MAX_TILT_DEGREE, SliceSolution, assign_waveleng
                                  extract_offset_spectra, fit_tilt_solution,
                                  fit_wavelength_solution, group_lines, linear_solution,
                                  solutions_from_table, solutions_to_table, solve_slice)
-from pymetis.engine.core.functions.polyfit2d import polyval2d_safe
+from pymetis.drl.polyfit2d import polyval2d_safe
 
 NROW = NCOL = 2048
 WAVELENGTH_START = 3.5565

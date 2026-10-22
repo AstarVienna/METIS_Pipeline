@@ -64,6 +64,7 @@ class MasterImgFlat(ImageDataItem, abstract=True):
     _description_template = "Master flat frame for {band} data"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
     _schema = {
         'PRIMARY': None,
@@ -73,7 +74,7 @@ class MasterImgFlat(ImageDataItem, abstract=True):
     }
 
 
-class MasterImgFlatLm(BandLmMixin, MasterImgFlat):
+class MasterImgFlatLm(BandLmMixin, MasterImgFlat, abstract=True):
     pass
 
 
@@ -85,7 +86,7 @@ class MasterImgFlatTwilightLm(SourceTwilightMixin, MasterImgFlatLm):
     pass
 
 
-class MasterImgFlatN(BandNMixin, MasterImgFlat):
+class MasterImgFlatN(BandNMixin, MasterImgFlat, abstract=True):
     pass
 
 

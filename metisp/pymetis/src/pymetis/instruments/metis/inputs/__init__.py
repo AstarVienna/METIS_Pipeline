@@ -23,6 +23,7 @@ from .common import (RawInput,
                      LinearityInput,
                      BadPixMapInput,
                      PersistenceMapInput,
+                     OptionalPersistenceMapInput,
                      GainMapInput,
                      FluxCalTableInput,
                      FluxstdCatalogInput,
@@ -34,12 +35,12 @@ from .common import (RawInput,
                      WavecalInput,
                      OptionalInputMixin,
                      LaserTableInput,
-                     SynthTransInput, MasterRsrfInput)
+                     SynthTransInput, MasterRsrfInput, WcuOffInput)
 
 __all__ = [
     'RawInput', 'MasterDarkInput', 'MasterFlatInput', 'LinearityInput', 'BadPixMapInput',
-    'PersistenceMapInput', 'GainMapInput', 'FluxCalTableInput', 'FluxstdCatalogInput',
-    'PinholeTableInput', 'DistortionTableInput', 'LsfKernelInput', 'AtmProfileInput', 'MasterRsrfInput',
-    'WavecalInput', 'OptionalInputMixin',
-    'LsfKernelInput', 'AtmLineCatInput', 'LaserTableInput', 'SynthTransInput',
+    'PersistenceMapInput', 'OptionalPersistenceMapInput', 'GainMapInput', 'FluxCalTableInput',
+    'FluxstdCatalogInput', 'PinholeTableInput', 'DistortionTableInput', 'LsfKernelInput',
+    'AtmProfileInput', 'MasterRsrfInput', 'WavecalInput', 'OptionalInputMixin',
+    'AtmLineCatInput', 'LaserTableInput', 'SynthTransInput', 'WcuOffInput',
 ]

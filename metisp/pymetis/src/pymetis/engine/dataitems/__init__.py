@@ -23,8 +23,9 @@ from .image import ImageDataItem
 from .table import TableDataItem
 from .hdu import Hdu
 from .productset import PipelineProductSet
+from .schema import detectors
 
 
 __all__ = [
-    'DataItem', 'ImageDataItem', 'TableDataItem', 'Hdu', 'PipelineProductSet'
+    'DataItem', 'ImageDataItem', 'TableDataItem', 'Hdu', 'PipelineProductSet', 'detectors',
 ]

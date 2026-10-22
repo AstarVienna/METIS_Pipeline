@@ -45,6 +45,7 @@ class RefStdCat(TableDataItem):
     _title_template = "ref standard catalogue"
     _description_template = "Catalogue with spectra of standard reference stars"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB
+    _static = True
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = frozenset({'PRO.CATG'})
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import pathlib
 
 import cpl
 import argparse
@@ -20,7 +21,7 @@ def main():
     )
     parser.add_argument('recipe', metavar='recipe', type=str,
                         help='recipe to run')
-    parser.add_argument('sof', type=argparse.FileType('r'),
+    parser.add_argument('sof', type=pathlib.Path,
                         help='set-of-frames file to process')
     parser.add_argument('--debug', action='store_true',
                         help='enable debug mode (sets CPL Msg level to DEBUG, '
@@ -36,7 +37,7 @@ def main():
     if args.debug:
         Msg.set_config(level=Msg.SeverityLevel.DEBUG)
 
-    frameset = cpl.ui.FrameSet(args.sof.name)
+    frameset = cpl.ui.FrameSet(args.sof)
     recipe = recipes[args.recipe]()
     recipe.run(frameset, {})
 

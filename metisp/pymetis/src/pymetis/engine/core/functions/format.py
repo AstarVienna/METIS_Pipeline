@@ -18,6 +18,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 
+import re
+
+
 class FormatPlaceholder:
     def __init__(self, key):
         self.key = key
@@ -44,3 +47,10 @@ def partial_format(template: str, **kwargs) -> str:
     """
     return template.format_map(FormatDict(**kwargs))
 
+
+
+def placeholders(template: str | None) -> set[str]:
+    """
+    The names of the `{placeholders}` left in a template, e.g. {'target'} for 'LM_IMAGE_{target}_RAW'.
+    """
+    return set(re.findall(r'\{(\w+)\}', template or ''))

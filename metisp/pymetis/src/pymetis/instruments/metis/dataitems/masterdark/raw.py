@@ -19,6 +19,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import cpl
 
+from pymetis.engine.dataitems import detectors
+from cpl.core import Image
+
 from pymetis.instruments.metis.dataitems.raw import Raw
 from pymetis.instruments.metis.mixins.detector import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin
 
@@ -41,4 +44,5 @@ class DarkGeoRaw(DetectorGeoMixin, DarkRaw):
 
 
 class DarkIfuRaw(DetectorIfuMixin, DarkRaw):
+    _schema = detectors(Image, 4)
     _oca_keywords = DarkRaw._oca_keywords | frozenset({'DRS.IFU'})

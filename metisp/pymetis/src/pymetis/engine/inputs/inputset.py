@@ -25,7 +25,6 @@ from typing import Any
 import cpl
 from cpl.core import Msg
 
-from pymetis.engine.core.functions.format import partial_format
 from pymetis.engine.core.parametrizable import ParametrizableContainer
 from pymetis.engine.dataitems.dataitem import DataItem
 from pymetis.engine.inputs.input import PipelineInput
@@ -61,19 +60,25 @@ class PipelineInputSet(ParametrizableContainer):
         Filter the input frameset, capture frames that match criteria and assign them
         to the attributes declared on the class (see `list_input_classes`).
         """
-        self.inputs: frozenset[PipelineInput] = frozenset() # All inputs for this InputSet.
+        # All inputs of this InputSet, in declaration order. The order matters: it is the
+        # order of `used_frames`, hence of the PRO REC RAW/CAL cards in the product header.
+        self.inputs: tuple[PipelineInput, ...] = ()
         self.frameset: cpl.ui.FrameSet = frameset
 
         # Tag parameter matching this instance of InputSet. Might come from DataItem matches or hard-coded from mixins.
         self.tag_matches: dict[str, str] = {}
 
         # Now iterate over all declared Inputs, instantiate them and feed them the frameset to filter.
+        # A frame that a more specific sibling input claims (IFU_SKY_RAW next to IFU_{target}_RAW)
+        # belongs to that sibling: the most specific input wins.
         Msg.debug(self.__class__.__qualname__, "Instantiating inputs")
-        for (name, input_class) in self.list_input_classes():
-            inp = input_class(frameset)
+        input_classes = self.list_input_classes()
+        for (name, input_class) in input_classes:
+            claimed = frozenset(other.Item for _, other in input_classes
+                                if other.Item is not input_class.Item and issubclass(other.Item, input_class.Item))
+            inp = input_class(frameset, claimed=claimed)
             setattr(self, name, inp)
-            # Add to the set of inputs (for easy iteration over all inputs)
-            self.inputs |= {inp}
+            self.inputs += (inp,)
 
         for inp in self.inputs:
             Msg.debug(self.__class__.__qualname__,
@@ -163,39 +168,44 @@ class PipelineInputSet(ParametrizableContainer):
         return new_input
 
     @classmethod
-    def specialize(cls, **parameters) -> None:
+    def specialized(cls, **parameters) -> type['PipelineInputSet']:
         """
-        Specialize this input set statically: resolve every input's `Item` under
-        `parameters` and rebind the annotation to an input subclass carrying it.
+        A new subclass of this input set with every input's `Item` specialized
+        statically under `parameters` (see `ParametrizableItem.specialized`), or
+        `cls` itself when the parameters resolve nothing.
 
-        Unlike `ParametrizableContainer.specialize`, the rebinding goes through the
-        class's own `__annotations__` -- inputs are declared by annotation, and a
-        bare class member without one is exactly what
-        `_verify_all_inputs_are_declared` rejects.
+        Unlike `ParametrizableContainer.specialized`, the rebinding goes through the
+        subclass's `__annotations__` -- inputs are declared by annotation, and a bare
+        class member without one is exactly what `_verify_all_inputs_are_declared`
+        rejects. Neither `cls` nor its inputs are mutated.
         """
-        Msg.debug(cls.__qualname__,
-                  f"Specializing {cls.__qualname__} with {parameters} | {cls.tag_parameters()}")
+        origin = cls.__dict__.get('_specialized_from', cls)
+        Msg.debug(origin.__qualname__,
+                  f"Specializing {origin.__qualname__} with {parameters} | {origin.tag_parameters()}")
 
         rebound = {}
-        for attr, input_class in cls.list_input_classes():
-            item_class = input_class.Item
-            tag = partial_format(item_class._name_template,
-                                 **(item_class.tag_parameters() | parameters))
-            if tag == item_class._name_template:
-                # The parameters resolve nothing in this item's tag: leave the
-                # declaration alone rather than binding a pointless clone.
-                continue
-            item = cls._specialized_item(attr, item_class, **parameters)
-            rebound[attr] = cls._bind_input(input_class, item)
+        for attr, input_class in origin.list_input_classes():
+            item = input_class.Item.specialized(**parameters)
+            if hasattr(item, '_specialized_from'):
+                # A clone is a sibling of the hand-written leaves, so no frame's class could
+                # ever be a subclass of it: the input would silently match nothing. This
+                # happens when the leaf's module is not imported yet; fail at import instead.
+                raise TypeError(
+                    f"{origin.__qualname__}.{attr}: no hand-written class for {item.name()!r} "
+                    f"(specializing {input_class.Item.__qualname__} with {parameters}); "
+                    f"import the module defining it before the recipe, or add the class.")
+            if item is not input_class.Item:
+                rebound[attr] = origin._bind_input(input_class, item)
 
-        if rebound:
-            cls.__annotations__ = inspect.get_annotations(cls) | rebound
+        if not rebound:
+            return origin
+        return origin._derived({'__annotations__': rebound, '_specialized_from': origin})
 
     @classmethod
     def promoted(cls, **parameters) -> type['PipelineInputSet']:
         """
         Return a new subclass of this input set with every input's `Item` resolved
-        to the concrete registered class matching its fully formatted tag. Mirrors
+        to the concrete class matching its fully formatted tag. Mirrors
         `ParametrizableContainer.promoted`, rebinding via annotations; `cls` itself
         is never mutated.
 
@@ -207,21 +217,16 @@ class PipelineInputSet(ParametrizableContainer):
 
         resolved = {}
         for attr, input_class in cls.list_input_classes():
-            item = input_class.Item
-            tag = partial_format(item._name_template,
-                                 **(item.tag_parameters() | parameters))
-            new_item = cls.Meta._T.find(tag)
-            if new_item is None:
+            candidate = input_class.Item.specialized(**parameters)
+            tag = candidate.name()
+            new_item = cls.Meta._T.find(tag) or candidate
+            if '{' in tag or new_item._abstract:
                 raise TypeError(
-                    f"Could not promote {input_class.__qualname__}: "
-                    f"tag '{tag}' is not registered. "
-                    f"Known tags: {cls.Meta._T._registry}")
+                    f"Could not promote {input_class.__qualname__} with {parameters}: "
+                    f"no concrete data item owns the tag '{tag}'.")
             resolved[attr] = cls._bind_input(input_class, new_item)
 
-        promoted_cls = type(cls.__name__, (cls,), {'__annotations__': resolved})
-        promoted_cls.__qualname__ = cls.__qualname__
-        promoted_cls.__module__ = cls.__module__
-        return promoted_cls
+        return cls._derived({'__annotations__': resolved})
 
     @classmethod
     def list_descriptions(cls) -> str:
@@ -244,13 +249,47 @@ class PipelineInputSet(ParametrizableContainer):
         if len(self.inputs) == 0:
             raise NotImplementedError("PipelineInputSet must define at least one input.")
 
-        try:
-            for inp in self.inputs:
+        # Declaration order, so that the report is stable; every input is checked, so that
+        # the report names everything that is missing rather than the first thing found.
+        missing = []
+        sources: dict[str, tuple[str, str]] = {}      # tag keyword -> (value, name of the input that set it)
+        conflicts = []
+        pinned: dict[str, str] = {}                   # tags fixed by an input's declaration, not by its frames
+        for name, _ in self.list_input_classes():
+            inp = getattr(self, name)
+            try:
                 inp.validate()
-                Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
-                self.tag_matches |= inp.Item.tag_parameters()
-        except cpl.core.DataNotFoundError as e:
-            Msg.error(self.__class__.__qualname__, str(e))
+            except cpl.core.DataNotFoundError as e:
+                Msg.error(self.__class__.__qualname__, str(e))
+                missing.append(str(e))
+                continue
+            Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
+            # Only the tags the declaration left open come from the data. An input declared
+            # with a leaf (`Item = IfuSkyRaw`, target pinned to SKY by the class) says what it
+            # always is: it does not decide the run's tags where the frames do, and it cannot
+            # disagree with them -- but where nothing else determines a tag, it fills it in.
+            declared = type(inp).Item.tag_parameters()
+            from_data = {key: value for key, value in inp.Item.tag_parameters().items() if key not in declared}
+            pinned |= declared
+            # The frames of one recipe run must agree on every data tag: a GEO gain map next
+            # to 2RG darks is a mis-assembled set of frames, not a choice to be made for the user.
+            for key, value in from_data.items():
+                if key in sources and sources[key][0] != value:
+                    conflicts.append(f"{key}: {sources[key][1]} has {sources[key][0]!r}, {name} has {value!r}")
+                else:
+                    sources.setdefault(key, (value, name))
+            self.tag_matches |= from_data
+
+        for key, value in pinned.items():
+            self.tag_matches.setdefault(key, value)
+
+        if missing:
+            raise cpl.core.DataNotFoundError(
+                f"{self.__class__.__qualname__}: {len(missing)} required input(s) not satisfied by the set of frames:\n  "
+                + "\n  ".join(missing))
+        if conflicts:
+            raise cpl.core.IllegalInputError(
+                f"{self.__class__.__qualname__}: the frames disagree on the data tags:\n  " + "\n  ".join(conflicts))
 
 
     def print_debug(self, *, offset: int = 0) -> None:
@@ -290,5 +329,33 @@ class PipelineInputSet(ParametrizableContainer):
                 for instance, discarded outliers (without them a different frame might be an outlier)
         # FixMe: Currently this only ensures that frames are loaded, not actually used!
         # FixMe: This is not a trivial problem though, maybe it will have to be marked manually everytime.
+
+        The order is significant: CPL DFS takes the standard primary keywords (MJD-OBS,
+        DATE-OBS, OBJECT, ...) and the PRO REC1 RAW1 provenance of a product from the first
+        RAW frame in this list. The RAW-role inputs therefore come first, in declaration
+        order, so that a recipe with two of them (the lamp frames and the WCU OFF frames)
+        inherits from the one it declared first, not from whichever the SOF listed first.
         """
-        return cpl.ui.FrameSet([used for inp in self.inputs for used in inp.used_frames()])
+        return cpl.ui.FrameSet([used for inp in self.inputs_by_role() for used in inp.used_frames()])
+
+    def inputs_by_role(self) -> tuple[PipelineInput, ...]:
+        """ The inputs with the RAW role first, each group in declaration order. """
+        return tuple(sorted(self.inputs, key=lambda inp: inp._group != cpl.ui.Frame.FrameGroup.RAW))
+
+    @property
+    def primary_frame(self) -> cpl.ui.Frame | None:
+        """
+        The first frame of the first input declared in the RAW role, or None if the recipe
+        has no such input. Passed as `inherit` to CPL DFS, which uses it for the
+        HIERARCH ESO keywords of the product header (the standard keywords follow the
+        order of `used_frames`, see there).
+        """
+        for inp in self.inputs_by_role():
+            if inp._group != cpl.ui.Frame.FrameGroup.RAW:
+                return None
+            frames = getattr(inp, 'frameset', None)
+            if frames is None:
+                frames = [inp.frame] if getattr(inp, 'frame', None) is not None else []
+            for frame in frames:
+                return frame
+        return None

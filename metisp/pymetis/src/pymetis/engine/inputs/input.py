@@ -17,8 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-from abc import abstractmethod
-from typing import Any, Optional, final, Union, ClassVar
+from abc import ABC, abstractmethod
+from typing import Any, final, Union, ClassVar
 
 import cpl
 from cpl.core import Msg
@@ -28,7 +28,7 @@ from pymetis.engine.core.functions.frameset import preprocess_frameset
 from pymetis.engine.dataitems.dataitem import DataItem
 
 
-class PipelineInput:
+class PipelineInput(ABC):
     """
     This class encapsulates a single logical input to a recipe:
     - either a single file, or a line in the SOF (see SinglePipelineInput)
@@ -39,9 +39,16 @@ class PipelineInput:
     Item: ClassVar[type[DataItem]] = None   # No universal data item inside
     _title: str = None                      # No universal title makes sense
     _required: bool = True                  # By default, inputs are required to be present
-    _detector: Optional[str] = None         # Not specific to a detector until determined otherwise
 
     _multiplicity: ClassVar[str] = None     # Multiplicity of the input, '1' or 'N'
+
+    # The role of the frames in *this* recipe, stamped on them when loaded: RAW for the
+    # frames being reduced (CPL DFS inherits the product header from the first of them),
+    # CALIB for everything applied to them. This is a property of the input, not of the
+    # item: a science product is a calibration to one recipe and the raw material of the
+    # next. The item's own frame group describes its origin (instrument data, calibration,
+    # pipeline product) and is used when it is saved.
+    _group: ClassVar[cpl.ui.Frame.FrameGroup] = cpl.ui.Frame.FrameGroup.CALIB
 
     def load_frameset(self, frameset: cpl.ui.FrameSet) -> None:
         """
@@ -62,7 +69,9 @@ class PipelineInput:
     @abstractmethod
     def set_cpl_attributes(self):
         """
-        Set CPL attributes of loaded frames. ToDO: is this really necessary?
+        Stamp the CPL attributes on the loaded frames: the group is this input's role
+        (`_group`), level and type come from the item. CPL DFS reads them when the
+        product header is built, so this must run before any product is saved.
         """
 
     @classmethod
@@ -79,11 +88,15 @@ class PipelineInput:
         """
         return cls._multiplicity
 
-    def __init__(self, frameset: cpl.ui.FrameSet):
+    def __init__(self, frameset: cpl.ui.FrameSet, *, claimed: frozenset[type[DataItem]] = frozenset()):
         """
         Verify that all required class attributes are defined
         and promote to the most specialized derived class
         depending on the input frameset.
+
+        `claimed` holds the items of sibling inputs in the same set that are more specific
+        than this one's (`IfuSkyRaw` next to `IfuRaw`): the most specific input wins, so
+        such frames are left to the sibling instead of making this input ambiguous.
         """
         assert self.Item is not None, \
             f"Pipeline input {self.__class__.__qualname__} has no defined data item"
@@ -104,30 +117,38 @@ class PipelineInput:
         Msg.debug(self.__class__.__qualname__,
                   f"Initializing an input {self.Item.name()}")
 
+        matches: dict[str, tuple[type[DataItem], cpl.ui.FrameSet]] = {}
         for tag, frames in preprocess_frameset(frameset).items():
             cls = DataItem.find(tag)
             if cls is None:
                 Msg.warning(self.__class__.__qualname__,
                             f"Found a frame with tag '{tag}', which is not a registered data item. Ignoring.")
-                continue
+            elif any(issubclass(cls, other) for other in claimed):
+                Msg.debug(self.__class__.__qualname__,
+                          f"Found {cls.__name__} with tag {tag}, which a more specific sibling input claims")
+            elif issubclass(cls, self.Item):
+                matches[tag] = (cls, frames)
             else:
                 Msg.debug(self.__class__.__qualname__,
                           f"Found {cls.__name__} with tag {tag}, "
-                          f"but we are {self.Item.__qualname__} ({self.Item.name()})")
-                if cls == self.Item:
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Found a fully specialized class {cls.__qualname__} for {tag}, instantiating directly")
-                    self.load_frameset(frames)
-                elif issubclass(cls, self.Item):
-                    # If there is a more specialized class, use it instead
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Found a specialized class {cls.__qualname__} for {tag}, "
-                              f"subclassing this {self.Item.__qualname__} and instantiating")
-                    self.Item = cls
-                    self.load_frameset(frames)
-                else:
-                    Msg.debug(self.__class__.__qualname__,
-                              f"Could not specialize class {self.Item.__qualname__} for {tag}")
+                          f"which is not a {self.Item.__qualname__} ({self.Item.name()})")
+
+        # Frames of several different data items (e.g. two detectors) can never
+        # belong to one input; loading them in turn would silently keep the last.
+        if len(matches) > 1:
+            raise cpl.core.IllegalInputError(
+                f"{self.__class__.__qualname__}: frames of several different data items match "
+                f"the input {self.Item.name()}: {sorted(matches)}. "
+                f"The set of frames must provide exactly one of them.")
+
+        for tag, (cls, frames) in matches.items():
+            if cls is not self.Item:
+                # Promote this instance to the more specialized class found in the frames.
+                Msg.debug(self.__class__.__qualname__,
+                          f"Found a specialized class {cls.__qualname__} for {tag}, "
+                          f"promoting this {self.Item.__qualname__}")
+                self.Item = cls
+            self.load_frameset(frames)
 
     @abstractmethod
     def validate(self) -> None:
@@ -147,13 +168,6 @@ class PipelineInput:
         """
         Load the actual data content and return it.
         """
-
-    def print_debug(self, *, offset: int = 0) -> None:
-        """
-        Print a short description of the tags, optionally with a small offset (N spaces).
-        """
-        Msg.debug(self.__class__.__qualname__,
-                  str(self.Item))
 
     def as_dict(self) -> dict[str, Any]:
         return {

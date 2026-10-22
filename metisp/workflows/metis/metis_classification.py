@@ -41,7 +41,7 @@ lm_flat_lamp_raw_class = classification_rule("LM_FLAT_LAMP_RAW",
     })
 
 # Twilight flat calibration classification
-lm_twilight_flat_class = classification_rule("LM_TWILIGHT_FLAT",
+lm_twilight_flat_class = classification_rule("LM_FLAT_TWILIGHT_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
      metis_kwd.dpr_type: "FLAT,TWILIGHT",
@@ -121,7 +121,7 @@ n_flat_lamp_raw_class = classification_rule("N_FLAT_LAMP_RAW",
     })
 
 # Twilight flat calibration classification
-n_twilight_flat_class = classification_rule("N_TWILIGHT_FLAT",
+n_twilight_flat_class = classification_rule("N_FLAT_TWILIGHT_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
      metis_kwd.dpr_type: "FLAT,TWILIGHT",

@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import cpl
 from cpl.core import Image, Table
 
-from pymetis.engine.dataitems import ImageDataItem
+from pymetis.engine.dataitems import ImageDataItem, TableDataItem
 from pymetis.instruments.metis.mixins import CgrphRavcMixin, CgrphCvcMixin, CgrphAppMixin, BandLmMixin, BandNMixin
 
 
@@ -66,7 +66,6 @@ class OnAxisPsfTemplate(ImageDataItem, abstract=True):
 
 
 class SciCentred(ImageDataItem, abstract=True):
-
     _name_template = r"{band}_{cgrph}_SCI_CENTRED"
     _title_template = r"{band} {cgrph} sci centred"
     _description_template = ""
@@ -79,8 +78,7 @@ class SciCentred(ImageDataItem, abstract=True):
         'DET1.DATA': Image,
     }
 
-class CentroidTab(ImageDataItem, abstract=True):
-
+class CentroidTab(TableDataItem, abstract=True):
     _name_template = r'{band}_{cgrph}_CENTROID_TAB'
     _title_template = r"{band} {cgrph} centroid tab"
     _description_template = "" 
@@ -150,7 +148,7 @@ class SciDerotated(ImageDataItem, abstract=True):
     }
 
 
-class SciContrastRadprof(ImageDataItem, abstract=True):
+class SciContrastRadprof(TableDataItem, abstract=True):
     _name_template = r'{band}_{cgrph}_SCI_CONTRAST_RADPROF'
     _title_template = r"{band} {cgrph} sci contrast radprof"
     _description_template = "" 
@@ -164,7 +162,7 @@ class SciContrastRadprof(ImageDataItem, abstract=True):
     }
 
 
-class SciContrastAdi(ImageDataItem, abstract=True):
+class SciContrastAdi(TableDataItem, abstract=True):
     _name_template = r'{band}_{cgrph}_SCI_CONTRAST_ADI'
     _title_template = r"{band} {cgrph} sci contrast adi"
     _description_template = "" 
@@ -178,7 +176,7 @@ class SciContrastAdi(ImageDataItem, abstract=True):
     }
 
 
-class SciThroughput(ImageDataItem, abstract=True):
+class SciThroughput(TableDataItem, abstract=True):
     _name_template = r'{band}_{cgrph}_SCI_THROUGHPUT'
     _title_template = r"{band} {cgrph} sci throughput"
     _description_template = "" 

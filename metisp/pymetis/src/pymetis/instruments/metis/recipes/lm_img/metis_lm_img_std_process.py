@@ -22,19 +22,18 @@ from pymetis.engine.recipes import Recipe
 
 from pymetis.instruments.metis.mixins import BandLmMixin
 from pymetis.instruments.metis.recipes.prefab.img.std_process import MetisImgStdProcessImpl
-from pymetis.instruments.metis.dataitems.background.subtracted import LmStdBackgroundSubtracted
-from pymetis.instruments.metis.dataitems.combined import Combined
+from pymetis.instruments.metis import dataitems
 
 
 class MetisLmImgStdProcessImpl(BandLmMixin, MetisImgStdProcessImpl):
     class InputSet(MetisImgStdProcessImpl.InputSet):
         class RawInput(MetisImgStdProcessImpl.InputSet.RawInput):
-            Item = LmStdBackgroundSubtracted
+            Item = dataitems.LmStdBackgroundSubtracted
 
         raw: RawInput
 
     class ProductSet(MetisImgStdProcessImpl.ProductSet):
-        ImgStdCombined = Combined
+        ImgStdCombined = dataitems.Combined
 
 
 class MetisLmImgStdProcess(Recipe):

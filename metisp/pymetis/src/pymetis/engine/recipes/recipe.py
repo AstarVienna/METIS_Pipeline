@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
-import inspect
 import re
 from typing import Any, Generator, Self, ClassVar
 
@@ -52,6 +51,9 @@ class Recipe(cpl.ui.PyRecipe):
                          "If you see this in a recipe, override its `_description` attribute.")
 
     # More internal attributes follow. These are **not** required by pyesorex and are specific to A*.
+    # The author's long description, kept apart from `_description`, which pyesorex reads and
+    # which `__init_subclass__` replaces with the generated man page.
+    _long_description: str | None = None
     _matched_keywords: frozenset[str] | None = None
     # Verbal description of the algorithm
     _algorithm: str = "<no algorithm provided>"
@@ -70,6 +72,8 @@ class Recipe(cpl.ui.PyRecipe):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+        if '_description' in cls.__dict__:
+            cls._long_description = cls.__dict__['_description']
         cls._description: str = cls._build_description()
         cls._registry[cls._name] = cls
 
@@ -106,8 +110,7 @@ class Recipe(cpl.ui.PyRecipe):
         Useful for reconstruction of DRLD input/product cards.
         """
         for (name, klass) in cls._registry.items():
-            for (n, kls) in inspect.getmembers(klass.Impl.ProductSet,
-                                               lambda x: inspect.isclass(x)):
+            for (n, kls) in klass._list_products():
                 if issubclass(kls, dataitem_class):
                     yield klass
 
@@ -156,7 +159,7 @@ class Recipe(cpl.ui.PyRecipe):
         products = cls._format_spacing(cls.Impl.ProductSet.list_descriptions(), 'products', 2)
         qc_parameters = cls._format_spacing(cls.Impl.Qc.list_descriptions(), 'QC parameters', 2)
         algorithm = cls._format_spacing(cls._algorithm, 'algorithm', 2)
-        description = cls._format_spacing(cls.description, 'description', 0)
+        description = cls._format_spacing(cls._long_description or cls._synopsis, 'description', 0)
 
         return f"""{cls._synopsis}\n\n{description}\n
 Matched keywords
