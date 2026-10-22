@@ -35,8 +35,8 @@ from pymetis.drl.image import zeros_like
 
 def estimate_noise(
         image: CplImage,
-        read_noise: float
-) -> HdrlImage:
+        read_noise: float,
+    ) -> HdrlImage:
     """
     Turn a raw CPL image into an HDRL image with basic noise estimates.
     """
@@ -57,7 +57,7 @@ def estimate_noise(
 def estimate_noise_list(
         images: CplImageList,
         read_noise: float,
-) -> HdrlImageList:
+    ) -> HdrlImageList:
     """
     Routine to turn a cpl Imagelist of raw images into a hdrl ImageList with
     basic noise estimates.
@@ -76,7 +76,7 @@ def calculate_outliers(
         *,
         kappa_low: float,
         kappa_high: float,
-) -> tuple[CplMask, CplMask]:
+    ) -> tuple[CplMask, CplMask]:
     """
     Calculate masks for outlier pixels, with kappa-sigma clipping, using HDRL BPM functions.
     """
@@ -109,7 +109,7 @@ def calculate_outliers_sequence(
         *,
         kappa_low: float,
         kappa_high: float,
-) -> CplMask:
+    ) -> CplMask:
     """
     Flag pixels whose frame-to-frame scatter is anomalous.
 
@@ -126,3 +126,62 @@ def calculate_outliers_sequence(
     median, rms = np.median(scatter), scatter.std()
 
     return CplMask((scatter < median - kappa_low * rms) | (scatter > median + kappa_high * rms))
+
+
+def calculate_outliers_sequence(
+        self,
+        imagelist: CplImageList | HdrlImageList,
+        *,
+        kappa_low: float,
+        kappa_high: float
+    ) -> cpl.core.Mask:
+    """
+    Calculate mask for outlier pixels based on high/low thresholds based on the frame to frame variation of a pixel.
+
+    Need to think about exactly how we do this, as we can be dealing with relatively small numbers of input frames.
+    An RMS that works for hot/cold pixels may be too conservative for this.
+
+    Parameters
+    ----------
+    imagelist : ImageList
+        List of raw images to combine
+
+    kappa_low : float
+        Lower bound of kappa for outlier pixels
+
+    kappa_high : float
+        Upper bound of kappa for outlier pixels
+
+    Returns
+    -------
+    mask : cpl.core.Mask
+        Mask for outlier pixels.
+    """
+    Msg.info(self.__class__.__qualname__,
+             f"Calculating bad pixel mask ({kappa_low=}, {kappa_high=})")
+
+    image_sum = hdrl.core.Image.zeros(imagelist[0].width, imagelist[0].height)
+    image_sum_squared = hdrl.core.Image.zeros(imagelist[0].width, imagelist[0].height)
+
+    for im in imagelist:
+        image_sum.add_image(im)
+        im.pow_scalar_create((2, 0))
+        image_sum_squared.add_image(im)
+
+    image_sum.div_scalar((len(imagelist), 0))
+    image_sum.pow_scalar((2, 0))
+    image_sum_squared.div_scalar((len(imagelist), 0))
+
+    image_sum.sub_image(image_sum_squared)
+    image_sum.pow_scalar((0.5, 0))
+
+    image_median = image_sum.get_median()
+    image_rms = image_sum.get_stdev()
+
+    mask = cpl.core.Mask.threshold_image(
+        image_sum.image,
+        image_median[0] - kappa_low * 1 * image_rms,
+        image_median[0] + kappa_high * 1 * image_rms,
+        False,
+    )
+    return mask
