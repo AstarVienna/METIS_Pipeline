@@ -117,8 +117,65 @@ def calculate_outliers_sequence(
     median and standard deviation of that scatter image: pixels more than `kappa_high`
     sigma noisier, or `kappa_low` sigma quieter, than the typical pixel are flagged.
     The input images are not modified.
+
+    The scatter is computed in two passes (mean first, then the mean squared
+    deviation) rather than as `mean(x**2) - mean(x)**2`, which cancels
+    catastrophically for the large pixel values of a raw frame.
+
+    Parameters
+    ----------
+    images : hdrl.core.ImageList
+        Frames of the sequence, with their noise estimates.
+
+    kappa_low, kappa_high : float
+        Acceptance band around the median scatter, in units of its standard deviation.
+
+    Returns
+    -------
+    cpl.core.Mask
+        True where the pixel is an outlier.
     """
     Msg.info("calculate_outliers_sequence",
+             f"Identifying noisy pixels across {len(images)} frames ({kappa_low=}, {kappa_high=})")
+
+    n = len(images)
+    width, height = images[0].width, images[0].height
+
+    mean = HdrlImage.zeros(width, height)
+    for image in images:
+        mean.add_image(image)
+    mean.div_scalar((n, 0))
+
+    scatter = HdrlImage.zeros(width, height)
+    for image in images:
+        deviation = image.sub_image_create(mean)
+        deviation.pow_scalar((2, 0))
+        scatter.add_image(deviation)
+    scatter.div_scalar((n, 0))
+    scatter.pow_scalar((0.5, 0))
+
+    median = scatter.get_median().data
+    rms = scatter.get_stdev()
+
+    too_quiet = CplMask.threshold_image(scatter.image, -math.inf, median - kappa_low * rms, True)
+    too_noisy = CplMask.threshold_image(scatter.image, median + kappa_high * rms, math.inf, True)
+
+    return too_quiet | too_noisy
+
+
+def calculate_outliers_sequence_np(
+        images: HdrlImageList,
+        *,
+        kappa_low: float,
+        kappa_high: float,
+    ) -> CplMask:
+    """
+    numpy reference implementation of `calculate_outliers_sequence`.
+
+    Same contract: flag pixels whose frame-to-frame standard deviation lies outside
+    `median ± kappa * rms` of the scatter image. The input images are not modified.
+    """
+    Msg.info("calculate_outliers_sequence_np",
              f"Identifying noisy pixels across {len(images)} frames ({kappa_low=}, {kappa_high=})")
 
     stack = np.stack([np.asarray(image.image.as_array(), dtype=float) for image in images])
@@ -126,62 +183,3 @@ def calculate_outliers_sequence(
     median, rms = np.median(scatter), scatter.std()
 
     return CplMask((scatter < median - kappa_low * rms) | (scatter > median + kappa_high * rms))
-
-
-def calculate_outliers_sequence(
-        self,
-        imagelist: CplImageList | HdrlImageList,
-        *,
-        kappa_low: float,
-        kappa_high: float
-    ) -> cpl.core.Mask:
-    """
-    Calculate mask for outlier pixels based on high/low thresholds based on the frame to frame variation of a pixel.
-
-    Need to think about exactly how we do this, as we can be dealing with relatively small numbers of input frames.
-    An RMS that works for hot/cold pixels may be too conservative for this.
-
-    Parameters
-    ----------
-    imagelist : ImageList
-        List of raw images to combine
-
-    kappa_low : float
-        Lower bound of kappa for outlier pixels
-
-    kappa_high : float
-        Upper bound of kappa for outlier pixels
-
-    Returns
-    -------
-    mask : cpl.core.Mask
-        Mask for outlier pixels.
-    """
-    Msg.info(self.__class__.__qualname__,
-             f"Calculating bad pixel mask ({kappa_low=}, {kappa_high=})")
-
-    image_sum = hdrl.core.Image.zeros(imagelist[0].width, imagelist[0].height)
-    image_sum_squared = hdrl.core.Image.zeros(imagelist[0].width, imagelist[0].height)
-
-    for im in imagelist:
-        image_sum.add_image(im)
-        im.pow_scalar_create((2, 0))
-        image_sum_squared.add_image(im)
-
-    image_sum.div_scalar((len(imagelist), 0))
-    image_sum.pow_scalar((2, 0))
-    image_sum_squared.div_scalar((len(imagelist), 0))
-
-    image_sum.sub_image(image_sum_squared)
-    image_sum.pow_scalar((0.5, 0))
-
-    image_median = image_sum.get_median()
-    image_rms = image_sum.get_stdev()
-
-    mask = cpl.core.Mask.threshold_image(
-        image_sum.image,
-        image_median[0] - kappa_low * 1 * image_rms,
-        image_median[0] + kappa_high * 1 * image_rms,
-        False,
-    )
-    return mask
