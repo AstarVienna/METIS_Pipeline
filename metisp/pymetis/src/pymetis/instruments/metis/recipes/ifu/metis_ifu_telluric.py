@@ -55,13 +55,13 @@ class MetisIfuTelluricImpl(DetectorIfuMixin, BandIfuMixin, MetisRecipeImpl):
         #     _description: str = "Uncorrected MF input spectrum."
 
         # FixMe: using raw input to avoid empty frameset on product save issue
-        class RawInput(RawInput):
-            Item = IfuRaw
+#        class RawInput(RawInput):
+#            Item = IfuRaw
 
         class CombinedInput(SinglePipelineInput):
             Item = IfuCombined
 
-        raw: RawInput
+ #       raw: RawInput
         combined: CombinedInput
         fluxstd_catalog: FluxstdCatalogInput
         lsf_kernel: LsfKernelInput
