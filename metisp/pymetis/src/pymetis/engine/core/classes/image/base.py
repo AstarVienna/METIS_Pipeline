@@ -292,6 +292,15 @@ class EnhancedImageBase:
             combined = mask if combined is None else (combined | mask)
         return CplMask(combined)
 
+    def check_nan_safe(self, bits: InstrumentDescription.MaskFlags | EllipsisType = ...) -> bool:
+        """
+        Whether every NaN in the science planes is covered by the selected DQ bits.
+        By default, any set bit counts.
+        """
+        # `ndarray & Mask` dispatches to pycpl and yields a `Mask`, so stay in numpy throughout
+        masked = np.asarray(self.dq[bits], dtype=bool)
+        return not any(np.any(np.isnan(plane.image) & ~masked) for plane in self._hdrl_planes())
+
     # ---- static helpers ----
 
     @staticmethod
