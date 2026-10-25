@@ -243,7 +243,7 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
 
         # Reject the same pixels on the local combined image, so that the QC
         # statistics are computed from the valid pixels only.
-        bad_pixels = output.dq.flatten()
+        bad_pixels = output.dq[...]
         combined_image.reject_from_mask(bad_pixels)
 
         Msg.info(self.__class__.__qualname__, "Actually Calculating QC parameters")
@@ -266,7 +266,6 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
         header_image = cpl.core.PropertyList()
 
         hh = header_image.load(self.inputset.raw.frameset[0].file, 0)
-        Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
 
         gg = self.collect_qc_parameters(
             self.Qc.DarkMean(combined_image.image.get_mean()),
@@ -282,13 +281,16 @@ class MetisDetDarkImpl(PersistenceCorrectionMixin, RawImageProcessor, MetisRecip
             self.Qc.DarkMedianMax(np.median(np.array(maxs))),
         )
 
+        Msg.info(self.__class__.__qualname__, "Appending QC Parameters to header")
         header_image.append(gg)
         header_image.append(hh)
 
         # for the time being append READNOISE to the header
         header_image.append(cpl.core.Property("READNOISE", cpl.core.Type.DOUBLE, read_noise[0]))
+
+        # Debug output only
         for elem in header_image:
-            Msg.info(self.__class__.__qualname__, f"HEADER IMAGE{elem}")
+            Msg.debug(self.__class__.__qualname__, f"    {elem.name} = {elem.value}")
 
         output.header_image = header_image
         output.header_error = copy.deepcopy(header_image) # FixMe this is temporary
@@ -325,7 +327,7 @@ class MetisDetDark(Recipe):
     _version = "0.1"
     _author = "Hugo Buddelmeijer, A*"
     _email = "hugo@buddelmeijer.nl"
-    _synopsis = "Create master dark"
+    _synopsis = "Create a master dark"
     _description = (
         "Prototype to create a METIS masterdark for {detector} in {2RG, GEO, IFU}"
     )

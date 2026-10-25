@@ -46,7 +46,7 @@ class MetisNLssStd(Recipe):
     _author: str = "Wolfgang Kausch, A*"
     _email: str = "wolfgang.kausch@uibk.ac.at"
     _copyright: str = "GPL-3.0-or-later"
-    _synopsis: str = ("Reduction of the standard star frames for determining the response "
+    _synopsis: str = ("Reduction of N-band standard star frames for determining the response "
                       "function (flux calibration) and/or the transmission (telluric correction)")
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.SLIT'})

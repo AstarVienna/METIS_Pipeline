@@ -35,8 +35,8 @@ from pymetis.drl.image import zeros_like
 
 def estimate_noise(
         image: CplImage,
-        read_noise: float
-) -> HdrlImage:
+        read_noise: float,
+    ) -> HdrlImage:
     """
     Turn a raw CPL image into an HDRL image with basic noise estimates.
     """
@@ -44,7 +44,7 @@ def estimate_noise(
     Msg.info("estimate_noise",
              f"Estimating noise for raw image, readnoise = {read_noise}")
 
-    noise = zeros_like(image)
+    noise = zeros_like(image, bpm=image.bpm)
     noise.copy_into(image, 0, 0)
 
     # add read noise plus shot noise
@@ -57,7 +57,7 @@ def estimate_noise(
 def estimate_noise_list(
         images: CplImageList,
         read_noise: float,
-) -> HdrlImageList:
+    ) -> HdrlImageList:
     """
     Routine to turn a cpl Imagelist of raw images into a hdrl ImageList with
     basic noise estimates.
@@ -76,7 +76,7 @@ def calculate_outliers(
         *,
         kappa_low: float,
         kappa_high: float,
-) -> tuple[CplMask, CplMask]:
+    ) -> tuple[CplMask, CplMask]:
     """
     Calculate masks for outlier pixels, with kappa-sigma clipping, using HDRL BPM functions.
     """
@@ -109,7 +109,7 @@ def calculate_outliers_sequence(
         *,
         kappa_low: float,
         kappa_high: float,
-) -> CplMask:
+    ) -> CplMask:
     """
     Flag pixels whose frame-to-frame scatter is anomalous.
 
@@ -117,8 +117,65 @@ def calculate_outliers_sequence(
     median and standard deviation of that scatter image: pixels more than `kappa_high`
     sigma noisier, or `kappa_low` sigma quieter, than the typical pixel are flagged.
     The input images are not modified.
+
+    The scatter is computed in two passes (mean first, then the mean squared
+    deviation) rather than as `mean(x**2) - mean(x)**2`, which cancels
+    catastrophically for the large pixel values of a raw frame.
+
+    Parameters
+    ----------
+    images : hdrl.core.ImageList
+        Frames of the sequence, with their noise estimates.
+
+    kappa_low, kappa_high : float
+        Acceptance band around the median scatter, in units of its standard deviation.
+
+    Returns
+    -------
+    cpl.core.Mask
+        True where the pixel is an outlier.
     """
     Msg.info("calculate_outliers_sequence",
+             f"Identifying noisy pixels across {len(images)} frames ({kappa_low=}, {kappa_high=})")
+
+    n = len(images)
+    width, height = images[0].width, images[0].height
+
+    mean = HdrlImage.zeros(width, height)
+    for image in images:
+        mean.add_image(image)
+    mean.div_scalar((n, 0))
+
+    scatter = HdrlImage.zeros(width, height)
+    for image in images:
+        deviation = image.sub_image_create(mean)
+        deviation.pow_scalar((2, 0))
+        scatter.add_image(deviation)
+    scatter.div_scalar((n, 0))
+    scatter.pow_scalar((0.5, 0))
+
+    median = scatter.get_median().data
+    rms = scatter.get_stdev()
+
+    too_quiet = CplMask.threshold_image(scatter.image, -math.inf, median - kappa_low * rms, True)
+    too_noisy = CplMask.threshold_image(scatter.image, median + kappa_high * rms, math.inf, True)
+
+    return too_quiet | too_noisy
+
+
+def calculate_outliers_sequence_np(
+        images: HdrlImageList,
+        *,
+        kappa_low: float,
+        kappa_high: float,
+    ) -> CplMask:
+    """
+    numpy reference implementation of `calculate_outliers_sequence`.
+
+    Same contract: flag pixels whose frame-to-frame standard deviation lies outside
+    `median ± kappa * rms` of the scatter image. The input images are not modified.
+    """
+    Msg.info("calculate_outliers_sequence_np",
              f"Identifying noisy pixels across {len(images)} frames ({kappa_low=}, {kappa_high=})")
 
     stack = np.stack([np.asarray(image.image.as_array(), dtype=float) for image in images])

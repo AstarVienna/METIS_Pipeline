@@ -21,11 +21,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import numpy as np
 
 
-def weighted_polyfit(x: np.ndarray,
-                     y: np.ndarray,
-                     deg: int,
-                     *,
-                     weights: np.ndarray = None) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def weighted_polyfit(
+        x: np.ndarray,
+        y: np.ndarray,
+        deg: int,
+        *,
+        weights: np.ndarray = None
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Per-pixel weighted polynomial fit, fully vectorized.
     Returns coeffs (highest degree first, like np.polyfit), unscaled covariance, and an OK mask.
@@ -38,8 +40,9 @@ def weighted_polyfit(x: np.ndarray,
 
     if weights is None:
         weights = np.ones_like(x)
-    assert weights.shape == x.shape, \
-        "Weights must have the same shape as data if defined"
+    if weights.shape != x.shape:
+        raise ValueError(f"Weights must have the same shape as data if defined, "
+                         f"got {x.shape} for data and {weights.shape} for weights")
 
     n, h, w = x.shape
     dtype = np.result_type(x, y, weights, np.float64)

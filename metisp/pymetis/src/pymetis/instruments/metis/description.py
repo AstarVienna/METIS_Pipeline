@@ -53,6 +53,9 @@ class Metis(InstrumentDescription):
         EDGE = 1 << 16                      # too close to the detector edge
         NOT_AN_ORDER = 1 << 17              # pixel masked because it does not belong to a spectral order
 
+    class Ifu:
+        detectors: list[str] = [f'DET{det}' for det in [1, 2, 3, 4]]
+
     @classmethod
     def get_detector_size(cls, tech: str) -> tuple[int, int]:
         if 'LM' in tech:

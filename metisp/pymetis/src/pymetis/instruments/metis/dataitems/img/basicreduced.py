@@ -32,8 +32,7 @@ class BasicReduced(ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
     _oca_keywords = frozenset({'PRO.CATG', 'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'DRS.FILTER'})
 
-    _schema = {
-        'PRIMARY': None,
+    _schema = ImageDataItem.EMPTY_PRIMARY | {
         'DET1.DATA': Image,
     }
 
@@ -65,8 +64,7 @@ class Calibrated(ImageDataItem, abstract=True):
     _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
     _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
-    _schema = {
-        'PRIMARY': None,
+    _schema = ImageDataItem.EMPTY_PRIMARY | {
         'DET1.DATA': Image,
     }
 
@@ -100,7 +98,6 @@ class NSciRestored(BandNMixin, ImageDataItem):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
-    _schema = {
-        'PRIMARY': None,
+    _schema = ImageDataItem.EMPTY_PRIMARY | {
         'DET1.DATA': Image,
     }

@@ -192,15 +192,12 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
         # Reject the same pixels on the local master flat, so that the QC
         # statistics are computed from the valid pixels only.
-        bad_pixels = output.dq.flatten()
+        bad_pixels = output.dq[...]
         mflat.reject_from_mask(bad_pixels)
 
         Msg.info(self.__class__.__qualname__, "Calculating QC parameters")
 
         qcrms = mflat.image.get_stdev()
-
-        Msg.info(self.__class__.__qualname__, f"QC FLAT N BADPIX = {qcnbad}")
-        Msg.info(self.__class__.__qualname__, f"QC FLAT RMS = {qcrms}")
 
         medians = []
         # calculate the stats in each individual raw frame (these are not dark-subtracted)
@@ -209,22 +206,15 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
             medians.append(im.get_median())
 
         medians = np.array(medians)
-        qcmedmin = medians.min()
-        qcmedmax = medians.max()
-        qcmedrms = medians.std()
-
-        Msg.info(self.__class__.__qualname__, f"QC FLAT MEDIAN MIN = {qcmedmin}")
-        Msg.info(self.__class__.__qualname__, f"QC FLAT MEDIAN MAX = {qcmedmax}")
-        Msg.info(self.__class__.__qualname__, f"QC FLAT MEDIAN RMS = {qcmedrms}")
 
         qc = self.collect_qc_parameters(
             self.Qc.MFlatRms(qcrms),
             self.Qc.MFlatNBadPix(qcnbad),
-            #self.Qc.FltMean(qcmean),  #I'm not sure what these are actually supposed to be; DRLD implies per frame, which would mean N of each
+            #self.Qc.FlatMean(qcmean),  #I'm not sure what these are actually supposed to be; DRLD implies per frame, which would mean N of each
             #self.Qc.FlatRms(qcnbad),  #TODO
-            self.Qc.FlatMedianMin(qcmedmin),
-            self.Qc.FlatMedianMax(qcmedmax),
-            self.Qc.FlatMedianRms(qcmedrms)
+            self.Qc.FlatMedianMin(medians.min()),
+            self.Qc.FlatMedianMax(medians.max()),
+            self.Qc.FlatMedianRms(medians.std())
         )
 
         # FixMe: At skeleton level the primary header of the first raw serves as the

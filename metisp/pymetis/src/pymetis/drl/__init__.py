@@ -16,7 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+-------------------------------------------------------------------------------
+
 DRL stands for Data Reduction Library. This module should contain all generic algorithms
 and wrappers of CPL and HDRL algorithms for use within A* pipelines.
+
+These are generally meant to be pure functions operating on primitive types,
+NumPy arrays and CPL/HDRL data structures, so as to make unit testing easy.
+Using additional data structures, helper classes and similar is permitted.
 """
 

@@ -88,6 +88,12 @@ class DataItem(ParametrizableItem, abstract=True):
     _registry: ClassVar[dict[str, type[Self]]] = {}       # fully resolved tag -> concrete class
     _templates: ClassVar[dict[str, type[Self]]] = {}      # name with placeholders -> hand-written template
 
+    # Shorthand to use instead of writing this in full.
+    # Write _schema = DataItem.EMPTY_PRIMARY | { ... }
+    EMPTY_PRIMARY: ClassVar[dict[str, None]] = {
+        'PRIMARY': None
+    }
+
     @classmethod
     @final
     def schema(cls) -> dict[str, Union[None, type[Image], type[Table], type[ImageList]]]:
@@ -258,7 +264,7 @@ class DataItem(ParametrizableItem, abstract=True):
                 f"No data item class is registered for the tag '{frame.tag}' of {frame.file}")
         Msg.debug(cls.__qualname__, f"Now loading data item {frame.file}")
 
-        #Msg.info(cls.__qualname__,
+        #Msg.debug(cls.__qualname__,
         #         f"As HDU list: {frame.as_hdulist()}")
 
         hdus = []
@@ -514,7 +520,7 @@ class DataItem(ParametrizableItem, abstract=True):
 
         Includes leading space.
         """
-        return f"    {cls.name():51s}{cls.description() or '<no description defined>'}"
+        return f"{cls.name():51s}{cls.description() or '<no description defined>'}"
 
     def __str__(self):
         return f"{self.name()}"

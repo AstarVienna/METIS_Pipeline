@@ -60,7 +60,6 @@ class SinglePipelineInput(PipelineInput):
                       f"Found a {self.Item.__qualname__} frame {frameset[0].file}")
             self.frame = frameset[0]
 
-
     def load_structure(self) -> None:
         if self.item is not None:
             Msg.debug(self.__class__.__qualname__,

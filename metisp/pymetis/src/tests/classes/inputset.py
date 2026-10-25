@@ -48,9 +48,9 @@ class BaseInputSetTest(ABC):
 
     @staticmethod
     @pytest.mark.external
-    def test_has_inputs_and_it_is_a_frozenset(instance):
-        assert isinstance(instance.inputs, frozenset), \
-            f"Inputs are not a frozenset: {instance.inputs}"
+    def test_has_inputs_and_they_are_ordered(instance):
+        assert isinstance(instance.inputs, tuple), \
+            f"Inputs are not an ordered tuple: {instance.inputs}"
 
     @staticmethod
     @pytest.mark.external
