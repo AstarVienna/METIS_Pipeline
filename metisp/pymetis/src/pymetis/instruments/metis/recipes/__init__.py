@@ -26,6 +26,8 @@ from pymetis.instruments.metis.recipes.instrument.metis_pupil_imaging import Met
 
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_basic_reduce import MetisLmImgBasicReduce
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import MetisLmImgFlat
+from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_twilight import MetisLmImgFlatTwilight
+from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_lamp import MetisLmImgFlatLamp
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_background import MetisLmImgBackground
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_std_process import MetisLmImgStdProcess
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_distortion import MetisLmImgDistortion
