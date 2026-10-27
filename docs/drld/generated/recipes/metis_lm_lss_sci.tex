@@ -1,0 +1,44 @@
+\begin{recipedef}
+  Name:                & \REC{metis_lm_lss_sci} \\
+  Purpose:             & Reduction of the LSS science star frames \\
+%  Requirements:        & \REQ{METIS-XXXX} \\
+%  Type:                & Calibration | Science | Technical \\
+%  Templates:           & \TPL{...} \\
+  Primary input:       & \RAW{LM_LSS_SCI_RAW} (N$\times$) \\
+  Secondary inputs:    & \EXTCALIB{AO_PSF_MODEL} \\
+                       & \PROD{BADPIX_MAP_2RG} (optional) \\
+                       & \hyperref[dataitem:gain_map_det]{\STATCALIB*{GAIN_MAP_2RG}} \\
+                       & \hyperref[dataitem:linearity_det]{\PROD*{LINEARITY_2RG}} \\
+                       & \STATCALIB{LM_ADC_SLITLOSS} \\
+                       & \PROD{LM_LSS_DIST_SOL} \\
+                       & \PROD{LM_LSS_WAVE_GUESS} \\
+                       & \PROD{MASTER_DARK_2RG} \\
+                       & \PROD{MASTER_LM_LSS_RSRF} \\
+                       & \PROD{MASTER_LM_RESPONSE} \\
+                       & \EXTCALIB{PERSISTENCE_MAP} (optional) \\
+                       & \PROD{STD_TRANSMISSION} (optional) \\
+  Matched keywords:    & \FITS{DET.DIT} \\
+                       & \FITS{DET.NDIT} \\
+                       & \FITS{DRS.SLIT} \\
+  Parameters:          & \CODE{metis_lm_lss_sci.parameter1}: string\newline Description of parameter 1 (\texttt{value2}, \underline{\texttt{value1}}) \\
+  Algorithm:           & Fancy algorithm description follows ***TBD*** \\
+  Output data:         & \PROD{LM_LSS_SCI_1D} \\
+                       & \PROD{LM_LSS_SCI_2D} \\
+                       & \PROD{LM_LSS_SCI_FLUX_1D} \\
+                       & \PROD{LM_LSS_SCI_FLUX_2D} \\
+                       & \PROD{LM_LSS_SCI_OBJ_MAP} \\
+                       & \PROD{LM_LSS_SCI_SKY_MAP} \\
+%  Expected accuracies: & \\
+  QC1 parameters:      & \QC{QC LM LSS SCI FLUX NOISELEV} \\
+                       & \QC{QC LM LSS SCI FLUX SNR} \\
+                       & \QC{QC LM LSS SCI INTORDR LEVEL} \\
+                       & \QC{QC LM LSS SCI NOISELEV} \\
+                       & \QC{QC LM LSS SCI SNR} \\
+                       & \QC{QC LM LSS SCI WAVECAL DEVMEAN} \\
+                       & \QC{QC LM LSS SCI WAVECAL FWHM} \\
+                       & \QC{QC LM LSS SCI WAVECAL NIDENT} \\
+                       & \QC{QC LM LSS SCI WAVECAL NMATCH} \\
+                       & \QC{QC LM LSS SCI WAVECAL POLYCOEFFn} \\
+                       & \QC{QC LM LSS SCI WAVECAL POLYDEG} \\
+\end{recipedef}
+

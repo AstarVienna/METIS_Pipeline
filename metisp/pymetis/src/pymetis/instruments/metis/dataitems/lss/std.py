@@ -40,6 +40,28 @@ class NLssStd1d(BandNMixin, LssStd1d):
     pass
 
 
+class LssStdWave(TableDataItem, abstract=True):
+    """
+    The wavelength solution derived from the standard star, an optional product of the
+    standard-star recipe (DRLD `{band}_LSS_STD_WAVE`); distinct from the first guess
+    `{band}_LSS_WAVE_GUESS` the recipe takes as input.
+    """
+    _name_template = r'{band}_LSS_STD_WAVE'
+    _title_template = "{band} LSS wavelength solution from the standard star"
+    _description_template = "Wavelength solution based on STD star"
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _frame_group = cpl.ui.Frame.FrameGroup.PRODUCT
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
+
+
+class LmLssStdWave(BandLmMixin, LssStdWave):
+    pass
+
+
+class NLssStdWave(BandNMixin, LssStdWave):
+    pass
+
+
 class RefStdCat(TableDataItem):
     _name_template = r'REF_STD_CAT'
     _title_template = "ref standard catalogue"

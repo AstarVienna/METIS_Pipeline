@@ -1,0 +1,21 @@
+\paragraph{\EXTCALIB{RSRF}} \label{dataitem:rsrf}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \EXTCALIB{RSRF}\\[0.3cm]
+        Description: & 2D relative spectral response function \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{RSRF} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.IFU}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{RSRF}\\[0.3cm]
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * image: Extension IMAGE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

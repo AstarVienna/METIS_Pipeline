@@ -27,14 +27,14 @@ from pymetis.engine.core.functions.dummy import create_dummy_header, create_dumm
 #from pymetis.instruments.metis.dataitems.hci import LmOffAxisPsfRaw, LmOnAxisPsfTemplate
 
 
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.instruments.metis.recipes.prefab import RawImageProcessor
 from pymetis.instruments.metis.inputs import RawInput
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
 
 
-class MetisLmAppSciCalibrateImpl(RawImageProcessor):
+class MetisLmAdiAppImpl(RawImageProcessor):
     class InputSet(RawImageProcessor.InputSet):
         class RawInput(RawInput):
             Item = dataitems.LmSciCalibrated
@@ -68,6 +68,20 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
         SciContrastRawLamd = qc.hci.LmAppSciContrastRawLamd
         SciContrastAdiLamd = qc.hci.LmAppSciContrastAdiLamd
         SciFwhm = qc.hci.LmAppSciFwhm
+
+    _steps = (
+        Step('Centroid determination', products=(ProductSet.CentroidTab,)),
+        Step('Distortion correction and subpixel alignment', products=(ProductSet.SciCentred,)),
+        Step('Sub-PSFs extraction and alignment'),
+        Step('Merger of coronagraphic PSFs'),
+        Step('Estimate median PSF', products=(ProductSet.SciPsfMedian,)),
+        Step('Subtract median PSF', products=(ProductSet.SciSpeckle,)),
+        Step('Optionally: high-pass filter'),
+        Step('Derotate images', products=(ProductSet.SciDerotated, ProductSet.SciDerotatedPsfsub,)),
+        Step('Contrast curve calculation', products=(ProductSet.SciContrastRadprof, ProductSet.SciContrastAdi,
+                                                     ProductSet.SciThroughput, ProductSet.SciSnr,)),
+        Step('Coadd images', products=(ProductSet.SciCoverage, ProductSet.SciCalibrated,)),
+    )
     def process(self) -> set[DataItem]:
         
             image = self.inputset.raw.load_data('DET1.DATA')[0]
@@ -164,7 +178,7 @@ class MetisLmAppSciCalibrateImpl(RawImageProcessor):
             }
 
 
-class MetisLmAppSciCalibrated(Recipe):
+class MetisLmAdiApp(Recipe):
     _name: str = "metis_lm_adi_app"
     _version: str = "0.1"
     _author: str = "Jennifer Karr, A*"
@@ -176,6 +190,6 @@ class MetisLmAppSciCalibrated(Recipe):
 
     parameters = ParameterList([])
 
-    Impl = MetisLmAppSciCalibrateImpl
+    Impl = MetisLmAdiAppImpl
 
     

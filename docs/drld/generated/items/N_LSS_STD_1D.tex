@@ -1,0 +1,25 @@
+\paragraph{\PROD{N_LSS_STD_1D}} \label{dataitem:n_lss_std_1d}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{N_LSS_STD_1D}\\[0.3cm]
+        Description: & Extracted N 1D standard star spectrum. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_LSS_STD_1D} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{INS.OPTI10.NAME}\\
+         & \FITS{INS.OPTI11.NAME}\\
+         & \FITS{INS.OPTI9.NAME}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_LSS_STD_1D}\\[0.3cm]
+            Created by: & \REC{metis_n_lss_std} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

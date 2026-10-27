@@ -1,0 +1,23 @@
+\paragraph{\RAW{LM_OFF_AXIS_PSF_RAW}} \label{dataitem:lm_off_axis_psf_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{LM_OFF_AXIS_PSF_RAW}\\[0.3cm]
+        Description: & calibration ADI image data \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{INS.OPTI10.NAME}\\
+         & \FITS{INS.OPTI3.NAME}\\
+         & \FITS{INS.OPTI9.NAME}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_OFF_AXIS_PSF_RAW}\\[0.3cm]
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

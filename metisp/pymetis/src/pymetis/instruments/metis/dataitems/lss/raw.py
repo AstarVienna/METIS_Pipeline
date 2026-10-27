@@ -38,11 +38,11 @@ class LmLssRaw(BandLmMixin, LssRaw, abstract=True):
 
 
 class LmLssStdRaw(TargetStdMixin, LmLssRaw):
-    pass
+    _dpr = ('CALIB', 'LSS,{band}', 'STD')
 
 
 class LmLssSciRaw(TargetSciMixin, LmLssRaw):
-    pass
+    _dpr = ('SCIENCE', 'LSS,{band}', 'OBJECT')
 
 
 class NLssRaw(BandNMixin, LssRaw, abstract=True):
@@ -50,9 +50,9 @@ class NLssRaw(BandNMixin, LssRaw, abstract=True):
 
 
 class NLssStdRaw(TargetStdMixin, NLssRaw):
-    pass
+    _dpr = ('CALIB', 'LSS,{band}', 'STD')
 
 
 class NLssSciRaw(TargetSciMixin, NLssRaw):
-    pass
+    _dpr = ('SCIENCE', 'LSS,{band}', 'OBJECT')
 

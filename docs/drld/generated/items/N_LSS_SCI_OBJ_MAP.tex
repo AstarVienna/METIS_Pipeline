@@ -1,0 +1,22 @@
+\paragraph{\PROD{N_LSS_SCI_OBJ_MAP}} \label{dataitem:n_lss_sci_obj_map}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{N_LSS_SCI_OBJ_MAP}\\[0.3cm]
+        Description: & Pixel map of object pixels (QC) \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_LSS_SCI_OBJ_MAP} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_LSS_SCI_OBJ_MAP}\\[0.3cm]
+            Created by: & \REC{metis_n_lss_sci} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * image: Extension IMAGE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -1,0 +1,463 @@
+\documentclass[a4paper]{spie}  %>>> use for US letter paper
+%\documentclass[a4paper]{spie}  %>>> use this instead for A4 paper
+%\documentclass[nocompress]{spie}  %>>> to avoid compression of citations
+
+\renewcommand{\baselinestretch}{1.0} % Change to 1.65 for double spacing
+ 
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{todonotes}
+\usepackage{lipsum}
+\usepackage{pdfpages}
+\usepackage{verbatim}
+\usepackage{textgreek}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{Implementation plans for the data reduction pipeline for METIS at the ELT}
+
+\author[a]{Kieran Leschinski}
+\author[a]{Hugo Buddelmeijer}
+\author[a]{Oliver Czoske}
+\author[b]{Gilles Otten}
+\author[a]{Martin Balaz}
+\author[a]{Fabian Haberhauer}
+\author[b]{Jennifer Karr}
+\author[c]{Wolfgang Kausch}
+\author[d]{Thomas Marquart}
+\author[c]{Nadeen Sabha}
+\author[b]{Chi-Hung Yan}
+\author[c]{Norbert Pryzbilla}
+\author[b]{Shiang-Yu Wang}
+\author[a]{Werner Zeilinger}
+
+\affil[a]{University of Vienna, 1180 Vienna, Austria}     % T\"urkenschanztra\ss e 18,
+\affil[b]{Academia Sinica, Institute of Astronomy and Astrophysics, Taipei 10617, Taiwan}       % Roosevelt Rd, 
+\affil[c]{Institut f\"ur Astro- und Teilchenphysik, Universit\"at Innsbruck, 6020 Innsbruck, Austria}   % , Technikerstraße 25/8
+\affil[d]{University of Uppsala, 751 20 Uppsala, Sweden}   % , Angstr\"omlaboratoriet, L\"agerhyddsv\"agen 1
+
+
+
+\authorinfo{Further author information contact Kieran Leschinski - E-mail: kieran.leschinski@univie.ac.at}
+
+% Option to view page numbers
+\pagestyle{empty} % change to \pagestyle{plain} for page numbers
+% \pagestyle{plain}
+% \setcounter{page}{301} % Set start page numbering at e.g. 301
+ 
+\begin{document} 
+\maketitle
+
+\begin{abstract}
+METIS will be the first-light mid-infrared instrument at the ELT.
+Given the expected performance of the ELT's adaptive optics systems, METIS will be able to probe regions of the sky previously inaccessible to astronomers.
+In support of both the METIS integration and verification efforts as well as the astronomical community at large, the METIS pipeline team has begun work on the METIS data reduction pipeline.
+The METIS pipeline will be written mostly in Python to take advantage of the new data reduction tools released by ESO.
+The development schedule has been set in such a way that the pipeline team will be able to directly support the testing and verification efforts during the upcoming system integration phase for METIS.
+In order to ensure that the required pipeline functionality is available when it is needed, the recipes and workflows functionality has been broken down into four levels of readiness: skeleton, functional, performance, and science-grade. 
+This breakdown aims to ensure a more agile approach to the pipeline implementation as well as enabling productive contributions from all members of the highly geographically distributed team.
+
+
+
+
+
+\end{abstract}
+
+% Include a list of keywords after the abstract 
+\keywords{ELT, METIS, Data reduction, Pipeline, EDPS, Python, Planning}
+
+
+\section{Introduction}
+% ELT and METIS overview
+The Extremely Large Telescope (ELT) will be the largest optical telescope ever constructed, specifically optimized for infrared wavelengths. 
+It will feature a 39\,m mirror, collecting light over a nearly 1000\,m\textsuperscript{2} area. 
+Adaptive optic capabilities were integrated into the operational design from the beginning, employing both deformable and tip-tilt mirrors within its five-mirror system. 
+Such a design will enable the ELT to achieve high Strehl ratio observations (greater than 90\%) at the diffraction limit in mid-infrared wavelengths. 
+For instance, a full width at half maximum (FWHM) of 20\,mas at 3\,\textmu m and 100\,mas at 15\,\textmu m should be achievable by METIS. 
+These capabilities will open up countless new parameter spaces in all areas of astronomy and astrophysics
+
+%Overview of METIS
+
+METIS will offer an array of powerful observing modes including integral-field and long-slit spectrographs, L-M and N-band imagers, and multiple types of coronagraphs for high-contrast imaging and spectroscopy.
+Table \ref{fig:metis_modes} gives an overview of all the available observing modes and Brandl et al. (2022) \cite{metis_spie_2022} provides a more in-depth description of the current status of the instrument.
+
+The METIS data reduction pipeline (also referred to as ``the pipeline'') will play the crucial role of turning unintelligible raw data frames into science-grade data products, with which astronomers will be able to unveil the secrets of the cool universe.
+Not only are there many observational constrains that the METIS pipeline must deal with, there are also many practical and developmental constraints imposed by the various stakeholders associated with the METIS pipeline.
+
+This proceeding paper is split into the following sections. 
+Section \ref{sec:env} describes the operational constraints that apply to the development of the METIS pipeline.
+% Section \ref{sec:dev} presents the arguments for developing the pipeline as part of an integrated testing architecture which includes data simulators, archives, and dedicated performance testing frameworks. 
+Details of how the pipeline team intends to develop the pipeline given the various operation constraints are given in section \ref{sec:imp}. 
+Section \ref{sec:pip} briefly describes the pipeline as detailed in the METIS pipeline design documents. 
+Finally, section \ref{sec:outlook} gives an outlook for the pipeline development out to the initial delivery of the pipeline to ESO at PAE in 2028.
+
+Disclaimer: This proceedings paper was written with limited help from ChatGPT \footnote{The main intellectual content of the paper belongs solely to the authors, as does the structure of the paper and content of each section and subsection. For each paragraph, the authors wrote down a series of bullet points. ChatGPT was used to string these together into coherent sentences. Ultimately the content and context of each paragraph was checked by the authors to make sure the original intent of the section was conveyed properly. Whether or not this ultimately saved the authors any time is up for debate, but it did help with reducing the mental effort of writing the paper.}.
+
+\section{Environmental constraints for the pipeline}
+\label{sec:env}
+
+% \begin{itemize}
+%     \item - METIS TLR for performance dictate the level to which the METIS pipeline must process data
+%     \item - Pipeline is to also support AIV activities
+%     \item - Pipeline will need to be able to have functionality available at different levels through out AIV to enable testing
+%     \item - AIV team will use pipeline to monitor performance of METIS during the integration phase
+%     \item - ESO is expecting METIS to be on-sky for decades, pipeline must work for this length too
+%     \item - ESO is rolling out new pipeline tool chains in python: EDPS, PyCPL. This affects the implementation efforts
+%     \item - PIP is a very distributed team
+% \end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{SPIE_paper/figures/METIS_modes.png}
+    \caption{The METIS instrument will include a multitide of observation modes, including standard imaging, long-slit and IFU spectroscopy, and high-contrast modes. The METIS pipeline need to process all types of data originating from these observing modes, and indeed also data from observations using multiple modes simultaneously. This figure was taken from the latest version (May 2024) of the METIS Data Reduction Library Design document \cite{DRLD}.}
+    \label{fig:metis_modes}
+\end{figure}
+
+
+As with every astronomical instrument, METIS is not being built in a vacuum\footnote{There is an obligatory pun intended here, as the evacuated METIS cryostat indeed comes very close to producing a full vacuum.}. 
+There are many and varied outside factors which influence both the design and the development of the pipeline, from the physical characteristics of the instrument to the external interfaces and frameworks within which the pipeline must operate.
+
+First and foremost, the Top Level Requirements (TLRs) for METIS \cite{ESO-257869} establish the boundary conditions for the METIS pipeline.
+These scientific and technical performance requirements will ensure that the pipeline processes data to the levels necessary for accurate and reliable scientific output. 
+The aim of the pipeline team here is to provide a trustworthy tool chain to the astronomical community and to enable a level of scientific discovery worthy of a first-light instrument at the ELT. 
+
+While supporting AIV activities is not an official requirement of the pipeline, it is a useful method to both keep the pipeline development on schedule and keep the functionality aligned with the needs of the instrument. 
+The METIS AIV team is expecting to be able to use parts of the METIS pipeline to monitor and evaluate the instrument's performance.
+By making use of the pipeline, the AIV team will be able to continuously track the behavior of METIS, identify any issues early, and make adjustments when necessary. 
+This ongoing monitoring is vital for the successful deployment and operation of METIS, ensuring that all components function correctly before the instrument is operational.
+
+During the AIV phase, the pipeline will be required to provide functionality at different levels of readiness to facilitate thorough testing and validation of the instrument. 
+To this end the pipeline (and the pipeline team) must remain sufficiently flexible in order to iterate effectively with the AIV team throughout the integration activities.
+
+Considering that ESO expects METIS to remain on-sky for several decades, the pipeline must be designed for long-term use and reliability. 
+It should be sufficiently well developed in order to support the instrument throughout its operational life, and be flexible enough to adapt to any future changes or upgrades to the instrument. 
+The longevity of the pipeline is as crucial as the durability of the instrument itself when ensuring sustained scientific productivity.
+
+ESO has recently introduced a new set of Python-based tools for developing data reduction pipelines, specifically EDPS \cite{edps} and PyCPL \cite{pycpl}.
+The METIS pipeline team recognises that a Python-based tool chain will enable a much greater adoption among the astronomical community, and we will (happily) use the new ESO framework for developling the METIS pipeline. 
+Utilizing Python, EDPS, and PyCPL should also help to streamline the development process and ensure future compatibility and support from ESO.
+The expected downside to adopting the new Python-based framework is the lack of previous experience within the community.
+This can however be seen as a hidden opportunity though, as through the inevitable debugging efforts, the METIS pipeline team will also develop a greater understanding of the internal workings of the ESO packages.
+
+Finally, a quick look at the author's institutions listed above reveals the geographical diversity in the pipeline team.
+Coordinating efforts across different locations and timezones, and ensuring seamless communication and collaboration is essential for the project's success. 
+If leveraged effectively, the diverse range of expertise and perspectives will hopefully significantly enhance the quality and performance of the METIS pipeline.
+
+
+
+
+% \section{The pipeline as part of an integrated development and testing architecture}
+% \label{sec:dev}
+
+% \begin{itemize}
+    % \item - Pipeline as a single element in an integrated software ecosystem
+    % \item - AIV data archive for storing AIV data and for monitoring the system integration of the METIS instrument
+    % \item - AIV system integration tests monitor both functionality and performance of METIS
+    % \item - Heavy use of instrument data simulator (ScopeSim) for pre-testing use cases in advance of AIV needs
+    % \item - Pipeline as a way of connecting predictions (simulations) to reality
+% \end{itemize}
+
+
+% The METIS pipeline will be a critical component of a complex, integrated software and hardware ecosystem. This ecosystem is designed to ensure that all software elements, from data acquisition to processing and analysis, work in harmony. The pipeline's role within this ecosystem is to process and analyse data to meet the goals described in the Top Level Requirements (TLRs). By doing so, it guarantees that the processed data products are accurate, reliable, and ready for scientific interpretation.
+
+% A vital aspect of the AIV phase is the establishment of an AIV data archive. This archive is tasked with storing all data generated during the AIV activities, serving as a comprehensive repository for integration data. It also provides a crucial platform for monitoring the METIS instrument's integration process. By archiving AIV data, the team can track the instrument's performance over time, quickly identifying and addressing any integration issues that may arise.
+
+% The AIV system integration tests are fundamental to ensuring that both the functionality and performance of METIS meet the required standards. These tests will assess the instrument's components, ensuring they function correctly individually and within the larger system. By monitoring both functionality and performance, the AIV team can verify that METIS operates as intended and is ready to be shipped to the ELT.
+
+% To prepare for the AIV phase, the pipeline team will make extensive use of the instrument data simulator: ScopeSim\cite{scopesim}. This will allow for pre-testing of various use cases, enabling the team to anticipate and address potential challenges before they arise during actual AIV activities. ScopeSim will help to bridge the gap between theoretical predictions and practical implementation, ensuring that the AIV process is as smooth and efficient as possible.
+
+% The METIS pipeline serves as a crucial link between simulations and real-world observations. By comparing data processed through the pipeline with simulated data, the team can validate their models and predictions, ensuring METIS performs as expected in practice. This capability is essential for confirming the accuracy of simulations and for making any necessary adjustments to enhance the instrument's performance.
+
+
+\section{Pipeline implementation plans}
+\label{sec:imp}
+
+Early on it was decided that the pipeline would support the system-level integration activities.
+Practically this means the METIS pipeline should already contain the functionality needed by any system level tests that will use header or pixel data from the METIS detectors.
+In order to ensure that this functionality is ready, we plan to make extensive use of simulated data sets. 
+Furthermore to aid in continued testing of both the METIS instrument and the pipeline throughout the full AIV phase, the consortium will store all important data sets from the METIS detectors in an archive.
+The following subsections provides a brief overview of how coupling the pipeline development to the AIV activities influences the release schedule of the pipeline.
+
+\subsection{Scheduling matched to AIV plans}
+\label{subsec:imp_aiv}
+
+\begin{table}[]
+    \centering
+\caption{Major METIS AIV milestones for which pipeline recipes need to be ready}
+\label{tab:dev_aiv_milestones}
+    \begin{tabular}{c|c|l}
+    \hline
+    \hline
+         Date &   METIS AIV phase ID & Description\\
+         \hline
+         02-2025 &   AIV-010&PIP workstation setup in Leiden\\
+         11-2025 &   AIV-250&Dress-rehearsal of data flow chain\\
+ 02-2026 & AIV-370&IFU system testing\\
+ 10-2026 &  AIV-490&IMG/LSS system testing\\
+ 12-2027 & AIV-640&Preliminary acceptance Europe (PAE)\\
+ 12-2028 & AIV-920&Commissioning on-sky at ELT starts\\
+ \hline
+ \end{tabular}
+      
+\end{table}
+
+Table \ref{tab:dev_aiv_milestones} lists the major AIV testing phases when the AIV team will require functional aspects of the pipeline. 
+As the integration activities progress and more sub-systems are integrated into the cryostat, so too with the demand for pipeline functionality grow. 
+The pipeline development schedule has been designed to move in lock-step with the AIV integration schedule.
+This schedule implies a very tight development timeline for the pipeline team.
+While attempting to reconcile the available person-power in the pipeline team with the needs of the AIV schedule we recognised that not all AIV tests need fully functioning pipeline recipes. 
+We therefore decided to split the development of each pipeline recipe into four levels in order to accommodate the tight timeline dictated by AIV activities.
+The different levels of development are described in more detail in section \ref{subsec:imp_levels}.
+Here is a brief overview of the AIV phases and the requirements on the pipeline:
+
+\begin{itemize}
+    \item \textbf{AIV-010, PIP workstation setup} : At the beginning of the AIV activites the pipeline workstation will be installed in the AIV Hall in Leiden. A working pipeline skeleton is required to test the interfaces to other subsystems, most notably the staging area for fresh data frames from the METIS detectors. 
+    \item  \textbf{AIV-250, Dress-rehearsal of data flow chain} : This phase foresees the integration of the IFU optics into the cryostat, excluding the detectors. This will be the first time the full data flow system - from raw detector readouts through to processed files - is tested. Recipes for the IFU data reduction must be ready at the functional level by this stage.
+    \item \textbf{AIV-370, IFU system testing} : The IFU module will be fully mated with the detectors and the instrument will be cooled to operating temperature. The phase includes all lab-based performance tests for the IFU module. All IFU-pipeline recipes will need to be available (mostly) at the performance level in order for the AIV team to test the perfomance of the IFU module against the top level requirements.
+    \item \textbf{AIV-490, IMG/LSS system testing} : The imaging and long-slit sub-system, including HAWAII and GeoSnap detectors, will have been integrated into the cryostat by this stage and performance testing as a whole instrument will begin. All imaging and long-slit recipes used by the lab-based performance tests (i.e. utilising the warm calibration unit) will need to be at the performance level, while recipes that require on-sky observations (e.g. telluric corrections) may remain at the functional level.
+    \item \textbf{AIV-640, Preliminary acceptance Europe (PAE)} : PAE represents the end of the main pipeline development stage. As such all recipes, including those that will only be fully tested on-sky, must be at the performance level. Heavy use will be made of the instrument data simulator in order to achieve this.
+    \item \textbf{AIV-920, Commissioning on-sky at the ELT starts} : Initial data from on-sky observations at the ELT will allow the pipeline team to test the performance of the data reduction recipes against the top level requirements for scientific output. Recipes which allow METIS to meet its required performance will receive the classification of science-grade. Effort will then be allocated to upgrade the algorithms in the recipes which don't deliver data compliant with the TLRs.
+\end{itemize}
+
+
+\subsection{Functionality levels}
+\label{subsec:imp_levels}
+
+The development of each software recipe for the METIS data reduction pipeline is structured into four distinct phases: skeleton, functional, performance, and science-grade. This phased approach allows for targeted progress, ensuring that development can pause once the software meets the requirements for any upcoming Assembly, Integration, and Verification (AIV) system functional or performance tests. By structuring development in this way, team members can efficiently move between multiple software recipes, focusing their efforts where they are most needed and avoiding the inefficiencies that can arise from getting bogged down in overly detailed or premature optimizations. This strategy ensures a balanced and flexible development process, maximizing productivity and maintaining alignment with project milestones. 
+  
+ \begin{enumerate}
+     \item \textbf{Skeleton recipes }are the initial stage in the development of each software recipe for the METIS data reduction pipeline. During this phase, the software recipes are essentially barebones structures that primarily focus on handling file input and output operations correctly. Despite their minimal functionality, these recipes adhere to the output specifications outlined in the design document and are capable of reading the necessary metadata from input files. Furthermore, the recipes are designed to reject or fail gracefully if inappropriate files are used as input, ensuring robustness and reliability from the outset. This foundational phase sets the stage for more advanced development, providing a clear framework that supports subsequent enhancements in functionality and performance.
+ 
+     \item \textbf{Functional recipes} build upon the skeleton phase by incorporating sufficient code to fulfill the primary tasks outlined in the design document for each software recipe. In this phase, the recipes not only manage file input and output but also perform their intended functions, although they may not yet handle all edge cases. The pixel values in the output should reflect an initial, first-order correction, providing a meaningful representation of the data. Additionally, the internal structure of the recipes is designed to facilitate further development and expansion in later phases. Comprehensive documentation for each function should be available, and unit tests should utilise simulated data products to verify that the recipes perform their designated tasks correctly. This phase ensures that the core functionality is in place and ready for refinement and optimization in subsequent stages. 
+
+     \item \textbf{Performance recipes} will have reached an advanced stage of development. They incorporate all expected functionalities and can handle various edge cases encountered during scientific operations. These recipes are designed to process raw data to meet the performance standards defined in the METIS science top-level requirements. However, testing is limited to simulated data and data collected during AIV testing runs. While this approach allows for thorough lab testing, it does not replicate all potential challenges encountered during actual observations. Nonetheless, achieving performance-level recipes represents significant progress toward readiness for deployment of METIS on the ELT. 
+
+     \item \textbf{Science-Grade recipes}: In an ideal scenario, science recipes would mirror the capabilities of performance recipes, as thorough lab testing would have accounted for all possible edge cases. However, the reality of on-sky testing during the METIS commissioning run may unveil unexpected challenges. This could necessitate upgrades or even complete redesigns of various algorithms to ensure optimal performance in real-world conditions. A recipe will only earn the classification of ``science grade'' once it has undergone testing with on-sky data, and the resulting reduced data products align with the scientific performance targets outlined in the METIS TLRs. This iterative process underscores the importance of rigorous testing and adaptation to ensure that METIS can deliver scientifically meaningful results once operational. 
+ \end{enumerate}
+
+
+\subsection{Integration with the data simulator}
+\label{subsec:imp_sim}
+
+Both unit testing and integration testing are much easier when there is a sufficient supply of realistic test data.
+The ScopeSim\footnote{\url{https://scopesim.readthedocs.io/en/stable/}} instrument data simulator\cite{scopesim} is able to provide an almost unlimited stream of mock data frames for all observation modes of METIS\footnote{The elephant in the room, the HCI modes, are almost complete and will be included in one of the next ScopeSim releases.}.
+Luckily the developers of ScopeSim are also members of the METIS pipeline team.
+The METIS pipeline team can therefore take full advantage of the functionality included in the ScopeSim python packages.
+
+To aid the development of the pipeline, we have created a python package which automatically generates a set of simulated raw data frames for all METIS modes defined in the configuration YAML files.
+Currently, the package is configured to only create the raw readout files, but in the future the ability to also generate intermediate or partially reduced files will be added.
+The \verb+METIS_simulations+ package is installed on the pipeline production server so that the production code will always have an up-to-date source of simulated files to work with.
+The motivation behind creating a python package to generate the test data set is two-fold:
+\begin{enumerate}
+    \item The normal advantages of version control, traceability, and ability to upgrade functionality mean that we can add or change the contents of the test data sets, or create new sets with differing characteristics (pixel data, header information, etc) without needing to wade through and (re)understand loose outdated scripts, all the while backing up large data sets.
+    \item Every member of the pipeline team can install the package in their local python environment and generate locally their own set of test data. This in turn allows local tests to differ from the ``primarly'' dataset, and encourages the team members to create and test edge cases that will otherwise not be covered. If deemed useful, the team members can then create a pull request to add their custom dataset to the package so that eventually it also gets folded into the nightly test runs.
+\end{enumerate}
+
+Further motivation for integrating the instrument simulator package into the pipeline development comes from the inclusion of the METIS science team in the pipeline development activities.
+By using the same tool that that science team members are (should be) using, science team member can ask the pipeline team to include realistic science cases in the test suite of the pipeline.
+This approach benefits both teams equally.
+Science team members will be able to see well in advance of METIS going on sky whether their proposed observation will be successful or not. 
+It also allows them to voice their concerns or wishes about which algorithms are offered at each step of the reduction.
+Essentially front-row tickets to the show that is the pipeline development.
+The symbiotic flip-side to this arrangement is that the pipeline team is able to use the best models around as input for the pipeline.
+% This is equivalent to being able to test the pipeline on the most realistic versions of simulated data.
+By doing so the pipeline team will be able to test the data reduction algorithms under conditions that are as close to ``real-world'' examples as can be expected while the actual instrument is still being assembled.
+
+Integration between pipeline and simulator is further facilitated by the fact that both pieces of software are primarily based in python.
+This fact alone reduces the friction between the to two pieces of software to practically zero.
+Furthermore, the benefit to having each piece of software as the others ``best customer'' is that each package must necessarily continue to develop in order to meet the evolving needs of the other
+This introduces a certain about of positive feedback into the development cycles of each piece of software.
+
+
+\subsection{Development tools}
+\label{subsec:imp_tools}
+
+ESO has shown a commitment over the last several years to move its data reduction pipeline towards a new system based on python. 
+This is evident in the recent release of the EDPS\cite{edps} and PyCPL\cite{pycpl} packages.
+These two packages are meant as replacements for the existing EsoRex and CPL systems written in C.
+Given these developments, we took the decision to implement the METIS pipeline primarily in Python.
+Although Python is not known for its computation speed, it does have several advantages in terms of reducing the time needed by developers to code the pipeline as well as providing developers with easy-to-use debugging tools. 
+Because of these benefits we anticipate a reduction in the time and effort needed to develop the METIS pipeline.
+Additional benefits include the possibility of easily forking from Github third-party python repositories and reusing already existing code for any of the tasks that are not included in the ESO stack (CPL and HDRL). 
+Example of packages which may provide such functionality to the METIS pipeline include: TIPTOP\cite{tiptop}, HEEPS\cite{HEEPS} and PyREDUCE\cite{pyreduce}
+
+In addition to the use of the python ecosystem, we are taking advantage of the tool chain provided by Github. 
+These extra tools significantly aid in the development and management of the pipeline beyond the core version control capabilities of Git. 
+We use the GitHub Issues and Projects for tracking and managing tasks, bugs, and feature requests. 
+Github-Issues have sofar helped us overcome the tyranny of distance in our distributed team be allowing specific tasks to be assigned to members and linked to specific parts of the project. 
+This has given us a clear and organized way to manage and trace work. 
+We are also using the Github-Projects feature to visualize and manage the development workflow. 
+This makes it easier to see the status of tasks at a glance and ensure the pipeline development stay on track.
+
+We also take full advantage of the GitHub Actions service. 
+Github Actions allow us to automate the Continuous Integration process for the development of the pipeline. 
+This automation should enhance code quality and speed up the development cycle by ensuring the test suite is run every time a pull request is made. 
+
+Finally pull requests are the main way for us to conduct the all important step of reviewing each others code. 
+They allow us to propose changes to the codebase, discuss those changes with other team members, and conduct thorough reviews before merging. 
+By doing so we aim to maintain a high standard of code quality despite very few chances for physical interaction and discussions in person.
+
+So far these the pipeline team, distributed over 4 institutes globally, has been able to work very closely and effectively. 
+Time will tell whether the echos of the Covid era will prove the distributed-team model for software development to be as effective as the legacy co-location development model.
+
+
+\subsection{Release schedule}
+\label{subsec:imp_schedule}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.83\textwidth]{SPIE_paper/figures/deliveries_recipes.pdf}
+    \caption{Current delivery schedule for the METIS pipeline. Every 3 months during the AIV phase of METIS the pipeline team will release an update of the software.
+    The 4 levels of recipe development are represented here thusly: blue = skeleton, green = functional, orange = performance, red = science-grade.
+    The description of functionality for each of the development levels is given in subsection \ref{subsec:imp_levels}.}
+    \label{fig:pip_releases}
+\end{figure}
+
+
+\begin{table}[]
+\caption{Release schedule for the METIS data reduction pipeline software.}
+\label{tab:pip_releases}
+\begin{tabular}{|lcllll|}
+\hline
+Year & Date & Version & Version description & AIV-Phase & Nearest METIS Milestone          \\
+\hline
+\hline
+{2024}          & 15. Nov.      & v0.1             & ESO : Skeleton functional      &                                        & ESO 1st pipeline skeleton delivery   \\
+\hline
+{2025}          & 15. Feb.      & v0.2             & AIV-A: Skeleton integrated    & 10                 & AIV Hall PIP workstation integration \\
+                                  & 15. Mai       & v0.2.1           & AIV-A: Skeleton engineering  &                                        &                                      \\
+                                  & 15. Aug.      & v0.2.2           & AIV-A: Skeleton LMS           &                                        &                                      \\
+                                  & 15. Nov.      & v0.2.3           & AIV-C : LMS functional       & {250}                & LMS Cold Functional test             \\
+\hline
+{2026}          & 15. Feb.      & v0.3             & AIV-D : LMS performance       & {370}                & Instrument verification C/D          \\
+                                  & 15. Mai       & v0.3.1           & AIV-D : LMS updates 1         &                                        &                                      \\
+                                  & 15. Aug.      & v0.3.2           & AIV-D : LMS updates 2        & {350}                & IMG Cold Functional test             \\
+                                  & 15. Nov.      & v0.4             & AIV-E : IMG functional         & {490}                & Instrument verification E            \\
+\hline
+{2027}          & 15. Feb.      & v0.4.1           & AIV-E : LSS functional      &                                        &                                      \\
+                                  & 15. Mai       & v0.4.2           & AIV-E : IMG+LSS performance   &                                        &                                      \\
+                                  & 15. Aug.      & v1.0             & ESO : Full pipeline PAE         & {650}                & PAE testing                          \\
+                                  & 15. Nov.      & v1.0.1           & PAE : updates 1              &                                        &                                      \\
+\hline
+{2028}          & 15. Feb.      & v1.0.2           & PAE : updates 2               &                                        &                                      \\
+                                  & 15. Mai       & v1.1             & Armazones : update 1           & {850}                & Cold Check-in test Chile             \\
+                                  & 15. Aug.      & v1.1.1           &Armazones : update 2          &                                        &                                      \\
+                                  & 15. Nov.      & v1.2             & ESO : Full pipeline PAC         & {940}                & PAC Testing       \\         
+\hline
+\end{tabular}
+\end{table}
+
+
+The delivery schedule during the pipeline development stage is set by the ESO standards document for data flow deliveries\cite{1618}.
+This dictates that the pipeline team (unless otherwise agreed) will deliver an updated version of the data reduction library (DRL) every three months starting 12 months after the final design review and extending until the pipeline is officially accepted by ESO.
+
+The first release of a full pipeline is expected at the milestone for ``Preliminary Acceptance Europe''.
+The devil is in the detail though.
+The definition of a ``full'' pipeline does not necessarily mean a finished pipeline.
+A ``full'' pipeline refers to a pipeline which covers all observation modes and is fully runnable from start to finish without any major intervention by the user.
+Indeed, many of the algorithms will not be complete (e.g. spectroscopic sky background subtraction) because there will be no chance before PAE to test the pipeline on-sky.
+As stated before, the pipeline team will make heavy use of the instrument simulator (ScopeSim), but artificial test data and data taken using the warm calibration unit will only allow a subset of the performance tests to be run.
+For this reason we fully expect to continue updating the algorithms in the pipeline well after METIS goes on sky.
+The release schedule proposed in Table\,\ref{tab:pip_releases} and shown graphically in Figure\,\ref{fig:pip_releases} however only covers the time until METIS goes on sky in 2028.
+
+The quarterly granularity of the schedule will help both the pipeline team, as well as the METIS management and the ESO follow up team, keep track of the progress of the pipeline. 
+Within several release cycles is should be obvious to which extent we, the pipeline team, will be able to support the AIV activities.
+The earlier any problems with the scheduling are identified, the easier it will be to throw a couple more PhD students at the pipeline and hope the problems solve themselves.
+
+\section{A digital pipeline design}
+\label{sec:pip}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{SPIE_paper/figures/metis_ifu_assoc.png}
+    \caption{An example of the association matrix for IFU observations. Similar diagrammes in the DRL-D are graphical representations of the data flow cascades that needs to occur in order to turn raw data frames into processed and calibrate scientific data products. The association matrices for the other METIS observing modes can be found in the DRL-D\cite{DRLD}.}
+    \label{fig:assoc_mat_example}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{SPIE_paper/figures/metis_ifu_adi_cgrph_recipe.png}
+    \caption{An example of the graphical representation of a METIS pipeline recipe - in this case for the metis\_ifu\_adi\_cgrph, the angular differential imaging (ADI) recipe used for the reduction of data from the high contrast IFU observing mode.}
+    \label{fig:recipe_example}
+\end{figure}
+
+The METIS pipeline team passed the final design review with ESO in November 2023. 
+As part of the formal review the pipeline team was required to submit several documents, the most prominent of which was the Data Reduction Library Design, or DRL-D for short\cite{DRLD}.
+Among much other information, the DRL-D provides functional details on all practical aspects of the pipeline needed for a successful implementation, including: Association matrices, Recipe definitions, Critical algorithms, and ``QC'' parameters
+
+At 543 pages long, and containing the programmatic definitions of 44 recipes and over 200 individual data objects, the document can only aptly be referred to as a monster.
+Manually checking the text and figures in each section for consistency was out of the question.
+As such a digital twin of the document was created to automate the process of consistency checking.
+A talented member of the pipeline team created a python module which read in all the latex files associated with the DRL-D and created python objects for each recipe and data item. 
+Additional code was also added together with a Github Action runner to check the consistency of all objects in the DRL-D every time a pull request was made on the DRL-D Github repository.
+If any of the \verb+.tex+ files fall out of sync with the rest of the project an alert is sent to the author of the pull request as well as the responsible person for the DRL-D repository.
+While this process was initially time consuming to implement, it has saved countless cumulative days of manual work checking the consistency of entries in the DRL-D.
+Furthermore, together with a separate python module that scraps the project management software Polarion for the list of AIV system tests, the DRL-D digital twin also provides the basis for the automatic creation of the development schedule (See section \ref{subsec:imp_schedule}). 
+
+\subsection{Association Matrices}
+
+The association matrices (Chapter 4 of the DRL-D) describe the reduction steps and input files required to process raw observation frames (FITS files) into scientifically relevant data products. 
+See Figure \ref{fig:assoc_mat_example} for an example. 
+An association matrix is provided for each official observing mode for METIS (see Table\,\ref{fig:metis_modes}).
+
+\subsection{Pipeline Recipes}
+
+The METIS pipeline contains 44 recipes to cover the multitude of observing modes. 
+Figure\,\ref{fig:recipe_example} shows the graphical representation of the \verb|metis_ifu_adi_cgrph| recipe, detailed in the DRL-Design document\cite{DRLD}.
+These figures and the corresponding text are used to define the critical aspects of each recipe, including expected input and output data types and contents, derived parameters to be included in the header information, as well as the basic algorithmic steps.
+
+\subsection{``QC'' Parameters}
+
+Quality control parameters are in essence derived parameters which are added to the header information of intermediate and final data products. 
+Such derived parameters are useful for a variety of cases, including monitoring the health of the instrument, providing extra information on the observing conditions to the end-user (astronomer), or for detailing the quality of the raw and reduced data.
+The term ``QC'' parameter is used pretty loosely and, depending on context, can cover all the use cases described above for additional FITS header keywords. 
+We, the METIS pipeline team, would like to use this public forum to advocate for an increased usage of case specific terminology when referring to such additions to the FITS header. 
+The terms ``instrument health parameters'', ``derived performance parameters'', and ``quality control parameters'' might help alleviate much of the confusion surrounding the definition and origin of these header keywords.
+
+
+\section{Outlook until PAE}
+\label{sec:outlook}
+
+Although nominally there are still three and a half years until the delivery of the first full pipeline to ESO, there is much work to be done. Several worried voices are already concerned with whether there is indeed enough time and person-power allocated to the pipeline team to meet this deadline. 
+More immediate is the need to be ready for the AIV activities that are kicking off at the start of 2025 at the METIS integration hall in Leiden.
+
+As detailed in section\,\ref{subsec:imp_schedule}, the pipeline team will release updates to the DRL every 3 months until the pipeline is accepted.
+However not all releases will be equally interesting or useful. 
+The most important releases will happen before the major AIV milestones (see Table\,\ref{tab:dev_aiv_milestones}), such as: setup of the integration hall (AIV-010), mating of the first detectors to the IFU unit (AIV-330, AIV-370), testing of the full IMG/LSS system (AIV-490), and Preliminary Acceptance Europe (AIV-640).
+The months before these releases will no doubt call for ``all hands on deck'' in the pipeline team.
+
+While it is tempting to say that, because we passed the final design review with ESO, we have everything under control, this would be a dangerous opinion to hold.
+Multiple aspects of the pipeline are still being actively discussed. 
+These include topics like: 
+Which derived parameters should be included in the FITS header data to enable astronomers to get the most out their observations?
+How exactly will the line-spread-function be determined?
+Which algorithm is actually the best suited for IFU cube reconstructions with strong background emission lines?
+Where will AIV test data be stored and how will it be accessed by the pipeline?
+What exactly is needed to implement the QC-0 workflows for use by the telescope operator on Paranal?
+How will the AIV team actually call the pipeline in Leiden when running METIS system tests?
+What will reality actually look like once METIS is on-sky at the ELT?
+
+This brief list is by far \textbf{not} an exhaustive list of open question in the pipeline team. 
+And the more we delve into the development of the software, the more questions come up.
+One could argue that this is actually a good thing, as it shows that we are actively engaged with the rest of the METIS team as well as with our colleagues at ESO.
+Nevertheless is means that there will be very few chances to relax over the upcoming period of implementation if we are to reach our goal of writing a state-of-the-art data reduction pipeline for the ELT's first-light mid-infrared instrument.
+
+
+
+\appendix    %>>>> this command starts appendixes
+
+\acknowledgments % equivalent to \section*{ACKNOWLEDGMENTS}
+K.L would like to acknowledge the hard work and dedication that all members of the pipeline team have shown over the recent months and years towards meeting our commitments to both the rest of the METIS consortium and to ESO.
+Achieving a coherent and effective team atmosphere and translating that into productive output is not easy when everyone sits in the same room.
+Achieving that with a highly geographically distributed team even less so.
+Yet the pipeline team appears to have made that leap.
+And for that K.L would like to publicly thank all the members of the METIS pipeline team!
+
+
+
+
+% References
+\bibliography{report} % bibliography data in report.bib
+\bibliographystyle{spiebib} % makes bibtex use spiebib.bst
+
+\end{document} 

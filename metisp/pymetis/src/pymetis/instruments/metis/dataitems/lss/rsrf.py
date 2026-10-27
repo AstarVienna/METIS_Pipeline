@@ -33,6 +33,7 @@ class LssRsrfRaw(Raw, abstract=True):
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                                'INS.OPTI3.NAME', 'INS.OPTI12.NAME', 'INS.OPTI13.NAME',
                                'DRS.SLIT'})
+    _dpr = ('CALIB', 'LSS,{band}', 'FLAT,LAMP')
 
     _schema = {
         'PRIMARY': None,
@@ -123,6 +124,7 @@ class LssRsrfPinholeRaw(ImageDataItem, abstract=True):
     _oca_keywords = frozenset({'DPR.CATG', 'DPR.TECH', 'DPR.TYPE',
                               'INS.OPTI3.NAME', 'INS.OPTI9.NAME', 'INS.OPTI10.NAME', 'INS.OPTI20.NAME',
                               'DRS.SLIT'})
+    _dpr = ('CALIB', 'LSS,{band}', 'FLAT,LAMP,PINH')
 
     _schema = {
         'PRIMARY': None,

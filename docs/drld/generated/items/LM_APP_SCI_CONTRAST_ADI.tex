@@ -1,0 +1,26 @@
+\paragraph{\PROD{LM_APP_SCI_CONTRAST_ADI}} \label{dataitem:lm_app_sci_contrast_adi}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_APP_SCI_CONTRAST_ADI}\\[0.3cm]
+        Description: &  \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_APP_SCI_CONTRAST_ADI} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{INS.OPTI10.NAME}\\
+         & \FITS{INS.OPTI3.NAME}\\
+         & \FITS{INS.OPTI9.NAME}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_APP_SCI_CONTRAST_ADI}\\[0.3cm]
+            Created by: & \REC{metis_img_adi_cgrph} \\
+                        & \REC{metis_lm_adi_app} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

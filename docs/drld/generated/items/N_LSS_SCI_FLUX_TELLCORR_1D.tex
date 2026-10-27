@@ -1,0 +1,26 @@
+\paragraph{\PROD{N_LSS_SCI_FLUX_TELLCORR_1D}} \label{dataitem:n_lss_sci_flux_tellcorr_1d}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{N_LSS_SCI_FLUX_TELLCORR_1D}\\[0.3cm]
+        Description: & Extracted, flux-calibrated, telluric-corrected 1D science spectrum \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_LSS_SCI_FLUX_TELLCORR_1D} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{INS.OPTI12.NAME}\\
+         & \FITS{INS.OPTI13.NAME}\\
+         & \FITS{INS.OPTI14.NAME}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_LSS_SCI_FLUX_TELLCORR_1D}\\[0.3cm]
+            Created by: & \REC{metis_n_lss_mf_correct} \\
+                        & \REC{metis_n_lss_sci} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

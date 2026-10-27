@@ -1,0 +1,156 @@
+%% Recipes_Detector.tex
+%% Created:     Tue Apr  4 16:37:17 2017 by Koehler@I-Mac
+%% Last change: 2020-09-04
+%%
+%% subsection for Detector Recipes
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Detector calibration recipes}
+\label{Sec:detector_calibration}
+
+METIS will have three focal plane detector arrays:
+\begin{itemize}
+\item One $2\mathrm{k}\times 2\mathrm{k}$ HAWAII2RG detector used for
+  LM-band imaging and slit spectroscopy.
+\item One $2\mathrm{k}\times 2\mathrm{k}$ GeoSnap (Teledyne) detector
+  used for N-band imaging and slit spectroscopy.
+\item An array of four $2\mathrm{k}\times 2\mathrm{k}$ HAWAII2RG
+  detectors used for LM-band integral-field spectroscopy.
+\end{itemize}
+This section lists recipes that calibrate detector characteristics
+independent of a specific instrument mode. Where \CODE{_det} appears
+in FITS keywords of input or product files, it is taken to mean
+\CODE{_LM}, \CODE{_N} or \CODE{_IFU} according to the detector
+array for which data are being processed.
+%------------------------------------------------------------------------------------------------------------------
+\subsubsection{\REC*{metis_det_lingain}: Detector linearity and gain determination}
+\label{sssec:metis_det_lingain}
+\label{rec:metis_det_lingain}
+\label{rec:metisdetlingain}
+
+The recipe \REC{metis_det_lingain} determines detector (non-)linearity and absolute detector
+gain from a set of flat-field frames taken with the broad-band lamp
+over a range of detector exposure times (DITs) and flux levels. The
+recipe structure will be similar as for \CODE{detmon_ir_lg} % Not a \REC because it is not our recipe
+\cite{detmon-manual}; however, further insight into detector behaviour
+(in particular of GeoSnap) may necessitate development of more complex
+procedures.
+
+The linearity curve is given by the measured background level as a
+function of exposure time for constant illumination. For each pixel
+the coefficients of a polynomial fit will be recorded in a
+coefficient cube, which can in turn be used to correct for
+non-linearity in other recipes. Pixels whose coefficients differ
+significantly from the majority of pixels will be marked as bad.
+
+Detector gain is typically computed pixelwise as the slope of a linear
+fit of the variance against the mean (or median) values over a set of
+frames taken over a range of DITs and illumination levels.  For
+mid-infrared detectors that suffer from \ac{ELFN}, e.g.\ the AQUARIUS
+detector, this approach does not work.  The GeoSnap is not expected to
+show \ac{ELFN}, hence gain determination is probably possible.
+
+The set of calibration frames used for this recipes will include
+exposures with WCU window closed (\CODE{LAMP OFF}), which will be used
+as `dark' frames that capture thermal emission within the
+instrument. This is subtracted from all other exposures in the
+sequence.
+
+This satisfies \REQ{METIS-5997}.
+
+\newpage
+\input{generated/recipes/metis_det_lingain}
+
+\begin{figure}[hb]
+  \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_det_lingain}
+  \caption[Recipe: \REC*{metis_det_lingain}]{\REC*{metis_det_lingain} --
+    determination of linearity and gain of the detectors.}
+  \label{Fig:rec_det_lingain}
+\end{figure}
+
+%------------------------------------------------------------------------------------------------------------------
+\clearpage
+
+\subsubsection{\REC*{metis_det_dark}: Master dark creation}
+\label{sssec:metis_det_dark}
+\label{rec:det_dark}
+\label{rec:metis_det_dark}
+
+Darks are taken in daytime for all science detectors
+\cite{METIS-calibration_plan}.  Each dark frame contains a single frame, and calculating a master dark
+is done separately for each combination of detector (~\FITS{DET.ID}, \FITS*{DET.CHIP.ID}) and integration time
+(\FITS{DET.DIT}, \FITS{DET.NDIT}).\footnote{The dark current is not expected to depend on the readout mode of the detectors. Should hardware tests reveal such a dependence, the recipe will be amended to classify on readout mode as well.} There will be ``METIS-dark''
+(with the CLOSED position of the CFO-PP1 wheel) and ``Imager-dark''
+(with the CLOSED position in the subsystem PP1), to be distinguished
+by header keywords.
+% TODO: Use a different DO.CATG for these darks. See https://github.com/AstarVienna/METIS_DRLD/issues/170
+The former will be used for pipeline processing, the  latter for monitoring purposes.
+
+For the
+IFU, both raw frames and master dark have four extensions
+corresponding to the four detectors in the focal-plane array. The
+recipe also produces bad pixel masks by identifying hot pixels whose
+dark current differs significantly (by more than $\pm 5\sigma$) from
+the average over the detector.
+
+This fulfills \REQ{METIS-6063}.
+
+\input{generated/recipes/metis_det_dark}
+
+\begin{figure}[hb]
+  \centering
+        \def \globalscale {0.700000}
+        \fontsize{10}{12}\selectfont
+        \input{generated/flowcharts/metis_det_dark}
+  \caption[Recipe: \REC*{metis_det_dark}]{\REC*{metis_det_dark} -- creation of master
+    dark and bad pixel maps}
+  \label{Fig:rec_det_dark}
+\end{figure}
+\clearpage
+%------------------------------------------------------------------------------------------------------------------
+\subsubsection{\REC*{metis_det_persistence}: Persistence map creation}
+\label{sssec:metis_det_persistence}
+\label{rec:metis_det_persistence}
+
+Infrared detectors are prone to persistence due to charges trapped on a variety of timescales. The correction for a given science or
+calibration exposure is built from a sequence of exposures preceding the exposure in question.
+See Section~\ref{ssec:criticalpersistencecorrection} for more details.
+
+As these may include exposures taken for another proprietary programme, the recipe is run by ESO on data taken from the science archive and its products are again ingested into the archive. The recipe will make use of the \ac{HDRL} function for the creation of the persistence map, which will be provided by \ac{ESO} in the future.\\
+%We will update this Section as soon as more information is available.
+
+The persistence correction is described in more detail in Section~\ref{ssec:criticalpersistencecorrection}.
+
+%\begin{recipedef}
+%  Name:                & \REC{metis_det_persistence}           \\
+%  Purpose:             & compute persistence correction maps        \\
+%  Requirements:        & \REQ{METIS-9145}                      \\
+%  Type:                & Calibration                           \\
+%  Templates:           & --                                    \\
+%  Parameters:          & \TBD                                  \\
+%  Algorithm:           & see hdrl functions:                   \\
+%  Output data:         & \PROD{PERSISTENCE_MAP}                \\
+%  Expected accuracies: & \TBD                                  \\
+%  QC1 parameters:      & see hdrl functions:                   \\
+%  hdrl functions:      & \TBD (\CODE{hdrl_persistence_compute} \\
+%\end{recipedef}
+
+%\begin{figure}[hb]
+%  \centering
+%  \resizebox{0.6\textwidth}{0.1\textwidth}{\TODO{\fbox{Figure to be done}}}
+%  \caption[Recipe:
+%  \REC*{metis_det_persistence}]{\REC*{metis_det_persistence} -- creation
+%    of persistence correction frames.}
+%  \label{Fig:rec_det_persistence}
+%\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%% Local Variables:
+%%% TeX-master: "METIS_DRLD"
+%%% End:

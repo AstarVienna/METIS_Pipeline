@@ -1,0 +1,23 @@
+\paragraph{\EXTCALIB{PINHOLE_TABLE}} \label{dataitem:pinhole_table}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \EXTCALIB{PINHOLE_TABLE}\\[0.3cm]
+        Description: & Table of pinhole locations \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{PINHOLE_TABLE} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{PINHOLE_TABLE}\\[0.3cm]
+            Input for: & \REC{metis_cal_chophome} \\
+                        & \REC{metis_lm_img_distortion} \\
+                        & \REC{metis_n_img_distortion} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

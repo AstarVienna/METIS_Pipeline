@@ -1,0 +1,21 @@
+(# One DRLD QC-parameter card (chapter "QC Parameters"), rendered by generate_drld.py with `qc` set to a QcCard.
+   Placeholders that are only known at run time are shown lowercase, as the DRLD does (`det`, `cgrph`, `nn`). #)
+\subsubsection{(* qc.name *)}\label{qc:(* qc.label *)}
+\begin{recipedef}
+Name & \QC{(* qc.name *)} \tabularnewline
+Class & header \tabularnewline
+Context & QC \tabularnewline
+Type & (* qc.type *) \tabularnewline
+Value & (* qc.format|latex *) \tabularnewline
+Unit & (* qc.unit|latex *) \tabularnewline
+Default & (* qc.default|latex *) \tabularnewline
+Range & None \tabularnewline
+(% for recipe in qc.created_by %)
+(* "Created by" if loop.first else "" *) & \REC{(* recipe *)}\\
+(% else %)
+Created by & --- \tabularnewline
+(% endfor %)
+Description & (* qc.description|prose *) \tabularnewline
+Comment & (* qc.comment|prose if qc.comment else "None" *) \tabularnewline
+\end{recipedef}
+

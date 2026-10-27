@@ -1,0 +1,29 @@
+[project]
+name = "metis_drld"
+version = "0.0.3"
+description = "METIS Data Reduction Library Design."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "Hugo Buddelmeijer", email="hugo@buddelmeijer.nl"},
+]
+maintainers = [
+    {name = "Hugo Buddelmeijer", email="hugo@buddelmeijer.nl"},
+]
+classifiers=[
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
+dependencies = []
+
+[project.urls]
+"Source" = "https://github.com/AstarVienna/METIS_DRLD"
+
+[tool.setuptools]
+package-dir = {"" = "codes"}
+packages = ["metis_drld"]
+
+[tool.setuptools.package-data]
+metis_drld = ["tex/*", "operations/*"]

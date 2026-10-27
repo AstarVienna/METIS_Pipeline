@@ -1,0 +1,473 @@
+%% 03-Instrument_Data_Description.tex
+
+\clearpage
+\section{Instrument Data Description}
+\label{sec:instrument_data_description}
+
+METIS data uses the FITS format for both raw and product data
+files. Raw frames are the unprocessed output of METIS instrument
+observations, while product frames are the result of pipeline
+processing.
+
+All data files can be classified on the basis of sets of keywords
+stored in the FITS headers. Association of raw frames to calibration
+files is achieved by comparing keyword values following the \ac{OCA} rules.
+
+% TODO commented out and moved to github for discussion: https://github.com/AstarVienna/METIS_DRLD/issues/104
+% \TODO{The following is taken verbatim from the PDR document,
+%   \cite{DRLS}. Updates are currently being discussed in the interface
+%   control document between ICS and PIP and will be ported here once
+%   finished. In particular the format for the N-band data from the new
+%   GeoSnap detector needs to be updated.}
+
+\subsection{Raw data format}
+\label{ssec:instrument_data_format}
+
+All raw data files produced by METIS will be in FITS format and follow
+ESO standards (\REQ{METIS-6081}, \REQ{METIS-6093}), in particular as
+laid out in~\cite{ESO-DICD}.
+
+Data from the different subsystems (LM imager/spectrograph, N
+imager/spectrograph, LM IFU) are always stored in separate files.
+When more than one subsystem is recording data simultaneously, then
+more than one FITS file is created by one observing template.
+
+ The IFU
+integral-field spectrograph consists of four chips, hence the FITS
+file will consist of an empty primary data unit, whose header holds
+information pertaining to the exposure as a whole, and four extension
+units that hold the data from the four chips along with information
+pertaining to each chip.
+Even though the LM and N imagers are single-chip sub-instruments, the
+imaging data will still appear in an extension HDU, because this ensures
+the data format is equivalent to the IFU mode.
+The primary HDU will therefore only contain headers for all raw data.
+
+A template may produce several exposures, each of which consists of
+NDIT subexposures (DITs). The exact definition of what constitutes an
+``exposure'' or which and how many DITs will be save in a FITS file,
+are still under discussion. The goal will be for a file to contain the
+``smallest calibratable subset'' of DITs, for instance one cycle of
+the chopping patterns, or data taken in one nod position. Keeping files
+small in this way allows the pipeline to process data even for cases
+where observing blocks are only partially executed.
+% How many DITs discussion moved to https://github.com/AstarVienna/METIS_DRLD/issues/103
+
+Where applicable, all the DITs belonging to an exposure may be saved
+in a 3D-cube format. This is described in more detail for the various
+observing modes in the following sections.
+
+The raw data should include World Coordinate Systems based on the
+telescope pointing, derotator angle and the design characteristics of
+the telescope and instrument. Instrument-internal coordinates
+(e.g.~angles of movable components inside METIS) will follow the
+definition in~\cite{METIS-coordinates} (\REQ{METIS-6070}).
+
+The list of these FITS header keywords used by METIS is kept in
+\cite{METIS-DID} and the list of keys used by the \acs{DRS} is kept in App.~\ref{app:fits_keywords}. This fulfills \REQ{METIS-6081} and \REQ{METIS-6093}.
+
+
+\subsubsection{Adaptive Optics Telemetry}
+% We (PIP) agreed with ICS that the full AO-telemetry will only be available
+% as a separate data product.
+A subset of the adaptive optics telemetry will be available in the headers of each raw data product.
+In particular, the position information of the \ac{WFS-FS} mirror will be available, as this is used in various recipes to determine the offset between dither steps.
+
+The full adaptive optics telemetry will be available as a separate raw data product because of its size and complexity.
+The raw exposure data will contain the \FITS*{AOFILE} header keyword that contains the value of the \FITS*{ARCFILE} of the corresponding adaptive optics data product.
+
+The reconstruction of the PSF has been postponed, and is therefore not included in this document.
+Accordingly, the full adaptive optics telemetry data will not be processed by the current pipeline and the exact file format is therefore beyond the scope of this document.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{LM-band Imager and Spectrograph}
+\label{ssec:instrument_data_LM-IMG}
+
+The LM-band imager is equipped with a $2\mathrm{k}\times2\mathrm{k}$
+HAWAII2RG detector with a pixel scale of $5.47\,\mathrm{mas}$. A
+number of rows and columns along the edges of the detector will be
+masked (see Sect.~8.2 of~\cite{DRLS}).
+
+Grisms in the imager pupil wheel in conjunction with a number of slit
+masks in the CFO focal plane provide low-resolution spectroscopy
+covering the entire L~and M~bands, respectively, with $R\ga 1400$.
+
+The basic templates for LM-band imaging are
+(\cite{METIS-operational_concept}, \cite{METIS-template_manual}):
+\begin{itemize}
+\item \lstinline{METIS_img_lm_obs_AutoJitter}
+\item \lstinline{METIS_img_lm_obs_GenericOffset}
+\item \lstinline{METIS_img_lm_obs_FixedSkyOffset}
+\end{itemize}
+
+Each of these templates moves the target position between exposures,
+either using the internal (CFO-PP2) chopper or telescope offsets, and
+takes an exposure at each position, consisting of subintegrations
+defined by DIT and NDIT. Depending on the setting of a Boolean
+template parameter (\FITS*{DET CUBE MODE}), all DITs are stored as
+layers of 3D cube, or a co-added frame is stored as a 2D image.
+The 3D cube or 2D image are written out in the first extension HDU of the FITS file for consistency.
+
+When offsetting, the accurate (<1 mas) relative field positioning information will come from the chopper metrology (laser interferometer) and/or the field selector (in the case of nodding offsets).
+
+The header of the FITS file will contain all information that pertains
+to the exposure. This should include information about the position of
+the internal chopper (\FITS*{SEQ.CFO.CHOP.POSANG},
+\FITS*{SEQ.CFO.CHOP.THROW}), the telescope offsets (\FITS*{SEQ OFFSET1},
+\FITS*{SEQ OFFSET2}) and the characterisation of the observation as
+\CODE{OBJECT} or \CODE{SKY} (in \FITS{DPR.TYPE}).
+
+Similar considerations apply to the spectroscopic and coronagraphic
+templates, where pointing offsets are however restricted by the slit
+or coronagraphic masks.
+
+%%
+%%\begin{center}
+%%\begin{table}
+%%  \caption[LM\_IMG data keywords]{Columns foreseen for the LM
+%%    imager/spectrograph FITS files.}
+%%\label{tab:lm_img_colums}
+%%\begin{tabular}{|l|l|p{10cm}|}
+%%  \hline
+%%  \textbf{Column} & \textbf{Format}      & \textbf{Description}                                       \\
+%%  \hline\hline
+%%  TIME            & long integer         & Time since start of this observation in milliseconds (TBD) \\
+%%  \hline
+%%  OBSTYPE         & OBJ or SKY           & Exposure on target or on sky?                              \\
+%%  \hline
+%%  NODDIST         & float (arcsec)       & Nodding distance from reference position                   \\
+%%  \hline
+%%  CHOPPOS         & $0\dots 360$         & Chopper position angle                                     \\
+%%  \hline
+%%  CHOPTHROW       & float (mas)          & Chopper distance from reference position                   \\
+%%  \hline
+%%  CHOPPER         & string               & Flag specifying the position of the internal chopper       \\
+%%  \hline
+%%  IMAGE           & 2k$\times$2k integer & Raw detector image                                         \\
+%%  \hline
+%%\end{tabular}
+%%\end{table}
+%%\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{N-band Imager and Spectrograph}
+\label{ssec:instrument_data_N-IMG}
+
+The N-band imager is equipped with a $2\mathrm{k}\times 2\mathrm{k}$
+GeoSnap detector with a pixel scale of $6.8\,\mathrm{mas}$. A number
+of rows and columns along the edges of the detector will be masked.
+
+A grism in the imager pupil wheel in conjunction with a number of slit
+masks in the CFO focal plane provide low-resolution spectroscopy in
+the N~band with $R\ga 400$.
+
+% HB 20230718: About the chop frequency, comment from Roy:
+% section 3.3: chopping at *up to* a few Hz (we recently learned, new and great paper our US colleagues, https://ui.adsabs.harvard.edu/abs/2023arXiv230605470L/abstract) that the 1/f noise scales with frame rate, i.e. we can go to lower frame rates for lower flux applications without paying a noise penalty from the red noise. So while for the broadband imaging we still plan to go at 1 Hz or even a bit faster, for narrow-band imaging and spectroscopy we may chop substantially sub-Hz. This has to be worked out in more detail in the next phase.
+% HB: Doesn't really matter for the pipeline itself, so explanation not included in the DRLD itself.
+
+Subtraction of the thermal background in the N~band will be done using
+chopping up to a few Hertz using the internal chopper and regular nodding
+using telescope offsets. The basic templates for N~imaging are
+\begin{itemize}
+\item \lstinline{METIS_img_n_obs_AutoChopNod}
+\item \lstinline{METIS_img_n_obs_GenericChopNod}
+\end{itemize}
+
+At each nod position, a series of exposures are taken at alternating
+chop positions. Depending on the setting of the template parameter
+\FITS*{DET CUBE MODE}, all exposures are stored as layers of a 3D cube
+or they are precombined in a 2D image. Another chop cycle is then
+taken at another nod position, and so on. Whether separate nod
+positions are stored as individual FITS files or as extension units of
+a single FITS file remains to be determined. As explained in
+Sect.~\ref{ssec:instrument_data_format}, there is a preference for
+small FITS files containing minimal calibratable subsets of DITs.
+
+The primary header of the FITS file will contain all information that
+pertains to the chop cycle or the sequence of chop/nod cycle. The
+headers of the individual files or extensions will allow unique
+determination of the chop/nod positions.
+
+%%\begin{center}
+%%\begin{table}
+%%\caption[N\_IMG data keywords]{Columns foreseen for the N imager/spectrograph FITS files.}
+%%\label{tab:n_img_colums}
+%%\begin{tabular}{|l|l|p{10cm}|}
+%%  \hline
+%%  \textbf{Column} & \textbf{Format}      & \textbf{Description}                                       \\
+%%  \hline\hline
+%%  TIME            & long integer         & Time since start of this observation in milliseconds (TBD) \\
+%%  \hline
+%%  OBSTYPE         & OBJ or SKY           & Exposure on target or on sky?                              \\
+%%  \hline
+%%  NODDIST         & float (arcsec)       & Nodding distance from reference position                   \\
+%%  \hline
+%%  CHOPPOS         & $0\dots 360$         & Chopper position angle                                     \\
+%%  \hline
+%%  CHOPTHROW       & float (mas)          & Chopper distance from reference position                   \\
+%%  \hline
+%%  CHOPPER         & string               & Flag specifying the position of the internal chopper       \\
+%%  \hline
+%%  IMAGE           & 1k$\times$1k integer & Raw detector image                                         \\
+%%  \hline
+%%\end{tabular}
+%%\end{table}
+%%\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{LM-band Integral Field Unit}
+\label{ssec:instrument_data_IFU}
+
+METIS will contain an image slicing \ac{IFU} for
+high-resolution spectroscopy in L- and M-band ($R\approx
+100,000$).
+
+Both the subsystem containing the \ac{IFU} and the observation mode can be referred to as \ac{LMS}.
+In the context of this document, we prefer to use the term \ac{IFU} for the mode
+%, and the term \ac{IFS} for the subsystem,
+to prevent confusion with the other LM modes, but occasionally \ac{LMS} is used as well.
+
+The IFU is equipped with a $2\times2$ mosaic of HAWAII2RG detectors
+separated by small gaps. A number of rows and columns along the edges
+of the detector will be masked (see Sect.~8.2 of~\cite{DRLS}).
+
+In the nominal mode, the field will be resolved into 28 spatial slices
+covering a field of view of $0.897\times0.577\,\mathrm{arcsec^{2}}$.
+The slit width (i.e.\ the across-slice pixel scale) is
+$20.7\,\mathrm{mas}$; the along-slice pixel scale is
+$8.2\,\mathrm{mas}$. Spectrally, the slices span a short wavelength
+range of width $37\,\mathrm{nm}$ and $70\,\mathrm{nm}$, depending on
+the central wavelength setting, which is selected by rotation of the
+echelle grating.
+
+The extended mode provides a larger wavelength range coverage at the
+expense of a reduced field of view. The dispersed two-dimensional
+image from the pre-disperser is spectrally sliced, resulting in six
+non-overlapping wavelength subranges (selected by the echelle angle)
+onto the detector, each with three spatial slices.
+
+The layout of spectra on the detector array in the nominal and
+extended modes is shown in the left and right panels of
+Fig.~\ref{fig:IFU_detector_layout}, respectively.
+
+\begin{figure}[ht]
+  \centering
+  \resizebox{0.495\textwidth}{!}{%
+    \includegraphics{LMS_detector_layout_normal_tikz}}\hfill
+  \resizebox{0.495\textwidth}{!}{%
+    \includegraphics{LMS_detector_layout_extended_tikz}}
+  \caption[IFU detector layout]{Layout of the IFU detector mosaic
+    in the nominal (left) and extended (right) modes. The dispersion
+    direction is horizontal. In the nominal mode, all 28 slices cover
+    approximately the same wavelength range. In the extended mode, slices marked by
+    the same colour cover the same wavelength ranges, while the
+    wavelength ranges of the six groups of slices each are not
+    contiguous. The position and curvature of the slices are
+    indicative only. }
+  \label{fig:IFU_detector_layout}
+\end{figure}
+
+The basic templates for LM integral-field spectroscopy are:
+\begin{itemize}
+\item \lstinline{METIS_ifu_obs_FixedSkyOffset}
+\item \lstinline{METIS_ifu_obs_GenericOffset}
+\end{itemize}
+Both templates move the target position between exposures, using the
+internal chopper or the telescope. At a given position a number of
+exposures with DIT/NDIT are taken. Depending on the setting of the
+template parameter \FITS*{DET CUBE MODE} all the DITs may be stored as
+layers of a 3D cube or, by default, co-added into a 2D image.
+% NOTE by HB: There wase some confusion about the term 'burst mode', because
+% it usually means that the detector is read out as fast as possible. The IFU
+% mode will by default average according to the data rates document
+% (E-LIS-NOVA-MET-1161) so I've added that this is the default.
+% The data rates document is not entirely clear about the length of
+% individual DITs; it seems to be 40 ms, which is slower than burst mode, so
+% I've simply removed the term from this sentence.
+% See https://github.com/AstarVienna/METIS_DRLD/issues/217
+
+As the IFU contains an array of four detectors, there will be four
+image or cube extensions in the FITS file for one exposure.
+
+The primary header of the FITS file will contain all information that
+pertains to the exposure. This will include information on the
+position of the internal chopper, the telescope offsets, and the type
+of observation (\FITS{DPR.TYPE}=\CODE{OBJECT} or \CODE{SKY}).
+
+A typical sequence of IFU exposures will go through a series of
+dispersion grating settings in order to fill gaps in the instantaneous
+wavelength coverage (``spectral dithering''). Finally, the field will be
+rotated by 90~degrees and the observing sequence repeated to permit
+full image reconstruction
+(cf.~Sect.~8.9 of~\cite{DRLS}). The FITS header
+information will ensure that the position of each exposure within this
+complex sequence can be uniquely identified.
+
+%%\begin{center}
+%%\begin{table}
+%%\caption[IFU data keywords]{Columns foreseen for the IFU FITS files.}
+%%\label{tab:lms_colums}
+%%\begin{tabular}{|l|l|p{10cm}|}
+%%  \hline
+%%  \textbf{Column} & \textbf{Format}      & \textbf{Description}                                       \\
+%%  \hline
+%%  TIME            & long integer         & Time since start of this observation in milliseconds (TBD) \\
+%%  \hline
+%%  OBSTYPE         & OBJ or SKY           & Exposure on target or on sky?                              \\
+%%  \hline
+%%  NODDIST         & float (arcsec)       & Nodding distance from reference position                   \\
+%%  \hline
+%%  CHOPPOS         & $0\dots 360$         & Chopper position angle                                     \\
+%%  \hline
+%%  CHOPTHROW       & float (mas)          & Chopper distance from reference position                   \\
+%%  \hline
+%%  CHOPPER         & string               & Flag specifying the position of the internal chopper       \\
+%%  \hline
+%%  IMAGE1          & 2k$\times$2k integer & raw image from detector 1                                  \\
+%%  IMAGE2          & 2k$\times$2k integer & raw image from detector 2                                  \\
+%%  IMAGE3          & 2k$\times$2k integer & raw image from detector 3                                  \\
+%%  IMAGE4          & 2k$\times$2k integer & raw image from detector 4                                  \\
+%%  \hline
+%%\end{tabular}
+%%\end{table}
+%%\end{center}
+
+
+
+% TODO: Add this section back? Or are the data tables good enough?
+%       Also see https://github.com/AstarVienna/METIS_DRLD/issues/36 "Proposal for DPR keywords"
+%       Or is this about OCA rules? In that case, see https://github.com/AstarVienna/METIS_DRLD/issues/108
+% \subsection{File classification keywords}
+% \label{ssec:file_classification_keywords}
+%
+% \TODO{This section will contain the list of files with the values of
+%   kewords \FITS{DPR.CATG}, \FITS{DPR.TYPE}, \FITS{DPR.TECH}, \FITS{DO
+%     Category} in accordance with~\cite{ESO-DICD}.}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Processed data format}
+\label{ssec:reduced_data_format}
+
+All data products, both intermediary and final ones, will be provided in FITS format. Final data products will be saved according to~\cite{ESO-products_standard}, fulfilling \REQ{METIS-6061} and \REQ{METIS-6080}.
+
+The list of individual data products can be found in
+Ch.~\ref{sec:drl_data_structures}.
+
+\subsubsection{Processed data product headers}
+\label{sssec:processeddataheaders}
+If there are additional meta-data necessary for archiving, processing, analysis, and distribution, they will be added. \REQ{METIS-6082}.
+
+By default, recipes try to preserve the information of the FITS headers of the input \ac{SOF} in the output products:
+\begin{itemize}
+\item When the number of (primary) output FITS files is the same as the number of (primary) input FITS files, then relevant FITS header keywords are copied per FITS files. When there is only one output FITS file for a set of input FITS files (e.g. when stacking frames for a \PROD{MASTER_DARK_2RG}), then only FITS headers from the first input file are propagated.
+\item When the output FITS files have the same number of extensions as  the input, then the FITS header keywords from each extension are propagated into the output. When there are less extensions in the output (e.g. when reconstructing a cube), then only the headers from the first extension are propagated.
+\item FITS headers from calibration data is only copied into the data products when appropriate.
+\end{itemize}
+This includes the meteorological, astronomical and atmospheric site parameters, fulfilling \REQ{METIS-6733}.
+The same is true for \ac{AO} Telemetry, in particular the reference to the raw data product with the full \ac{AO} telemetry data, satisfying \REQ{METIS-9626}.
+
+The saving-functions provided by ESO \ac{CPL}, given the list of input frames, add this list to the headers of data products, thus providing provenance information in compliance with \REQ{METIS-9627}.
+
+\subsubsection{Processed data product extensions}
+\label{sssec:processeddataextensions}
+
+All process data will be structured following~\cite{Fits-format-description}
+``FITS format description for pipeline products with data, error and quality
+information''.
+In particular, each processed data product will have the following three
+FITS extensions for each detector readout:
+
+\begin{itemize}
+  \item \CODE{DATA}: the pixel data,
+  \item \CODE{ERROR}: the uncertainty, quantified as standard error because
+    that is what the \ac{HDRL} uses internally, and
+  \item \CODE{QUALITY}: the data quality, a bit mask indicating bad pixels
+    (see also~\ref{ssec:criticalbadpixeldetermination}).
+\end{itemize}
+
+The \CODE{HDUCLAS*} keywords are used to encode which extension is which,
+following~\cite{Fits-format-description}, see Table~{tab:hduclas}.
+
+\begin{table}[ht!]
+  \centering
+  \begin{tabular}{l l l l}
+    \textbf{HDU type}                       & \FITS{HDUCLAS1} & \FITS{HDUCLAS2} & \FITS{HDUCLAS3}  \\
+    \hline
+    science/calibration data (\CODE{DATA})  & \CODE{IMAGE}    & \CODE{DATA}     & --               \\
+    uncertainty/error        (\CODE{ERROR}) & \CODE{IMAGE}    & \CODE{ERROR}    & \CODE{RMSE}      \\
+    data quality             (\CODE{DQ})    & \CODE{IMAGE}    & \CODE{QUALITY}  & \CODE{FLAG32BIT} \\
+  \end{tabular}
+  \caption[HDU types]{HDU types following~\cite{Fits-format-description}.}
+  \label{tab:hduclas}
+\end{table}
+
+The follow headers are also relevant:
+\begin{itemize}
+  \item \FITS{EXTNAME}: The name of this extension.
+  \item \FITS{SCIDATA}: The name of the corresponding extension with the science/calibration data.
+  \item \FITS{ERRDATA}: The name of the corresponding extension with the uncertainty.
+  \item \FITS{QUALDATA}: The name of the corresponding extension with the data quality.
+\end{itemize}
+
+Only two of \FITS{SCIDATA}, \FITS{ERRDATA}, \FITS{QUALDATA} are present for each
+extension, because the extension does not point to itself.
+
+For example, a hypothetical data product with a single \ac{IFU} detector
+readout would have three extensions with the following headers:
+
+Extension 1:
+\begin{verbatim}
+EXTNAME = 'IFU1.SCI'         / Extension name
+HDUCLAS1= 'IMAGE   '         / Image data format
+HDUCLAS2= 'DATA    '         / Identification as science extension
+HDUCLAS3= '        '         / Empty
+ERRDATA = 'IFU1.ERR'         / Name of corresponding error extension
+QUALDATA= 'IFU1.DQ '         / Name of corresponding data quality extension
+\end{verbatim}
+
+Extension 2:
+\begin{verbatim}
+EXTNAME = 'IFU1.ERR'         / Extension name
+HDUCLAS1= 'IMAGE   '         / Image data format
+HDUCLAS2= 'ERROR   '         / Identification as uncertainty extension
+HDUCLAS3= 'RMSE    '         / Encoding as root-mean-square error
+SCIDATA = 'IFU1.SCI'         / Name of corresponding science extension
+QUALDATA= 'IFU1.DQ '         / Name of corresponding data quality extension
+\end{verbatim}
+
+Extension 3:
+\begin{verbatim}
+EXTNAME = 'IFU1.SCI'         / Extension name
+HDUCLAS1= 'IMAGE   '         / Image data format
+HDUCLAS2= 'QUALITY '         / Identification as data quality extension
+HDUCLAS3= 'FLAG32BIT'        / Encoding as 32-bit flag mask
+SCIDATA = 'IFU1.SCI'         / Name of corresponding science extension
+ERRDATA = 'IFU1.ERR'         / Name of corresponding uncertainty extension
+\end{verbatim}
+
+
+\subsubsection{Handling the 32-bit Data Quality Masks}
+\label{sssec:metisimageformat}
+
+
+As described above, each processed image will have three extensions per detector; DATA (the pixel data), ERROR (the uncertainty), and QUALITY (32-bit mask indicating bad pixels). The QUALITY extension can contain multiple bad pixel flags, depending on why and when the pixels were flagged.  A single HDRL image is not sufficient to contain this information, as the HDRL image only has a 1-bit data quality mask. Therefore, at the function level, each processed image will be represented by an HDRL image containing the pixel data and uncertainty, plus a CPL image containing the 32-bit mask. Inside the function, the relevent bad pixel data will be copied to and from the HDRL image 1-bit mask, as appropriate, to take advantage of the built-in HDRL functions such as noise propagation and consideration of bad pixels.
+
+In the function descriptions of Section\ref{sec:drl_functions}, we have therefore used \CODE{metis_image} and \CODE{metis_imagelist} instead of \CODE{hdrl_image} and \CODE{hdrl_imagelist}, to indicate that the function inputs and outputs will not be a single \CODE{hdrl_image}. A \CODE{metis_image} will consist of an \CODE{hdrl_image} and a \CODE{cpl_imag}, as described above.
+
+
+
+
+% TODO: Describe exceptions like non-linearity
+
+
+
+% THE END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Local Variables:
+%%% TeX-master: "METIS_DRLD"
+%%% End:

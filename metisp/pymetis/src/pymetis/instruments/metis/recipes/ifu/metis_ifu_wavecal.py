@@ -28,7 +28,7 @@ from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, Paramet
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameter, QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 
 from pymetis.drl.combine import combine_images
 from pymetis.drl.trace import traces_from_table
@@ -109,6 +109,14 @@ class MetisIfuWavecalImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Me
             _default = None
             _description_template = "FWHM of the laser line as measured by fitting a Gaussian profile to it"
             _comment = "This fulfils METIS-6073"
+
+    _steps = (
+        Step('remove detector signature',
+             inputs=(InputSet.BadPixMapInput, InputSet.PersistenceMapInput, InputSet.GainMapInput,
+                     InputSet.LinearityInput, InputSet.MasterDarkInput,)),
+        Step('locate lines', inputs=(DistortionTableInput,)),
+        Step('fit polynomial', products=(ProductSet.IfuWavecal, ProductSet.IfuWavecalTab,)),
+    )
 
     def _raw_header(self) -> cpl.core.PropertyList:
         """Primary header of the first raw frame, cached for keyword lookups."""

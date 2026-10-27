@@ -1,0 +1,37 @@
+\paragraph{\PROD{LINEARITY_IFU}} \label{dataitem:linearity_ifu}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LINEARITY_IFU}\\[0.3cm]
+        Description: & Coefficients for the pixel IFU non-linearity correction \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LINEARITY_IFU} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LINEARITY_IFU}\\[0.3cm]
+            Created by: & \REC{metis_det_lingain} \\
+            Input for: & \REC{metis_ifu_distortion} \\
+                        & \REC{metis_ifu_reduce} \\
+                        & \REC{metis_ifu_rsrf} \\
+                        & \REC{metis_ifu_wavecal} \\
+                        & \REC{metis_pupil_imaging} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_imagelist * det1\_sci: Extension DET1.SCI}
+            \item \texttt{cpl\_imagelist * det2\_sci: Extension DET2.SCI}
+            \item \texttt{cpl\_imagelist * det3\_sci: Extension DET3.SCI}
+            \item \texttt{cpl\_imagelist * det4\_sci: Extension DET4.SCI}
+            \item \texttt{cpl\_imagelist * det1\_err: Extension DET1.ERR}
+            \item \texttt{cpl\_imagelist * det2\_err: Extension DET2.ERR}
+            \item \texttt{cpl\_imagelist * det3\_err: Extension DET3.ERR}
+            \item \texttt{cpl\_imagelist * det4\_err: Extension DET4.ERR}
+            \item \texttt{hdrl\_image * det1\_dq: Extension DET1.DQ}
+            \item \texttt{hdrl\_image * det2\_dq: Extension DET2.DQ}
+            \item \texttt{hdrl\_image * det3\_dq: Extension DET3.DQ}
+            \item \texttt{hdrl\_image * det4\_dq: Extension DET4.DQ}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

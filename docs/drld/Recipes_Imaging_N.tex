@@ -1,0 +1,234 @@
+
+\subsection{N-band imaging recipes}
+\label{ssec:recipes_img_n}
+%------------------------------------------------------------------------------------------------------------------
+\subsubsection{\REC*{metis_n_img_flat}:  Flatfielding}
+\label{n_img_flatfield}
+\label{rec:n_img_flatfield}
+\label{sssec:n_img_flatfield}
+\label{n_img_flat}
+\label{rec:n_img_flat}
+\label{sssec:n_img_flat}
+\label{metis_n_img_flat}
+\label{rec:metis_n_img_flat}
+\label{sssec:metis_n_img_flat}
+
+The purpose of the flat-field calibration is to determine
+pixel-to-pixel gain variations and large scale illumination variations
+(due to inhomogeneities of optical elements in the telescope or
+instrument). Calibration frames are obtained either during day time
+using the black-body lamp of the \ac{WCU} (internal flats) or by taken
+images of the twilight sky (twilight flats). Advantages and
+disadvantages of the two types of flat are discussed in
+\cite{METIS-calibration_plan}.
+
+MIR detectors are typically unstable in that they show gain
+fluctuations on rather short time scales, hence science exposures may
+have a different flat-field structure from those captured by the
+calibration flats.  The GeoSnap detector is more linear
+than the H2RG detectors, but should be flat-fielded anyway.
+N-band flat fields will also be taken for quality control and monitoring purposes.
+
+Since the operational concept for twilight flats needs to be refined
+during commissioning at the telescope, the current recipe design is
+primarily valid for internal flats.
+
+This recipe creates a master flat for the GeoSnap detector (N-band
+imaging) from lamp or sky images matched by various setup parameters
+as detailed below.  A set of internal flats includes a number of
+exposures with \CODE{LAMP OFF}, which will be used for dark
+subtraction. For twilight flats a master dark will be subtracted. The
+master flat is obtained by the slope of a linear fit of the pixel
+values against the illumination level of the exposures.
+
+The quality control parameters give various statistics for each input
+frame (mean, standard deviation, etc.), the standard deviation of the
+normalised master flat and the number of bad pixels identified by the
+recipe. If a bad-pixel map is provided on input, it is updated,
+otherwise a new one is created.
+
+\input{generated/recipes/metis_n_img_flat}
+
+\begin{figure}[hb]
+  \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_n_img_flat}
+  \caption[Recipe: \REC*{metis_n_img_flat}]{\REC*{metis_n_img_flat} --
+    creation of \CODE{IMG_N} master flatfield}
+  \label{fig:metis_n_img_flat}
+\end{figure}
+
+%%%%%%%
+%------------------------------------------------------------------------------------------------------------------
+\subsubsection{\REC*{metis_n_img_chopnod}:  Chop-nod combination}
+\label{img_n_chopnod}
+\label{rec:img_n_chopnod}
+\label{rec:metis_n_img_chopnod}
+\label{sssec:img_n_chopnod}
+
+This recipe combines a set of exposures taken at all positions of a
+defined chop-nod pattern and adds/subtracts them into a single
+chop/nod difference image. Depending on the actual chop-nod pattern,
+this image will contain one or more positive and negative beams.
+See Section~\ref{sssec:nbandsbackgroundsubtracion} for more information
+on the background subtraction.
+
+The GeoSnap detectors will have a substantial number of bad pixels.
+The N-band observations therefore require extensive dithering to mitigated bad pixels.
+The master flat will have to be divided into the chop half-cycle images before the dither correction is applied.
+
+% https://polarion.astron.nl/polarion/#/project/METIS/workitem?id=METIS-3091
+This recipe analyses the masked detector regions for channel offset correction, crosstalk (see Section~\ref{ssec:criticaldetetctormasks}) and removal of detector artefacts (electronic ghosts).
+The edges of the N-band detector will be behind a cold mask on all four sides.
+%The width of the mask will be at least 26 pixels and no larger than 32 pixels.
+
+
+\input{generated/recipes/metis_n_img_chopnod}
+
+\newgeometry{bottom=0.5cm, right=0.5cm, left=0.5cm}
+ \begin{figure}[hb]
+  \centering
+  \def \globalscale {0.700000}
+  \fontsize{10}{12}\selectfont
+  \input{generated/flowcharts/metis_n_img_chopnod}
+   \caption[Recipe: \REC*{metis_n_img_chopnod}]{\REC*{metis_n_img_chopnod} --
+     Combination of chop/nodded images.}
+   \label{fig:metis_n_img_chopnod}
+ \end{figure}
+\restoregeometry
+
+%%%%%%%%%%%%%%%%%%%
+\clearpage
+\subsubsection{\REC*{metis_n_img_std_process}:  Photometric standard analysis}
+\label{n_img_std_process}
+\label{rec:n_img_std_process}
+\label{ssec:n_img_std_process}
+\label{sssec:n_img_std_process}
+\label{metis_n_img_std_process}
+\label{rec:metis_n_img_std_process}
+\label{sssec:metis_n_img_std_process}
+
+This recipe determines the conversion from ADU to physical units from
+a chop-nod difference image of a photometric standard star.  The flux
+of the standard star is measured in each of the beams of the chop-nod
+difference image, averaged and normalised to an exposure time of
+1~second. Comparison to the tabulated brightness of the star in the
+observing filter yields the conversion factor from
+$\mathrm{ADU}\,\mathrm{s}^{-1}$ to
+$\mathrm{photons}\,\mathrm{s}^{-1}\,\mathrm{cm}^{-2}$.
+
+QC parameters will include estimates of the sensitivity for the
+detection of point sources and surface brightness sensitivity
+following~\cite{visir_manual}.
+
+\input{generated/recipes/metis_n_img_std_process}
+
+\begin{figure}[hb]
+    \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_n_img_std_process}
+  \caption[Recipe: \REC*{metis_n_img_std_process}]{\REC*{metis_n_img_std_process} --
+    compute conversion between ADU and physical flux units.}
+  \label{fig:metis_n_img_std_process}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+
+\subsubsection{\REC*{metis_n_img_calibrate}:  Image calibration}
+\label{n_img_calibrate}
+\label{rec:n_img_calibrate}
+\label{sssec:n_img_calibrate}
+\label{rec:metis_n_img_calibrate}
+
+This recipe applies the flux calibration to the chop-nod difference
+image. A unique geometric calibration is not possible at this point,
+although one could take one of the beams (e.g.\ the positive beam in a
+parallel two-point chop-nod pattern) as reference for a
+WCS. Distortion information can be added without a reference point as
+it pertains to the detector/focal plane, not to the field.
+
+The products of this recipe is the fully calibrated chop-nod
+difference image.
+
+The image is multiplied by the conversion factor such that pixel
+values are in units of photons per second per centimetre squared. The
+header receives the keyword \FITS*{BUNIT} with value %
+\CODE{'photon.s**(-1).cm**(-2)'}.
+
+\input{generated/recipes/metis_n_img_calibrate}
+
+\begin{figure}[hb]
+    \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_n_img_calibrate}
+  \caption[Recipe: \REC*{metis_n_img_calibrate}]{\REC*{metis_n_img_calibrate} --
+    convert image to physical flux units and update FITS header}
+  \label{fig:metis_n_img_calibrate}
+\end{figure}
+
+%%%%%%%%%%%%%
+\clearpage
+
+\subsubsection{\REC*{metis_n_img_restore}:  Image restoration}
+\label{n_img_restoration}
+\label{rec:n_img_restoration}
+\label{sssec:n_img_restoration}
+\label{rec:metis_n_img_restore}
+
+This recipe attempts to combine the positive and negative beams of the
+chop-nod difference image into a single positive image of the
+source. For compact sources with a size smaller than half the distance
+between the beams, it suffices to cut out small regions around the
+source images and add the with the appropriate signs to obtain a
+single image. Extended sources, that is, sources larger than the chop offset,
+are beyond the scope of the pipeline.
+For more information see Section~\ref{ssec:criticalnbandimagerestoration}.
+
+\input{generated/recipes/metis_n_img_restore}
+
+\begin{figure}[hb]
+  \centering
+   \includegraphics[width=0.9\textwidth]{metis_n_img_restore}
+    \notgenerated{flowchart: hand-drawn; the recipe declares no steps}
+  \caption[Recipe: \REC*{metis_n_img_restore}]{\REC*{metis_n_img_restore} --
+    Create a single positive image from chop-nod difference image}
+  \label{fig:metis_n_img_restore}
+\end{figure}
+
+%%%%%%%%%%%%%%
+\clearpage
+\subsubsection{\REC*{metis_n_img_distortion}:  Distortion calibration}
+\label{rec:metis_n_img_distortion}
+\label{n_img_distortion}
+\label{rec:n_img_distortion}
+\label{sssec:n_img_distortion}
+
+Calibration of the imaging distortion is done on an image of a pin
+hole mask located in a focal plane within the instrument. The
+distortion is described in terms of a polynomial model whose
+coefficients can be transformed to WCS keywords and applied to any
+other pipeline product. In addition to the distortion table, a map of
+pixel scale across the detector will be created.
+
+\input{generated/recipes/metis_n_img_distortion}
+
+\newgeometry{bottom=0.5cm, right=0.5cm, left=0.5cm}
+\begin{figure}[hb]
+    \centering
+    \def \globalscale {0.700000}
+    \fontsize{10}{12}\selectfont
+    \input{generated/flowcharts/metis_n_img_distortion}
+  \caption[Recipe: \REC*{metis_n_img_distortion}]{%
+    \REC{metis_n_img_distortion} -- \CODE{IMG_N} distortion calibration}
+  \label{fig:metis_n_img_distortion}
+\end{figure}
+\restoregeometry
+
+%%% Local Variables:
+%%% TeX-master: "METIS_DRLD"
+%%% End:

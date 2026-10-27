@@ -1,0 +1,21 @@
+\paragraph{\PROD{N_DISTORTION_MAP}} \label{dataitem:n_distortion_map}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{N_DISTORTION_MAP}\\[0.3cm]
+        Description: & Map of pixel scale across the N detector \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_DISTORTION_MAP} \\[0.3cm]
+        OCA keywords: & --- none --- \\
+        \FITS{DO.CATG}: & \CODE{N_DISTORTION_MAP}\\[0.3cm]
+            Created by: & \REC{metis_n_img_distortion} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

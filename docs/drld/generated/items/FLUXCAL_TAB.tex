@@ -1,0 +1,26 @@
+\paragraph{\PROD{FLUXCAL_TAB}} \label{dataitem:fluxcal_tab}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{FLUXCAL_TAB}\\[0.3cm]
+        Description: & Conversion between instrumental and physical flux units \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{FLUXCAL_TAB} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{FLUXCAL_TAB}\\[0.3cm]
+            Created by: & \REC{metis_ifu_telluric} \\
+                        & \REC{metis_lm_img_std_process} \\
+                        & \REC{metis_n_img_std_process} \\
+            Input for: & \REC{metis_ifu_calibrate} \\
+                        & \REC{metis_lm_img_calibrate} \\
+                        & \REC{metis_n_img_calibrate} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

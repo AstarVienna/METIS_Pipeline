@@ -23,7 +23,7 @@ from cpl.core import Msg
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header
 
 from pymetis.instruments.metis.mixins import DetectorGeoMixin, BandNMixin
@@ -33,6 +33,7 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis.inputs.common import MasterDarkInput
 
 
 class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, MetisRecipeImpl):
@@ -84,6 +85,14 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
 
     class Qc(QcParameterSet):
         PeakCnt = qc.chopnod.ChopnodPeakCounts
+
+    _steps = (
+        Step('Correct non-linearity', inputs=(InputSet.BadPixMapInput, GainMapInput, LinearityInput,)),
+        Step('Correct persistence', inputs=(InputSet.PersistenceMapInput,)),
+        Step('subtract dark', inputs=(MasterDarkInput,)),
+        Step('divide by flat', inputs=(InputSet.MasterFlatInput,)),
+        Step('analyse and remove masked regions', products=(ProductSet.Reduced,)),
+    )
     def process(self) -> set[DataItem]:
         """
         This is where the magic happens: all business logic of the recipe should be contained within this function.

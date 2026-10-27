@@ -254,7 +254,7 @@ class PipelineInputSet(ParametrizableContainer):
         missing = []
         sources: dict[str, tuple[str, str]] = {}      # tag keyword -> (value, name of the input that set it)
         conflicts = []
-        pinned: dict[str, str] = {}                   # tags fixed by an input's declaration, not by its frames
+        pinned: dict[str, tuple[str, str]] = {}       # tags fixed by an input's declaration, not by its frames
         for name, _ in self.list_input_classes():
             inp = getattr(self, name)
             try:
@@ -265,12 +265,20 @@ class PipelineInputSet(ParametrizableContainer):
                 continue
             Msg.debug(self.__class__.__qualname__, f"Tag parameters for {inp} are {inp.Item.tag_parameters()}")
             # Only the tags the declaration left open come from the data. An input declared
-            # with a leaf (`Item = IfuSkyRaw`, target pinned to SKY by the class) says what it
-            # always is: it does not decide the run's tags where the frames do, and it cannot
-            # disagree with them -- but where nothing else determines a tag, it fills it in.
+            # with a leaf (`Item = MasterDark2rg`, detector pinned to 2RG by the class) says what
+            # it always is: it does not decide the run's tags where the frames do, it must not
+            # disagree with them, and where nothing else determines a tag, it fills it in. An
+            # axis the input declares as its own (`_own_tags`, the sky input's target) is left
+            # out of both: it is the input's business, not the run's.
             declared = type(inp).Item.tag_parameters()
             from_data = {key: value for key, value in inp.Item.tag_parameters().items() if key not in declared}
-            pinned |= declared
+            for key, value in declared.items():
+                if key in type(inp)._own_tags:
+                    continue
+                if key in pinned and pinned[key][0] != value:
+                    conflicts.append(f"{key}: {pinned[key][1]} is declared {pinned[key][0]!r}, {name} is declared {value!r}")
+                else:
+                    pinned.setdefault(key, (value, name))
             # The frames of one recipe run must agree on every data tag: a GEO gain map next
             # to 2RG darks is a mis-assembled set of frames, not a choice to be made for the user.
             for key, value in from_data.items():
@@ -280,8 +288,11 @@ class PipelineInputSet(ParametrizableContainer):
                     sources.setdefault(key, (value, name))
             self.tag_matches |= from_data
 
-        for key, value in pinned.items():
-            self.tag_matches.setdefault(key, value)
+        for key, (value, name) in pinned.items():
+            if key in sources and sources[key][0] != value:
+                conflicts.append(f"{key}: {name} is declared {value!r}, {sources[key][1]} has {sources[key][0]!r}")
+            else:
+                self.tag_matches.setdefault(key, value)
 
         if missing:
             raise cpl.core.DataNotFoundError(
@@ -340,7 +351,7 @@ class PipelineInputSet(ParametrizableContainer):
 
     def inputs_by_role(self) -> tuple[PipelineInput, ...]:
         """ The inputs with the RAW role first, each group in declaration order. """
-        return tuple(sorted(self.inputs, key=lambda inp: inp._group != cpl.ui.Frame.FrameGroup.RAW))
+        return tuple(sorted(self.inputs, key=lambda inp: not inp.is_primary()))
 
     @property
     def primary_frame(self) -> cpl.ui.Frame | None:
@@ -351,7 +362,7 @@ class PipelineInputSet(ParametrizableContainer):
         order of `used_frames`, see there).
         """
         for inp in self.inputs_by_role():
-            if inp._group != cpl.ui.Frame.FrameGroup.RAW:
+            if not inp.is_primary():
                 return None
             frames = getattr(inp, 'frameset', None)
             if frames is None:

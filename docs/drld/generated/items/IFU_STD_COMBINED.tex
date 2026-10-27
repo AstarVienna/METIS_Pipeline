@@ -1,0 +1,26 @@
+\paragraph{\PROD{IFU_STD_COMBINED}} \label{dataitem:ifu_std_combined}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{IFU_STD_COMBINED}\\[0.3cm]
+        Description: & Spectral cube of a standard star, combining multiple exposures. \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{IFU_STD_COMBINED} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.IFU}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{IFU_STD_COMBINED}\\[0.3cm]
+            Created by: & \REC{metis_ifu_reduce} \\
+            Input for: & \REC{metis_ifu_telluric} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{hdrl\_image * det2\_data: Extension DET2.DATA}
+            \item \texttt{hdrl\_image * det3\_data: Extension DET3.DATA}
+            \item \texttt{hdrl\_image * det4\_data: Extension DET4.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

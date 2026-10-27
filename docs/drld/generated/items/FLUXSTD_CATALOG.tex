@@ -1,0 +1,23 @@
+\paragraph{\EXTCALIB{FLUXSTD_CATALOG}} \label{dataitem:fluxstd_catalog}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \EXTCALIB{FLUXSTD_CATALOG}\\[0.3cm]
+        Description: & Catalog of standard stars \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{FLUXSTD_CATALOG} \\[0.3cm]
+        OCA keywords: & --- none --- \\
+        \FITS{DO.CATG}: & \CODE{FLUXSTD_CATALOG}\\[0.3cm]
+            Input for: & \REC{metis_ifu_telluric} \\
+                        & \REC{metis_lm_img_std_process} \\
+                        & \REC{metis_n_img_std_process} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

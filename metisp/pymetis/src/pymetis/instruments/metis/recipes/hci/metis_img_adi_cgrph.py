@@ -17,11 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import cpl
+
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.inputs import SinglePipelineInput
 from pymetis.engine.qc import QcParameterSet
-from pymetis.engine.recipes import Recipe
+from pymetis.engine.recipes import Recipe, Step
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
 from pymetis.instruments.metis.inputs import RawInput
@@ -75,14 +77,25 @@ class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
         SciContrastRawLamd = qc.hci.HciSciContrastRawLamd
         SciContrastAdiLamd = qc.hci.HciSciContrastAdiLamd
         SciFwhm = qc.hci.HciSciFwhm
+
+    _steps = (
+        Step('Centroid determination', products=(ProductSet.CentroidTab,)),
+        Step('Distortion correction and subpixel alignment', products=(ProductSet.SciCentred,)),
+        Step('Estimate median PSF', products=(ProductSet.PsfMedian,)),
+        Step('Subtract median PSF', products=(ProductSet.SciSpeckle,)),
+        Step('Optionally: high-pass filter', products=(ProductSet.SciHifilt,)),
+        Step('Derotate images', products=(ProductSet.SciDerotated, ProductSet.SciDerotatedPsfsub,)),
+        Step('Contrast curve calculation',
+             inputs=(InputSet.ThroughputInput,),
+             products=(ProductSet.SciContrastRadprof, ProductSet.SciContrastAdi, ProductSet.SciThroughput,
+                       ProductSet.SciSnr,)),
+        Step('Coadd images', products=(ProductSet.SciCoverage, ProductSet.SciCalibrated,)),
+    )
+
     def process(self) -> set[DataItem]:
         image = self.inputset.raw.load_data('DET1.DATA')[0]
         table = create_dummy_table()
         primary_header = create_dummy_header()
-
-        images = ('dataitems.SciCalibrated', 'dataitems.SciCentred', 'dataitems.SciSpeckle', 'dataitems.SciHifilt', 'dataitems.SciDerotatedPsfsub',
-                  'dataitems.SciDerotated', 'dataitems.SciCoverage', 'dataitems.SciSnr', 'dataitems.PsfMedian')
-        tables = ('dataitems.CentroidTab', 'dataitems.SciContrastRadprof', 'dataitems.SciContrastAdi', 'dataitems.SciThroughput')
 
         # FixMe: compute the real QC values; None marks a parameter that is not available yet
         primary_header.append(self.collect_qc_parameters(
@@ -94,10 +107,12 @@ class MetisImgAdiCgrphImpl(RawImageProcessor, MetisRecipeImpl):
             self.Qc.SciSnrPeak(None),
         ))
 
+        # Every declared product gets a dummy of its own kind: an image for image items, a table for table items.
         return {
-            getattr(self.ProductSet, name)(primary_header, Hdu(create_dummy_header(), data, name='DET1.DATA'))
-            for names, data in ((images, image), (tables, table))
-            for name in names
+            product(primary_header, Hdu(create_dummy_header(),
+                                        table if product.frame_type() == cpl.ui.Frame.FrameType.TABLE else image,
+                                        name='DET1.DATA'))
+            for _, product in self.ProductSet.list_classes()
         }
 
 

@@ -1,0 +1,24 @@
+\paragraph{\PROD{LM_LSS_WAVE_GUESS}} \label{dataitem:lm_lss_wave_guess}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{LM_LSS_WAVE_GUESS}\\[0.3cm]
+        Description: & First guess of the wavelength solution \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{LM_LSS_WAVE_GUESS} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.SLIT}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{LM_LSS_WAVE_GUESS}\\[0.3cm]
+            Created by: & \REC{metis_lm_lss_wave} \\
+            Input for: & \REC{metis_lm_lss_sci} \\
+                        & \REC{metis_lm_lss_std} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -17,17 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 from abc import abstractmethod, ABC
-from typing import Dict, Any, final, Optional, TYPE_CHECKING
+from typing import Dict, Any, ClassVar, final, Optional, TYPE_CHECKING
 
 import cpl
 from cpl.core import Msg
 
 from pymetis.engine.core.parameter import Parameter, ParameterList
-from pymetis.engine.core.parametrizable import Parametrizable
+from pymetis.engine.core.parametrizable import Parametrizable, _origin
 
 from pymetis.engine.dataitems import DataItem, PipelineProductSet
 from pymetis.engine.inputs.inputset import PipelineInputSet
 from pymetis.engine.qc import QcParameterSet, QcParameter
+from pymetis.engine.recipes.step import Step
 
 if TYPE_CHECKING:
     from pymetis.engine.recipes.recipe import Recipe
@@ -42,6 +43,13 @@ class RecipeImpl(Parametrizable, ABC):
     InputSet: Optional[type[PipelineInputSet]] = None
     ProductSet: Optional[type[PipelineProductSet]] = PipelineProductSet
     Qc: Optional[type[QcParameterSet]] = QcParameterSet
+
+    # The algorithm as the DRLD flowchart draws it: one `Step` per box, in order, each naming the
+    # input classes it consumes and the product classes it produces. Declared after the containers
+    # above, so it can refer to `InputSet.X` and `ProductSet.Y`; a prefab may declare the steps its
+    # recipes share. The flowchart is generated from this (`metisp/drld/generate_drld.py`), so the
+    # declaration and the figure cannot drift apart; `Recipe._algorithm` stays the prose.
+    _steps: ClassVar[tuple[Step, ...]] = ()
 
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = ParameterList([])
@@ -94,6 +102,34 @@ class RecipeImpl(Parametrizable, ABC):
         self.inputset.print_debug()
         Msg.debug(self.__class__.__qualname__,
                   f"{'-' * 40} Recipe initialization complete {'-' * 40}")
+
+    @classmethod
+    def input_name(cls, input_class: type) -> str:
+        """
+        The InputSet attribute holding `input_class`: the one input whose class is it or derives
+        from it (a specialized input set rebinds every input to a subclass, and a prefab's input
+        may be named by the shared class). None or several is a declaration error.
+        """
+        matches = [attr for attr, klass in cls.InputSet.list_input_classes()
+                   if issubclass(klass, input_class)]
+        if len(matches) != 1:
+            raise LookupError(f"{cls.__qualname__}: {input_class.__qualname__} is "
+                              f"{'no input' if not matches else 'ambiguous: ' + ', '.join(matches)}")
+        return matches[0]
+
+    @classmethod
+    def product_name(cls, product_class: type) -> str:
+        """
+        The ProductSet attribute holding `product_class`: the one product whose data item is it,
+        a specialization of it, or a hand-written leaf of it. None or several is a declaration error.
+        """
+        wanted = _origin(product_class)
+        matches = [attr for attr, klass in cls.ProductSet.list_classes()
+                   if issubclass(_origin(klass), wanted)]
+        if len(matches) != 1:
+            raise LookupError(f"{cls.__qualname__}: {product_class.__qualname__} is "
+                              f"{'no product' if not matches else 'ambiguous: ' + ', '.join(matches)}")
+        return matches[0]
 
     @classmethod
     def specialize(cls) -> None:

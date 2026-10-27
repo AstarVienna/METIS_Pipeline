@@ -1,0 +1,24 @@
+\paragraph{\PROD{IFU_RSRF_BACKGROUND}} \label{dataitem:ifu_rsrf_background}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{IFU_RSRF_BACKGROUND}\\[0.3cm]
+        Description: & 2D relative spectral response function background \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{IFU_RSRF_BACKGROUND} \\[0.3cm]
+        OCA keywords: & --- none --- \\
+        \FITS{DO.CATG}: & \CODE{IFU_RSRF_BACKGROUND}\\[0.3cm]
+            Created by: & \REC{metis_ifu_rsrf} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{hdrl\_image * det2\_data: Extension DET2.DATA}
+            \item \texttt{hdrl\_image * det3\_data: Extension DET3.DATA}
+            \item \texttt{hdrl\_image * det4\_data: Extension DET4.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

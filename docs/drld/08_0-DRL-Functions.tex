@@ -1,0 +1,33 @@
+\clearpage
+\section{DRL Functions}\label{sec:drl_functions}
+
+
+All functions, plugins, macros and data types will be documented using
+\emph{Doxygen} which is the standard documentation tool for CPL, HDRL and ESO
+pipelines. The reference manual for the pipeline system is created automatically
+from the Doxygen strings. This fulfills \REQ{METIS-9355}.
+
+In the function descriptions we have used \CODE{metis_image} and
+\CODE{metis_imagelist} instead of \CODE{hdrl_image} and \CODE{hdrl_imagelist} for functions which handle
+processed data, to
+indicate that the function inputs and outputs will not be a single
+hdrl\_image, due to the need to pass the 32-bit data quality flag, as
+described in Section~\ref{sssec:metisimageformat}.  A metis\_image will
+consist of an hdrl\_image and a cpl\_image, containing the DATA and
+NOISE extensions, and QUALITY extension, respectively.
+
+
+% Include Detecor Functions
+\input{Detector_drl_functions}
+
+% Include LMS mode
+\input{IFU_drl_functions}
+
+%Include IMG mode
+\input{IMG_drl_functions}
+
+%Include LSS mode
+\input{LSS_drl_functions}
+
+%Include ADI mode
+\input{ADI_drl_functions}

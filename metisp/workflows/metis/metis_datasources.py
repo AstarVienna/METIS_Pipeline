@@ -102,11 +102,6 @@ n_image_sci_raw = (data_source()
             .with_match_keywords(["instrume"])
             .build())
 
-n_image_sky_raw = (data_source()
-            .with_classification_rule(n_image_sky_raw_class)        
-            .with_match_keywords(["instrume"])
-            .build())
-
 n_image_std_raw = (data_source()
             .with_classification_rule(n_image_std_raw_class)        
             .with_match_keywords(["instrume"])
@@ -247,17 +242,17 @@ lm_lss_sci_flux_1d = (data_source()
 
 # STATIC + OTHER calibration sources (LM/LSS)
 gain_map_h2rg = (data_source()
-            .with_classification_rule(gain_map_h2rg_class)
+            .with_classification_rule(gain_map_2rg_class)
             .with_match_keywords([metis_kwd.instrume])
             .build())
 
 linearity_h2rg = (data_source()
-            .with_classification_rule(linearity_h2rg_class)
+            .with_classification_rule(linearity_2rg_class)
             .with_match_keywords([metis_kwd.instrume])
             .build())
 
 badpix_map_h2rg = (data_source()
-            .with_classification_rule(badpix_map_h2rg_class)
+            .with_classification_rule(badpix_map_2rg_class)
             .with_match_keywords([metis_kwd.instrume])
             .build())
 

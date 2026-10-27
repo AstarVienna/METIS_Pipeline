@@ -1,0 +1,26 @@
+\paragraph{\RAW{N_LSS_RSRF_RAW}} \label{dataitem:n_lss_rsrf_raw}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \RAW{N_LSS_RSRF_RAW}\\[0.3cm]
+        Description: & Raw exposure of the WCU flat field lamp through the LSS to achieve the RSRF. \\[0.3cm]
+        OCA keywords: & \FITS{DPR.CATG}\\
+         & \FITS{DPR.TECH}\\
+         & \FITS{DPR.TYPE}\\
+         & \FITS{DRS.SLIT}\\
+         & \FITS{INS.OPTI12.NAME}\\
+         & \FITS{INS.OPTI13.NAME}\\
+         & \FITS{INS.OPTI3.NAME}\\
+        \FITS{DO.CATG}: & \CODE{N_LSS_RSRF_RAW}\\[0.3cm]
+            Input for recipe: & \REC{metis_n_lss_rsrf} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

@@ -28,6 +28,28 @@ from cpl.core import (Image as CplImage,
 from pymetis.engine.core.functions.property import make_cpl_property
 
 
+def pixel_type(header: CplPropertyList) -> cpl.core.Type:
+    """
+    The CPL pixel type that holds an HDU's data exactly, from its BITPIX: floating-point data as
+    written (-32 FLOAT, -64 DOUBLE), integers of up to 32 bits as INT, 64-bit integers and
+    BZERO/BSCALE-scaled 32-bit integers as DOUBLE, since CPL has no 64-bit integer image. A header
+    without BITPIX gives FLOAT. Loading everything as FLOAT, as before, truncated DOUBLE data and
+    corrupted DQ bit fields above bit 23.
+    """
+    try:
+        bitpix = header['BITPIX'].value
+    except KeyError:
+        return cpl.core.Type.FLOAT
+    if bitpix == -64:
+        return cpl.core.Type.DOUBLE
+    if bitpix == -32:
+        return cpl.core.Type.FLOAT
+    scaled = 'BZERO' in header or 'BSCALE' in header
+    if bitpix in (8, 16) or (bitpix == 32 and not scaled):
+        return cpl.core.Type.INT
+    return cpl.core.Type.DOUBLE
+
+
 class Hdu:
     """
     A loose association of a header and data.
@@ -70,16 +92,22 @@ class Hdu:
     def __repr__(self) -> str:
         return f"<HDU {self.name=}, {self.extno=}, {self.klass=}>"
 
-    def save(self, filename):
+    def save(self, filename, data=None):
+        """ Append this HDU to `filename`; `data` stands in for the HDU's own when that was never loaded. """
         Msg.info(self.__class__.__name__,
                  f"Saving HDU '{self.name}' to '{filename}'")
+        if self.klass is None:          # the primary HDU: its header is saved by DataItem.save, nothing to append
+            return
+        data = self.data if data is None else data
+        if data is None:
+            raise cpl.core.DataNotFoundError(f"HDU '{self.name}' has no data to save")
 
         # FixMe this is ugly as hell, but works
         if self.klass == CplImage:
-            self.data.save(filename, self.header, cpl.core.io.EXTEND)
+            data.save(filename, self.header, cpl.core.io.EXTEND)
         elif self.klass == CplTable:
             # Here the signature is (primary_header, header, filename, mode) for whatever reason...
             # FixMe What if there are multiple tables? Is primary header overwritten or what?
-            self.data.save(self.header, self.header, filename, cpl.core.io.EXTEND)
+            data.save(self.header, self.header, filename, cpl.core.io.EXTEND)
         elif self.klass == CplImageList:
-            self.data.save(filename, self.header, cpl.core.io.EXTEND)
+            data.save(filename, self.header, cpl.core.io.EXTEND)

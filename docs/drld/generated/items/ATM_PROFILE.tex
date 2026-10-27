@@ -1,0 +1,25 @@
+\paragraph{\EXTCALIB{ATM_PROFILE}} \label{dataitem:atm_profile}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \EXTCALIB{ATM_PROFILE}\\[0.3cm]
+        Description: & Atmospheric profile containing height information on temperature, pressure and molecular abundances \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{ATM_PROFILE} \\[0.3cm]
+        OCA keywords: & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{ATM_PROFILE}\\[0.3cm]
+            Input for: & \REC{metis_ifu_telluric} \\
+                        & \REC{metis_lm_lss_mf_calctrans} \\
+                        & \REC{metis_lm_lss_mf_model} \\
+                        & \REC{metis_n_lss_mf_calctrans} \\
+                        & \REC{metis_n_lss_mf_model} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{cpl\_table * table: Extension TABLE}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+

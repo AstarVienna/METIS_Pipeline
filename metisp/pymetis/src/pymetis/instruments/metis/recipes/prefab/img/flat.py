@@ -39,6 +39,8 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.instruments.metis.inputs.common import MasterDarkInput
+from pymetis.engine.recipes import Step
 
 if TYPE_CHECKING:
     from pymetis.engine.recipes.recipe import Recipe
@@ -72,6 +74,13 @@ class MetisBaseImgFlatImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         FlatMedianMin = qc.flat.FlatMedianMin
         FlatMedianMax = qc.flat.FlatMedianMax
         FlatMedianRms = qc.flat.FlatMedianRms
+
+    _steps = (
+        Step('detector signature removal',
+             inputs=(InputSet.BadPixMapInput, GainMapInput, LinearityInput, InputSet.PersistenceMapInput,
+                     MasterDarkInput,)),
+        Step('linear fit (slope)', products=(ProductSet.MasterFlat, ProductSet.BadPixMap,)),
+    )
         
     def __init__(self,
                  recipe: 'Recipe',

@@ -1,0 +1,715 @@
+\clearpage
+\section{Critical algorithms}\label{sec:critical_algorithms}
+
+This section summarizes the status of the critical algorithms that were identified in the Data Reduction Library Specifications document~\cite{DRLS} at PDR. Note that `critical' in this context stands for `needs prototyping', and `non-critical' below does not mean `unimportant', just that there is a reason for not needing a prototype.
+
+\begin{enumerate}
+    \item[1.] Persistence correction (\ref{ssec:criticalpersistencecorrection})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: Persistence is a major issue in modern IR detectors, and the determination of this pattern relies on observations previously done, which might arise from completely other observing runs and are therefore proprietary.
+        \item \textit{Status at FDR}: The persistence correction algorithm will be developed by ESO, making the part in the Data Reduction Library non-critical.
+        \item \textit{Prototype delivery}: None
+    \end{itemize}
+    \item[2.] Detector Masks (\ref{ssec:criticaldetetctormasks})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: Reason unknown.
+        \item \textit{Status at FDR}: Standard procedures apply, therefore not critical.
+        \item \textit{Prototype delivery}: None.
+    \end{itemize}
+    \item[3.] Bad pixel determination (\ref{ssec:criticalbadpixeldetermination})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: Reason unknown.
+        \item \textit{Status at FDR}: Standard procedures apply, therefore not critical.
+        \item \textit{Prototype delivery}: None.
+    \end{itemize}
+    \item[4.] Background subtraction (\ref{ssec:criticalbackgroundsubtraction})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: A proper background correction is essential to ensure accurate photometric and spectroscopic analysis of the observed sources because observations in the mid-infrared are affected by the high sky and telescope background.
+        \item \textit{Status at FDR}: Standard subtraction techniques (dithering, chopping and nodding) will be used, which do not require prototyping. More complex algorithms that would have required prototypes, e.g.~involving principal component analysis, have been ruled out since PDR.
+        \item \textit{Prototype delivery}: None
+    \end{itemize}
+    \item[5a.] LSS Wavelength calibration and distortion correction (\ref{ssec:criticalwavelengthanddistortionlss})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: A new algorithm is necessary for wavelength calibration and distortion correction for LSS.
+        \item \textit{Status at FDR}: We will use the algorithms from PyReduce.
+        \item \textit{Prototype delivery}: An adaptation of the PyReduce package.
+    \end{itemize}
+    \item[5b.] \ac{IFU} Wavelength calibration and distortion correction (\ref{ssec:criticalwavelengthanddistortionifu})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: A new algorithm is necessary for wavelength calibration and distortion correction for IFU.
+        \item \textit{Status at FDR}: Use the same algorithms as for LSS (PyReduce), but via their incarnation in the CRIRES pipeline.
+        \item \textit{Prototype delivery}: A JuPyter-notebook with instructions to call the CRIRES pipeline and example input/output files.
+    \end{itemize}
+    \item[6.] Telluric correction (\ref{ssec:criticaltelluriccorrection})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: Telluric correction, i.e. the removal of absorption features arising in the Earth’s atmosphere, is a critical issue as the imprint of molecular species present in our air may vary on different timescales down to minutes due to changes in their composition and their amount.
+        \item \textit{Status at FDR}: We either use molecfit or a telluric standard star. Both ways are well proven, and therefore we will not deliver a prototype.
+        \item \textit{Prototype delivery}: None.
+    \end{itemize}
+    \item[7.] Error propagation (\ref{ssec:criticalerrorpropagation})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: Error propagation is important.
+        \item \textit{Status at FDR}: The \ac{HDRL} provides standardized mechanisms for error propagation; prototyping is therefore not necessary.
+        \item \textit{Prototype delivery}: None.
+    \end{itemize}
+    \item[8.] N-band image restoration (\ref{ssec:criticalnbandimagerestoration})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: There is no standard algorithm for extended sources.
+        \item \textit{Status at FDR}: The science drivers (AGN and circumstellar disks) are compact enough to treat as point-like, using the VISIR algorithm for compact sources. Extended diffuse objects will be observed with large chop-offset for background subtraction and thus no specific algorithm is necessary.
+        \item \textit{Prototype delivery}: None.
+    \end{itemize}
+    \item[9.] IFU image and cube reconstruction (\ref{ssec:criticalifuimageandcubereconstruction})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: Due to the width of the slices in the LM integral-field spectrograph of $20.7\,\mathrm{mas}$,
+            the PSF is undersampled in the across-slice direction, and there is no known cube reconstruction algorithm.
+        \item \textit{Status at FDR}: A prototype algorithm is implemented in Python.
+        \item \textit{Prototype delivery}: Python package.
+    \end{itemize}
+    \item[10.] IFU data rate (\ref{ssec:criticalifudatarate})
+    \begin{itemize}
+        \item \textit{Reason at PDR}: For very bright sources, short exposures result in high data rates which may present a problem for
+            the observatory pipeline which has to deal with the data in real time.
+        \item \textit{Status at FDR}: The data rate is under control and does not require prototyping.
+        \item \textit{Prototype delivery}: None.
+    \end{itemize}
+\end{enumerate}
+
+The following additional critical algorithms were identified in the period between PDR and FDR:
+
+\begin{enumerate}
+    \item[11.] ADI algorithm (\ref{ssec:criticaladialgorithm})
+    \begin{itemize}
+        \item \textit{Reason at FDR}: Considering many of the science cases for METIS are focusing on direct imaging / high contrast imaging we deem it critical that we demonstrate that METIS-like data can be ADI-reduced without major issues.
+        \item \textit{Status at FDR}: ADI algorithms for all HCI observing modes are known from literature, however considering many METIS science cases fall under HCI we demonstrate prototype ADI algorithms for the focal-plane and pupil-plane coronagraphs as well ADI+SDI for the partially undersampled \ac{IFU} with METIS-like simulated data.
+        \item \textit{Prototype delivery}: Python package.
+    \end{itemize}
+\end{enumerate}
+
+% Export these to individual files if they become too wordy
+\subsection{Persistence correction}
+\label{ssec:criticalpersistencecorrection}
+\label{sec_persistence_correction}
+Persistence is a major issue in modern IR detectors, in particular in the Hawaii2RG devices (HgCdTe based, see Fig.~\ref{fig:h2rg_persistence} [taken from LBT website\footnote{\url{https://sites.google.com/a/lbto.org/luci/instrument-characteristics/detector\#TOC-Persistence}\label{fn:persistence}}]).
+This detector type also shows significant differences between the individual chips.
+Fortunately, this pattern can be corrected via simple subtraction as a very first step.
+The calculation of the peristence correction is implemented in \REC{metis_det_persistence}.
+The GeoSnap detector is expected to not suffer from persistence (see~\cite{Leisenring_2023}).
+%due to the CTIA circuitry.
+% [Roy] recalls also Derek mentioning that he could not see any signs of persistence in the date he investigated. "
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.6\textheight]{L2persistence.png}
+  \caption[Persistence example]{Example for the persistence effect (Courtesy
+    of LBT website\textsuperscript{\ref{fn:persistence}})}
+  \label{fig:h2rg_persistence}
+\end{figure}
+
+
+However, since the determination of this pattern relies on observations previously done, this approach requires access to these data, which might arise from completely other observing runs and are therefore proprietary.
+Therefore, the avoidance of persistence, i.e. a sophisticated planning / persistence management should be one of the major goals for the planning of the observations and the operational concept.
+In case a persistence correction is required, a subtraction of a persistence map (\EXTCALIB{PERSISTENCE_MAP}) is foreseen in any individual recipe. This map is created by the recipe \REC{metis_det_persistence} (cf. Section~\ref{rec:metis_det_persistence}) , which is carried out by \ac{ESO} and relies on the algorithm provided by \ac{ESO}.
+
+Calibration data where the flux is controlled (e.g. dark and flat) can be taken
+such that they should not be affected by persistence.
+It should therefore under normal circumstances not be necessary to correct the
+persistence in those observations.
+However, the persistence correction algorithm will indeed not perform any
+correction if it determines that an exposure is not affected by persistence.
+It is therefore harmless to include the persistence correction anyway.
+All recipes that have raw data as input include a persistence correction step
+for consistency and flexibility.
+
+%\TODO{Will have access to a HDRL function from ESO.
+%The interface is TBD.
+%Subtraction of persistence image as determined by ESO.
+%Need to reference ESO docs for this.
+%How does the scaling happen?
+%Is there an API endpoint for this?}
+
+
+\subsection{Crosstalk Correction via Detector Masks}\label{ssec:criticaldetetctormasks}
+
+In METIS, H2RG detectors are used as system detectors.  However, H2RG systems are known to produce crosstalk (or ghost signal) 
+in a readout image.  In MATISSE, a physical 32-pixel wide mask was installed at the edge of its Aquarius detector 
+(see Figure on page 8 in~\cite{matisse_minutes}).  For the METIS detectors similar masks (Fig.~\ref{fig:detmasks}) as in 
+MATISSE are foreseen in order to correct for crosstalk (cf. Polarion \REQ{METIS-3091}, \REQ{METIS-3093} and \REQ{METIS-9194}).
+
+Crosstalk arises from the shared series buses in the detector readout electronics (see Fig.~\ref{fig:crosstalk2} and 
+Figure on page 8 in~\cite{matisse_minutes}).
+
+In~\cite{matisse_minutes}, the correction is described as follows:
+
+\begin{displayquote}
+    Cross-talk correction is done in two steps using the masked pixels in the vertical direction, which are equivalent to two masked outputs.
+    \begin{itemize}
+        \item Step 1 : Use the masked pixels to correct bias offsets between series buses.
+        \item Step 2 : Pixels are corrected using the corresponding masked pixels in terms of raw
+            number in the two vertical masked outputs.
+    \end{itemize}
+\end{displayquote}
+
+Fig.~\ref{fig:detmasks} taken from~\cite{matisse_minutes}, the minutes
+of a detector meeting between the METIS and MATISSE consortia held in May 2017 in Bonn.
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.6\textheight]{detmasks}
+  \caption[Aquarius detector masks]{Aquarius detector masks as
+    realised in MATISSE (\cite{matisse_minutes}, courtesy of
+    S. Mouzali).}
+  \label{fig:detmasks}
+\end{figure}
+
+
+%\begin{figure}[ht]
+%  \centering
+%  \includegraphics[width=0.4\textheight]{crosstalk.png}
+%  \caption[Detector crosstalk]{Detector crosstalk example. See
+%  \cite{matisse_minutes}
+%    for an explanation.}
+%  \label{fig:crosstalk}
+%\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.6\textheight]{crosstalk2.png}
+  \caption[Detector crosstalk correction]{Correction for the crosstalk
+    (\cite{matisse_minutes}, courtesy of S. Mouzali).}
+  \label{fig:crosstalk2}
+\end{figure}
+
+The \REQ{METIS-3093} mentioned the detector artifacts in general and the masked regions can be also used to correct 
+those artifacts. MATISSE has dealt with the detector masks adequately and the same procedures will be used for \
+METIS; a prototype is therefore not made.
+
+% \TODO{
+%     Look into the MATISSE docs as to how this was done
+%     Delivers a bias/dark/ron value?
+% }
+
+\subsection{Bad pixel determination}\label{ssec:criticalbadpixeldetermination}
+
+Bad pixels are an issue in any detector and have to be monitored and stored.
+This is usually done with the help of DARK and FLATFIELD frames.
+Cold/hot pixels can be identified by using DARKS since they have pixel values which are far from an expected values (e.g.\ median value).
+Non-linear pixels can be detected with illumination flats, that is, the detector is illuminated uniformly by a flatfield source.
+Using several exposure times / flux levels, non-linearities in pixels can be found by fitting polynomials to each individual pixel.
+
+Each processed data product will contain a data quality extension for each
+data extension (Section~\ref{sssec:processeddataextensions}), including
+calibration data products.
+Note that every science product will need its own bad pixel map, to keep track
+of pixels affected by persistence.
+Having an extra data quality extension will therefore not significantly affect
+the data volume.
+
+It is therefore not necessary to have a dedicated data product for the
+bad pixels;
+the propagation of bad pixels through the pipeline can be done
+by copying (XOR-ing) the bits of the data quality layer of the calibration data
+into the data quality layer of the data that is being processed.
+Nevertheless, it can be useful to have such a data product, and several recipes
+can therefore have a \PROD{BADPIX_MAP_det} as output or input anyway.
+
+We will use a bad pixel classification similar to the convention introduced in
+the X-Shooter Pipeline Manual (cf.\ Section 11.3 in~\cite{xshooter_manual}),
+adapted to our needs.
+
+
+%\TODO{
+%    Surely every other instrument on planet earth has some sort of algo for this.
+%    Need to determine the format of the bad pixel mask (bool?)
+%    Take XSHOOTER as example ftp://ftp.eso.org/pub/dfs/pipelines/xshooter/xshoo-pipeline-manual-12.19.1.pdf
+%}
+
+\subsection{Background subtraction}\label{ssec:criticalbackgroundsubtraction}
+Observations in the mid-infrared are affected by the high sky background, the telescope background, and detector variations and non-linearities.
+A proper background correction is thus essential to ensure accurate photometric and spectroscopic analysis of the observed sources.
+As METIS will face an unprecedented level of complexity in the background subtraction due to
+\begin{enumerate}
+    \item the high background dominated by the large number of warm mirrors,
+    \item the internal chopping, and
+    \item the complexities of nodding with an AO-corrected instrument,\end{enumerate}
+a dedicated research project has been started to better understand the origin of chop-residuals and to evaluate chop-only background removal strategies.
+
+
+% Hence, the dedicated pipeline algorithms will ultimately depend on the chosen strategy for each METIS detector, e.g.\ dithering, classical chop-nod, chop-counter-chop (in 1D or 2D), drift scanning.
+%This is particularly relevant for the N bands where, for instance, the instability of the AQUARIUS detector response demands chopping at much higher frequencies.
+% More details on dedicated research project and the proposed strategies are given in the Calibration Plan~\cite{METIS-calibration_plan} which serves as the base for the following.
+
+Nevertheless, standard subtraction techniques (dithering, chopping and nodding)
+will be used, which do not require prototying. More complex algorithms that would
+have required prototyping, e.g. involving principal component analysis, have been
+ruled out since \ac{PDR}.
+
+% \TODO{
+%     N-band: Standard chop and nod using telescope chopper and internal nodder. See VISIR pipeline.
+% }
+
+\subsubsection{LM bands}\label{sssec:lmbandsbackgroundsubtracion}
+Small ($< 5 \arcsec$) and slow (1 min timescale) dithered offsets of the field with respect to the LM IMG or \ac{IFU} detector are expected to be performed by the METIS-internal chopper mirror.
+The pipeline will determine the sky background from the dithered images and produce background maps without the sources and background-subtracted versions of the maps with the sources.
+For In-field-dithering, this is done by determining a flux scaling factor for each ``dither'' position, aligning the exposures (by either using a 2d cross-correlation routine on bright sources or by using the offset values applied to the chopper), scaling the frames to a common median and removing objects by rejecting the highest and lowest pixels.
+The remaining pixels are then averaged, or medianed, to produce the sky frame which is then scaled to match the median of the object frame before being subtracted.
+The sky subtraction is further improved by following the previous steps to produce the combined image to locate all the sources.
+Then the background frames are combined again while excluding the sources positions.
+The best approach to determine the flux scaling factor of each dither exposure is yet to be determined (e.g.\ by median scaling or by a 2D/PCA approach based on~\cite{Hunziker2018}).
+The pipeline would also support sky subtraction using separate sky images for out-of-field dithering modes, i.e.\ when the observed field is crowded or full of extended emission.
+The background determination is implemented in \REC{metis_lm_img_background}.
+
+\subsubsection{N bands}\label{sssec:nbandsbackgroundsubtracion}
+To ensure proper background sampling at the longer wavelengths, small ($< 5 \arcsec$) and fast ($\approx 10 \mathrm{Hz}$) chopping offsets of the field with respect to the N IMG detector are expected to be performed by the METIS-internal chopper mirror.
+The chopping residuals from the previous step will be corrected by nodding the telescope to a different position and repeating the same chopping procedure.
+%The chopping and nodding sequence is expected to follow what is currently being done with VISIR.
+A 3-point parallel nodding sequence is followed, which should give a higher \ac{SNR} than the 2 point pattern used in e.g.~VISIR (cf.~\cite{METIS-operational_concept}).
+
+The pipeline will determine the sky background from the chopped and nodded images and produce background maps without the sources and background-subtracted versions of the maps with the sources.
+For each nodding cycle the subsequent chop-cycle frames are subtracted from each other (mean of on-source frames minus mean of off-source frames) resulting in a single chop-difference frame, i.e. nod half-cycle frame.
+Then for subsequent nodding cycles the nod half-cycle frames are subtracted from each other resulting in a nod-difference frame.
+The mean of all nod-difference frames is the final background-subtracted image.
+Additionally, the optimal extraction (PSF-weighting) will be used to subtract the positive/negative source images from the final background-subtract image (2/3/4 depending on the relative chopping/nodding directions) to produce a single stacked image of the sources of interest.
+
+There might be extensive spatial modulation (dithering) within a nod half cycle.
+That is, the 3-point chop pattern is repeated a few times, then the central position is moved slightly after which the 3-point chop pattern is repeated.
+This is done several times in a nod-half cycle, and then repeated in the same pattern in the other nod position after the nod is performed.
+This is to mitigate the (many) bad/hot pixels in the GeoSnap array, therefore chop-cycle frames will be subtracted such that the bad pixels can be worked around.
+
+The algorithm is implemented in \REC{metis_n_img_chopnod}.
+
+\subsection{Wavelength calibration and distortion correction}\label{ssec:criticalwavelengthanddistortion}
+The wavelength calibration and distortion correction critical algorithm is split in a LSS part (Section~\ref{ssec:criticalwavelengthanddistortionlss}) and an IFU part (Section~\ref{ssec:criticalwavelengthanddistortionifu}).
+
+\subsubsection{LSS Wavelength calibration and distortion correction}\label{ssec:criticalwavelengthanddistortionlss}
+\input{CritAlgo_LSS_PyReduce}
+% \TODO{Pyreduce, will be described by Nadeen.  IMG modes are not critical, see recipes.}
+
+% \TODO{The old PDR text commented out. Todo can be removed}
+
+%The MIR range is dominated by thermal and line emission in the Earth's atmosphere. These emission lines can be used to determine both, the curvature / tilt-distortion of the LSS spectrograph and subsequently the wavelength calibration in the following way: %(cf.\ Fig.\,\ref{fig:lm_lss_dist_wave}):
+
+%\begin{itemize}
+%  \item In a first step, atmospheric emission line peaks are detected in
+%    detector rows in dispersion direction (green and yellow dots in in
+%    Fig.\,\ref{fig:lm_lss_dist_wave}) (the same procedure might be
+%    applied to absorption features).
+%  \item Assuming that these peaks are located in the very neighborhood
+%    in dispersion direction, it is possible to cross identifying them on
+%    each of the pixel rows (yellow dots in
+%    Fig.\,\ref{fig:lm_lss_dist_wave}).
+%  \item The distortion along a line is then determined by fitting a
+%    polynomial (e.g.\ Chebyshev polynomial) along these associated
+%    points (purple line).  This polynomial solution might rely on first
+%    guesses for the distortions introduced by the fixed ADCs and is used
+%    to determine the rectification. The WCU lamp spectrum might provide
+%    a 0\textsuperscript{th}-order guess, which is refined with a table,
+%    which includes information on the distortion introduced by the
+%    grisms (\STATCALIB{GRISM_TAB}).
+%  \item Since we know the wavelength range (from the optical system), a
+%    cross correlation of the lines with respect to the molecular
+%    emission lines from line databases
+%    (e.g.\ HITRAN\footnote{\url{https://hitran.org/}},
+%    \STATCALIB{ATM_LINE_CAT}) is possible.
+%\end{itemize}
+
+%Special emphasis has to be drawn that the rows to detect the atmospheric emission lines are not to cover the science objects, since intrinsic target emission lines might disturb the cross correlation.
+
+%\begin{figure}[ht]
+%  \centering
+%  \includegraphics[width=0.6\textheight]{wavecal_distortion.png}
+%  \caption[Algorithm for wavelength calibration and distortion determination]{%
+%    Sketch of the intended algorithm for the wavelength calibration
+%    and distortion determination (raw VISIR@VLT frame). Emission lines
+%    arising from our Earth's atmosphere can be used to determine the
+%    wavelength calibration and the distortions (see text for more
+%    details).\TODO{REMOVE THIS OBSOLETE FIGURE}}
+%  \label{fig:lm_lss_dist_wave}
+%\end{figure}
+
+\subsubsection{IFU distortion correction}\label{ssec:criticalwavelengthanddistortionifu}
+\input{CritAlgo_IFUdist}
+
+\subsection{Telluric correction}\label{ssec:criticaltelluriccorrection}
+Telluric correction, i.e. the removal of absorption features arising in the Earth's atmosphere,
+is a critical issue as the imprint of molecular species present in our air may vary on different timescales
+down to minutes, as the composition of the atmosphere may change over time.
+In particular the \ac{MIR} range is affected (see App~\ref{app:atmo_trans}).
+
+There are two well established ways to correct for these absorptions:
+\begin{itemize}
+    \item \textit{Classical approach}: A telluric standard star (\ac{TSS}) spectrum is taken ideally directly before/after the science observations at the same airmass. This \ac{TSS}-spectrum is processed in the same way as the science spectrum (except the absolute flux calibration) and finally its continuum is normalised to unity. In addition, a model of this specific \ac{TSS} spectrum is used to remove intrinsic spectral features. The remaining normalised spectrum (ideally) only contains the fingerprint of the Earth's atmospheric absorptions and can be used for the telluric correction. In case the model spectrum also contains absolute flux values, this star could also be appropriate for the absolute flux calibration.
+    \item \textit{Modelling approach}: In the last years a new method has evolved which is based on radiative transfer modelling of the Earth's atmosphere (\cite{mf1, mf2, molecfit}\footnote{\url{https://www.eso.org/sci/software/pipelines/skytools/molecfit}}). A model of the Earth's atmosphere (probably refined with on-site measurements, e.g. with a radiometer measuring the \ac{PWV} profile along the line-of-sight) in combination with a radiative transfer model and a molecular line list containing lines of various species is used to determine the transmission of the Earth's atmosphere at the time of observations by fitting specific molecular absorption features in the science spectra. The best-fit transmission function is finally used for the telluric correction.
+\end{itemize}
+These two methods can also be combined in the way that the modelling approach is applied to a \ac{TSS} spectrum, and the resulting transmission function is then applied to the science spectrum. This combination is specifically useful if the science target continuum is too weak to use the absorptions for a fit.\\
+For the \ac{METIS} pipelines we intend to incorporate both ways (including their combination). A detailed description is given in Section~\ref{ssec:tellcorr}. As both methods are well established, we deem a dedicated prototyping not necessary.
+
+\subsection{Error propagation}\label{ssec:criticalerrorpropagation}
+\label{Sec:critalg_errorprop}
+
+All data products from the pipeline will be accompanied by an
+estimate of the uncertainty in the derived values in the data products, in compliance with \REQ{METIS-6681}.
+
+Error estimates are necessary for the scientific
+exploitation of the data. They make it possible to assign
+significances to detections and to estimate errors on photometric and
+other measurements in the course of the scientific analysis of the
+images. The uncertainties include noise contributions from photon
+noise associated with the photon counting process over the integration
+time of an exposure, dark current noise, detector read-out noise,
+digitization noise, and possibly other sources.
+
+The basic reduction procedures, such as dark subtraction and
+flat-field correction, add the noise from calibration images to the
+noise of the science exposures. These noise contributions need to be
+tracked through the reduction process by applying standard error
+propagation algorithms.
+
+For this purpose, the DRS will make extensive use of \ac{HDRL} data structures.
+These include built-in error propagation, for example HDRL-images have separate
+layers for pixel values, their error and a mask. These are used automatically
+when performing operations on images, such that the result has the propagated
+error attached. In cases where this is not sufficient, errors will be calculated
+manually.
+
+Photon noise is the major noise component of mid-infrared data. The
+number of electrons, $N_{e}$ libreated in a detector pixel over the
+exposure time follows a Poisson distribution with variance $\sigma^{2}
+= \langle N_{e}\rangle$, where $\langle N_{e}\rangle$ is the expected
+number of electrons.
+
+Pixel values $F$ in a raw image are given in ADU and are related to
+the number of electrons via the gain factor $g$ (in
+$\mathrm{e}^{-}/\mathrm{ADU}$):
+\begin{equation}
+  \label{eq:gain_def}
+  F = g N_{e}.
+\end{equation}
+The expected noise in the image is thus
+\begin{equation}
+  \label{eq:noise_adu}
+  \sigma_{F} = g\sqrt{\langle N_{e}\rangle} = \sqrt{g \langle F\rangle}.
+\end{equation}
+
+It is a mistake to estimate the expected count rate $\langle F\rangle$
+by the actual count rate $F$ for each pixel. For a flux constant in
+space and time this method would give a different estimate
+$\sigma_{F}$ for each pixel in the same exposure, and also for the same pixel
+in different exposures. This in turn leads to the undesirable result
+that the weighted mean of several exposures $i = 1,\dots, N$ is biased
+low as pixel values (drawn from a Poisson distribution) lower than the
+expectation are systematically given larger weight than high pixel
+values:
+\begin{equation}
+  \label{eq:weighted_mean}
+  \overline{F} = \frac{\sum_{i=1}^{N}
+    F_{i}/\sigma_{i}^{2}}{\sum_{i=1}^{N} 1/\sigma_{i}^{2}} =
+  \frac{N}{\sum_{i=1}^{N}1/F_{i}} < \langle F\rangle
+\end{equation}
+
+Photon noise from thermal or sky background is therefore estimated
+from a constant or low-order polynomial fit of the background estimate
+in order to suppress random pixel fluctuations.
+
+Pixel-wise modulation is introduced by the master flat field as this
+quantifies the response of pixels to a constant background flux.
+
+\subsection{N-band image restoration}
+\label{ssec:criticalnbandimagerestoration}
+\label{ssec:image_restoration}
+
+% \TODO{
+% Chop-nod inversion and stacking. Look at how VISIR does this.
+% Need to look at sub-pixel chop shifts, and whether the images need to be resampled.
+% Plate scale distortions are not really a issue, because we only care about compact objects.}
+
+Images in the N band are taken in a sequence of chopped and nodded
+exposures. The combination of these exposures results in an image with
+one or more positive and negative images (``beams'') of the target
+source, depending on the pattern of chops and nods. Image restoration
+refers to an algorithm to process the chop-nod difference image into
+an image where the various beams are combined into a single beam,
+providing an increased signal-to-noise ratio.
+
+The VISIR pipeline employs a shift-and-add algorithm with proper
+inversion of the negative beams that works well for compact sources.
+More elaborate algorithms have been
+described that are also claimed to work for extended sources.
+
+However, `extended' is here taken to mean `larger than the chop offset', and
+those sources have been excluded from the scope of the pipeline.
+No prototype is therefore provided, because only sources smaller than the
+chop throw will be supported.
+Large sources can be accomodated with a larger chop-offset to benefit the
+background subtraction.
+
+The algorithm is implemented in \REC{metis_n_img_restore}.
+
+% We will
+% investigate these algorithms until FDR, taking into account the
+% results of the investigations into background strategies that are
+% on-going within the METIS consortium.
+
+\subsection{IFU image and cube reconstruction}
+\label{ssec:criticalifuimageandcubereconstruction}
+\label{ssec:image_reconstruction}
+
+Due to the width of the slices in the LM integral-field spectrograph
+of 20.7\,mas, the PSF is undersampled in the across-slice direction.
+In order to fully sample the PSF, the following observing sequence is envisaged:
+\begin{itemize}
+    \item Take three exposures, each offset perpendicular to the slice by a third of the slice width.
+    % Maybe this could be more than a third, for instance 4/3 or 10/3, in order to help eliminate bad pixels:
+    % The same model pixel would be always covered by three distinct hardware pixels
+    \item Rotate the field by 90 degrees (with the derotator).
+    \item Take three more exposures with the same across-slice dither pattern.
+\end{itemize}
+
+The pattern is visualised in Fig.~\ref{fig:ifu_pattern}. In principle,
+this pattern yields a sampling of the field at a third of the slice
+width (i.e.~7\,mas) in both spatial directions, which would be
+sufficient for a full sampling of the PSF. How to implement this
+reconstruction and to what extent the information can be recovered
+from real data needs to be investigated.
+
+The image reconstruction algorithm is implemented in \REC{metis_ifu_reduce}.
+The baseline is to reuse the implementation already present in HDRL
+with minor modifications. Alternative approaches are
+derived from variable-pixel linear reconstruction (also colloquially known as `drizzle')
+that was successfully employed on HST; and a full linear image reconstruction technique
+based on minimization of a system of linear equations that is described in this section.
+
+\begin{figure}[hb]
+  \centering
+  \resizebox{0.8\textwidth}{!}{\includegraphics{PSF_IFU_slices}}
+  \caption[IFU dithering and rotation pattern]{%
+    IFU observation pattern overlaid on a METIS SCAO PSF (by Markus
+    Feldt, MPIA). Red horizontal lines mark the IFU slices of a first
+    exposure. The following exposures are spatially offset by a third
+    of the slice width up and down, indicated by the green and cyan
+    dashed lines. The field is then rotated by 90 degrees and three
+    more exposures are taken with the slices marked by the vertical
+    red and dashed green and cyan lines. The result is a regular
+    sampling on a grid of width $1/3$ the slice width, i.e.~7\,mas.}
+  \label{fig:ifu_pattern}
+\end{figure}
+
+For the purposes of this prototype, we start from \emph{rectified} data,
+i.~e.~a data cube with two spatial axes $x$ and $y$ and a wavelength axis $\lambda$,
+which is orthogonal to the spatial slices. The data are linearly sampled on all three axes.
+The field of view is shown in Fig.~\ref{fig:op_concept}.
+
+\begin{figure}
+    \centering
+    \includegraphics{op_concept.pdf}
+    \caption[Overlaid model and data pixel grids]{The figure shows a basic IFU data set consisting of six
+        exposures. First three are taken with the slices aligned in the
+        $x$-direction; the light red and blue grids are offset wrt the black
+        one by $\pm 6.9\,$mas in the $y$-direction. The rectangular pixels
+        (8.2\,mas and 20.7\,mas in the $x$- and $y$-directions, or along- and
+        across slices, respectively) can be seen in the black grid. After
+        rotation by 90~degrees the slices are aligned in the $y$-direction
+        and offsets are applied in the $x$-direction.  The overlaid cyan
+        grid shows the area covered by all six exposures. This area is to
+        be reconstructed on square pixels of 8.2\,mas as shown.
+    }
+    \label{fig:op_concept}
+\end{figure}
+
+The algorithm described here is inspired by the spectro-perfectionism of Bolton \& Schlegel (2010, \cite{bs10}).
+
+We start with a forward model
+\begin{equation}
+  \label{eq:forward_model}
+  \vec{d} = \mat{A}\vec{m} + \vec{e},
+\end{equation}
+where $\vec{d}$ and $\vec{m}$ are the data images and the model image, respectively,
+both written as one-dimensional arrays (the six data images are collated into one array
+$\vec{d}$).\footnote{The mapping from two-dimensional to one-dimensional arrays is in
+principle arbitrary and can be chosen such that the model matrix $\mat{A}$ has a convenient form.
+For the time being, the code uses the numpy method \lstinline{flatten()},
+which returns the array as it is stored in computer memory.}
+The vector $\vec{e}$ is the irreducible noise vector.
+The data $\vec{d}$ are sampled on rectangular pixels $8.2 \times 20.7\,\mathrm{mas^{2}}$,
+while the model $\vec{m}$ is constructed to be sampled on square pixels $8.2 \times 8.2\,\mathrm{mas^{2}}$
+and aligned with the short side of the data pixels.
+The model matrix $\mat{A}$ describes how the model flux is distributed onto the data grid.
+
+A matrix element $\mat{A}_{ij}$ thus gives the geometric fraction of model pixel $j$ that overlaps with the data pixel $i$.
+Fig.~\ref{fig:pixel_overlap} shows the situation for pixels that overlap completely in the $x$-direction.
+In the code, we allow for partial overlap in the $x$-direction as well, so that the matrix element is
+\begin{equation}
+    \mat{A}_{ij} = f(\delta x_{ij}; D_{dx}, D_{mx}) f(\delta y_{ij}; D_{dy}, D_{my}),
+    \label{eq:model_matrix_element}
+\end{equation}
+where $\delta x_{ij}$ and $\delta y_{ij}$ are differences in horizontal and vertical positions
+of the data and model pixels and $D_{dx}$, $D_{dy}$, $D_{mx}$ and $D_{my}$ are the width and height
+of the pixels in the data and model grids, respectively.
+
+The function $f$ is given by
+\begin{equation}
+    \label{eq:overlap}
+    f(\delta; D_{d}, D_{m}) =
+        \begin{cases}
+            \quad 1,
+                & \text{if}\quad\abs{\delta} \leq \frac{D_{d} - D_{m}}{2} \\
+            \frac{D_{d} + D_{m}}{2D_{m}} - \frac{1}{D_{m}}\abs{\delta},\quad
+                & \text{if}\quad\frac{D_{d} - D_{m}}{2} < \abs{\delta} < \frac{D_{d} + D_{m}}{2} \\
+            \quad 0,
+                & \text{if}\quad\lvert{\delta} \geq \frac{D_{d} + D_{m}}{2}
+        \end{cases}
+\end{equation}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{pixel_overlap.pdf}
+    \caption[One-dimensional overlap as a function of pixel offset]{%
+        The left panel shows a data pixel of size $D_{m}\times D_{d}$,
+        overlapping with three model pixels of size $D_{m}\times D_{m}$.
+        The pixels are aligned in the $x$-direction, so the overlap
+        (which gives the matrix element of the model matrix $\mat{A}$)
+        depends only on the distance $\delta = y_{\mathrm{data}} - y_{\mathrm{model}}$
+        of the pixel centres through a stepwise linear function as shown on the right and given in Eq.~\eqref{eq:overlap}.
+    }
+  \label{fig:pixel_overlap}
+\end{figure}
+
+In the case if there is significant field rotation during
+the observation and the data and model pixel grids are not aligned,
+a more complex algorithm for determination of overlap must be used:
+
+\begin{enumerate}
+    \item For each pair of data and model pixels, the distance between their centres is computed.
+        If it is larger than $\frac{1}{2}\sqrt{\left(D_{dx} + D_{mx}\right)^2 + \left(D_{dy} + D_{my}\right)^2}$,
+        there is certainly no overlap and the computation may proceed with the next pair.
+    \item Otherwise, the overlap is computed as follows:
+        Since both pixels are rectangles, the overlap is guaranteed to be a convex polygon
+        with at most eight distinct vertices, including degenerate cases with zero
+        area: no overlap, a single point or a line segment.
+    \item For each pair of rectangular pixels there are a total of 24 candidate vertices:
+        \begin{itemize}
+            \item Each vertex of a data pixel is also a vertex of the overlap polygon,
+                if and only if it lies within the model pixel (4 candidate vertices).
+            \item Each vertex of a model pixel is also a vertex of the overlap polygon,
+                if and only if it lies within the data pixel (4 candidate vertices).
+            \item Each intersection of an edge of a data pixel with an edge of a model pixel
+                is necessarily a vertex of the overlap polygon ($4 \times 4 = 16$ candidate vertices).
+        \end{itemize}
+    \item The coordinates of the barycentre of the vertices are found
+        as the arithmetic mean of their $x$ and $y$ coordinates.
+    \item The vertices are ordered by their azimuth from the barycentre,
+        in order to ensure that the resulting shape is a simple polygon.
+    \item The area of the polygon $S$ is found as the sum of area of all triangles
+        formed by the barycentre and all consecutive pairs of vertices
+        using the shoelace formula or its equivalent, namely
+        \begin{equation}
+            2S = \sum\limits_{i = 0}^{n - 1} x_i \left(y_{i - 1} - y_{i + 1}\right),
+        \end{equation}
+        where all indices are mod $n$, the number of vertices in the polygon.
+\end{enumerate}
+
+Due to the presence of noise $\vec{e}$ in Eq.~\eqref{eq:forward_model},
+a solution through direct inversion of the model matrix $\mat{A}$ is not possible.
+A solution can, however, be obtained through $\chi^{2}$ minimisation:
+\begin{equation}
+    \chi^{2} = (\vec{d} - \mat{A}\vec{m})^{\mathrm{T}}\mat{C}^{-1}(\vec{d} - \mat{A}\vec{m}) \stackrel{!}{=} \mathrm{min}
+    \label{eq:chi2_minimisation}
+\end{equation}
+Here, $\mat{C}$ is the covariance matrix, which describes the noise properties of the data.
+The minimisation problem is solved analytically by
+\begin{equation}
+    \label{eq:chi2_solution}
+    \vec{\hat{m}} = (\mat{A}^{\mathrm{T}}\mat{C}^{-1}\mat{A})^{-1}\mat{A}^{\mathrm{T}}\mat{C}^{-1}\vec{d} \equiv \mat{S}\vec{d}
+\end{equation}
+
+In the case of the METIS IFU the data vector $\vec{d}$ has $6 \times 100 \times 28 = 16800$ components.
+The model has $68\times 68 = 4624$ components (the blue grid in Fig.~\ref{fig:op_concept}),
+so the matrix $\mat{A}$ has $16800 \times 4624$ components.
+The $4628 \times 16800$ solution matrix $S$ depends on the data
+through the covariance matrix $\mat{C}$. Since the reconstruction operates on rectified IFU cubes,
+i.e.~data that have been resampled from the raw data,
+the pixel noises are correlated and $\mat{C}$ is non-diagonal.
+
+As an approximation, the pixel noises could be treated as uncorrelated, in which case $\mat{C}$ would be diagonal.
+If $\mat{C}$ were further approximated by the unit matrix (giving an unweighted least-squares reconstruction),
+$\mat{S}$ would be independent of the data and could be reused and even be provided as a static calibration in the METIS pipeline.
+
+Alternatively, the reconstruction algorithm can operate directly on unrectified detector data,
+producing the entire model cube in one pass, at the cost of having to work with significantly larger data and model vectors.
+This has an advantage of eliminating the first resampling, thus avoiding the need for the covariance matrix altogether.
+In this case the size of the data vector is $6 \times 4096 \times 4096 \approx 10^8$
+and the size of the model vector increases to $68 \times 68 \times 4096 \approx 2 \cdot 10^7$.
+The size of $\mat{A}$ is then enormous -- however as each detector pixel contributes
+to at most a small constant number of output voxels, it is also extremely sparse.
+
+Furthermore, as long as the distortion and the angle between the data pixels and across-slice direction is sufficiently small,
+it is possible to process the detector data in layers in the $\lambda$ direction separately
+with negligible loss of precision, as shown by \cite{Law+2023} for the MIRI instrument at JWST.
+The exact position of each detector pixel is translated directly to the output cube space,
+affecting at most a small constant number of layers in the $\lambda$ direction.
+
+\subsubsection{Precision of positions}
+    The described algorithm does not assume that exact positions of exposures are equidistant
+    and the differences in orientation of the exposure sets are exactly 90 degrees.
+    However, it assumes that the positions and rotations of the individual exposures
+    are \emph{known} with sufficient precision and stored in the corresponding FITS headers.
+
+    If this is not the case, repeated runs of the entire algorithm are required,
+    with relative positions and rotations of individual exposures varied by small values
+    on the order of a fraction of pixel size.
+    The solution for which the $\chi^2$ error (see equation \ref{eq:chi2_minimisation})
+    is minimal is then declared to be the best estimate of the original model image.
+
+\subsection{Data rates}
+\label{ssec:criticalifudatarate}
+\label{ssec:ifu_data_rate}
+
+\begin{table}[ht]
+  \centering
+  \caption{METIS Data Rates \\ The exposures in the IMG\_N burst mode will by default be averaged to $10\mathrm{Hz}$; the numbers given in this table for the IMG\_N burst mode assume an averaging to 44 ms, $\approx 25\mathrm{Hz}$.}\label{tab:data_rates}
+  \begin{tabular}{|l|r|r|c|c|}
+    \hline
+    \multicolumn{1}{|c|}{\textbf{Observing mode}} & \multicolumn{1}{c|}{\textbf{Max.\ rate}} & \multicolumn{1}{c|}{\textbf{Max.\ volume}} & \multicolumn{1}{c|}{\textbf{Night fraction}} & \multicolumn{1}{c|}{\textbf{Exp.\  volume}} \\
+    \multicolumn{1}{|c|}{ }                       & \multicolumn{1}{c|}{[MiB s$^{-1}$]}     & \multicolumn{1}{c|}{[TiB]}                & \multicolumn{1}{c|}{[per 10h night]}         & \multicolumn{1}{c|}{[TiB]}                \\
+    \hline\hline
+    \textbf{Imager}                               &                                         &                                           &                                              &                                           \\
+    IMG\_LM (burst mode)            & 200         & 5.49        & 0.10       & 0.55                                      \\
+    IMG\_N (burst mode)             & 182         & 4.99        & 0.10       & 0.50                                      \\
+    IMG\_N  (half-cycle average)    & 32          & 0.88        & 0.00       & 0.00                                      \\
+    IMG\_LMN  (parallel mode)       & 382         & 10.49       & 0.10       & 1.05                                      \\
+    \hline
+    \textbf{Spectroscopy}          &                            &                      &                  &                                           \\
+    SPEC\_LM                       & 200         & 5.49         & 0.05       & 0.27                       \\
+    SPEC\_N                        & 182         & 4.99         & 0.05       & 0.25                       \\
+    SPEC\_LMN  (parallel mode)     & 382         & 10.49        & 0.06       & 0.63                                      \\
+    IFU + IMG\_LM parallel (IFU)   & 64          & 1.76         & 0.54       & 1.25                       \\
+    IFU + IMG\_LM parallel (IMG)   & 200         & 5.49         & 0.54       & 2.67                                      \\
+    \hline
+  \end{tabular}
+\end{table}
+
+
+Observing with the shortest possible exposure times, for bright targets,
+results in high data rates (cf.~Table~\ref{tab:data_rates}, values taken from
+\cite{METIS-data_rates}). This is a potential problem for the observatory
+pipeline which has to deal with the data in semi-real time, meaning that no
+backlog of pending data reductions should accumulate.
+
+However, the maximum estimated data rate for a single mode has decreased by a
+factor of four between PDR and FDR because the rate by which the IFU detectors
+can be read out has been decreased. This helps ameliorate the issue.
+The fastest frame rate will be 1 Hz.
+Sources that would need faster frame rates will be observed with a coronagraph and/or a ND filter.
+
+In addition, the observatory pipeline does not have to perform a full data reduction
+as described in Sect.~\ref{sssec:ifu_sci_process}, but foremost compute a number
+of quality control parameters to assess the quality of the data and a
+"quick-look" at the data for the observers. In the course of the development of
+the observatory recipes, the details on how individual parts of the pipeline
+perform will become clear and there will be enough freedom in the choice of
+parameters to, if necessary, reduce the performance of the recipe if a high data
+stream is to be expected. Another option might be to compute QC parameters only
+on a subset of incoming frames.
+
+This is in compliance with \REQ{METIS-6075}.
+
+% Additional critical algos
+\input{CritAlgo_ADI}

@@ -1,0 +1,22 @@
+\paragraph{\PROD{N_SCI_RESTORED}} \label{dataitem:n_sci_restored}
+    \begin{recipedef}
+        \textbf{\ac{FITS} file structure:}\\
+        Name: & \PROD{N_SCI_RESTORED}\\[0.3cm]
+        Description: & N band image with a single positive beam restored from chop-nod image \\[0.3cm]
+        \FITS{PRO.CATG}: & \CODE{N_SCI_RESTORED} \\[0.3cm]
+        OCA keywords: & \FITS{DRS.FILTER}\\
+         & \FITS{PRO.CATG}\\
+        \FITS{DO.CATG}: & \CODE{N_SCI_RESTORED}\\[0.3cm]
+            Created by: & \REC{metis_n_img_restore} \\
+        Processing \ac{FITS} Keywords: & provided at \ac{PAE}\\
+    \end{recipedef}
+
+\begin{datastructdef}
+    \textbf{Corresponding \ac{CPL} structure:}
+    \begin{enumerate}
+            \item \texttt{cpl\_propertylist * keywords: Primary keywords (PRIMARY)}
+            \item \texttt{hdrl\_image * det1\_data: Extension DET1.DATA}
+            \item \texttt{cpl\_propertylist * plistarray[]: Extension keywords}
+    \end{enumerate}
+\end{datastructdef}
+
