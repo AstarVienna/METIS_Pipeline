@@ -27,6 +27,7 @@ import numpy as np
 import hdrl, cpl
 
 from pymetis.drl.image import zeros_like
+from pymetis.drl.combine import combine_images_hdrl
 from pymetis.drl.noise import estimate_noise_list, calculate_outliers
 from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.qc import QcParameterSet
@@ -398,8 +399,6 @@ class MetisBaseImgFlatTwilightImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
         return {product}
 
-
-
 class MetisBaseImgFlatLampImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
     class InputSet(DarkImageProcessor.InputSet):
         """
@@ -463,6 +462,15 @@ class MetisBaseImgFlatLampImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         self.inputset.raw.load_structure()
         raw_images = self.inputset.raw.load_data('DET1.DATA')
 
+        Msg.info(self.__class__.__qualname__, "Loading wcu,off images")
+
+        wcuoff = self.inputset.wcuoff.load_data('DET1.DATA')
+        wcuoff_images_list = estimate_noise_list(raw_images, 0)
+        method = self.parameters[f"{self.name}.stacking.method"].value
+
+        Msg.info(self.__class__.__qualname__, "Creating internal dark from wcu,off images")
+        wcuoff_masterdark = combine_images_hdrl(wcuoff_images_list, method)
+
         Msg.info(self.__class__.__qualname__, "Pretending to load DETLIN")
 
         # TODO add detlin stuff
@@ -485,8 +493,10 @@ class MetisBaseImgFlatLampImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 
         # Subtract the master dark. `subtract_dark` works on the list in place and
         # returns it, so the master flat below is computed from dark-subtracted frames.
-        raw_images_hdrl = self.subtract_dark(raw_images_hdrl)
-
+        
+        Msg.info(self.__class__.__qualname__, "subtracting internal dark")
+        
+        raw_images_hdrl.sub_image(wcuoff_masterdark)
         # FixMe: At skeleton level we just copy the header from the first raw
         primary_header = self.inputset.raw.items[0].primary_header
 
