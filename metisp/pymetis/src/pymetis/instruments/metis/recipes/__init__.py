@@ -35,6 +35,8 @@ from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_calibrate import Meti
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_sci_postprocess import MetisLmImgSciPostProcess
 
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_flat import MetisNImgFlat
+from pymetis.instruments.metis.recipes.n_img.metis_n_img_flat_lamp import MetisNImgFlatLamp
+from pymetis.instruments.metis.recipes.n_img.metis_n_img_flat_twilight import MetisNImgFlatTwilight
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_calibrate import MetisNImgCalibrate
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_distortion import MetisNImgDistortion
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_chopnod import MetisNImgChopnod

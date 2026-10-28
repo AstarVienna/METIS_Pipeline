@@ -21,12 +21,12 @@ from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
-from pymetis.instruments.metis.recipes.prefab import MetisBaseImgFlatImpl
+from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatTwilightImpl
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
 
 
-class MetisLmImgFlatTwilightImpl(PersistenceCorrectionMixin, BandLmMixin, Detector2rgMixin, MetisBaseImgFlatImpl):
-    class InputSet(MetisBaseImgFlatImpl.InputSet):
+class MetisLmImgFlatTwilightImpl(PersistenceCorrectionMixin, BandLmMixin, Detector2rgMixin, MetisBaseImgFlatTwilightImpl):
+    class InputSet(MetisBaseImgFlatTwilightImpl.InputSet):
         pass
 
 
