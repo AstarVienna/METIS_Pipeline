@@ -71,7 +71,7 @@ class TestValidation:
             inputset.validate()
 
     def test_a_complete_set_validates_and_collects_the_data_tags(self, tmp_path):
-        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import MetisLmImgFlatTwilightImpl
+        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_twilight import MetisLmImgFlatTwilightImpl
         frames = frameset(tmp_path, 'LM_FLAT_TWILIGHT_RAW', 'LM_FLAT_TWILIGHT_RAW', 'MASTER_DARK_2RG',
                           'GAIN_MAP_2RG', 'LINEARITY_2RG')
         inputset = MetisLmImgFlatTwilightImpl.InputSet(frames)
