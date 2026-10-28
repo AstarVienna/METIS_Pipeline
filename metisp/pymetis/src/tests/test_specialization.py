@@ -146,12 +146,15 @@ class TestContainerSpecialization:
     def test_the_recipe_input_set_is_narrowed_to_its_own_tags(self):
         """ A 2RG recipe's master dark input accepts MASTER_DARK_2RG only; the prefab it
         inherits from still declares the generic template for its other children. """
-        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import MetisLmImgFlatImpl
-        from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatImpl
-        inputs = dict(MetisLmImgFlatImpl.InputSet.list_input_classes())
+        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_twilight import MetisLmImgFlatTwilightImpl
+        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_lamp import MetisLmImgFlatLampImpl
+        from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatTwilightImpl
+        from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatLampImpl
+        inputs = dict(MetisLmImgFlatTwilightImpl.InputSet.list_input_classes())
         assert inputs['master_dark'].Item is MasterDark2rg
-        assert MetisLmImgFlatImpl.InputSet._specialized_for is MetisLmImgFlatImpl
-        assert dict(MetisBaseImgFlatImpl.InputSet.list_input_classes())['master_dark'].Item is MasterDark
+        assert MetisLmImgFlatLampImpl.InputSet._specialized_for is MetisLmImgFlatLampImpl
+        assert MetisLmImgFlatTwilightImpl.InputSet._specialized_for is MetisLmImgFlatTwilightImpl
+        assert dict(MetisBaseImgFlatTwilightImpl.InputSet.list_input_classes())['master_dark'].Item is MasterDark
 
     def test_an_input_set_specialized_twice_starts_from_the_original(self):
         from pymetis.instruments.metis.recipes.metis_det_dark import MetisDetDarkImpl as Impl

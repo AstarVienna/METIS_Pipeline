@@ -158,10 +158,10 @@ class TestDeclaredQcParametersAreWritten:
         'metis_cal_chophome', 'metis_det_lingain',
         'metis_ifu_calibrate', 'metis_ifu_distortion', 'metis_ifu_postprocess', 'metis_ifu_reduce', 'metis_ifu_telluric',
         'metis_img_adi_cgrph', 'metis_lm_adi_app',
-        'metis_lm_img_background', 'metis_lm_img_distortion', 'metis_lm_img_flat',
+        'metis_lm_img_background', 'metis_lm_img_distortion', 'metis_lm_img_flat_twilight','metis_lm_img_flat_lamp',
         'metis_lm_img_sci_postprocess', 'metis_lm_img_std_process',
         'metis_lm_lss_rsrf', 'metis_lm_lss_sci', 'metis_lm_lss_std', 'metis_lm_lss_trace', 'metis_lm_lss_wave',
-        'metis_n_img_chopnod', 'metis_n_img_distortion', 'metis_n_img_flat', 'metis_n_img_std_process',
+        'metis_n_img_chopnod', 'metis_n_img_distortion', 'metis_n_img_flat_lamp', 'metis_n_img_flat_twilight', 'metis_n_img_std_process',
         'metis_n_lss_rsrf', 'metis_n_lss_sci', 'metis_n_lss_std', 'metis_n_lss_trace',
     })
 
