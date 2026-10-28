@@ -288,7 +288,7 @@ class MetisBaseImgFlatLampImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         Msg.info(self.__class__.__qualname__, "Loading wcu,off images")
 
         wcuoff = self.inputset.wcuoff.load_data('DET1.DATA')
-        wcuoff_images_list = estimate_noise_list(raw_images, 0)
+        wcuoff_images_list = estimate_noise_list(wcuoff, 0)
         method = self.parameters[f"{self.name}.stacking.method"].value
         # using the same stacking paramter as the flats for now TODO update this
 

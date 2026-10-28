@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import (MetisLmImgFlatLamp as Recipe,
+from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_lamp import (MetisLmImgFlatLamp as Recipe,
                                                       MetisLmImgFlatLampImpl as Impl)
 from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
