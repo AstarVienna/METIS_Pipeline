@@ -48,7 +48,7 @@ if TYPE_CHECKING:
 class MetisBaseImgFlatTwilightImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
     class InputSet(DarkImageProcessor.InputSet):
         """
-        Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
+        Base class for Inputs which create twilight flats. Requires a set of raw frames and a master dark.
         """
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
@@ -224,7 +224,7 @@ class MetisBaseImgFlatTwilightImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
 class MetisBaseImgFlatLampImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
     class InputSet(DarkImageProcessor.InputSet):
         """
-        Base class for Inputs which create flats. Requires a set of raw frames and a master dark.
+        Base class for Inputs which create lamp flats. Requires a set of raw frames and a set of wcu,off frames.
         """
         class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
             pass
@@ -270,8 +270,9 @@ class MetisBaseImgFlatLampImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
     def process(self) -> set[DataItem]:
         """
         Do the actual processing of the images.
-        Here, it means loading the input images and a master dark,
-        then subtracting the master dark from every flat,
+        Here, it means loading the input images wcu,off frames,
+        creating an internal dark from the wcu,off frames
+        then subtracting the internal dark from every flat,
         and finally combining them into a master flat, using the HDRL flat methods.
         """
         # TODO: Detect detector
@@ -289,6 +290,7 @@ class MetisBaseImgFlatLampImpl(DarkImageProcessor, MetisRecipeImpl, ABC):
         wcuoff = self.inputset.wcuoff.load_data('DET1.DATA')
         wcuoff_images_list = estimate_noise_list(raw_images, 0)
         method = self.parameters[f"{self.name}.stacking.method"].value
+        # using the same stacking paramter as the flats for now TODO update this
 
         Msg.info(self.__class__.__qualname__, "Creating internal dark from wcu,off images")
         wcuoff_masterdark = combine_images_hdrl(wcuoff_images_list, method)

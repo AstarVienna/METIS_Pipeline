@@ -39,13 +39,16 @@ class MetisLmImgFlatLamp(Recipe):
     _description = "Prototype to create a master flat for L/M band"
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
-    _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
-    Subtract internal dark or master dark from flat exposures.
-    Call `metis_lm_img_flat` to fit slope of pixel values against illumination level.
-    Frames with the same exposure time will be averaged.
-    Compute median or average of input frames to improve statistics.
-    Call `metis_update_lm_flat_mask` to flag deviant pixels."""
+    _algorithm = """For internal/lamp flats: 
+    Correct input raw images for persistence, linearity, gain.
+    Combine WCU,OFF frames to create an internal dark frame. 
+    Subtract internal dark from each flat exposure.
+    Combine corrected flats using input stacking method.
+    Flag deviant pixels.
+    Calculate QC parameters.
+    """
 
+    
     parameters = ParameterList([
         ParameterEnum(
             name=f"{_name}.stacking.method",
