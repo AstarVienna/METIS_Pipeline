@@ -25,7 +25,6 @@ from pymetis.instruments.metis.recipes.cal.metis_cal_chophome import MetisCalCho
 from pymetis.instruments.metis.recipes.instrument.metis_pupil_imaging import MetisPupilImaging
 
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_basic_reduce import MetisLmImgBasicReduce
-from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import MetisLmImgFlat
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_twilight import MetisLmImgFlatTwilight
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_lamp import MetisLmImgFlatLamp
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_background import MetisLmImgBackground
@@ -34,7 +33,6 @@ from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_distortion import Met
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_calibrate import MetisLmImgCalibrate
 from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_sci_postprocess import MetisLmImgSciPostProcess
 
-from pymetis.instruments.metis.recipes.n_img.metis_n_img_flat import MetisNImgFlat
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_flat_lamp import MetisNImgFlatLamp
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_flat_twilight import MetisNImgFlatTwilight
 from pymetis.instruments.metis.recipes.n_img.metis_n_img_calibrate import MetisNImgCalibrate

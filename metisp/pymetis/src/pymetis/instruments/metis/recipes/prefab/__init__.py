@@ -21,7 +21,8 @@ from .rawimage import RawImageProcessor
 from .darkimage import DarkImageProcessor
 from pymetis.instruments.metis.recipes.prefab.img.calibrate import MetisImgCalibrateImpl
 from pymetis.instruments.metis.recipes.prefab.img.distortion import MetisBaseImgDistortionImpl
-from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatImpl
+from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatLampImpl
+from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatTwilightImpl
 
 
 __all__ = ['RawImageProcessor', 'DarkImageProcessor',

@@ -19,13 +19,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import pytest
 
-from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import (MetisLmImgFlat as Recipe,
-                                                      MetisLmImgFlatImpl as Impl)
+from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import (MetisLmImgFlatTwilight as Recipe,
+                                                      MetisLmImgFlatTwilightImpl as Impl)
 from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
 
 
-recipe_name = r'metis_lm_img_flat'
-targets = [r'lamp', r'twilight']
+recipe_name = r'metis_lm_img_flat_twilight'
+targets = [r'twilight']
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def name() -> str:
 
 @pytest.fixture
 def sof(name: str) -> str:
-    return rf'{name}.lamp.sof'
+    return rf'{name}.twilight.sof'
 
 
 class TestRecipe(BaseRecipeTest):
