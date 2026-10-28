@@ -63,20 +63,20 @@ class TestValidation:
     def test_a_calibration_of_another_detector_fails_validation_naming_the_expected_tag(self, tmp_path):
         """ The 2RG flat recipe accepts MASTER_DARK_2RG only; a GEO dark in the SOF used
         to be logged and forgotten, and the run died later on an unrelated promotion error. """
-        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import MetisLmImgFlatImpl
-        frames = frameset(tmp_path, 'LM_FLAT_LAMP_RAW', 'LM_FLAT_LAMP_RAW', 'MASTER_DARK_GEO',
+        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_twilight import MetisLmImgFlatTwilightImpl
+        frames = frameset(tmp_path, 'LM_FLAT_TWILIGHT_RAW', 'LM_FLAT_TWILIGHT_RAW', 'MASTER_DARK_GEO',
                           'GAIN_MAP_2RG', 'LINEARITY_2RG')
-        inputset = MetisLmImgFlatImpl.InputSet(frames)
+        inputset = MetisLmImgFlatTwilightImpl.InputSet(frames)
         with pytest.raises(cpl.core.DataNotFoundError, match='MASTER_DARK_2RG'):
             inputset.validate()
 
     def test_a_complete_set_validates_and_collects_the_data_tags(self, tmp_path):
-        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import MetisLmImgFlatImpl
-        frames = frameset(tmp_path, 'LM_FLAT_LAMP_RAW', 'LM_FLAT_LAMP_RAW', 'MASTER_DARK_2RG',
+        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat import MetisLmImgFlatTwilightImpl
+        frames = frameset(tmp_path, 'LM_FLAT_TWILIGHT_RAW', 'LM_FLAT_TWILIGHT_RAW', 'MASTER_DARK_2RG',
                           'GAIN_MAP_2RG', 'LINEARITY_2RG')
-        inputset = MetisLmImgFlatImpl.InputSet(frames)
+        inputset = MetisLmImgFlatTwilightImpl.InputSet(frames)
         inputset.validate()
-        assert inputset.tag_matches['source'] == 'LAMP'
+        assert inputset.tag_matches['source'] == 'TWILIGHT'
 
 
 class TestRecipeTagsAreAuthoritative:
