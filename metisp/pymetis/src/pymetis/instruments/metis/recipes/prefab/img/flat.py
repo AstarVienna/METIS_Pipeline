@@ -35,7 +35,7 @@ from pymetis.engine.dataitems import DataItem, PipelineProductSet
 
 from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.inputs import (RawInput, OptionalInputMixin,
-                                              PersistenceMapInput, GainMapInput, LinearityInput, WcuOffInput)
+                                              PersistenceMapInput, GainMapInput, LinearityInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import qc
