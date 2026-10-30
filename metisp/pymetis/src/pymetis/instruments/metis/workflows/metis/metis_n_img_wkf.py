@@ -1,8 +1,30 @@
-from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
-from edps import task, subworkflow, qc1calib, match_rules, FilterMode, calchecker
-from .metis_datasources import *
-from . import metis_keywords as metis_kwd
-from .metis_task_functions import *
+from edps import SCIENCE
+from edps import task
+from .metis_classification import (
+    flux_tab_class,
+    gain_map_geo_class,
+    linearity_geo_class,
+    master_dark_geo_class,
+    master_img_flat_lamp_n_class,
+    master_img_flat_twilight_n_class,
+    n_distortion_table_class,
+    n_sci_bkg_subtracted_class,
+    n_sci_calibrated_class,
+    n_std_bkg_subtracted_class,
+)
+from .metis_datasources import (
+    dark_geo_raw,
+    detlin_geo_raw,
+    fluxstd_catalog,
+    n_distortion_raw,
+    n_flat_lamp_raw,
+    n_image_sci_raw,
+    n_image_std_raw,
+    n_wcu_off_raw,
+    persistence_map,
+    pinhole_table,
+)
+from .metis_task_functions import setup_lingain_job
 
 n_img_lingain_task = (task('metis_n_img_lingain')
                 .with_recipe("metis_det_lingain")

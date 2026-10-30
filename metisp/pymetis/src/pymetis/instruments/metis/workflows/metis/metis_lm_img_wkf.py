@@ -1,8 +1,35 @@
-from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
-from edps import task, subworkflow, qc1calib, match_rules, FilterMode, calchecker
-from .metis_datasources import *
-from . import metis_keywords as metis_kwd
-from .metis_task_functions import *
+from edps import SCIENCE
+from edps import task
+from .metis_classification import (
+    flux_tab_class,
+    gain_map_h2rg_class,
+    linearity_h2rg_class,
+    lm_distortion_table_class,
+    lm_sci_basic_reduced_class,
+    lm_sci_bkg_subtracted_class,
+    lm_sci_calibrated_class,
+    lm_sky_basic_reduced_class,
+    lm_std_basic_reduced_class,
+    lm_std_bkg_subtracted_class,
+    master_dark_2rg_class,
+    master_img_flat_lamp_lm_class,
+    master_img_flat_twilight_lm_class,
+)
+from .metis_datasources import (
+    dark_2rg_raw,
+    detlin_2rg_raw,
+    fluxstd_catalog,
+    lm_distortion_raw,
+    lm_flat_lamp_raw,
+    lm_flat_twilight_raw,
+    lm_image_sci_raw,
+    lm_image_sky_raw,
+    lm_image_std_raw,
+    lm_wcu_off_raw,
+    persistence_map,
+    pinhole_table,
+)
+from .metis_task_functions import setup_lingain_job
 
 lm_img_lingain_task = (task('metis_lm_img_lingain')
                 .with_main_input(detlin_2rg_raw)

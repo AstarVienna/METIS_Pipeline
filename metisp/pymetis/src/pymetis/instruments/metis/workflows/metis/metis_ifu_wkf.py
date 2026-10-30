@@ -1,6 +1,39 @@
 from edps import task, SCIENCE
-from .metis_datasources import *
-from .metis_task_functions import *
+from .metis_classification import (
+    atm_profile_class,
+    flux_tab_class,
+    fluxstd_catalog_class,
+    gain_map_ifu_class,
+    ifu_distortion_table_class,
+    ifu_rsrf_class,
+    ifu_sci_combined_class,
+    ifu_sci_reduced_class,
+    ifu_std_combined_class,
+    ifu_telluric_class,
+    ifu_wavecal_class,
+    linearity_ifu_class,
+    lsf_kernel_class,
+    master_dark_ifu_class,
+    persistence_map_class,
+    pinhole_table_class,
+)
+from .metis_datasources import (
+    atm_profile,
+    badpix_map_ifu,
+    dark_ifu_raw,
+    detlin_ifu_raw,
+    fluxstd_catalog,
+    ifu_distortion_raw,
+    ifu_rsrf_raw,
+    ifu_sci_raw,
+    ifu_sky_raw,
+    ifu_std_raw,
+    ifu_wave_raw,
+    ifu_wcu_off_raw,
+    lsf_kernel,
+    persistence_map,
+)
+from .metis_task_functions import setup_lingain_job
 
 # --- Processing tasks ---
 

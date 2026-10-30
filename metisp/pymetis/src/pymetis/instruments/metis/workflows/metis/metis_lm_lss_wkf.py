@@ -9,12 +9,50 @@
 #
 
 """METIS LSS LM-Band workflow"""
-from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
-from edps import subworkflow, task, data_source, classification_rule
-from .metis_classification import *
-from .metis_datasources import *
-from .metis_task_functions import *
-from .metis_lm_lss_molecfit import telluric_on_standard, telluric_on_science
+from edps import SCIENCE, QC1_CALIB
+from edps import task
+from .metis_classification import (
+    gain_map_h2rg_class,
+    linearity_h2rg_class,
+    lm_adc_slitloss_class,
+    lm_lss_dist_sol_class,
+    lm_lss_sci_flux_1d_class,
+    lm_lss_std_1d_class,
+    lm_lss_synth_trans_class,
+    lm_lss_trace_class,
+    lm_lss_wave_guess_class,
+    master_dark_2rg_class,
+    master_lm_lss_rsrf_class,
+    master_lm_response_class,
+    mf_best_fit_tab_class,
+    std_transmission_class,
+)
+from .metis_datasources import (
+    ao_psf_model,
+    atm_line_cat,
+    atm_profile,
+    dark_2rg_raw,
+    detlin_2rg_raw,
+    laser_tab,
+    lm_adc_slitloss_raw,
+    lm_lss_dist_sol,
+    lm_lss_rsrf_pinh_raw,
+    lm_lss_rsrf_raw,
+    lm_lss_sci_raw,
+    lm_lss_std_raw,
+    lm_lss_wave_guess,
+    lm_lss_wave_raw,
+    lm_synth_trans,
+    lm_wcu_off_raw,
+    lsf_kernel,
+    persistence_map,
+    ref_std_cat,
+)
+from .metis_task_functions import (
+    on_science,
+    on_standard,
+    setup_lingain_job,
+)
 
 # ----------------------------------------------------------------------------
 # ------------------------ Processing tasks ----------------------------------
