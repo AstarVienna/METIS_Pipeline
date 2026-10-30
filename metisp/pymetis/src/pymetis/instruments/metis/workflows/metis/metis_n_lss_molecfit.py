@@ -4,9 +4,9 @@ from edps import subworkflow, task
 @subworkflow("telluric_on_standard", "")
 def telluric_on_standard(reference, target):
     # Create an atmospheric model using the telluric standard star as reference spectrum
-    model = (task('model_on_standard')
-             .with_recipe('metis_mf_model')
-             .build())
+    # model = (task('model_on_standard')
+    #          .with_recipe('metis_mf_model')
+    #          .build())
 
     # Computing the transmission curve using the information from the science target
     # and the atmospheric model computed om the telluric standard stare.
@@ -25,9 +25,9 @@ def telluric_on_science(target):
     # ------------------------------------------------------------------------------------------------------------------
 
     # Create an atmospheric model using the selected science spectrum as reference.
-    model = (task('model_on_science')
-             .with_recipe('metis_mf_model')
-             .build())
+    # model = (task('model_on_science')
+    #          .with_recipe('metis_mf_model')
+    #          .build())
 
     # Computing the transmission curve using the information from the science target
     # and the atmospheric model computed om the telluric standard star.
