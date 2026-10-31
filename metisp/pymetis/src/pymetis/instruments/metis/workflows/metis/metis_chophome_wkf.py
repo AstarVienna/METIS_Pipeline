@@ -4,10 +4,12 @@ Imports basic image processing from the basic imaging workflow.
 TODO - need N band version
 """
 
-from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
+from edps import SCIENCE
 from edps import task, data_source, classification_rule
-from .metis_datasources import *
-from . import metis_keywords as metis_kwd
+from .metis_datasources import (
+    lm_wcu_off_raw,
+    persistence_map,
+)
 
 
 lm_chophome_class = classification_rule("LM_CHOPHOME_RAW",

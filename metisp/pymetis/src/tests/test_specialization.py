@@ -149,7 +149,6 @@ class TestContainerSpecialization:
         from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_twilight import MetisLmImgFlatTwilightImpl
         from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_flat_lamp import MetisLmImgFlatLampImpl
         from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatTwilightImpl
-        from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatLampImpl
         inputs = dict(MetisLmImgFlatTwilightImpl.InputSet.list_input_classes())
         assert inputs['master_dark'].Item is MasterDark2rg
         assert MetisLmImgFlatLampImpl.InputSet._specialized_for is MetisLmImgFlatLampImpl
