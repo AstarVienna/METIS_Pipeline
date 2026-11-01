@@ -232,8 +232,9 @@ class EnhancedImageBase:
             extno, header = extensions[extname]
             # FITS stores a 2D plane as NAXIS == 2 and a stack as NAXIS == 3.
             klass = CplImageList if header['NAXIS'].value == 3 else CplImage
-            # The type the file holds unless the caller insists (DQ is always INT).
-            return klass.load(filename, pixel_type or hdu_pixel_type(header), extno), header
+            # The type the file holds unless the caller insists (DQ is always INT);
+            # `UNSPECIFIED` makes CPL keep the native BITPIX type.
+            return klass.load(filename, pixel_type or CplType.UNSPECIFIED, extno), header
 
         image, header_image = read_layer(cls.sci_suffix)
         if image is None:
