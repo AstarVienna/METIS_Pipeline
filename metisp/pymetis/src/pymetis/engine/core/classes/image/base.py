@@ -224,7 +224,7 @@ class EnhancedImageBase:
 
         def read_layer(
                 suffix: str,
-                pixel_type: CplType = CplType.FLOAT,
+                pixel_type: Optional[CplType] = None,
         ) -> tuple[Optional[CplImage | CplImageList], Optional[CplPropertyList]]:
             extname = f'{prefix}.{suffix}'
             if extname not in extensions:
@@ -232,7 +232,8 @@ class EnhancedImageBase:
             extno, header = extensions[extname]
             # FITS stores a 2D plane as NAXIS == 2 and a stack as NAXIS == 3.
             klass = CplImageList if header['NAXIS'].value == 3 else CplImage
-            return klass.load(filename, pixel_type, extno), header
+            # The type the file holds unless the caller insists (DQ is always INT).
+            return klass.load(filename, pixel_type or hdu_pixel_type(header), extno), header
 
         image, header_image = read_layer(cls.sci_suffix)
         if image is None:
@@ -292,7 +293,7 @@ class EnhancedImageBase:
             combined = mask if combined is None else (combined | mask)
         return CplMask(combined)
 
-    def check_nan_safe(self, bits: InstrumentDescription.MaskFlags | EllipsisType = ...) -> bool:
+    def is_nan_safe(self, bits: InstrumentDescription.MaskFlags | EllipsisType = ...) -> bool:
         """
         Whether every NaN in the science planes is covered by the selected DQ bits.
         By default, any set bit counts.
