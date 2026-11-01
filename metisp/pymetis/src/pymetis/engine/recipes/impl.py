@@ -22,6 +22,7 @@ from typing import Dict, Any, final, Optional, TYPE_CHECKING
 import cpl
 from cpl.core import Msg
 
+from pymetis.engine.core.classes.instrument import InstrumentDescription
 from pymetis.engine.core.parameter import Parameter, ParameterList
 from pymetis.engine.core.parametrizable import Parametrizable
 
@@ -42,6 +43,11 @@ class RecipeImpl(Parametrizable, ABC):
     InputSet: Optional[type[PipelineInputSet]] = None
     ProductSet: Optional[type[PipelineProductSet]] = PipelineProductSet
     Qc: Optional[type[QcParameterSet]] = QcParameterSet
+    # The instrument this recipe belongs to (its description class): for instance, its `MaskFlags`
+    # are written into every DQ extension header when a product is saved. Instrument base classes
+    # set this, together with the pipeline identifier that goes into `ESO PRO PIPE ID`.
+    instrument: Optional[type[InstrumentDescription]] = None
+    pipeline_id: Optional[str] = None
 
     # Available parameters are a class variable. This must be present, even if empty.
     parameters = ParameterList([])
