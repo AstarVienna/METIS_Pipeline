@@ -1,8 +1,35 @@
-from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
-from edps import task, subworkflow, qc1calib, match_rules, FilterMode, calchecker
-from .metis_datasources import *
-from . import metis_keywords as metis_kwd
-from .metis_task_functions import *
+from edps import SCIENCE
+from edps import task
+from .metis_classification import (
+    flux_tab_class,
+    gain_map_h2rg_class,
+    linearity_h2rg_class,
+    lm_distortion_table_class,
+    lm_sci_basic_reduced_class,
+    lm_sci_bkg_subtracted_class,
+    lm_sci_calibrated_class,
+    lm_sky_basic_reduced_class,
+    lm_std_basic_reduced_class,
+    lm_std_bkg_subtracted_class,
+    master_dark_2rg_class,
+    master_img_flat_lamp_lm_class,
+    master_img_flat_twilight_lm_class,
+)
+from .metis_datasources import (
+    dark_2rg_raw,
+    detlin_2rg_raw,
+    fluxstd_catalog,
+    lm_distortion_raw,
+    lm_flat_lamp_raw,
+    lm_flat_twilight_raw,
+    lm_image_sci_raw,
+    lm_image_sky_raw,
+    lm_image_std_raw,
+    lm_wcu_off_raw,
+    persistence_map,
+    pinhole_table,
+)
+from .metis_task_functions import setup_lingain_job
 
 lm_img_lingain_task = (task('metis_lm_img_lingain')
                 .with_main_input(detlin_2rg_raw)
@@ -17,19 +44,28 @@ lm_img_dark_task = (task('metis_lm_img_dark')
             .with_recipe("metis_det_dark")
             .build())
 
-lm_img_flat_task = (task("metis_lm_img_flat")
+lm_img_flat_twilight_task = (task("metis_lm_img_flat_twilight")
+             .with_main_input(lm_flat_twilight_raw)
+             .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
+             .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
+             .with_associated_input(persistence_map)
+             .with_recipe("metis_lm_img_flat_twilight")
+             .build())
+
+lm_img_flat_lamp_task = (task("metis_lm_img_flat_lamp")
              .with_main_input(lm_flat_lamp_raw)
              .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
              .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
              .with_associated_input(persistence_map)
-             .with_recipe("metis_lm_img_flat")
+             .with_associated_input(lm_wcu_off_raw)
+             .with_recipe("metis_lm_img_flat_lamp")
              .build())
 
 lm_img_distortion_task = (task('metis_lm_img_distortion')
                    .with_main_input(lm_distortion_raw)
                    .with_associated_input(lm_wcu_off_raw)
                    .with_associated_input(pinhole_table)
-                   .with_associated_input(lm_img_flat_task, [master_img_flat_lamp_lm_class])
+                   .with_associated_input(lm_img_flat_lamp_task, [master_img_flat_lamp_lm_class])
                    .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
                    .with_associated_input(persistence_map)
                    .with_recipe('metis_lm_img_distortion')
@@ -40,7 +76,7 @@ lm_img_basic_reduce_sci_task = (task('metis_lm_img_basic_reduce_sci')
                     .with_main_input(lm_image_sci_raw)
                     .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
                     .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
-                    .with_associated_input(lm_img_flat_task, [master_img_flat_lamp_lm_class])
+                    .with_associated_input(lm_img_flat_twilight_task, [master_img_flat_twilight_lm_class])
                     .with_associated_input(persistence_map)
                     .with_meta_targets([SCIENCE])
                     .build())
@@ -50,7 +86,7 @@ lm_img_basic_reduce_sky_task = (task('metis_lm_img_basic_reduce_sky')
                     .with_main_input(lm_image_sky_raw)
                     .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
                     .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
-                    .with_associated_input(lm_img_flat_task, [master_img_flat_lamp_lm_class])
+                    .with_associated_input(lm_img_flat_twilight_task, [master_img_flat_twilight_lm_class])
                     .with_associated_input(persistence_map)
                     .with_meta_targets([SCIENCE])
                     .build())
@@ -60,7 +96,7 @@ lm_img_basic_reduce_std_task = (task('metis_lm_img_basic_reduce_std')
                     .with_main_input(lm_image_std_raw)
                     .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
                     .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
-                    .with_associated_input(lm_img_flat_task, [master_img_flat_lamp_lm_class])
+                    .with_associated_input(lm_img_flat_twilight_task, [master_img_flat_twilight_lm_class])
                     .with_associated_input(persistence_map)
                     .with_meta_targets([SCIENCE])
                     .build())

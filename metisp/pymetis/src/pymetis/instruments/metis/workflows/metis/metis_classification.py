@@ -41,7 +41,7 @@ lm_flat_lamp_raw_class = classification_rule("LM_FLAT_LAMP_RAW",
     })
 
 # Twilight flat calibration classification
-lm_twilight_flat_class = classification_rule("LM_FLAT_TWILIGHT_RAW",
+lm_flat_twilight_raw_class = classification_rule("LM_FLAT_TWILIGHT_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
      metis_kwd.dpr_type: "FLAT,TWILIGHT",
@@ -121,7 +121,7 @@ n_flat_lamp_raw_class = classification_rule("N_FLAT_LAMP_RAW",
     })
 
 # Twilight flat calibration classification
-n_twilight_flat_class = classification_rule("N_FLAT_TWILIGHT_RAW",
+n_flat_twilight_raw_class = classification_rule("N_FLAT_TWILIGHT_RAW",
     {metis_kwd.instrume: "METIS",
      metis_kwd.dpr_catg: "CALIB",
      metis_kwd.dpr_type: "FLAT,TWILIGHT",
@@ -538,6 +538,15 @@ master_img_flat_lamp_lm_class = classification_rule("MASTER_IMG_FLAT_LAMP_LM",
 
 master_img_flat_lamp_n_class = classification_rule("MASTER_IMG_FLAT_LAMP_N",
     {metis_kwd.pro_catg: "MASTER_IMG_FLAT_LAMP_N",
+    })
+
+# Master imaging flats (pipeline products from metis_lm_img_flat / metis_n_img_flat)
+master_img_flat_twilight_lm_class = classification_rule("MASTER_IMG_FLAT_TWILIGHT_LM",
+    {metis_kwd.pro_catg: "MASTER_IMG_FLAT_TWILIGHT_LM",
+    })
+
+master_img_flat_twilight_n_class = classification_rule("MASTER_IMG_FLAT_TWILIGHT_N",
+    {metis_kwd.pro_catg: "MASTER_IMG_FLAT_TWILIGHT_N",
     })
 
 # IMG distortion tables (pipeline products from metis_lm_img_distortion / metis_n_img_distortion)

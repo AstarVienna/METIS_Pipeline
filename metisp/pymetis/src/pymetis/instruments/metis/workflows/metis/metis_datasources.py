@@ -1,7 +1,82 @@
 from edps import data_source
-from edps.generator.time_range import *
+from edps.generator.time_range import (
+    ONE_DAY,
+    ONE_MONTH,
+    ONE_WEEK,
+    QUARTERLY,
+    UNLIMITED,
+)
+from . import metis_keywords as metis_kwd
+from .metis_classification import (
+    ao_psf_model_class,
+    atm_line_cat_class,
+    atm_profile_class,
+    badpix_map_geo_class,
+    badpix_map_h2rg_class,
+    badpix_map_ifu_class,
+    dark_2rg_raw_class,
+    dark_geo_raw_class,
+    dark_ifu_raw_class,
+    detlin_2rg_raw_class,
+    detlin_geo_raw_class,
+    detlin_ifu_raw_class,
+    fluxstd_catalog_class,
+    gain_map_geo_class,
+    gain_map_h2rg_class,
+    ifu_distortion_raw_class,
+    ifu_rsrf_raw_class,
+    ifu_sci_raw_class,
+    ifu_sky_raw_class,
+    ifu_std_raw_class,
+    ifu_wave_raw_class,
+    ifu_wavecal_class,
+    ifu_wcu_off_raw_class,
+    laser_tab_class,
+    linearity_geo_class,
+    linearity_h2rg_class,
+    lm_adc_slitloss_class,
+    lm_adc_slitloss_raw_class,
+    lm_distortion_raw_class,
+    lm_flat_lamp_raw_class,
+    lm_flat_twilight_raw_class,
+    lm_image_sci_raw_class,
+    lm_image_sky_raw_class,
+    lm_image_std_raw_class,
+    lm_lss_dist_sol_class,
+    lm_lss_rsrf_pinh_raw_class,
+    lm_lss_rsrf_raw_class,
+    lm_lss_sci_flux_1d_class,
+    lm_lss_sci_raw_class,
+    lm_lss_std_raw_class,
+    lm_lss_wave_guess_class,
+    lm_lss_wave_raw_class,
+    lm_synth_trans_class,
+    lm_wcu_off_raw_class,
+    lsf_kernel_class,
+    mf_best_fit_tab_class,
+    n_adc_slitloss_class,
+    n_adc_slitloss_raw_class,
+    n_distortion_raw_class,
+    n_flat_lamp_raw_class,
+    n_flat_twilight_raw_class,
+    n_image_sci_raw_class,
+    n_image_sky_raw_class,
+    n_image_std_raw_class,
+    n_lss_dist_sol_class,
+    n_lss_rsrf_pinh_raw_class,
+    n_lss_rsrf_raw_class,
+    n_lss_sci_flux_1d_class,
+    n_lss_sci_raw_class,
+    n_lss_std_raw_class,
+    n_lss_wave_guess_class,
+    n_lss_wave_raw_class,
+    n_synth_trans_class,
+    n_wcu_off_raw_class,
+    persistence_map_class,
+    pinhole_table_class,
+    ref_std_cat_class,
+)
 
-from .metis_classification import *
 
 # Convention for Data sources Association rule levels:
 # Each data source can have several match function which correspond to different
@@ -23,6 +98,7 @@ detlin_2rg_raw = (data_source()
             .with_classification_rule(detlin_2rg_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
             .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 dark_2rg_raw = (data_source()
@@ -30,18 +106,28 @@ dark_2rg_raw = (data_source()
             .with_grouping_keywords(["det.ndit","det.dit"])
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_MONTH)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 lm_flat_lamp_raw = (data_source()
             .with_classification_rule(lm_flat_lamp_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_WEEK)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
+            .build())
+
+lm_flat_twilight_raw = (data_source()
+            .with_classification_rule(lm_flat_twilight_raw_class)
+            .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
+            .with_match_keywords(["instrume"], level=2, time_range=ONE_WEEK)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 lm_distortion_raw = (data_source()
             .with_classification_rule(lm_distortion_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
             .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 lm_wcu_off_raw = (data_source()
@@ -70,6 +156,7 @@ detlin_geo_raw = (data_source()
             .with_classification_rule(detlin_geo_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
             .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 dark_geo_raw = (data_source()
@@ -77,6 +164,7 @@ dark_geo_raw = (data_source()
             .with_grouping_keywords(["det.ndit","det.dit"])
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_MONTH)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 n_flat_lamp_raw = (data_source()
@@ -84,16 +172,29 @@ n_flat_lamp_raw = (data_source()
             .with_grouping_keywords(["instrume","tpl.start"])
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_WEEK)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
+            .build())
+
+n_flat_twilight_raw = (data_source()
+            .with_classification_rule(n_flat_twilight_raw_class)
+            .with_grouping_keywords(["instrume","tpl.start"])
+            .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
+            .with_match_keywords(["instrume"], level=2, time_range=ONE_WEEK)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 n_distortion_raw = (data_source()
             .with_classification_rule(n_distortion_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
             .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 n_wcu_off_raw = (data_source()
             .with_classification_rule(n_wcu_off_raw_class)
+            .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
+            .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .with_match_keywords(["instrume"])
             .build())
 
@@ -128,6 +229,7 @@ detlin_ifu_raw = (data_source()
               .with_classification_rule(detlin_ifu_raw_class)
               .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
               .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
               .build())
 
 dark_ifu_raw = (data_source()
@@ -135,18 +237,21 @@ dark_ifu_raw = (data_source()
             .with_grouping_keywords(["det.ndit","det.dit"])
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_MONTH)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 ifu_distortion_raw = (data_source()
                   .with_classification_rule(ifu_distortion_raw_class)
                   .with_match_keywords(["instrume"], level=0, time_range=ONE_MONTH)
                   .with_match_keywords(["instrume"], level=2, time_range=QUARTERLY)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
                   .build())
 
 ifu_wave_raw = (data_source()
             .with_classification_rule(ifu_wave_raw_class)
             .with_match_keywords(["instrume"], level=0, time_range=ONE_DAY)
             .with_match_keywords(["instrume"], level=2, time_range=ONE_WEEK)
+            .with_match_keywords(["instrume"], level=3, time_range=UNLIMITED)
             .build())
 
 ifu_rsrf_raw = (data_source()

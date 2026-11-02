@@ -20,31 +20,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterValue
 
-from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
-from pymetis.instruments.metis.recipes.prefab import MetisBaseImgFlatImpl
+from pymetis.instruments.metis.mixins import BandNMixin, DetectorGeoMixin
+from pymetis.instruments.metis.recipes.prefab.img.flat import MetisBaseImgFlatTwilightImpl
 from pymetis.instruments.metis.recipes.prefab.persistence import PersistenceCorrectionMixin
 
 
-class MetisLmImgFlatImpl(PersistenceCorrectionMixin, BandLmMixin, Detector2rgMixin, MetisBaseImgFlatImpl):
-    class InputSet(MetisBaseImgFlatImpl.InputSet):
+class MetisNImgFlatTwilightImpl(PersistenceCorrectionMixin, BandNMixin, DetectorGeoMixin, MetisBaseImgFlatTwilightImpl):
+    class InputSet(MetisBaseImgFlatTwilightImpl.InputSet):
         pass
 
 
-class MetisLmImgFlat(Recipe):
-    _name = "metis_lm_img_flat"
+class MetisNImgFlatTwilight(Recipe):
+    _name = "metis_n_img_flat_twilight"
     _version = "0.1"
     _author = "A*"
     _email = "hugo@buddelmeijer.nl"
-    _synopsis = "Create master flat for L/M band detectors"
-    _description = "Prototype to create a master flat for L/M band"
+    _synopsis = "Create master flat for N band detectors"
+    _description = "Prototype to create a METIS master flat for N band"
 
     _matched_keywords: frozenset[str] = frozenset({'DET.DIT', 'DET.NDIT', 'DRS.FILTER'})
-    _algorithm = """For internal flats: call metis_det_dark with LAMP OFF images to create dark frame.
+    _algorithm = """For internal flats: call metis_det_dark with LAMP OFF im ages to create dark frame.
     Subtract internal dark or master dark from flat exposures.
-    Call `metis_lm_img_flat` to fit slope of pixel values against illumination level.
+    Call metis_n_img_flat to fit slope of pixel values against illumination level.
     Frames with the same exposure time will be averaged.
     Compute median or average of input frames to improve statistics.
-    Call `metis_update_lm_flat_mask` to flag deviant pixels."""
+    Call metis_update_n_flat_mask to flag deviant pixels."""
 
     parameters = ParameterList([
         ParameterEnum(
@@ -52,7 +52,7 @@ class MetisLmImgFlat(Recipe):
             context=_name,
             description="Name of the method used to combine the input images",
             default="average",
-            alternatives=("average", "median"),
+            alternatives=("add", "average", "median"),
         ),
         ParameterValue(
             name=f"{_name}.outliers.kappa_low",
@@ -66,6 +66,7 @@ class MetisLmImgFlat(Recipe):
             description="Upper threshold for bad pixels",
             default=10,
         ),
+
     ])
 
-    Impl = MetisLmImgFlatImpl
+    Impl = MetisNImgFlatTwilightImpl
