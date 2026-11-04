@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Python package versions are derived from Git tags and history.
+          fetch-depth: 0
       - name: Install dependencies
         run: |
           sudo ./toolbox/install_dependencies_ubuntu.sh

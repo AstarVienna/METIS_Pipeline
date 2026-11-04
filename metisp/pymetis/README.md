@@ -6,6 +6,26 @@ one non-obvious mechanism you must understand before reading anything else
 (the *tag* system), and the recipes for the two most common tasks: adding a
 recipe and adding a data item.
 
+## Package version and builds
+
+The package version comes from Git tags through
+[poetry-dynamic-versioning](https://github.com/mtkennerly/poetry-dynamic-versioning).
+A release tag such as `v0.4.1` produces version `0.4.1`. Commits after a tag
+produce a PEP 440 development version containing the commit distance and hash.
+The `0.0.0` value in `[tool.poetry]` is only a required placeholder.
+
+Build from this directory with `python -m build` or `uv build`. The build
+frontend installs the versioning backend automatically; Poetry 2 users can
+install its declared plugin with `poetry install` before `poetry build`.
+Git builds need the repository history and tags: use
+`git fetch --unshallow --tags` for a shallow clone, or `fetch-depth: 0` with
+GitHub Actions checkout.
+Missing version tags cause an error instead of silently using a dummy version.
+
+Generated source distributions preserve the resolved version and can be built
+without Git. For other source copies without Git metadata, set
+`POETRY_DYNAMIC_VERSIONING_BYPASS` to the intended version when building.
+
 ## Package layout
 
 ```
