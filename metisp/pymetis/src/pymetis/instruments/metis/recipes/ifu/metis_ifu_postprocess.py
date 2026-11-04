@@ -83,7 +83,7 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
         pass
 
     def coadd_cubes(self):
-        calibrated = self.inputset.sci_cube_calibrated.load_data('IMAGE')
+        calibrated = self.inputset.sci_cube_calibrated.load_data('DET1.SCI')
         coadded = calibrated.collapse_create()
         return coadded
 
@@ -99,7 +99,9 @@ class MetisIfuPostprocessImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
 
         product = self.ProductSet.SciCoadd(
             primary_header,
-            Hdu(header_coadd, coadded, name='IMAGE')
+            Hdu(header_coadd, coadded, name='DET1.SCI'),
+            Hdu(header_coadd, coadded, name='DET1.ERR'),
+            Hdu(header_coadd, coadded, name='DET1.DQ')
         )
 
         # FixMe: compute the real QC values; None marks a parameter that is not available yet

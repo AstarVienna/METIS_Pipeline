@@ -50,13 +50,15 @@ class MetisImgCalibrateImpl(TargetSciMixin, MetisRecipeImpl, ABC):
         """ No QC outputs """
 
     def process(self) -> set[DataItem]:
-        background = self.inputset.background.load_data('DET1.DATA')
+        background = self.inputset.background.load_data('DET1.SCI')
         primary_header = self.inputset.background.item.primary_header
         header = create_dummy_header()
 
         product_calibrated = self.ProductSet.SciCalibrated(
             primary_header,
-            Hdu(header, background, name='DET1.DATA'),
+            Hdu(header, background, name='DET1.SCI'),
+            Hdu(header, background, name='DET1.ERR'),
+            Hdu(header, background, name='DET1.DQ'),
         )
 
         return {product_calibrated}

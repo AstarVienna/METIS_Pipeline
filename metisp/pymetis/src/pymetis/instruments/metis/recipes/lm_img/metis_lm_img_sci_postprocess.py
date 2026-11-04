@@ -85,7 +85,7 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
 
     def process(self) -> set[DataItem]:
         print(self.__class__.ProductSet.__mro__)
-        raw_images = self.inputset.raw.load_data('DET1.DATA')
+        raw_images = self.inputset.raw.load_data('DET1.SCI')
         combined_image = self.combine_images(raw_images, "average")
 
         primary_header = self.inputset.raw.items[0].primary_header
@@ -93,7 +93,9 @@ class MetisLmImgSciPostProcessImpl(RawImageProcessor, MetisRecipeImpl):
 
         product_coadd = self.ProductSet.LmImgSciCoadd(
             primary_header,
-            Hdu(header_combined, combined_image, name='IMAGE')
+            Hdu(header_combined, combined_image, name='DET1.SCI'),
+            Hdu(header_combined, combined_image, name='DET1.ERR'),
+            Hdu(header_combined, combined_image, name='DET1.DQ')
         )
 
         # FixMe: compute the real QC values; None marks a parameter that is not available yet

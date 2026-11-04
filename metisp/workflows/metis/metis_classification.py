@@ -54,6 +54,7 @@ lm_image_sci_raw_class = classification_rule("LM_IMAGE_SCI_RAW",
      metis_kwd.dpr_catg: "SCIENCE",
      metis_kwd.dpr_type: "OBJECT",
      metis_kwd.dpr_tech: "IMAGE,LM",
+     metis_kwd.ins_mode: "IMG_LM",
     })
 
 lm_image_sky_raw_class = classification_rule("LM_IMAGE_SKY_RAW",

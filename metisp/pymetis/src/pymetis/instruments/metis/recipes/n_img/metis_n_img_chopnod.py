@@ -111,7 +111,9 @@ class MetisNImgChopnodImpl(BandNMixin, DetectorGeoMixin, DarkImageProcessor, Met
 
         product_reduced = self.ProductSet.Reduced(
             copy.deepcopy(primary_header),
-            Hdu(header_reduced, combined_image, name='DET1.DATA')
+            Hdu(header_reduced, combined_image, name='DET1.SCI'),
+            Hdu(header_reduced, combined_image, name='DET1.ERR'),
+            Hdu(header_reduced, combined_image, name='DET1.DQ')
         )
         #product_background = self.ProductSet.Background(
         #    copy.deepcopy(primary_header),

@@ -72,9 +72,20 @@ class Calibrated(ImageDataItem, abstract=True):
 class SciCalibrated(TargetSciMixin, Calibrated, abstract=True):
     """ Calibrated science image of either band: the input of the band-generic ADI recipes. """
 
+    _schema = ImageDataItem.EMPTY_PRIMARY | {
+        'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
+    }
+
 
 class LmStdCalibrated(BandLmMixin, TargetStdMixin, Calibrated):
-    pass
+
+    _schema = ImageDataItem.EMPTY_PRIMARY | {
+        'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
+    }
 
 
 class LmSciCalibrated(BandLmMixin, SciCalibrated):
@@ -82,7 +93,13 @@ class LmSciCalibrated(BandLmMixin, SciCalibrated):
 
 
 class NStdCalibrated(BandNMixin, TargetStdMixin, Calibrated):
-    pass
+    
+    _schema = ImageDataItem.EMPTY_PRIMARY | {
+        'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
+    }
+
 
 
 class NSciCalibrated(BandNMixin, SciCalibrated):

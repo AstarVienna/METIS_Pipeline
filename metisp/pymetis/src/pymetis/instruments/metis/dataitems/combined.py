@@ -37,7 +37,9 @@ class Combined(ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
-        'IMAGE': Image,
+        'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
     }
 
 
