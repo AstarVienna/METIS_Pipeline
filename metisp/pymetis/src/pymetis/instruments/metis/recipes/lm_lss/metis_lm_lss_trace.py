@@ -18,7 +18,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum
+from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, 
+                                        ParameterRange, ParameterValue)
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.prefab.lss.trace import MetisLssTraceImpl
@@ -28,6 +29,11 @@ class MetisLmLssTraceImpl(BandLmMixin, Detector2rgMixin, MetisLssTraceImpl):
     class InputSet(MetisLssTraceImpl.InputSet):
         pass
 
+    class ProductSet(MetisLssTraceImpl.ProductSet):
+        pass
+
+    class QcParameterSet(MetisLssTraceImpl.QcParameterSet):
+        pass
 
 class MetisLmLssTrace(Recipe):
     # The information about the recipe needs to be set. The base class
@@ -47,16 +53,135 @@ class MetisLmLssTrace(Recipe):
     _algorithm = """Fancy algorithm description follows ***TBD*** """
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # TODO: Implement real parameters
     parameters = ParameterList([
-        ParameterEnum(
-            name=f"{_name}.parameter1",
+        ParameterRange(
+            name=f"{_name}.trace.degree",
             context=_name,
-            description="Description of parameter 1",
-            default="value1",
-            alternatives=("value2", "value1"),
+            description="Polynomial degree of the fit to each slice",
+            default=4,
+            min=1, # TODO what are the correct ranges to use
+            max=5,
         ),
+
+        # TODO max_error
+
+        ParameterValue(
+            name=f"{_name}.trace.degree_before_merge",
+            context=_name,
+            description="Polynomial degree used while rating candidate merges, where "
+                        "the fits are still poorly constrained. An integer, or 'best' "
+                        "to choose one per cluster",
+            default="best",
+        ),
+
+        # TODO bias scaling
+        # TODO norm scaling
+        # TODO regularisaton
+        # TODO closing shape
+        # TODO opening shape
+
+        ParameterRange(
+            name=f"{_name}.trace.auto_merge_threshold",
+            context=_name,
+            description="Overlap rating at or above which two clusters are merged "
+                        "into one slice. 1 disables merging",
+            default=0.9,
+            min=0.0,
+            max=1.0,
+        ),
+
+        ParameterRange(
+            name=f"{_name}.trace.merge_min_threshold",
+            context=_name,
+            description="Overlap rating below which a pair of clusters is not "
+                        "considered for merging",
+            default=0.01,
+            min=0.0,
+            max=1.0,
+        ),
+
+        # TODO double check this is the same as split_sigma in config
+        ParameterValue(
+            name=f"{_name}.trace.sigma",
+            context=_name,
+            description="If positive, split clusters that deviate from the common "
+                        "trace shape by more than this many standard deviations",
+            default=0.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.filter_x",
+            context=_name,
+            description="Smoothing width along the dispersion direction, applied "
+                        "before thresholding. 0 disables it",
+            default=0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.filter_y",
+            context=_name,
+            description="Smoothing width along the cross-dispersion direction, "
+                        "used to estimate the local background",
+            default=20,
+        ),
+
+        ParameterEnum(
+            name=f"{_name}.trace.filter_type",
+            context=_name,
+            description="Smoothing kernel used to estimate the local background. "
+                        "'whittaker' preserves edges best, 'boxcar' is cheapest",
+            default="boxcar",
+            alternatives=("boxcar", "gaussian", "whittaker"),
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.min_cluster",
+            context=_name,
+            description="Smallest acceptable cluster of illuminated pixels, in pixels",
+            default=100,
+        ),
+
+        # TODO ive copied this from IFU, but im not sure if it is the same in LSS
+        # the default seems to be None, which is what raised an alarm bell to me
+        # Need to double check this before including
+        # I also dont see this in the input in pyreduce
+#        ParameterRange(
+#            name=f"{_name}.trace.min_width",
+#            context=_name,
+#            description="Smallest acceptable cluster extent along the dispersion "
+#                        "direction, as a fraction of the detector width. "
+#                        "0 disables the check",
+#            default=0.25,
+#            min=0.0,
+#            max=1.0,
+#        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.noise",
+            context=_name,
+            description="Absolute detection threshold above the local background",
+            default=120.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.noise_relative",
+            context=_name,
+            description="Detection threshold as a fraction of the local background. "
+                        "If this and the absolute threshold are both 0, 0.1% is used",
+            default=0.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.border_width",
+            context=_name,
+            description="Number of pixels to ignore at each detector edge",
+            default=6,
+        ),
+
+        # TODO manual
+        # TODO plot
+        # TODO plot title
+
     ])
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
