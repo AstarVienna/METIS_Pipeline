@@ -27,7 +27,7 @@ from pymetis.instruments.metis.dataitems.lss.rsrf import LssRsrfPinholeRaw, Mast
 from pymetis.instruments.metis.dataitems.lss.trace import LssTrace
 from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
 from pymetis.instruments.metis.inputs import (RawInput, PersistenceMapInput, OptionalInputMixin,
-                                              GainMapInput, LinearityInput)
+                                              GainMapInput, LinearityInput, BadPixMapInput, MasterDarkInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis.qc.trace import (QcLssTraceLPolyDeg, QcLssTraceRPolyDeg,
@@ -36,24 +36,36 @@ from pymetis.instruments.metis.qc.trace import (QcLssTraceLPolyDeg, QcLssTraceRP
 
 class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
+        # TODO - ask about this  - thought this would be a flat continuum
         class RawInput(RawInput):
             Item = LssRsrfPinholeRaw
-
-        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
-            pass
 
         class LmRsrfWcuOffInput(RawInput):
             Item = WcuOffRaw
 
-        class MasterRsrfInput(SinglePipelineInput):
-            Item = MasterLssRsrf
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
+            pass
+
+        class LinearityInput(OptionalInputMixin, LinearityInput):
+            pass
+
+        class GainMapInput(OptionalInputMixin, GainMapInput):
+            pass
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class MasterDarkInput(OptionalInputMixin, MasterDarkInput):
+            pass
 
         raw: RawInput
-        persistence_map: PersistenceMapInput
-        gain_map: GainMapInput
-        linearity: LinearityInput
         lm_rsrf_wcu_off: LmRsrfWcuOffInput
-        master_rsrf: MasterRsrfInput
+        bad_pix_map: BadPixMapInput
+        linearity: LinearityInput
+        gain_map: GainMapInput
+        persistence_map: PersistenceMapInput
+        master_dark: MasterDarkInput
+
 
     class ProductSet(PipelineProductSet):
         TraceTable = LssTrace
