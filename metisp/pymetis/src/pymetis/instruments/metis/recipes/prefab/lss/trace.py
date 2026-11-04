@@ -24,7 +24,7 @@ from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
 from pymetis.instruments.metis.inputs import (RawInput, PersistenceMapInput, OptionalInputMixin,
-                                              GainMapInput, LinearityInput)
+                                              GainMapInput, LinearityInput, BadPixMapInput, MasterDarkInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab import DarkImageProcessor
 from pymetis.instruments.metis import qc
@@ -33,24 +33,36 @@ from pymetis.instruments.metis import dataitems
 
 class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
+        # TODO - ask about this  - thought this would be a flat continuum
         class RawInput(RawInput):
             Item = dataitems.LssRsrfPinholeRaw
-
-        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
-            pass
 
         class LmRsrfWcuOffInput(RawInput):
             Item = dataitems.WcuOffRaw
 
-        class MasterRsrfInput(SinglePipelineInput):
-            Item = dataitems.MasterLssRsrf
+        class BadPixMapInput(OptionalInputMixin, BadPixMapInput):
+            pass
+
+        class LinearityInput(OptionalInputMixin, LinearityInput):
+            pass
+
+        class GainMapInput(OptionalInputMixin, GainMapInput):
+            pass
+
+        class PersistenceMapInput(OptionalInputMixin, PersistenceMapInput):
+            pass
+
+        class MasterDarkInput(OptionalInputMixin, MasterDarkInput):
+            pass
 
         raw: RawInput
-        persistence_map: PersistenceMapInput
-        gain_map: GainMapInput
-        linearity: LinearityInput
         lm_rsrf_wcu_off: LmRsrfWcuOffInput
-        master_rsrf: MasterRsrfInput
+        bad_pix_map: BadPixMapInput
+        linearity: LinearityInput
+        gain_map: GainMapInput
+        persistence_map: PersistenceMapInput
+        master_dark: MasterDarkInput
+
 
     class ProductSet(PipelineProductSet):
         TraceTable = dataitems.LssTrace
