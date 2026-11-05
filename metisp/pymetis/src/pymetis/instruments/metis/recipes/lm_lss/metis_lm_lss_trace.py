@@ -54,6 +54,13 @@ class MetisLmLssTrace(Recipe):
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
     parameters = ParameterList([
+        ParameterEnum(
+            name=f"{_name}.stacking.method",
+            context=_name,
+            description="Name of the method used to combine the input images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
         ParameterRange(
             name=f"{_name}.trace.degree",
             context=_name,
