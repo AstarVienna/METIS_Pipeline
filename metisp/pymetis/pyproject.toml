@@ -1,5 +1,5 @@
 [project]
-name = "pymetis"
+name = "pypsmith-pymetis"
 dynamic = ["version"]
 description = "METIS pipeline"
 authors = [
