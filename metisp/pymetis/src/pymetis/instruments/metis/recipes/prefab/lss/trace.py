@@ -43,7 +43,7 @@ from pymetis.instruments.metis.qc.trace import (QcLssTraceLPolyDeg, QcLssTraceRP
 
 class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
-        # TODO - ask about this  - thought this would be a flat continuum
+        # TODO - ask about this  - thought this would be a flat continuum - like in IFU
         class RawInput(RawInput):
             Item = LssRsrfPinholeRaw
 
@@ -105,8 +105,7 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
                 f"Expected an integer or 'best', but got {value!r}"
             ) from None
         
-
-    # TODO - copied directly from IFU, need to check if anything needs changing
+    # TODO - this is the same as in IFU, should we move it somewhere common?
     def _trace_parameters(self) -> dict:
         """Collect the tracing parameters from the recipe parameter list."""
         name = self.name
@@ -130,15 +129,29 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
             'sigma': float(self.parameters[f"{name}.trace.sigma"].value),
         }
 
-    def _collect_qc(self, table, degree) -> None:
+    def _collect_qc(self, table, degree) -> cpl.core.PropertyList:
         """
-        # TODO - update this docstring
-        Summarise the per-detector tracing results into quality control parameters.
+        Collect quality control parameters describing the fitted trace polynomials.
 
-        `NTRACES` counts the slices traced across the whole detector array. It is the
-        only tracing-derived quantity now that tracing runs solely on
-        continuum-illuminated frames, and there is no separate pinhole exposure to
-        report a spot count or width from.
+        Records the polynomial degree and the coefficients of the leftmost and
+        rightmost traces on the detector. The leftmost trace (minimum ``trace_nb``)
+        and rightmost trace (maximum ``trace_nb``).
+
+        Parameters
+        ----------
+        table : cpl.core.Table
+            Trace table as produced by ``traces_to_table``. Must contain columns
+            ``trace_nb`` and ``pos``.
+        degree : int
+            Polynomial degree of the trace fits, used to populate ``LPolyDeg``
+            and ``RPolyDeg``. The ``pos`` column is expected to hold ``degree + 1``
+            coefficients per row, low-order first.
+
+        Returns
+        -------
+        cpl.core.PropertyList
+            A property list containing all collected QC parameters, suitable for
+            appending to a product header.
         """
         out = cpl.core.PropertyList()
 
@@ -152,6 +165,7 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         # TODO - check if there is a cpl function for this, atm seems dodge
         # TODO - it is verified that the degree is the same len as pos + 1 in traces_to_table
         # should I be checking here too?
+        # TODO - should double check that each order should be saved
         for order, value in enumerate(table.column_array('pos')[0][r_index]):
             rcoeff_cls = self.Qc._specialized_item('RCoeff', self.Qc.RCoeff, order=order)
             out.append(self.collect_qc_parameters(rcoeff_cls(value)))
