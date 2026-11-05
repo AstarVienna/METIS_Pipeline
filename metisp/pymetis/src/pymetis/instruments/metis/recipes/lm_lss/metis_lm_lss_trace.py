@@ -70,7 +70,9 @@ class MetisLmLssTrace(Recipe):
             max=5,
         ),
 
-        # TODO max_error
+        # TODO max_error - in pyreduce but not pipeline - any reason?
+        # TODO closing shape - same as above
+        # TODO opening shape- same as above above
 
         ParameterValue(
             name=f"{_name}.trace.degree_before_merge",
@@ -81,11 +83,7 @@ class MetisLmLssTrace(Recipe):
             default="best",
         ),
 
-        # TODO bias scaling
-        # TODO norm scaling
-        # TODO regularisaton
-        # TODO closing shape
-        # TODO opening shape
+
 
         ParameterRange(
             name=f"{_name}.trace.auto_merge_threshold",
@@ -107,7 +105,6 @@ class MetisLmLssTrace(Recipe):
             max=1.0,
         ),
 
-        # TODO double check this is the same as split_sigma in config
         ParameterValue(
             name=f"{_name}.trace.sigma",
             context=_name,
