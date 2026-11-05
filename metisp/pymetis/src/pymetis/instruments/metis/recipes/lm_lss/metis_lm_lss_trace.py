@@ -32,7 +32,7 @@ class MetisLmLssTraceImpl(BandLmMixin, Detector2rgMixin, MetisLssTraceImpl):
     class ProductSet(MetisLssTraceImpl.ProductSet):
         pass
 
-    class QcParameterSet(MetisLssTraceImpl.QcParameterSet):
+    class QcParameterSet(MetisLssTraceImpl.Qc):
         pass
 
 class MetisLmLssTrace(Recipe):
@@ -152,16 +152,16 @@ class MetisLmLssTrace(Recipe):
         # the default seems to be None, which is what raised an alarm bell to me
         # Need to double check this before including
         # I also dont see this in the input in pyreduce
-#        ParameterRange(
-#            name=f"{_name}.trace.min_width",
-#            context=_name,
-#            description="Smallest acceptable cluster extent along the dispersion "
-#                        "direction, as a fraction of the detector width. "
-#                        "0 disables the check",
-#            default=0.25,
-#            min=0.0,
-#            max=1.0,
-#        ),
+        ParameterRange(
+            name=f"{_name}.trace.min_width",
+            context=_name,
+            description="Smallest acceptable cluster extent along the dispersion "
+                        "direction, as a fraction of the detector width. "
+                        "0 disables the check",
+            default=0.25,
+            min=0.0,
+            max=1.0,
+        ),
 
         ParameterValue(
             name=f"{_name}.trace.noise",
