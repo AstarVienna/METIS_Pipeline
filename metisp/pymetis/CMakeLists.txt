@@ -23,11 +23,6 @@ if(NOT DEFINED ENV{VIRTUAL_ENV} AND NOT DEFINED ENV{CONDA_PREFIX})
   endif()
 endif()
 
-configure_file(
-  "${PROJECT_SOURCE_DIR}/${pymodule}/setup.cfg.in"
-  "${PROJECT_SOURCE_DIR}/${pymodule}/setup.cfg"
-  IMMEDIATE @ONLY)
-
 add_custom_target(${pymodule} ALL
   ${Python3_EXECUTABLE} -m pip wheel --isolated --no-deps --wheel-dir=${PROJECT_BINARY_DIR}/${pymodule}/dist ${PROJECT_SOURCE_DIR}/${pymodule})
 

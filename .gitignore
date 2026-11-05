@@ -99,7 +99,7 @@ metisp/reflex/metis.xml
 
 build
 pymetis.egg-info
-metisp/pymetis/setup.cfg
+metisp/pymetis/dist
 
 # We do not need FITS files in this repository
 *.fits
