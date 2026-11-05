@@ -148,17 +148,13 @@ class MetisLmLssTrace(Recipe):
             default=100,
         ),
 
-        # TODO ive copied this from IFU, but im not sure if it is the same in LSS
-        # the default seems to be None, which is what raised an alarm bell to me
-        # Need to double check this before including
-        # I also dont see this in the input in pyreduce
         ParameterRange(
             name=f"{_name}.trace.min_width",
             context=_name,
             description="Smallest acceptable cluster extent along the dispersion "
                         "direction, as a fraction of the detector width. "
                         "0 disables the check",
-            default=0.25,
+            default=0.0,
             min=0.0,
             max=1.0,
         ),
@@ -184,11 +180,6 @@ class MetisLmLssTrace(Recipe):
             description="Number of pixels to ignore at each detector edge",
             default=6,
         ),
-
-        # TODO manual
-        # TODO plot
-        # TODO plot title
-
     ])
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
