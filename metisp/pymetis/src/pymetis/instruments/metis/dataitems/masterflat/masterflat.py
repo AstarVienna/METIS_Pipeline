@@ -18,9 +18,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Image
 
+from pymetis.engine.core.classes.image import EnhancedImage
 from pymetis.engine.dataitems import ImageDataItem
+from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.mixins import Detector2rgMixin, DetectorGeoMixin, DetectorIfuMixin, \
     BandLmMixin, SourceLampMixin, BandNMixin, SourceTwilightMixin
 
@@ -33,13 +34,7 @@ class MasterFlat(ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
-    _schema = {
-        'PRIMARY': None,
-        'DET1.SCI': Image,
-        'DET1.ERR': Image,
-        'DET1.DQ': Image,
-
-    }
+    _schema = ImageDataItem.EMPTY_PRIMARY | EnhancedImage.schema('DET1')
 
 
 class MasterFlat2rg(Detector2rgMixin, MasterFlat):
@@ -51,11 +46,7 @@ class MasterFlatGeo(DetectorGeoMixin, MasterFlat):
 
 
 class MasterFlatIfu(DetectorIfuMixin, MasterFlat):
-    _schema = {
-        'PRIMARY': None,
-    } | {
-        fr'DET{det:1d}.SCI': Image for det in range(1, 5)
-    }
+    _schema = ImageDataItem.EMPTY_PRIMARY | EnhancedImage.schema(Metis.Ifu.detectors)
 
 
 class MasterImgFlat(ImageDataItem, abstract=True):
@@ -66,12 +57,7 @@ class MasterImgFlat(ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG', 'DRS.FILTER'})
 
-    _schema = {
-        'PRIMARY': None,
-        'DET1.SCI': Image,
-        'DET1.ERR': Image,
-        'DET1.DQ': Image,
-    }
+    _schema = ImageDataItem.EMPTY_PRIMARY | EnhancedImage.schema('DET1')
 
 
 class MasterImgFlatLm(BandLmMixin, MasterImgFlat, abstract=True):
