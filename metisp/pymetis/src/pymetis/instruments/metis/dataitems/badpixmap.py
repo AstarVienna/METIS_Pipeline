@@ -32,9 +32,7 @@ class BadPixMap(ImageDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG'})
 
-    _schema = {
-        'PRIMARY': None,
-    }
+    _schema = ImageDataItem.EMPTY_PRIMARY
 
 
 class BadPixMap2rg(Detector2rgMixin, BadPixMap):

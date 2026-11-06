@@ -542,6 +542,7 @@ class MetisDetLinGainImpl(RawImageProcessor, MetisRecipeImpl):
                 header_error=header_errlinearity,
                 header_dq=header_dqlinearity,
             ),
+            # Bad pixel map is a separate product here
             'badpix_map': Hdu(header_badpix, dq_linearity_image, name=rf'{det_prefix}.SCI'),
         }
 
