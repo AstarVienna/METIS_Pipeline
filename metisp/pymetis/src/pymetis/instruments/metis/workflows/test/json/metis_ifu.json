@@ -181,7 +181,7 @@
         {
           "recipe": "metis_ifu_distortion",
           "inputs_prefixes": ["distortion_ifu"],
-          "assoc_prefixes": ["pinhole_tab"]
+          "assoc_prefixes": []
         }
       ]
     },
@@ -207,7 +207,7 @@
         {
           "recipe": "metis_ifu_distortion",
           "inputs_prefixes": ["distortion_ifu"],
-          "assoc_prefixes": ["pinhole_tab"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_ifu_wavecal",
@@ -238,7 +238,7 @@
         {
           "recipe": "metis_ifu_distortion",
           "inputs_prefixes": ["distortion_ifu"],
-          "assoc_prefixes": ["pinhole_tab"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_ifu_wavecal",
@@ -274,7 +274,7 @@
         {
           "recipe": "metis_ifu_distortion",
           "inputs_prefixes": ["distortion_ifu"],
-          "assoc_prefixes": ["pinhole_tab"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_ifu_wavecal",
@@ -315,7 +315,7 @@
         {
           "recipe": "metis_ifu_distortion",
           "inputs_prefixes": ["distortion_ifu"],
-          "assoc_prefixes": ["pinhole_tab"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_ifu_wavecal",
@@ -356,7 +356,7 @@
         {
           "recipe": "metis_ifu_distortion",
           "inputs_prefixes": ["distortion_ifu"],
-          "assoc_prefixes": ["pinhole_tab"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_ifu_wavecal",
@@ -375,7 +375,7 @@
         },
         {
           "recipe": "metis_ifu_telluric",
-          "inputs_prefixes": ["sci_ifu"],
+          "inputs_prefixes": [],
           "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
         }
       ]
@@ -402,7 +402,7 @@
         {
           "recipe": "metis_ifu_distortion",
           "inputs_prefixes": ["distortion_ifu"],
-          "assoc_prefixes": ["pinhole_tab"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_ifu_wavecal",
@@ -421,7 +421,7 @@
         },
         {
           "recipe": "metis_ifu_telluric",
-          "inputs_prefixes": ["std_ifu"],
+          "inputs_prefixes": [],
           "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
         }
       ]
@@ -448,7 +448,7 @@
         {
           "recipe": "metis_ifu_distortion",
           "inputs_prefixes": ["distortion_ifu"],
-          "assoc_prefixes": ["pinhole_tab"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_ifu_wavecal",
@@ -472,12 +472,12 @@
         },
         {
           "recipe": "metis_ifu_telluric",
-          "inputs_prefixes": ["sci_ifu"],
+          "inputs_prefixes": [],
           "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
         },
         {
           "recipe": "metis_ifu_telluric",
-          "inputs_prefixes": ["std_ifu"],
+          "inputs_prefixes": [],
           "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
         },
         {
@@ -509,7 +509,7 @@
         {
           "recipe": "metis_ifu_distortion",
           "inputs_prefixes": ["distortion_ifu"],
-          "assoc_prefixes": ["pinhole_tab"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_ifu_wavecal",
@@ -533,12 +533,12 @@
         },
         {
           "recipe": "metis_ifu_telluric",
-          "inputs_prefixes": ["sci_ifu"],
+          "inputs_prefixes": [],
           "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
         },
         {
           "recipe": "metis_ifu_telluric",
-          "inputs_prefixes": ["std_ifu"],
+          "inputs_prefixes": [],
           "assoc_prefixes": ["fluxstd_cat", "lsf_kern", "atm_prof"]
         },
         {

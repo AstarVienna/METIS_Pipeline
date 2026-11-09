@@ -66,12 +66,4 @@ jobs:
         working-directory: metisp/pymetis/src/pymetis/instruments/metis/workflows/test
         run: |
           . "${GITHUB_WORKSPACE}/metispipe/bin/activate"
-          # Same exclusions as in run_edps.yaml (26 known organization failures).
-          python -m pytest -v json_tests.py \
-            -k "not (IFU_Calibrate or IFU_Distortion or IFU_Full_Cascade or IFU_RSRF or \
-                     IFU_Sci_Reduce or IFU_Sci_Telluric or IFU_Std_Reduce or IFU_Std_Telluric or IFU_Wavecal or \
-                     LM_IMG_Background_Sci or LM_IMG_Background_Std or LM_IMG_Basic_Reduce_Sci or \
-                     LM_IMG_Basic_Reduce_Sky or LM_IMG_Basic_Reduce_Std or LM_IMG_Calibrate or \
-                     LM_IMG_Distortion or LM_IMG_Flat or LM_IMG_Full_Cascade or LM_IMG_Standard_Flux or \
-                     N_IMG_Calibrate or N_IMG_Chopnod_Sci or N_IMG_Chopnod_Std or N_IMG_Distortion or \
-                     N_IMG_Flat or N_IMG_Full_Cascade or N_IMG_Standard_Flux)"
+          python -m pytest -v json_tests.py
