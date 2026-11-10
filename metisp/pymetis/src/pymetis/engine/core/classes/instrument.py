@@ -21,13 +21,6 @@ class InstrumentDescription:
         never declared as members.
         """
 
-        # FixMe: This should be also stored in the FITS file [Claude]
-        # Document the bit→reason mapping in the FITS header.
-        # Right now the meanings live only in Metis.MaskFlags in code.
-        # Anyone reading the file with astropy sees an opaque integer plane.
-        # Consider writing the flag definitions into the DQ HDU header
-        # (e.g. HIERARCH ESO QC DQ BIT0 = 'BAD' cards, or a convention comment) so the file is self-describing.
-
         # Plain values, not enum members: Python forbids subclassing an enum
         # that has members, so the base class must stay member-free for the
         # instruments to be able to derive their flags from it at all.
@@ -58,3 +51,20 @@ class InstrumentDescription:
                         f"with {cls.__qualname__}.{owner}; every flag must own its bit."
                     )
 
+        # Keyword stem for the bit meanings in the FITS header of every DQ extension.
+        # `ESO DRS` makes CPL emit a DICD-conformant `HIERARCH ESO DRS DQ BITn` card.
+        HEADER_STEM = enum.nonmember('ESO DRS DQ BIT')
+
+        @classmethod
+        def header_cards(cls) -> dict[str, str]:
+            """
+            The bit meanings as plain ``{keyword: flag name}`` pairs, e.g.
+            ``{'ESO DRS DQ BIT0': 'BAD', 'ESO DRS DQ BIT16': 'EDGE'}``, so that a DQ
+            plane is self-describing once they are written to its header.
+            Deliberately CPL-free; the conversion to properties happens where the
+            FITS file is written (``DataItem.save``).
+            """
+            return {
+                f'{cls.HEADER_STEM}{member.value.bit_length() - 1:d}': name
+                for name, member in cls.__members__.items()
+            }
