@@ -18,9 +18,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
-from cpl.core import Msg
 
 from pymetis.drl.combine import combine_images
+from pymetis.drl.pinhole import locate_pinhole
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
@@ -110,7 +110,7 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         combined_img = combine_images(raw_images, stackmethod)
 
         # Locate the pinhole image
-        pinhole_loc = self.locate_pinhole(combined_img, hwidth)
+        pinhole_loc = locate_pinhole(combined_img, hwidth)
 
         combined_hdr.append(
             self.collect_qc_parameters(
@@ -141,64 +141,6 @@ class MetisCalChophomeImpl(BandLmMixin, Detector2rgMixin, RawImageProcessor, Met
         background_img = combine_images(bg_images, method)
         # TODO: define usedframes
         return background_hdr, background_img
-
-    @classmethod
-    def locate_pinhole(cls, cimg: cpl.core.Image, hwidth: int) -> dict[str, float]:
-        """Locate the pinhole on cimg
-
-        Parameters
-        ----------
-        - cimg  : cpl.core.Image
-        - hwidth : int
-              half-width of window around pixel with maximum value
-
-        Returns
-        -------
-        A dictionary with parameters:
-        - xcen, ycen : [pix] location of the centroid of the pinhole image
-        - fwhm_x, fwhm_y: [pix] full-width at half maximum of the pinhole
-                                image in x- and y-direction
-        - snr: signal-to-noise ratio determined as total flux in window divided
-               by pixel stdev times number of pixels in window
-
-
-        Note
-        ----
-        The function uses a fairly rough algorithm. Its robustness depends on the
-        pinhole image having high signal-to-noise without being saturated.
-        """
-        # Rough location: brightest pixel
-        y0, x0 = cimg.get_maxpos()
-
-        # Analyse window around maximum position
-        llx = max(x0 - hwidth, 0)
-        lly = max(y0 - hwidth, 0)
-        urx = min(x0 + hwidth, cimg.shape[1] - 1)
-        ury = min(y0 + hwidth, cimg.shape[0] - 1)
-        win = (llx, lly, urx, ury)
-
-        xcen, ycen = cimg.get_centroid_x(window=win), cimg.get_centroid_y(window=win)
-        fwhm_y, fwhm_x = cimg.get_fwhm(y0, x0)
-
-        # Signal-to-noise ratio using flux over the window and pixel noise over the image
-        flux = cimg.get_flux(win)
-        noise = cimg.get_stdev() * 2 * hwidth
-
-        if fwhm_x is None or fwhm_y is None:
-            Msg.warning(cls.__qualname__,
-                        "Detection of pinhole failed")
-            fwhm_x = 999.0
-            fwhm_y = 999.0
-
-        return {
-            "xcen": xcen,
-            "ycen": ycen,
-            "fwhm_x": fwhm_x,
-            "fwhm_y": fwhm_y,
-            "xcenstd": 0.0, # ToDo fix
-            "ycenstd": 0.0, # ToDo fix
-            "snr": flux / noise
-        }
 
 
 class MetisCalChophome(Recipe):

@@ -26,8 +26,8 @@ from cpl.core import Msg
 
 from pymetis.drl.combine import combine_images
 from pymetis.drl.image import zeros_like
+from pymetis.drl.rsrf import create_blackbody_image, extract_1d_spectra
 from pymetis.drl.trace import traces_from_table
-from pymetis.drl.trace_model import Trace
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum, ParameterRange
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
@@ -46,7 +46,6 @@ from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis.recipes.prefab.darkimage import DarkImageProcessor
 from pymetis.instruments.metis import dataitems
 
-ma = np.ma
 EXT = 4  # TODO: update to read multi-extension files and index by EXTNAME instead of integer
 
 
@@ -179,7 +178,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         # create black-body image
         Msg.info(self.__class__.__qualname__,
                     "Creating black-body image...")
-        bb_img = _create_ifu_blackbody_image(wavecal_img, bb_temp)
+        bb_img = create_blackbody_image(wavecal_img, bb_temp)
 
         # scale the BB image to the RSRF image before dividing
         raw_level = spec_flat_img.get_max()
@@ -218,7 +217,7 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         # extract 1D RSRF curves
         Msg.info(self.__class__.__qualname__,
                     "Extracting 1D RSRF curves...")
-        rsrf_1d_list = _extract_ifu_1d_spectra(spec_flat_img, trace_list)
+        rsrf_1d_list = extract_1d_spectra(spec_flat_img, trace_list)
 
         # global normalisation of the 1D RSRF curves
         rsrf_med = np.zeros(len(rsrf_1d_list))
@@ -290,126 +289,6 @@ class MetisIfuRsrfImpl(DetectorIfuMixin, BandIfuMixin, DarkImageProcessor, Metis
         )
 
         return {product_background, product_master_flat_ifu, product_rsrf_ifu, product_badpix_map_ifu}
-
-
-# Number of points at which the Planck function is tabulated before being interpolated
-# onto the pixels. The function is smooth over the tens of nanometres one detector
-# covers, so this is far more than accuracy requires.
-BLACKBODY_SAMPLES = 4096
-
-
-def _create_ifu_blackbody_image(wavecal_img: cpl.core.Image, bb_temp: float) -> cpl.core.Image:
-    """
-    Create a blackbody image from the wavelength calibration image.
-
-    Each valid pixel is filled with the Planck flux at that pixel's wavelength. Pixels
-    with no wavelength, which the wavelength map marks with a zero, are left at zero and
-    then rejected, so that dividing by this image cannot introduce garbage.
-
-    Parameters
-    ----------
-    wavecal_img : cpl.core.Image
-        Wavelength at each pixel, in microns, and zero where there is none.
-    bb_temp : float
-        Blackbody temperature in Kelvin.
-
-    Returns
-    -------
-    cpl.core.Image
-        The blackbody image, with the invalid pixels rejected.
-
-    Raises
-    ------
-    ValueError
-        If the wavelength map holds no valid pixel at all. There is nothing sensible to
-        return in that case, and continuing would divide the flat by an entirely
-        rejected image.
-
-    Notes
-    -----
-    The Planck function is evaluated on a fixed grid spanning the wavelengths present and
-    then interpolated, rather than at every distinct value found in the map. A genuine
-    two-dimensional wavelength solution gives a different wavelength in almost every
-    pixel, so tabulating each one would mean millions of `fill_blackbody` entries and a
-    per-pixel search; interpolating a smooth function over a few thousand samples is
-    equivalent to well below the numerical precision of the result.
-    """
-    wdata = wavecal_img.as_array()
-    valid = wdata > 0
-
-    if not np.any(valid):
-        raise ValueError(
-            "The wavelength calibration image contains no valid pixel: every value is "
-            "zero, so no blackbody spectrum can be evaluated. This usually means "
-            "`metis_ifu_wavecal` produced an empty map because the IFU distortion table "
-            "held no slices; check that recipe's QC IFU DISTORT NTRACES."
-        )
-
-    low, high = float(wdata[valid].min()), float(wdata[valid].max())
-    if high == low:
-        # A single wavelength needs no interpolation, but np.interp requires two points
-        grid = np.array([low, low + 1.0e-9])
-    else:
-        grid = np.linspace(low, high, BLACKBODY_SAMPLES)
-
-    # Calculate the black-body flux across the grid [wavelengths in metres]
-    flux = cpl.drs.photom.fill_blackbody(cpl.drs.photom.Unit.LESS,     # output unit
-                                         cpl.core.Vector(grid / 1e6),  # input, in metres
-                                         cpl.drs.photom.Unit.LENGTH,   # input unit
-                                         bb_temp)                      # temperature [K]
-
-    # Interpolate onto every valid pixel at once; invalid pixels stay at zero
-    bb_data = np.zeros_like(wdata)
-    bb_data[valid] = np.interp(wdata[valid], grid, np.asarray(list(flux), dtype=float))
-
-    # mask the zero values with the bad-pixel mask to avoid division by zero
-    bb_img = cpl.core.Image(bb_data)
-    bb_img.reject_value({0})
-
-    return bb_img
-
-
-def _extract_ifu_1d_spectra(img: cpl.core.Image, trace_list: list[Trace], trace_width: int | None = None) -> list:
-    """
-    Extract 1D spectra from the given image using the provided list of
-    spectral trace coordinates.
-    TODO: replace with PyReduce extract functionality including trace tilt.
-
-    Parameters:
-    img : cpl.core.Image
-        The image from which to extract the spectra.
-    trace_list : list[Trace]
-        A list of Trace objects representing the spectral traces.
-    trace_width : int | None
-        The width of the trace to be used for extraction.
-        TODO: replace with width factor to be multiplied by the trace height.
-
-    Returns:
-    list of 1d array
-        A list of 1D spectra extracted from the image.
-    """
-
-    # copy data to np.masked_array for processing
-    rej_mask = np.array(img.bpm)  # set bad pixels
-    mdata = ma.masked_array(img.as_array(), mask=rej_mask)
-    imwidth = img.width
-
-    # TODO: check that traces are within the image bounds
-
-    # create a list of 1D RSRF curves (width is the image width)
-    rsrf_1d_list = []
-    for trace in trace_list:
-        x_arr = np.arange(trace.column_range[0], trace.column_range[1])
-        y_arr = np.array(trace.y_at_x(x_arr))
-        if trace_width is None:
-            trace_width = trace.height / 2
-        rsrf_1d = np.zeros(imwidth, dtype=float)
-        for i, x in enumerate(x_arr):
-            yc = y_arr[i]
-            rsrf_1d[int(x)] = mdata[int(yc - trace_width):int(yc + trace_width), int(x)].mean()
-        rsrf_1d_list.append(rsrf_1d)
-
-    return rsrf_1d_list
 
 
 class MetisIfuRsrf(Recipe):
