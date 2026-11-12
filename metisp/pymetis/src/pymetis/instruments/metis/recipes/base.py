@@ -18,12 +18,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.recipes import RecipeImpl
+from pymetis.instruments.metis.description import Metis
 
 
 class MetisRecipeImpl(RecipeImpl):
     """
     Subclass for METIS recipes.
 
-    Currently only sets the instrument.
+    Currently only sets the instrument and the pipeline identifier.
     """
-    instrument: str = "METIS/1"
+    instrument = Metis
+    pipeline_id = "METIS/1"

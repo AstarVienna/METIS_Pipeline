@@ -61,3 +61,9 @@ jobs:
           # deselected here (unlike the historical nightly run): these tests
           # must run on every change.
           python -m pytest src -q -m "not external and not edps"
+
+      - name: Run EDPS JSON tests
+        working-directory: metisp/pymetis/src/pymetis/instruments/metis/workflows/test
+        run: |
+          . "${GITHUB_WORKSPACE}/metispipe/bin/activate"
+          python -m pytest -v json_tests.py

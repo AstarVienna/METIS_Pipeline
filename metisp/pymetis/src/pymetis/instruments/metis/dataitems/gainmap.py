@@ -33,9 +33,7 @@ class GainMap(TableDataItem, abstract=True):
     _frame_level = cpl.ui.Frame.FrameLevel.INTERMEDIATE
     _oca_keywords = frozenset({'PRO.CATG'})
 
-    _schema = {
-        'PRIMARY': None,
-    }
+    _schema = TableDataItem.EMPTY_PRIMARY
 
 
 class GainMap2rg(Detector2rgMixin, GainMap):
@@ -51,8 +49,7 @@ class GainMapGeo(DetectorGeoMixin, GainMap):
 
 
 class GainMapIfu(DetectorIfuMixin, GainMap):
-    _schema = {
-        'PRIMARY': None,
+    _schema = GainMap._schema | {
         'DET1.SCI': Table,
         'DET2.SCI': Table,
         'DET3.SCI': Table,

@@ -4,7 +4,7 @@ Imports basic image processing from the basic imaging workflow.
 TODO - need N band version
 """
 
-from edps import SCIENCE, QC1_CALIB, QC0, CALCHECKER
+from edps import SCIENCE
 from edps import task, data_source, classification_rule
 from .metis_classification import (linearity_h2rg_class, gain_map_h2rg_class,
                                    master_dark_2rg_class, master_img_flat_lamp_lm_class)

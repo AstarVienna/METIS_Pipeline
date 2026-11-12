@@ -26,6 +26,7 @@ from cpl.core import Msg, Image, Table, ImageList, PropertyList as CplPropertyLi
 
 from .hdu import Hdu
 from pymetis.engine.core.functions.format import partial_format
+from pymetis.engine.core.functions.property import make_cpl_property
 from pymetis.engine.core.parameter import ParameterList
 from pymetis.engine.core.parametrizable import ParametrizableItem
 
@@ -446,8 +447,8 @@ class DataItem(ParametrizableItem, abstract=True):
         assert len(recipe.used_frames) > 0, \
             f"Recipe {recipe.name} did not use any frames"
 
-        assert isinstance(recipe.instrument, str), \
-            f"Recipe {recipe} has no instrument set"
+        assert isinstance(recipe.pipeline_id, str), \
+            f"Recipe {recipe} has no pipeline identifier set"
 
         # Save the header to the primary HDU
         cpl.dfs.save_propertylist(
@@ -456,12 +457,31 @@ class DataItem(ParametrizableItem, abstract=True):
             recipe.used_frames,
             recipe.name,
             self.primary_header,
-            recipe.instrument,
+            recipe.pipeline_id,
             filename,
             inherit=recipe.inputset.primary_frame,
         )
 
+        self._describe_dq_bits(recipe)
         self.save_extensions(filename)
+
+    def _describe_dq_bits(self, recipe: 'RecipeImpl') -> None:
+        """
+        Write the instrument's DQ bit meanings (``ESO DRS DQ BITn = 'NAME'``) into the header
+        of every data quality extension, so the integer plane is self-describing. This is the
+        CPL boundary: `MaskFlags.header_cards` itself stays a plain dict.
+        """
+        if recipe.instrument is None:
+            return
+        # Imported here: the image classes import `Hdu` from this package.
+        from pymetis.engine.core.classes.image import EnhancedImageBase
+        flags = recipe.instrument.MaskFlags
+        for name, hdu in self.hdus.items():
+            if not name.endswith(f'.{EnhancedImageBase.dq_suffix}'):
+                continue
+            hdu.header.del_regexp(f'^{flags.HEADER_STEM}', False)
+            for keyword, flag in flags.header_cards().items():
+                hdu.header.append(make_cpl_property(keyword, flag))
 
     def save_extensions(self,
                         filename: str) -> None:

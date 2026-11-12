@@ -56,9 +56,9 @@ jobs:
           python -m pytest -q -m "not external and not edps" metisp/pymetis/src
 
       - name: Run EDPS workflow organization tests
-        working-directory: metisp/workflows/test
-        run:
-          . ../../../metispipe/bin/activate
+        working-directory: metisp/pymetis/src/pymetis/instruments/metis/workflows/test
+        run: |
+          . "${GITHUB_WORKSPACE}/metispipe/bin/activate"
           python -m pytest -v json_tests.py
 
       - name: Run pyESOREX test
