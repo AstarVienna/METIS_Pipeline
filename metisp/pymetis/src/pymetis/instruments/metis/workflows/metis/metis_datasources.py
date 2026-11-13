@@ -137,16 +137,19 @@ lm_wcu_off_raw = (data_source()
 
 lm_image_sci_raw = (data_source()
             .with_classification_rule(lm_image_sci_raw_class)
+            .with_grouping_keywords(["tpl.start"])
             .with_match_keywords(["instrume"])
             .build())
 
 lm_image_sky_raw = (data_source()
             .with_classification_rule(lm_image_sky_raw_class)
+            .with_grouping_keywords(["tpl.start"])
             .with_match_keywords(["instrume"])
             .build())
 
 lm_image_std_raw = (data_source()
             .with_classification_rule(lm_image_std_raw_class)
+            .with_grouping_keywords(["tpl.start"])
             .with_match_keywords(["instrume"])
             .build())
 

@@ -73,7 +73,9 @@ class MetisIfuCalibrateImpl(BandIfuMixin, DetectorIfuMixin, MetisRecipeImpl):
 
         product_scc = self.ProductSet.SciCubeCalibrated(
             primary_header,
-            Hdu(header_scc, image, name='IMAGE'),
+            Hdu(header_scc, image, name='DET1.SCI'),
+            Hdu(header_scc, image, name='DET1.ERR'),
+            Hdu(header_scc, image, name='DET1.DQ'),
         )
 
         # FixMe: compute the real QC values; None marks a parameter that is not available yet

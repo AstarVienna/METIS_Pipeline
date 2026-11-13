@@ -57,7 +57,7 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl)
         Sensitivity = qc.std_process.QcSensitivity
         AreaSensitivity = qc.std_process.QcAreaSensitivity
     def process(self) -> set[DataItem]:
-        raw_images = self.inputset.raw.load_data('DET1.DATA')
+        raw_images = self.inputset.raw.load_data('DET1.SCI')
 
         combined_image = self.combine_images(raw_images, "average")
         primary_header = self.inputset.raw.items[0].primary_header
@@ -68,7 +68,9 @@ class MetisImgStdProcessImpl(TargetStdMixin, RawImageProcessor, MetisRecipeImpl)
 
         product_combined = self.ProductSet.ImgStdCombined(
             copy.deepcopy(primary_header),
-            Hdu(header_combined, combined_image, name='IMAGE'),
+            Hdu(header_combined, combined_image, name='DET1.SCI'),
+            Hdu(header_combined, combined_image, name='DET1.ERR'),
+            Hdu(header_combined, combined_image, name='DET1.DQ')
         )
         product_fluxcal = self.ProductSet.ImgFluxCalTable(
             copy.deepcopy(primary_header),

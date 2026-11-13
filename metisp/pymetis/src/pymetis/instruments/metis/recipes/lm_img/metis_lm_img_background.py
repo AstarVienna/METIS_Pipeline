@@ -22,24 +22,29 @@ from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.inputs import PipelineInputSet, SinglePipelineInput, PrimaryInputMixin
+from pymetis.engine.inputs import PipelineInputSet, MultiplePipelineInput, PrimaryInputMixin
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
 from pymetis.instruments.metis import qc
 from pymetis.instruments.metis import dataitems
+from pymetis.engine.core.classes.image import EnhancedImage
+from pymetis.drl.image import zeros_like
 
+import cpl, hdrl
+from cpl.core import Msg
+import copy
 
 class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
-        class BasicReducedInput(PrimaryInputMixin, SinglePipelineInput):
+        class BasicReducedInput(PrimaryInputMixin, MultiplePipelineInput):
             Item = dataitems.BasicReduced
 
-        class SkyBasicReducedInput(SinglePipelineInput):
-            Item = dataitems.LmSkyBasicReduced
+        #class SkyBasicReducedInput(MultiplePipelineInput):
+        #    Item = dataitems.LmSkyBasicReduced
 
         basic_reduced: BasicReducedInput
-        sky_basic_reduced: SkyBasicReducedInput
+        #sky_basic_reduced: SkyBasicReducedInput
 
     class ProductSet(PipelineProductSet):
         Bkg = dataitems.Background
@@ -49,35 +54,232 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
     class Qc(QcParameterSet):
         Median = qc.background.QcLmImgBkgMedian
         MedianDev = qc.background.QcLmImgBkgMedianDeviation
+
+        
     def process(self) -> set[DataItem]:
-        image = self.inputset.basic_reduced.load_data('DET1.DATA')
-        primary_header = self.inputset.basic_reduced.item.primary_header
-        table = create_dummy_table()
+
+        # load data TODO get 3 extensions once BASIC_REDUCE is set up
+        #science_images = self.inputset.basic_reduced.load_data('DET1.DATA')
+
+        science_images = self.inputset.basic_reduced.load_data('DET1.DATA')
+        Msg.info(self.__class__.__qualname__, f"Loaded {len(science_images)} science images")
+
+        science_images_hdrl = hdrl.core.ImageList()        
+        for i,image in enumerate(science_images):
+            # temporary kludge: mask the zero masked edge region, otherwise the extraction is wonky
+            # TODO: this should be moved somewhere general as a first stage mask
+            
+            mask = cpl.core.Mask.threshold_image(image, -10, 1, 1)
+        
+            #update cplImage Mask
+            image.bpm = image.bpm | mask   
+
+            # TODO proper Enhanced image reading once basic_reduce is merged
+            
+            noise = cpl.core.Image.zeros_like(image)
+            noise.copy_into(image,0,0)
+            noise.power(0.5)
+
+            # eventually, this HDRL image list should be creating by a single import
+            science_image = hdrl.core.Image(image,noise)
+            science_images_hdrl.append(science_image)
+
+
+        # copy the science data to the sky data for calculating background from the data
+        # TODO add the option for separate sky images, once we've got the edps logic
+        # setup for optional sky input; that will be a straight read when we have
+        # 3 extension products
+        #
+        
+        sky_images_hdrl = hdrl.core.ImageList()
+        for i,image in enumerate(science_images_hdrl):
+            temp_image = hdrl.core.Image.zeros(image.width,image.height)
+            temp_image.copy_into(image,0,0)
+            sky_images_hdrl.append(temp_image)
+            
+        Msg.info(self.__class__.__qualname__, f"Loaded {len(sky_images_hdrl)} sky images")
+
+        # extract primary header
+        
+        primary_header = cpl.core.PropertyList()
+        hh = primary_header.load(self.inputset.basic_reduced.frameset[0].file, 0)
+        product_set: set[DataItem] = set()
+
+        # we're doing extraction in pixel coordinates, so WCS should be the same
+        # for all frames
+
+        # WCS object for the catalogue generation
+        # currently WCS is not in the headers for processed data; we need to append to the
+        # header, not replace it. Therefore, passing None 
+        # TODO revisit this when WCS of the data is more complete; we may
+        # needs a separate WCS for each image.
+        # note that the catalogue routine takes a CPL image
+
+        #wcs = cpl.drs.WCS(cpl.core.PropertyList.load(self.inputset.basic_reduced.item.filename,1))
+        wcs = None
         header_bkg = create_dummy_header()
         header_bkg_subtracted = create_dummy_header()
         header_object_cat = create_dummy_header()
 
-        product_bkg = self.ProductSet.Bkg(
+        Msg.info(self.__class__.__qualname__, f"Turning CPL images into HDRL images")
+
+
+        
+
+        processed_sky_images_hdrl = hdrl.core.ImageList() 
+        for i,sky_image in enumerate(sky_images_hdrl):
+
+            Msg.info(self.__class__.__qualname__, f"Processing {self.inputset.basic_reduced.frameset[i].file}")
+            cplImage,catalogue  = self.maskPoints(sky_image.image,wcs)
+
+            
+            Msg.info(self.__class__.__qualname__, f"Extracted {catalogue.shape[0]} sources from the image")
+
+            # dummy header at the moment; TODO followup
+            product = self.ProductSet.ObjectCatalog(
             create_dummy_header(),
-            Hdu(header_bkg, image, name='DET1.DATA'),
+            Hdu(header_object_cat, catalogue, name='TABLE'),
+            )
+            product_set |= {product}
+
+            
+            # we recreate an HDRL image with the new masked image and the old error.
+            # the underlying data haven't changed at all, so the error values are
+            # still valie
+            
+            processed_sky_images_hdrl.append(hdrl.core.Image(cplImage, sky_image.error))
+
+
+        # and collapse to create the master background
+        (background, contrib) = processed_sky_images_hdrl.collapse_median()
+
+        # subtract from the science images
+        
+        science_images_hdrl.sub_image(background)
+
+        # now setup the products
+        for i,image in enumerate(science_images_hdrl):
+
+            # propagate masks once these exist
+            
+            background_subtracted = EnhancedImage.from_hdrl(
+                image,
+                zeros_like(image.image, cpl.core.Type.INT),
+                prefix=f'DET1',
+            )
+
+            # load the original headers
+            primary_header = cpl.core.PropertyList()
+            extension_header = cpl.core.PropertyList()
+            hh = primary_header.load(self.inputset.basic_reduced.frameset[i].file, 0)
+            hh = extension_header.load(self.inputset.basic_reduced.frameset[i].file, 1)
+            
+            primary_header.append(self.collect_qc_parameters(
+                self.Qc.Median(image.image.get_median()),
+                self.Qc.MedianDev(image.image.get_stdev()),
+            ))
+
+            background_subtracted.header_image = extension_header
+            background_subtracted.header_error = extension_header
+
+            product =  product = self.ProductSet.BkgSubtracted(
+                primary_header,
+                *background_subtracted.hdus()
+                )
+            product_set |= {product}
+
+
+            # now the background image
+
+        background_enhanced = EnhancedImage.from_hdrl(
+            background,
+            zeros_like(image.image, cpl.core.Type.INT),
+            prefix=f'DET1',
         )
-        product_bkg_subtracted = self.ProductSet.BkgSubtracted(
+
+        # should probably refer to header by name not by number TODO
+        primary_header = cpl.core.PropertyList()
+        extension_header = cpl.core.PropertyList()
+        hh = primary_header.load(self.inputset.basic_reduced.frameset[0].file, 0)
+        hh = extension_header.load(self.inputset.basic_reduced.frameset[0].file, 1)
+
+        # fix for 
+        product = self.ProductSet.Bkg(
             primary_header,
-            Hdu(header_bkg_subtracted, image, name='DET1.DATA'),
+            *background_enhanced.hdus()
         )
-        product_object_cat = self.ProductSet.ObjectCatalog(
-            create_dummy_header(),
-            Hdu(header_object_cat, table, name='TABLE'),
+        product_set |= {product}
+
+
+        
+
+        product_set |= {product}
+
+        
+        #return {product_bkg, product_bkg_subtracted, product_object_cat}
+        return product_set
+
+    def maskPoints(self,sky_image, wcs):
+
+        """ detect point sources in an image and mask them """
+
+
+        # create a catalogue object
+        # TODO;  move the default paramters somewhere configurable
+        # TODO: test default parameters against real data
+        
+        cat = hdrl.func.Catalogue(
+            obj_min_pixels=10,
+            obj_threshold=10.0,
+            obj_deblending=True,
+            obj_core_radius=2.0,
+            bkg_estimate=True,  #better false, given that we expect smooth background
+            bkg_mesh_size=64,
+            bkg_smooth_fwhm=2.0,
+            det_eff_gain=1.0,   # add mean of real gain?  We don't need values
+            det_saturation=24816.0,  #update with real value TODO
+            resulttype=7
         )
 
-        # FixMe: compute the real QC values; None marks a parameter that is not available yet
-        primary_header.append(self.collect_qc_parameters(
-            self.Qc.Median(None),
-            self.Qc.MedianDev(None),
-        ))
 
-        return {product_bkg, product_bkg_subtracted, product_object_cat}
+        # do the point source extraction
+        result = cat.compute(sky_image, wcs=None) # hdrl funct catalogue result
 
+        # possibly overly clever here, but use the segmentation map
+        # to determine pixels in points sources and mask from here
+        # if we want to make the excluded region a bit smaller, there
+        # are mask filtering options that can do that
+        
+        segmap = result.segmentation_map # cpl Image
+        catalogue = result.catalogue # cpl Image
+
+        # mask anything that's not zero
+        inmask = cpl.core.Mask.threshold_image(segmap, -0.01, 0.01, 0)
+
+        # update cplImage mask
+        sky_image.bpm = sky_image.bpm | inmask
+
+        return sky_image, catalogue
+        
+    def maskOther(self,sky_image,thresh):
+        
+        """
+        detect and mask non-point sources that are above a given threshold.
+        This is superfluous now, but might be needed later to filter out things 
+        like diffraction spikes that aren't picked up as point sources. 
+        TODO - test against sky data 
+        
+        Threshold is in RMS units, above the main
+        """
+
+        imageRms = sky_image.get_stdev()
+        imageMean = sky_image.get_mean()
+        print(imageMean,imageRms)
+        mask = cpl.core.Mask.threshold_image(sky_image, imageRms * thresh + imageMean, 1e10, 1)    
+
+        sky_image.bpm = sky_image.bpm | mask
+    
+     
 
 class MetisLmImgBackground(Recipe):
     _name = "metis_lm_img_background"
@@ -93,13 +295,17 @@ class MetisLmImgBackground(Recipe):
             name="metis_lm_img_background.stacking.method",
             context="metis_lm_img_background",
             description="Name of the method used to combine the input images",
-            default="add",
-            alternatives=("add", "average", "median"),
+            default="median",
+            alternatives=("average", "median"),
         )
     ])
 
     _matched_keywords: frozenset[str] = frozenset({'DRS.FILTER'})
-    _algorithm = """Average all or SKY exposures with object rejection
-    Subtract background"""
+    _algorithm = """For a list of frames (science/std or sky) 
+    perform source detection
+    mask detected detected sources
+    combined frames to create a background image
+    subtract this image from all science images
+    """
 
     Impl = MetisLmImgBackgroundImpl

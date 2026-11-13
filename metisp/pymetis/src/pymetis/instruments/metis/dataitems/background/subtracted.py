@@ -34,7 +34,9 @@ class BackgroundSubtracted(ImageDataItem, abstract=True):
 
     _schema = {
         'PRIMARY': None,
-        'DET1.DATA': Image,
+        'DET1.SCI': Image,
+        'DET1.ERR': Image,
+        'DET1.DQ': Image,
     }
 
 
