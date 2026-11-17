@@ -24,7 +24,7 @@ These functions are not intended to be used in real recipes past their skeleton 
 import cpl
 import numpy as np
 from astropy.table import QTable
-
+from cpl.core import Msg
 
 from .property import make_cpl_property
 
@@ -34,6 +34,8 @@ def create_dummy_header(**kwargs) -> cpl.core.PropertyList:
     Create a dummy header (absolutely no assumptions, just to have something to work with).
     # ToDo This function should not survive in the future.
     """
+    Msg.warn('create_dummy_header',
+             "Dummy header created. Consider replacing by a proper header.")
     return cpl.core.PropertyList([
         make_cpl_property(name, prop) for name, prop in kwargs.items()
     ])
@@ -44,6 +46,8 @@ def create_dummy_image(size: int = 2048, dtype: cpl.core.Type = cpl.core.Type.FL
     Create a dummy image (absolutely no assumptions, just to have something to work with).
     # ToDo This function should not survive in the future.
     """
+    Msg.warn('create_dummy_image',
+             "Dummy image created. Consider replacing by a proper image.")
     return cpl.core.Image.zeros(size, size, dtype)
 
 
@@ -52,6 +56,8 @@ def create_dummy_table(rows: int = 3) -> cpl.core.Table:
     Create a dummy table (absolutely no assumptions, just to have something to work with).
     # ToDo This function should not survive in the future.
     """
+    Msg.warn('create_dummy_table',
+             "Dummy table created. Consider replacing by a proper table.")
     table = QTable()
     table['data'] = np.array([5, 6, 7])
     return cpl.core.Table(table)
