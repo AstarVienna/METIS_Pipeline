@@ -66,7 +66,7 @@ class MetisLmLssTrace(Recipe):
             context=_name,
             description="Polynomial degree of the fit to each slice",
             default=4,
-            min=1, # TODO what are the correct ranges to use
+            min=1, # TODO what are the correct ranges to use - copied from IFU atm
             max=5,
         ),
 
