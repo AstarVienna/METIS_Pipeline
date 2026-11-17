@@ -44,6 +44,7 @@ from pymetis.instruments.metis import dataitems
 class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
         # TODO - ask about this  - thought this would be a flat continuum - like in IFU
+        # TODO - this will load in non-pinhole frames 
         class RawInput(RawInput):
             Item = dataitems.LssRsrfPinholeRaw
 
@@ -86,6 +87,7 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         InterorderLevel = qc.trace.QcLssTraceInterorderLevel
 
 
+    # TODO - this method and _trace_parameters are identical to IFU, should we move somewhere common?
     @staticmethod
     def _degree_or_best(value: str) -> int | Literal['best']:
         """
@@ -106,7 +108,6 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
                 f"Expected an integer or 'best', but got {value!r}"
             ) from None
         
-    # TODO - this is the same as in IFU, should we move it somewhere common?
     def _trace_parameters(self) -> dict:
         """Collect the tracing parameters from the recipe parameter list."""
         name = self.name
@@ -156,16 +157,14 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         """
         out = cpl.core.PropertyList()
 
+        # TODO - I'm taking this directly from the user input, is this alright?
         out.append(self.collect_qc_parameters(self.Qc.RPolyDeg(degree)))
         out.append(self.collect_qc_parameters(self.Qc.LPolyDeg(degree)))
 
+        # TODO verify that this is indeed the correct right and left and this is the way to determine this
         r_index = table.get_column_maxpos('trace_nb')
         l_index = table.get_column_minpos('trace_nb')
 
-    
-        # TODO - check if there is a cpl function for this, atm seems dodge
-        # TODO - it is verified that the degree is the same len as pos + 1 in traces_to_table
-        # should I be checking here too?
         # TODO - should double check that each order should be saved
         for order, value in enumerate(table.column_array('pos')[0][r_index]):
             rcoeff_cls = self.Qc._specialized_item('RCoeff', self.Qc.RCoeff, order=order)
@@ -176,16 +175,17 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
             out.append(self.collect_qc_parameters(lcoeff_cls(value)))
 
         # TODO check if there is an existing function to do this
+        # TODO - also not sure what this would be if this doesnt use pinh frames
         #self.collect_qc_parameters(self.Qc.InterorderLevel(trace_parameters))
         return out
 
     def process(self) -> set[DataItem]:
         """Create a dummy file (should do something more fancy in the future)"""
 
-        # TODO - I think this is 1 for LM and 2 for N, probably a proper way to
-        # figure out which number is correct
         # TODO double check I don't need to do the same continuum filtering as in the IFU
-        # TODO - no WCU grid mask in N band?
+        # TODO - no WCU grid mask in N band for scopesim
+
+        # TODO - is there a way to not hardcode this? makes me uncomfortable
         det = 1
         raw_images = self.inputset.raw.use().load_data(extension=rf'DET{det}.DATA')
 
@@ -213,6 +213,7 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
 
         # Measure the illuminated extent of the traces and augment the trace objects
         # with the edge polynomials.
+        # TODO - it cant measure the edges of the slit lumination
         measure_trace_edges(trace_image, traces, degree=trace_parameters['degree'])
 
         table = traces_to_table(traces, trace_parameters['degree'])
@@ -236,7 +237,7 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
             output['TABLE'],
         )
 
-        # TODO - are we saving the combined image?
+        # TODO - I've added this, wasn't here orginally - just checking that's alright
         product_master_trace_img = self.ProductSet.TraceImage(
             header_image,
             output['IMAGE'],
