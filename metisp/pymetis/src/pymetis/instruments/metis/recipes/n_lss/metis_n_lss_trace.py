@@ -65,11 +65,13 @@ class MetisNLssTrace(Recipe):
             context=_name,
             description="Polynomial degree of the fit to each slice",
             default=4,
-            min=1, # TODO what are the correct ranges to use
+            min=1, # TODO what are the correct ranges to use - copied from IFU atm
             max=5,
         ),
 
-        # TODO max_error
+        # TODO max_error - in pyreduce but not pipeline - any reason?
+        # TODO closing shape - same as above
+        # TODO opening shape- same as above above
 
         ParameterValue(
             name=f"{_name}.trace.degree_before_merge",
@@ -80,11 +82,7 @@ class MetisNLssTrace(Recipe):
             default="best",
         ),
 
-        # TODO bias scaling
-        # TODO norm scaling
-        # TODO regularisaton
-        # TODO closing shape
-        # TODO opening shape
+
 
         ParameterRange(
             name=f"{_name}.trace.auto_merge_threshold",
@@ -106,7 +104,6 @@ class MetisNLssTrace(Recipe):
             max=1.0,
         ),
 
-        # TODO double check this is the same as split_sigma in config
         ParameterValue(
             name=f"{_name}.trace.sigma",
             context=_name,
@@ -147,17 +144,13 @@ class MetisNLssTrace(Recipe):
             default=100,
         ),
 
-        # TODO ive copied this from IFU, but im not sure if it is the same in LSS
-        # the default seems to be None, which is what raised an alarm bell to me
-        # Need to double check this before including
-        # I also dont see this in the input in pyreduce
         ParameterRange(
             name=f"{_name}.trace.min_width",
             context=_name,
             description="Smallest acceptable cluster extent along the dispersion "
                         "direction, as a fraction of the detector width. "
                         "0 disables the check",
-            default=0.25,
+            default=0.0,
             min=0.0,
             max=1.0,
         ),
@@ -183,13 +176,7 @@ class MetisNLssTrace(Recipe):
             description="Number of pixels to ignore at each detector edge",
             default=6,
         ),
-
-        # TODO manual
-        # TODO plot
-        # TODO plot title
-
     ])
-    # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     # ++++++++++++++++++ Finalisation ++++++++++++++++++
     Impl = MetisNLssTraceImpl
