@@ -5,7 +5,7 @@ TODO - need N band version
 """
 
 from edps import SCIENCE
-from edps import task, data_source, classification_rule
+from edps import task, data_source, classification_rule, ReportInput
 from .metis_datasources import (
     lm_wcu_off_raw,
     persistence_map,
@@ -27,6 +27,8 @@ lm_raw_chophome = (data_source()
 
 metis_chophome_imaging = (task('metis_chophome_imaging')
                     .with_recipe('metis_cal_chophome')
+                    .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+                    .with_report("metis_cal_chophome", ReportInput.RECIPE_INPUTS_OUTPUTS)
                     .with_main_input(lm_raw_chophome)
                     .with_associated_input(persistence_map)
                     .with_associated_input(lm_wcu_off_raw)

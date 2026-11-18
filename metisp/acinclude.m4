@@ -109,6 +109,7 @@ AC_DEFUN([METIS_SET_PATHS],
     AC_SUBST(configdir)
     AC_SUBST(wkfextradir)
     AC_SUBST(workflowdir)
+    AC_SUBST(reportsdir)
     AC_SUBST(wkfcopydir)
 
 

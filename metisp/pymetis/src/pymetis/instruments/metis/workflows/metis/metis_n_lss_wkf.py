@@ -10,7 +10,7 @@
 
 """METIS LSS N-Band workflow"""
 from edps import SCIENCE, QC1_CALIB
-from edps import task
+from edps import task, ReportInput
 from .metis_classification import (
     gain_map_geo_class,
     linearity_geo_class,
@@ -61,6 +61,8 @@ from .metis_task_functions import (
 
 n_lss_lingain_task = (task('metis_n_lss_lingain')
             .with_recipe("metis_det_lingain")
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_det_lingain", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_main_input(detlin_geo_raw)
             .with_associated_input(n_wcu_off_raw)        # check how that is exactly delivered by the ICS!
             .with_job_processing(setup_lingain_job)
@@ -69,6 +71,8 @@ n_lss_lingain_task = (task('metis_n_lss_lingain')
 
 n_lss_dark_task = (task('metis_n_lss_dark')
             .with_recipe("metis_det_dark")
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_det_dark", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_main_input(dark_geo_raw)       # check what the minimum number of raw darks is!
             .with_associated_input(persistence_map)
             .with_associated_input(n_lss_lingain_task, [linearity_geo_class, gain_map_geo_class])
@@ -77,6 +81,8 @@ n_lss_dark_task = (task('metis_n_lss_dark')
 
 n_adc_slitloss_task = (task('metis_n_adc_slitloss')
             .with_recipe("metis_n_adc_slitloss")
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_n_adc_slitloss", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_main_input(n_adc_slitloss_raw)
             .with_associated_input(n_wcu_off_raw)        # check how that is exactly delivered by the ICS!
             .with_associated_input(persistence_map)
@@ -87,6 +93,8 @@ n_adc_slitloss_task = (task('metis_n_adc_slitloss')
 
 n_lss_rsrf_task = (task('metis_n_lss_rsrf')
             .with_recipe("metis_n_lss_rsrf")
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_n_lss_rsrf", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_main_input(n_lss_rsrf_raw)
             .with_associated_input(n_wcu_off_raw)
             .with_associated_input(n_lss_dark_task, [master_dark_geo_class])
@@ -97,6 +105,8 @@ n_lss_rsrf_task = (task('metis_n_lss_rsrf')
 
 n_lss_trace_task = (task("metis_n_lss_trace")
             .with_recipe("metis_n_lss_trace")
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_n_lss_trace", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_main_input(n_lss_rsrf_pinh_raw)
             .with_associated_input(n_wcu_off_raw)
             .with_associated_input(n_lss_dark_task, [master_dark_geo_class])
@@ -126,6 +136,8 @@ n_lss_std_task = (task('metis_n_lss_std')
             .with_associated_input(n_adc_slitloss_task, [n_adc_slitloss_class]) # Changed to the task for now since the calibration Product doesn't exist in Simulations yet
             .with_associated_input(ao_psf_model)
             .with_recipe('metis_n_lss_std')
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_n_lss_std", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_meta_targets([SCIENCE])
             .build())
 
@@ -147,6 +159,8 @@ n_lss_sci_task = (task('metis_n_lss_sci')
             .with_associated_input(n_adc_slitloss_task, [n_adc_slitloss_class]) # Changed to the task for now since the calibration Product doesn't exist in Simulations yet
             .with_associated_input(ao_psf_model)
             .with_recipe('metis_n_lss_sci')
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_n_lss_sci", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_meta_targets([SCIENCE])
             .build())
 
@@ -170,6 +184,8 @@ n_lss_mf_model_task = (task("metis_n_lss_mf_model")
             .with_associated_input(n_lss_std_task, [n_lss_std_1d_class], condition=on_standard)
             .with_associated_input(n_lss_sci_task, [n_lss_sci_flux_1d_class], condition=on_science)
             .with_recipe('metis_n_lss_mf_model')
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_n_lss_mf_model", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_meta_targets([QC1_CALIB])
             .build())
 
@@ -179,6 +195,8 @@ n_lss_mf_calctrans_task = (task("metis_n_lss_mf_calctrans")
             .with_associated_input(lsf_kernel)
             .with_associated_input(atm_profile)
             .with_recipe('metis_n_lss_mf_calctrans')
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_n_lss_mf_calctrans", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_meta_targets([QC1_CALIB])
             .build())
 
@@ -186,6 +204,8 @@ n_lss_mf_correct_task = (task("metis_n_lss_mf_correct")
             .with_main_input(n_lss_sci_task, [n_lss_sci_flux_1d_class])
             .with_associated_input(n_lss_mf_calctrans_task, [n_lss_synth_trans_class])
             .with_recipe("metis_n_lss_mf_correct")
+            .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+            .with_report("metis_n_lss_mf_correct", ReportInput.RECIPE_INPUTS_OUTPUTS)
             .with_meta_targets([QC1_CALIB, SCIENCE])
             .build())
 

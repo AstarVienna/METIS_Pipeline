@@ -5,7 +5,7 @@ TODO - need N band version
 """
 
 from edps import SCIENCE
-from edps import task, data_source, classification_rule
+from edps import task, data_source, classification_rule, ReportInput
 from .metis_classification import (linearity_h2rg_class, gain_map_h2rg_class,
                                    master_dark_2rg_class, master_img_flat_lamp_lm_class)
 from .metis_lm_img_wkf import lm_img_lingain_task, lm_img_dark_task, lm_img_flat_twilight_task
@@ -35,6 +35,8 @@ lm_raw_pupil = (data_source()
 
 pupil_imaging = (task('metis_pupil_imaging')
                     .with_recipe('metis_pupil_imaging')
+                    .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+                    .with_report("metis_pupil_imaging", ReportInput.RECIPE_INPUTS_OUTPUTS)
                     .with_main_input(lm_raw_pupil)
                     .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
                     .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])

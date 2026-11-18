@@ -1,4 +1,4 @@
-from edps import subworkflow, task
+from edps import subworkflow, task, ReportInput
 
 # This sub-workflow computes the atmospheric transmission by running molecfit on telluric standard star.
 @subworkflow("telluric_on_standard", "")
@@ -12,6 +12,8 @@ def telluric_on_standard(reference, target):
     # and the atmospheric model computed om the telluric standard stare.
     transmission = (task('transmission_on_standard')
                     .with_recipe('metis_mf_calctrans')
+                    .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+                    .with_report("metis_mf_calctrans", ReportInput.RECIPE_INPUTS_OUTPUTS)
                     .build())
 
     return transmission
@@ -33,6 +35,8 @@ def telluric_on_science(target):
     # and the atmospheric model computed om the telluric standard star.
     transmission = (task('transmission_on_science')
                     .with_recipe('metis_mf_calctrans')
+                    .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+                    .with_report("metis_mf_calctrans", ReportInput.RECIPE_INPUTS_OUTPUTS)
                     .build())
 
     return transmission
