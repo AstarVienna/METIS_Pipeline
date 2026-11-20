@@ -12,6 +12,8 @@ concurrency:
 jobs:
   run:
     runs-on: [self-hosted, Linux, pipeline, zeus]
+    env:
+      SOF_DATA: /data/LatestBuild/
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -33,6 +35,32 @@ jobs:
             workflow: metis.metis_n_lss_wkf
             output_pattern: METIS.N_LSS_SCI_RAW*
     steps:
+      - name: Check input data for ${{ matrix.mode }}
+        env:
+          MODE: ${{ matrix.mode }}
+          OUTPUT_PATTERN: ${{ matrix.output_pattern }}
+        run: |
+          set -euo pipefail
+          if [ ! -d "$SOF_DATA" ]; then
+            echo "Input directory not found or LatestBuild link is broken: $SOF_DATA" >&2
+            exit 1
+          fi
+          MODE_DIR="$SOF_DATA$MODE"
+          if [ ! -d "$MODE_DIR" ]; then
+            echo "Input directory for $MODE not found: $MODE_DIR" >&2
+            exit 1
+          fi
+          if ! SCIENCE_FILE=$(find "$MODE_DIR" -type f -name "$OUTPUT_PATTERN" \( -name '*.fits' -o -name '*.fz' \) -print -quit); then
+            echo "Cannot search input directory: $MODE_DIR" >&2
+            exit 1
+          fi
+          if [ -z "$SCIENCE_FILE" ]; then
+            echo "No science FITS input matching $OUTPUT_PATTERN in $MODE_DIR" >&2
+            exit 1
+          fi
+          echo "Using input directory: $SOF_DATA"
+          echo "Found science input for $MODE: $SCIENCE_FILE"
+
       - uses: actions/checkout@v5
 
       - name: Install dependencies
@@ -45,7 +73,6 @@ jobs:
           MODE: ${{ matrix.mode }}
           EDPS_WORKFLOW: ${{ matrix.workflow }}
           OUTPUT_PATTERN: ${{ matrix.output_pattern }}
-          SOF_DATA: /data/LatestBuild/
         run: |
           set -euo pipefail
           if [ ! -d "$SOF_DATA" ]; then
