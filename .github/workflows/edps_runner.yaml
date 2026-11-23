@@ -1,315 +1,295 @@
 name: Run EDPS workflows automatically or manually
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'  # Run on 2:00 UTC 
+    - cron: '0 2 * * *'
+
+concurrency:
+  group: edps-runner
+  cancel-in-progress: false
+
+env:
+  SOF_DATA: /data/LatestBuild/
 
 jobs:
-  run:
+  preflight:
+    name: preflight (${{ matrix.mode }})
     runs-on: [self-hosted, Linux, pipeline, zeus]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mode: imgLM
+            workflow: metis.metis_lm_img_wkf
+            output_pattern: METIS.LM_IMAGE_SCI_RAW*
+          - mode: imgN
+            workflow: metis.metis_n_img_wkf
+            output_pattern: METIS.N_IMAGE_SCI_RAW*
+          - mode: ifu
+            workflow: metis.metis_ifu_wkf
+            output_pattern: METIS.IFU_SCI_RAW*
+          - mode: lssLM
+            workflow: metis.metis_lm_lss_wkf
+            output_pattern: METIS.LM_LSS_SCI_RAW*
+          - mode: lssN
+            workflow: metis.metis_n_lss_wkf
+            output_pattern: METIS.N_LSS_SCI_RAW*
     steps:
+      - name: Check input data for ${{ matrix.mode }}
+        env:
+          MODE: ${{ matrix.mode }}
+          EDPS_WORKFLOW: ${{ matrix.workflow }}
+          OUTPUT_PATTERN: ${{ matrix.output_pattern }}
+        run: |
+          set -euo pipefail
+          if [ ! -d "$SOF_DATA" ]; then
+            echo "Input directory not found or LatestBuild link is broken: $SOF_DATA" >&2
+            exit 1
+          fi
+          MODE_DIR="$SOF_DATA$MODE"
+          if [ ! -d "$MODE_DIR" ]; then
+            echo "Input directory for $MODE not found: $MODE_DIR" >&2
+            exit 1
+          fi
+          if ! SCIENCE_FILE=$(find "$MODE_DIR" -type f -name "$OUTPUT_PATTERN" \( -name '*.fits' -o -name '*.fz' \) -print -quit); then
+            echo "Cannot search input directory: $MODE_DIR" >&2
+            exit 1
+          fi
+          if [ -z "$SCIENCE_FILE" ]; then
+            echo "No science FITS input matching $OUTPUT_PATTERN in $MODE_DIR" >&2
+            exit 1
+          fi
+          echo "Using input directory: $SOF_DATA"
+          echo "Found science input for $MODE: $SCIENCE_FILE"
+          if [[ ! "$GITHUB_RUN_ID" =~ ^[0-9]+$ || ! "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]; then
+            echo "Invalid workflow run identifier" >&2
+            exit 1
+          fi
+          STATUS_DIR="/data/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$STATUS_DIR"
+          python3 - "$STATUS_DIR/$MODE.json" <<'PY'
+          import json
+          import os
+          import sys
+
+          with open(sys.argv[1], "x") as f:
+              json.dump({"mode": os.environ["MODE"], "workflow": os.environ["EDPS_WORKFLOW"],
+                         "output_pattern": os.environ["OUTPUT_PATTERN"]}, f)
+          PY
+
+  select-modes:
+    needs: preflight
+    if: always() && !cancelled()
+    runs-on: [self-hosted, Linux, pipeline, zeus]
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Select modes with valid input
+        id: select
+        run: |
+          set -euo pipefail
+          if [[ ! "$GITHUB_RUN_ID" =~ ^[0-9]+$ || ! "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]; then
+            echo "Invalid workflow run identifier" >&2
+            exit 1
+          fi
+          STATUS_DIR="/data/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          python3 - "$STATUS_DIR" <<'PY'
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          directory = Path(sys.argv[1])
+          modes = []
+          for name in ("imgLM", "imgN", "ifu", "lssLM", "lssN"):
+              path = directory / f"{name}.json"
+              if path.is_file():
+                  with path.open() as f:
+                      mode = json.load(f)
+                  if mode["mode"] != name:
+                      raise ValueError(f"Incorrect mode in {path}")
+                  modes.append(mode)
+              else:
+                  print(f"Skipping {name}: preflight did not pass")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              print(f"matrix={json.dumps({'include': modes}, separators=(',', ':'))}", file=out)
+          if not modes:
+              raise SystemExit("No modes passed preflight")
+          PY
+
+  run:
+    name: run (${{ matrix.mode }})
+    needs: select-modes
+    if: always() && !cancelled() && needs.select-modes.result == 'success'
+    runs-on: [self-hosted, Linux, pipeline, zeus]
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix: ${{ fromJSON(needs.select-modes.outputs.matrix) }}
+    steps:
+
       - uses: actions/checkout@v5
+
       - name: Install dependencies
         run: |
-          # python3 -m venv metispipe
-          # . metispipe/bin/activate
-          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$GITHUB_WORKSPACE/metisp/pyrecipes/"
           ./toolbox/install_edps.sh
-          ./toolbox/create_config.sh
-      - name: Find latest data directory
-        id: find_data
+
+      - name: Run EDPS and publish ${{ matrix.mode }}
+        env:
+          MODE: ${{ matrix.mode }}
+          EDPS_WORKFLOW: ${{ matrix.workflow }}
+          OUTPUT_PATTERN: ${{ matrix.output_pattern }}
         run: |
-          if [ -L "/data/LatestBuild" ]; then
-            DATA_DIR="/data/LatestBuild/imgLM"
-            echo "Using symlink: $DATA_DIR"
-          elif [ -d "/data/LatestBuild/imgLM" ]; then
-            DATA_DIR="/data/LatestBuild/imgLM"
-            echo "Using direct path: $DATA_DIR"
-          else
-            LATEST_DIR=$(ls -d /data/20??-??-??/imgLM 2>/dev/null | sort -r | head -n1)
-            if [ -n "$LATEST_DIR" ]; then
-              DATA_DIR="$LATEST_DIR"
-              echo "Using latest dated directory: $DATA_DIR"
+          set -euo pipefail
+          if [ ! -d "$SOF_DATA" ]; then
+            echo "Input directory not found: $SOF_DATA" >&2
+            exit 1
+          fi
+
+          export PATH="$HOME/.local/bin:$PATH"
+          export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:${LD_LIBRARY_PATH:-}"
+          export PYESOREX_PLUGIN_DIR="$GITHUB_WORKSPACE/metisp/pyrecipes/"
+          export PYCPL_RECIPE_DIR="$GITHUB_WORKSPACE/metisp/pyrecipes/"
+          export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}$GITHUB_WORKSPACE/metisp/pymetis/src/"
+
+          WORK_DIR=$(mktemp -d "${RUNNER_TEMP}/edps-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${MODE}.XXXXXX")
+          export HOME="$WORK_DIR/home"
+          mkdir -p "$HOME/.edps" "$HOME/.esorex" "$WORK_DIR/data" "$WORK_DIR/output"
+          cp "$GITHUB_WORKSPACE"/toolbox/config/DOTesorex/* "$HOME/.esorex/"
+          cp "$GITHUB_WORKSPACE/toolbox/config/DOTedps/logging.yaml" "$HOME/.edps/"
+          export WORK_DIR
+          EDPS_PORT=$(python3 - <<'PY'
+          import socket
+          with socket.socket() as sock:
+              sock.bind(("127.0.0.1", 0))
+              print(sock.getsockname()[1])
+          PY
+          )
+          export EDPS_PORT
+          python3 - <<'PY'
+          import configparser
+          import os
+          from pathlib import Path
+
+          config = configparser.ConfigParser(interpolation=None)
+          source = Path(os.environ["GITHUB_WORKSPACE"]) / "toolbox/config/DOTedps/application.properties"
+          with source.open() as f:
+              config.read_file(f)
+          work = Path(os.environ["WORK_DIR"])
+          config["server"]["port"] = os.environ["EDPS_PORT"]
+          config["application"]["workflow_dir"] = os.environ["GITHUB_WORKSPACE"]
+          config["executor"]["base_dir"] = str(work / "data")
+          config["repository"]["path"] = str(work / "data/db.json")
+          with (Path(os.environ["HOME"]) / ".edps/application.properties").open("w") as f:
+              config.write(f)
+          PY
+
+          edps-server >"$WORK_DIR/server.log" 2>&1 &
+          SERVER_PID=$!
+          cleanup() {
+            status=$?
+            trap - EXIT
+            if kill -0 "$SERVER_PID" 2>/dev/null; then
+              kill "$SERVER_PID"
+            fi
+            wait "$SERVER_PID" 2>/dev/null || true
+            if [ "$status" -eq 0 ]; then
+              rm -r -- "$WORK_DIR"
             else
-              echo "No data directory found!"
-              ls -la /data/ || echo "/data does not exist"
+              echo "EDPS temporary data retained at $WORK_DIR" >&2
+            fi
+            exit "$status"
+          }
+          trap cleanup EXIT
+
+          ready=false
+          for attempt in {1..120}; do
+            if grep -q "Uvicorn running on" "$WORK_DIR/server.log"; then
+              ready=true
+              break
+            fi
+            if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+              echo "EDPS server failed to start:" >&2
+              cat "$WORK_DIR/server.log" >&2
               exit 1
             fi
+            sleep 1
+          done
+          if [ "$ready" != true ]; then
+            echo "EDPS server did not become ready:" >&2
+            cat "$WORK_DIR/server.log" >&2
+            exit 1
           fi
-          
-          echo "data_dir=$DATA_DIR" >> $GITHUB_OUTPUT
-          ls -la "$DATA_DIR"
 
-      - name: run EDPS workflows - LM Image Science
-        id: lm_image_sci
-        continue-on-error: true
-        run: |
-          export MODE="imgLM"
-          ./toolbox/create_config.sh
-          export PATH="$HOME/.local/bin:$PATH"
-          # . metispipe/bin/activate
-          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
-          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYTHONPATH=$PYTHONPATH:"$(pwd)/metisp/pymetis/src/"
-          export SOF_DATA="/data/LatestBuild/imgLM"
+          echo "::group::EDPS workflow list"
+          edps -P "$EDPS_PORT" -lw
+          echo "::endgroup::"
+          echo "::group::EDPS input classification"
+          edps -P "$EDPS_PORT" -w metis.metis_wkf -i "$SOF_DATA" -c
+          echo "::endgroup::"
+          echo "::group::EDPS target list"
+          edps -P "$EDPS_PORT" -w metis.metis_wkf -i "$SOF_DATA" -lt
+          echo "::endgroup::"
+          edps -P "$EDPS_PORT" -w "$EDPS_WORKFLOW" -i "$SOF_DATA" -o "$WORK_DIR/output" -m science | tee "$WORK_DIR/edps.stdout.txt"
+          if grep -q "Failed jobs:" "$WORK_DIR/edps.stdout.txt"; then
+            echo "EDPS reported failed jobs for $MODE" >&2
+            exit 1
+          fi
 
-          # . metispipe/bin/activate
-          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
-          edps -lw
-          edps -w metis.metis_wkf -i $SOF_DATA -c
-          edps -w metis.metis_wkf -i $SOF_DATA -lt
-          edps -w metis.metis_lm_img_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
-
-          set -euo pipefail
-
-          TODAY=$(date +%Y-%m-%d)
-          echo "Today's date: $TODAY"
-
-          mkdir -p /product/$TODAY
-
-          #
-          # SCI image products
-          #
-          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_IMAGE_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)
-          echo "Found output directory: $LATEST_OUTPUT"
-
-          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" |sort -rn | head -1)
-
+          LATEST_OUTPUT=$(find "$WORK_DIR/output" -mindepth 1 -maxdepth 1 -type d -name "$OUTPUT_PATTERN" -printf '%T@ %p\n' | sort -rn | sed -n '1p' | cut -d' ' -f2-)
+          if [ -z "$LATEST_OUTPUT" ]; then
+            echo "No output directory matching $OUTPUT_PATTERN" >&2
+            exit 1
+          fi
+          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -mindepth 1 -maxdepth 1 -type d -name "20??-??-??T*" | sort -r | sed -n '1p')
           if [ -z "$TIMESTAMP_DIR" ]; then
-            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
-            echo "Directory contents:"
-            ls -la "$LATEST_OUTPUT"
+            echo "No timestamp directory found in $LATEST_OUTPUT" >&2
             exit 1
           fi
-
-          echo "Found timestamp directory: $TIMESTAMP_DIR"
-
-          mkdir -p /product/$TODAY/$MODE
-          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
-
-          echo "Successfully copied to /product/$TODAY/$MODE"
-          ls -la /product/$TODAY/$MODE
-
-      - name: run EDPS workflows - N Image Science
-        id: n_image_sci
-        continue-on-error: true
-        run: |
-          export MODE="imgN"
-          ./toolbox/create_config.sh
-          export PATH="$HOME/.local/bin:$PATH"
-          # . metispipe/bin/activate
-          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
-          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYTHONPATH=$PYTHONPATH:"$(pwd)/metisp/pymetis/src/"
-          export SOF_DATA="/data/LatestBuild/$MODE"
-
-          # . metispipe/bin/activate
-          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
-          #edps -lw
-          edps -w metis.metis_wkf -i $SOF_DATA -c
-          #edps -w metis.metis_wkf -i $SOF_DATA -lt
-          edps -w metis.metis_n_img_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
-          # ! grep "'FAILED'" edps.stdout.txt
-
-          set -euo pipefail
-
+          shopt -s nullglob
+          products=("$TIMESTAMP_DIR"/*.fits)
+          if [ "${#products[@]}" -eq 0 ]; then
+            echo "No FITS products found in $TIMESTAMP_DIR" >&2
+            exit 1
+          fi
           TODAY=$(date +%Y-%m-%d)
-          echo "Today's date: $TODAY"
+          mkdir -p "/product/$TODAY/$MODE"
+          cp "${products[@]}" "/product/$TODAY/$MODE/"
+          ls -la "/product/$TODAY/$MODE"
+          mkdir -p "/product/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          touch "/product/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/$MODE"
 
-          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.N_IMAGE_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)
-          echo "Found output directory: $LATEST_OUTPUT"
-
-          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" |sort -rn| head -1)
-
-          if [ -z "$TIMESTAMP_DIR" ]; then
-            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
-            echo "Directory contents:"
-            ls -la "$LATEST_OUTPUT"
-            exit 1
-          fi
-
-          echo "Found timestamp directory: $TIMESTAMP_DIR"
-
-          mkdir -p /product/$TODAY/$MODE
-          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
-
-          echo "Successfully copied to /product/$TODAY/$MODE"
-          ls -la /product/$TODAY/$MODE
-
-      - name: run EDPS workflows - IFU Science
-        id: ifu_sci
-        continue-on-error: true
-        run: |
-          export MODE="ifu"
-          ./toolbox/create_config.sh
-          export PATH="$HOME/.local/bin:$PATH"
-          # . metispipe/bin/activate
-          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
-          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYTHONPATH=$PYTHONPATH:"$(pwd)/metisp/pymetis/src/"
-          export SOF_DATA="/data/LatestBuild/$MODE"
-
-          # . metispipe/bin/activate
-          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
-          #edps -lw
-          edps -w metis.metis_wkf -i $SOF_DATA -c
-          #edps -w metis.metis_wkf -i $SOF_DATA -lt
-          edps -w metis.metis_ifu_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
-          # ! grep "'FAILED'" edps.stdout.txt
-
-          set -euo pipefail
-
-          TODAY=$(date +%Y-%m-%d)
-          echo "Today's date: $TODAY"
-
-          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.IFU_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)
-          echo "Found output directory: $LATEST_OUTPUT"
-
-          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" |sort -rn| head -1)
-
-          if [ -z "$TIMESTAMP_DIR" ]; then
-            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
-            echo "Directory contents:"
-            ls -la "$LATEST_OUTPUT"
-            exit 1
-          fi
-
-          echo "Found timestamp directory: $TIMESTAMP_DIR"
-
-          mkdir -p /product/$TODAY/$MODE
-          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
-
-          echo "Successfully copied to /product/$TODAY/$MODE"
-          ls -la /product/$TODAY/$MODE
-
-      - name: run EDPS workflows - LM Long-Slit Spectroscopy Science
-        id: lm_lss_sci
-        continue-on-error: true
-        run: |
-          export MODE="lssLM"
-          ./toolbox/create_config.sh
-          export PATH="$HOME/.local/bin:$PATH"
-          # . metispipe/bin/activate
-          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
-          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYTHONPATH=$PYTHONPATH:"$(pwd)/metisp/pymetis/src/"
-          export SOF_DATA="/data/LatestBuild/$MODE"
-
-          # . metispipe/bin/activate
-          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
-          #edps -lw
-          edps -w metis.metis_wkf -i $SOF_DATA -c
-          #edps -w metis.metis_wkf -i $SOF_DATA -lt
-          edps -w metis.metis_lm_lss_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
-          # ! grep "'FAILED'" edps.stdout.txt
-
-          set -euo pipefail
-
-          TODAY=$(date +%Y-%m-%d)
-          echo "Today's date: $TODAY"
-
-          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.LM_LSS_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)
-          echo "Found output directory: $LATEST_OUTPUT"
-
-          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
-
-          if [ -z "$TIMESTAMP_DIR" ]; then
-            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
-            echo "Directory contents:"
-            ls -la "$LATEST_OUTPUT"
-            exit 1
-          fi
-
-          echo "Found timestamp directory: $TIMESTAMP_DIR"
-
-          mkdir -p /product/$TODAY/$MODE
-          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
-
-          echo "Successfully copied to /product/$TODAY/$MODE"
-          ls -la /product/$TODAY/$MODE
-
-      - name: run EDPS workflows - N Long-Slit Spectroscopy Science
-        id: n_lss_sci
-        continue-on-error: true
-        run: |
-          export MODE="lssN"
-          ./toolbox/create_config.sh
-          export PATH="$HOME/.local/bin:$PATH"
-          # . metispipe/bin/activate
-          export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/blas:/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH
-          export PYESOREX_PLUGIN_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYCPL_RECIPE_DIR="$(pwd)/metisp/pyrecipes/"
-          export PYTHONPATH=$PYTHONPATH:"$(pwd)/metisp/pymetis/src/"
-          export SOF_DATA="/data/LatestBuild/$MODE"
-
-          # . metispipe/bin/activate
-          edps --shutdown ; rm -rf /tmp/EDPS* ; rm -rf /tmp/METIS*
-          #edps -lw
-          edps -w metis.metis_wkf -i $SOF_DATA -c
-          #edps -w metis.metis_wkf -i $SOF_DATA -lt
-          edps -w metis.metis_n_lss_wkf -i $SOF_DATA -o /tmp -m science | tee edps.stdout.txt
-          # ! grep "'FAILED'" edps.stdout.txt
-
-          set -euo pipefail
-
-          TODAY=$(date +%Y-%m-%d)
-          echo "Today's date: $TODAY"
-
-          LATEST_OUTPUT=$(find /tmp -maxdepth 1 -type d -name "METIS.N_LSS_SCI_RAW*" -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)
-          echo "Found output directory: $LATEST_OUTPUT"
-
-          TIMESTAMP_DIR=$(find "$LATEST_OUTPUT" -maxdepth 1 -type d -name "20??-??-??T*" | head -1)
-
-          if [ -z "$TIMESTAMP_DIR" ]; then
-            echo "No timestamp subdirectory found in $LATEST_OUTPUT"
-            echo "Directory contents:"
-            ls -la "$LATEST_OUTPUT"
-            exit 1
-          fi
-
-          echo "Found timestamp directory: $TIMESTAMP_DIR"
-
-          mkdir -p /product/$TODAY/$MODE
-          cp "$TIMESTAMP_DIR"/*.fits /product/$TODAY/$MODE/
-
-          echo "Successfully copied to /product/$TODAY/$MODE"
-          ls -la /product/$TODAY/$MODE
-
-      - name: Summarize EDPS workflow results
-        if: always()
-        run: |
-          success_count=0
-
-          if [ "${{ steps.lm_image_sci.outcome }}" = "success" ]; then success_count=$((success_count + 1)); fi
-          if [ "${{ steps.n_image_sci.outcome }}" = "success" ]; then success_count=$((success_count + 1)); fi
-          if [ "${{ steps.ifu_sci.outcome }}" = "success" ]; then success_count=$((success_count + 1)); fi
-          if [ "${{ steps.lm_lss_sci.outcome }}" = "success" ]; then success_count=$((success_count + 1)); fi
-          if [ "${{ steps.n_lss_sci.outcome }}" = "success" ]; then success_count=$((success_count + 1)); fi
-
-          echo "EDPS workflow summary:"
-          echo "- LM Image Science: ${{ steps.lm_image_sci.outcome }}"
-          echo "- N Image Science: ${{ steps.n_image_sci.outcome }}"
-          echo "- IFU Science: ${{ steps.ifu_sci.outcome }}"
-          echo "- LM Long-Slit Spectroscopy Science: ${{ steps.lm_lss_sci.outcome }}"
-          echo "- N Long-Slit Spectroscopy Science: ${{ steps.n_lss_sci.outcome }}"
-          echo "Successful modes: $success_count / 5"
-
-          if [ "$success_count" -eq 0 ]; then
-            echo "All EDPS workflow blocks failed."
-            exit 1
-          fi
-
+  finalize:
+    needs: [select-modes, run]
+    if: always() && !cancelled()
+    runs-on: [self-hosted, Linux, pipeline, zeus]
+    steps:
       - name: Update LatestBuild symlink on Zeus
-        if: always()
         run: |
+          set -euo pipefail
+          if [[ ! "$GITHUB_RUN_ID" =~ ^[0-9]+$ || ! "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]; then
+            echo "Invalid workflow run identifier" >&2
+            exit 1
+          fi
+          STATUS_DIR="/product/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          PREFLIGHT_DIR="/data/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           TODAY=$(date +%Y-%m-%d)
-
-          # The remote /data/METIS_Pipeline_Product directory is already mounted at /product
-          # so we only need to update the LatestBuild symlink here.
+          published=false
+          for mode in imgLM imgN ifu lssLM lssN; do
+            if [ -f "$STATUS_DIR/$mode" ]; then
+              published=true
+              break
+            fi
+          done
+          if [ "$published" != true ]; then
+            echo "No products published by this run; LatestBuild was not changed." >&2
+            exit 1
+          fi
           ln -sfn "$TODAY" /product/LatestBuild
           echo "Updated /product/LatestBuild -> $TODAY"
+          rm -r -- "$STATUS_DIR"
+          if [ -d "$PREFLIGHT_DIR" ]; then
+            rm -r -- "$PREFLIGHT_DIR"
+          fi
