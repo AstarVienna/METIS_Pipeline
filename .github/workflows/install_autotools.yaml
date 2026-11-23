@@ -18,7 +18,7 @@ jobs:
   run:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Python package versions are derived from Git tags and history.
           fetch-depth: 0
