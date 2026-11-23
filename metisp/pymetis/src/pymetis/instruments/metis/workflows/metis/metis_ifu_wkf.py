@@ -1,4 +1,4 @@
-from edps import task, SCIENCE
+from edps import task, SCIENCE, ReportInput
 from .metis_classification import (
     atm_profile_class,
     flux_tab_class,
@@ -47,6 +47,8 @@ ifu_lingain_task = (task("metis_ifu_lingain")
 
 ifu_dark_task = (task("metis_ifu_dark")
              .with_recipe("metis_det_dark")
+             .with_report("metis_rawdisp", ReportInput.RECIPE_INPUTS)
+             .with_report("metis_master_dark", ReportInput.RECIPE_INPUTS_OUTPUTS )
              .with_main_input(dark_ifu_raw)
              .with_associated_input(badpix_map_ifu, min_ret=0)
              .with_associated_input(ifu_lingain_task, [linearity_ifu_class, gain_map_ifu_class], min_ret=0)

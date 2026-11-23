@@ -101,6 +101,10 @@ breakpoints_url=
 ```
 Where the absolute path to the METIS workflow directory must be given. Setting the breakpoints_url is optional, but required to use the pipeline offline.
 
+To run ADARI reports set the environment variable:
+```
+export ADARI_REPORTS_DIR=/absolute/path/to/METIS_Pipeline/metisp/pymetis/src/pymetis/instruments/metis/reports
+```
 
 # Running the software
 

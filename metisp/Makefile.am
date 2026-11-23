@@ -24,8 +24,8 @@ ACLOCAL_AMFLAGS = -I m4
 DISTCLEANFILES = *~
 
 
-SUBDIRS = metis recipes pymetis pyrecipes pymetis/src/pymetis/instruments/metis/workflows regtests
-DIST_SUBDIRS = metis recipes pymetis pyrecipes pymetis/src/pymetis/instruments/metis/workflows regtests
+SUBDIRS = metis recipes pymetis pyrecipes pymetis/src/pymetis/instruments/metis/workflows pymetis/src/pymetis/instruments/metis/reports regtests
+DIST_SUBDIRS = metis recipes pymetis pyrecipes pymetis/src/pymetis/instruments/metis/workflows pymetis/src/pymetis/instruments/metis/reports regtests
 
 DOXYGEN_SUBDIRS =
 PYTHON_SUBDIRS = pymetis
