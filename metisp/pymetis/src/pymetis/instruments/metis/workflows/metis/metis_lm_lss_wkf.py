@@ -14,7 +14,6 @@ from edps import task
 from .metis_classification import (
     gain_map_h2rg_class,
     linearity_h2rg_class,
-    lm_adc_slitloss_class,
     lm_lss_dist_sol_class,
     lm_lss_sci_flux_1d_class,
     lm_lss_std_1d_class,
@@ -26,6 +25,9 @@ from .metis_classification import (
     master_lm_response_class,
     mf_best_fit_tab_class,
     std_transmission_class,
+    badpix_map_h2rg_class,
+    persistence_map_class,
+    pinhole_table_class
 )
 from .metis_datasources import (
     ao_psf_model,
@@ -34,7 +36,7 @@ from .metis_datasources import (
     dark_2rg_raw,
     detlin_2rg_raw,
     laser_tab,
-    lm_adc_slitloss_raw,
+    lm_adc_slitloss,
     lm_lss_dist_sol,
     lm_lss_rsrf_pinh_raw,
     lm_lss_rsrf_raw,
@@ -47,12 +49,15 @@ from .metis_datasources import (
     lsf_kernel,
     persistence_map,
     ref_std_cat,
+    badpix_map_h2rg
 )
 from .metis_task_functions import (
     on_science,
     on_standard,
     setup_lingain_job,
 )
+
+from .metis_lm_img_wkf import lm_img_lingain_task, lm_img_dark_task
 
 # ----------------------------------------------------------------------------
 # ------------------------ Processing tasks ----------------------------------
@@ -63,24 +68,24 @@ from .metis_task_functions import (
 #             .with_recipe("metis_det_persistence")
 #             .build())
 
-lm_lss_lingain_task = (task('metis_lm_lss_lingain')
-            .with_recipe("metis_det_lingain")
-            .with_main_input(detlin_2rg_raw)
-            .with_associated_input(lm_wcu_off_raw)        # check how that is exactly delivered by the ICS!
-            .with_associated_input(badpix_map_h2rg, min_ret=0)
-            .with_job_processing(setup_lingain_job)
-            .with_meta_targets([QC1_CALIB])
-            .build())
+#lm_lss_lingain_task = (task('metis_lm_lss_lingain')
+#            .with_recipe("metis_det_lingain")
+#            .with_main_input(detlin_2rg_raw)
+#            .with_associated_input(lm_wcu_off_raw)        # check how that is exactly delivered by the ICS!
+#            .with_associated_input(badpix_map_h2rg, min_ret=0)
+#            .with_job_processing(setup_lingain_job)
+#            .with_meta_targets([QC1_CALIB])
+#            .build())
 
-lm_lss_dark_task = (task('metis_lm_lss_dark')
-            .with_recipe("metis_det_dark")
-            .with_main_input(dark_2rg_raw)       # check what the minimum number of raw darks is!
-            .with_associated_input(badpix_map_h2rg, min_ret=0)
-            .with_associated_input(lm_lss_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
-            .with_associated_input(persistence_map, min_ret=0)
-            .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, persistence_map_class)
-            .with_meta_targets([QC1_CALIB])
-            .build())
+#lm_lss_dark_task = (task('metis_lm_lss_dark')
+#            .with_recipe("metis_det_dark")
+#            .with_main_input(dark_2rg_raw)       # check what the minimum number of raw darks is!
+#            .with_associated_input(badpix_map_h2rg, min_ret=0)
+#            .with_associated_input(lm_lss_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
+#            .with_associated_input(persistence_map, min_ret=0)
+#            .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, persistence_map_class)
+#            .with_meta_targets([QC1_CALIB])
+#            .build())
 
 
 # Slitloss should be a static calibration, so recipe doesn't need to be in standard workflow
@@ -99,9 +104,9 @@ lm_lss_trace_task = (task("metis_lm_lss_trace")
             .with_main_input(lm_lss_rsrf_pinh_raw)
             .with_associated_input(lm_wcu_off_raw)
             .with_associated_input(badpix_map_h2rg, min_ret=0)
-            .with_associated_input(lm_lss_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
+            .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
             .with_associated_input(persistence_map, min_ret=0)
-            .with_associated_input(lm_lss_dark_task, [master_dark_2rg_class])
+            .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
             .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, master_dark_2rg_class, persistence_map_class)
             .with_meta_targets([QC1_CALIB])
             .build())
@@ -111,12 +116,12 @@ lm_lss_wave_task = (task("metis_lm_lss_wave")
             .with_main_input(lm_lss_wave_raw)
             .with_associated_input(lm_wcu_off_raw)
             .with_associated_input(badpix_map_h2rg, min_ret=0)
-            .with_associated_input(lm_lss_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
+            .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
             .with_associated_input(persistence_map, min_ret=0)
-            .with_associated_input(lm_lss_dark_task, [master_dark_2rg_class])
+            .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
             .with_associated_input(lm_lss_trace_task, [lm_lss_trace_class])
             .with_associated_input(laser_tab)
-            .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, master_dark_2rg_class, persistence_map_class, pinhole_table_class)
+            .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, master_dark_2rg_class, lm_lss_trace_class, persistence_map_class, pinhole_table_class)
             .with_meta_targets([QC1_CALIB])
             .build())
 
@@ -125,12 +130,12 @@ lm_lss_rsrf_task = (task('metis_lm_lss_rsrf')
             .with_main_input(lm_lss_rsrf_raw)
             .with_associated_input(lm_wcu_off_raw)
             .with_associated_input(badpix_map_h2rg, min_ret=0)
-            .with_associated_input(lm_lss_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
+            .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
             .with_associated_input(persistence_map, min_ret=0)
-            .with_associated_input(lm_lss_dark_task, [master_dark_2rg_class])
+            .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
             .with_associated_input(lm_lss_trace_task, [lm_lss_trace_class])
             .with_associated_input(lm_lss_wave_task, [lm_lss_dist_sol_class, lm_lss_wave_guess_class])
-            .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, master_dark_2rg_class, lm_lss_dist_sol_class, lm_lss_wave_guess_class, persistence_map_class)
+            .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, master_dark_2rg_class, lm_lss_trace_class, lm_lss_wave_guess_class, persistence_map_class)
             .with_meta_targets([QC1_CALIB])
             .build())
 
@@ -143,9 +148,9 @@ lm_lss_std_task = (task('metis_lm_lss_std')
             #.with_associated_input(gain_map_h2rg)
             #.with_associated_input(linearity_h2rg)
             .with_associated_input(badpix_map_h2rg, min_ret=0)
-            .with_associated_input(lm_lss_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
+            .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
             .with_associated_input(persistence_map, min_ret=0)
-            .with_associated_input(lm_lss_dark_task, [master_dark_2rg_class])
+            .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
             .with_associated_input(lm_lss_rsrf_task, [master_lm_lss_rsrf_class])
             .with_associated_input(lm_lss_trace_task, [lm_lss_trace_class])
             .with_associated_input(lm_lss_wave_task, [lm_lss_dist_sol_class, lm_lss_wave_guess_class])
@@ -168,9 +173,9 @@ lm_lss_sci_task = (task('metis_lm_lss_sci')
             #.with_associated_input(gain_map_h2rg)
             #.with_associated_input(linearity_h2rg)
             .with_associated_input(badpix_map_h2rg, min_ret=0)
-            .with_associated_input(lm_lss_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
+            .with_associated_input(lm_img_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
             .with_associated_input(persistence_map, min_ret=0)
-            .with_associated_input(lm_lss_dark_task, [master_dark_2rg_class])
+            .with_associated_input(lm_img_dark_task, [master_dark_2rg_class])
             .with_associated_input(lm_lss_rsrf_task, [master_lm_lss_rsrf_class])
             .with_associated_input(lm_lss_trace_task, [lm_lss_trace_class])
             .with_associated_input(lm_lss_wave_task, [lm_lss_dist_sol_class, lm_lss_wave_guess_class])
