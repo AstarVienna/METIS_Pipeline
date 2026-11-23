@@ -9,14 +9,14 @@ concurrency:
   group: edps-runner
   cancel-in-progress: false
 
+env:
+  SOF_DATA: /data/LatestBuild/
+
 jobs:
-  run:
+  preflight:
     runs-on: [self-hosted, Linux, pipeline, zeus]
-    env:
-      SOF_DATA: /data/LatestBuild/
     strategy:
       fail-fast: false
-      max-parallel: 1
       matrix:
         include:
           - mode: imgLM
@@ -38,6 +38,7 @@ jobs:
       - name: Check input data for ${{ matrix.mode }}
         env:
           MODE: ${{ matrix.mode }}
+          EDPS_WORKFLOW: ${{ matrix.workflow }}
           OUTPUT_PATTERN: ${{ matrix.output_pattern }}
         run: |
           set -euo pipefail
@@ -60,6 +61,71 @@ jobs:
           fi
           echo "Using input directory: $SOF_DATA"
           echo "Found science input for $MODE: $SCIENCE_FILE"
+          if [[ ! "$GITHUB_RUN_ID" =~ ^[0-9]+$ || ! "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]; then
+            echo "Invalid workflow run identifier" >&2
+            exit 1
+          fi
+          STATUS_DIR="/data/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$STATUS_DIR"
+          python3 - "$STATUS_DIR/$MODE.json" <<'PY'
+          import json
+          import os
+          import sys
+
+          with open(sys.argv[1], "x") as f:
+              json.dump({"mode": os.environ["MODE"], "workflow": os.environ["EDPS_WORKFLOW"],
+                         "output_pattern": os.environ["OUTPUT_PATTERN"]}, f)
+          PY
+
+  select-modes:
+    needs: preflight
+    if: always() && !cancelled()
+    runs-on: [self-hosted, Linux, pipeline, zeus]
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Select modes with valid input
+        id: select
+        run: |
+          set -euo pipefail
+          if [[ ! "$GITHUB_RUN_ID" =~ ^[0-9]+$ || ! "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]; then
+            echo "Invalid workflow run identifier" >&2
+            exit 1
+          fi
+          STATUS_DIR="/data/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          python3 - "$STATUS_DIR" <<'PY'
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          directory = Path(sys.argv[1])
+          modes = []
+          for name in ("imgLM", "imgN", "ifu", "lssLM", "lssN"):
+              path = directory / f"{name}.json"
+              if path.is_file():
+                  with path.open() as f:
+                      mode = json.load(f)
+                  if mode["mode"] != name:
+                      raise ValueError(f"Incorrect mode in {path}")
+                  modes.append(mode)
+              else:
+                  print(f"Skipping {name}: preflight did not pass")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              print(f"matrix={json.dumps({'include': modes}, separators=(',', ':'))}", file=out)
+          if not modes:
+              raise SystemExit("No modes passed preflight")
+          PY
+
+  run:
+    needs: select-modes
+    if: always() && !cancelled() && needs.select-modes.result == 'success'
+    runs-on: [self-hosted, Linux, pipeline, zeus]
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix: ${{ fromJSON(needs.select-modes.outputs.matrix) }}
+    steps:
 
       - uses: actions/checkout@v5
 
@@ -155,7 +221,15 @@ jobs:
             exit 1
           fi
 
+          echo "::group::EDPS workflow list"
+          edps -P "$EDPS_PORT" -lw
+          echo "::endgroup::"
+          echo "::group::EDPS input classification"
           edps -P "$EDPS_PORT" -w metis.metis_wkf -i "$SOF_DATA" -c
+          echo "::endgroup::"
+          echo "::group::EDPS target list"
+          edps -P "$EDPS_PORT" -w metis.metis_wkf -i "$SOF_DATA" -lt
+          echo "::endgroup::"
           edps -P "$EDPS_PORT" -w "$EDPS_WORKFLOW" -i "$SOF_DATA" -o "$WORK_DIR/output" -m science | tee "$WORK_DIR/edps.stdout.txt"
           if grep -q "Failed jobs:" "$WORK_DIR/edps.stdout.txt"; then
             echo "EDPS reported failed jobs for $MODE" >&2
@@ -186,22 +260,34 @@ jobs:
           touch "/product/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/$MODE"
 
   finalize:
-    needs: run
+    needs: [select-modes, run]
     if: always() && !cancelled()
     runs-on: [self-hosted, Linux, pipeline, zeus]
     steps:
       - name: Update LatestBuild symlink on Zeus
         run: |
+          set -euo pipefail
           if [[ ! "$GITHUB_RUN_ID" =~ ^[0-9]+$ || ! "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]; then
             echo "Invalid workflow run identifier" >&2
             exit 1
           fi
           STATUS_DIR="/product/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          PREFLIGHT_DIR="/data/.edps-run-status/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           TODAY=$(date +%Y-%m-%d)
-          if [ ! -d "$STATUS_DIR" ] || [ -z "$(ls -A "$STATUS_DIR")" ]; then
+          published=false
+          for mode in imgLM imgN ifu lssLM lssN; do
+            if [ -f "$STATUS_DIR/$mode" ]; then
+              published=true
+              break
+            fi
+          done
+          if [ "$published" != true ]; then
             echo "No products published by this run; LatestBuild was not changed." >&2
             exit 1
           fi
           ln -sfn "$TODAY" /product/LatestBuild
           echo "Updated /product/LatestBuild -> $TODAY"
           rm -r -- "$STATUS_DIR"
+          if [ -d "$PREFLIGHT_DIR" ]; then
+            rm -r -- "$PREFLIGHT_DIR"
+          fi
