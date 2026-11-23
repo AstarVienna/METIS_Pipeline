@@ -114,7 +114,7 @@ class MetisIfuReduceImpl(BandIfuMixin, DetectorIfuMixin, DarkImageProcessor, Met
         output = [self._process_single_detector(det) for det in [1, 2, 3, 4]]
         primary_header = cpl.core.PropertyList()
         raw_images = self.inputset.raw.load_data('DET1.DATA')
-        image = self.combine_images(raw_images, "add")
+        image = self.combine_images(raw_images, "average")
 
         product_reduced = self.ProductSet.Reduced(
             header_reduced,
@@ -178,7 +178,7 @@ class MetisIfuReduce(Recipe):
             context=_name,
             description="Name of the method used to combine the input images",
             default="average",
-            alternatives=("add", "average", "median", "sigclip"),
+            alternatives=("average", "median", "sigclip"),
         ),
     ])
 

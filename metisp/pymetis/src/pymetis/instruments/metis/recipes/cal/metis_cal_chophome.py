@@ -171,7 +171,7 @@ class MetisCalChophome(Recipe):
             description="Name of the method used to combine the input images",
             cli_alias="stacking.method",
             default="average",
-            alternatives=("add", "average", "median"),
+            alternatives=("average", "median"),
         ),
         ParameterRange(
             name=f"{_name}.halfwindow",

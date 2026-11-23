@@ -47,7 +47,7 @@ class MetisNImgDistortion(Recipe):
             context=_name,
             description="Name of the method used to combine the input images",
             default="average",
-            alternatives=("add", "average", "median", "sigclip"),
+            alternatives=("average", "median", "sigclip"),
         ),
     ])
 
