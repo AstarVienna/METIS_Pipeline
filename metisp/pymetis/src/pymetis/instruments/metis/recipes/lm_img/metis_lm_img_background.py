@@ -171,8 +171,8 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
             # load the original headers
             primary_header = cpl.core.PropertyList()
             extension_header = cpl.core.PropertyList()
-            hh = primary_header.load(self.inputset.basic_reduced.frameset[i].file, 0)
-            hh = extension_header.load(self.inputset.basic_reduced.frameset[i].file, 1)
+#            hh = primary_header.load(self.inputset.basic_reduced.frameset[i].file, 0)
+ #           hh = extension_header.load(self.inputset.basic_reduced.frameset[i].file, 1)
             
             primary_header.append(self.collect_qc_parameters(
                 self.Qc.Median(image.image.get_median()),
