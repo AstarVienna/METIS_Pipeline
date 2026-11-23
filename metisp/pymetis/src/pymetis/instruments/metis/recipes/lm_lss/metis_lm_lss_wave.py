@@ -49,7 +49,6 @@ class MetisLmLssWaveImpl(BandLmMixin, Detector2rgMixin, DarkImageProcessor, Meti
         persistence_map: PersistenceMapInput
         gain_map: GainMapInput
         linearity: LinearityInput
-        bad_pix_map: BadPixMapInput
         lss_trace: LssTraceInput
         wcu_off: WcuOffInput
         laser_table: LaserTableInput
