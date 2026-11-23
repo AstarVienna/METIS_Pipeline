@@ -102,7 +102,7 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
         # extract primary header
         
         primary_header = cpl.core.PropertyList()
-        hh = primary_header.load(self.inputset.basic_reduced.frameset[0].file, 0)
+#        hh = primary_header.load(self.inputset.basic_reduced.frameset[0].file, 0)
         product_set: set[DataItem] = set()
 
         # we're doing extraction in pixel coordinates, so WCS should be the same
