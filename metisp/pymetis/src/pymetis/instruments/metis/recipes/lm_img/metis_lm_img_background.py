@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.core.parameter import ParameterList, ParameterEnum
-from pymetis.engine.core.functions.dummy import create_dummy_table, create_dummy_header
+from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.engine.dataitems import DataItem, Hdu, PipelineProductSet
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
@@ -33,7 +33,7 @@ from pymetis.drl.image import zeros_like
 
 import cpl, hdrl
 from cpl.core import Msg
-import copy
+#import copy
 
 class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
     class InputSet(PipelineInputSet):
@@ -102,7 +102,7 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
         # extract primary header
         
         primary_header = cpl.core.PropertyList()
-        hh = primary_header.load(self.inputset.basic_reduced.frameset[0].file, 0)
+#        hh = primary_header.load(self.inputset.basic_reduced.frameset[0].file, 0)
         product_set: set[DataItem] = set()
 
         # we're doing extraction in pixel coordinates, so WCS should be the same
@@ -117,11 +117,11 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
 
         #wcs = cpl.drs.WCS(cpl.core.PropertyList.load(self.inputset.basic_reduced.item.filename,1))
         wcs = None
-        header_bkg = create_dummy_header()
-        header_bkg_subtracted = create_dummy_header()
+#        header_bkg = create_dummy_header()
+#        header_bkg_subtracted = create_dummy_header()
         header_object_cat = create_dummy_header()
 
-        Msg.info(self.__class__.__qualname__, f"Turning CPL images into HDRL images")
+        Msg.info(self.__class__.__qualname__, "Turning CPL images into HDRL images")
 
 
         
@@ -165,14 +165,14 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
             background_subtracted = EnhancedImage.from_hdrl(
                 image,
                 zeros_like(image.image, cpl.core.Type.INT),
-                prefix=f'DET1',
+                prefix='DET1',
             )
 
             # load the original headers
             primary_header = cpl.core.PropertyList()
             extension_header = cpl.core.PropertyList()
-            hh = primary_header.load(self.inputset.basic_reduced.frameset[i].file, 0)
-            hh = extension_header.load(self.inputset.basic_reduced.frameset[i].file, 1)
+#            hh = primary_header.load(self.inputset.basic_reduced.frameset[i].file, 0)
+ #           hh = extension_header.load(self.inputset.basic_reduced.frameset[i].file, 1)
             
             primary_header.append(self.collect_qc_parameters(
                 self.Qc.Median(image.image.get_median()),
@@ -194,14 +194,14 @@ class MetisLmImgBackgroundImpl(BandLmMixin, Detector2rgMixin, MetisRecipeImpl):
         background_enhanced = EnhancedImage.from_hdrl(
             background,
             zeros_like(image.image, cpl.core.Type.INT),
-            prefix=f'DET1',
+            prefix='DET1',
         )
 
         # should probably refer to header by name not by number TODO
         primary_header = cpl.core.PropertyList()
         extension_header = cpl.core.PropertyList()
-        hh = primary_header.load(self.inputset.basic_reduced.frameset[0].file, 0)
-        hh = extension_header.load(self.inputset.basic_reduced.frameset[0].file, 1)
+#        hh = primary_header.load(self.inputset.basic_reduced.frameset[0].file, 0)
+ #       hh = extension_header.load(self.inputset.basic_reduced.frameset[0].file, 1)
 
         # fix for 
         product = self.ProductSet.Bkg(
