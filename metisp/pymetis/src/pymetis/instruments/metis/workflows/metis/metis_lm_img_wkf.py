@@ -8,7 +8,7 @@ from .metis_classification import (
     lm_sci_basic_reduced_class,
     lm_sci_bkg_subtracted_class,
     lm_sci_calibrated_class,
-    lm_sky_basic_reduced_class,
+#    lm_sky_basic_reduced_class,
     lm_std_basic_reduced_class,
     lm_std_bkg_subtracted_class,
     master_dark_2rg_class,
