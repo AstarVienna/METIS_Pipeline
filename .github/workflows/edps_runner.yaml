@@ -14,6 +14,7 @@ env:
 
 jobs:
   preflight:
+    name: preflight (${{ matrix.mode }})
     runs-on: [self-hosted, Linux, pipeline, zeus]
     strategy:
       fail-fast: false
@@ -118,6 +119,7 @@ jobs:
           PY
 
   run:
+    name: run (${{ matrix.mode }})
     needs: select-modes
     if: always() && !cancelled() && needs.select-modes.result == 'success'
     runs-on: [self-hosted, Linux, pipeline, zeus]
