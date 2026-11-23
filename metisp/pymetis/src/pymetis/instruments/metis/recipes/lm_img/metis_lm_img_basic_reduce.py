@@ -212,7 +212,7 @@ class MetisLmImgBasicReduce(Recipe):
             context=_name,
             description="Name of the method used to combine the input images",
             default="average",
-            alternatives=("average", "average", "median"),
+            alternatives=("average", "median"),
         )
     ])
 
