@@ -1,6 +1,40 @@
 from edps import task, SCIENCE, QC1_CALIB
-from .metis_datasources import *
-from .metis_task_functions import *
+from .metis_datasources import (
+    detlin_ifu_raw,
+    badpix_map_ifu,
+    dark_ifu_raw,
+    persistence_map,
+    ifu_distortion_raw,
+    ifu_wave_raw,
+    ifu_rsrf_raw,
+    ifu_wcu_off_raw,
+    ifu_std_raw,
+    ifu_sky_raw,
+    ifu_sci_raw,
+    fluxstd_catalog,
+    lsf_kernel,
+    atm_profile
+)
+from .metis_task_functions import setup_lingain_job
+from .metis_classification import (
+    linearity_ifu_class,
+    gain_map_ifu_class,
+    persistence_map_class,
+    master_dark_ifu_class,
+    ifu_distortion_table_class,
+    pinhole_table_class,
+    ifu_wavecal_class,
+    ifu_rsrf_class,
+    ifu_sci_combined_class,
+    fluxstd_catalog_class,
+    lsf_kernel_class,
+    atm_profile_class,
+    ifu_telluric_class,
+    ifu_std_combined_class,
+    flux_tab_class,
+    ifu_sci_reduced_class,
+
+)
 
 # --- Processing tasks ---
 
