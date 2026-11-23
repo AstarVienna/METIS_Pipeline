@@ -161,8 +161,8 @@ class MetisPupilImaging(Recipe):
             name="metis_pupil_imaging.stacking.method",
             context="metis_pupil_imaging",
             description="Name of the method used to combine the input images",
-            default="add",
-            alternatives=("add", "average", "median"),
+            default="average",
+            alternatives=("average", "median"),
         ),
     ])
 

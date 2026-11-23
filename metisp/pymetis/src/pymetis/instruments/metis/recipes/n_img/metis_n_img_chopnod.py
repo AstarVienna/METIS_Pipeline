@@ -161,8 +161,8 @@ class MetisNImgChopnod(Recipe):
             name=rf"{_name}.stacking.method",
             context=_name,
             description="Name of the method used to combine the input images",
-            default="add",
-            alternatives=("add", "average", "median"),
+            default="average",
+            alternatives=("average", "median"),
         )
     ])
 

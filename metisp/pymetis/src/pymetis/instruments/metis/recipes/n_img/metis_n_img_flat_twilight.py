@@ -52,7 +52,7 @@ class MetisNImgFlatTwilight(Recipe):
             context=_name,
             description="Name of the method used to combine the input images",
             default="average",
-            alternatives=("add", "average", "median"),
+            alternatives=("average", "median"),
         ),
         ParameterValue(
             name=f"{_name}.outliers.kappa_low",
