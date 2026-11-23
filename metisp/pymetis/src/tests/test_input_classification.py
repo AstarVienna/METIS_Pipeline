@@ -199,11 +199,25 @@ class TestMostSpecificInputWins:
         assert inputset.raw_sky.Item is IfuSkyRaw
         assert len(inputset.raw_sky.frameset) == 1
 
-    def test_sky_basic_reduced_goes_to_the_sky_input_of_the_background_recipe(self, tmp_path):
-        from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_background import MetisLmImgBackgroundImpl
-        from pymetis.instruments.metis.dataitems.img.basicreduced import LmSciBasicReduced, LmSkyBasicReduced
+    def test_sky_basic_reduced_goes_to_the_sky_input(self, tmp_path):
+        """ Declared here, not taken from `metis_lm_img_background`: that recipe has no
+        separate sky input for now (it derives the background from the science frames). """
+        from pymetis.engine.inputs import PipelineInputSet, PrimaryInputMixin, MultiplePipelineInput
+        from pymetis.instruments.metis.dataitems.img.basicreduced import (
+            LmBasicReduced, LmSciBasicReduced, LmSkyBasicReduced)
+
+        class Probe(PipelineInputSet):
+            class BasicReducedInput(PrimaryInputMixin, MultiplePipelineInput):
+                Item = LmBasicReduced
+
+            class SkyBasicReducedInput(MultiplePipelineInput):
+                Item = LmSkyBasicReduced
+
+            basic_reduced: BasicReducedInput
+            sky_basic_reduced: SkyBasicReducedInput
+
         frames = self.frameset(tmp_path, 'LM_SCI_BASIC_REDUCED', 'LM_SKY_BASIC_REDUCED')
-        inputset = MetisLmImgBackgroundImpl.InputSet(frames)
+        inputset = Probe(frames)
         assert inputset.basic_reduced.Item is LmSciBasicReduced
         assert inputset.sky_basic_reduced.Item is LmSkyBasicReduced
         inputset.validate()
