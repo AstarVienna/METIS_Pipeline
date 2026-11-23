@@ -18,12 +18,12 @@ from .metis_classification import (
     master_n_lss_rsrf_class,
     master_n_response_class,
     mf_best_fit_tab_class,
-    n_adc_slitloss_class,
     n_lss_sci_flux_1d_class,
     n_lss_std_1d_class,
     n_lss_synth_trans_class,
     n_lss_trace_class,
     std_transmission_class,
+    persistence_map_class
 )
 from .metis_datasources import (
     ao_psf_model,
@@ -32,7 +32,6 @@ from .metis_datasources import (
     dark_geo_raw,
     detlin_geo_raw,
     lsf_kernel,
-    n_adc_slitloss_raw,
     n_lss_dist_sol,
     n_lss_rsrf_pinh_raw,
     n_lss_rsrf_raw,
@@ -43,6 +42,8 @@ from .metis_datasources import (
     n_wcu_off_raw,
     persistence_map,
     ref_std_cat,
+    badpix_map_geo,
+    n_adc_slitloss
 )
 from .metis_task_functions import (
     on_science,
