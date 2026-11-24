@@ -184,7 +184,12 @@ lm_lss_sci_task = (task('metis_lm_lss_sci')
             .with_associated_input(lm_lss_std_task, [master_lm_response_class, std_transmission_class])
             .with_associated_input(atm_line_cat)
             .with_associated_input(lm_adc_slitloss)
-            .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, master_dark_2rg_class, persistence_map_class, lm_lss_dist_sol_class, lm_lss_wave_guess_class, master_lm_lss_rsrf_class)
+            .with_associated_input(ao_psf_model)
+            .with_input_filter(linearity_h2rg_class, gain_map_h2rg_class, master_dark_2rg_class,
+                               persistence_map_class,
+                               master_lm_lss_rsrf_class, lm_lss_trace_class, 
+                               lm_lss_dist_sol_class, lm_lss_wave_guess_class, 
+                               master_lm_response_class, std_transmission_class)
             .with_meta_targets([SCIENCE])
             .build())
 
