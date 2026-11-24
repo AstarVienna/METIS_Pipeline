@@ -188,7 +188,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         }
       ]
     },
@@ -204,7 +204,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
@@ -225,7 +225,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
@@ -251,7 +251,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
@@ -277,7 +277,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
@@ -308,7 +308,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
@@ -344,7 +344,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
@@ -385,7 +385,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
@@ -431,7 +431,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
@@ -482,7 +482,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
@@ -538,7 +538,7 @@
         {
           "recipe": "metis_det_lingain",
           "inputs_prefixes": ["detlin_2rg"],
-          "assoc_prefixes": ["lm_wcu_off"]
+          "assoc_prefixes": []
         },
         {
           "recipe": "metis_det_dark",
