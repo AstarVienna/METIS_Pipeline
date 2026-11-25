@@ -25,7 +25,7 @@ from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 from typing import Literal, Optional
 
 CombineMethodType = Literal['add', 'average', 'median', 'sigclip']
-SigClipKwargs = frozenset({"kappa_low", "kappa_high", "keepfrac", "mode"})
+SigClipKwargs = frozenset({"kappalow", "kappahigh", "keepfrac", "mode"})
 
 
 def combine_images_hdrl(
