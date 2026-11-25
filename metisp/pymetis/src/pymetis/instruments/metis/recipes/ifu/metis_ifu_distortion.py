@@ -29,7 +29,8 @@ from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.recipes import Recipe
 from pymetis.engine.core.functions.dummy import create_dummy_header
 from pymetis.drl.combine import combine_images
-from pymetis.drl.trace import measure_trace_edges, trace, traces_to_table
+from pymetis.drl.trace import (measure_trace_edges, trace, traces_to_table,
+                               collect_trace_parameters)
 
 from pymetis.instruments.metis.description import Metis
 from pymetis.instruments.metis.inputs import (RawInput, MasterDarkInput, OptionalInputMixin, PersistenceMapInput,
@@ -73,48 +74,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
         Fwhm = qc.distortion.QcIfuDistortFwhm
         NSpots = qc.distortion.QcIfuDistortNSpots
         NTraces = qc.distortion.QcIfuDistortNTraces
-    @staticmethod
-    def _degree_or_best(value: str) -> int | Literal['best']:
-        """
-        Interpret a polynomial degree that may also be the string `best`.
 
-        `trace` lets a degree be chosen per cluster rather than fixed, which
-        `pyreduce`'s METIS IFU configuration asks for. CPL parameters are singly
-        typed, so the choice travels as a string.
-        """
-        text = str(value).strip()
-        if text == 'best':
-            return 'best'
-
-        try:
-            return int(text)
-        except ValueError:
-            raise cpl.core.IllegalInputError(
-                f"Expected an integer or 'best', but got {value!r}"
-            ) from None
-
-    def _trace_parameters(self) -> dict:
-        """Collect the tracing parameters from the recipe parameter list."""
-        name = self.name
-        return {
-            'degree': int(self.parameters[f"{name}.trace.degree"].value),
-            'degree_before_merge': self._degree_or_best(
-                self.parameters[f"{name}.trace.degree_before_merge"].value),
-            'min_cluster': int(self.parameters[f"{name}.trace.min_cluster"].value),
-            'min_width': float(self.parameters[f"{name}.trace.min_width"].value),
-            'filter_x': int(self.parameters[f"{name}.trace.filter_x"].value),
-            'filter_y': int(self.parameters[f"{name}.trace.filter_y"].value),
-            'filter_type': str(self.parameters[f"{name}.trace.filter_type"].value),
-            'noise': float(self.parameters[f"{name}.trace.noise"].value),
-            'noise_relative':
-                float(self.parameters[f"{name}.trace.noise_relative"].value),
-            'border_width': int(self.parameters[f"{name}.trace.border_width"].value),
-            'auto_merge_threshold':
-                float(self.parameters[f"{name}.trace.auto_merge_threshold"].value),
-            'merge_min_threshold':
-                float(self.parameters[f"{name}.trace.merge_min_threshold"].value),
-            'sigma': float(self.parameters[f"{name}.trace.sigma"].value),
-        }
 
     #: WCU focal-plane mask position recorded for a frame taken with no mask in the beam
     OPEN_MASK = 'open'
@@ -250,7 +210,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
     def process(self) -> set[DataItem]:
         method = self.parameters[f"{self.name}.stacking.method"].value
-        trace_parameters = self._trace_parameters()
+        trace_parameters = collect_trace_parameters()
 
         output = [self._process_single_detector(det, method, trace_parameters)
                   for det in [1, 2, 3, 4]]
