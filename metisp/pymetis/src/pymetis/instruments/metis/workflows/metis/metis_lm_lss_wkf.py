@@ -36,8 +36,8 @@ from .metis_datasources import (
     laser_tab,
     lm_adc_slitloss_raw,
     lm_lss_dist_sol,
-    lm_lss_rsrf_pinh_raw,
     lm_lss_rsrf_raw,
+    lm_lss_rsrf_pinh_raw,
     lm_lss_sci_raw,
     lm_lss_std_raw,
     lm_lss_wave_guess,
@@ -101,7 +101,9 @@ lm_lss_rsrf_task = (task('metis_lm_lss_rsrf')
 
 lm_lss_trace_task = (task("metis_lm_lss_trace")
             .with_recipe("metis_lm_lss_trace")
-            .with_main_input(lm_lss_rsrf_pinh_raw)
+            .with_main_input(lm_lss_rsrf_raw)
+            # TODO again - just checking this is alright, can you have two main inputs?
+            .with_associated_input(lm_lss_rsrf_pinh_raw)
             .with_associated_input(lm_wcu_off_raw)
             .with_associated_input(lm_lss_dark_task, [master_dark_2rg_class])
             .with_associated_input(lm_lss_lingain_task, [linearity_h2rg_class, gain_map_h2rg_class])
