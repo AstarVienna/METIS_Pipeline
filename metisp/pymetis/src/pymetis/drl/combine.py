@@ -100,8 +100,13 @@ def combine_images_cpl(
             if missing or unknown:
                 raise TypeError(f"combine_images_cpl: sigclip needs exactly {sorted(SigClipKwargs)}")
 
-            kwargs['mode'] = cpl.core.ImageList.Collapse.__members__[kwargs['mode']]
-            combined_image, coverage_map = images.collapse_sigclip_create(**kwargs)
+            mode = cpl.core.ImageList.Collapse.__members__[kwargs['mode'].upper()]
+            combined_image, coverage_map = images.collapse_sigclip_create(
+                kappalow=kwargs['kappalow'],
+                kappahigh=kwargs['kappahigh'],
+                keepfrac=kwargs['keepfrac'],
+                mode=mode,
+                )
         case _:
             raise ValueError(f"Unknown stacking method {method!r}")
 
