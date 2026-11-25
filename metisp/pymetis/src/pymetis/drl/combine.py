@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import cpl
 from cpl.core import Image as CplImage, ImageList as CplImageList, Msg
 from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 #import hdrl
@@ -24,6 +25,7 @@ from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 from typing import Literal, Optional
 
 CombineMethodType = Literal['add', 'average', 'median', 'sigclip']
+SigClipKwargs = frozenset({"kappa_low", "kappa_high", "keepfrac", "mode"})
 
 
 def combine_images_hdrl(
@@ -57,7 +59,8 @@ def combine_images_hdrl(
 
 def combine_images_cpl(
         images: CplImageList,
-        method: CombineMethodType
+        method: CombineMethodType,
+        **kwargs
 ) -> CplImage:
     """
     Basic helper method to combine images using one of `add`, `average`, `median` or `sigclip`.
@@ -69,6 +72,12 @@ def combine_images_cpl(
         If an unknown combine method is used.
 
     """
+    if kwargs and method != "sigclip":
+        raise TypeError(
+            f"combine_images_cpl: keyword arguments {sorted(kwargs)} are only "
+            f"accepted by method 'sigclip', not {method!r}"
+        )
+
     Msg.info("combine_images_cpl",
              f"Combining CPL {len(images)} images using method {method!r}")
     combined_image: Optional[CplImage] = None
@@ -85,7 +94,14 @@ def combine_images_cpl(
         case "median":
             combined_image = images.collapse_median_create()
         case "sigclip":
-            combined_image = images.collapse_sigclip_create()
+            # checking kwargs input
+            missing = SigClipKwargs - kwargs.keys()
+            unknown = kwargs.keys() - SigClipKwargs
+            if missing or unknown:
+                raise TypeError(f"combine_images_cpl: sigclip needs exactly {sorted(SigClipKwargs)}")
+
+            kwargs['mode'] = cpl.core.ImageList.Collapse.__members__[kwargs['mode']]
+            combined_image, coverage_map = images.collapse_sigclip_create(**kwargs)
         case _:
             raise ValueError(f"Unknown stacking method {method!r}")
 
