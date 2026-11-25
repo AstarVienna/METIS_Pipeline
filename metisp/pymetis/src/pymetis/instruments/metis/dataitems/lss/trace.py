@@ -43,12 +43,12 @@ class LmLssTrace(BandLmMixin, LssTrace):
 class NLssTrace(BandNMixin, LssTrace):
     pass
 
-class LssTraceImage(ImageDataItem, abstract=True):
+class LssTraceFlatImage(ImageDataItem, abstract=True):
     """
-    Master trace image
+    Master trace flat image
     """
-    _name_template = r'MASTER_LSS_TRACE_{band}'
-    _title_template = r"Master LSS trace {band}"
+    _name_template = r'MASTER_LSS_TRACE_FLAT_{band}'
+    _title_template = r"Master LSS trace flat {band}"
     _description_template = "Master trace"
     _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
     _frame_level = cpl.ui.Frame.FrameLevel.FINAL
@@ -59,9 +59,32 @@ class LssTraceImage(ImageDataItem, abstract=True):
         'DET1.DATA': Image,
     }
 
-class LmLssTraceImage(BandLmMixin, LssTraceImage):
+class LmLssTraceImage(BandLmMixin, LssTraceFlatImage):
     pass
 
 
-class NLssTraceImage(BandNMixin, LssTraceImage):
+class NLssTraceImage(BandNMixin, LssTraceFlatImage):
+    pass
+
+class LssTracePinhImage(ImageDataItem, abstract=True):
+    """
+    Master trace pinhole image
+    """
+    _name_template = r'MASTER_LSS_TRACE_PINH_{band}'
+    _title_template = r"Master LSS trace pinh {band}"
+    _description_template = "Master trace"
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
+
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
+
+class LmLssTracePinhImage(BandLmMixin, LssTracePinhImage):
+    pass
+
+
+class NLssTracePinhImage(BandNMixin, LssTracePinhImage):
     pass
