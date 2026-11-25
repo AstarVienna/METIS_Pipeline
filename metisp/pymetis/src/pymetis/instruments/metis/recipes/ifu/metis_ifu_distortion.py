@@ -210,7 +210,7 @@ class MetisIfuDistortionImpl(DetectorIfuMixin, DarkImageProcessor, MetisRecipeIm
 
     def process(self) -> set[DataItem]:
         method = self.parameters[f"{self.name}.stacking.method"].value
-        trace_parameters = collect_trace_parameters()
+        trace_parameters = collect_trace_parameters(self.name, self.parameters)
 
         output = [self._process_single_detector(det, method, trace_parameters)
                   for det in [1, 2, 3, 4]]

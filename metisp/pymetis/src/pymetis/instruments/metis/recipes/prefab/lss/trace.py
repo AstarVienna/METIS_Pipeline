@@ -154,7 +154,7 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         # TODO - is this the correct approach?
         trace_image = trace_image.T
 
-        trace_parameters = collect_trace_parameters()
+        trace_parameters = collect_trace_parameters(self.name, self.parameters)
 
         # CPL and HDRL have no order tracing, so the fitting is done in numpy
         traces = trace(trace_image, **trace_parameters)
