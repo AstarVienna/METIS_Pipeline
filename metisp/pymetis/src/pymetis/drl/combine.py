@@ -109,7 +109,8 @@ def combine_images_cpl(
 
 def combine_images(
         images: CplImageList | HdrlImageList,
-        method: CombineMethodType
+        method: CombineMethodType,
+        **kwargs
 ) -> CplImage | HdrlImage:
     """
     Basic helper method to combine images using one of `add`, `average`, `median` or `sigclip`.
@@ -131,7 +132,7 @@ def combine_images(
     if isinstance(images, HdrlImageList):
         combined_image = combine_images_hdrl(images, method)
     elif isinstance(images, CplImageList):
-        combined_image = combine_images_cpl(images, method)
+        combined_image = combine_images_cpl(images, method, **kwargs)
     else:
         raise ValueError(f"Unknown input type {type(images)}")
 
