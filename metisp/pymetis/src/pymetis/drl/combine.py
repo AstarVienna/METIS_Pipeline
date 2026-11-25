@@ -25,13 +25,21 @@ from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 from typing import Literal, Optional
 
 CombineMethodType = Literal['add', 'average', 'median', 'sigclip']
-SigClipKwargs = frozenset({"kappalow", "kappahigh", "keepfrac", "mode"})
-
+SigClipKwargsCPL = frozenset({"kappalow", "kappahigh", "keepfrac", "mode"})
+SigClipKwargsHDRL = frozenset({"kappa_low", "kappa_high", "niter"})
 
 def combine_images_hdrl(
         images: HdrlImageList,
-        method: CombineMethodType
+        method: CombineMethodType,
+        **kwargs,
 ) -> HdrlImage:
+
+    if kwargs and method != "sigclip":
+        raise TypeError(
+            f"combine_images_hdrl: keyword arguments {sorted(kwargs)} are only "
+            f"accepted by method 'sigclip', not {method!r}"
+        )
+
     Msg.info("combine_images_hdrl",
              f"Combining HDRL {len(images)} images using method {method!r}")
     combined_image: Optional[HdrlImage] = None
@@ -49,7 +57,14 @@ def combine_images_hdrl(
         case "median":
             combined_image, coverage_map = images.collapse_median()
         case "sigclip":
-            combined_image, coverage_map = images.collapse_sigclip()
+            # checking kwargs input
+            missing = SigClipKwargsHDRL - kwargs.keys()
+            unknown = kwargs.keys() - SigClipKwargsHDRL
+            if missing or unknown:
+                raise TypeError(f"combine_images_hdrl: sigclip needs exactly {sorted(SigClipKwargsHDRL)}")
+
+            result = images.collapse_sigclip(**kwargs)
+            combined_image = result.out
         case _:
             raise ValueError(f"Unknown stacking method {method!r}")
 
@@ -95,10 +110,10 @@ def combine_images_cpl(
             combined_image = images.collapse_median_create()
         case "sigclip":
             # checking kwargs input
-            missing = SigClipKwargs - kwargs.keys()
-            unknown = kwargs.keys() - SigClipKwargs
+            missing = SigClipKwargsCPL - kwargs.keys()
+            unknown = kwargs.keys() - SigClipKwargsCPL
             if missing or unknown:
-                raise TypeError(f"combine_images_cpl: sigclip needs exactly {sorted(SigClipKwargs)}")
+                raise TypeError(f"combine_images_cpl: sigclip needs exactly {sorted(SigClipKwargsCPL)}")
 
             mode = cpl.core.ImageList.Collapse.__members__[kwargs['mode'].upper()]
             combined_image, coverage_map = images.collapse_sigclip_create(
@@ -135,7 +150,7 @@ def combine_images(
              f"Combining {len(images)} images using method {method!r}")
 
     if isinstance(images, HdrlImageList):
-        combined_image = combine_images_hdrl(images, method)
+        combined_image = combine_images_hdrl(images, method, **kwargs)
     elif isinstance(images, CplImageList):
         combined_image = combine_images_cpl(images, method, **kwargs)
     else:
