@@ -32,9 +32,7 @@ from pymetis.engine.inputs import SinglePipelineInput
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
 
-from pymetis.instruments.metis.dataitems.lss.rsrf import LssRsrfPinholeRaw
-from pymetis.instruments.metis.dataitems.lss.trace import LssTrace, LssTraceImage
-from pymetis.instruments.metis.dataitems.raw.wcuoff import WcuOffRaw
+from pymetis.instruments.metis.dataitems.lss.trace import LssTrace, LssTraceFlatImage, LssTracePinhImage
 from pymetis.instruments.metis.inputs import (RawInput, PersistenceMapInput, OptionalInputMixin,
                                               GainMapInput, LinearityInput, BadPixMapInput, MasterDarkInput)
 from pymetis.instruments.metis.recipes.base import MetisRecipeImpl
@@ -45,9 +43,10 @@ from pymetis.instruments.metis import dataitems
 
 class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
     class InputSet(DarkImageProcessor.InputSet):
-        # TODO - ask about this  - thought this would be a flat continuum - like in IFU
-        # TODO - this will load in non-pinhole frames 
         class RawInput(RawInput):
+            Item = dataitems.LssRsrfRaw
+
+        class PinhRawInput(RawInput):
             Item = dataitems.LssRsrfPinholeRaw
 
         class LmRsrfWcuOffInput(RawInput):
@@ -68,7 +67,9 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         class MasterDarkInput(OptionalInputMixin, MasterDarkInput):
             pass
 
+        # TODO - not confident about approach to inputing the data
         raw: RawInput
+        pinh_raw: PinhRawInput
         lm_rsrf_wcu_off: LmRsrfWcuOffInput
         bad_pix_map: BadPixMapInput
         linearity: LinearityInput
@@ -79,7 +80,9 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
 
     class ProductSet(PipelineProductSet):
         TraceTable = LssTrace
-        TraceImage = LssTraceImage
+        FlatImage = LssTraceFlatImage
+        PinhImage = LssTracePinhImage
+
 
     class Qc(QcParameterSet):
         LPolyDeg = qc.trace.QcLssTraceLPolyDeg
@@ -123,32 +126,26 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         r_index = table.get_column_maxpos('trace_nb')
         l_index = table.get_column_minpos('trace_nb')
 
-        # TODO - should double check that each order should be saved
-        for order, value in enumerate(table.column_array('pos')[0][r_index]):
-            rcoeff_cls = self.Qc._specialized_item('RCoeff', self.Qc.RCoeff, order=order)
-            out.append(self.collect_qc_parameters(rcoeff_cls(value)))
+        ## TODO - should double check that each order should be saved
+        #for order, value in enumerate(table.column_array('pos')[0][r_index]):
+        #    rcoeff_cls = self.Qc._specialized_item('RCoeff', self.Qc.RCoeff, order=order)
+        #    out.append(self.collect_qc_parameters(rcoeff_cls(value)))
 
-        for order, value in enumerate(table.column_array('pos')[0][l_index]):
-            lcoeff_cls = self.Qc._specialized_item('LCoeff', self.Qc.LCoeff, order=order)
-            out.append(self.collect_qc_parameters(lcoeff_cls(value)))
+        #for order, value in enumerate(table.column_array('pos')[0][l_index]):
+        #    lcoeff_cls = self.Qc._specialized_item('LCoeff', self.Qc.LCoeff, order=order)
+        #    out.append(self.collect_qc_parameters(lcoeff_cls(value)))
 
         # TODO check if there is an existing function to do this
         # TODO - also not sure what this would be if this doesnt use pinh frames
         #self.collect_qc_parameters(self.Qc.InterorderLevel(trace_parameters))
         return out
 
-    def process(self) -> set[DataItem]:
-        """Create a dummy file (should do something more fancy in the future)"""
+    def _process_raw_frames(self, raw_images, stacking_method):
 
-        # TODO double check I don't need to do the same continuum filtering as in the IFU
-        # TODO - no WCU grid mask in N band for scopesim
+        combined_image = combine_images(raw_images, stacking_method)
 
-        # TODO - is there a way to not hardcode this? makes me uncomfortable
-        det = 1
-        raw_images = self.inputset.raw.use().load_data(extension=rf'DET{det}.DATA')
-
-        method = self.parameters[f"{self.name}.stacking.method"].value
-        combined_image = combine_images(raw_images, method)
+        if stacking_method == 'sigclip':
+            combined_image = combined_image[0]
 
         trace_image = combined_image.as_array()
         # TODO - is this the correct approach?
@@ -159,6 +156,7 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         # CPL and HDRL have no order tracing, so the fitting is done in numpy
         traces = trace(trace_image, **trace_parameters)
 
+        # TODO think about this error more carefully
         if not traces:
             raise cpl.core.DataNotFoundError(
                 f"No traces found, the distortion table "
@@ -176,18 +174,43 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
 
         table = traces_to_table(traces, trace_parameters['degree'])
 
-        qc_params = self._collect_qc(table, trace_parameters['degree'])
+        return combined_image, table
+
+
+    def process(self) -> set[DataItem]:
+        """Create a dummy file (should do something more fancy in the future)"""
+        # TODO - no WCU grid mask in N band for scopesim
+
+        # TODO - is there a way to not hardcode this? makes me uncomfortable
+        det = 1
+
+        # Process the flat continuum images to find edges of slit
+        flat_raw_images = self.inputset.raw.use().load_data(extension=rf'DET{det}.DATA')
+        flat_method = self.parameters[f"{self.name}.stacking_flat.method"].value
+
+        flat_combined_image, edges_table = self._process_raw_frames(flat_raw_images, flat_method)
+
+        # Process pinh images to find distortion shape
+        pinhraw_images = self.inputset.pinh_raw.use().load_data(extension=rf'DET{det}.DATA')
+        pinh_method = self.parameters[f"{self.name}.stacking_pinh.method"].value
+        
+        pinh_combined_image, pinh_table = self._process_raw_frames(pinhraw_images, pinh_method)
+
+        # TODO - consider qc params properly
+        #qc_params = self._collect_qc(table, trace_parameters['degree'])
 
         header_table = create_dummy_header()
         header_table.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}'))
-        header_table.append(qc_params)
+        #header_table.append(qc_params)
 
         header_image = create_dummy_header()
         header_image.append(cpl.core.Property("EXTNAME", cpl.core.Type.STRING, rf'DET{det}.DATA'))
 
         output = {
-            'TABLE': Hdu(header_table, table, name=rf'TABLE'),
-            'IMAGE': Hdu(header_image, combined_image, name='DET1.DATA'),
+            'TABLE': Hdu(header_table, edges_table, name=rf'TABLE'),
+            'FLAT_IMAGE': Hdu(header_image, flat_combined_image, name='DET1.DATA'),
+            'PINH_IMAGE': Hdu(header_image, pinh_combined_image, name='DET1.DATA'),
+
         }
 
         product_trace_table = self.ProductSet.TraceTable(
@@ -195,11 +218,21 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
             output['TABLE'],
         )
 
-        # TODO - I've added this, wasn't here orginally - just checking that's alright
-        product_master_trace_img = self.ProductSet.TraceImage(
+        product_master_flat_img = self.ProductSet.FlatImage(
             header_image,
-            output['IMAGE'],
+            output['FLAT_IMAGE'],
         )
 
-        return {product_trace_table, product_master_trace_img}
+        product_master_pinh_img = self.ProductSet.PinhImage(
+            header_image,
+            output['PINH_IMAGE'],
+        )
+
+        # Only returning images if running in DEBUG mode
+        if Msg.get_config()['level'] == Msg.SeverityLevel.DEBUG:
+            return {product_trace_table, product_master_flat_img, product_master_pinh_img}
+        else:
+            return {product_trace_table}
+
+
 
