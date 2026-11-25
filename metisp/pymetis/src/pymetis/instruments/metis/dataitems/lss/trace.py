@@ -18,8 +18,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 import cpl
+from cpl.core import Image
 
-from pymetis.engine.dataitems import TableDataItem
+from pymetis.engine.dataitems import TableDataItem, ImageDataItem
 from pymetis.instruments.metis.mixins import BandLmMixin, BandNMixin
 
 
@@ -40,4 +41,50 @@ class LmLssTrace(BandLmMixin, LssTrace):
 
 
 class NLssTrace(BandNMixin, LssTrace):
+    pass
+
+class LssTraceFlatImage(ImageDataItem, abstract=True):
+    """
+    Master trace flat image
+    """
+    _name_template = r'MASTER_LSS_TRACE_FLAT_{band}'
+    _title_template = r"Master LSS trace flat {band}"
+    _description_template = "Master trace"
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
+
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
+
+class LmLssTraceImage(BandLmMixin, LssTraceFlatImage):
+    pass
+
+
+class NLssTraceImage(BandNMixin, LssTraceFlatImage):
+    pass
+
+class LssTracePinhImage(ImageDataItem, abstract=True):
+    """
+    Master trace pinhole image
+    """
+    _name_template = r'MASTER_LSS_TRACE_PINH_{band}'
+    _title_template = r"Master LSS trace pinh {band}"
+    _description_template = "Master trace"
+    _frame_group = cpl.ui.Frame.FrameGroup.CALIB  # TBC
+    _frame_level = cpl.ui.Frame.FrameLevel.FINAL
+    _oca_keywords = frozenset({'PRO.CATG', 'DRS.SLIT'})
+
+    _schema = {
+        'PRIMARY': None,
+        'DET1.DATA': Image,
+    }
+
+class LmLssTracePinhImage(BandLmMixin, LssTracePinhImage):
+    pass
+
+
+class NLssTracePinhImage(BandNMixin, LssTracePinhImage):
     pass

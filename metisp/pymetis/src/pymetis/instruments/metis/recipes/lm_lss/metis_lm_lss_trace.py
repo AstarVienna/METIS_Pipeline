@@ -18,7 +18,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
 from pymetis.engine.recipes import Recipe
-from pymetis.engine.core.parameter import ParameterList, ParameterEnum
+from pymetis.engine.core.parameter import (ParameterList, ParameterEnum, 
+                                        ParameterRange, ParameterValue)
 
 from pymetis.instruments.metis.mixins import BandLmMixin, Detector2rgMixin
 from pymetis.instruments.metis.recipes.prefab.lss.trace import MetisLssTraceImpl
@@ -28,6 +29,11 @@ class MetisLmLssTraceImpl(BandLmMixin, Detector2rgMixin, MetisLssTraceImpl):
     class InputSet(MetisLssTraceImpl.InputSet):
         pass
 
+    class ProductSet(MetisLssTraceImpl.ProductSet):
+        pass
+
+    class QcParameterSet(MetisLssTraceImpl.Qc):
+        pass
 
 class MetisLmLssTrace(Recipe):
     # The information about the recipe needs to be set. The base class
@@ -47,15 +53,172 @@ class MetisLmLssTrace(Recipe):
     _algorithm = """Fancy algorithm description follows ***TBD*** """
 
     # ++++++++++++++++++ Define parameters ++++++++++++++++++
-    # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # TODO: Implement real parameters
     parameters = ParameterList([
         ParameterEnum(
-            name=f"{_name}.parameter1",
+            name=f"{_name}.stacking_flat.method",
             context=_name,
-            description="Description of parameter 1",
-            default="value1",
-            alternatives=("value2", "value1"),
+            description="Name of the method used to combine the input flat images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
+
+        ParameterEnum(
+            name=f"{_name}.stacking_pinh.method",
+            context=_name,
+            description="Name of the method used to combine the input pinhole images",
+            default="average",
+            alternatives=("add", "average", "median", "sigclip"),
+        ),
+
+        ParameterValue(
+            name=f"{_name}.stacking_pinh.kappalow",
+            context=_name,
+            description="Kappa-factor for the lower clipping threshold, used only if "
+                        "stacking_pinh.method is 'sigclip'. kappalow + kappahigh must be positive",
+            default=3.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.stacking_pinh.kappahigh",
+            context=_name,
+            description="Kappa-factor for the upper clipping threshold, used only if "
+                        "stacking_pinh.method is 'sigclip'. kappalow + kappahigh must be positive",
+            default=3.0,
+        ),
+
+        ParameterRange(
+            name=f"{_name}.stacking_pinh.keepfrac",
+            context=_name,
+            description="Minimum fraction of values to keep per pixel, used only if "
+                        "stacking_pinh.method is 'sigclip'. Must satisfy 0 < keepfrac <= 1; "
+                        "1 disables clipping",
+            default=0.5,
+            min=0.0,
+            max=1.0,
+        ),
+
+        ParameterEnum(
+            name=f"{_name}.stacking_pinh.collapse_mode",
+            context=_name,
+            description="Centre of the sigma-clipping acceptance range, used only if "
+                        "stacking_pinh.method is 'sigclip': 'mean' or 'median'",
+            default="median",
+            alternatives=("mean", "median"),
+        ),
+
+        ParameterRange(
+            name=f"{_name}.trace.degree",
+            context=_name,
+            description="Polynomial degree of the fit to each slice",
+            default=4,
+            min=1, # TODO what are the correct ranges to use - copied from IFU atm
+            max=5,
+        ),
+
+        # TODO max_error - in pyreduce but not pipeline - any reason?
+        # TODO closing shape - same as above
+        # TODO opening shape- same as above above
+
+        ParameterValue(
+            name=f"{_name}.trace.degree_before_merge",
+            context=_name,
+            description="Polynomial degree used while rating candidate merges, where "
+                        "the fits are still poorly constrained. An integer, or 'best' "
+                        "to choose one per cluster",
+            default="best",
+        ),
+
+        ParameterRange(
+            name=f"{_name}.trace.auto_merge_threshold",
+            context=_name,
+            description="Overlap rating at or above which two clusters are merged "
+                        "into one slice. 1 disables merging",
+            default=0.9,
+            min=0.0,
+            max=1.0,
+        ),
+
+        ParameterRange(
+            name=f"{_name}.trace.merge_min_threshold",
+            context=_name,
+            description="Overlap rating below which a pair of clusters is not "
+                        "considered for merging",
+            default=0.01,
+            min=0.0,
+            max=1.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.sigma",
+            context=_name,
+            description="If positive, split clusters that deviate from the common "
+                        "trace shape by more than this many standard deviations",
+            default=0.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.filter_x",
+            context=_name,
+            description="Smoothing width along the dispersion direction, applied "
+                        "before thresholding. 0 disables it",
+            default=0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.filter_y",
+            context=_name,
+            description="Smoothing width along the cross-dispersion direction, "
+                        "used to estimate the local background",
+            default=20,
+        ),
+
+        ParameterEnum(
+            name=f"{_name}.trace.filter_type",
+            context=_name,
+            description="Smoothing kernel used to estimate the local background. "
+                        "'whittaker' preserves edges best, 'boxcar' is cheapest",
+            default="boxcar",
+            alternatives=("boxcar", "gaussian", "whittaker"),
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.min_cluster",
+            context=_name,
+            description="Smallest acceptable cluster of illuminated pixels, in pixels",
+            default=100,
+        ),
+
+        ParameterRange(
+            name=f"{_name}.trace.min_width",
+            context=_name,
+            description="Smallest acceptable cluster extent along the dispersion "
+                        "direction, as a fraction of the detector width. "
+                        "0 disables the check",
+            default=0.0,
+            min=0.0,
+            max=1.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.noise",
+            context=_name,
+            description="Absolute detection threshold above the local background",
+            default=120.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.noise_relative",
+            context=_name,
+            description="Detection threshold as a fraction of the local background. "
+                        "If this and the absolute threshold are both 0, 0.1% is used",
+            default=0.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.trace.border_width",
+            context=_name,
+            description="Number of pixels to ignore at each detector edge",
+            default=6,
         ),
     ])
     # Only dummy values for the time being!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

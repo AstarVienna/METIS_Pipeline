@@ -77,6 +77,52 @@ from pymetis.drl.trace_model import Trace
 
 FilterType = Literal['boxcar', 'gaussian', 'whittaker']
 
+def degree_or_best(value: str) -> int | Literal['best']:
+    """
+    Interpret a polynomial degree that may also be the string `best`.
+
+    `trace` lets a degree be chosen per cluster rather than fixed, which
+    `pyreduce`'s METIS IFU configuration asks for. CPL parameters are singly
+    typed, so the choice travels as a string.
+    """
+    text = str(value).strip()
+    if text == 'best':
+        return 'best'
+
+    try:
+        return int(text)
+    except ValueError:
+        raise cpl.core.IllegalInputError(
+            f"Expected an integer or 'best', but got {value!r}"
+        ) from None
+
+
+def collect_trace_parameters(name, parameters) -> dict:
+    # TODO - better docstring
+    """Collect the tracing parameters from the recipe parameter list.
+
+    name = self.name of a RecipeImpl
+    parameters = self.parameters of a RecipeImpl
+    """
+    return {
+        'degree': int(parameters[f"{name}.trace.degree"].value),
+        'degree_before_merge': degree_or_best(
+            parameters[f"{name}.trace.degree_before_merge"].value),
+        'min_cluster': int(parameters[f"{name}.trace.min_cluster"].value),
+        'min_width': float(parameters[f"{name}.trace.min_width"].value),
+        'filter_x': int(parameters[f"{name}.trace.filter_x"].value),
+        'filter_y': int(parameters[f"{name}.trace.filter_y"].value),
+        'filter_type': str(parameters[f"{name}.trace.filter_type"].value),
+        'noise': float(parameters[f"{name}.trace.noise"].value),
+        'noise_relative':
+            float(parameters[f"{name}.trace.noise_relative"].value),
+        'border_width': int(parameters[f"{name}.trace.border_width"].value),
+        'auto_merge_threshold':
+            float(parameters[f"{name}.trace.auto_merge_threshold"].value),
+        'merge_min_threshold':
+            float(parameters[f"{name}.trace.merge_min_threshold"].value),
+        'sigma': float(parameters[f"{name}.trace.sigma"].value),
+    }
 
 def whittaker_smooth(y: np.ndarray, lam: float, axis: int = 0) -> np.ndarray:
     """
