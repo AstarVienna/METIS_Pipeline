@@ -27,7 +27,7 @@ from pymetis.drl.trace import (measure_trace_edges, trace, traces_to_table,
                                collect_trace_parameters)
 
 
-from pymetis.engine.dataitems import DataItesm, Hdu, PipelineProductSet
+from pymetis.engine.dataitems import DataItems, Hdu, PipelineProductSet
 from pymetis.engine.inputs import SinglePipelineInput
 from pymetis.engine.qc import QcParameterSet
 from pymetis.engine.core.functions.dummy import create_dummy_header, create_dummy_table
