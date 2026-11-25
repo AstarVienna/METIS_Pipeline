@@ -70,6 +70,42 @@ class MetisLmLssTrace(Recipe):
             alternatives=("add", "average", "median", "sigclip"),
         ),
 
+        ParameterValue(
+            name=f"{_name}.stacking_pinh.kappalow",
+            context=_name,
+            description="Kappa-factor for the lower clipping threshold, used only if "
+                        "stacking_pinh.method is 'sigclip'. kappalow + kappahigh must be positive",
+            default=3.0,
+        ),
+
+        ParameterValue(
+            name=f"{_name}.stacking_pinh.kappahigh",
+            context=_name,
+            description="Kappa-factor for the upper clipping threshold, used only if "
+                        "stacking_pinh.method is 'sigclip'. kappalow + kappahigh must be positive",
+            default=3.0,
+        ),
+
+        ParameterRange(
+            name=f"{_name}.stacking_pinh.keepfrac",
+            context=_name,
+            description="Minimum fraction of values to keep per pixel, used only if "
+                        "stacking_pinh.method is 'sigclip'. Must satisfy 0 < keepfrac <= 1; "
+                        "1 disables clipping",
+            default=0.5,
+            min=0.0,
+            max=1.0,
+        ),
+
+        ParameterEnum(
+            name=f"{_name}.stacking_pinh.collapse_mode",
+            context=_name,
+            description="Centre of the sigma-clipping acceptance range, used only if "
+                        "stacking_pinh.method is 'sigclip': 'mean' or 'median'",
+            default="median",
+            alternatives=("mean", "median"),
+        ),
+
         ParameterRange(
             name=f"{_name}.trace.degree",
             context=_name,
@@ -91,8 +127,6 @@ class MetisLmLssTrace(Recipe):
                         "to choose one per cluster",
             default="best",
         ),
-
-
 
         ParameterRange(
             name=f"{_name}.trace.auto_merge_threshold",

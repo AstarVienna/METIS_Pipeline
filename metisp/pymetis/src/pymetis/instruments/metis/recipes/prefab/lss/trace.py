@@ -90,7 +90,16 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
         LCoeff = qc.trace.QcLssTraceLCoeff
         RCoeff = qc.trace.QcLssTraceRCoeff
         InterorderLevel = qc.trace.QcLssTraceInterorderLevel
-    
+
+    def _collect_sigclip_params(self) -> dict:
+        name = self.name
+        return {
+            'kappalow': float(self.parameters[f"{name}.stacking_pinh.kappalow"].value),
+            'kappahigh': float(self.parameters[f"{name}.stacking_pinh.kappahigh"].value),
+            'keepfrac': float(self.parameters[f"{name}.stacking_pinh.keepfrac"].value),
+            'mode': str(self.parameters[f"{name}.stacking_pinh.collapse_mode"].value).upper(),
+        }
+
 
     def _collect_qc(self, table, degree) -> cpl.core.PropertyList:
         """
@@ -142,10 +151,8 @@ class MetisLssTraceImpl(DarkImageProcessor, MetisRecipeImpl):
 
     def _process_raw_frames(self, raw_images, stacking_method):
 
-        combined_image = combine_images(raw_images, stacking_method)
-
-        if stacking_method == 'sigclip':
-            combined_image = combined_image[0]
+        sigclip_kwargs = self._collect_sigclip_params() if stacking_method == "sigclip" else {}
+        combined_image = combine_images(raw_images, stacking_method, **sigclip_kwargs)
 
         trace_image = combined_image.as_array()
         # TODO - is this the correct approach?
