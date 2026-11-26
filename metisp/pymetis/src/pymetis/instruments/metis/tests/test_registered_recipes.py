@@ -3,10 +3,11 @@ Checks that every registered recipe and every declared product must pass.
 
 They are driven by the recipe registry, so a recipe is covered the moment it is
 imported in `instruments/metis/recipes/__init__.py` -- no per-recipe test module is
-needed for the structural and metadata conventions. The data-dependent checks run
-on `<recipe>.sof` from `$SOF_DIR` and skip for recipes whose SOFs are named
-differently (per band or target); those recipes keep their own test module under
-`tests/recipes/`, alongside any recipe-specific tests.
+needed for the structural and metadata conventions. The data-dependent checks replay
+the jobs of an EDPS run over the simulated data (see `tests/data.py`): every job EDPS
+ran for a recipe is a test case, so a recipe is exercised once for each band, target
+and setup the workflow feeds it. A module under `tests/recipes/` is needed only for
+recipe-specific tests.
 """
 import ast
 import inspect
@@ -14,8 +15,9 @@ import os
 import pprint
 import re
 import subprocess
+import tempfile
 import textwrap
-from pathlib import Path
+import types
 
 import cpl
 import pytest
@@ -24,13 +26,13 @@ import pymetis.instruments.metis.recipes  # noqa: F401  (fills the recipe regist
 from pymetis.engine.dataitems import DataItem, ImageDataItem, TableDataItem
 from pymetis.engine.inputs import PipelineInput, PipelineInputSet
 from pymetis.engine.recipes import Recipe
+from tests.data import EDPS_DATA, EdpsJob, edps_jobs
 
 RECIPES = sorted(Recipe._registry.values(), key=lambda recipe: recipe._name)
 PRODUCTS = [(recipe, attr, product)
             for recipe in RECIPES
             for attr, product in recipe.Impl.ProductSet.list_classes()]
 
-root = Path(os.path.expandvars("$SOF_DIR"))
 
 
 @pytest.fixture(params=RECIPES, ids=lambda recipe: recipe._name)
@@ -38,18 +40,31 @@ def recipe(request) -> type[Recipe]:
     return request.param
 
 
-@pytest.fixture
-def sof(recipe) -> str:
-    """ The default SOF of a recipe; recipes with per-band or per-target SOFs skip. """
-    sof = f"{recipe._name}.sof"
-    if not (root / sof).exists():
-        pytest.skip(f"no default SOF {sof} -- covered by the recipe's own test module")
-    return sof
+def edps_job_params() -> list:
+    """
+    One test case per EDPS job, named after its task (`metis_lm_img_dark`, numbered when
+    the task ran several jobs). A registered recipe without any job gets one skipped case,
+    so the report shows which recipes the EDPS run did not reach.
+    """
+    params = []
+    for recipe in RECIPES:
+        jobs = [job for job in edps_jobs() if job.recipe == recipe._name]
+        if not jobs:
+            params.append(pytest.param(
+                None, id=recipe._name,
+                marks=pytest.mark.skip(reason=f"no EDPS job ran {recipe._name} under {EDPS_DATA}")))
+        tasks = [job.task for job in jobs]
+        for job in jobs:
+            number = [other for other in jobs if other.task == job.task].index(job) + 1
+            params.append(pytest.param(job, id=job.task if tasks.count(job.task) == 1 else f"{job.task}#{number}"))
+    return params
 
 
-@pytest.fixture
-def frameset(recipe, sof, load_frameset) -> cpl.ui.FrameSet:
-    return cpl.ui.FrameSet(load_frameset(sof))
+def load_frameset(job: EdpsJob) -> cpl.ui.FrameSet:
+    frameset = cpl.ui.FrameSet()
+    for file, tag in job.frames():
+        frameset.append(cpl.ui.Frame(file, tag=tag))
+    return frameset
 
 
 @pytest.mark.recipe
@@ -209,41 +224,97 @@ class TestDeclaredQcParametersAreWritten:
              + ', '.join(unwritten))
 
 
+@pytest.fixture(scope='module', params=edps_job_params())
+def job(request) -> EdpsJob:
+    job = request.param
+    if missing := job.missing():
+        pytest.skip(f"{len(missing)} frame(s) of {job.sof} no longer exist, e.g. {missing[0]}; "
+                    f"run EDPS over the simulated data again")
+    return job
+
+@pytest.fixture(scope='module')
+def run(job):
+    """ The recipe of the job, run in-process on its frames; products go to a scratch directory. """
+    recipe = Recipe._registry[job.recipe]()
+    home = os.getcwd()
+    with tempfile.TemporaryDirectory(prefix=f"{job.task}-") as directory:
+        os.chdir(directory)
+        try:
+            products = recipe.run(load_frameset(job), {})
+        finally:
+            os.chdir(home)
+        yield types.SimpleNamespace(recipe=recipe, impl=recipe.implementation, products=products)
+
+
 @pytest.mark.recipe
 @pytest.mark.external
-class TestRecipeOnDefaultData:
-    """ Integration checks on `<recipe>.sof`; see the `sof` fixture for the skip rule. """
+class TestRecipeOnEdpsJobs:
+    """
+    Integration checks on the frames EDPS associated for each of its jobs. The recipe is
+    run once per job (the simulated frames are full size) and the tests inspect that run.
+    """
 
-    def test_recipe_can_be_run_directly(self, recipe, frameset):
-        assert isinstance(recipe().run(frameset, {}), cpl.ui.FrameSet), \
-            f"{recipe._name} did not return a FrameSet"
+    def test_recipe_can_be_run_directly(self, run):
+        assert isinstance(run.products, cpl.ui.FrameSet), \
+            f"{run.recipe.name} did not return a FrameSet"
 
     @pytest.mark.metadata
-    def test_recipe_has_a_valid_as_dict(self, recipe, frameset):
-        instance = recipe()
-        instance.run(frameset, {})
-        assert isinstance(pprint.pformat(instance.implementation.as_dict(), width=200), str)
+    def test_recipe_has_a_valid_as_dict(self, run):
+        assert isinstance(pprint.pformat(run.impl.as_dict(), width=200), str)
 
-    @pytest.mark.pyesorex
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, recipe, sof):
-        output = subprocess.run(['pyesorex', recipe._name, root / sof, '--log-level', 'DEBUG'],
-                                capture_output=True)
-        assert output.returncode == 0, f"Pyesorex exited with {output.returncode}"
-        assert output.stderr == b"", f"Pyesorex exited with non-empty stderr: {output.stderr}"
+    #: EDPS tasks that hand their recipe frames it has no input for, with the tags left over
+    #: in the run over the simulated data of 2026-11-23. Mostly a task associated with all
+    #: products of its predecessor rather than the ones the recipe takes; for `metis_det_dark`
+    #: it is the recipe that lacks the linearity input of its DRLD card. Marked
+    #: `xfail`, and not strict: this is a warning list that depends on the data set EDPS
+    #: ran on, so a task that has come to agree with its recipe shows as XPASS without
+    #: failing the run, and should then be removed from the list.
+    TASKS_WITH_UNUSED_FRAMES = {
+        'metis_ifu_dark': {'LINEARITY_IFU'},
+        'metis_lm_img_dark': {'LINEARITY_2RG'},
+        'metis_lm_lss_dark': {'LINEARITY_2RG'},
+        'metis_n_img_dark': {'LINEARITY_GEO'},
+        'metis_n_lss_dark': {'LINEARITY_GEO'},
+        'metis_lm_img_distortion': {'MASTER_IMG_FLAT_LAMP_LM'},
+        'metis_n_img_distortion': {'MASTER_IMG_FLAT_LAMP_N'},
+        'metis_lm_img_standard_flux': {'LM_STD_BKG', 'LM_STD_OBJECT_CAT'},
+        'metis_lm_img_calib': {'LM_DISTORTION_MAP', 'LM_DIST_REDUCED', 'LM_SCI_BKG', 'LM_SCI_BKG_SUBTRACTED',
+                               'LM_SCI_OBJECT_CAT', 'LM_STD_COMBINED'},
+        'metis_n_img_calib': {'N_DISTORTION_MAP', 'N_DIST_REDUCED', 'N_STD_COMBINED'},
+        'metis_lm_lss_trace': {'MEAN_LM_LSS_RSRF', 'MEDIAN_LM_LSS_RSRF'},
+        'metis_lm_lss_wave': {'MEAN_LM_LSS_RSRF', 'MEDIAN_LM_LSS_RSRF'},
+        'metis_lm_lss_std': {'LM_LSS_CURVE', 'LM_LSS_DIST_SOL', 'LM_LSS_TRACE', 'LM_LSS_WAVE_GUESS',
+                             'MEAN_LM_LSS_RSRF', 'MEDIAN_LM_LSS_RSRF'},
+        'metis_lm_lss_sci': {'ATM_LINE_CAT', 'LM_LSS_CURVE', 'LM_LSS_DIST_SOL', 'LM_LSS_STD_1D',
+                             'LM_LSS_STD_OBJ_MAP', 'LM_LSS_STD_SKY_MAP', 'LM_LSS_TRACE', 'LM_LSS_WAVE_GUESS',
+                             'MEAN_LM_LSS_RSRF', 'MEDIAN_LM_LSS_RSRF'},
+        'metis_lm_lss_mf_model': {'LM_LSS_SCI_2D', 'LM_LSS_SCI_FLUX_2D', 'LM_LSS_SCI_OBJ_MAP', 'LM_LSS_SCI_SKY_MAP'},
+        'metis_lm_lss_mf_correct': {'LM_LSS_SCI_1D', 'LM_LSS_SCI_2D', 'LM_LSS_SCI_FLUX_2D',
+                                    'LM_LSS_SCI_OBJ_MAP', 'LM_LSS_SCI_SKY_MAP'},
+        'metis_n_lss_trace': {'MEAN_N_LSS_RSRF', 'MEDIAN_N_LSS_RSRF'},
+        'metis_n_lss_std': {'MEAN_N_LSS_RSRF', 'MEDIAN_N_LSS_RSRF'},
+        'metis_n_lss_sci': {'ATM_LINE_CAT', 'MEAN_N_LSS_RSRF', 'MEDIAN_N_LSS_RSRF', 'N_LSS_STD_1D',
+                            'N_LSS_STD_OBJ_MAP', 'N_LSS_STD_SKY_MAP', 'N_LSS_TRACE'},
+        'metis_n_lss_mf_model': {'MASTER_N_RESPONSE', 'N_LSS_SCI_2D', 'N_LSS_SCI_FLUX_2D', 'N_LSS_SCI_OBJ_MAP',
+                                 'N_LSS_SCI_SKY_MAP', 'N_LSS_STD_1D', 'N_LSS_STD_OBJ_MAP', 'N_LSS_STD_SKY_MAP',
+                                 'STD_TRANSMISSION'},
+        'metis_n_lss_mf_correct': {'N_LSS_SCI_1D', 'N_LSS_SCI_2D', 'N_LSS_SCI_FLUX_2D',
+                                   'N_LSS_SCI_OBJ_MAP', 'N_LSS_SCI_SKY_MAP'},
+    }
 
-    def test_uses_all_input_frames(self, recipe, frameset):
+    def test_uses_all_input_frames(self, job, run, request):
+        """ Every frame EDPS associates for the task is one the recipe has an input for. """
         # FixMe this currently does not actually track usage, just loading
-        instance = recipe()
-        instance.run(frameset, {})
-        all_frames = {frame.file for frame in instance.implementation.inputset.frameset}
-        loaded_frames = {frame.file for frame in instance.implementation.inputset.valid_frames}
-        assert loaded_frames == all_frames, \
-            f"Frames are present in the SOF file but not used: {all_frames - loaded_frames}"
+        if job.task in self.TASKS_WITH_UNUSED_FRAMES:
+            request.applymarker(pytest.mark.xfail(
+                strict=False, reason="the EDPS task passes frames the recipe has no input for"))
+        loaded = {frame.file for frame in run.impl.inputset.valid_frames}
+        unused = sorted({tag for file, tag in job.frames() if file not in loaded})
+        assert not unused, \
+            f"{job.task} passes {job.recipe} frames it has no input for: {unused}"
 
-    def test_all_inputs_carry_complete_items(self, recipe, frameset):
-        instance = recipe()
-        instance.run(frameset, {})
-        for inp in instance.implementation.inputset.inputs:
+    def test_all_inputs_carry_complete_items(self, run):
+        for inp in run.impl.inputset.inputs:
             item = inp.Item
             assert item is not None, f"Input {inp} has no associated data item"
             assert isinstance(item.name(), str)
@@ -253,11 +324,21 @@ class TestRecipeOnDefaultData:
             assert all(isinstance(kw, str) for kw in item.oca_keywords())
 
     @pytest.mark.inputset
-    def test_input_set_loads_and_validates(self, recipe, frameset):
-        instance = recipe.Impl.InputSet(frameset)
+    def test_input_set_loads_and_validates(self, job):
+        instance = Recipe._registry[job.recipe].Impl.InputSet(load_frameset(job))
         assert isinstance(instance.inputs, tuple)
         for name, attr in instance.__dict__.items():
             if isinstance(attr, PipelineInput):
                 assert attr in instance.inputs, f"Input {name} is not registered in inputs"
         assert all(inp.Item is not None for inp in instance.inputs)
         assert instance.validate() is None
+
+    @pytest.mark.pyesorex
+    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, job):
+        """ A second full run of the recipe, through the pyesorex executable this time. """
+        with tempfile.TemporaryDirectory(prefix=f"{job.task}-") as directory:
+            output = subprocess.run(['pyesorex', job.recipe, job.sof, '--log-level', 'DEBUG'],
+                                    capture_output=True, cwd=directory,
+                                    env=os.environ | {'PYESOREX_OUTPUT_DIR': directory})
+        assert output.returncode == 0, f"Pyesorex exited with {output.returncode}"
+        assert output.stderr == b"", f"Pyesorex exited with non-empty stderr: {output.stderr}"

@@ -17,33 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
 
-from pymetis.instruments.metis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluric as Recipe,
-                                                    MetisIfuTelluricImpl as Impl)
-from tests.classes import TargetParamRecipeTest, BaseInputSetTest, BaseProductSetTest
-
-
-recipe_name = r'metis_ifu_telluric'
-
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return f'{name}.std.sof'
-
-
-class TestRecipe(TargetParamRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    Recipe = Recipe
-
-
-class TestInputSet(BaseInputSetTest):
-    Impl = Impl
+from pymetis.instruments.metis.recipes.ifu.metis_ifu_telluric import (MetisIfuTelluricImpl as Impl)
+from tests.classes import BaseProductSetTest
 
 
 class TestProductSetFluxcalTab(BaseProductSetTest):

@@ -1,10 +1,6 @@
-from .recipe import BaseRecipeTest, BandParamRecipeTest, TargetParamRecipeTest
-from .inputset import BaseInputSetTest, RawInputSetTest
-from .product import BaseProductSetTest
+from .product import BaseProductSetTest, ImageProductSetTest, TableProductSetTest
 
 
 __all__ = [
-    BaseRecipeTest, BandParamRecipeTest, TargetParamRecipeTest,
-    BaseInputSetTest, RawInputSetTest,
-    BaseProductSetTest
+    'BaseProductSetTest', 'ImageProductSetTest', 'TableProductSetTest',
 ]

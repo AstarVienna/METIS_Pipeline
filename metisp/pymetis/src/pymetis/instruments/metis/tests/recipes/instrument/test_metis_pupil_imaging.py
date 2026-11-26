@@ -17,51 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
 
-from pymetis.instruments.metis.recipes.instrument.metis_pupil_imaging import (MetisPupilImaging as Recipe,
-                                                            MetisPupilImagingImpl as Impl)
-from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
-
-
-recipe_name = r'metis_pupil_imaging'
-bands = ['lm', 'n']
-
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.lm.sof'
-
-
-class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    Recipe = Recipe
-
-    @pytest.mark.external
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in bands])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
-
-    @pytest.mark.external
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in bands])
-    def test_recipe_can_be_run_directly(self, load_frameset, sof):
-        frameset = load_frameset(sof)
-        super().test_recipe_can_be_run_directly(frameset)
-
-    @pytest.mark.external
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{band}.sof" for band in bands])
-    def test_uses_all_input_frames(self, load_frameset, sof):
-        frameset = load_frameset(sof)
-        super().test_uses_all_input_frames(frameset)
-
-
-class TestInputSet(BaseInputSetTest):
-    Impl = Impl
+from pymetis.instruments.metis.recipes.instrument.metis_pupil_imaging import (MetisPupilImagingImpl as Impl)
+from tests.classes import BaseProductSetTest
 
 
 class TestProductSet(BaseProductSetTest):

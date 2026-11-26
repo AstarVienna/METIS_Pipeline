@@ -22,6 +22,8 @@ import pytest
 import os
 import subprocess
 
+from tests.data import SIM_DATA
+
 
 @pytest.fixture(autouse=True, scope="module")
 def reset_edps():
@@ -50,7 +52,7 @@ class TestEDPS:
     @pytest.mark.parametrize('workflow_name', workflows)
     def test_does_edps_classify(self, workflow_name, reset_edps):
         reset_edps()
-        output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', os.path.expandvars('$SOF_DATA'), '-c'],
+        output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', SIM_DATA, '-c'],
                                 capture_output=True)
         message = str(output.stdout.decode('utf8'))
         assert output.returncode == 0, f"EDPS exited with a non-zero return code {output.returncode}"
@@ -60,7 +62,7 @@ class TestEDPS:
     @pytest.mark.parametrize('workflow_name', workflows)
     def test_does_edps_run(self, workflow_name, reset_edps):
         reset_edps()
-        output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', os.path.expandvars('$SOF_DATA')],
+        output = subprocess.run(['edps', '-w', f'metis.{workflow_name}', '-i', SIM_DATA],
                                 capture_output=True)
         message = str(output.stdout.decode('utf8'))
         assert output.returncode == 0, \

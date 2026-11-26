@@ -50,14 +50,17 @@ class TestConfigured:
         assert RawInput.__name__ == 'RawInput', \
             "Could not import the pipeline, review your PYTHONPATH"
 
-    def test_is_sof_data_set(self):
+    @pytest.mark.external
+    def test_is_simulated_data_present(self):
         """
-        You need to point `pyesorex` to the SOF data (setting the `SOF_DATA` environment variable),
-        by default to `../METIS_Simulations/ESO/output/`.
-        Maybe this can be set for every run though?
+        The data-driven tests replay an EDPS run over the output of METIS_Simulations;
+        see `tests/data.py` for the two locations and how to override them.
         """
-        assert os.environ['SOF_DATA'] is not None, \
-            "Environment variable `SOF_DATA` is not defined"
+        from tests.data import SIM_DATA, EDPS_DATA, edps_jobs
+        assert SIM_DATA.is_dir(), \
+            f"No simulated data at {SIM_DATA}; set `METIS_SIM_DATA`"
+        assert edps_jobs(), \
+            f"No EDPS jobs under {EDPS_DATA}; run `edps -w metis.metis_wkf -i {SIM_DATA}` first"
 
     def test_is_recipe_dir_set(self):
         assert os.environ['PYESOREX_PLUGIN_DIR'] is not None, \

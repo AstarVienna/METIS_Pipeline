@@ -17,33 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
 
-from pymetis.instruments.metis.recipes.metis_det_lingain import (MetisDetLinGain as Recipe,
-                                                                 MetisDetLinGainImpl as Impl)
-from tests.classes import RawInputSetTest, BandParamRecipeTest
+from pymetis.instruments.metis.recipes.metis_det_lingain import (MetisDetLinGainImpl as Impl)
 from tests.classes.product import ImageProductSetTest, TableProductSetTest
-
-recipe_name = r'metis_det_lingain'
-
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.ifu.sof'
-
-
-class TestRecipe(BandParamRecipeTest):
-    """ A bunch of extremely simple and stupid test cases... just to see if it does something """
-    Recipe = Recipe
-
-
-class TestInputSet(RawInputSetTest):
-    Impl = Impl
 
 
 class TestProductGain(TableProductSetTest):

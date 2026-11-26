@@ -17,33 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
 
-from pymetis.instruments.metis.recipes.cal.metis_cal_chophome import (MetisCalChophome as Recipe,
-                                                    MetisCalChophomeImpl as Impl)
-from tests.classes import BaseInputSetTest, BaseRecipeTest, BaseProductSetTest
+from pymetis.instruments.metis.recipes.cal.metis_cal_chophome import (MetisCalChophomeImpl as Impl)
+from tests.classes import BaseProductSetTest
 from tests.classes.product import ImageProductSetTest
-
-recipe_name = r'metis_cal_chophome'
-
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.sof'
-
-
-class TestRecipe(BaseRecipeTest):
-    """ A bunch of extremely simple test cases... just to see if it does something """
-    Recipe = Recipe
-
-
-class TestInputSet(BaseInputSetTest):
-    Impl = Impl
 
 
 class TestProductSetCombined(BaseProductSetTest):

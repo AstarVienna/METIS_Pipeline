@@ -17,33 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
 
-from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrf as Recipe,
-                                                MetisIfuRsrfImpl as Impl)
-from tests.classes import BaseRecipeTest, BaseProductSetTest, RawInputSetTest
-
-recipe_name = r'metis_ifu_rsrf'
-
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return f'{name}.sof'
-
-
-@pytest.mark.slow
-class TestRecipe(BaseRecipeTest):
-    """A bunch of extremely simple and stupid test cases... just to see if it does something."""
-    Recipe = Recipe
-
-
-class TestInputSet(RawInputSetTest):
-    Impl = Impl
+from pymetis.instruments.metis.recipes.ifu.metis_ifu_rsrf import (MetisIfuRsrfImpl as Impl)
+from tests.classes import BaseProductSetTest
 
 
 class TestProductSetRsrfBackground(BaseProductSetTest):

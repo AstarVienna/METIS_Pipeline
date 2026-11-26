@@ -21,28 +21,11 @@ import pytest
 
 import cpl
 
-from pymetis.instruments.metis.recipes.metis_det_dark import (MetisDetDark as Recipe,
-                                                              MetisDetDarkImpl as Impl)
-from tests.classes import BandParamRecipeTest, RawInputSetTest
+from pymetis.instruments.metis.recipes.metis_det_dark import (MetisDetDarkImpl as Impl)
 from tests.classes.product import ImageProductSetTest
 
-recipe_name = r'metis_det_dark'
 
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.ifu.sof'
-
-
-class TestRecipe(BandParamRecipeTest):
-    """ A bunch of simple and stupid test cases... just to see if it does something """
-    Recipe = Recipe
-
+class TestInputClassification:
     @staticmethod
     def _frameset(directory, *tags: str) -> cpl.ui.FrameSet:
         """ One (empty) FITS file per tag; classification and validation never open them. """
@@ -67,11 +50,5 @@ class TestRecipe(BandParamRecipeTest):
             inputset.validate()
 
 
-class TestInputSet(RawInputSetTest):
-    Impl = Impl
-
-
 class TestProduct(ImageProductSetTest):
     Product = Impl.ProductSet.MasterDark
-
-

@@ -22,30 +22,11 @@ import types
 import cpl
 import pytest
 
-from pymetis.instruments.metis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortion as Recipe,
-                                                      MetisIfuDistortionImpl as Impl)
-from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
+from pymetis.instruments.metis.recipes.ifu.metis_ifu_distortion import (MetisIfuDistortionImpl as Impl)
+from tests.classes import BaseProductSetTest
 
 
 recipe_name = r'metis_ifu_distortion'
-
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.sof'
-
-
-class TestRecipe(BaseRecipeTest):
-    Recipe = Recipe
-
-
-class TestInputSet(BaseInputSetTest):
-    Impl = Impl
 
 
 class TestProductSetDistortionTable(BaseProductSetTest):

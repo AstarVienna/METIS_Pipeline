@@ -17,39 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
 
-from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduce as Recipe,
-                                                              MetisLmImgBasicReduceImpl as Impl)
-from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
-
-
-recipe_name = r'metis_lm_img_basic_reduce'
-targets = [r'sci', r'sky', r'std']
-
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.sci.sof'
-
-
-class TestRecipe(BaseRecipeTest):
-    Recipe = Recipe
-
-    @pytest.mark.pyesorex
-    @pytest.mark.external
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
-
-
-class TestInputSet(BaseInputSetTest):
-    Impl = Impl
+from pymetis.instruments.metis.recipes.lm_img.metis_lm_img_basic_reduce import (MetisLmImgBasicReduceImpl as Impl)
+from tests.classes import BaseProductSetTest
 
 
 class TestProductSet(BaseProductSetTest):

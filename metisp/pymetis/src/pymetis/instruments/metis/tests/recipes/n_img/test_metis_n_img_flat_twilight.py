@@ -17,39 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
 
-from pymetis.instruments.metis.recipes.n_img.metis_n_img_flat_twilight import (MetisNImgFlatTwilight as Recipe,
-                                                                      MetisNImgFlatTwilightImpl as Impl)
-from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
-
-
-recipe_name = r'metis_n_img_flat_twilight'
-targets = ['twilight']
-
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.lamp.sof'
-
-
-class TestRecipe(BaseRecipeTest):
-    Recipe = Recipe
-
-    @pytest.mark.pyesorex
-    @pytest.mark.external
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
-
-
-class TestInputSet(BaseInputSetTest):
-    Impl = Impl
+from pymetis.instruments.metis.recipes.n_img.metis_n_img_flat_twilight import (MetisNImgFlatTwilightImpl as Impl)
+from tests.classes import BaseProductSetTest
 
 
 class TestProductSet(BaseProductSetTest):

@@ -139,9 +139,9 @@ Worked example — `pyesorex metis_lm_img_flat` from import to product file:
    Every parameter name must be prefixed `"<recipe_name>."`.
 4. Register it: add the import to `instruments/metis/recipes/__init__.py`.
    pyesorex discovers recipes only through that module.
-5. Add a SOF file `<recipe>.sof` to the test data if applicable; the shared
-   test module picks it up. A test module of your own is needed only for
-   per-band/per-target SOFs or recipe-specific tests (see Testing below).
+5. Add a task for it to the EDPS workflow. The shared test module then tests
+   the recipe on every job EDPS runs for it; a test module of your own is
+   needed only for recipe-specific tests (see Testing below).
 6. Check the man page: `pyesorex --man-page metis_<name>` — the Inputs,
    Outputs and QC sections are generated from your declarations — and the
    DRLD card: `python ../drld/generate_drld.py metis_<name>`.
@@ -214,25 +214,45 @@ input class must re-annotate the attribute; forgetting this raises a
 ## Testing
 
 ```sh
-SOF_DIR=<test-data>/sofFiles uv run python -m pytest src -q -m "not external and not edps"
+uv run python -m pytest src -q -m "not external and not edps"
 ```
 
 This is the same selection CI runs on every push/PR (`.github/workflows/ci.yaml`),
-together with `ruff check src`. Markers are declared in `pyproject.toml`;
-`external` needs full-size simulated data, `edps` marks the slow EDPS runs
-(exercised by the nightly `run_edps.yaml`).
+together with `ruff check src`. It needs no data. Markers are declared in
+`pyproject.toml`; `external` needs simulated data, `edps` marks the tests that
+run whole EDPS workflows themselves.
 
 Every registered recipe is tested automatically:
 `instruments/metis/tests/test_registered_recipes.py` iterates `Recipe._registry`
 and enforces the project conventions (author format, parameter-name prefixes,
 mandatory `_algorithm`/`_matched_keywords`, a renderable man page, product
-frame types) for all recipes, and runs the data-dependent checks on
-`<recipe>.sof` from `$SOF_DIR` where that file exists. A recipe needs its own
-module under `instruments/metis/tests/recipes/` only when its SOFs are named
-per band or target (subclass `BaseRecipeTest`/`BandParamRecipeTest`/
-`TargetParamRecipeTest` and `BaseInputSetTest` from `tests.classes`, pointing
-them at your Recipe/Impl and naming the SOF) or when it has recipe-specific
-tests to add.
+frame types) for all recipes. A recipe needs its own module under
+`instruments/metis/tests/recipes/` only for recipe-specific tests.
+
+### Tests on simulated data
+
+The `external` tests work on the full-size output of METIS_Simulations. That
+output has raw frames and external calibrations only, no SOF files and no
+intermediate products, so the tests do not assemble inputs themselves: they
+replay the jobs of an EDPS run. EDPS leaves `input.sof` and `cmdline.sh` in
+`<base_dir>/METIS/<task>/<uuid>/` for every job; `tests/data.py` collects them
+and `TestRecipeOnEdpsJobs` runs each job's recipe on its frames, once in-process
+and once through `pyesorex`. A recipe is therefore tested for every band, target
+and setup the workflow feeds it, and a recipe no EDPS task reaches shows up as
+skipped.
+
+```sh
+edps -shutdown; rm -rf ~/EDPS_data/*
+edps -w metis.metis_wkf -i ~/astar/simulations/output/ESO     # about half an hour
+uv run python -m pytest src -q -m "external and not edps"     # about 15 minutes
+uv run python -m pytest src -q -m "external and not pyesorex and not edps" -k metis_lm_img
+```
+
+The locations default to `~/astar/simulations/output/ESO` and to `base_dir` of
+`~/.edps/application.properties`; override them with `METIS_SIM_DATA` and
+`METIS_EDPS_DATA`. The SOFs carry absolute paths into both, so the tests skip
+once either has been removed. This setup is tied to a machine that has the
+simulations; CI does not run it.
 
 ### Caveats
 

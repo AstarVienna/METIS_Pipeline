@@ -17,39 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
-import pytest
 
-from pymetis.instruments.metis.recipes.n_img.metis_n_img_chopnod import (MetisNImgChopnod as Recipe,
-                                                                         MetisNImgChopnodImpl as Impl)
-from tests.classes import BaseRecipeTest, BaseInputSetTest, BaseProductSetTest
-
-
-recipe_name = r'metis_n_img_chopnod'
-targets = [r'sci', r'std']
-
-
-@pytest.fixture
-def name() -> str:
-    return recipe_name
-
-
-@pytest.fixture
-def sof(name: str) -> str:
-    return rf'{name}.std.sof'
-
-
-class TestRecipe(BaseRecipeTest):
-    Recipe = Recipe
-
-    @pytest.mark.pyesorex
-    @pytest.mark.external
-    @pytest.mark.parametrize("sof", [f"{recipe_name}.{target}.sof" for target in targets])
-    def test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(self, name, sof, create_pyesorex):
-        super().test_pyesorex_runs_with_zero_exit_code_and_empty_stderr(name, sof, create_pyesorex)
-
-
-class TestInputSet(BaseInputSetTest):
-    Impl = Impl
+from pymetis.instruments.metis.recipes.n_img.metis_n_img_chopnod import (MetisNImgChopnodImpl as Impl)
+from tests.classes import BaseProductSetTest
 
 
 class TestProductSetMasterFlat(BaseProductSetTest):
