@@ -4,7 +4,7 @@ Numerical tests of `pymetis.drl.combine`: the stacking that every recipe relies 
 import numpy as np
 import pytest
 from cpl.core import Image as CplImage, ImageList as CplImageList
-from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
+from hdrl.core import Image as HdrlImage
 
 from pymetis.drl.combine import combine_images, combine_images_cpl, combine_images_hdrl
 from pymetis.drl.noise import estimate_noise_list
