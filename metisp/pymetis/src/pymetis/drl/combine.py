@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """
 
+import cpl
 from cpl.core import Image as CplImage, ImageList as CplImageList, Msg
 from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 #import hdrl
@@ -24,12 +25,21 @@ from hdrl.core import Image as HdrlImage, ImageList as HdrlImageList
 from typing import Literal, Optional
 
 CombineMethodType = Literal['add', 'average', 'median', 'sigclip']
-
+SigClipKwargsCPL = frozenset({"kappalow", "kappahigh", "keepfrac", "mode"})
+SigClipKwargsHDRL = frozenset({"kappa_low", "kappa_high", "niter"})
 
 def combine_images_hdrl(
         images: HdrlImageList,
-        method: CombineMethodType
+        method: CombineMethodType,
+        **kwargs,
 ) -> HdrlImage:
+
+    if kwargs and method != "sigclip":
+        raise TypeError(
+            f"combine_images_hdrl: keyword arguments {sorted(kwargs)} are only "
+            f"accepted by method 'sigclip', not {method!r}"
+        )
+
     Msg.info("combine_images_hdrl",
              f"Combining HDRL {len(images)} images using method {method!r}")
     combined_image: Optional[HdrlImage] = None
@@ -47,7 +57,14 @@ def combine_images_hdrl(
         case "median":
             combined_image, coverage_map = images.collapse_median()
         case "sigclip":
-            combined_image, coverage_map = images.collapse_sigclip()
+            # checking kwargs input
+            missing = SigClipKwargsHDRL - kwargs.keys()
+            unknown = kwargs.keys() - SigClipKwargsHDRL
+            if missing or unknown:
+                raise TypeError(f"combine_images_hdrl: sigclip needs exactly {sorted(SigClipKwargsHDRL)}")
+
+            result = images.collapse_sigclip(**kwargs)
+            combined_image = result.out
         case _:
             raise ValueError(f"Unknown stacking method {method!r}")
 
@@ -57,7 +74,8 @@ def combine_images_hdrl(
 
 def combine_images_cpl(
         images: CplImageList,
-        method: CombineMethodType
+        method: CombineMethodType,
+        **kwargs
 ) -> CplImage:
     """
     Basic helper method to combine images using one of `add`, `average`, `median` or `sigclip`.
@@ -69,6 +87,12 @@ def combine_images_cpl(
         If an unknown combine method is used.
 
     """
+    if kwargs and method != "sigclip":
+        raise TypeError(
+            f"combine_images_cpl: keyword arguments {sorted(kwargs)} are only "
+            f"accepted by method 'sigclip', not {method!r}"
+        )
+
     Msg.info("combine_images_cpl",
              f"Combining CPL {len(images)} images using method {method!r}")
     combined_image: Optional[CplImage] = None
@@ -85,7 +109,19 @@ def combine_images_cpl(
         case "median":
             combined_image = images.collapse_median_create()
         case "sigclip":
-            combined_image = images.collapse_sigclip_create()
+            # checking kwargs input
+            missing = SigClipKwargsCPL - kwargs.keys()
+            unknown = kwargs.keys() - SigClipKwargsCPL
+            if missing or unknown:
+                raise TypeError(f"combine_images_cpl: sigclip needs exactly {sorted(SigClipKwargsCPL)}")
+
+            mode = cpl.core.ImageList.Collapse.__members__[kwargs['mode'].upper()]
+            combined_image, coverage_map = images.collapse_sigclip_create(
+                kappalow=kwargs['kappalow'],
+                kappahigh=kwargs['kappahigh'],
+                keepfrac=kwargs['keepfrac'],
+                mode=mode,
+                )
         case _:
             raise ValueError(f"Unknown stacking method {method!r}")
 
@@ -93,7 +129,8 @@ def combine_images_cpl(
 
 def combine_images(
         images: CplImageList | HdrlImageList,
-        method: CombineMethodType
+        method: CombineMethodType,
+        **kwargs
 ) -> CplImage | HdrlImage:
     """
     Basic helper method to combine images using one of `add`, `average`, `median` or `sigclip`.
@@ -113,9 +150,9 @@ def combine_images(
              f"Combining {len(images)} images using method {method!r}")
 
     if isinstance(images, HdrlImageList):
-        combined_image = combine_images_hdrl(images, method)
+        combined_image = combine_images_hdrl(images, method, **kwargs)
     elif isinstance(images, CplImageList):
-        combined_image = combine_images_cpl(images, method)
+        combined_image = combine_images_cpl(images, method, **kwargs)
     else:
         raise ValueError(f"Unknown input type {type(images)}")
 
